@@ -24,7 +24,7 @@ pdfminer.six
 # -----------------------------------------------------------------------------
 # Pin specific versions for Docker builds
 Pillow==11.1.0
-fastapi==0.112.2
+fastapi==0.128.0
 # Note: requests/urllib3 versions constrained by Odoo's requirements.txt
 
 # Excel support (xlrd is used by spp_manual_entitlement)
