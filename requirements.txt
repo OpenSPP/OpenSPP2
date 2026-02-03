@@ -9,7 +9,7 @@ cryptography
 extendable-pydantic
 extendable-pydantic>=1.2.0
 extendable>=0.0.4
-extendable_pydantic==1.3.0
+extendable_pydantic==1.4.1
 faker
 fastapi>=0.110.0
 freezegun>=1.2.0
