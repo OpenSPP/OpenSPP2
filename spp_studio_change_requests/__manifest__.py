@@ -1,6 +1,6 @@
 {
     "name": "OpenSPP Studio - Change Requests",
-    "version": "19.0.1.0.0",
+    "version": "19.0.2.0.0",
     "category": "OpenSPP/Configuration",
     "summary": "No-code change request type builder",
     "description": """

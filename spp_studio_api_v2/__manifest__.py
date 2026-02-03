@@ -1,7 +1,7 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 {
     "name": "OpenSPP Studio API v2 Integration",
-    "version": "19.0.1.0.0",
+    "version": "19.0.2.0.0",
     "category": "OpenSPP",
     "summary": "Bridge Studio custom fields and variables with API v2",
     "author": "OpenSPP.org",

@@ -6,7 +6,7 @@
     "name": "OpenSPP Area Management",
     "summary": "Establishes direct associations between OpenSPP registrants, beneficiary groups, and their corresponding geographical administrative areas. It validates registrant-area linkages against official area types, ensuring data integrity and enabling targeted program delivery and analysis.",
     "category": "OpenSPP/Core",
-    "version": "19.0.1.3.1",
+    "version": "19.0.2.0.0",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/openspp-modules",

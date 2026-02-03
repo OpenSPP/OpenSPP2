@@ -4,7 +4,7 @@
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/openspp-modules",
     "category": "OpenSPP",
-    "version": "19.0.1.3.1",
+    "version": "19.0.2.0.0",
     "depends": [
         "base",
         "web",

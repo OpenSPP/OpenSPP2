@@ -1,6 +1,6 @@
 {
     "name": "OpenSPP GIS Reports",
-    "version": "19.0.1.0.0",
+    "version": "19.0.2.0.0",
     "category": "OpenSPP",
     "summary": "Geographic visualization and reporting for social protection data",
     "description": """

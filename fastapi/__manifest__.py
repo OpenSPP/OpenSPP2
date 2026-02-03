@@ -7,7 +7,7 @@
     "category": "Hidden",
     "summary": """
         Odoo FastAPI endpoint""",
-    "version": "19.0.3.2.0",
+    "version": "19.0.2.0.0",
     "license": "LGPL-3",
     "author": "ACSONE SA/NV,Odoo Community Association (OCA)",
     "maintainers": ["lmignon"],

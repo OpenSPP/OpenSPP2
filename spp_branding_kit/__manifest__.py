@@ -1,7 +1,7 @@
 # pylint: disable=pointless-statement
 {
     "name": "OpenSPP Branding Kit",
-    "version": "19.0.1.4.0",
+    "version": "19.0.2.0.0",
     "summary": "Branding customization, URL routing and telemetry management for OpenSPP",
     "description": """
         OpenSPP Branding Kit

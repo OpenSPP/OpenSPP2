@@ -2,7 +2,7 @@
 {
     "name": "CEL Registry Search",
     "summary": "Search the registry using CEL expressions",
-    "version": "19.0.1.0.0",
+    "version": "19.0.2.0.0",
     "license": "LGPL-3",
     "development_status": "Alpha",
     "author": "OpenSPP Community",

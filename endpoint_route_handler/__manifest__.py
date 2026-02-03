@@ -6,7 +6,7 @@
     "name": "Endpoint route handler",
     "category": "Hidden",
     "summary": """Provide mixin and tool to generate custom endpoints on the fly.""",
-    "version": "19.0.1.1.0",
+    "version": "19.0.2.0.0",
     "license": "LGPL-3",
     "development_status": "Alpha",
     "author": "Camptocamp,Odoo Community Association (OCA)",

@@ -4,7 +4,7 @@
     "name": "OpenSPP Custom Fields",
     "summary": "The module enables administrators to define and add custom data fields directly to registrant profiles, tailoring data collection for specific social protection programs. It supports field differentiation by registrant type, integrates new data points into records, and provides dedicated sections for read-only program indicators.",
     "category": "OpenSPP/Configuration",
-    "version": "19.0.1.3.1",
+    "version": "19.0.2.0.0",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/openspp-modules",

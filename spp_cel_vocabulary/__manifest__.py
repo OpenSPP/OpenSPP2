@@ -2,7 +2,7 @@
 {
     "name": "OpenSPP CEL Vocabulary Integration",
     "summary": "Vocabulary-aware CEL functions for robust eligibility rules",
-    "version": "19.0.1.0.0",
+    "version": "19.0.2.0.0",
     "category": "OpenSPP",
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/openspp-modules",
