@@ -1,25 +1,78 @@
 # OpenSPP
 
-Open-source Social Protection Platform built on [Odoo 19](https://www.odoo.com/).
+[![CI](https://github.com/OpenSPP/OpenSPP2/actions/workflows/ci.yml/badge.svg)](https://github.com/OpenSPP/OpenSPP2/actions/workflows/ci.yml)
+[![pre-commit](https://github.com/OpenSPP/OpenSPP2/actions/workflows/pre-commit.yml/badge.svg)](https://github.com/OpenSPP/OpenSPP2/actions/workflows/pre-commit.yml)
+[![License: LGPL-3](https://img.shields.io/badge/License-LGPL--3-blue.svg)](LICENSE)
+[![Odoo](https://img.shields.io/badge/Odoo-19.0-875A7B.svg)](https://www.odoo.com/)
+
+**Open-source Social Protection Platform** for managing beneficiary registries, cash transfer programs, in-kind distribution, and grievance redressal at scale.
+
+Built on [Odoo 19](https://www.odoo.com/) | [Documentation](https://docs.openspp.org) | [Website](https://openspp.org)
+
+---
+
+## Key Features
+
+- **Social Registry** - Unified beneficiary database for individuals and households with deduplication
+- **Program Management** - Configure eligibility rules, enrollment cycles, and benefit calculations
+- **Cash & In-Kind Transfers** - Manage entitlements with payment integration and inventory tracking
+- **Consent Management** - DPV-aligned consent lifecycle with GDPR-compliant audit trails
+- **Approval Workflows** - Multi-tier approval chains with CEL-based business rules
+- **Change Requests** - Auditable data update workflows with conflict detection
+- **GIS Integration** - Geographic visualization, admin boundary management, HDX integration
+- **Grievance Redressal** - Track and resolve beneficiary complaints through customizable stages
+- **Disaster Response (DRIMS)** - Inventory management for emergency relief distribution
+- **REST API v2** - Standards-aligned API with consent-aware data sharing
+- **DCI Interoperability** - Connect to CRVS, identity systems, and other registries
+- **No-Code Studio** - Configure custom fields, events, and change requests without coding
+- **Audit Trail** - Comprehensive logging with tamper-resistant backends
 
 ## Quick Start
 
 ```bash
-# Clone this repository
 git clone https://github.com/OpenSPP/OpenSPP2.git
 cd OpenSPP2
-
-# Start with Docker Compose
 docker compose --profile ui up -d
-
-# Access at http://localhost:8069 (admin/admin)
 ```
+
+Access at **http://localhost:8069** (login: `admin` / password: `admin`)
+
+### Demo Options
+
+| Demo | Command | Description |
+|------|---------|-------------|
+| **SP-MIS** | `ODOO_INIT_MODULES=spp_mis_demo_v2 docker compose --profile ui up -d` | Full social protection MIS with sample programs |
+| **DRIMS** | `ODOO_INIT_MODULES=spp_drims_sl_demo docker compose --profile ui up -d` | Disaster relief inventory (Sri Lanka config) |
+| **Social Registry** | `ODOO_INIT_MODULES=spp_starter_social_registry docker compose --profile ui up -d` | Social registry only |
+
+### Reset Database
+
+```bash
+docker compose --profile ui down -v
+```
+
+## Architecture
+
+OpenSPP follows a layered architecture:
+
+| Layer | Modules | Purpose |
+|-------|---------|---------|
+| **Foundation** | `spp_registry`, `spp_security`, `spp_area` | Core data models and security |
+| **Capabilities** | `spp_programs`, `spp_approval`, `spp_change_request_v2` | Business logic and workflows |
+| **Integration** | `spp_api_v2`, `spp_dci_*` | External system connectivity |
+| **Extensions** | `spp_drims`, `spp_grm`, `spp_gis` | Domain-specific features |
+
+## Documentation
+
+- **[Getting Started Guide](https://docs.openspp.org/getting-started/)**
+- **[Module Reference](https://docs.openspp.org/modules/)**
+- **[API Documentation](https://docs.openspp.org/api/)**
+- **[Developer Guide](https://docs.openspp.org/development/)**
 
 ## External Dependencies
 
-This repository requires additional OCA and third-party modules.
-See [EXTERNAL_DEPENDENCIES.md](EXTERNAL_DEPENDENCIES.md) for details.
-The Docker setup handles these automatically.
+OpenSPP requires OCA and third-party modules listed in [EXTERNAL_DEPENDENCIES.md](EXTERNAL_DEPENDENCIES.md).
+The Docker setup fetches these automatically.
 
 ## Available addons
 
@@ -99,6 +152,19 @@ addon | version | maintainers | summary
 
 [//]: # (end addons)
 
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guide](https://docs.openspp.org/contributing/) for details.
+
+- **Report bugs** - [Open an issue](https://github.com/OpenSPP/OpenSPP2/issues/new)
+- **Request features** - [Start a discussion](https://github.com/OpenSPP/OpenSPP2/discussions)
+- **Submit PRs** - Fork, branch, and open a pull request
+
+## Acknowledgments
+
+OpenSPP includes code originally developed by the [OpenG2P](https://openg2p.org/) project. We thank all contributors to both projects.
+See [CONTRIBUTORS.md](CONTRIBUTORS.md) for the full list.
+
 ## License
 
-LGPL-3. See [LICENSE](LICENSE) for details.
+[LGPL-3.0](LICENSE) - This is free and open-source software.
