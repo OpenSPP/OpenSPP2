@@ -7,8 +7,6 @@ exclude: |
   ^setup/|/static/description/index\.html$|
   # We don't want to mess with tool-generated files
   .svg$|/tests/([^/]+/)?cassettes/|^.copier-answers.yml$|^.github/|^eslint.config.cjs|^prettier.config.cjs|
-  # Maybe reactivate this when all README files include prettier ignore tags?
-  ^README\.md$|
   # Library files can have extraneous formatting (even minimized)
   /static/(src/)?lib/|
   # Repos using Sphinx to generate docs don't need prettying
@@ -64,6 +62,7 @@ repos:
         manual: true
       - id: oca-gen-external-dependencies
         manual: true
+      - id: oca-gen-addons-table
   - repo: https://github.com/OCA/odoo-pre-commit-hooks
     rev: v0.1.7
     hooks:
