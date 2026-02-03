@@ -4,7 +4,7 @@
     "version": "19.0.2.0.0",
     "category": "OpenSPP/Integration",
     "author": "OpenSPP.org",
-    "website": "https://github.com/OpenSPP/openspp-modules",
+    "website": "https://docs.openspp.org",
     "license": "LGPL-3",
     "development_status": "Alpha",
     "depends": ["base", "fastapi", "queue_job", "spp_dci", "spp_dci_client", "spp_api_v2"],

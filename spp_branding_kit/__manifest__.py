@@ -24,7 +24,7 @@
         - URL router patching for branded URLs
     """,
     "author": "OpenSPP Project",
-    "website": "https://github.com/OpenSPP/openspp-modules",
+    "website": "https://docs.openspp.org",
     "license": "LGPL-3",
     "category": "Theme/Backend",
     "development_status": "Beta",

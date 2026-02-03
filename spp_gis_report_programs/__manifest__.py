@@ -15,7 +15,7 @@ are installed. It adds:
 * View extensions to show program selector
     """,
     "author": "OpenSPP",
-    "website": "https://github.com/OpenSPP/openspp-modules",
+    "website": "https://docs.openspp.org",
     "license": "LGPL-3",
     "depends": [
         "spp_gis_report",

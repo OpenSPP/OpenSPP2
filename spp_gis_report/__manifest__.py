@@ -27,7 +27,7 @@ Pre-built Templates:
 * Demographics: Age, gender, disability distributions
     """,
     "author": "OpenSPP",
-    "website": "https://github.com/OpenSPP/openspp-modules",
+    "website": "https://docs.openspp.org",
     "license": "LGPL-3",
     "development_status": "Stable",
     "depends": [

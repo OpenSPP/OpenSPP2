@@ -2,7 +2,7 @@
 {
     "name": "OpenSPP Theme",
     "author": "OpenSPP.org",
-    "website": "https://github.com/OpenSPP/openspp-modules",
+    "website": "https://docs.openspp.org",
     "category": "OpenSPP",
     "version": "19.0.2.0.0",
     "depends": [

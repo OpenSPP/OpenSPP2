@@ -5,7 +5,7 @@
     "category": "OpenSPP",
     "summary": "Bridge Studio custom fields and variables with API v2",
     "author": "OpenSPP.org",
-    "website": "https://github.com/OpenSPP/openspp-modules",
+    "website": "https://docs.openspp.org",
     "license": "LGPL-3",
     "depends": [
         "spp_api_v2",

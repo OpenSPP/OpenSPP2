@@ -11,7 +11,7 @@
     "development_status": "Alpha",
     "author": "Camptocamp,Odoo Community Association (OCA)",
     "maintainers": ["simahawk"],
-    "website": "https://github.com/OpenSPP/openspp-modules",
+    "website": "https://docs.openspp.org",
     "depends": ["base"],
     "data": [
         "security/ir.model.access.csv",

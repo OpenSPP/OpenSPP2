@@ -5,7 +5,7 @@
     "category": "OpenSPP",
     "summary": "Configuration-driven change request system with UX improvements, conflict detection and duplicate prevention",
     "author": "OpenSPP.org",
-    "website": "https://github.com/OpenSPP/openspp-modules",
+    "website": "https://docs.openspp.org",
     "license": "LGPL-3",
     "development_status": "Stable",
     "depends": [

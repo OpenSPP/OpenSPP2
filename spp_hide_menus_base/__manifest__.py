@@ -9,7 +9,7 @@
     "summary": "Administrators can manage the visibility of OpenSPP navigation menus, streamlining the user interface for specific user groups. The module modifies ir.ui.menu records to control menu visibility, providing a foundation for other modules to selectively hide non-essential navigation items.",
     "sequence": 1,
     "author": "OpenSPP.org",
-    "website": "https://github.com/OpenSPP/openspp-modules",
+    "website": "https://docs.openspp.org",
     "license": "LGPL-3",
     "development_status": "Stable",
     "maintainers": ["emjay0921", "jeremi"],

@@ -28,7 +28,7 @@ Use Cases:
 - Data collection campaigns
     """,
     "author": "OpenSPP.org",
-    "website": "https://github.com/OpenSPP/openspp-modules",
+    "website": "https://docs.openspp.org",
     "license": "LGPL-3",
     "development_status": "Stable",
     "depends": [

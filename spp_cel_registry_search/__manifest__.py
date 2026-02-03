@@ -6,7 +6,7 @@
     "license": "LGPL-3",
     "development_status": "Alpha",
     "author": "OpenSPP Community",
-    "website": "https://github.com/OpenSPP/openspp-modules",
+    "website": "https://docs.openspp.org",
     "category": "OpenSPP/Core",
     "depends": [
         "spp_registry",
