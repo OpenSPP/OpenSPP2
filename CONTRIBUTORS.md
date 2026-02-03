@@ -1,7 +1,8 @@
 # Contributors
 
-OpenSPP builds on the foundation of [OpenG2P](https://github.com/OpenG2P).
-We thank all contributors to both projects.
+OpenSPP and [OpenG2P](https://github.com/OpenG2P) share common origins and have collaborated over the years.
+Some code in this repository originated from early OpenG2P work, and OpenSPP contributions were later
+adopted into OpenG2P's current version. We thank all contributors to both projects.
 
 ## OpenSPP Contributors
 
@@ -43,8 +44,8 @@ We thank all contributors to both projects.
 [@vineela-afk](https://github.com/vineela-afk),
 [@vineela-ampili](https://github.com/vineela-ampili)
 
-## Acknowledgments
+## Code Origins
 
-This project was forked from:
+Some modules in this repository include code from:
 - [OpenG2P/openg2p-program](https://github.com/OpenG2P/openg2p-program)
 - [OpenG2P/openg2p-registry](https://github.com/OpenG2P/openg2p-registry)
