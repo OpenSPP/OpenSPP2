@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="0">
+    <!--
+    Demo Programs XML Data
+
+    Note: Programs are created via the wizard/generator to ensure proper
+    manager configuration. This file is reserved for any static data
+    that needs to be loaded at module installation.
+    -->
+
+    <!-- Program-related reference data can be added here if needed -->
+
+</odoo>

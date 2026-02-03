@@ -1,0 +1,293 @@
+# OpenSPP Access Management Compliance Specification
+# Module: spp_grm
+# Version: 1.0
+#
+# This file declares the expected access control configuration for this module.
+# Run: python -m scripts.compliance.checker spp_grm
+# Generate tests: python -m scripts.compliance.test_generator spp_grm
+
+module: spp_grm
+domain: grm
+version: "1.0"
+
+# =============================================================================
+# GROUP DEFINITIONS
+# Following ADR-004 Three-Tier Architecture
+# =============================================================================
+
+groups:
+  # --- Tier 3: Technical base groups ---
+  - id: group_grm_read
+    tier: 3
+    comment: "Technical group for read access to GRM models."
+
+  - id: group_grm_write
+    tier: 3
+    implied_ids: [group_grm_read]
+    comment: "Technical group for write access to GRM models."
+
+  # --- Tier 2: User-facing groups ---
+  - id: group_grm_viewer
+    tier: 2
+    privilege_id: privilege_grm_viewer
+    implied_ids: [group_grm_read]
+    comment: "Can view assigned GRM tickets only. Cannot modify data."
+
+  - id: group_grm_officer
+    tier: 2
+    privilege_id: privilege_grm_officer
+    implied_ids: [group_grm_viewer, group_grm_write]
+    comment: "Can create and edit own tickets, view team tickets. Cannot delete."
+
+  - id: group_grm_manager
+    tier: 2
+    privilege_id: privilege_grm_manager
+    implied_ids: [group_grm_officer]
+    comment: "Full GRM access including configuration and delete operations."
+
+  # --- Special role groups ---
+  - id: group_grm_supervisor
+    tier: 2
+    privilege_id: privilege_grm_supervisor
+    implied_ids: [group_grm_officer]
+    comment: "SPECIALIZED ROLE: Manage team tickets, approve resolutions. Between Officer and Manager."
+
+  # --- Backward compatibility ---
+  - id: group_grm_user
+    tier: 2
+    implied_ids: [group_grm_viewer]
+    comment: "Deprecated: Use group_grm_viewer instead. Kept for backward compatibility."
+
+# Admin linkage - manager group links to spp_security.group_spp_admin
+admin_link_group: group_grm_manager
+
+# =============================================================================
+# MODEL ACCESS (ir.model.access.csv)
+# Standard viewer/officer/manager pattern with base.group_user and portal access
+# =============================================================================
+
+model_access:
+  # Core ticket model - also accessible to base users and portal
+  - model: spp.grm.ticket
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  # Ticket stage - configuration model
+  - model: spp.grm.ticket.stage
+    viewer: [read]
+    officer: [read]
+    manager: [read, write, create, unlink]
+
+  # Ticket tags - officer can create
+  - model: spp.grm.ticket.tag
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  # Ticket channel - configuration model
+  - model: spp.grm.ticket.channel
+    viewer: [read]
+    officer: [read]
+    manager: [read, write, create, unlink]
+
+  # Ticket category - configuration model
+  - model: spp.grm.ticket.category
+    viewer: [read]
+    officer: [read]
+    manager: [read, write, create, unlink]
+
+  # Ticket subcategory - configuration model
+  - model: spp.grm.ticket.subcategory
+    viewer: [read]
+    officer: [read]
+    manager: [read, write, create, unlink]
+
+  # Team - configuration model
+  - model: spp.grm.team
+    viewer: [read]
+    officer: [read]
+    manager: [read, write, create, unlink]
+
+  # SLA rules - configuration model
+  - model: spp.grm.sla.rule
+    viewer: [read]
+    officer: [read]
+    manager: [read, write, create, unlink]
+
+# =============================================================================
+# RECORD RULES (ir.rule)
+# Data visibility rules based on group membership
+# =============================================================================
+
+record_rules:
+  # Viewer - only sees own assigned tickets
+  - id: rule_spp_grm_ticket_viewer
+    model: spp.grm.ticket
+    groups: [group_grm_viewer]
+    domain_description: "Viewer can only see tickets assigned to them"
+    perm_read: true
+    perm_write: false
+    perm_create: false
+    perm_unlink: false
+
+  # Officer - own tickets or team tickets
+  - id: rule_spp_grm_ticket_officer
+    model: spp.grm.ticket
+    groups: [group_grm_officer]
+    domain_description: "Officer can see own tickets and team tickets"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: false
+
+  # Supervisor - team tickets they supervise
+  - id: rule_spp_grm_ticket_supervisor
+    model: spp.grm.ticket
+    groups: [group_grm_supervisor]
+    domain_description: "Supervisor can see tickets for teams they manage"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: false
+
+  # Manager - full access to all tickets
+  - id: rule_spp_grm_ticket_manager
+    model: spp.grm.ticket
+    groups: [group_grm_manager]
+    domain_description: "Manager can see all tickets"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: true
+
+  # Team management - managers only
+  - id: rule_spp_grm_team_manager
+    model: spp.grm.team
+    groups: [group_grm_manager]
+    domain_description: "Manager has full access to teams"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: true
+
+  # Category management - managers only
+  - id: rule_spp_grm_ticket_category_manager
+    model: spp.grm.ticket.category
+    groups: [group_grm_manager]
+    domain_description: "Manager has full access to categories"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: true
+
+  # Stage management - managers only
+  - id: rule_spp_grm_ticket_stage_manager
+    model: spp.grm.ticket.stage
+    groups: [group_grm_manager]
+    domain_description: "Manager has full access to stages"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: true
+
+  # SLA rule management - managers only
+  - id: rule_spp_grm_sla_rule_manager
+    model: spp.grm.sla.rule
+    groups: [group_grm_manager]
+    domain_description: "Manager has full access to SLA rules"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: true
+
+# =============================================================================
+# MENU VISIBILITY
+# Which groups can see which menus
+# =============================================================================
+
+menus:
+  # Main GRM menu
+  - id: spp_grm_ticket_main_menu
+    name: "GRM"
+    groups: [] # No explicit restriction
+
+  # Tickets submenu
+  - id: spp_grm_ticket_menu
+    name: "Tickets"
+    parent: spp_grm_ticket_main_menu
+    groups: []
+
+  # Configuration submenu - managers only
+  - id: spp_grm_ticket_config_main_menu
+    name: "Configuration"
+    parent: spp_grm_ticket_main_menu
+    groups: [group_grm_manager]
+
+  - id: spp_grm_ticket_stage_menu
+    name: "Stages"
+    parent: spp_grm_ticket_config_main_menu
+    groups: []
+
+  - id: spp_grm_ticket_tag_menu
+    name: "Tags"
+    parent: spp_grm_ticket_config_main_menu
+    groups: []
+
+  - id: spp_grm_ticket_channel_menu
+    name: "Channels"
+    parent: spp_grm_ticket_config_main_menu
+    groups: []
+
+  - id: spp_grm_ticket_category_menu
+    name: "Categories"
+    parent: spp_grm_ticket_config_main_menu
+    groups: []
+
+  - id: spp_grm_ticket_subcategory_menu
+    name: "Subcategories"
+    parent: spp_grm_ticket_config_main_menu
+    groups: []
+
+  - id: spp_grm_team_menu
+    name: "Teams"
+    parent: spp_grm_ticket_config_main_menu
+    groups: []
+
+  - id: spp_grm_sla_rule_menu
+    name: "SLA Rules"
+    parent: spp_grm_ticket_config_main_menu
+    groups: []
+
+# =============================================================================
+# FIELD RESTRICTIONS
+# Fields with group-based visibility in views
+# =============================================================================
+
+field_restrictions: []
+
+# =============================================================================
+# ACTION RESTRICTIONS
+# Actions that are restricted to specific groups
+# =============================================================================
+
+actions: []
+# =============================================================================
+# NOTES
+# =============================================================================
+
+# Role Hierarchy:
+# - Viewer: Read-only access to assigned tickets
+# - Officer: Create/edit own tickets, view team tickets
+# - Supervisor: Manage team tickets, approve resolutions
+# - Manager: Full access including configuration and delete
+#
+# Additional Access:
+# - base.group_user: Read-only access to tickets (for internal users)
+# - base.group_portal: Create/edit own tickets (for portal/self-service)
+#
+# Record Rules:
+# - Viewer: user_id = current user
+# - Officer: user_id = current user OR team member
+# - Supervisor: user_id OR team member OR team manager
+# - Manager: All tickets (domain: [(1, '=', 1)])

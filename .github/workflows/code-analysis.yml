@@ -1,0 +1,33 @@
+name: "Code Scanning - Action"
+
+on:
+  pull_request:
+    branches: ["19.0"]
+  push:
+    branches: ["19.0"]
+  schedule:
+    # Weekly: Monday at 3am UTC
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+
+jobs:
+  CodeQL-Build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: python
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        continue-on-error: true

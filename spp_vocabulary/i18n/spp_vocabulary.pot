@@ -1,0 +1,4142 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* spp_vocabulary
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_form
+msgid "<span class=\"o_stat_text\">Codes</span>"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_deployment_profile_form
+msgid "<span class=\"o_stat_text\">Total Codes</span>"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_deployment_profile_form
+msgid "<span class=\"o_stat_text\">Vocabularies</span>"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.housing_apartment
+msgid ""
+"A conventional housing unit in a multi-dwelling building, accessed through "
+"common areas such as hallways, stairs, or elevators."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.housing_semidetached
+msgid ""
+"A conventional housing unit joined to another housing unit on one side only "
+"(sharing a common wall), with direct access to a street or outdoor area."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.housing_rowhouse
+msgid ""
+"A conventional housing unit joined to other housing units on two or more "
+"sides, typically in a row, with direct access to a street or outdoor area."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.housing_detached
+msgid ""
+"A conventional housing unit that is completely separated from other housing "
+"units and has direct access to a street or outdoor area."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.code_group_type_household
+msgid "A group of people living together and sharing resources."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.code_group_type_family
+msgid "A group of people related by blood, marriage, or adoption."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.housing_mobile
+msgid ""
+"A housing unit made to be transported or is a moving unit (such as a tent, "
+"ship, boat, caravan, or trailer) occupied as living quarters at the time of "
+"census."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.housing_unit
+msgid ""
+"A separate and independent place of abode intended for habitation by a "
+"single household, or one not intended for habitation but occupied as living "
+"quarters by a household at the time of the census."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.housing_traditional
+msgid ""
+"A structure that has some features of a conventional dwelling but is built "
+"of semi-permanent materials (e.g., mud, thatch) or according to traditional "
+"local customs. It is not expected to maintain durability as long as a "
+"conventional dwelling."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__message_needaction
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__message_needaction
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__message_needaction
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__message_needaction
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_mapping__message_needaction
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__message_needaction
+msgid "Action Needed"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_deployment_profile_list
+msgid "Activate"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_deployment_profile_form
+msgid "Activate Profile"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__active
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__is_active
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__active
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__active
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__active
+msgid "Active"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__active_code_ids
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_selection_form
+msgid "Active Codes"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_res_config_settings__deployment_profile_id
+msgid "Active Deployment Profile"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_code_search
+msgid "Active Only"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_deployment_profile_form
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_deployment_profile_search
+msgid "Active Profile"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__activity_ids
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__activity_ids
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__activity_ids
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__activity_ids
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_mapping__activity_ids
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__activity_ids
+msgid "Activities"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__activity_exception_decoration
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__activity_exception_decoration
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__activity_exception_decoration
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__activity_exception_decoration
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_mapping__activity_exception_decoration
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__activity_state
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__activity_state
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__activity_state
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__activity_state
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_mapping__activity_state
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__activity_state
+msgid "Activity State"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__activity_type_icon
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__activity_type_icon
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__activity_type_icon
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__activity_type_icon
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_mapping__activity_type_icon
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__activity_type_icon
+msgid "Activity Type Icon"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_deployment_profile_form
+msgid "Add All"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_selection_form
+msgid "Add All Codes"
+msgstr ""
+
+#. module: spp_vocabulary
+#. odoo-python
+#: code:addons/spp_vocabulary/models/vocabulary_selection.py:0
+msgid "Added all %d codes from vocabulary '%s'."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_mapping__comment
+msgid "Additional notes about this mapping"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_mapping_form
+msgid "Additional notes about this mapping..."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_12
+msgid "Administrative and Commercial Managers"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_12
+msgid ""
+"Administrative and commercial managers plan, organize, direct, control and "
+"coordinate the financial, administrative, human resource, policy, planning, "
+"research and development, advertising, public relations, and sales and "
+"marketing activities of enterprises."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.code_rel_affiliated
+msgid "Affiliated With"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_af
+msgid "Afghanistan"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_92
+msgid "Agricultural, Forestry and Fishery Labourers"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_92
+msgid ""
+"Agricultural, forestry and fishery labourers perform simple and routine "
+"tasks in the production of crops and livestock, cultivation and maintenance "
+"of gardens and parks, exploitation and conservation of forests, and conduct "
+"of fishing and hunting operations."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields.selection,name:spp_vocabulary.selection__spp_vocabulary__domain__agriculture
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_search
+msgid "Agriculture"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.ui.menu,name:spp_vocabulary.menu_vocabulary_code
+msgid "All Codes"
+msgstr ""
+
+#. module: spp_vocabulary
+#. odoo-python
+#: code:addons/spp_vocabulary/models/vocabulary_selection.py:0
+msgid "All Codes Added"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_selection_form
+msgid "All Effective Codes"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_selection__effective_code_ids
+msgid ""
+"All codes active in this selection (including inherited, excluding excluded)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary__code_ids
+msgid "All codes within this vocabulary"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_am
+msgid "Amharic"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_am
+msgid "Amharic language (ISO 639-1: am)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.housing_improvised
+msgid ""
+"An independent makeshift shelter built of waste materials (cardboard, tin, "
+"scrap) without a predetermined plan. Includes shanties and squatter "
+"settlements."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.housing_apartment
+msgid "Apartment / Flat"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_ar
+msgid "Arabic"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_ar
+msgid "Arabic language (ISO 639-1: ar)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_deployment_profile_form
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_deployment_profile_search
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_code_form
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_code_search
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_form
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_search
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_selection_form
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_selection_search
+msgid "Archived"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_0
+msgid "Armed Forces Occupations"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_03
+msgid "Armed Forces Occupations, Other Ranks"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_82
+msgid "Assemblers"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_82
+msgid ""
+"Assemblers assemble component parts of industrial products according to "
+"strict specifications and procedures."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__message_attachment_count
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__message_attachment_count
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__message_attachment_count
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__message_attachment_count
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_mapping__message_attachment_count
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__message_attachment_count
+msgid "Attachment Count"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_au
+msgid "Australia"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isced_6
+msgid "Bachelor's or Equivalent Level"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_bd
+msgid "Bangladesh"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_selection_form
+msgid "Basic Configuration"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_deployment_profile_form
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_code_form
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_form
+msgid "Basic Information"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.econ_below_working_age
+msgid "Below Working Age"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_bn
+msgid "Bengali"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_bn
+msgid "Bengali / Bangla language (ISO 639-1: bn)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_br
+msgid "Brazil"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_71
+msgid "Building and Related Trades Workers, Excluding Electricians"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_71
+msgid ""
+"Building and related trades workers, excluding electricians, construct, "
+"maintain and repair buildings and other structures; and shape, cut, fit and "
+"furnish stone, bricks, tiles, concrete and similar materials."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_my
+msgid "Burmese"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_my
+msgid "Burmese / Myanmar language (ISO 639-1: my)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_33
+msgid "Business and Administration Associate Professionals"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_24
+msgid "Business and Administration Professionals"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_33
+msgid ""
+"Business and administration associate professionals perform mostly technical"
+" tasks connected with the practical application of knowledge relating to "
+"financial accounting and transaction matters, mathematical calculations, "
+"human resource development, and selling and buying financial instruments and"
+" services."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_24
+msgid ""
+"Business and administration professionals apply concepts, principles and "
+"techniques relating to the fields of finance, management, human resources, "
+"marketing, public relations and enterprise restructuring and development."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__cel_function
+msgid "CEL Function Name"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_kh
+msgid "Cambodia"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:res.groups,comment:spp_vocabulary.group_vocabulary_officer
+msgid "Can view and edit vocabularies and codes. Cannot delete."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:res.groups,comment:spp_vocabulary.group_vocabulary_viewer
+msgid "Can view vocabularies and codes. Cannot modify data."
+msgstr ""
+
+#. module: spp_vocabulary
+#. odoo-python
+#: code:addons/spp_vocabulary/models/vocabulary_code.py:0
+msgid ""
+"Cannot add codes to system vocabulary '%(vocab)s'. Use is_local=True for "
+"country-specific extensions, or modify through module data."
+msgstr ""
+
+#. module: spp_vocabulary
+#. odoo-python
+#: code:addons/spp_vocabulary/models/vocabulary_code.py:0
+msgid "Cannot delete codes from system vocabulary '%(vocab)s'."
+msgstr ""
+
+#. module: spp_vocabulary
+#. odoo-python
+#: code:addons/spp_vocabulary/models/vocabulary_code.py:0
+msgid ""
+"Cannot modify system vocabulary codes. Only active, deprecated, and sequence"
+" fields can be changed. Attempted to change: %(fields)s"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.econ_casual
+msgid "Casual / Short-term Employee"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_11
+msgid "Chief Executives, Senior Officials and Legislators"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_11
+msgid ""
+"Chief executives, senior officials and legislators determine and formulate "
+"policies and plan, direct, coordinate and evaluate the overall activities of"
+" governments, enterprises, organizations and legislative bodies."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.code_rel_child
+msgid "Child"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_code__child_ids
+msgid "Child codes in the hierarchy"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__child_ids
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_code_form
+msgid "Children"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_cn
+msgid "China"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_zh
+msgid "Chinese"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_zh
+msgid ""
+"Chinese (Macrolanguage). Includes Mandarin, Cantonese, and other Chinese "
+"varieties (ISO 639-1: zh)."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary,description:spp_vocabulary.vocab_housing
+msgid ""
+"Classification of Living Quarters based on UN Principles and Recommendations"
+" for Population and Housing Censuses, Revision 3. Distinguishes between "
+"Housing Units (Conventional/Other) and Collective Living Quarters."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_91
+msgid "Cleaners and Helpers"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_91
+msgid ""
+"Cleaners and helpers perform simple tasks connected with cleaning, laundry "
+"and ironing, food and drink preparation, and running errands."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_deployment_profile_form
+msgid "Clear"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_selection_form
+msgid "Clear Active Codes"
+msgstr ""
+
+#. module: spp_vocabulary
+#. odoo-python
+#: code:addons/spp_vocabulary/models/vocabulary_selection.py:0
+msgid "Cleared all active codes from this selection."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_4
+msgid "Clerical Support Workers"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_4
+msgid ""
+"Clerical support workers record, organize, store, compute and retrieve "
+"information and perform a number of clerical duties in connection with "
+"money-handling operations, travel arrangements, requests for information, "
+"and appointments. Competent performance typically requires skills at the "
+"second ISCO skill level."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__code
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_code_form
+msgid "Code"
+msgstr ""
+
+#. module: spp_vocabulary
+#. odoo-python
+#: code:addons/spp_vocabulary/models/vocabulary_code.py:0
+msgid "Code '%(code)s' already exists in vocabulary '%(vocab)s'."
+msgstr ""
+
+#. module: spp_vocabulary
+#. odoo-python
+#: code:addons/spp_vocabulary/models/vocabulary_code.py:0
+msgid "Code '%s' already exists in vocabulary '%s'."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__code_count
+msgid "Code Count"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_mapping_form
+msgid "Code Mapping"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.actions.act_window,name:spp_vocabulary.action_vocabulary_mapping
+#: model:ir.ui.menu,name:spp_vocabulary.menu_vocabulary_mapping
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_mapping_list
+msgid "Code Mappings"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__uri
+msgid "Code URI"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__code_uris
+msgid "Code URIs"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.actions.act_window,help:spp_vocabulary.action_vocabulary_mapping
+msgid ""
+"Code mappings define relationships between codes in different vocabularies.\n"
+"                They enable translation between local codes and international standards,\n"
+"                supporting interoperability and cross-deployment reporting."
+msgstr ""
+
+#. module: spp_vocabulary
+#. odoo-python
+#: code:addons/spp_vocabulary/models/vocabulary_code.py:0
+msgid "Code must be unique within the vocabulary."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.constraint,message:spp_vocabulary.constraint_spp_vocabulary_code_unique_code
+msgid "Code must be unique within vocabulary"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_deployment_profile__vocabulary_selection_ids
+msgid "Code selections for each vocabulary in this deployment profile"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__code_ids
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__code_ids
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_concept_group_form
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_concept_group_search
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_deployment_profile_form
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_form
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_list
+msgid "Codes"
+msgstr ""
+
+#. module: spp_vocabulary
+#. odoo-python
+#: code:addons/spp_vocabulary/models/vocabulary_selection.py:0
+msgid "Codes Cleared"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary__is_hierarchical
+msgid "Codes can have parent/child relationships"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_selection__excluded_code_ids
+msgid "Codes explicitly excluded from parent selection"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_selection__active_code_ids
+msgid "Codes explicitly included in this selection"
+msgstr ""
+
+#. module: spp_vocabulary
+#. odoo-python
+#: code:addons/spp_vocabulary/models/vocabulary.py:0
+msgid "Codes: %s"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.housing_collective
+msgid "Collective Living Quarters"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.housing_institution
+msgid ""
+"Collective living quarters for persons requiring care, custody, or common "
+"administration (e.g., hospitals, prisons, orphanages, military barracks)."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.housing_hostel
+msgid ""
+"Collective living quarters providing temporary or semi-permanent "
+"accommodation, including student dormitories, worker hostels, and camps for "
+"refugees or displaced persons."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_co
+msgid "Colombia"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_mapping__comment
+msgid "Comment"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_01
+msgid "Commissioned Armed Forces Officers"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__company_id
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_deployment_profile_search
+msgid "Company"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_concept_group_form
+msgid "Concept Group"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.actions.act_window,name:spp_vocabulary.action_concept_group
+#: model:ir.ui.menu,name:spp_vocabulary.menu_concept_group
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_concept_group_list
+msgid "Concept Groups"
+msgstr ""
+
+#. module: spp_vocabulary
+#. odoo-python
+#: code:addons/spp_vocabulary/models/concept_group.py:0
+msgid "Concept group name '%s' already exists."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.actions.act_window,help:spp_vocabulary.action_concept_group
+msgid ""
+"Concept groups are semantic groupings of vocabulary codes for business logic abstraction.\n"
+"                They allow business logic to check semantic concepts rather than specific code values,\n"
+"                making the logic robust across deployments with different vocabularies."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model,name:spp_vocabulary.model_res_config_settings
+msgid "Config Settings"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_selection_form
+msgid "Configuration"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.code_marital_consensual
+msgid "Consensual Union"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.econ_contributing_family
+msgid "Contributing Family Worker"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields.selection,name:spp_vocabulary.selection__spp_vocabulary__domain__core
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_search
+msgid "Core"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary,name:spp_vocabulary.vocab_country
+msgid "Country (ISO 3166-1)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary,description:spp_vocabulary.vocab_country
+msgid ""
+"Country codes based on ISO 3166-1 alpha-2 (two-letter codes). Includes "
+"representative countries; deployments should extend with their specific "
+"country needs."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.country_unknown
+msgid "Country unknown, not stated, or not applicable."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_7
+msgid "Craft and Related Trades Workers"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_7
+msgid ""
+"Craft and related trades workers apply specific technical and practical "
+"knowledge and skills to construct and maintain buildings; form metal; erect "
+"metal structures; set machine tools or make, fit, maintain and repair "
+"machinery, equipment or tools; carry out printing work; and produce or "
+"process foodstuffs, textiles, wooden, metal and other articles, including "
+"handicraft goods. Competent performance typically requires skills at the "
+"second ISCO skill level."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.actions.act_window,help:spp_vocabulary.action_vocabulary_mapping
+msgid "Create a new code mapping"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.actions.act_window,help:spp_vocabulary.action_concept_group
+msgid "Create a new concept group"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.actions.act_window,help:spp_vocabulary.action_deployment_profile
+msgid "Create a new deployment profile"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.actions.act_window,help:spp_vocabulary.action_vocabulary
+msgid "Create a new vocabulary"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.actions.act_window,help:spp_vocabulary.action_vocabulary_code
+msgid "Create a new vocabulary code"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.actions.act_window,help:spp_vocabulary.action_vocabulary_selection
+msgid "Create a new vocabulary selection"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__create_uid
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__create_uid
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__create_uid
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__create_uid
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_mapping__create_uid
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__create_date
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__create_date
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__create_date
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__create_date
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_mapping__create_date
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_search
+msgid "Custom"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_42
+msgid "Customer Services Clerks"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_42
+msgid ""
+"Customer services clerks deal with clients and customers with respect to "
+"travel arrangements, requests for information, appointments, and operation "
+"of telephone switchboards and directory assistance services."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_code__deprecated_date
+msgid "Date when this code was deprecated"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__definition
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_code_form
+msgid "Definition"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.econ_dependent_contractor
+msgid "Dependent Contractor"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model,name:spp_vocabulary.model_spp_deployment_profile
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__deployment_profile_id
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_deployment_profile_form
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_selection_search
+msgid "Deployment Profile"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_deployment_profile_form
+msgid "Deployment Profile Name"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.actions.act_window,name:spp_vocabulary.action_deployment_profile
+#: model:ir.ui.menu,name:spp_vocabulary.menu_deployment_profile
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_deployment_profile_list
+msgid "Deployment Profiles"
+msgstr ""
+
+#. module: spp_vocabulary
+#. odoo-python
+#: code:addons/spp_vocabulary/models/deployment_profile.py:0
+msgid "Deployment profile '%s' is now active."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.actions.act_window,help:spp_vocabulary.action_deployment_profile
+msgid ""
+"Deployment profiles define which vocabulary codes are active/selectable\n"
+"                in your deployment. This enables the same vocabulary definitions to be\n"
+"                reused across deployments while allowing each to configure their own\n"
+"                subset of applicable codes."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__deprecated
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_code_form
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_code_search
+msgid "Deprecated"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__deprecated_date
+msgid "Deprecation Date"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_concept_group_form
+msgid ""
+"Describe what this concept group represents and when it should be used..."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__description
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__description
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__description
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_concept_group_form
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_deployment_profile_form
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_form
+msgid "Description"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_deployment_profile_form
+msgid "Description of this deployment profile..."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_form
+msgid "Description of this vocabulary..."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_concept_group__description
+msgid "Description of what this concept group represents"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.housing_detached
+msgid "Detached House"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_deployment_profile__description
+msgid "Detailed description of this deployment profile and its purpose"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary__description
+msgid "Detailed description of this vocabulary and its purpose"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_deployment_profile_form
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_code_form
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_form
+msgid "Details"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields.selection,name:spp_vocabulary.selection__spp_vocabulary__domain__disability
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_search
+msgid "Disability"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.econ_discouraged_worker
+#: model:spp.vocabulary.code,display:spp_vocabulary.econ_unemployed_discouraged
+msgid "Discouraged Worker"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__display_name
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__display_name
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__display
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__display_name
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__display_name
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_mapping__display_name
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__display_name
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_code_form
+msgid "Display Name"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.code_marital_divorced
+msgid "Divorced"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isced_8
+msgid "Doctoral or Equivalent Level"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__domain
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_search
+msgid "Domain"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary__domain
+msgid "Domain area this vocabulary belongs to"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_code_form
+msgid "Drag rows in list view to reorder"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_83
+msgid "Drivers and Mobile Plant Operators"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_83
+msgid ""
+"Drivers and mobile plant operators drive and operate trains, motor vehicles "
+"and mobile machinery and equipment to transport passengers and goods, move "
+"materials, dig earth, and move or lift other heavy objects."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_nl
+msgid "Dutch"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_nl
+msgid "Dutch / Flemish language (ISO 639-1: nl)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.constraint,message:spp_vocabulary.constraint_spp_vocabulary_selection_unique_profile_vocabulary
+msgid "Each vocabulary can only have one selection per deployment profile"
+msgstr ""
+
+#. module: spp_vocabulary
+#. odoo-python
+#: code:addons/spp_vocabulary/models/relationship.py:0
+msgid ""
+"Each vocabulary code can only be linked to one relationship type. Code '%s' "
+"is already linked to relationship '%s'."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isced_0
+msgid "Early Childhood Education"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary,name:spp_vocabulary.vocab_economic_activity
+msgid "Economic Activity Status (ILO)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary,description:spp_vocabulary.vocab_economic_activity
+msgid ""
+"Economic activity and employment status classification based on ILO "
+"standards including ICSE-18. Combines labour force status (19th ICLS) and "
+"status in employment (ICSE-18)."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.econ_unknown
+msgid "Economic activity status is unknown or was not collected."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields.selection,name:spp_vocabulary.selection__spp_vocabulary__domain__education
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_search
+msgid "Education"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary,name:spp_vocabulary.vocab_education_level
+msgid "Education Level (ISCED 2011)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isced_0
+msgid ""
+"Education designed to support early development in preparation for "
+"participation in school and society. Programmes at this level are typically "
+"designed for children below the age of entry into primary education (ISCED "
+"level 1). Includes early childhood educational development (ages 0-2) and "
+"pre-primary education (ages 3 to start of primary)."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isced_unknown
+msgid "Education level not stated, unknown, or not elsewhere classified."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__effective_code_count
+msgid "Effective Code Count"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__effective_code_ids
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_selection_form
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_selection_list
+msgid "Effective Codes"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_eg
+msgid "Egypt"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_74
+msgid "Electrical and Electronic Trades Workers"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_74
+msgid ""
+"Electrical and electronic trades workers install, fit, maintain and repair "
+"electrical wiring systems and related equipment, electrical machinery, and "
+"electrical and electronic equipment used in buildings and structures and for"
+" other purposes."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_9
+msgid "Elementary Occupations"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_9
+msgid ""
+"Elementary occupations involve the performance of simple and routine tasks "
+"which may require the use of hand-held tools and considerable physical "
+"effort. Competent performance typically requires skills at the first ISCO "
+"skill level."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.econ_employed
+msgid "Employed"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.econ_employee
+msgid "Employee"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.econ_casual
+msgid ""
+"Employees with short-term, discontinuous, or casual work arrangements "
+"without a guaranteed minimum amount of work."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.econ_employer
+msgid "Employer"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_en
+msgid "English"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_en
+msgid "English language (ISO 639-1: en)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_02
+msgid ""
+"Enlisted personnel who hold non-commissioned officer ranks in the armed "
+"forces."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_03
+msgid ""
+"Enlisted personnel who hold ranks below non-commissioned officers in the "
+"armed forces."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__equivalence
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_mapping__equivalence
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_mapping_search
+msgid "Equivalence"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields.selection,name:spp_vocabulary.selection__spp_vocabulary_code__equivalence__equivalent
+#: model:ir.model.fields.selection,name:spp_vocabulary.selection__spp_vocabulary_mapping__equivalence__equivalent
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_mapping_search
+msgid "Equivalent"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_et
+msgid "Ethiopia"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.ethnocultural_majority
+msgid "Ethnic Majority"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.ethnocultural_minority
+msgid "Ethnic Minority"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary,name:spp_vocabulary.vocab_ethnocultural
+msgid "Ethnocultural Status"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary,description:spp_vocabulary.vocab_ethnocultural
+msgid ""
+"Ethnocultural status categories for social protection targeting. Based on UN"
+" Statistics Division terminology for ethnocultural characteristics. Provides"
+" self-identification status categories rather than specific ethnic group "
+"classifications, which vary by country. Deployments can extend with country-"
+"specific codes."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.ethnocultural_unknown
+msgid "Ethnocultural status not stated, not collected, or unknown."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__excluded_code_ids
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_selection_form
+msgid "Excluded Codes"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_selection_form
+msgid "Excluded from Parent"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_selection_form
+msgid "Explicitly Included Codes"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.code_group_type_family
+msgid "Family"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.code_gender_female
+msgid "Female"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.concept.group,label:spp_vocabulary.group_feminine_gender
+msgid "Feminine Gender"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_fj
+msgid "Fiji"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__message_follower_ids
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__message_follower_ids
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__message_follower_ids
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__message_follower_ids
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_mapping__message_follower_ids
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__message_follower_ids
+msgid "Followers"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__message_partner_ids
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__message_partner_ids
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__message_partner_ids
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__message_partner_ids
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_mapping__message_partner_ids
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__message_partner_ids
+msgid "Followers (Partners)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_deployment_profile__activity_type_icon
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary__activity_type_icon
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_code__activity_type_icon
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_concept_group__activity_type_icon
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_mapping__activity_type_icon
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_selection__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_94
+msgid "Food Preparation Assistants"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_75
+msgid ""
+"Food Processing, Woodworking, Garment and Other Craft and Related Trades "
+"Workers"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_94
+msgid ""
+"Food preparation assistants prepare and cook to order a small variety of "
+"pre-cooked foods and beverages and clear tables and wash dishes in fast food"
+" outlets, cafeterias and kitchens; and prepare and sell food and beverages "
+"at counters or from street stalls or carts."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_75
+msgid ""
+"Food processing, woodworking, garment and other craft and related trades "
+"workers slaughter animals, and prepare the carcasses and fish for sale and "
+"further processing; bake bread and other flour products; process and "
+"preserve fruit, vegetables and related foods; tan, treat and otherwise "
+"process hides, skins and leather; make and repair shoes, bags and similar "
+"leather products; prepare tobacco and make tobacco products; perform "
+"woodworking tasks; prepare natural textile fibres and manufacture and repair"
+" a variety of garments."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.actions.act_window,help:spp_vocabulary.action_deployment_profile
+msgid ""
+"For example, one deployment might show only Male/Female for gender,\n"
+"                while another might include additional gender identity options."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_code__reference_uri
+msgid "For local codes: URI of the standard code this maps to"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_code__definition
+msgid "Formal definition of what this code means"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_code_form
+msgid "Formal definition of what this code means..."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_fr
+msgid "France"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_fr
+msgid "French"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_fr
+msgid "French language (ISO 639-1: fr)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:res.groups,comment:spp_vocabulary.group_vocabulary_manager
+msgid "Full vocabulary management including delete operations."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary,name:spp_vocabulary.vocab_gender
+msgid "Gender"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.concept.group,description:spp_vocabulary.group_feminine_gender
+msgid ""
+"Gender identities eligible for maternal/women's programs. Includes standard "
+"female gender codes and can be extended with local equivalents."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_41
+msgid "General and Keyboard Clerks"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_41
+msgid ""
+"General and keyboard clerks record, organize, store, compute and retrieve "
+"information, and perform a number of general clerical duties."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_de
+msgid "German"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_de
+msgid "German language (ISO 639-1: de)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_de
+msgid "Germany"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_code__uri
+msgid ""
+"Globally unique URI for this code (computed by default, can be overridden)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary__namespace_uri
+msgid ""
+"Globally unique URI. Examples:\n"
+"- urn:iso:std:iso:5218 (ISO Gender)\n"
+"- urn:who:icf (WHO ICF Disability)\n"
+"- urn:openspp:vocab:{name} (OpenSPP-defined)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_code__namespace_uri
+msgid "Globally unique namespace URI from vocabulary"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.code_rel_grandchild
+msgid "Grandchild"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.code_rel_grandparent
+msgid "Grandparent"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary,name:spp_vocabulary.vocab_group_membership_type
+msgid "Group Membership Type"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary,name:spp_vocabulary.vocab_group_type
+msgid "Group Type"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.concept.group,label:spp_vocabulary.group_rel_group_to_group
+msgid "Group-to-Group Relationships"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_73
+msgid "Handicraft and Printing Workers"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_73
+msgid ""
+"Handicraft and printing workers produce precision instruments, musical "
+"instruments, jewellery, household and other articles of precious metals, "
+"pottery, glass products and handicraft articles; perform printing work or "
+"produce printed products."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_concept_group_search
+msgid "Has CEL Function"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__has_message
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__has_message
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__has_message
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__has_message
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_mapping__has_message
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__has_message
+msgid "Has Message"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.code_membership_type_head
+msgid "Head"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.code_rel_head
+#: model:spp.vocabulary.concept.group,label:spp_vocabulary.group_head_of_household
+msgid "Head of Household"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.code_membership_type_head
+msgid "Head of the group/household. Only one head is allowed per group."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields.selection,name:spp_vocabulary.selection__spp_vocabulary__domain__health
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_search
+msgid "Health"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_32
+msgid "Health Associate Professionals"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_22
+msgid "Health Professionals"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_32
+msgid ""
+"Health associate professionals perform technical tasks and provide support "
+"services related to medicine, nursing, midwifery, dentistry, pharmacy, and "
+"promotion of health."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_22
+msgid ""
+"Health professionals conduct research; improve or develop concepts, theories"
+" and operational methods; and apply scientific knowledge relating to "
+"medicine, nursing, dentistry, veterinary medicine, pharmacy and promotion of"
+" health."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__is_hierarchical
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_search
+msgid "Hierarchical"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_code_form
+msgid "Hierarchy"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__level
+msgid "Hierarchy Level"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_hi
+msgid "Hindi"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_hi
+msgid "Hindi language (ISO 639-1: hi)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.econ_homemaker
+msgid "Homemaker / Care Provider"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_14
+msgid "Hospitality, Retail and Other Services Managers"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_14
+msgid ""
+"Hospitality, retail and other services managers plan, organize, direct, "
+"control and coordinate the activities of establishments that provide "
+"hospitality, retail and other services."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.housing_hostel
+msgid "Hostel / Dormitory / Camp"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.code_group_type_household
+msgid "Household"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary,name:spp_vocabulary.vocab_housing
+msgid "Housing Type (UN Rev.3)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.housing_unit
+msgid "Housing Unit"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.housing_unknown
+msgid "Housing type not stated, not collected, or unknown."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_code__equivalence
+msgid "How closely this local code maps to the reference code"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_code__display
+msgid "Human-readable label"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_concept_group__label
+msgid "Human-readable label for this concept group"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary__name
+msgid "Human-readable name: 'Gender', 'Relationship Type'"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_mapping__display_name
+msgid "Human-readable representation of this mapping"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_res_config_settings__id
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__id
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__id
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__id
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__id
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_mapping__id
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__id
+msgid "ID"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__activity_exception_icon
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__activity_exception_icon
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__activity_exception_icon
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__activity_exception_icon
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_mapping__activity_exception_icon
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__activity_exception_icon
+msgid "Icon"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_deployment_profile__activity_exception_icon
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary__activity_exception_icon
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_code__activity_exception_icon
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_concept_group__activity_exception_icon
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_mapping__activity_exception_icon
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_selection__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_deployment_profile__message_needaction
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary__message_needaction
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_code__message_needaction
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_concept_group__message_needaction
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_mapping__message_needaction
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_selection__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_deployment_profile__message_has_error
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary__message_has_error
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_code__message_has_error
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_concept_group__message_has_error
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_mapping__message_has_error
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_selection__message_has_error
+msgid "If checked, some messages have a delivery error."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_code__replaced_by_id
+msgid "If deprecated, the code that supersedes this one"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.housing_improvised
+msgid "Improvised Housing / Slum"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_deployment_profile_search
+msgid "Inactive Profile"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.econ_own_account
+msgid ""
+"Independent workers who operate their own economic enterprise and do NOT "
+"hire employees on a regular basis."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.econ_employer
+msgid ""
+"Independent workers who operate their own economic enterprise and hire one "
+"or more employees on a regular basis."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_in
+msgid "India"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_code__is_local
+msgid "Indicates if this is a local/country-specific code"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.ethnocultural_indigenous
+msgid "Indigenous Peoples"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.ethnocultural_not_disclosed
+msgid ""
+"Individual prefers not to disclose their ethnocultural status. Respects the "
+"right to privacy regarding sensitive personal information."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.concept.group,label:spp_vocabulary.group_rel_mixed
+msgid "Individual-to-Group Relationships"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.concept.group,label:spp_vocabulary.group_rel_individual_to_individual
+msgid "Individual-to-Individual Relationships"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_id
+msgid "Indonesia"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_id
+msgid "Indonesian"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_id
+msgid "Indonesian language (ISO 639-1: id)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields.selection,name:spp_vocabulary.selection__spp_vocabulary_code__equivalence__inexact
+#: model:ir.model.fields.selection,name:spp_vocabulary.selection__spp_vocabulary_mapping__equivalence__inexact
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_mapping_search
+msgid "Inexact"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_35
+msgid "Information and Communications Technicians"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_25
+msgid "Information and Communications Technology Professionals"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_35
+msgid ""
+"Information and communications technicians provide support for the day-to-"
+"day running of computer systems, communications systems and networks, and "
+"perform technical tasks related to telecommunications and the broadcasting "
+"and recording of image and sound."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_25
+msgid ""
+"Information and communications technology professionals conduct research; "
+"plan, design, write, test, provide advice and improve information technology"
+" systems, hardware, software and related concepts for specific applications."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.housing_institution
+msgid "Institution"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary,description:spp_vocabulary.vocab_education_level
+msgid ""
+"International Standard Classification of Education (ISCED 2011). A "
+"comprehensive framework for organizing education programmes and "
+"qualifications by applying uniform and internationally agreed definitions to"
+" facilitate comparisons of education systems across countries. Adopted by "
+"the UNESCO General Conference in November 2011."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary,description:spp_vocabulary.vocab_occupation
+msgid ""
+"International Standard Classification of Occupations (ISCO-08). A tool for "
+"organizing jobs into a clearly defined set of groups according to the tasks "
+"and duties undertaken in the job. Developed and maintained by the "
+"International Labour Organization (ILO)."
+msgstr ""
+
+#. module: spp_vocabulary
+#. odoo-python
+#: code:addons/spp_vocabulary/models/relationship.py:0
+msgid "Inverse of %s"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__message_is_follower
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__message_is_follower
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__message_is_follower
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__message_is_follower
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_mapping__message_is_follower
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__message_is_follower
+msgid "Is Follower"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_it
+msgid "Italian"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_it
+msgid "Italian language (ISO 639-1: it)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_concept_group__code_uris
+msgid "JSON list of URIs for fast lookup (includes reference_uri mappings)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_jp
+msgid "Japan"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_ja
+msgid "Japanese"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_ja
+msgid "Japanese language (ISO 639-1: ja)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_jo
+msgid "Jordan"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_ke
+msgid "Kenya"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_km
+msgid "Khmer"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_km
+msgid "Khmer / Cambodian language (ISO 639-1: km)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_ko
+msgid "Korean"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_ko
+msgid "Korean language (ISO 639-1: ko)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__label
+msgid "Label"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_concept_group_form
+msgid "Label (e.g., Feminine Gender)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields.selection,name:spp_vocabulary.selection__spp_vocabulary__domain__labor
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_search
+msgid "Labor"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_93
+msgid "Labourers in Mining, Construction, Manufacturing and Transport"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_93
+msgid ""
+"Labourers in mining, construction, manufacturing and transport perform "
+"simple and routine manual tasks in mining, quarrying, civil engineering and "
+"building construction, and in the manufacturing and transport industries."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary,name:spp_vocabulary.vocab_language
+msgid "Language (ISO 639)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary,description:spp_vocabulary.vocab_language
+msgid ""
+"Language codes based on ISO 639 standards. Primarily uses ISO 639-1 two-"
+"letter codes, with select codes from ISO 639-2/3 for sign languages and "
+"special cases. Includes major world languages commonly used in social "
+"protection contexts."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_und
+msgid "Language undetermined, not stated, or unknown. (ISO 639-2: und)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_lo
+msgid "Lao"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_la
+msgid "Lao People's Democratic Republic"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_lo
+msgid "Lao language (ISO 639-1: lo)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__write_uid
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__write_uid
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__write_uid
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__write_uid
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_mapping__write_uid
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__write_date
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__write_date
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__write_date
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__write_date
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_mapping__write_date
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_lb
+msgid "Lebanon"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_26
+msgid "Legal, Social and Cultural Professionals"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_34
+msgid "Legal, Social, Cultural and Related Associate Professionals"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_26
+msgid ""
+"Legal, social and cultural professionals conduct research; improve or "
+"develop concepts, theories, operational methods, software and tests; and "
+"apply knowledge related to law, social sciences, cultural industries, "
+"libraries, archives, museums, religion, arts, entertainment and sport."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_34
+msgid ""
+"Legal, social, cultural and related associate professionals provide "
+"technical support to professionals in legal, social and religious fields, "
+"and provide various social services to the community."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_code_search
+msgid "Level"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_code__level
+msgid "Level in the hierarchy (0 for root codes)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_code_form
+msgid "Lifecycle"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary__reference_url
+msgid "Link to official documentation"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__is_local
+msgid "Local Code"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isced_2
+msgid "Lower Secondary Education"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_concept_group_form
+msgid "Machine Name (e.g., feminine_gender)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_code__code
+msgid "Machine-readable code (e.g., 'M', 'head', 'crop')"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_concept_group__name
+msgid ""
+"Machine-readable identifier (e.g., 'feminine_gender', 'pregnant_eligible')"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_ms
+msgid "Malay"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_ms
+msgid "Malay language (ISO 639-1: ms)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_my
+msgid "Malaysia"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.code_gender_male
+msgid "Male"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.concept.group,description:spp_vocabulary.group_masculine_gender
+msgid ""
+"Male gender identities. Useful for programs targeting male beneficiaries or "
+"for demographic analysis."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.ui.menu,name:spp_vocabulary.menu_vocabulary
+msgid "Manage Vocabularies"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:res.groups,name:spp_vocabulary.group_vocabulary_manager
+msgid "Manager"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_1
+msgid "Managers"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_1
+msgid ""
+"Managers plan, direct, coordinate and evaluate the overall activities of "
+"enterprises, governments and other organizations, or of organizational units"
+" within them, and formulate and review their policies, laws, rules and "
+"regulations."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_mapping_form
+msgid "Mapping"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.constraint,message:spp_vocabulary.constraint_spp_vocabulary_mapping_unique_mapping
+msgid "Mapping already exists"
+msgstr ""
+
+#. module: spp_vocabulary
+#. odoo-python
+#: code:addons/spp_vocabulary/models/vocabulary_mapping.py:0
+msgid "Mapping already exists between '%s' and '%s'."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__mapping_ids
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_code_form
+msgid "Mappings"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_code__mapping_ids
+msgid "Mappings from this code to codes in other vocabularies"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary,name:spp_vocabulary.vocab_marital
+msgid "Marital Status"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary,description:spp_vocabulary.vocab_marital
+msgid ""
+"Marital status classification based on UN Principles and Recommendations for"
+" Population and Housing Censuses, Revision 3 (2017). Defines the personal "
+"status of each individual in relation to the marriage laws or customs of the"
+" country."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_code__deprecated
+msgid "Mark as deprecated when this code should no longer be used"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_61
+msgid "Market-oriented Skilled Agricultural Workers"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_62
+msgid "Market-oriented Skilled Forestry, Fishery and Hunting Workers"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_61
+msgid ""
+"Market-oriented skilled agricultural workers plan, organize and perform "
+"farming operations to grow and harvest field or tree and shrub crops, and to"
+" produce a variety of animals and animal products for sale or delivery on a "
+"regular basis to wholesale buyers, marketing organizations or at markets."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_62
+msgid ""
+"Market-oriented skilled forestry, fishery and hunting workers plan, organize"
+" and perform operations to cultivate, conserve and exploit natural and "
+"plantation forests; breed or catch fish; and cultivate and gather other "
+"forms of aquatic life, or hunt and trap animals, for sale or delivery to "
+"wholesale buyers, marketing organizations or at markets."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.code_marital_married
+msgid "Married"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.concept.group,label:spp_vocabulary.group_masculine_gender
+msgid "Masculine Gender"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isced_7
+msgid "Master's or Equivalent Level"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__message_has_error
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__message_has_error
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__message_has_error
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__message_has_error
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_mapping__message_has_error
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__message_has_error
+msgid "Message Delivery error"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__message_ids
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__message_ids
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__message_ids
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__message_ids
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_mapping__message_ids
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__message_ids
+msgid "Messages"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_72
+msgid "Metal, Machinery and Related Trades Workers"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_72
+msgid ""
+"Metal, machinery and related trades workers make moulds and cores for the "
+"casting of metal; weld and cut metal parts; shape and form metal stock, cast"
+" and other metal items; erect, maintain and repair heavy metal structures, "
+"rigging, cables and related equipment; set up and set machine tools; fit, "
+"maintain, adjust and repair engines, vehicles, agricultural and industrial "
+"machinery and mechanical equipment; or make, fit, maintain and repair "
+"machinery and equipment."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_mx
+msgid "Mexico"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.ethnocultural_mixed
+msgid "Mixed Heritage"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.housing_mobile
+msgid "Mobile Housing Unit"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__my_activity_date_deadline
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__my_activity_date_deadline
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__my_activity_date_deadline
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__my_activity_date_deadline
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_mapping__my_activity_date_deadline
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_mm
+msgid "Myanmar"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__name
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__name
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__name
+msgid "Name"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_deployment_profile__name
+msgid ""
+"Name of this deployment profile (e.g., 'Philippines 4Ps', 'Kenya CT-OVC')"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__namespace_uri
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__namespace_uri
+msgid "Namespace URI"
+msgstr ""
+
+#. module: spp_vocabulary
+#. odoo-python
+#: code:addons/spp_vocabulary/models/vocabulary.py:0
+msgid "Namespace URI '%s' is already used by another vocabulary."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.constraint,message:spp_vocabulary.constraint_spp_vocabulary_unique_namespace
+msgid "Namespace URI must be unique"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_selection__vocabulary_namespace
+msgid "Namespace URI of the vocabulary"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields.selection,name:spp_vocabulary.selection__spp_vocabulary_code__equivalence__narrower
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_mapping_search
+msgid "Narrower"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields.selection,name:spp_vocabulary.selection__spp_vocabulary_mapping__equivalence__narrower
+msgid "Narrower (target more specific)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_np
+msgid "Nepal"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_ne
+msgid "Nepali"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_ne
+msgid "Nepali language (ISO 639-1: ne)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.code_marital_single
+msgid "Never Married"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isced_none
+msgid ""
+"Never attended or completed any formal education programme. May include "
+"informal learning or non-formal education not classified within the ISCED "
+"framework."
+msgstr ""
+
+#. module: spp_vocabulary
+#. odoo-python
+#: code:addons/spp_vocabulary/models/vocabulary_selection.py:0
+msgid "New Vocabulary Selection"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__activity_calendar_event_id
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__activity_calendar_event_id
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__activity_calendar_event_id
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__activity_calendar_event_id
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_mapping__activity_calendar_event_id
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__activity_calendar_event_id
+msgid "Next Activity Calendar Event"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__activity_date_deadline
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__activity_date_deadline
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__activity_date_deadline
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__activity_date_deadline
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_mapping__activity_date_deadline
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__activity_summary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__activity_summary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__activity_summary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__activity_summary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_mapping__activity_summary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__activity_summary
+msgid "Next Activity Summary"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__activity_type_id
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__activity_type_id
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__activity_type_id
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__activity_type_id
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_mapping__activity_type_id
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__activity_type_id
+msgid "Next Activity Type"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_ng
+msgid "Nigeria"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isced_none
+msgid "No Formal Education"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.code_rel_non_relative
+msgid "Non-Relative"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_02
+msgid "Non-commissioned Armed Forces Officers"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.code_gender_na
+msgid "Not Applicable"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.code_gender_unknown
+msgid "Not Known"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.econ_unknown
+#: model:spp.vocabulary.code,display:spp_vocabulary.ethnocultural_unknown
+#: model:spp.vocabulary.code,display:spp_vocabulary.housing_unknown
+#: model:spp.vocabulary.code,display:spp_vocabulary.isced_unknown
+msgid "Not Stated / Unknown"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_mapping_form
+msgid "Notes"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__message_needaction_counter
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__message_needaction_counter
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__message_needaction_counter
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__message_needaction_counter
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_mapping__message_needaction_counter
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__message_needaction_counter
+msgid "Number of Actions"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__message_has_error_counter
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__message_has_error_counter
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__message_has_error_counter
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__message_has_error_counter
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_mapping__message_has_error_counter
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__message_has_error_counter
+msgid "Number of errors"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_deployment_profile__message_needaction_counter
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary__message_needaction_counter
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_code__message_needaction_counter
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_concept_group__message_needaction_counter
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_mapping__message_needaction_counter
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_selection__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_deployment_profile__message_has_error_counter
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary__message_has_error_counter
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_code__message_has_error_counter
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_concept_group__message_has_error_counter
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_mapping__message_has_error_counter
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_selection__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_deployment_profile__vocabulary_count
+msgid "Number of vocabularies configured in this profile"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_43
+msgid "Numerical and Material Recording Clerks"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_43
+msgid ""
+"Numerical and material recording clerks obtain, compile and compute "
+"accounting, bookkeeping, statistical, financial and other numerical data and"
+" take charge of cash register operations and of receiving, storing, issuing "
+"and dispatching money or materials."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary,name:spp_vocabulary.vocab_occupation
+msgid "Occupation (ISCO-08)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_0
+msgid ""
+"Occupations in this major group include all jobs held by members of the "
+"armed forces. Members of the armed forces are those personnel who are "
+"currently serving in the armed forces, including auxiliary services, whether"
+" on a voluntary or compulsory basis."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:res.groups,name:spp_vocabulary.group_vocabulary_officer
+msgid "Officer"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_01
+msgid ""
+"Officers who hold a commission in the armed forces, including those in the "
+"army, navy, air force, and other military branches."
+msgstr ""
+
+#. module: spp_vocabulary
+#. odoo-python
+#: code:addons/spp_vocabulary/models/deployment_profile.py:0
+msgid ""
+"Only one deployment profile can be active at a time. Profile '%s' is already"
+" active."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_selection__parent_selection_id
+msgid "Optional: Inherit codes from another selection"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_deployment_profile__company_id
+msgid ""
+"Optional: Restrict this profile to a specific company for multi-tenancy"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_code__sequence
+msgid "Order of display - lower values appear first"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_44
+msgid "Other Clerical Support Workers"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.econ_other_inactive
+msgid "Other Inactive"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.code_rel_other
+msgid "Other Relative"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_44
+msgid ""
+"Other clerical support workers file, copy and circulate documents; sort and "
+"distribute mail; prepare mailings; perform proof-reading tasks; encode and "
+"code data and proof-read copy; and undertake a number of clerical duties "
+"related to library operations and duties of a general clerical nature."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.econ_outside_labour_force
+msgid "Outside Labour Force"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.econ_own_account
+msgid "Own-Account Worker"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_pk
+msgid "Pakistan"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_pg
+msgid "Papua New Guinea"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__parent_id
+#: model:spp.vocabulary.code,display:spp_vocabulary.code_rel_parent
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_code_search
+msgid "Parent"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.code_rel_parent_org
+msgid "Parent Organization"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__parent_selection_id
+msgid "Parent Selection"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_code__parent_id
+msgid "Parent code for hierarchical vocabularies"
+msgstr ""
+
+#. module: spp_vocabulary
+#. odoo-python
+#: code:addons/spp_vocabulary/models/vocabulary_selection.py:0
+msgid "Parent selection must be for the same vocabulary (%s)."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.code_rel_parent_in_law
+msgid "Parent-in-law"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.code_rel_partner_org
+msgid "Partner Organization"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_fa
+msgid "Persian"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_fa
+msgid "Persian / Farsi language (ISO 639-1: fa)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.country_stateless
+msgid ""
+"Person without citizenship of any country (stateless person). Uses user-"
+"assigned code from ISO 3166-1 range XA-XZ."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_53
+msgid "Personal Care Workers"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_51
+msgid "Personal Service Workers"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_53
+msgid ""
+"Personal care workers provide personal care and assistance to children in "
+"schools, residences and other settings; and provide home-based personal care"
+" and support to elderly, convalescent and disabled persons."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_51
+msgid ""
+"Personal service workers provide personal services related to travel, "
+"housekeeping, food preparation and serving, hairdressing, beauty treatment, "
+"companionship, and other personal services."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.econ_unemployed_discouraged
+msgid ""
+"Persons available for work but not actively seeking employment because they "
+"believe no suitable work is available. (Classified as Potential Labour "
+"Force)."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.econ_discouraged_worker
+msgid ""
+"Persons available for work but not seeking employment due to labour market-"
+"related reasons (e.g., belief that no jobs are available)."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.econ_below_working_age
+msgid ""
+"Persons below the minimum working age as defined by national legislation."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.code_marital_consensual
+msgid ""
+"Persons living together as partners without a formal marriage or registered "
+"partnership. Also known as cohabiting or common-law union, as recognized by "
+"the customs of the country."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.econ_outside_labour_force
+msgid "Persons of working age who are neither employed nor unemployed."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.econ_unemployed
+msgid ""
+"Persons of working age who are: (a) without work; (b) currently available "
+"for work; AND (c) actively seeking work."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.econ_employed
+msgid ""
+"Persons of working age who, during a short reference period, were engaged in"
+" any activity to produce goods or provide services for pay or profit."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.econ_other_inactive
+msgid ""
+"Persons outside the labour force not classified elsewhere (e.g., rentiers, "
+"subsisting on remittances)."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.econ_potential_labour_force
+msgid ""
+"Persons outside the labour force who have some attachment to the labour "
+"market (e.g., available but not seeking, or seeking but not available)."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.econ_student
+msgid ""
+"Persons primarily engaged in education or training and not in the labour "
+"force."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.econ_homemaker
+msgid ""
+"Persons primarily engaged in unpaid household duties and care work within "
+"their own household."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.econ_unable_to_work
+msgid "Persons unable to work due to long-term disability or illness."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.code_marital_separated
+msgid ""
+"Persons who are married but legally separated or living apart from their "
+"spouse, where the marriage or registered partnership has not been dissolved."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.econ_contributing_family
+msgid ""
+"Persons who assist a family member in a market-oriented enterprise but do "
+"not make the important decisions and do not receive regular pay."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.code_marital_single
+msgid ""
+"Persons who have never entered into a marriage or registered partnership."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.econ_retired
+msgid ""
+"Persons who have withdrawn from the labour force due to age or length of "
+"service."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.econ_employee
+msgid ""
+"Persons who work for a public or private employer and receive remuneration "
+"in wages, salary, or payment in kind. Includes permanent, fixed-term, and "
+"casual employees."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.code_marital_divorced
+msgid ""
+"Persons whose marriage or registered partnership has been legally dissolved "
+"and who have not remarried."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.code_marital_married
+msgid ""
+"Persons whose marriage or registered partnership is still legally in effect,"
+" and who are not separated."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.code_marital_widowed
+msgid ""
+"Persons whose spouse has died and who have not remarried or entered into a "
+"new registered partnership."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_pe
+msgid "Peru"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_ph
+msgid "Philippines"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.housing_homeless
+msgid "Place not intended for habitation (Homeless)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.housing_homeless
+msgid ""
+"Places not designed for human habitation but used as living quarters at the "
+"time of census (e.g., streets, bridges, parks, doorways, cars, abandoned "
+"non-residential buildings). This category covers primary homelessness."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_8
+msgid "Plant and Machine Operators and Assemblers"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_8
+msgid ""
+"Plant and machine operators and assemblers operate and monitor industrial "
+"and agricultural machinery and equipment on the spot or by remote control; "
+"drive and operate trains, motor vehicles and mobile machinery and equipment;"
+" or assemble products from component parts according to strict "
+"specifications and procedures. Competent performance typically requires "
+"skills at the second ISCO skill level."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_pl
+msgid "Polish"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_pl
+msgid "Polish language (ISO 639-1: pl)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_pt
+msgid "Portuguese"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_pt
+msgid "Portuguese language (ISO 639-1: pt)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isced_4
+msgid "Post-Secondary Non-Tertiary Education"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.econ_potential_labour_force
+msgid "Potential Labour Force"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.ethnocultural_not_disclosed
+msgid "Prefer Not to Say"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.housing_collective
+msgid ""
+"Premises designed for habitation by large groups of individuals or several "
+"households, providing common facilities (institutions, camps, hotels, "
+"rooming houses)."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isced_1
+msgid "Primary Education"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_13
+msgid "Production and Specialized Services Managers"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_13
+msgid ""
+"Production and specialized services managers plan, direct, coordinate and "
+"evaluate the overall production, operations or service delivery activities "
+"of enterprises and organizations."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_2
+msgid "Professionals"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_2
+msgid ""
+"Professionals increase the existing stock of knowledge; apply scientific or "
+"artistic concepts and theories; teach about the foregoing in a systematic "
+"manner; or engage in any combination of these activities. Competent "
+"performance typically requires skills at the fourth ISCO skill level."
+msgstr ""
+
+#. module: spp_vocabulary
+#. odoo-python
+#: code:addons/spp_vocabulary/models/deployment_profile.py:0
+msgid "Profile Activated"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isced_2
+msgid ""
+"Programmes building on primary education, typically designed to lay the "
+"foundation for lifelong learning and human development. Often more subject-"
+"oriented than primary education, with more specialized teachers. Typically "
+"2-5 years duration, often ending after 8-9 years of education from the start"
+" of primary."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isced_8
+msgid ""
+"Programmes designed primarily to lead to an advanced research qualification,"
+" usually concluding with the submission and defence of a thesis or "
+"dissertation of publishable quality. Typically requires a minimum of 3 years"
+" full-time equivalent, with total duration commonly 5-8 years."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isced_7
+msgid ""
+"Programmes designed to provide advanced academic or professional knowledge, "
+"skills and competencies leading to a second tertiary degree or equivalent "
+"qualification. May include a substantial research component. Duration "
+"typically 1-4 years full-time equivalent following a bachelor's degree."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isced_6
+msgid ""
+"Programmes designed to provide intermediate academic or professional "
+"knowledge, skills and competencies leading to a first tertiary degree or "
+"equivalent qualification. Duration typically 3-4 years full-time equivalent "
+"(may be up to 6 years for professional programmes like medicine)."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isced_5
+msgid ""
+"Programmes designed to provide participants with professional knowledge, "
+"skills and competencies. Typically practically-based, occupationally-"
+"specific, and prepare students to enter the labour market. May also provide "
+"a pathway to other tertiary education programmes. Duration typically 2-3 "
+"years full-time equivalent."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isced_4
+msgid ""
+"Programmes providing learning experiences that build on secondary education "
+"and prepare for labour market entry or tertiary education. Content is not "
+"complex enough to be regarded as tertiary education although it is clearly "
+"post-secondary. Duration typically ranges from 6 months to 2-3 years."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isced_3
+msgid ""
+"Programmes typically designed to complete secondary education in preparation"
+" for tertiary education or to provide skills relevant to employment, or "
+"both. More varied, specialized and in-depth instruction than lower "
+"secondary. Typically 2-5 years duration, often ending after 12-13 years of "
+"education from the start of primary."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isced_1
+msgid ""
+"Programmes typically designed to provide students with fundamental skills in"
+" reading, writing and mathematics and to establish a solid foundation for "
+"learning. Entry age is typically between 5-7 years old, and duration is "
+"usually 4-7 years (most commonly 6 years)."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_54
+msgid "Protective Services Workers"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_54
+msgid ""
+"Protective services workers protect individuals and property against fire "
+"and other hazards, unlawful acts and other risks. They maintain order and "
+"enforce laws, regulations and organizational or enterprise rules."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_form
+msgid "Reference"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__reference_uri
+msgid "Reference URI"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__reference_url
+msgid "Reference URL"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_96
+msgid "Refuse Workers and Other Elementary Workers"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_96
+msgid ""
+"Refuse workers and other elementary workers collect refuse; recover "
+"recyclable material and perform other elementary tasks connected with "
+"keeping the environment clean; deliver and carry messages, documents and "
+"packages; and carry bags and luggage."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary,name:spp_vocabulary.vocab_relationship
+msgid "Relationship Type"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.concept.group,description:spp_vocabulary.group_rel_group_to_group
+msgid ""
+"Relationship types applicable between groups (organizational relationships)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.concept.group,description:spp_vocabulary.group_rel_mixed
+msgid ""
+"Relationship types applicable between individual and group (e.g., head of "
+"household)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.concept.group,description:spp_vocabulary.group_rel_individual_to_individual
+msgid ""
+"Relationship types applicable between individuals (familial relationships)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.concept.group,description:spp_vocabulary.group_head_of_household
+msgid ""
+"Relationship types indicating household head. Critical for determining "
+"household representatives and benefit distribution."
+msgstr ""
+
+#. module: spp_vocabulary
+#. odoo-python
+#: code:addons/spp_vocabulary/models/relationship.py:0
+msgid "Relationship vocabulary not found: %s"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__replaced_by_id
+msgid "Replaced By"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__activity_user_id
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__activity_user_id
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__activity_user_id
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__activity_user_id
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_mapping__activity_user_id
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__activity_user_id
+msgid "Responsible User"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.econ_retired
+msgid "Retired / Pensioner"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.housing_rowhouse
+msgid "Row House / Townhouse"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_ru
+msgid "Russian"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_ru
+msgid "Russian language (ISO 639-1: ru)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_52
+msgid "Sales Workers"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_52
+msgid ""
+"Sales workers sell and demonstrate goods in wholesale or retail shops, at "
+"stalls and markets, door to door, via telephone and over the Internet. They "
+"may record and accept payment for goods and services purchased, and may "
+"operate small retail outlets."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_31
+msgid "Science and Engineering Associate Professionals"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_21
+msgid "Science and Engineering Professionals"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_31
+msgid ""
+"Science and engineering associate professionals perform technical tasks "
+"connected with research and operational methods in science and engineering."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_21
+msgid ""
+"Science and engineering professionals conduct research; improve or develop "
+"concepts, theories and operational methods; or apply scientific knowledge "
+"relating to fields such as physics, astronomy, meteorology, chemistry, "
+"geophysics, geology, biology, ecology, pharmacology, medicine, mathematics, "
+"statistics, architecture, engineering, design and technology."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_mapping_search
+msgid "Search Code Mappings"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_concept_group_search
+msgid "Search Concept Groups"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_deployment_profile_search
+msgid "Search Deployment Profiles"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_search
+msgid "Search Vocabularies"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_code_search
+msgid "Search Vocabulary Codes"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_selection_search
+msgid "Search Vocabulary Selections"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_selection_form
+msgid "Select Deployment Profile"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_selection_form
+msgid "Select Vocabulary"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_selection_form
+msgid ""
+"Select codes from the parent selection that should be excluded\n"
+"                                    in this selection. This is only relevant when a parent selection\n"
+"                                    is specified."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_selection_form
+msgid ""
+"Select codes that are explicitly included in this selection.\n"
+"                                    If a parent selection is specified, these codes are added to\n"
+"                                    the parent's codes."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_res_config_settings__deployment_profile_id
+msgid ""
+"Select the deployment profile to activate for vocabulary code filtering. "
+"This determines which vocabulary codes are available for selection in the "
+"UI."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.ethnocultural_mixed
+msgid ""
+"Self-identified as having mixed ethnic or cultural heritage from multiple "
+"groups."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.ethnocultural_minority
+msgid ""
+"Self-identified member of an ethnic minority group. An ethnic minority is a "
+"group that is numerically smaller than the rest of the population and is in "
+"a non-dominant position, whose members possess ethnic, religious or "
+"linguistic characteristics differing from those of the rest of the "
+"population."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.ethnocultural_indigenous
+msgid ""
+"Self-identified member of indigenous peoples. Indigenous peoples are "
+"inheritors and practitioners of unique cultures and ways of relating to "
+"people and the environment, retaining social, cultural, economic and "
+"political characteristics distinct from those of the dominant societies in "
+"which they live. (UN definition)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.ethnocultural_majority
+msgid ""
+"Self-identified member of the ethnic majority or dominant group in the "
+"country or region."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.housing_semidetached
+msgid "Semi-Detached House"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.housing_traditional
+msgid "Semi-Permanent / Traditional Dwelling"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.code_marital_separated
+msgid "Separated"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__sequence
+msgid "Sequence"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_5
+msgid "Service and Sales Workers"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_5
+msgid ""
+"Service and sales workers provide personal and protective services related "
+"to travel, housekeeping, catering, personal care, or protection against fire"
+" and unlawful acts; or demonstrate and sell goods in wholesale or retail "
+"shops and similar establishments, as well as at stalls and markets. "
+"Competent performance typically requires skills at the second ISCO skill "
+"level."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_deployment_profile__is_active
+msgid ""
+"Set to True to make this the active deployment profile. Only one profile can"
+" be active per company at a time."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_deployment_profile__active
+msgid "Set to inactive to archive this profile without deleting it"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_selection__active
+msgid "Set to inactive to archive this selection without deleting it"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_code__active
+msgid "Set to inactive to disable this code without deleting it"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary__active
+msgid "Set to inactive to disable this vocabulary without deleting it"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_form
+msgid "Settings"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isced_5
+msgid "Short-Cycle Tertiary Education"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.code_rel_sibling
+msgid "Sibling"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_sgn
+msgid "Sign Language"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_sgn
+msgid ""
+"Sign languages (ISO 639-2 collection code: sgn). Used for general sign "
+"language when specific variety is not specified."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_si
+msgid "Sinhala"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_si
+msgid "Sinhala / Sinhalese language (ISO 639-1: si)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_6
+msgid "Skilled Agricultural, Forestry and Fishery Workers"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_6
+msgid ""
+"Skilled agricultural, forestry and fishery workers grow and harvest field or"
+" tree and shrub crops; gather wild fruits and plants; breed, tend or hunt "
+"animals; produce a variety of animal husbandry products; cultivate, conserve"
+" and exploit forests; breed or catch fish; and cultivate or gather other "
+"forms of aquatic life. Competent performance typically requires skills at "
+"the second ISCO skill level."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields.selection,name:spp_vocabulary.selection__spp_vocabulary__domain__social_assistance
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_search
+msgid "Social Assistance"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields.selection,name:spp_vocabulary.selection__spp_vocabulary__domain__social_insurance
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_search
+msgid "Social Insurance"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.code_rel_child_in_law
+msgid "Son/Daughter-in-law"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_mapping_form
+msgid "Source"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_mapping__source_id
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_mapping_list
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_mapping_search
+msgid "Source Code"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_mapping__source_vocabulary_id
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_mapping_list
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_mapping_search
+msgid "Source Vocabulary"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_za
+msgid "South Africa"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_es
+msgid "Spanish"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_es
+msgid "Spanish / Castilian language (ISO 639-1: es)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.code_rel_spouse
+msgid "Spouse/Partner"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_lk
+msgid "Sri Lanka"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_stateless
+msgid "Stateless"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_81
+msgid "Stationary Plant and Machine Operators"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_81
+msgid ""
+"Stationary plant and machine operators operate and monitor stationary "
+"industrial plant, machinery and equipment; or assemble products from "
+"component parts according to strict specifications and procedures."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_selection_form
+msgid "Statistics"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_deployment_profile_form
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_deployment_profile_search
+msgid "Status"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_deployment_profile__activity_state
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary__activity_state
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_code__activity_state
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_concept_group__activity_state
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_mapping__activity_state
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_selection__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_95
+msgid "Street and Related Sales and Service Workers"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_95
+msgid ""
+"Street and related sales and service workers sell goods from stalls at "
+"markets or on street corners; provide various street services; and collect "
+"refuse, recover recyclable material, and sweep streets and similar places."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.econ_student
+msgid "Student"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.code_rel_subsidiary
+msgid "Subsidiary"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_63
+msgid "Subsistence Farmers, Fishers, Hunters and Gatherers"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_63
+msgid ""
+"Subsistence farmers, fishers, hunters and gatherers grow and harvest field "
+"or tree and shrub crops; gather wild fruits and plants; tend or hunt "
+"animals; catch fish and gather various forms of aquatic life in order to "
+"provide food, shelter and a minimum of cash income for themselves and their "
+"households."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_sw
+msgid "Swahili"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_sw
+msgid "Swahili / Kiswahili language (ISO 639-1: sw)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_sy
+msgid "Syrian Arab Republic"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_form
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_search
+msgid "System"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__is_system
+msgid "System Vocabulary"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary__is_system
+msgid "System vocabularies cannot be edited by users"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_search
+msgid "System/Custom"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_tl
+msgid "Tagalog"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_tl
+msgid "Tagalog language. Basis for Filipino (ISO 639-1: tl)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_ta
+msgid "Tamil"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_ta
+msgid "Tamil language (ISO 639-1: ta)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_tz
+msgid "Tanzania, United Republic of"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_mapping_form
+msgid "Target"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_mapping__target_id
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_code_form
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_mapping_list
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_mapping_search
+msgid "Target Code"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_concept_group__target_field
+msgid "Target Field"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_mapping__target_vocabulary_id
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_mapping_list
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_mapping_search
+msgid "Target Vocabulary"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_23
+msgid "Teaching Professionals"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_23
+msgid ""
+"Teaching professionals teach the theory and practice of one or more "
+"disciplines at different educational levels; conduct research; improve or "
+"develop concepts, theories and operational methods pertaining to their "
+"particular discipline; and prepare scholarly papers and books."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_concept_group_form
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_deployment_profile_form
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_code_form
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_form
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_mapping_form
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_selection_form
+msgid "Technical"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:res.groups,comment:spp_vocabulary.group_vocabulary_read
+msgid "Technical group for read access to vocabulary models."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:res.groups,comment:spp_vocabulary.group_vocabulary_create
+msgid ""
+"Technical group for vocabulary create access. Grants permission to create "
+"new vocabulary records."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:res.groups,comment:spp_vocabulary.group_vocabulary_write
+msgid "Technical group for write access to vocabulary models."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isco_3
+msgid "Technicians and Associate Professionals"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.isco_3
+msgid ""
+"Technicians and associate professionals perform mostly technical and related"
+" tasks connected with research and the application of scientific or artistic"
+" concepts and operational methods, and government or business regulations. "
+"Competent performance typically requires skills at the third ISCO skill "
+"level."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_th
+msgid "Thai"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_th
+msgid "Thai language (ISO 639-1: th)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_th
+msgid "Thailand"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_mapping__source_id
+msgid "The code being mapped from"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_mapping__target_id
+msgid "The code being mapped to"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_selection__deployment_profile_id
+msgid "The deployment profile this selection belongs to"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_concept_group__target_field
+msgid ""
+"The field this concept checks (e.g., 'gender_id' for is_female). Used to "
+"auto-generate CEL expressions like 'is_female(r.gender_id)'."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_code__vocabulary_id
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_mapping__source_vocabulary_id
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_mapping__target_vocabulary_id
+msgid "The vocabulary this code belongs to"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_selection__vocabulary_id
+msgid "The vocabulary to configure code selection for"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_selection_form
+msgid ""
+"These are all codes that are effective in this selection,\n"
+"                                    including codes from the parent selection (if any), minus\n"
+"                                    any excluded codes, plus explicitly included codes."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_tl
+msgid "Timor-Leste"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__total_code_count
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_deployment_profile_list
+msgid "Total Codes"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_deployment_profile__total_code_count
+msgid "Total number of active codes across all vocabularies"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary__code_count
+msgid "Total number of codes in this vocabulary"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_selection__effective_code_count
+msgid "Total number of effective codes"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_tr
+msgid "Turkish"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_tr
+msgid "Turkish language (ISO 639-1: tr)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_mapping__equivalence
+msgid "Type of equivalence between source and target codes"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_deployment_profile__activity_exception_decoration
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary__activity_exception_decoration
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_code__activity_exception_decoration
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_concept_group__activity_exception_decoration
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_mapping__activity_exception_decoration
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_selection__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary,description:spp_vocabulary.vocab_group_type
+msgid "Types of groups in the registry (e.g., household, family, farm)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary,description:spp_vocabulary.vocab_group_membership_type
+msgid "Types of membership roles within a group (e.g., head, child, spouse)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_tr
+msgid "Türkiye"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.constraint,message:spp_vocabulary.constraint_spp_vocabulary_code_unique_uri
+msgid "URI must be globally unique"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_ug
+msgid "Uganda"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_ua
+msgid "Ukraine"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_uk
+msgid "Ukrainian"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_uk
+msgid "Ukrainian language (ISO 639-1: uk)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.econ_unable_to_work
+msgid "Unable to Work (Disability/Illness)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_und
+msgid "Undetermined / Unknown"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.econ_unemployed
+msgid "Unemployed"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_gb
+msgid "United Kingdom"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_us
+msgid "United States of America"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_unknown
+msgid "Unknown / Not Stated"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.isced_3
+msgid "Upper Secondary Education"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_ur
+msgid "Urdu"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_ur
+msgid "Urdu language (ISO 639-1: ur)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_concept_group__cel_function
+msgid "User-friendly CEL function name (e.g., 'is_female', 'is_pregnant')"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary__version
+msgid "Version"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary__version
+msgid "Version of the vocabulary (e.g., '2024')"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_vn
+msgid "Viet Nam"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.lang_vi
+msgid "Vietnamese"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.lang_vi
+msgid "Vietnamese language (ISO 639-1: vi)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:res.groups,name:spp_vocabulary.group_vocabulary_viewer
+msgid "Viewer"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.actions.act_window,name:spp_vocabulary.action_vocabulary
+#: model:ir.ui.menu,name:spp_vocabulary.menu_vocabulary_root
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_deployment_profile_list
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_list
+msgid "Vocabularies"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.actions.act_window,help:spp_vocabulary.action_vocabulary
+msgid ""
+"Vocabularies are collections of codes with global namespace URIs.\n"
+"                They provide standardized terminology for use across OpenSPP modules,\n"
+"                supporting international standards like ISO, WHO ICF, and ILO ISCO."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model,name:spp_vocabulary.model_spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_code__vocabulary_id
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__vocabulary_id
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_code_search
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_form
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_mapping_form
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_selection_search
+msgid "Vocabulary"
+msgstr ""
+
+#. module: spp_vocabulary
+#. odoo-python
+#: code:addons/spp_vocabulary/models/vocabulary_selection.py:0
+msgid "Vocabulary '%s' already has a selection in profile '%s'."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model,name:spp_vocabulary.model_spp_vocabulary_code
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_code_form
+msgid "Vocabulary Code"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model,name:spp_vocabulary.model_spp_vocabulary_mapping
+msgid "Vocabulary Code Mapping"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.actions.act_window,name:spp_vocabulary.action_vocabulary_code
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_code_list
+msgid "Vocabulary Codes"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model,name:spp_vocabulary.model_spp_vocabulary_concept_group
+msgid "Vocabulary Concept Group"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__vocabulary_count
+msgid "Vocabulary Count"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:res.groups.privilege,name:spp_vocabulary.privilege_vocabulary_manager
+msgid "Vocabulary Manager"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_form
+msgid "Vocabulary Name"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_vocabulary_selection__vocabulary_namespace
+msgid "Vocabulary Namespace"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:res.groups.privilege,name:spp_vocabulary.privilege_vocabulary_officer
+msgid "Vocabulary Officer"
+msgstr ""
+
+#. module: spp_vocabulary
+#. odoo-python
+#: code:addons/spp_vocabulary/models/vocabulary_selection.py:0
+#: model:ir.model,name:spp_vocabulary.model_spp_vocabulary_selection
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_selection_form
+msgid "Vocabulary Selection"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.actions.act_window,name:spp_vocabulary.action_vocabulary_selection
+#: model:ir.model.fields,field_description:spp_vocabulary.field_spp_deployment_profile__vocabulary_selection_ids
+#: model:ir.ui.menu,name:spp_vocabulary.menu_vocabulary_selection
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_deployment_profile_form
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_selection_list
+msgid "Vocabulary Selections"
+msgstr ""
+
+#. module: spp_vocabulary
+#. odoo-python
+#: code:addons/spp_vocabulary/models/deployment_profile.py:0
+msgid "Vocabulary Selections: %s"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:res.groups.privilege,name:spp_vocabulary.privilege_vocabulary_viewer
+msgid "Vocabulary Viewer"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.actions.act_window,help:spp_vocabulary.action_vocabulary_code
+msgid ""
+"Vocabulary codes are individual values within a vocabulary.\n"
+"                They can be organized hierarchically and mapped to codes in other vocabularies\n"
+"                for interoperability and reporting across different standards."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields,help:spp_vocabulary.field_spp_vocabulary_concept_group__code_ids
+msgid "Vocabulary codes that belong to this concept group"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.actions.act_window,help:spp_vocabulary.action_vocabulary_selection
+msgid ""
+"Vocabulary selections define which codes from a specific vocabulary\n"
+"                are active in a deployment profile. You can inherit from parent\n"
+"                selections to reduce duplication, and exclude specific codes as needed."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:res.groups,name:spp_vocabulary.group_vocabulary_create
+msgid "Vocabulary: Create"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:res.groups,name:spp_vocabulary.group_vocabulary_read
+msgid "Vocabulary: Read"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:res.groups,name:spp_vocabulary.group_vocabulary_write
+msgid "Vocabulary: Write"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields.selection,name:spp_vocabulary.selection__spp_vocabulary_code__equivalence__wider
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_mapping_search
+msgid "Wider"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:ir.model.fields.selection,name:spp_vocabulary.selection__spp_vocabulary_mapping__equivalence__wider
+msgid "Wider (target more general)"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.code_marital_widowed
+msgid "Widowed"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_selection_search
+msgid "With Parent"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_selection_search
+msgid "Without Parent"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,definition:spp_vocabulary.econ_dependent_contractor
+msgid ""
+"Workers who have contractual arrangements of a commercial nature (not "
+"employment contracts) but are dependent on another entity for organization "
+"of work, income, or access to the market."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model:spp.vocabulary.code,display:spp_vocabulary.country_ye
+msgid "Yemen"
+msgstr ""
+
+#. module: spp_vocabulary
+#. odoo-python
+#: code:addons/spp_vocabulary/models/vocabulary_code.py:0
+msgid "You cannot create recursive parent relationships."
+msgstr ""
+
+#. module: spp_vocabulary
+#. odoo-python
+#: code:addons/spp_vocabulary/models/vocabulary_selection.py:0
+msgid "You cannot create recursive parent selection relationships."
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_concept_group_form
+msgid "e.g., gender_id"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_concept_group_form
+msgid "e.g., is_female"
+msgstr ""
+
+#. module: spp_vocabulary
+#: model_terms:ir.ui.view,arch_db:spp_vocabulary.view_vocabulary_form
+msgid "https://..."
+msgstr ""

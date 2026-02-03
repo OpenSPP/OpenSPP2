@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- DRIMS Menus with Actions -->
+    <!-- Parent menu structure is in menu_structure.xml (loaded early) -->
+
+    <!-- Dashboard - Also accessible via root menu click -->
+    <menuitem id="menu_drims_dashboard"
+              name="Dashboard"
+              parent="menu_drims_root"
+              action="drims_dashboard_action"
+              sequence="5"/>
+
+    <!-- Activity Feed -->
+    <menuitem id="menu_drims_activity"
+              name="Activity Feed"
+              parent="menu_drims_root"
+              action="action_drims_activity_feed"
+              sequence="8"/>
+
+    <!-- ============================================ -->
+    <!-- RECEIVE SUPPLIES (Inbound) -->
+    <!-- ============================================ -->
+
+    <menuitem id="menu_drims_donations"
+              name="Donations"
+              parent="menu_drims_receive"
+              action="action_drims_donation"
+              sequence="10"/>
+
+    <menuitem id="menu_drims_returns"
+              name="Returns"
+              parent="menu_drims_receive"
+              action="action_spp_drims_return"
+              sequence="20"/>
+
+    <!-- ============================================ -->
+    <!-- FULFILL REQUESTS (Outbound) -->
+    <!-- ============================================ -->
+
+    <menuitem id="menu_drims_requests"
+              name="All Requests"
+              parent="menu_drims_fulfill"
+              action="action_drims_request"
+              sequence="10"/>
+
+    <menuitem id="menu_drims_my_requests"
+              name="My Requests"
+              parent="menu_drims_fulfill"
+              action="action_my_drims_requests"
+              sequence="20"/>
+
+    <menuitem id="menu_drims_pending_approval"
+              name="Pending Approval"
+              parent="menu_drims_fulfill"
+              action="action_pending_drims_requests"
+              groups="group_drims_approver"
+              sequence="30"/>
+
+    <menuitem id="menu_drims_dispatches"
+              name="Dispatches"
+              parent="menu_drims_fulfill"
+              action="action_drims_dispatch"
+              sequence="40"/>
+
+    <!-- ============================================ -->
+    <!-- INVENTORY -->
+    <!-- ============================================ -->
+
+    <menuitem id="menu_drims_stock_on_hand"
+              name="Stock On Hand"
+              parent="menu_drims_inventory"
+              action="action_drims_stock_quant"
+              sequence="10"/>
+
+    <menuitem id="menu_drims_warehouses"
+              name="Warehouses"
+              parent="menu_drims_inventory"
+              action="action_drims_warehouse"
+              sequence="20"/>
+
+    <menuitem id="menu_drims_products"
+              name="Products"
+              parent="menu_drims_inventory"
+              action="action_drims_product"
+              sequence="30"/>
+
+    <menuitem id="menu_drims_product_categories"
+              name="Product Categories"
+              parent="menu_drims_inventory"
+              action="action_drims_product_category"
+              groups="group_drims_manager"
+              sequence="40"/>
+
+    <menuitem id="menu_drims_lots"
+              name="Lots &amp; Batches"
+              parent="menu_drims_inventory"
+              action="action_drims_lot"
+              sequence="50"/>
+
+    <!-- ============================================ -->
+    <!-- MONITORING -->
+    <!-- ============================================ -->
+
+    <menuitem id="menu_drims_alerts"
+              name="Alerts"
+              parent="menu_drims_monitoring"
+              action="action_spp_drims_alert"
+              sequence="10"/>
+
+    <menuitem id="menu_drims_top_priority"
+              name="Top Priority"
+              parent="menu_drims_monitoring"
+              action="action_top_priority_drims_requests"
+              sequence="20"/>
+
+    <menuitem id="menu_drims_personnel"
+              name="Personnel"
+              parent="menu_drims_monitoring"
+              action="action_spp_drims_personnel"
+              sequence="30"/>
+
+    <!-- ============================================ -->
+    <!-- CONFIGURATION -->
+    <!-- ============================================ -->
+
+    <menuitem id="menu_drims_templates"
+              name="Request Templates"
+              parent="menu_drims_config"
+              action="drims_request_template_action"
+              sequence="10"/>
+</odoo>

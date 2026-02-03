@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        OpenSPP Studio Dashboard
+        ========================
+        Simple landing page with navigation to Studio features.
+    -->
+
+    <!-- Dashboard Form View -->
+    <record id="view_studio_dashboard_form" model="ir.ui.view">
+        <field name="name">spp.studio.dashboard.form</field>
+        <field name="model">spp.studio.dashboard</field>
+        <field name="arch" type="xml">
+            <form string="Studio" create="false" edit="false" delete="false">
+                <sheet>
+                    <div class="container-fluid">
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h1 class="mb-2">OpenSPP Studio</h1>
+                                <p class="text-muted lead">
+                                    Configure your social protection system without code.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions Grid -->
+                        <div class="row">
+                            <!-- Expressions -->
+                            <div class="col-md-6 col-lg-4 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Expressions</h5>
+                                        <p class="card-text text-muted">
+                                            Build eligibility rules, benefit calculations, and compliance checks.
+                                        </p>
+                                        <button name="action_open_expressions"
+                                                string="Open Expressions →"
+                                                type="object"
+                                                class="btn btn-primary"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Variables -->
+                            <div class="col-md-6 col-lg-4 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Variables</h5>
+                                        <p class="card-text text-muted">
+                                            Define reusable variables for expressions (fields, computed values, aggregates).
+                                        </p>
+                                        <button name="action_open_variables"
+                                                string="Open Variables →"
+                                                type="object"
+                                                class="btn btn-primary"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Custom Fields -->
+                            <div class="col-md-6 col-lg-4 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Custom Fields</h5>
+                                        <p class="card-text text-muted">
+                                            Add custom fields to individual and group registries.
+                                        </p>
+                                        <button name="action_manage_registry_fields"
+                                                string="Open Custom Fields →"
+                                                type="object"
+                                                class="btn btn-primary"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Event Types -->
+                            <div class="col-md-6 col-lg-4 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Event Types</h5>
+                                        <p class="card-text text-muted">
+                                            Define data collection forms for surveys, assessments, and field visits.
+                                        </p>
+                                        <button name="action_manage_event_types"
+                                                string="Open Event Types →"
+                                                type="object"
+                                                class="btn btn-primary"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Change Requests -->
+                            <div class="col-md-6 col-lg-4 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Change Requests</h5>
+                                        <p class="card-text text-muted">
+                                            Configure change request types for updating registrant information.
+                                        </p>
+                                        <button name="action_manage_change_request_types"
+                                                string="Open Change Requests →"
+                                                type="object"
+                                                class="btn btn-primary"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Dashboard Action -->
+    <record id="action_studio_dashboard" model="ir.actions.act_window">
+        <field name="name">Studio</field>
+        <field name="path">studio</field>
+        <field name="res_model">spp.studio.dashboard</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+        <field name="context">{}</field>
+    </record>
+</odoo>

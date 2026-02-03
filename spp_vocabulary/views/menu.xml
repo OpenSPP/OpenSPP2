@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Child menu items with actions -->
+    <!-- This file must be loaded AFTER view files that define actions -->
+
+    <!-- Vocabularies Menu -->
+    <menuitem
+        id="menu_vocabulary"
+        name="Manage Vocabularies"
+        action="action_vocabulary"
+        parent="menu_vocabulary_root"
+        sequence="10"
+    />
+
+    <!-- Vocabulary Codes Menu -->
+    <menuitem
+        id="menu_vocabulary_code"
+        name="All Codes"
+        action="action_vocabulary_code"
+        parent="menu_vocabulary_root"
+        sequence="20"
+    />
+
+    <!-- Vocabulary Mappings Menu -->
+    <menuitem
+        id="menu_vocabulary_mapping"
+        name="Code Mappings"
+        action="action_vocabulary_mapping"
+        parent="menu_vocabulary_root"
+        sequence="30"
+    />
+
+    <!-- Concept Groups Menu (defined here since action is in concept_group_views.xml) -->
+    <menuitem
+        id="menu_concept_group"
+        name="Concept Groups"
+        parent="menu_vocabulary_root"
+        action="action_concept_group"
+        sequence="40"
+    />
+
+    <!-- Deployment Profiles Menu (defined here since action is in deployment_profile_views.xml) -->
+    <menuitem
+        id="menu_deployment_profile"
+        name="Deployment Profiles"
+        parent="menu_vocabulary_root"
+        action="action_deployment_profile"
+        sequence="50"
+    />
+
+    <!-- Vocabulary Selections Menu (defined here since action is in vocabulary_selection_views.xml) -->
+    <menuitem
+        id="menu_vocabulary_selection"
+        name="Vocabulary Selections"
+        parent="menu_vocabulary_root"
+        action="action_vocabulary_selection"
+        sequence="60"
+    />
+</odoo>

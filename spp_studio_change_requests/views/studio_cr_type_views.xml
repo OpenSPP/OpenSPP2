@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_studio_cr_type_tree" model="ir.ui.view">
+        <field name="name">spp.studio.change.request.type.tree</field>
+        <field name="model">spp.studio.change.request.type</field>
+        <field name="arch" type="xml">
+            <list string="Change Request Types" decoration-muted="state == 'inactive'">
+                <field name="name"/>
+                <field name="technical_name"/>
+                <field name="target_type"/>
+                <field name="field_count"/>
+                <field name="requires_approval"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'active'"
+                       decoration-info="state == 'draft'"
+                       decoration-muted="state == 'inactive'"/>
+                <field name="created_by_id"/>
+                <field name="activated_date"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Editable Tree View (for table edit mode) -->
+    <record id="view_studio_cr_type_tree_editable" model="ir.ui.view">
+        <field name="name">spp.studio.change.request.type.tree.editable</field>
+        <field name="model">spp.studio.change.request.type</field>
+        <field name="arch" type="xml">
+            <list string="Change Request Types (Table Edit)"
+                  editable="bottom"
+                  decoration-muted="state == 'inactive'"
+                  decoration-info="state == 'draft'">
+                <field name="name" readonly="state == 'active'"/>
+                <field name="target_type" readonly="state == 'active'"/>
+                <field name="requires_approval" readonly="state == 'active'"/>
+                <field name="approval_group_id"
+                       readonly="state == 'active'"
+                       invisible="not requires_approval"
+                       options="{'no_create': True}"/>
+                <field name="auto_apply"
+                       readonly="state == 'active'"
+                       invisible="not requires_approval"
+                       optional="hide"/>
+                <field name="field_count" string="Fields"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'active'"
+                       decoration-info="state == 'draft'"
+                       decoration-muted="state == 'inactive'"/>
+                <button name="action_activate"
+                        string="Activate"
+                        type="object"
+                        icon="fa-check"
+                        class="btn-link text-success"
+                        invisible="state != 'draft'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_studio_cr_type_form" model="ir.ui.view">
+        <field name="name">spp.studio.change.request.type.form</field>
+        <field name="model">spp.studio.change.request.type</field>
+        <field name="arch" type="xml">
+            <form string="Change Request Type">
+                <header>
+                    <button name="action_activate"
+                            string="Activate"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'draft'"
+                            groups="spp_studio.group_studio_manager"/>
+                    <button name="action_deactivate"
+                            string="Deactivate"
+                            type="object"
+                            class="btn-secondary"
+                            invisible="state != 'active'"
+                            groups="spp_studio.group_studio_manager"/>
+                    <button name="action_reactivate"
+                            string="Reactivate"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'inactive'"
+                            groups="spp_studio.group_studio_manager"/>
+                    <button name="action_view_change_requests"
+                            string="View Requests"
+                            type="object"
+                            class="btn-secondary"
+                            invisible="state != 'active'"/>
+                    <button name="action_regenerate_form_view"
+                            string="Regenerate Form View"
+                            type="object"
+                            class="btn-secondary"
+                            invisible="state != 'active'"
+                            groups="spp_studio.group_studio_manager"
+                            confirm="This will regenerate the detail form view. Continue?"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,active"/>
+                </header>
+                <!-- Info banner for active types - editable field mappings -->
+                <div class="alert alert-info mb-0" role="alert" invisible="state != 'active'">
+                    <span class="fa fa-info-circle me-2" title="Info"/>
+                    <strong>Active Type:</strong> You can add or modify field mappings.
+                    Changes will affect new change requests only.
+                    Core settings (name, target, approval) cannot be changed while active.
+                </div>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_change_requests"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-tasks"
+                                invisible="state != 'active'">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">View</span>
+                                <span class="o_stat_text">Requests</span>
+                            </div>
+                        </button>
+                    </div>
+
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1>
+                            <field name="name" placeholder="e.g., Address Update Request"
+                                   readonly="state == 'active'"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group name="basic_info">
+                            <field name="technical_name" readonly="1"/>
+                            <field name="target_type" widget="radio"
+                                   readonly="state == 'active'"/>
+                            <field name="field_count"/>
+                        </group>
+                        <group name="approval_config">
+                            <field name="requires_approval"
+                                   readonly="state == 'active'"/>
+                            <field name="approval_group_id"
+                                   invisible="not requires_approval"
+                                   readonly="state == 'active'"/>
+                            <field name="auto_apply"
+                                   invisible="not requires_approval"
+                                   readonly="state == 'active'"/>
+                        </group>
+                    </group>
+
+                    <separator string="Description"/>
+                    <field name="description" nolabel="1"
+                           placeholder="Describe what this change request is for..."
+                           readonly="state == 'active'" class="oe_inline"/>
+
+                    <notebook>
+                        <page string="Field Mappings" name="field_mappings">
+                            <!-- Field mappings can be edited even when active -->
+                            <field name="field_mapping_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="field_id"
+                                           domain="[('model', '=', 'res.partner'), ('store', '=', True)]"
+                                           options="{'no_create': True}"/>
+                                    <field name="label"/>
+                                    <field name="field_type" optional="hide"/>
+                                    <field name="is_required"/>
+                                    <field name="is_readonly"/>
+                                    <field name="validation_type" optional="hide"/>
+                                </list>
+                                <form>
+                                    <group>
+                                        <group>
+                                            <field name="field_id"
+                                                   domain="[('model', '=', 'res.partner'), ('store', '=', True)]"/>
+                                            <field name="field_type"/>
+                                            <field name="label"/>
+                                            <field name="sequence"/>
+                                        </group>
+                                        <group>
+                                            <field name="is_required"/>
+                                            <field name="is_readonly"/>
+                                        </group>
+                                    </group>
+                                    <group string="Help Text">
+                                        <field name="help_text" nolabel="1"/>
+                                    </group>
+                                    <group string="Validation" name="validation">
+                                        <field name="validation_type"/>
+                                        <field name="validation_rule"
+                                               invisible="validation_type == 'none'"/>
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+
+                        <page string="Technical Info" name="technical" groups="base.group_no_one">
+                            <group>
+                                <group string="Odoo Integration">
+                                    <field name="spp_change_request_type_id" readonly="1"/>
+                                    <field name="detail_model_id" readonly="1"/>
+                                </group>
+                                <group string="Programs">
+                                    <field name="program_ids" widget="many2many_tags" nolabel="1"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Audit Trail" name="audit">
+                            <group>
+                                <group string="Creation">
+                                    <field name="created_by_id" readonly="1"/>
+                                    <field name="created_date" readonly="1"/>
+                                </group>
+                                <group string="Activation">
+                                    <field name="activated_by_id" readonly="1"/>
+                                    <field name="activated_date" readonly="1"/>
+                                </group>
+                                <group string="Deactivation">
+                                    <field name="deactivated_by_id" readonly="1"/>
+                                    <field name="deactivated_date" readonly="1"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_studio_cr_type_search" model="ir.ui.view">
+        <field name="name">spp.studio.change.request.type.search</field>
+        <field name="model">spp.studio.change.request.type</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="technical_name"/>
+                <field name="description"/>
+                <separator/>
+                <filter string="Draft" name="draft"
+                        domain="[('state', '=', 'draft')]"/>
+                <filter string="Active" name="active"
+                        domain="[('state', '=', 'active')]"/>
+                <filter string="Inactive" name="inactive"
+                        domain="[('state', '=', 'inactive')]"/>
+                <separator/>
+                <filter string="Individual" name="individual"
+                        domain="[('target_type', 'in', ['individual', 'both'])]"/>
+                <filter string="Group" name="group"
+                        domain="[('target_type', 'in', ['group', 'both'])]"/>
+                <separator/>
+                <filter string="Requires Approval" name="requires_approval"
+                        domain="[('requires_approval', '=', True)]"/>
+                <group>
+                    <filter string="Status" name="group_state"
+                            context="{'group_by': 'state'}"/>
+                    <filter string="Target Type" name="group_target"
+                            context="{'group_by': 'target_type'}"/>
+                    <filter string="Created By" name="group_creator"
+                            context="{'group_by': 'created_by_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_studio_cr_type" model="ir.actions.act_window">
+        <field name="name">Change Request Types</field>
+        <field name="path">studio-change-request-types</field>
+        <field name="res_model">spp.studio.change.request.type</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first Change Request Type
+            </p>
+            <p>
+                Change request types allow beneficiaries or operators to propose
+                modifications to registry data with approval workflow.
+            </p>
+            <p>
+                Click the Create button to start the wizard, or use the
+                "New Change Request Type" button for a guided experience.
+            </p>
+        </field>
+    </record>
+
+    <!-- Table Edit Action -->
+    <record id="action_studio_cr_type_table" model="ir.actions.act_window">
+        <field name="name">Change Request Types (Table Edit)</field>
+        <field name="res_model">spp.studio.change.request.type</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_studio_cr_type_tree_editable"/>
+        <field name="search_view_id" ref="view_studio_cr_type_search"/>
+        <field name="context">{'search_default_draft': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No change request types yet
+            </p>
+            <p>
+                Create change request types directly in the table below.
+                Only draft types can be edited - active ones must be deactivated first.
+            </p>
+        </field>
+    </record>
+</odoo>

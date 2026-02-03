@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hdx_cod_source_user,HDX COD Source User,model_spp_hdx_cod_source,group_hdx_user,1,0,0,0
+access_hdx_cod_source_manager,HDX COD Source Manager,model_spp_hdx_cod_source,group_hdx_manager,1,1,1,1
+access_hdx_cod_resource_user,HDX COD Resource User,model_spp_hdx_cod_resource,group_hdx_user,1,0,0,0
+access_hdx_cod_resource_manager,HDX COD Resource Manager,model_spp_hdx_cod_resource,group_hdx_manager,1,1,1,1
+access_hdx_cod_import_wizard,HDX COD Import Wizard,model_spp_hdx_cod_import_wizard,group_hdx_manager,1,1,1,1

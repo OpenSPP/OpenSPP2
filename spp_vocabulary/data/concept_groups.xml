@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Concept Groups for Standard Vocabularies -->
+
+    <!-- Feminine Gender Group -->
+    <record id="group_feminine_gender" model="spp.vocabulary.concept.group">
+        <field name="name">feminine_gender</field>
+        <field name="label">Feminine Gender</field>
+        <field name="cel_function">is_female</field>
+        <field name="target_field">gender_id</field>
+        <field name="description">Gender identities eligible for maternal/women's programs. Includes standard female gender codes and can be extended with local equivalents.</field>
+        <field name="code_ids" eval="[Command.set([ref('code_gender_female')])]"/>
+    </record>
+
+    <!-- Masculine Gender Group -->
+    <record id="group_masculine_gender" model="spp.vocabulary.concept.group">
+        <field name="name">masculine_gender</field>
+        <field name="label">Masculine Gender</field>
+        <field name="cel_function">is_male</field>
+        <field name="target_field">gender_id</field>
+        <field name="description">Male gender identities. Useful for programs targeting male beneficiaries or for demographic analysis.</field>
+        <field name="code_ids" eval="[Command.set([ref('code_gender_male')])]"/>
+    </record>
+
+    <!-- Head of Household Relationship Group -->
+    <record id="group_head_of_household" model="spp.vocabulary.concept.group">
+        <field name="name">head_of_household</field>
+        <field name="label">Head of Household</field>
+        <field name="cel_function">is_head</field>
+        <field name="description">Relationship types indicating household head. Critical for determining household representatives and benefit distribution.</field>
+        <field name="code_ids" eval="[Command.set([ref('code_rel_head')])]"/>
+    </record>
+</odoo>

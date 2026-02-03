@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- This file is kept for backward compatibility but groups are now in groups.xml -->
+    <!-- Groups are defined in security/groups.xml following ADR-004 -->
+</odoo>

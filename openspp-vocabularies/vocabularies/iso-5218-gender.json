@@ -1,0 +1,16 @@
+{
+  "name": "ISO 5218 Gender Codes",
+  "namespace": "urn:iso:std:iso:5218",
+  "version": "2004",
+  "source_url": "https://www.iso.org/standard/36266.html",
+  "source_standard": "ISO/IEC 5218:2004",
+  "last_updated": "2024-01-15",
+  "domain": "core",
+  "is_hierarchical": false,
+  "codes": [
+    {"code": "0", "display": "Not known", "definition": "Gender not known or not specified"},
+    {"code": "1", "display": "Male", "definition": "Male gender"},
+    {"code": "2", "display": "Female", "definition": "Female gender"},
+    {"code": "9", "display": "Not applicable", "definition": "Not applicable (e.g., for organizations)"}
+  ]
+}

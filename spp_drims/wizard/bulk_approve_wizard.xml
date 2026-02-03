@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Bulk Approve Wizard Form -->
+    <record id="view_drims_bulk_approve_wizard_form" model="ir.ui.view">
+        <field name="name">spp.drims.bulk.approve.wizard.form</field>
+        <field name="model">spp.drims.bulk.approve.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Bulk Approve Requests">
+                <group>
+                    <div class="alert alert-info" role="alert">
+                        <field name="summary" nolabel="1" readonly="1"/>
+                    </div>
+                </group>
+                <group string="Selected Requests">
+                    <field name="request_ids" nolabel="1" readonly="1">
+                        <list>
+                            <field name="reference"/>
+                            <field name="destination_area_id"/>
+                            <field name="priority_id" widget="badge"/>
+                            <field name="total_value" sum="Total"/>
+                        </list>
+                    </field>
+                </group>
+                <footer>
+                    <button name="action_approve" string="Approve All"
+                            type="object" class="btn-primary"/>
+                    <button name="action_reject" string="Reject All"
+                            type="object" class="btn-danger"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Bulk Reject Wizard Form -->
+    <record id="view_drims_bulk_reject_wizard_form" model="ir.ui.view">
+        <field name="name">spp.drims.bulk.reject.wizard.form</field>
+        <field name="model">spp.drims.bulk.reject.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reject Requests">
+                <group>
+                    <div class="alert alert-warning" role="alert">
+                        <p>You are about to reject <b><field name="request_ids" invisible="1"/></b>
+                        requests. Please provide a reason.</p>
+                    </div>
+                    <field name="reason" placeholder="Enter rejection reason..."/>
+                </group>
+                <footer>
+                    <button name="action_reject" string="Reject All"
+                            type="object" class="btn-danger"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Server Action to Open Bulk Approve Wizard -->
+    <record id="action_drims_bulk_approve" model="ir.actions.server">
+        <field name="name">Bulk Approve</field>
+        <field name="model_id" ref="model_spp_drims_request"/>
+        <field name="binding_model_id" ref="model_spp_drims_request"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    action = {
+        'type': 'ir.actions.act_window',
+        'name': 'Bulk Approve Requests',
+        'res_model': 'spp.drims.bulk.approve.wizard',
+        'view_mode': 'form',
+        'target': 'new',
+        'context': {
+            'default_request_ids': records.ids,
+        },
+    }
+        </field>
+    </record>
+</odoo>

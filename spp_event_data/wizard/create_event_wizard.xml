@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <record id="view_spp_create_event_wizard_form" model="ir.ui.view">
+        <field name="name">spp.create.event.wizard.form</field>
+        <field name="model">spp.create.event.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="partner_id" readonly="1" />
+                        <field name="event_type_id"
+                               options="{'no_create': True}"
+                               placeholder="Select Event Type..." />
+                        <field name="event_data_model"
+                               invisible="event_type_id"
+                               string="Legacy Type (optional)" />
+                        <field name="registrar" string="Collector Name" />
+                        <field name="collection_date" />
+                        <field name="expiry_date" />
+                    </group>
+                    <group invisible="not event_type_id">
+                        <field name="event_data" widget="json"
+                               placeholder="Optional: Enter event data as JSON" />
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="create_event" string="Create Event"
+                            type="object" class="oe_highlight"
+                            invisible="not event_type_id" />
+                    <button name="next_page" string="Next"
+                            type="object" class="oe_highlight"
+                            invisible="event_type_id" />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

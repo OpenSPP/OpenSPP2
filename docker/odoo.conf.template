@@ -1,0 +1,110 @@
+[options]
+# =============================================================================
+# Database configuration
+# =============================================================================
+db_host = ${DB_HOST}
+db_port = ${DB_PORT}
+db_user = ${DB_USER}
+db_password = ${DB_PASSWORD}
+db_name = ${DB_NAME}
+db_sslmode = ${DB_SSLMODE}
+
+# Database filtering
+list_db = ${LIST_DB}
+
+# =============================================================================
+# Data and addons
+# =============================================================================
+data_dir = /var/lib/odoo
+
+# Addons path - includes Odoo core, OpenSPP, and OCA modules
+addons_path = /opt/odoo/odoo/addons,/opt/odoo/odoo/odoo/addons,/mnt/extra-addons/openspp,/mnt/extra-addons/server-ux,/mnt/extra-addons/server-tools,/mnt/extra-addons/queue,/mnt/extra-addons/server-backend,/mnt/extra-addons/rest-framework,/mnt/extra-addons/muk-it
+
+# =============================================================================
+# Security
+# =============================================================================
+admin_passwd = ${ODOO_ADMIN_PASSWD}
+
+# =============================================================================
+# Proxy mode (required for Dokku reverse proxy)
+# =============================================================================
+proxy_mode = ${PROXY_MODE}
+
+# =============================================================================
+# Performance tuning
+# =============================================================================
+workers = ${ODOO_WORKERS}
+max_cron_threads = ${ODOO_CRON_THREADS}
+
+# Memory limits (in bytes)
+# Default: 2.5GB hard, 2GB soft
+limit_memory_hard = ${ODOO_MEMORY_HARD}
+limit_memory_soft = ${ODOO_MEMORY_SOFT}
+
+# Time limits (in seconds)
+limit_time_cpu = ${ODOO_TIME_CPU}
+limit_time_real = ${ODOO_TIME_REAL}
+
+# Request timeout
+limit_request = ${ODOO_LIMIT_REQUEST}
+
+# =============================================================================
+# Logging (stdout for Docker - no logfile)
+# =============================================================================
+log_level = ${LOG_LEVEL}
+log_handler = ${LOG_HANDLER}
+
+# =============================================================================
+# Server settings
+# =============================================================================
+http_port = 8069
+http_enable = True
+http_interface = ${HTTP_INTERFACE}
+gevent_port = 8072
+
+# Server-wide modules (queue_job for background jobs)
+server_wide_modules = base,web,queue_job
+
+# =============================================================================
+# Email configuration
+# =============================================================================
+smtp_server = ${SMTP_SERVER}
+smtp_port = ${SMTP_PORT}
+smtp_ssl = ${SMTP_SSL}
+email_from = ${EMAIL_FROM}
+
+# =============================================================================
+# Internationalization
+# =============================================================================
+unaccent = ${UNACCENT}
+
+# =============================================================================
+# Redis Session Store (DISABLED - session_redis module not available in Odoo 17+)
+# =============================================================================
+# NOTE: The OCA session_redis module was removed after Odoo 16.
+# Redis is still provisioned for future caching use (e.g., with redis-py).
+# For session persistence, consider using OCA session_db module instead.
+#
+# session_redis = ${SESSION_REDIS}
+# session_redis_host = ${REDIS_HOST}
+# session_redis_port = ${REDIS_PORT}
+# session_redis_password = ${REDIS_PASSWORD}
+# session_redis_prefix = ${REDIS_PREFIX}
+# session_redis_expiration = ${REDIS_EXPIRATION}
+
+# =============================================================================
+# Development / Demo
+# =============================================================================
+# Demo data is disabled by default. Demo datasets (including MIS demo v2) should
+# be created explicitly via generator scripts or tasks, not global auto-loading.
+without_demo = True
+
+# =============================================================================
+# Queue Job Configuration (OCA/queue)
+# =============================================================================
+[queue_job]
+channels = ${ODOO_QUEUE_JOB_CHANNELS}
+jobrunner_db_host = ${DB_HOST}
+jobrunner_db_port = ${DB_PORT}
+jobrunner_db_user = ${DB_USER}
+jobrunner_db_password = ${DB_PASSWORD}

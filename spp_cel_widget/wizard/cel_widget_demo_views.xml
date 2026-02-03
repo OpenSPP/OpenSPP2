@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Demo Form View -->
+    <record id="view_cel_widget_demo_form" model="ir.ui.view">
+        <field name="name">spp.cel.widget.demo.form</field>
+        <field name="model">spp.cel.widget.demo</field>
+        <field name="arch" type="xml">
+            <form string="CEL Widget Demo">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>CEL Expression Widget - Test Page</h1>
+                        <p class="text-muted">
+                            This page is for testing the CEL expression editor widget.
+                            Only visible to administrators in debug mode.
+                        </p>
+                    </div>
+
+                    <notebook>
+                        <!-- Dynamic Profile Testing -->
+                        <page string="Dynamic Testing" name="dynamic">
+                            <group>
+                                <group string="Configuration">
+                                    <field name="selected_profile"/>
+                                </group>
+                                <group string="Actions">
+                                    <div class="d-flex gap-2">
+                                        <button name="action_insert_example"
+                                                type="object"
+                                                string="Insert Example"
+                                                class="btn-secondary"
+                                                icon="fa-magic"/>
+                                        <button name="action_validate_expression"
+                                                type="object"
+                                                string="Validate"
+                                                class="btn-primary"
+                                                icon="fa-check"/>
+                                        <button name="action_load_symbols"
+                                                type="object"
+                                                string="Show Symbols"
+                                                class="btn-secondary"
+                                                icon="fa-list"/>
+                                    </div>
+                                </group>
+                            </group>
+
+                            <group string="Expression Editor">
+                                <field name="dynamic_expression"
+                                       widget="cel_expression"
+                                       options="{'cel_profile': 'registry_individuals'}"
+                                       nolabel="1"
+                                       colspan="2"/>
+                            </group>
+
+                            <group string="Result" invisible="not validation_result">
+                                <field name="validation_result" nolabel="1" colspan="2" readonly="1"/>
+                            </group>
+                        </page>
+
+                        <!-- Profile-Specific Tests -->
+                        <page string="By Profile" name="profiles">
+                            <group string="Individual Registrants Profile">
+                                <field name="expression_individuals"
+                                       widget="cel_expression"
+                                       options="{'cel_profile': 'registry_individuals'}"
+                                       placeholder="e.g., age_years(r.birthdate) >= 18"/>
+                            </group>
+
+                            <group string="Groups/Households Profile">
+                                <field name="expression_groups"
+                                       widget="cel_expression"
+                                       options="{'cel_profile': 'registry_groups'}"
+                                       placeholder="e.g., members.count(m, age_years(m.birthdate) &lt; 5) >= 2"/>
+                            </group>
+
+                            <group string="Entitlements Profile">
+                                <field name="expression_entitlements"
+                                       widget="cel_expression"
+                                       options="{'cel_profile': 'entitlements'}"
+                                       placeholder="e.g., r.amount >= 1000"/>
+                            </group>
+                        </page>
+
+                        <!-- Read-only Test -->
+                        <page string="Read-only Mode" name="readonly">
+                            <group string="Read-only Expression (should not be editable)">
+                                <field name="readonly_expression"
+                                       widget="cel_expression"
+                                       options="{'cel_profile': 'registry_individuals'}"
+                                       nolabel="1"
+                                       colspan="2"/>
+                            </group>
+                            <div class="alert alert-info" role="alert">
+                                <i class="fa fa-info-circle me-2" title="Info"/>
+                                The expression above should be displayed but not editable.
+                                The editor should have a disabled/readonly appearance.
+                            </div>
+                        </page>
+
+                        <!-- Help -->
+                        <page string="Help" name="help">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h4>Keyboard Shortcuts</h4>
+                                    <table class="table table-sm">
+                                        <tr><td><kbd>Ctrl</kbd>+<kbd>Space</kbd></td><td>Trigger autocomplete</td></tr>
+                                        <tr><td><kbd>Tab</kbd></td><td>Accept suggestion</td></tr>
+                                        <tr><td><kbd>Esc</kbd></td><td>Close autocomplete/browser</td></tr>
+                                        <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd></td><td>Undo</td></tr>
+                                        <tr><td><kbd>Ctrl</kbd>+<kbd>Y</kbd></td><td>Redo</td></tr>
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <h4>Features to Test</h4>
+                                    <ul>
+                                        <li>Syntax highlighting (keywords, operators, strings)</li>
+                                        <li>Autocomplete (type <code>r.</code> to see fields)</li>
+                                        <li>Symbol browser (click "Symbols" button)</li>
+                                        <li>Live validation (shows valid/invalid status)</li>
+                                        <li>Inline error highlighting (wavy underlines)</li>
+                                        <li>Match count (shows number of matching records)</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <h4 class="mt-4">Example Expressions</h4>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h5>Individual Registrants</h5>
+                                    <pre class="bg-light p-2 rounded">age_years(r.birthdate) >= 18
+is_female(r.gender_id)
+r.active == true and age_years(r.birthdate) >= 60</pre>
+                                </div>
+                                <div class="col-md-6">
+                                    <h5>Groups/Households</h5>
+                                    <pre class="bg-light p-2 rounded">members.count(m, age_years(m.birthdate) &lt; 5) >= 2
+members.exists(m, m.disabled == true)
+members.count(m, is_female(m.gender_id)) > 0</pre>
+                                </div>
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action to open the demo -->
+    <record id="action_cel_widget_demo" model="ir.actions.act_window">
+        <field name="name">CEL Widget Demo</field>
+        <field name="res_model">spp.cel.widget.demo</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'form_view_initial_mode': 'edit'}</field>
+    </record>
+
+    <!-- Menu item - only visible in debug mode -->
+    <menuitem id="menu_cel_widget_demo"
+              name="CEL Widget Demo"
+              action="action_cel_widget_demo"
+              parent="base.menu_administration"
+              sequence="100"
+              groups="base.group_no_one"/>
+
+</odoo>

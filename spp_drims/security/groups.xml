@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- DRIMS Security Groups -->
+
+    <!-- Technical Groups (Tier 3) -->
+    <record id="group_drims_read" model="res.groups">
+        <field name="name">DRIMS: Read</field>
+        <field name="comment">Technical group for read access to DRIMS models.</field>
+    </record>
+
+    <record id="group_drims_write" model="res.groups">
+        <field name="name">DRIMS: Write</field>
+        <field name="comment">Technical group for write access to DRIMS models.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_drims_read'))]"/>
+    </record>
+
+    <record id="group_drims_create" model="res.groups">
+        <field name="name">DRIMS: Create</field>
+        <field name="comment">Technical group for create access to DRIMS models.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_drims_write'))]"/>
+    </record>
+
+    <!-- User-Facing Groups (Tier 2) -->
+
+    <!-- Viewer: Read-only access -->
+    <record id="privilege_drims_viewer" model="res.groups.privilege">
+        <field name="name">Viewer</field>
+        <field name="category_id" ref="spp_security.category_spp_drims"/>
+    </record>
+
+    <record id="group_drims_viewer" model="res.groups">
+        <field name="name">DRIMS Viewer</field>
+        <field name="privilege_id" ref="privilege_drims_viewer"/>
+        <field name="comment">Can view donations, requests, and dispatches but cannot modify.</field>
+        <field name="implied_ids" eval="[
+            Command.link(ref('group_drims_read')),
+        ]"/>
+    </record>
+
+    <!-- Officer: Read, Write, Create access -->
+    <record id="privilege_drims_officer" model="res.groups.privilege">
+        <field name="name">Officer</field>
+        <field name="category_id" ref="spp_security.category_spp_drims"/>
+    </record>
+
+    <record id="group_drims_officer" model="res.groups">
+        <field name="name">DRIMS Officer</field>
+        <field name="privilege_id" ref="privilege_drims_officer"/>
+        <field name="comment">Can create and manage donations, requests, and dispatches.</field>
+        <field name="implied_ids" eval="[
+            Command.link(ref('group_drims_create')),
+            Command.link(ref('group_drims_viewer')),
+        ]"/>
+    </record>
+
+    <!-- Request Approver: Specialized for approval workflows -->
+    <!-- NOTE: Defined before Manager because Manager implies Approver -->
+    <record id="privilege_drims_approver" model="res.groups.privilege">
+        <field name="name">Request Approver</field>
+        <field name="category_id" ref="spp_security.category_spp_drims"/>
+    </record>
+
+    <record id="group_drims_approver" model="res.groups">
+        <field name="name">DRIMS Request Approver</field>
+        <field name="privilege_id" ref="privilege_drims_approver"/>
+        <field name="comment">Can approve or reject emergency supply requests.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_drims_viewer'))]"/>
+    </record>
+
+    <!-- Manager: Full CRUD + Admin functions -->
+    <record id="privilege_drims_manager" model="res.groups.privilege">
+        <field name="name">Manager</field>
+        <field name="category_id" ref="spp_security.category_spp_drims"/>
+    </record>
+
+    <record id="group_drims_manager" model="res.groups">
+        <field name="name">DRIMS Manager</field>
+        <field name="privilege_id" ref="privilege_drims_manager"/>
+        <field name="comment">Full access to DRIMS including configuration and deletion.</field>
+        <field name="implied_ids" eval="[
+            Command.link(ref('group_drims_officer')),
+            Command.link(ref('group_drims_approver')),
+        ]"/>
+    </record>
+
+    <!-- Specialized Roles (Additional User-Facing Groups) -->
+
+    <!-- Warehouse Staff: Specialized for inventory operations -->
+    <record id="privilege_drims_warehouse_user" model="res.groups.privilege">
+        <field name="name">Warehouse Staff</field>
+        <field name="category_id" ref="spp_security.category_spp_drims"/>
+    </record>
+
+    <record id="group_drims_warehouse_worker" model="res.groups">
+        <field name="name">DRIMS Warehouse Staff</field>
+        <field name="privilege_id" ref="privilege_drims_warehouse_user"/>
+        <field name="comment">Can receive donations, manage inventory, and process dispatches.</field>
+        <field name="implied_ids" eval="[
+            Command.link(ref('group_drims_officer')),
+            Command.link(ref('stock.group_stock_user')),
+        ]"/>
+    </record>
+
+    <!-- Field Officer: Specialized for field operations -->
+    <record id="privilege_drims_field_officer" model="res.groups.privilege">
+        <field name="name">Field Officer</field>
+        <field name="category_id" ref="spp_security.category_spp_drims"/>
+    </record>
+
+    <record id="group_drims_field_officer" model="res.groups">
+        <field name="name">DRIMS Field Officer</field>
+        <field name="privilege_id" ref="privilege_drims_field_officer"/>
+        <field name="comment">Can create requests and confirm deliveries in assigned areas.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_drims_officer'))]"/>
+    </record>
+
+    <!-- District Coordinator: Specialized for district-level coordination -->
+    <record id="privilege_drims_coordinator_supervisor" model="res.groups.privilege">
+        <field name="name">District Coordinator</field>
+        <field name="category_id" ref="spp_security.category_spp_drims"/>
+    </record>
+
+    <record id="group_drims_coordinator_supervisor" model="res.groups">
+        <field name="name">DRIMS District Coordinator</field>
+        <field name="privilege_id" ref="privilege_drims_coordinator_supervisor"/>
+        <field name="comment">Can coordinate requests and distributions within assigned districts.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_drims_officer'))]"/>
+    </record>
+
+    <!-- Link Manager to SPP Admin -->
+    <record id="spp_security.group_spp_admin" model="res.groups">
+        <field name="implied_ids" eval="[Command.link(ref('group_drims_manager'))]"/>
+    </record>
+
+</odoo>

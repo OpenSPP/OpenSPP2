@@ -1,0 +1,95 @@
+<!-- oca-hooks:disable=xml-create-user-wo-reset-password -->
+<odoo noupdate="0">
+    <!--
+    ==========================================================================
+    DRIMS DEMO USERS
+    ==========================================================================
+    These users demonstrate role-based access for disaster response:
+    - kumari: Field Officer - creates requests, confirms deliveries
+    - rajitha: Approver - approves/rejects requests
+    - silva: Manager - full DRIMS access
+    - secretary: Viewer - dashboard and reports only
+
+    Login credentials: username / demo
+    ==========================================================================
+    -->
+
+    <!-- FIELD OFFICER - kumari -->
+    <!-- Access: Create requests, confirm deliveries in assigned areas -->
+    <record id="user_kumari" model="res.users">
+        <field name="name">Kumari Silva</field>
+        <field name="login">kumari</field>
+        <field name="password">demo</field>
+        <field name="email">kumari@demo.openspp.org</field>
+        <field name="group_ids" eval="[Command.set([
+            ref('base.group_user'),
+            ref('spp_drims.group_drims_field_officer'),
+        ])]"/>
+    </record>
+
+    <!-- APPROVER - rajitha -->
+    <!-- Access: Approve/reject requests, view donations -->
+    <record id="user_rajitha" model="res.users">
+        <field name="name">Rajitha Perera</field>
+        <field name="login">rajitha</field>
+        <field name="password">demo</field>
+        <field name="email">rajitha@demo.openspp.org</field>
+        <field name="group_ids" eval="[Command.set([
+            ref('base.group_user'),
+            ref('spp_drims.group_drims_approver'),
+        ])]"/>
+    </record>
+
+    <!-- MANAGER - silva -->
+    <!-- Access: Full DRIMS access, create dispatches, manage alerts -->
+    <record id="user_silva" model="res.users">
+        <field name="name">D.M. Silva</field>
+        <field name="login">silva</field>
+        <field name="password">demo</field>
+        <field name="email">silva@demo.openspp.org</field>
+        <field name="group_ids" eval="[Command.set([
+            ref('base.group_user'),
+            ref('spp_drims.group_drims_manager'),
+        ])]"/>
+    </record>
+
+    <!-- WAREHOUSE STAFF - perera -->
+    <!-- Access: Receive donations, manage inventory, process dispatches -->
+    <record id="user_perera" model="res.users">
+        <field name="name">Nimal Perera</field>
+        <field name="login">perera</field>
+        <field name="password">demo</field>
+        <field name="email">perera@demo.openspp.org</field>
+        <field name="group_ids" eval="[Command.set([
+            ref('base.group_user'),
+            ref('spp_drims.group_drims_warehouse_worker'),
+        ])]"/>
+    </record>
+
+    <!-- COORDINATOR - fernando -->
+    <!-- Access: Coordinate requests and distributions within assigned districts -->
+    <record id="user_fernando" model="res.users">
+        <field name="name">Anura Fernando</field>
+        <field name="login">fernando</field>
+        <field name="password">demo</field>
+        <field name="email">fernando@demo.openspp.org</field>
+        <field name="group_ids" eval="[Command.set([
+            ref('base.group_user'),
+            ref('spp_drims.group_drims_coordinator_supervisor'),
+        ])]"/>
+    </record>
+
+    <!-- VIEWER - secretary -->
+    <!-- Access: View only - dashboard and reports -->
+    <record id="user_secretary" model="res.users">
+        <field name="name">Ministry Secretary</field>
+        <field name="login">secretary</field>
+        <field name="password">demo</field>
+        <field name="email">secretary@demo.openspp.org</field>
+        <field name="group_ids" eval="[Command.set([
+            ref('base.group_user'),
+            ref('spp_drims.group_drims_viewer'),
+        ])]"/>
+    </record>
+
+</odoo>

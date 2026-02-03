@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Global read access for all authenticated users -->
+    <record id="rule_vocabulary_global_read" model="ir.rule">
+        <field name="name">Vocabulary: Global Read</field>
+        <field name="model_id" ref="model_spp_vocabulary"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="perm_read">1</field>
+        <field name="perm_write">0</field>
+        <field name="perm_create">0</field>
+        <field name="perm_unlink">0</field>
+        <field name="global">True</field>
+    </record>
+
+    <record id="rule_vocabulary_code_global_read" model="ir.rule">
+        <field name="name">Vocabulary Code: Global Read</field>
+        <field name="model_id" ref="model_spp_vocabulary_code"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="perm_read">1</field>
+        <field name="perm_write">0</field>
+        <field name="perm_create">0</field>
+        <field name="perm_unlink">0</field>
+        <field name="global">True</field>
+    </record>
+
+    <record id="rule_vocabulary_mapping_global_read" model="ir.rule">
+        <field name="name">Vocabulary Mapping: Global Read</field>
+        <field name="model_id" ref="model_spp_vocabulary_mapping"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="perm_read">1</field>
+        <field name="perm_write">0</field>
+        <field name="perm_create">0</field>
+        <field name="perm_unlink">0</field>
+        <field name="global">True</field>
+    </record>
+</odoo>

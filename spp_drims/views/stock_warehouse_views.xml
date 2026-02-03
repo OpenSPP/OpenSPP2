@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Stock Warehouse Form View - Add DRIMS Fields -->
+    <record id="view_warehouse_form_drims" model="ir.ui.view">
+        <field name="name">stock.warehouse.form.drims</field>
+        <field name="model">stock.warehouse</field>
+        <field name="inherit_id" ref="stock.view_warehouse"/>
+        <field name="arch" type="xml">
+            <!-- Add smart buttons -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="%(spp_drims.action_drims_donation)d"
+                        type="action"
+                        class="oe_stat_button"
+                        icon="fa-gift"
+                        invisible="drims_donation_count == 0 or not is_drims_warehouse"
+                        context="{'search_default_warehouse_id': id}">
+                    <field name="drims_donation_count" widget="statinfo" string="Donations"/>
+                </button>
+                <button name="%(spp_drims.action_drims_dispatch)d"
+                        type="action"
+                        class="oe_stat_button"
+                        icon="fa-truck"
+                        invisible="drims_dispatch_count == 0 or not is_drims_warehouse"
+                        context="{'search_default_warehouse_id': id, 'search_default_drims_type': 'request_dispatch'}">
+                    <field name="drims_dispatch_count" widget="statinfo" string="Dispatches"/>
+                </button>
+                <button name="action_view_active_alerts"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-exclamation-triangle"
+                        invisible="drims_active_alert_count == 0 or not is_drims_warehouse">
+                    <field name="drims_active_alert_count" widget="statinfo" string="Alerts"/>
+                </button>
+                <button name="action_view_expired_stock"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-clock-o"
+                        invisible="not is_drims_warehouse">
+                    <div class="o_stat_info">
+                        <span class="o_stat_text">Expired Stock</span>
+                    </div>
+                </button>
+                <button name="action_dispose_expired_stock"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-trash"
+                        invisible="not is_drims_warehouse">
+                    <div class="o_stat_info">
+                        <span class="o_stat_text">Dispose Expired</span>
+                    </div>
+                </button>
+            </xpath>
+
+            <!-- Add DRIMS configuration tab -->
+            <xpath expr="//notebook" position="inside">
+                <page string="DRIMS Configuration" name="drims_config" invisible="not is_drims_warehouse">
+                    <group>
+                        <group string="Disaster Response Configuration" name="drims_settings">
+                            <field name="is_drims_warehouse"/>
+                            <field name="drims_capacity" invisible="not is_drims_warehouse"/>
+                            <field name="area_id" invisible="not is_drims_warehouse"/>
+                        </group>
+                        <group string="Emergency Contact" name="emergency_contact">
+                            <field name="emergency_contact" invisible="not is_drims_warehouse"/>
+                            <field name="emergency_phone" invisible="not is_drims_warehouse"/>
+                        </group>
+                    </group>
+
+                    <group string="Active Response" name="active_response">
+                        <field name="incident_ids" widget="many2many_tags" nolabel="1" invisible="not is_drims_warehouse"/>
+                    </group>
+                </page>
+            </xpath>
+
+            <!-- Add DRIMS checkbox in general info -->
+            <xpath expr="//field[@name='code']" position="after">
+                <field name="is_drims_warehouse"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Stock Warehouse Tree View - Add DRIMS Fields -->
+    <record id="view_warehouse_tree_drims" model="ir.ui.view">
+        <field name="name">stock.warehouse.tree.drims</field>
+        <field name="model">stock.warehouse</field>
+        <field name="inherit_id" ref="stock.view_warehouse_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="is_drims_warehouse" optional="show"/>
+                <field name="drims_stock_health" widget="badge" optional="show"
+                       decoration-danger="drims_stock_health == 'critical'"
+                       decoration-warning="drims_stock_health == 'warning'"
+                       decoration-success="drims_stock_health == 'good'"/>
+                <field name="drims_active_alert_count" optional="hide"/>
+                <field name="drims_capacity" optional="hide"/>
+                <field name="area_id" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Stock Warehouse Search View - DRIMS Extension -->
+    <record id="view_warehouse_search_drims" model="ir.ui.view">
+        <field name="name">stock.warehouse.search.drims</field>
+        <field name="model">stock.warehouse</field>
+        <field name="priority">50</field>
+        <field name="arch" type="xml">
+            <search string="Warehouses">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="area_id"/>
+                <separator/>
+                <filter string="DRIMS Warehouses" name="drims_warehouses"
+                        domain="[('is_drims_warehouse', '=', True)]"/>
+                <separator/>
+                <group>
+                    <filter string="Coverage Area" name="group_area"
+                            context="{'group_by': 'area_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- DRIMS Warehouse Action -->
+    <record id="action_drims_warehouse" model="ir.actions.act_window">
+        <field name="name">DRIMS Warehouses</field>
+        <field name="res_model">stock.warehouse</field>
+        <field name="view_mode">list,form</field>
+        <field name="path">drims-warehouses</field>
+        <field name="context">{'search_default_drims_warehouses': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a DRIMS Warehouse
+            </p>
+            <p>
+                DRIMS warehouses are designated for disaster relief inventory management.
+                Enable the 'DRIMS Warehouse' checkbox on any warehouse to use it for disaster response.
+            </p>
+        </field>
+    </record>
+</odoo>

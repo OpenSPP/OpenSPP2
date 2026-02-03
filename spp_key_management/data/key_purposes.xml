@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Default Key Purposes -->
+        <record id="purpose_pii" model="spp.key.purpose">
+            <field name="name">PII Data</field>
+            <field name="code">pii</field>
+            <field name="description">Encryption of personally identifiable information such as national IDs, addresses, and contact details.</field>
+            <field name="key_rotation_days">365</field>
+            <field name="require_hardware_key">False</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <record id="purpose_financial" model="spp.key.purpose">
+            <field name="name">Financial Data</field>
+            <field name="code">financial</field>
+            <field name="description">Encryption of bank accounts, payment details, and financial transactions.</field>
+            <field name="key_rotation_days">180</field>
+            <field name="require_hardware_key">True</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <record id="purpose_credentials" model="spp.key.purpose">
+            <field name="name">Credentials</field>
+            <field name="code">credentials</field>
+            <field name="description">Signing and encryption of verifiable credentials and digital certificates.</field>
+            <field name="key_rotation_days">365</field>
+            <field name="require_hardware_key">True</field>
+            <field name="sequence">30</field>
+        </record>
+
+        <record id="purpose_api" model="spp.key.purpose">
+            <field name="name">API Security</field>
+            <field name="code">api</field>
+            <field name="description">Keys for API authentication, JWT signing, and inter-service communication.</field>
+            <field name="key_rotation_days">90</field>
+            <field name="require_hardware_key">False</field>
+            <field name="sequence">40</field>
+        </record>
+
+        <record id="purpose_backup" model="spp.key.purpose">
+            <field name="name">Backup Encryption</field>
+            <field name="code">backup</field>
+            <field name="description">Encryption of database backups and data exports.</field>
+            <field name="key_rotation_days">365</field>
+            <field name="require_hardware_key">False</field>
+            <field name="sequence">50</field>
+        </record>
+
+        <!-- Default Database Provider -->
+        <record id="default_provider_database" model="spp.key.provider.registry">
+            <field name="name">Database Provider (Default)</field>
+            <field name="provider_type">database</field>
+            <field name="is_default">True</field>
+            <field name="sequence">100</field>
+        </record>
+
+    </data>
+</odoo>

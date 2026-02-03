@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+Formula Templates - Pre-defined amount and quantity calculation expressions
+-->
+<odoo noupdate="1">
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- CATEGORIES FOR FORMULAS                                                 -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <record id="category_amount_formulas" model="spp.cel.variable.category">
+        <field name="name">Amount Formulas</field>
+        <field name="code">amount_formulas</field>
+        <field name="sequence">7</field>
+    </record>
+
+    <record id="category_quantity_formulas" model="spp.cel.variable.category">
+        <field name="name">Quantity Formulas</field>
+        <field name="code">quantity_formulas</field>
+        <field name="sequence">8</field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- MONEY AMOUNT FORMULA TEMPLATES                                          -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+    <record id="formula_fixed_amount" model="spp.cel.expression">
+        <field name="name">Fixed Amount</field>
+        <field name="code">fixed_amount</field>
+        <field name="expression_type">formula</field>
+        <field name="context_type">both</field>
+        <field name="output_type">money</field>
+        <field name="cel_expression">base_amount</field>
+        <field name="category_id" ref="category_amount_formulas" />
+        <field name="is_template">True</field>
+        <field name="is_locked">False</field>
+        <field name="state">active</field>
+        <field name="sequence">1</field>
+    </record>
+
+    <record id="formula_household_size_multiplier" model="spp.cel.expression">
+        <field name="name">Household Size × Base Amount</field>
+        <field name="code">household_size_multiplier</field>
+        <field name="expression_type">formula</field>
+        <field name="context_type">group</field>
+        <field name="output_type">money</field>
+        <field name="cel_expression">base_amount * hh_size</field>
+        <field name="category_id" ref="category_amount_formulas" />
+        <field name="is_template">True</field>
+        <field name="is_locked">False</field>
+        <field name="state">active</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="formula_per_child_bonus" model="spp.cel.expression">
+        <field name="name">Per Child Bonus</field>
+        <field name="code">per_child_bonus</field>
+        <field name="expression_type">formula</field>
+        <field name="context_type">group</field>
+        <field name="output_type">money</field>
+        <field name="cel_expression">base_amount + (count(m, age_years(m.birthdate) &lt; 18) * child_bonus)</field>
+        <field name="category_id" ref="category_amount_formulas" />
+        <field name="is_template">True</field>
+        <field name="is_locked">False</field>
+        <field name="state">active</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="formula_elderly_supplement" model="spp.cel.expression">
+        <field name="name">Elderly Supplement</field>
+        <field name="code">elderly_supplement</field>
+        <field name="expression_type">formula</field>
+        <field name="context_type">group</field>
+        <field name="output_type">money</field>
+        <field name="cel_expression">base_amount + (count(m, age_years(m.birthdate) >= 60) * elderly_bonus)</field>
+        <field name="category_id" ref="category_amount_formulas" />
+        <field name="is_template">True</field>
+        <field name="is_locked">False</field>
+        <field name="state">active</field>
+        <field name="sequence">25</field>
+    </record>
+
+    <record id="formula_disability_adjustment" model="spp.cel.expression">
+        <field name="name">Disability Adjustment</field>
+        <field name="code">disability_adjustment</field>
+        <field name="expression_type">formula</field>
+        <field name="context_type">group</field>
+        <field name="output_type">money</field>
+        <field name="cel_expression">base_amount * (1 + (count(m, m.disabled == true) > 0 ? 0.2 : 0))</field>
+        <field name="category_id" ref="category_amount_formulas" />
+        <field name="is_template">True</field>
+        <field name="is_locked">False</field>
+        <field name="state">active</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- QUANTITY FORMULA TEMPLATES (for in-kind entitlements)                   -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+    <record id="formula_fixed_quantity" model="spp.cel.expression">
+        <field name="name">Fixed Quantity</field>
+        <field name="code">fixed_quantity</field>
+        <field name="expression_type">formula</field>
+        <field name="context_type">both</field>
+        <field name="output_type">number</field>
+        <field name="cel_expression">base_quantity</field>
+        <field name="category_id" ref="category_quantity_formulas" />
+        <field name="is_template">True</field>
+        <field name="is_locked">False</field>
+        <field name="state">active</field>
+        <field name="sequence">1</field>
+    </record>
+
+    <record id="formula_per_person_quantity" model="spp.cel.expression">
+        <field name="name">Per Person Quantity</field>
+        <field name="code">per_person_quantity</field>
+        <field name="expression_type">formula</field>
+        <field name="context_type">group</field>
+        <field name="output_type">number</field>
+        <field name="cel_expression">base_quantity * hh_size</field>
+        <field name="category_id" ref="category_quantity_formulas" />
+        <field name="is_template">True</field>
+        <field name="is_locked">False</field>
+        <field name="state">active</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="formula_per_child_quantity" model="spp.cel.expression">
+        <field name="name">Per Child Quantity</field>
+        <field name="code">per_child_quantity</field>
+        <field name="expression_type">formula</field>
+        <field name="context_type">group</field>
+        <field name="output_type">number</field>
+        <field name="cel_expression">base_quantity * count(m, age_years(m.birthdate) &lt; 18)</field>
+        <field name="category_id" ref="category_quantity_formulas" />
+        <field name="is_template">True</field>
+        <field name="is_locked">False</field>
+        <field name="state">active</field>
+        <field name="sequence">20</field>
+    </record>
+
+</odoo>

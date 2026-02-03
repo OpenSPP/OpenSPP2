@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_cycle_form_inherit_spp_programs_compliance_criteria" model="ir.ui.view">
+        <field name="name">spp.cycle.view.form.inherit</field>
+        <field name="model">spp.cycle</field>
+        <field name="inherit_id" ref="spp_programs.view_cycle_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='state']" position="before">
+                <!-- Apply Compliance Criteria - shown when not yet applied -->
+                <button
+                    string="Apply Compliance Criteria"
+                    name="action_filter_beneficiaries_by_compliance_criteria"
+                    type="object"
+                    icon="fa-filter"
+                    class="btn-warning"
+                    confirm="Filtering is a one-way action. Are you sure you want to apply compliance criteria?"
+                    invisible="not allow_filter_compliance_criteria or compliance_criteria_applied"
+                />
+                <field name="allow_filter_compliance_criteria" invisible="1" />
+                <field name="compliance_criteria_applied" invisible="1" />
+            </xpath>
+
+            <!-- Info banner when compliance criteria has been applied -->
+            <xpath expr="//header" position="after">
+                <div
+                    class="alert alert-info"
+                    role="status"
+                    invisible="not allow_filter_compliance_criteria or not compliance_criteria_applied"
+                >
+                    <i class="fa fa-info-circle" title="Info" /> Compliance criteria filtering has already been applied to this cycle.
+                    Non-compliant beneficiaries have been marked accordingly.
+                </div>
+            </xpath>
+
+            <xpath expr="//button[@name='open_members_form']" position="before">
+                <button
+                    type="object"
+                    class="oe_stat_button"
+                    title="Open all members form"
+                    icon="fa-list-alt"
+                    name="open_all_members_form"
+                >
+                    <div class="o_form_field o_stat_info">
+                        <field name="all_members_count" class="o_stat_value" />
+                        <span class="o_stat_text">Enrollments</span>
+                    </div>
+                </button>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

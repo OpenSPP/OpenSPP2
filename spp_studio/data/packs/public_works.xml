@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Public Works Pack: Employment guarantee and workfare programs -->
+        <record id="pack_public_works" model="spp.studio.pack">
+            <field name="name">Public Works / Workfare</field>
+            <field name="code">public_works</field>
+            <field name="description">Logic pack for public works and employment guarantee programs. Includes work eligibility, wage calculations, and days-based benefits.</field>
+            <field name="category">other</field>
+            <field name="version">1.0</field>
+            <field name="author">OpenSPP</field>
+            <field name="state">available</field>
+        </record>
+
+        <!-- Eligibility: Working Age -->
+        <record id="pack_pw_item_working_age" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_public_works"/>
+            <field name="name">Working Age Eligibility</field>
+            <field name="context_type">individual</field>
+            <field name="description">Beneficiary is within working age range for public works (child_age_limit to retirement_age).</field>
+            <field name="expression_type">filter</field>
+            <field name="logic_data">{"cel_expression": "age &gt;= child_age_limit &amp;&amp; age &lt;= retirement_age"}</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <!-- Eligibility: Physical Capability -->
+        <record id="pack_pw_item_physical" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_public_works"/>
+            <field name="name">Physical Work Capability</field>
+            <field name="context_type">individual</field>
+            <field name="description">Beneficiary is physically able to perform manual labor (with accommodations for light duty).</field>
+            <field name="expression_type">filter</field>
+            <field name="logic_data">{"cel_expression": "can_perform_manual_labor || eligible_for_light_duty"}</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <!-- Eligibility: One Per Household -->
+        <record id="pack_pw_item_one_per_hh" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_public_works"/>
+            <field name="name">One Worker Per Household</field>
+            <field name="context_type">group</field>
+            <field name="description">Limit of one public works participant per household.</field>
+            <field name="expression_type">filter</field>
+            <field name="logic_data">{"cel_expression": "current_pw_participants &lt; 1"}</field>
+            <field name="sequence">30</field>
+        </record>
+
+        <!-- Eligibility: Poverty Status -->
+        <record id="pack_pw_item_poverty" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_public_works"/>
+            <field name="name">Poverty Status Check</field>
+            <field name="context_type">group</field>
+            <field name="description">Household meets poverty criteria for public works targeting.</field>
+            <field name="expression_type">filter</field>
+            <field name="logic_data">{"cel_expression": "per_capita_income &lt;= poverty_threshold || is_food_insecure"}</field>
+            <field name="sequence">40</field>
+        </record>
+
+        <!-- Eligibility: Seasonal Availability -->
+        <record id="pack_pw_item_seasonal" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_public_works"/>
+            <field name="name">Seasonal Availability</field>
+            <field name="context_type">both</field>
+            <field name="description">Program operates during lean/off-farm season.</field>
+            <field name="expression_type">filter</field>
+            <field name="logic_data">{"cel_expression": "is_lean_season || !has_active_farm_work"}</field>
+            <field name="sequence">50</field>
+        </record>
+
+        <!-- Scoring: Work Priority Score -->
+        <record id="pack_pw_item_priority_score" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_public_works"/>
+            <field name="name">Work Priority Score</field>
+            <field name="context_type">group</field>
+            <field name="description">Priority scoring for work allocation when demand exceeds supply.</field>
+            <field name="expression_type">scoring</field>
+            <field name="logic_data">{"cel_expression": "(food_insecurity_score * 0.4) + (dependency_ratio * 0.3) + (months_unemployed * 0.2) + (is_female_headed ? 10 : 0)"}</field>
+            <field name="sequence">60</field>
+        </record>
+
+        <!-- Benefit: Daily Wage -->
+        <record id="pack_pw_item_daily_wage" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_public_works"/>
+            <field name="name">Daily Wage Rate</field>
+            <field name="context_type">both</field>
+            <field name="description">Standard daily wage for public works (typically set below market rate for self-targeting).</field>
+            <field name="expression_type">formula</field>
+            <field name="logic_data">{"cel_expression": "200"}</field>
+            <field name="sequence">70</field>
+        </record>
+
+        <!-- Benefit: Days Worked Payment -->
+        <record id="pack_pw_item_days_payment" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_public_works"/>
+            <field name="name">Days Worked Payment</field>
+            <field name="context_type">both</field>
+            <field name="description">Total payment based on actual days worked in period.</field>
+            <field name="expression_type">formula</field>
+            <field name="logic_data">{"cel_expression": "days_worked * 200"}</field>
+            <field name="sequence">80</field>
+        </record>
+
+        <!-- Benefit: Task-Based Payment -->
+        <record id="pack_pw_item_task_payment" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_public_works"/>
+            <field name="name">Task-Based Payment</field>
+            <field name="context_type">both</field>
+            <field name="description">Payment based on task completion rather than days (piece rate).</field>
+            <field name="expression_type">formula</field>
+            <field name="logic_data">{"cel_expression": "tasks_completed * rate_per_task"}</field>
+            <field name="sequence">90</field>
+        </record>
+
+        <!-- Benefit: Maximum Days Cap -->
+        <record id="pack_pw_item_max_days" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_public_works"/>
+            <field name="name">Maximum Days Entitlement</field>
+            <field name="context_type">both</field>
+            <field name="description">Payment with cap on maximum days per household per year.</field>
+            <field name="expression_type">formula</field>
+            <field name="logic_data">{"cel_expression": "(days_worked &lt; (100 - days_used_this_year) ? days_worked : (100 - days_used_this_year)) * 200"}</field>
+            <field name="sequence">100</field>
+        </record>
+
+        <!-- Benefit: Skill-Differentiated Wage -->
+        <record id="pack_pw_item_skill_wage" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_public_works"/>
+            <field name="name">Skill-Differentiated Wage</field>
+            <field name="context_type">both</field>
+            <field name="description">Higher wage rates for skilled/semi-skilled work categories.</field>
+            <field name="expression_type">formula</field>
+            <field name="logic_data">{"cel_expression": "days_worked * (work_category == \"skilled\" ? 350 : (work_category == \"semi_skilled\" ? 275 : 200))"}</field>
+            <field name="sequence">110</field>
+        </record>
+
+        <!-- Benefit: With Childcare Allowance -->
+        <record id="pack_pw_item_childcare" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_public_works"/>
+            <field name="name">Wage Plus Childcare</field>
+            <field name="context_type">group</field>
+            <field name="description">Daily wage plus childcare allowance for workers with young children.</field>
+            <field name="expression_type">formula</field>
+            <field name="logic_data">{"cel_expression": "(days_worked * 200) + (children_under_5 > 0 ? days_worked * 50 : 0)"}</field>
+            <field name="sequence">120</field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+   Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <!-- Registrant Tags Action (filtered vocabulary codes) -->
+    <record id="action_registrant_tags" model="ir.actions.act_window">
+        <field name="name">Registrant Tags</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="path">registry-tags</field>
+        <field name="res_model">spp.vocabulary.code</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('namespace_uri', '=', 'urn:openspp:vocab:registrant-tags')]</field>
+        <field name="context">{'default_vocabulary_id': ref('spp_registry.vocab_registrant_tags')}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add a Registrant Tag!
+            </p><p>
+                Click the create button to add a new tag for categorizing registrants.
+            </p>
+        </field>
+    </record>
+</odoo>

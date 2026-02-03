@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_spp_dci_ibr_sender_tree" model="ir.ui.view">
+        <field name="name">spp.dci.ibr.sender.tree</field>
+        <field name="model">spp.dci.ibr.sender</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name" />
+                <field name="sender_id" />
+                <field name="algorithm" />
+                <field name="last_key_fetch" />
+                <field name="active" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_spp_dci_ibr_sender_form" model="ir.ui.view">
+        <field name="name">spp.dci.ibr.sender.form</field>
+        <field name="model">spp.dci.ibr.sender</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button
+                        name="action_fetch_public_key"
+                        type="object"
+                        string="Fetch Public Key"
+                        class="oe_highlight"
+                        invisible="not jwks_url"
+                    />
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="toggle_active"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-archive"
+                        >
+                            <field name="active" widget="boolean_button" options='{"terminology": "archive"}' />
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name" />
+                        <h1>
+                            <field name="name" placeholder="e.g., National Beneficiary Registry" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Sender Information">
+                            <field name="sender_id" />
+                            <field name="algorithm" />
+                        </group>
+                        <group string="Key Management">
+                            <field name="jwks_url" />
+                            <field name="last_key_fetch" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Public Key" name="public_key">
+                            <field name="public_key" />
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes" />
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_spp_dci_ibr_sender_search" model="ir.ui.view">
+        <field name="name">spp.dci.ibr.sender.search</field>
+        <field name="model">spp.dci.ibr.sender</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="sender_id" />
+                <filter string="Active" name="active" domain="[('active', '=', True)]" />
+                <filter string="Archived" name="archived" domain="[('active', '=', False)]" />
+                <separator />
+                <filter string="Algorithm" name="group_algorithm" context="{'group_by': 'algorithm'}" />
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_spp_dci_ibr_sender" model="ir.actions.act_window">
+        <field name="name">IBR Sender Registry</field>
+        <field name="res_model">spp.dci.ibr.sender</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add a trusted Integrated Beneficiary Registry sender
+            </p>
+            <p>
+                Configure trusted IBR registries that can send callback notifications.
+                Each sender must have a registered public key for signature verification.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu (add under DCI configuration) -->
+    <menuitem
+        id="menu_spp_dci_ibr_sender"
+        name="IBR Senders"
+        parent="spp_dci_client.menu_spp_dci_config"
+        action="action_spp_dci_ibr_sender"
+        sequence="40"
+    />
+</odoo>

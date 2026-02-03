@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+Filter Templates - Pre-defined eligibility, condition, and compliance expressions
+-->
+<odoo noupdate="1">
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- CATEGORIES FOR TEMPLATES                                                -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <record id="category_eligibility" model="spp.cel.variable.category">
+        <field name="name">Eligibility</field>
+        <field name="code">eligibility</field>
+        <field name="sequence">5</field>
+    </record>
+
+    <record id="category_conditions" model="spp.cel.variable.category">
+        <field name="name">Conditions</field>
+        <field name="code">conditions</field>
+        <field name="sequence">6</field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- UNIVERSAL FILTER TEMPLATES (Work for both individuals and groups)       -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+    <record id="filter_all_registrants" model="spp.cel.expression">
+        <field name="name">All Registrants</field>
+        <field name="code">all_registrants</field>
+        <field name="expression_type">filter</field>
+        <field name="context_type">both</field>
+        <field name="output_type">boolean</field>
+        <field name="cel_expression">true</field>
+        <field name="category_id" ref="category_eligibility" />
+        <field name="is_template">True</field>
+        <field name="is_locked">True</field>
+        <field name="state">active</field>
+        <field name="sequence">1</field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- INDIVIDUAL FILTER TEMPLATES                                             -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+    <record id="filter_senior_citizens" model="spp.cel.expression">
+        <field name="name">Senior Citizens (60+)</field>
+        <field name="code">senior_citizens_60</field>
+        <field name="expression_type">filter</field>
+        <field name="context_type">individual</field>
+        <field name="output_type">boolean</field>
+        <field name="cel_expression">age_years(r.birthdate) >= 60</field>
+        <field name="category_id" ref="category_eligibility" />
+        <field name="is_template">True</field>
+        <field name="is_locked">False</field>
+        <field name="state">active</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="filter_children_under_5" model="spp.cel.expression">
+        <field name="name">Children Under 5</field>
+        <field name="code">children_under_5</field>
+        <field name="expression_type">filter</field>
+        <field name="context_type">individual</field>
+        <field name="output_type">boolean</field>
+        <field name="cel_expression">age_years(r.birthdate) &lt; 5</field>
+        <field name="category_id" ref="category_eligibility" />
+        <field name="is_template">True</field>
+        <field name="is_locked">False</field>
+        <field name="state">active</field>
+        <field name="sequence">15</field>
+    </record>
+
+    <record id="filter_adults_18_plus" model="spp.cel.expression">
+        <field name="name">Adults (18+)</field>
+        <field name="code">adults_18_plus</field>
+        <field name="expression_type">filter</field>
+        <field name="context_type">individual</field>
+        <field name="output_type">boolean</field>
+        <field name="cel_expression">age_years(r.birthdate) >= 18</field>
+        <field name="category_id" ref="category_eligibility" />
+        <field name="is_template">True</field>
+        <field name="is_locked">False</field>
+        <field name="state">active</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="filter_female_individual" model="spp.cel.expression">
+        <field name="name">Female</field>
+        <field name="code">female_individual</field>
+        <field name="expression_type">filter</field>
+        <field name="context_type">individual</field>
+        <field name="output_type">boolean</field>
+        <field name="cel_expression">is_female(r.gender_id)</field>
+        <field name="category_id" ref="category_eligibility" />
+        <field name="is_template">True</field>
+        <field name="is_locked">False</field>
+        <field name="state">active</field>
+        <field name="sequence">25</field>
+    </record>
+
+    <!-- <record id="filter_has_disability" model="spp.cel.expression">
+        <field name="name">Has Disability</field>
+        <field name="code">has_disability</field>
+        <field name="expression_type">filter</field>
+        <field name="context_type">individual</field>
+        <field name="output_type">boolean</field>
+        <field name="cel_expression">r.disabled != false</field>
+        <field name="category_id" ref="category_conditions" />
+        <field name="is_template">True</field>
+        <field name="is_locked">False</field>
+        <field name="state">active</field>
+        <field name="sequence">30</field>
+    </record> -->
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- GROUP/HOUSEHOLD FILTER TEMPLATES                                        -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+    <record id="filter_large_households" model="spp.cel.expression">
+        <field name="name">Large Households (4+ members)</field>
+        <field name="code">large_households_4</field>
+        <field name="expression_type">filter</field>
+        <field name="context_type">group</field>
+        <field name="output_type">boolean</field>
+        <field name="cel_expression">hh_size >= 4</field>
+        <field name="category_id" ref="category_eligibility" />
+        <field name="is_template">True</field>
+        <field name="is_locked">False</field>
+        <field name="state">active</field>
+        <field name="sequence">40</field>
+    </record>
+
+    <!-- <record id="filter_woman_headed" model="spp.cel.expression">
+        <field name="name">Woman-Headed Household</field>
+        <field name="code">woman_headed_household</field>
+        <field name="expression_type">filter</field>
+        <field name="context_type">group</field>
+        <field name="output_type">boolean</field>
+        <field name="cel_expression">r.is_woman_headed == true</field>
+        <field name="category_id" ref="category_eligibility" />
+        <field name="is_template">True</field>
+        <field name="is_locked">False</field>
+        <field name="state">active</field>
+        <field name="sequence">45</field>
+    </record> -->
+
+    <record id="filter_has_children_under_5" model="spp.cel.expression">
+        <field name="name">Households with Children Under 5</field>
+        <field name="code">has_children_under_5</field>
+        <field name="expression_type">filter</field>
+        <field name="context_type">group</field>
+        <field name="output_type">boolean</field>
+        <field name="cel_expression">count(m, age_years(m.birthdate) &lt; 5) > 0</field>
+        <field name="category_id" ref="category_eligibility" />
+        <field name="is_template">True</field>
+        <field name="is_locked">False</field>
+        <field name="state">active</field>
+        <field name="sequence">50</field>
+    </record>
+
+    <record id="filter_has_elderly_members" model="spp.cel.expression">
+        <field name="name">Households with Elderly Members (60+)</field>
+        <field name="code">has_elderly_members</field>
+        <field name="expression_type">filter</field>
+        <field name="context_type">group</field>
+        <field name="output_type">boolean</field>
+        <field name="cel_expression">count(m, age_years(m.birthdate) >= 60) > 0</field>
+        <field name="category_id" ref="category_eligibility" />
+        <field name="is_template">True</field>
+        <field name="is_locked">False</field>
+        <field name="state">active</field>
+        <field name="sequence">55</field>
+    </record>
+
+    <!-- <record id="filter_has_disabled_member" model="spp.cel.expression">
+        <field name="name">Households with Disabled Members</field>
+        <field name="code">has_disabled_member</field>
+        <field name="expression_type">filter</field>
+        <field name="context_type">group</field>
+        <field name="output_type">boolean</field>
+        <field name="cel_expression">count(m, m.disabled != false) > 0</field>
+        <field name="category_id" ref="category_conditions" />
+        <field name="is_template">True</field>
+        <field name="is_locked">False</field>
+        <field name="state">active</field>
+        <field name="sequence">60</field>
+    </record> -->
+
+</odoo>

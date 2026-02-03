@@ -1,0 +1,443 @@
+# OpenSPP Access Management Compliance Specification
+# Module: spp_studio
+# Version: 1.0
+#
+# This file declares the expected access control configuration for this module.
+# Run: python -m scripts.compliance.checker spp_studio
+# Generate tests: python -m scripts.compliance.test_generator spp_studio
+
+module: spp_studio
+domain: studio
+version: "1.0"
+
+# =============================================================================
+# OVERVIEW
+# =============================================================================
+# OpenSPP Studio is a no-code configuration tool for semi-technical users
+# (NGO program managers, M&E officers, country coordinators).
+#
+# Features:
+# - CEL Expression Editor for business logic
+# - Variable Dictionary with discovery
+# - Logic Packs (pre-built formula bundles)
+# - Custom Fields for registry customization
+# - Testing framework with personas
+#
+# Security Model:
+# - Viewers can see published configurations (read-only)
+# - Editors can create/edit draft configurations, cannot activate/delete
+# - Managers have full control including activation and deletion
+#
+# NOTE: This module uses "editor" terminology instead of "officer"
+# because Studio is a no-code configuration tool, not an operational system
+#
+# Special access patterns:
+# - CEL Expressions: Viewers see published only, Editors see all
+# - CEL Variables: Viewers read-only, Managers full control
+# - Logic Packs: Viewers read-only, Managers full control
+# - Dashboards: All groups have full CRUD (collaborative workspace)
+
+# =============================================================================
+# GROUP DEFINITIONS
+# Following ADR-004 Three-Tier Architecture
+# =============================================================================
+
+groups:
+  # --- Tier 3: Technical base groups ---
+  - id: group_studio_read
+    tier: 3
+    comment: "Technical group for read access to Studio configurations."
+
+  # --- Tier 2: User-facing groups ---
+  - id: group_studio_viewer
+    tier: 2
+    privilege_id: privilege_studio_viewer
+    implied_ids: [group_studio_read]
+    comment: "Can view all Studio configurations and audit logs. Cannot create or modify."
+
+  - id: group_studio_editor_officer
+    tier: 2
+    privilege_id: privilege_studio_editor_officer
+    implied_ids: [group_studio_viewer]
+    comment:
+      "Can create and edit draft configurations. Cannot activate or delete. (Named 'editor' instead of 'officer' for
+      Studio context)"
+
+  - id: group_studio_manager
+    tier: 2
+    privilege_id: privilege_studio_manager
+    implied_ids: [group_studio_editor_officer]
+    comment: "Full access: can activate, deactivate, delete configurations and manage external connections."
+
+# Admin linkage - manager group links to spp_security.group_spp_admin
+admin_link_group: group_studio_manager
+
+# =============================================================================
+# MODEL ACCESS (ir.model.access.csv)
+# Standard pattern: viewer=read, editor=read+write+create, manager=full CRUD
+# Note: This module uses "editor" as a custom role instead of standard "officer"
+#       because Studio is a no-code configuration tool, not an operational system
+# Special cases documented inline
+# =============================================================================
+
+model_access:
+  # --- Dashboard Models (Collaborative workspace - all have full CRUD) ---
+  - model: spp.studio.dashboard
+    viewer: [read, write, create, unlink]
+    manager: [read, write, create, unlink]
+    custom:
+      editor: [read, write, create, unlink]
+    note: "Dashboards are collaborative - all groups can create/modify/delete"
+
+  # --- Custom Field Models ---
+  - model: spp.studio.field
+    viewer: [read]
+    manager: [read, write, create, unlink]
+    custom:
+      editor: [read, write, create]
+
+  - model: spp.studio.placement.zone
+    viewer: [read]
+    manager: [read, write, create, unlink]
+    custom:
+      editor: [read]
+    note: "Placement zones are configuration - only managers can modify"
+
+  # --- CEL Expression Models ---
+  # Note: These models are from spp_cel_domain but ACL is in spp_studio
+  - model: spp.cel.expression
+    viewer: [read]
+    manager: [read, write, create, unlink]
+    custom:
+      editor: [read, write, create, unlink]
+    note: "Record rules restrict viewer to published expressions only"
+
+  - model: spp.cel.variable
+    viewer: [read]
+    officer: []
+    manager: [read, write, create, unlink]
+    note: "Variables are system-level config - only managers can modify"
+
+  - model: spp.cel.variable.category
+    viewer: [read]
+    officer: []
+    manager: [read, write, create, unlink]
+    note: "Variable categories are system-level config - only managers can modify"
+
+  # --- Version Models ---
+  - model: spp.studio.version
+    viewer: [read]
+    manager: [read, write, create, unlink]
+    custom:
+      editor: [read, write, create, unlink]
+
+  - model: spp.studio.usage
+    viewer: [read]
+    manager: [read, write, create, unlink]
+    custom:
+      editor: [read, write, create, unlink]
+
+  # --- Testing Models ---
+  - model: spp.studio.test
+    viewer: [read]
+    manager: [read, write, create, unlink]
+    custom:
+      editor: [read, write, create, unlink]
+
+  - model: spp.studio.test.persona
+    viewer: [read]
+    manager: [read, write, create, unlink]
+    custom:
+      editor: [read, write, create, unlink]
+
+  - model: spp.studio.test.runner
+    viewer: [read, write, create]
+    manager: [read, write, create]
+    custom:
+      editor: [read, write, create]
+    note: "Test runner is transient/session-based - no unlink needed"
+
+  # --- Logic Pack Models ---
+  - model: spp.studio.pack
+    viewer: [read]
+    officer: []
+    manager: [read, write, create, unlink]
+    note: "Logic packs are curated bundles - only managers can create/modify"
+
+  - model: spp.studio.pack.item
+    viewer: [read]
+    officer: []
+    manager: [read, write, create, unlink]
+    note: "Pack items are part of curated bundles - only managers can modify"
+
+  # --- Wizard Models (Transient) ---
+  # Pattern: Wizards grant full CRUD to users who can invoke them
+
+  - model: spp.studio.deactivate.wizard
+    viewer: []
+    manager: [read, write, create, unlink]
+    custom:
+      editor: [read, write, create, unlink]
+    note: "Wizard for deactivating configurations"
+
+  - model: spp.studio.field.builder.wizard
+    viewer: []
+    manager: [read, write, create, unlink]
+    custom:
+      editor: [read, write, create, unlink]
+    note: "Wizard for building custom fields"
+
+  - model: spp.studio.pack.install.wizard
+    viewer: []
+    officer: []
+    manager: [read, write, create, unlink]
+    note: "Wizard for installing logic packs - managers only"
+
+  - model: spp.studio.pack.install.preview
+    viewer: []
+    officer: []
+    manager: [read, write, create, unlink]
+    note: "Wizard preview for pack installation - managers only"
+
+  - model: spp.cel.variable.sync
+    viewer: []
+    officer: []
+    manager: [read, write, create, unlink]
+    note: "Variable synchronization model - managers only"
+
+  - model: spp.cel.variable.sync.wizard
+    viewer: []
+    officer: []
+    manager: [read, write, create, unlink]
+    note: "Wizard for variable synchronization - managers only"
+
+  - model: spp.studio.variable.remap.wizard
+    viewer: []
+    officer: []
+    manager: [read, write, create, unlink]
+    note: "Wizard for remapping variables - managers only"
+
+  - model: spp.studio.variable.install.wizard
+    viewer: []
+    manager: [read, write, create, unlink]
+    custom:
+      editor: [read, write, create, unlink]
+    note: "Wizard for installing variables"
+
+  - model: spp.studio.variable.install.wizard.line
+    viewer: []
+    manager: [read, write, create, unlink]
+    custom:
+      editor: [read, write, create, unlink]
+    note: "Wizard lines for variable installation"
+
+# =============================================================================
+# RECORD RULES (ir.rule)
+# Data visibility rules based on group membership and state
+# =============================================================================
+
+record_rules:
+  # --- CEL Expressions: State-based visibility ---
+  - id: rule_expression_viewer_read
+    model: spp.cel.expression
+    groups: [group_studio_viewer]
+    domain_description: "Viewers can only see published expressions"
+    domain_force: "[('state', '=', 'published')]"
+    perm_read: true
+    perm_write: false
+    perm_create: false
+    perm_unlink: false
+    note: "Viewers see stable, published expressions only. Draft/deprecated expressions hidden."
+
+  - id: rule_expression_editor_all
+    model: spp.cel.expression
+    groups: [group_studio_editor_officer]
+    domain_description: "Editors can see all expressions regardless of state"
+    domain_force: "[(1, '=', 1)]"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: true
+    note: "Editors need access to drafts to work on configurations before publishing."
+
+  # --- CEL Variables: Role-based access ---
+  - id: rule_variable_viewer_read
+    model: spp.cel.variable
+    groups: [group_studio_viewer]
+    domain_description: "Viewers can read all variables but cannot modify"
+    domain_force: "[(1, '=', 1)]"
+    perm_read: true
+    perm_write: false
+    perm_create: false
+    perm_unlink: false
+    note: "Variables are discoverable by all users for expression building."
+
+  - id: rule_variable_manager_all
+    model: spp.cel.variable
+    groups: [group_studio_manager]
+    domain_description: "Managers have full access to all variables"
+    domain_force: "[(1, '=', 1)]"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: true
+    note: "Only managers can create/modify variables as they affect system behavior."
+
+# =============================================================================
+# MENU VISIBILITY
+# Which groups can see which menus
+# =============================================================================
+
+menus:
+  # Root Studio menu
+  - id: menu_spp_studio_root
+    name: "Studio"
+    groups: [spp_security.group_spp_admin, group_studio_viewer, group_studio_editor_officer, group_studio_manager]
+
+  # Dashboard submenu
+  - id: menu_spp_studio_dashboard
+    name: "Dashboard"
+    parent: menu_spp_studio_root
+    groups: [] # Accessible to all Studio users
+
+  # Logic submenu
+  - id: menu_spp_studio_logic
+    name: "Logic"
+    parent: menu_spp_studio_root
+    groups: [] # Accessible to all Studio users
+
+  - id: menu_spp_studio_expressions
+    name: "Expressions"
+    parent: menu_spp_studio_logic
+    groups: [] # Accessible to all Studio users
+
+  - id: menu_spp_studio_variables
+    name: "Variables"
+    parent: menu_spp_studio_logic
+    groups: [] # Accessible to all Studio users
+
+  - id: menu_spp_studio_packs
+    name: "Logic Packs"
+    parent: menu_spp_studio_logic
+    groups: [] # Accessible to all Studio users (viewers read-only via ACL)
+
+  # Fields submenu
+  - id: menu_spp_studio_fields
+    name: "Custom Fields"
+    parent: menu_spp_studio_root
+    groups: [] # Accessible to all Studio users
+
+  # Testing submenu
+  - id: menu_spp_studio_testing
+    name: "Testing"
+    parent: menu_spp_studio_root
+    groups: [] # Accessible to all Studio users
+
+  - id: menu_spp_studio_test_cases
+    name: "Test Cases"
+    parent: menu_spp_studio_testing
+    groups: [] # Accessible to all Studio users
+
+  - id: menu_spp_studio_test_personas
+    name: "Test Personas"
+    parent: menu_spp_studio_testing
+    groups: [] # Accessible to all Studio users
+
+  # Configuration submenu - managers only
+  - id: menu_spp_studio_configuration
+    name: "Configuration"
+    parent: menu_spp_studio_root
+    groups: [spp_security.group_spp_admin, group_studio_manager]
+
+  - id: menu_spp_studio_placement_zones
+    name: "Placement Zones"
+    parent: menu_spp_studio_configuration
+    groups: [] # Inherits restriction from parent
+
+  - id: menu_spp_studio_variable_categories
+    name: "Variable Categories"
+    parent: menu_spp_studio_configuration
+    groups: [] # Inherits restriction from parent
+
+# =============================================================================
+# FIELD RESTRICTIONS
+# Fields with group-based visibility in views
+# =============================================================================
+
+field_restrictions: []
+# No field-level restrictions documented at this time
+# Studio focuses on role-based access at model/menu level
+
+# =============================================================================
+# ACTION RESTRICTIONS
+# Actions that are restricted to specific groups
+# =============================================================================
+
+actions:
+  - id: action_spp_studio_dashboard
+    name: "Dashboards"
+    groups: [] # Available to all Studio users
+
+  - id: action_spp_cel_expression
+    name: "CEL Expressions"
+    groups: [] # Available to all Studio users
+
+  - id: action_spp_cel_variable
+    name: "CEL Variables"
+    groups: [] # Available to all Studio users
+
+  - id: action_spp_studio_field
+    name: "Custom Fields"
+    groups: [] # Available to all Studio users
+
+  - id: action_spp_studio_pack
+    name: "Logic Packs"
+    groups: [] # Available to all Studio users (viewers read-only)
+
+  - id: action_spp_studio_test
+    name: "Test Cases"
+    groups: [] # Available to all Studio users
+
+  - id: action_spp_studio_test_persona
+    name: "Test Personas"
+    groups: [] # Available to all Studio users
+
+  - id: action_spp_studio_placement_zone
+    name: "Placement Zones"
+    groups: [spp_security.group_spp_admin, group_studio_manager]
+
+  - id: action_spp_cel_variable_category
+    name: "Variable Categories"
+    groups: [spp_security.group_spp_admin, group_studio_manager]
+# =============================================================================
+# NOTES
+# =============================================================================
+
+# Architecture Notes:
+# 1. Target Users:
+#    - Viewers: Read-only access for reviewing configurations, monitoring
+#    - Editors: Program staff creating business logic and custom fields
+#    - Managers: Senior technical staff who can publish/deploy configurations
+#
+# 2. State-based Security:
+#    - CEL Expressions use workflow states (draft -> published -> deprecated)
+#    - Viewers only see published (stable) expressions to avoid confusion
+#    - Editors see all states to work on drafts before publishing
+#
+# 3. Collaborative Elements:
+#    - Dashboards: All groups have full CRUD for team collaboration
+#    - Test Cases/Personas: Shared resources for quality assurance
+#
+# 4. Configuration Protection:
+#    - Variables: Manager-only modification (system-level impact)
+#    - Logic Packs: Manager-only creation (curated knowledge base)
+#    - Placement Zones: Manager-only (affects field visibility)
+#
+# 5. Wizard Access:
+#    - Most wizards follow role hierarchy (editor+ or manager-only)
+#    - Pack/variable wizards are manager-only (system impact)
+#
+# 6. Largest ACL Footprint:
+#    - 42 ACL entries (largest in OpenSPP)
+#    - Covers 23 models (14 owned + 9 wizards + extensions to spp_cel_domain)
+#    - Reflects comprehensive no-code platform scope

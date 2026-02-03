@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Main Hazard Menu (Top-level application) -->
+    <menuitem
+        id="hazard_main_menu_root"
+        name="Hazard &amp; Emergency"
+        web_icon="spp_hazard,static/description/OpenSPP-Web-Menu_Hazard__Emergency_Icon.png"
+        sequence="45"
+    />
+
+    <!-- Incidents Submenu -->
+    <menuitem
+        id="menu_hazard_incidents_main"
+        name="Incidents"
+        parent="hazard_main_menu_root"
+        sequence="10"
+    />
+
+    <menuitem
+        id="menu_hazard_incident"
+        name="All Incidents"
+        action="action_hazard_incident"
+        parent="menu_hazard_incidents_main"
+        sequence="10"
+    />
+
+    <menuitem
+        id="menu_hazard_impact"
+        name="Impact Records"
+        action="action_hazard_impact"
+        parent="menu_hazard_incidents_main"
+        sequence="20"
+    />
+
+    <!-- Configuration Submenu -->
+    <menuitem
+        id="menu_hazard_configuration"
+        name="Configuration"
+        parent="hazard_main_menu_root"
+        sequence="90"
+        groups="group_hazard_manager"
+    />
+
+    <menuitem
+        id="menu_hazard_category"
+        name="Hazard Categories"
+        action="action_hazard_category"
+        parent="menu_hazard_configuration"
+        sequence="10"
+    />
+
+    <menuitem
+        id="menu_hazard_impact_type"
+        name="Impact Types"
+        action="action_hazard_impact_type"
+        parent="menu_hazard_configuration"
+        sequence="20"
+    />
+</odoo>

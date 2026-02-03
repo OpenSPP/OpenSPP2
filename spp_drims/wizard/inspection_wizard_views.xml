@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Main Inspection Wizard Form (DON-002) -->
+    <record id="spp_drims_inspection_wizard_form" model="ir.ui.view">
+        <field name="name">spp.drims.inspection.wizard.form</field>
+        <field name="model">spp.drims.inspection.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Inspect Donation">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Inspecting: <field name="donation_reference" readonly="1" class="oe_inline"/></h1>
+                    </div>
+
+                    <field name="donation_id" invisible="1"/>
+                    <field name="is_valid" invisible="1"/>
+
+                    <!-- Info Banner -->
+                    <div class="alert alert-info" role="alert" invisible="not is_valid">
+                        All items are set to <strong>New / Accept</strong>.
+                        Click <strong>Confirm Inspection</strong> to proceed, or <strong>Edit</strong> any row to change.
+                    </div>
+                    <div class="alert alert-warning" role="alert" invisible="is_valid">
+                        Some items need attention. Please review and edit as needed.
+                    </div>
+
+                    <!-- Items List (readonly) -->
+                    <group string="Items to Inspect">
+                        <field name="line_ids" nolabel="1" readonly="1">
+                            <list create="false" delete="false">
+                                <field name="product_id" string="Product"/>
+                                <field name="uom_id" string="Unit" optional="show"/>
+                                <field name="quantity_expected" string="Expected"/>
+                                <field name="quantity" string="Qty"/>
+                                <field name="condition_display" string="Status"
+                                       decoration-warning="not is_inspected"
+                                       decoration-success="is_inspected"/>
+                                <button name="action_edit_item"
+                                        string="Edit"
+                                        type="object"
+                                        class="btn-secondary btn-sm"
+                                        icon="fa-pencil"/>
+                                <field name="is_inspected" column_invisible="True"/>
+                                <field name="donation_line_id" column_invisible="True"/>
+                            </list>
+                        </field>
+                    </group>
+
+                    <!-- Inspection Notes -->
+                    <group string="Inspection Notes">
+                        <field name="notes" nolabel="1"
+                               placeholder="General notes about this inspection (optional)..."/>
+                    </group>
+                </sheet>
+
+                <footer>
+                    <button name="action_confirm_inspection"
+                            string="Confirm Inspection"
+                            type="object"
+                            class="btn-primary"
+                            invisible="not is_valid"
+                            confirm="This will update the donation and mark it as inspected. Continue?"/>
+                    <button name="action_confirm_inspection"
+                            string="Confirm Inspection"
+                            type="object"
+                            class="btn-secondary"
+                            invisible="is_valid"
+                            disabled="1"
+                            help="Please ensure all quantities match before confirming"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Item Edit Popup Form -->
+    <record id="spp_drims_inspection_item_wizard_form" model="ir.ui.view">
+        <field name="name">spp.drims.inspection.item.wizard.form</field>
+        <field name="model">spp.drims.inspection.item.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Inspect Item">
+                <sheet>
+                    <group>
+                        <group string="Item Details">
+                            <field name="product_id" readonly="1"/>
+                            <field name="uom_id" readonly="1"/>
+                            <field name="quantity_expected" readonly="1"/>
+                        </group>
+                        <group string="Inspection">
+                            <field name="quantity"/>
+                            <field name="condition_id" options="{'no_create': True}"/>
+                            <field name="disposition_id" options="{'no_create': True}"/>
+                            <field name="notes" placeholder="e.g., water damaged, expired batch"/>
+                        </group>
+                    </group>
+
+                    <!-- Split Warning -->
+                    <field name="show_split_warning" invisible="1"/>
+                    <field name="remaining_qty" invisible="1"/>
+                    <div class="alert alert-warning" role="alert" invisible="not show_split_warning">
+                        <strong>Remaining quantity:</strong> <field name="remaining_qty" readonly="1" class="oe_inline"/>
+                        <br/>
+                        <span class="text-muted">
+                            If some items have a different condition, click "Save &amp; Add Split"
+                            to create another line for the remaining quantity.
+                        </span>
+                    </div>
+
+                    <field name="inspection_line_id" invisible="1"/>
+                    <field name="wizard_id" invisible="1"/>
+                </sheet>
+
+                <footer>
+                    <button name="action_save"
+                            string="Save"
+                            type="object"
+                            class="btn-primary"/>
+                    <button name="action_save_and_split"
+                            string="Save &amp; Add Split"
+                            type="object"
+                            class="btn-secondary"
+                            invisible="not show_split_warning"
+                            help="Save this item and create a new line for remaining quantity"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action to open the wizard (kept for compatibility, but not used by button) -->
+    <record id="action_inspection_wizard" model="ir.actions.act_window">
+        <field name="name">Inspect Donation</field>
+        <field name="res_model">spp.drims.inspection.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

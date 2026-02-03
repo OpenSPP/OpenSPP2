@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Sri Lanka-Specific Vocabulary Codes -->
+
+    <!-- Life-Threatening Priority (SL-specific) -->
+    <record id="code_priority_life_threatening" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="spp_drims.vocab_drims_priority"/>
+        <field name="code">life_threatening</field>
+        <field name="display">Life-Threatening</field>
+        <field name="sequence">1</field>
+        <field name="is_local">True</field>
+    </record>
+
+    <!-- SL-specific transport: Rail -->
+    <record id="code_transport_rail" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="spp_drims.vocab_drims_transport_mode"/>
+        <field name="code">rail</field>
+        <field name="display">Rail (Sri Lanka Railways)</field>
+        <field name="sequence">25</field>
+        <field name="is_local">True</field>
+    </record>
+
+    <!-- SL Monsoon hazard types -->
+    <record id="code_hazard_sw_monsoon" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="spp_drims.vocab_drims_hazard_type"/>
+        <field name="code">sw_monsoon</field>
+        <field name="display">Southwest Monsoon</field>
+        <field name="sequence">50</field>
+        <field name="is_local">True</field>
+        <field name="reference_uri">urn:openspp:vocab:hazard-types#monsoon</field>
+        <field name="equivalence">equivalent</field>
+    </record>
+    <record id="code_hazard_ne_monsoon" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="spp_drims.vocab_drims_hazard_type"/>
+        <field name="code">ne_monsoon</field>
+        <field name="display">Northeast Monsoon</field>
+        <field name="sequence">51</field>
+        <field name="is_local">True</field>
+        <field name="reference_uri">urn:openspp:vocab:hazard-types#monsoon</field>
+        <field name="equivalence">equivalent</field>
+    </record>
+
+    <!-- Agency Types (Sri Lanka Specific) -->
+    <record id="code_agency_gov_ministry" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="spp_drims.vocab_drims_agency_type"/>
+        <field name="code">gov_ministry</field>
+        <field name="display">Government Ministry</field>
+        <field name="sequence">10</field>
+        <field name="is_local">True</field>
+    </record>
+    <record id="code_agency_gov_dept" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="spp_drims.vocab_drims_agency_type"/>
+        <field name="code">gov_dept</field>
+        <field name="display">Government Department</field>
+        <field name="sequence">11</field>
+        <field name="is_local">True</field>
+    </record>
+    <record id="code_agency_gov_district" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="spp_drims.vocab_drims_agency_type"/>
+        <field name="code">gov_district</field>
+        <field name="display">District Secretariat</field>
+        <field name="sequence">12</field>
+        <field name="is_local">True</field>
+    </record>
+    <record id="code_agency_gov_ds" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="spp_drims.vocab_drims_agency_type"/>
+        <field name="code">gov_ds</field>
+        <field name="display">Divisional Secretariat</field>
+        <field name="sequence">13</field>
+        <field name="is_local">True</field>
+    </record>
+    <record id="code_agency_military" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="spp_drims.vocab_drims_agency_type"/>
+        <field name="code">military</field>
+        <field name="display">Military</field>
+        <field name="sequence">20</field>
+        <field name="is_local">True</field>
+    </record>
+    <record id="code_agency_police" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="spp_drims.vocab_drims_agency_type"/>
+        <field name="code">police</field>
+        <field name="display">Police</field>
+        <field name="sequence">21</field>
+        <field name="is_local">True</field>
+    </record>
+    <record id="code_agency_ngo_local" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="spp_drims.vocab_drims_agency_type"/>
+        <field name="code">ngo_local</field>
+        <field name="display">Local NGO</field>
+        <field name="sequence">30</field>
+        <field name="is_local">True</field>
+    </record>
+    <record id="code_agency_ngo_intl" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="spp_drims.vocab_drims_agency_type"/>
+        <field name="code">ngo_intl</field>
+        <field name="display">International NGO</field>
+        <field name="sequence">31</field>
+        <field name="is_local">True</field>
+    </record>
+    <record id="code_agency_un" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="spp_drims.vocab_drims_agency_type"/>
+        <field name="code">un</field>
+        <field name="display">UN Agency</field>
+        <field name="sequence">40</field>
+        <field name="is_local">True</field>
+    </record>
+    <record id="code_agency_private" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="spp_drims.vocab_drims_agency_type"/>
+        <field name="code">private</field>
+        <field name="display">Private Sector</field>
+        <field name="sequence">50</field>
+        <field name="is_local">True</field>
+    </record>
+    <record id="code_agency_religious" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="spp_drims.vocab_drims_agency_type"/>
+        <field name="code">religious</field>
+        <field name="display">Religious Organizations</field>
+        <field name="sequence">60</field>
+        <field name="is_local">True</field>
+    </record>
+</odoo>

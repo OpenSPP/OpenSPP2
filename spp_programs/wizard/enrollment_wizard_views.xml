@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <record id="view_spp_program_enrollment_wizard_form" model="ir.ui.view">
+        <field name="name">spp.program.enrollment.wizard.form</field>
+        <field name="model">spp.program.enrollment.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Enroll in Program">
+                <group>
+                    <field name="partner_id" invisible="1" />
+                    <field name="partner_name" string="Registrant" />
+                    <!-- Technical fields for domain filtering in popup dialogs -->
+                    <field name="target_type" invisible="1" />
+                    <field name="allowed_program_ids" invisible="1" />
+                    <field name="program_id" />
+                    <field name="existing_program_ids" invisible="1" />
+                    <field name="is_already_enrolled" invisible="1" />
+                </group>
+
+                <div class="alert alert-info" role="alert" invisible="is_already_enrolled">
+                    <i class="fa fa-info-circle me-2" title="Info" />
+                    Enrollment will be created in draft state and will require eligibility verification before becoming active.
+                </div>
+
+                <div class="alert alert-warning" role="alert" invisible="not is_already_enrolled">
+                    <i class="fa fa-exclamation-triangle me-2" title="Warning" />
+                    This registrant is already enrolled in the selected program.
+                </div>
+
+                <footer>
+                    <button
+                        name="action_enroll"
+                        type="object"
+                        string="Enroll"
+                        class="btn-primary"
+                        invisible="is_already_enrolled"
+                    />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

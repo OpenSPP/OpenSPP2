@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Base Multi Entitlement Approval Wizard Form View -->
+    <record id="multi_entitlement_approval_wizard_form_view" model="ir.ui.view">
+        <field name="name">multi_entitlement_approval_wizard_form_view</field>
+        <field name="model">spp.multi.entitlement.approval.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <!-- Fund Availability Alerts -->
+                <div
+                    class="alert alert-danger"
+                    role="alert"
+                    invisible="has_sufficient_funds or not fund_availability_message"
+                >
+                    <span><i class="fa fa-exclamation-triangle" title="Warning" /> <field name="fund_availability_message" nolabel="1" style="display: inline; white-space: pre-line;" /></span>
+                </div>
+
+                <div
+                    class="alert alert-success"
+                    role="alert"
+                    invisible="not has_sufficient_funds or not fund_availability_message"
+                >
+                    <span><i class="fa fa-check-circle" title="Success" /> <field name="fund_availability_message" nolabel="1" style="display: inline; white-space: pre-line;" /></span>
+                </div>
+
+                <sheet>
+                    <!-- Hidden fields -->
+                    <field name="has_sufficient_funds" invisible="1" />
+                    <field name="available_funds" invisible="1" />
+                    <field name="required_funds" invisible="1" />
+                    <field name="currency_id" invisible="1" />
+
+                    <field name="entitlement_ids" nolabel="1" colspan="2">
+                        <list create="0" delete="1" editable="bottom">
+                            <field name="cycle_id" />
+                            <field name="entitlement_id" column_invisible="1" />
+                            <field name="partner_id" readonly="1" />
+                            <field name="code" readonly="1" />
+                            <field name="initial_amount" readonly="1" string="Amount" />
+                            <field name="currency_id" readonly="1" />
+                        </list>
+                    </field>
+                </sheet>
+                <footer>
+                    <button
+                        name="approve_entitlements"
+                        string="Approve"
+                        type="object"
+                        class="oe_highlight"
+                        title="Approve Entitlements"
+                        invisible="not has_sufficient_funds"
+                    />
+                    <button
+                        name="close_wizard"
+                        string="Cancel"
+                        type="object"
+                        class="btn-secondary"
+                        title="Cancel"
+                    />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Inherit view to add number_of_beneficiaries field -->
+    <record id="inherit_multi_entitlement_approval_wizard_form_view" model="ir.ui.view">
+        <field name="name">inherit_multi_entitlement_approval_wizard_form_view</field>
+        <field name="model">spp.multi.entitlement.approval.wizard</field>
+        <field name="inherit_id" ref="spp_programs.multi_entitlement_approval_wizard_form_view" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='entitlement_ids']" position="before">
+                <group name="fields">
+                    <field name="number_of_beneficiaries" />
+                </group>
+            </xpath>
+            <xpath
+                expr="//field[@name='entitlement_ids']/list/field[@name='initial_amount']"
+                position="attributes"
+            >
+                <attribute name="sum">total_initial_amount</attribute>
+                <attribute name="readonly">1</attribute>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

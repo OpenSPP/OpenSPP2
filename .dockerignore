@@ -1,0 +1,89 @@
+# =============================================================================
+# OpenSPP Docker Ignore
+# Excludes files from Docker build context for faster builds and smaller images
+# =============================================================================
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE and editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Testing
+e2e/node_modules/
+e2e/test-results/
+e2e/playwright-report/
+e2e/.playwright/
+
+# Documentation (not needed in image)
+docs/
+*.md
+!docker/*.md
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+Jenkinsfile
+
+# Docker (don't include docker configs in the image context recursively)
+docker-compose*.yml
+docker-compose*.yaml
+Dockerfile
+
+# Scripts not needed in image
+scripts/
+
+# Misc
+.env
+.env.*
+*.log
+*.bak
+*.tmp
+tmp/
+temp/
+.DS_Store
+Thumbs.db
+
+# Development tools
+.pre-commit-config.yaml
+.editorconfig
+pyproject.toml
+setup.cfg
+requirements-dev.txt
+Makefile
+
+# Test databases
+*.db
+*.sqlite3

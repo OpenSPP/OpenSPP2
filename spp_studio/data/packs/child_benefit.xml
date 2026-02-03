@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="pack_child_benefit" model="spp.studio.pack">
+            <field name="name">Child Benefit</field>
+            <field name="code">child_benefit</field>
+            <field name="description">Child benefit program with per-child benefit calculation</field>
+            <field name="category">child_benefit</field>
+            <field name="version">1.0</field>
+            <field name="author">OpenSPP</field>
+            <field name="state">available</field>
+        </record>
+
+        <record id="pack_child_benefit_item_1" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_child_benefit"/>
+            <field name="name">Has Children Eligibility</field>
+            <field name="context_type">group</field>
+            <field name="expression_type">filter</field>
+            <field name="description">Checks if household has at least one child</field>
+            <field name="logic_data">{"cel_expression": "child_count &gt; 0"}</field>
+        </record>
+
+        <record id="pack_child_benefit_item_2" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_child_benefit"/>
+            <field name="name">Per Child Amount</field>
+            <field name="context_type">group</field>
+            <field name="expression_type">formula</field>
+            <field name="description">Calculates benefit amount by multiplying number of children by 500</field>
+            <field name="logic_data">{"cel_expression": "child_count * 500"}</field>
+        </record>
+    </data>
+</odoo>

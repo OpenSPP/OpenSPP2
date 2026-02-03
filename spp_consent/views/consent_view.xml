@@ -1,0 +1,886 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+
+DPV-Aligned Consent Management Views.
+-->
+<odoo>
+    <!-- ================================================================== -->
+    <!-- CONSENT FORM VIEW -->
+    <!-- ================================================================== -->
+    <record id="view_spp_consent_form" model="ir.ui.view">
+        <field name="name">spp.consent.form</field>
+        <field name="model">spp.consent</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button
+                        name="action_give"
+                        string="Record Consent Given"
+                        type="object"
+                        class="btn-primary"
+                        invisible="status != 'requested'"
+                    />
+                    <button
+                        name="action_refuse"
+                        string="Record Consent Refused"
+                        type="object"
+                        invisible="status != 'requested'"
+                    />
+                    <button
+                        name="action_withdraw"
+                        string="Withdraw Consent"
+                        type="object"
+                        class="btn-warning"
+                        invisible="status not in ('given', 'renewed')"
+                    />
+                    <button
+                        name="action_renew"
+                        string="Renew Consent"
+                        type="object"
+                        invisible="status not in ('given', 'expired')"
+                    />
+                    <button
+                        name="action_verify"
+                        string="Verify"
+                        type="object"
+                        invisible="verified_by_id"
+                    />
+                    <button
+                        name="export_jsonld"
+                        string="Export JSON-LD"
+                        type="object"
+                        icon="fa-download"
+                    />
+                    <field
+                        name="status"
+                        widget="statusbar"
+                        statusbar_visible="requested,given,withdrawn,expired"
+                    />
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="action_view_history"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-history"
+                        >
+                            <field name="history_count" widget="statinfo" string="History" />
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Consent Name" readonly="status != 'requested'" />
+                        </h1>
+                        <field name="external_id" readonly="1" />
+                    </div>
+
+                    <group>
+                        <group string="Data Subject" name="data_subject_section">
+                            <field name="signatory_id" readonly="status != 'requested'" />
+                            <field name="group_id" readonly="status != 'requested'" />
+                            <field name="indicated_by_id" readonly="status != 'requested'" />
+                            <field name="delegation_type" readonly="status != 'requested'" />
+                        </group>
+                        <group string="Data Controller" name="data_controller_section">
+                            <field name="controller_id" readonly="status != 'requested'" />
+                        </group>
+                    </group>
+
+                    <group string="Data Recipients" name="data_recipients_section">
+                        <group name="recipient_mode_group">
+                            <field
+                                name="recipient_mode"
+                                widget="radio"
+                                readonly="status != 'requested'"
+                                help="'Specific Organizations' limits sharing to named partners. 'Organization Categories' allows sharing with any organization of selected types (e.g., all NGOs)."
+                            />
+                        </group>
+                        <group name="recipient_values_group">
+                            <field
+                                name="recipient_ids"
+                                widget="many2many_tags"
+                                readonly="status != 'requested'"
+                                invisible="recipient_mode == 'category'"
+                                help="Specific organizations who may receive the beneficiary's data"
+                            />
+                            <field
+                                name="allowed_recipient_types"
+                                widget="many2many_tags"
+                                readonly="status != 'requested'"
+                                invisible="recipient_mode != 'category'"
+                                help="Types of organizations allowed to receive data (e.g., Government, NGO, UN Agency)"
+                            />
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Processing" name="processing">
+                            <group>
+                                <group string="Legal Basis" name="legal_basis_section">
+                                    <field
+                                        name="legal_basis"
+                                        readonly="status != 'requested'"
+                                        help="Legal justification under applicable data protection law: 'Consent' requires explicit agreement, 'Legitimate Interest' for essential program operations, 'Legal Obligation' for compliance, 'Vital Interest' for life-saving situations"
+                                    />
+                                    <field
+                                        name="legal_basis_reference"
+                                        readonly="status != 'requested'"
+                                        help="Reference to specific law, regulation, or policy authorizing data processing"
+                                    />
+                                    <field
+                                        name="jurisdiction"
+                                        readonly="status != 'requested'"
+                                        help="Country or legal jurisdiction governing this consent (e.g., Kenya, EU)"
+                                    />
+                                </group>
+                                <group string="Privacy Notice" name="privacy_notice_section">
+                                    <field
+                                        name="notice_id"
+                                        readonly="status != 'requested'"
+                                        help="Link to the privacy notice shown to the beneficiary explaining data processing"
+                                    />
+                                    <field
+                                        name="notice_version"
+                                        readonly="1"
+                                        help="Version of the privacy notice at time of consent (auto-captured)"
+                                    />
+                                </group>
+                            </group>
+                            <separator string="Purposes" help="Why you are processing personal data (e.g., Service Provision, Research, Statistics)"/>
+                            <field name="purpose_ids" nolabel="1" widget="many2many_tags" readonly="status != 'requested'">
+                                <list>
+                                    <field name="name" />
+                                    <field name="dpv_uri" />
+                                    <field name="is_social_protection" />
+                                </list>
+                            </field>
+                            <group col="2">
+                                <group string="Personal Data Categories" name="personal_data_section">
+                                    <field name="personal_data_ids" nolabel="1" widget="many2many_tags" readonly="status != 'requested'">
+                                        <list>
+                                            <field name="name" />
+                                            <field name="is_sensitive" />
+                                        </list>
+                                    </field>
+                                </group>
+                                <group string="Processing Operations" name="processing_ops_section">
+                                    <field name="processing_ids" nolabel="1" widget="many2many_tags" readonly="status != 'requested'">
+                                        <list>
+                                            <field name="name" />
+                                            <field name="category" />
+                                        </list>
+                                    </field>
+                                </group>
+                            </group>
+                            <group string="Storage Conditions" name="storage_section">
+                                <field
+                                    name="storage_duration"
+                                    readonly="status != 'requested'"
+                                    help="How long data will be retained (e.g., '5 years after program completion', 'Until beneficiary turns 18')"
+                                />
+                                <field
+                                    name="storage_location"
+                                    readonly="status != 'requested'"
+                                    help="Where data is stored (e.g., 'Government Data Center - Nairobi', 'Cloud - EU Region')"
+                                />
+                            </group>
+                        </page>
+
+                        <page string="Consent Details" name="consent_details">
+                            <group>
+                                <group string="Validity" name="validity_section">
+                                    <field name="effective_date" readonly="status != 'requested'" />
+                                    <field name="expiry" readonly="status != 'requested'" />
+                                    <field name="days_until_expiry" />
+                                    <field name="is_valid" />
+                                </group>
+                                <group string="Collection" name="collection_section">
+                                    <field
+                                        name="collection_method"
+                                        readonly="status != 'requested'"
+                                        help="How consent was obtained: 'Written' (signed form), 'Verbal' (recorded), 'Electronic' (online/app), 'SMS' (text message)"
+                                    />
+                                </group>
+                            </group>
+                            <group string="Evidence" name="evidence_section">
+                                <!-- Evidence fields remain editable - may need to upload proof after recording -->
+                                <field
+                                    name="evidence_attachment"
+                                    filename="evidence_filename"
+                                    help="Upload proof of consent (scanned form, recording, screenshot, etc.)"
+                                />
+                                <field name="evidence_filename" invisible="1" />
+                                <field
+                                    name="delegation_evidence"
+                                    filename="delegation_evidence_filename"
+                                    help="Upload proof of authority for guardian/representative to consent on behalf of beneficiary"
+                                />
+                                <field name="delegation_evidence_filename" invisible="1" />
+                            </group>
+                            <group string="Withdrawal Mechanism" name="withdrawal_section">
+                                <!-- Withdrawal info remains editable - informational only -->
+                                <field
+                                    name="withdrawal_uri"
+                                    help="URL where beneficiary can withdraw consent (e.g., web portal, mobile app link)"
+                                />
+                                <field
+                                    name="withdrawal_instructions"
+                                    help="Clear instructions for how beneficiary can withdraw consent (e.g., 'Visit office with ID', 'Call hotline: +123456')"
+                                />
+                            </group>
+                        </page>
+
+                        <page string="Audit Trail" name="audit">
+                            <group>
+                                <group string="Creation">
+                                    <field name="created_by_id" />
+                                    <field name="create_date" />
+                                    <field name="current_version" />
+                                </group>
+                                <group string="Verification">
+                                    <field name="verified_by_id" />
+                                    <field name="verified_date" />
+                                </group>
+                            </group>
+                            <group
+                                string="Withdrawal Details"
+                                invisible="status != 'withdrawn'"
+                            >
+                                <field name="withdrawn_by_id" />
+                                <field name="withdrawn_date" />
+                                <field name="withdrawal_channel" />
+                                <field name="withdrawal_reason" />
+                            </group>
+                            <group string="Version History">
+                                <field name="history_ids" nolabel="1">
+                                    <list>
+                                        <field name="version" />
+                                        <field name="action" />
+                                        <field name="previous_status" />
+                                        <field name="new_status" />
+                                        <field name="changed_by_id" />
+                                        <field name="changed_date" />
+                                        <field name="reason" />
+                                    </list>
+                                </field>
+                            </group>
+                        </page>
+
+                        <page string="Technical" name="technical">
+                            <group>
+                                <group string="Identifiers">
+                                    <field name="external_id" />
+                                    <field name="schema_version" />
+                                    <field name="record_type" />
+                                    <field name="status_dpv_uri" />
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <!-- ================================================================== -->
+    <!-- CONSENT TREE VIEW -->
+    <!-- ================================================================== -->
+    <record id="view_spp_consent_tree" model="ir.ui.view">
+        <field name="name">spp.consent.tree</field>
+        <field name="model">spp.consent</field>
+        <field name="arch" type="xml">
+            <list
+                decoration-success="status in ('given', 'renewed')"
+                decoration-warning="status == 'requested'"
+                decoration-danger="status in ('withdrawn', 'expired', 'invalidated')"
+                decoration-muted="status == 'refused'"
+            >
+                <field name="name" />
+                <field name="signatory_id" />
+                <field name="group_id" optional="hide" />
+                <field name="status" widget="badge"
+                       decoration-success="status in ('given', 'renewed')"
+                       decoration-warning="status == 'requested'"
+                       decoration-danger="status in ('withdrawn', 'expired', 'invalidated')"
+                       decoration-muted="status == 'refused'"
+                       icon="fa-check" />
+                <field name="legal_basis" />
+                <field name="effective_date" />
+                <field name="expiry" />
+                <field name="days_until_expiry" optional="show" />
+                <field name="is_valid" />
+                <field name="controller_id" optional="hide" />
+                <field name="collection_method" optional="hide" />
+            </list>
+        </field>
+    </record>
+
+    <!-- ================================================================== -->
+    <!-- CONSENT SEARCH VIEW -->
+    <!-- ================================================================== -->
+    <record id="view_spp_consent_search" model="ir.ui.view">
+        <field name="name">spp.consent.search</field>
+        <field name="model">spp.consent</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="signatory_id" />
+                <field name="group_id" />
+                <field name="external_id" />
+                <field name="controller_id" />
+                <separator />
+                <filter
+                    name="valid"
+                    string="Valid Consents"
+                    domain="[('status', 'in', ['given', 'renewed']), ('expiry', '>=', context_today())]"
+                />
+                <filter
+                    name="requested"
+                    string="Pending Consent"
+                    domain="[('status', '=', 'requested')]"
+                />
+                <filter
+                    name="expired"
+                    string="Expired"
+                    domain="[('status', '=', 'expired')]"
+                />
+                <filter
+                    name="withdrawn"
+                    string="Withdrawn"
+                    domain="[('status', '=', 'withdrawn')]"
+                />
+                <separator />
+                <filter
+                    name="expiring_soon"
+                    string="Expiring Soon (30 days)"
+                    domain="[('status', 'in', ['given', 'renewed']), ('expiry', '&lt;=', (context_today() + relativedelta(days=30)).strftime('%Y-%m-%d'))]"
+                />
+                <separator />
+                <filter name="group_status" string="Group By: Status" context="{'group_by': 'status'}" />
+                <filter name="group_legal_basis" string="Group By: Legal Basis" context="{'group_by': 'legal_basis'}" />
+                <filter name="group_controller" string="Group By: Data Controller" context="{'group_by': 'controller_id'}" />
+                <filter name="group_collection" string="Group By: Collection Method" context="{'group_by': 'collection_method'}" />
+            </search>
+        </field>
+    </record>
+
+    <!-- ================================================================== -->
+    <!-- CONSENT ACTION -->
+    <!-- ================================================================== -->
+    <record id="action_spp_consent" model="ir.actions.act_window">
+        <field name="name">Consent Records</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">spp.consent</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_valid': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_empty_folder">
+                <strong>No Consent Records Yet</strong>
+            </p>
+            <p>
+                Click the <strong>Record Consent</strong> button on a beneficiary record to create your first consent.
+            </p>
+            <p class="text-muted">
+                Consent records document beneficiary authorization for data processing, aligned with GDPR and data protection standards.
+            </p>
+        </field>
+    </record>
+
+    <!-- ================================================================== -->
+    <!-- CONSENT HISTORY VIEWS -->
+    <!-- ================================================================== -->
+    <record id="view_spp_consent_history_tree" model="ir.ui.view">
+        <field name="name">spp.consent.history.tree</field>
+        <field name="model">spp.consent.history</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="version" />
+                <field name="action" />
+                <field name="previous_status" />
+                <field name="new_status" />
+                <field name="changed_by_id" />
+                <field name="changed_date" />
+                <field name="channel" optional="show" />
+                <field name="reason" optional="show" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_spp_consent_history_form" model="ir.ui.view">
+        <field name="name">spp.consent.history.form</field>
+        <field name="model">spp.consent.history</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group string="Action">
+                            <field name="consent_id" />
+                            <field name="version" />
+                            <field name="action" />
+                        </group>
+                        <group string="Status Change">
+                            <field name="previous_status" />
+                            <field name="new_status" />
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Who">
+                            <field name="changed_by_id" />
+                            <field name="indicated_by_id" />
+                            <field name="changed_date" />
+                        </group>
+                        <group string="Channel">
+                            <field name="channel" />
+                            <field name="ip_address" />
+                            <field name="user_agent" />
+                        </group>
+                    </group>
+                    <group string="Details">
+                        <field name="reason" />
+                        <field name="notes" />
+                        <field name="evidence_reference" />
+                    </group>
+                    <group string="Changed Fields" invisible="not changed_fields">
+                        <field name="changed_fields" />
+                        <field name="previous_values" widget="json" />
+                        <field name="new_values" widget="json" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ================================================================== -->
+    <!-- DPV TAXONOMY VIEWS -->
+    <!-- ================================================================== -->
+
+    <!-- Purpose Views -->
+    <record id="view_spp_consent_purpose_tree" model="ir.ui.view">
+        <field name="name">spp.consent.purpose.tree</field>
+        <field name="model">spp.consent.purpose</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="sequence" widget="handle" />
+                <field name="code" />
+                <field name="name" />
+                <field name="dpv_uri" optional="show" />
+                <field name="parent_id" optional="hide" />
+                <field name="is_social_protection" />
+                <field name="active" optional="hide" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_spp_consent_purpose_form" model="ir.ui.view">
+        <field name="name">spp.consent.purpose.form</field>
+        <field name="model">spp.consent.purpose</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="code" />
+                            <field name="name" />
+                            <field name="parent_id" />
+                            <field name="sequence" />
+                        </group>
+                        <group>
+                            <field name="dpv_uri" />
+                            <field name="dpv_concept" />
+                            <field name="is_social_protection" />
+                            <field name="active" />
+                        </group>
+                    </group>
+                    <separator string="Description"/>
+                    <field name="description" nolabel="1" class="oe_inline"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_spp_consent_purpose" model="ir.actions.act_window">
+        <field name="name">Consent Purposes (DPV)</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">spp.consent.purpose</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Personal Data Views -->
+    <record id="view_spp_consent_personal_data_tree" model="ir.ui.view">
+        <field name="name">spp.consent.personal.data.tree</field>
+        <field name="model">spp.consent.personal.data</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="sequence" widget="handle" />
+                <field name="code" />
+                <field name="name" />
+                <field name="is_sensitive" />
+                <field name="sensitivity_reason" optional="show" />
+                <field name="is_social_protection" />
+                <field name="dpv_uri" optional="hide" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_spp_consent_personal_data_form" model="ir.ui.view">
+        <field name="name">spp.consent.personal.data.form</field>
+        <field name="model">spp.consent.personal.data</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="code" />
+                            <field name="name" />
+                            <field name="sequence" />
+                        </group>
+                        <group>
+                            <field name="dpv_uri" />
+                            <field name="dpv_concept" />
+                            <field name="active" />
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Sensitivity">
+                            <field name="is_sensitive" />
+                            <field name="sensitivity_reason" invisible="not is_sensitive" />
+                        </group>
+                        <group string="Classification">
+                            <field name="is_social_protection" />
+                        </group>
+                    </group>
+                    <separator string="Description"/>
+                    <field name="description" nolabel="1" class="oe_inline"/>
+                    <group string="Example Fields">
+                        <field name="example_fields" nolabel="1" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_spp_consent_personal_data" model="ir.actions.act_window">
+        <field name="name">Personal Data Categories (DPV)</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">spp.consent.personal.data</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Processing Views -->
+    <record id="view_spp_consent_processing_tree" model="ir.ui.view">
+        <field name="name">spp.consent.processing.tree</field>
+        <field name="model">spp.consent.processing</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="sequence" widget="handle" />
+                <field name="code" />
+                <field name="name" />
+                <field name="category" />
+                <field name="risk_level" optional="show" />
+                <field name="dpv_uri" optional="hide" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_spp_consent_processing_form" model="ir.ui.view">
+        <field name="name">spp.consent.processing.form</field>
+        <field name="model">spp.consent.processing</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="code" />
+                            <field name="name" />
+                            <field name="category" />
+                            <field name="sequence" />
+                        </group>
+                        <group>
+                            <field name="dpv_uri" />
+                            <field name="dpv_concept" />
+                            <field name="risk_level" />
+                            <field name="active" />
+                        </group>
+                    </group>
+                    <separator string="Description"/>
+                    <field name="description" nolabel="1" class="oe_inline"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_spp_consent_processing" model="ir.actions.act_window">
+        <field name="name">Processing Operations (DPV)</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">spp.consent.processing</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Privacy Notice Views -->
+    <record id="view_spp_consent_notice_tree" model="ir.ui.view">
+        <field name="name">spp.consent.notice.tree</field>
+        <field name="model">spp.consent.notice</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="code" />
+                <field name="name" />
+                <field name="version" />
+                <field name="state" widget="badge"
+                       decoration-success="state == 'active'"
+                       decoration-info="state == 'draft'"
+                       decoration-muted="state == 'archived'"
+                       icon="fa-file-text-o" />
+                <field name="effective_date" />
+                <field name="language" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_spp_consent_notice_form" model="ir.ui.view">
+        <field name="name">spp.consent.notice.form</field>
+        <field name="model">spp.consent.notice</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button
+                        name="action_activate"
+                        string="Activate"
+                        type="object"
+                        class="btn-primary"
+                        invisible="state != 'draft'"
+                    />
+                    <button
+                        name="action_archive"
+                        string="Archive"
+                        type="object"
+                        invisible="state != 'active'"
+                    />
+                    <field name="state" widget="statusbar" />
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="code" />
+                            <field name="name" />
+                            <field name="version" />
+                            <field name="supersedes_id" />
+                        </group>
+                        <group>
+                            <field name="effective_date" />
+                            <field name="language" />
+                            <field name="jurisdiction" />
+                            <field name="applicable_law" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Summary">
+                            <field name="summary" />
+                        </page>
+                        <page string="Full Notice">
+                            <field name="full_text" />
+                        </page>
+                        <page string="ISO 29184 Elements">
+                            <group>
+                                <field name="controller_info" />
+                                <field name="purpose_description" />
+                                <field name="data_categories_description" />
+                                <field name="recipients_description" />
+                                <field name="retention_description" />
+                                <field name="rights_description" />
+                                <field name="withdrawal_description" />
+                            </group>
+                        </page>
+                        <page string="Contact">
+                            <group>
+                                <field name="contact_email" />
+                                <field name="contact_url" widget="url" />
+                                <field name="full_policy_url" widget="url" />
+                                <field name="dpo_contact" />
+                            </group>
+                        </page>
+                        <page string="DPV Taxonomy" name="dpv_taxonomy">
+                            <group>
+                                <group string="Purposes" name="purposes_section">
+                                    <field name="purpose_ids" nolabel="1" widget="many2many_tags" />
+                                </group>
+                                <group string="Data Categories" name="data_categories_section">
+                                    <field name="data_category_ids" nolabel="1" widget="many2many_tags" />
+                                </group>
+                            </group>
+                            <group string="Processing Types" name="processing_types_section">
+                                <field name="processing_type_ids" nolabel="1" widget="many2many_tags" />
+                            </group>
+                        </page>
+                        <page string="Consent Boundaries" name="consent_boundaries">
+                            <div class="alert alert-info" role="alert">
+                                <i class="fa fa-info-circle me-2" title="Info"/>
+                                <strong>Notice as Boundary</strong>
+                                <p class="mb-0 mt-2">
+                                    When a consent record uses this notice, it can only include
+                                    organization types, purposes, and data categories defined here.
+                                    This ensures informed consent compliance - beneficiaries cannot
+                                    consent to terms not described in the notice they were shown.
+                                </p>
+                            </div>
+                            <group>
+                                <group string="Allowed Recipient Types" name="allowed_org_types_section">
+                                    <field
+                                        name="max_recipient_types"
+                                        nolabel="1"
+                                        widget="many2many_tags"
+                                        placeholder="Select organization types..."
+                                        help="Organization types that can receive data under this notice. Consents using this notice can only select from these types."
+                                    />
+                                </group>
+                            </group>
+                            <separator string="Scope Limits" />
+                            <p class="text-muted">
+                                The purposes and data categories above (in DPV Taxonomy tab) also serve as
+                                boundaries. Consents cannot exceed those either.
+                            </p>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_spp_consent_notice" model="ir.actions.act_window">
+        <field name="name">Privacy Notices</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">spp.consent.notice</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- ================================================================== -->
+    <!-- MENU ITEMS -->
+    <!-- ================================================================== -->
+    <menuitem
+        id="menu_spp_consent_root"
+        name="Consent Management"
+        parent="spp_registry.spp_configuration_menu_root"
+        sequence="30"
+    />
+
+    <menuitem
+        id="menu_spp_consent_records"
+        name="Consent Records"
+        action="action_spp_consent"
+        parent="menu_spp_consent_root"
+        sequence="10"
+    />
+
+    <menuitem
+        id="menu_spp_consent_config"
+        name="Configuration"
+        parent="menu_spp_consent_root"
+        sequence="50"
+        groups="spp_security.group_spp_admin"
+    />
+
+    <menuitem
+        id="menu_spp_consent_purpose"
+        name="Purposes (DPV)"
+        action="action_spp_consent_purpose"
+        parent="menu_spp_consent_config"
+        sequence="10"
+    />
+
+    <menuitem
+        id="menu_spp_consent_personal_data"
+        name="Personal Data Categories"
+        action="action_spp_consent_personal_data"
+        parent="menu_spp_consent_config"
+        sequence="20"
+    />
+
+    <menuitem
+        id="menu_spp_consent_processing"
+        name="Processing Operations"
+        action="action_spp_consent_processing"
+        parent="menu_spp_consent_config"
+        sequence="30"
+    />
+
+    <menuitem
+        id="menu_spp_consent_notice"
+        name="Privacy Notices"
+        action="action_spp_consent_notice"
+        parent="menu_spp_consent_config"
+        sequence="40"
+    />
+
+    <!-- ================================================================== -->
+    <!-- ORGANIZATION TYPE VIEWS -->
+    <!-- ================================================================== -->
+    <record id="view_spp_consent_org_type_tree" model="ir.ui.view">
+        <field name="name">spp.consent.org.type.tree</field>
+        <field name="model">spp.consent.org.type</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="sequence" widget="handle" />
+                <field name="code" />
+                <field name="name" />
+                <field name="description" optional="show" />
+                <field name="color" widget="color_picker" optional="hide" />
+                <field name="active" optional="hide" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_spp_consent_org_type_form" model="ir.ui.view">
+        <field name="name">spp.consent.org.type.form</field>
+        <field name="model">spp.consent.org.type</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="code" />
+                            <field name="name" />
+                            <field name="sequence" />
+                        </group>
+                        <group>
+                            <field name="color" widget="color_picker" />
+                            <field name="active" />
+                        </group>
+                    </group>
+                    <separator string="Description"/>
+                    <field name="description" nolabel="1" class="oe_inline"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_spp_consent_org_type" model="ir.actions.act_window">
+        <field name="name">Organization Types</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">spp.consent.org.type</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_neutral">
+                <strong>No Organization Types Defined</strong>
+            </p>
+            <p>
+                Click <strong>Create</strong> to define organization categories for data sharing consent.
+            </p>
+            <p class="text-muted">
+                Organization types allow beneficiaries to consent to data sharing with categories of organizations
+                (e.g., "all NGOs" or "government agencies only") rather than listing specific organizations.
+                Examples: Government Agency, NGO, UN Agency, Private Service Provider.
+            </p>
+        </field>
+    </record>
+
+    <menuitem
+        id="menu_spp_consent_org_type"
+        name="Organization Types"
+        action="action_spp_consent_org_type"
+        parent="menu_spp_consent_config"
+        sequence="45"
+    />
+
+</odoo>

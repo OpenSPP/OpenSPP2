@@ -1,0 +1,129 @@
+#olmap {
+    width: 100%;
+    height: 100%;
+}
+
+.map_container {
+    width: 100%;
+    height: 100%;
+}
+
+.view {
+    max-height: 90%;
+    height: 100% !important;
+}
+
+.menu {
+    z-index: 2;
+    flex-grow: 0;
+    flex-shrink: 0;
+    padding-right: 0.5rem;
+    padding-bottom: 3rem;
+    padding-left: 2.5rem;
+    height: 100%;
+}
+
+.ol-popup {
+    position: absolute;
+    background-color: white;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #cccccc;
+    bottom: 12px;
+    left: -50px;
+    min-width: 280px;
+}
+.ol-popup:after,
+.ol-popup:before {
+    top: 100%;
+    border: solid transparent;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+}
+.ol-popup:after {
+    border-top-color: white;
+    border-width: 10px;
+    left: 48px;
+    margin-left: -10px;
+}
+.ol-popup:before {
+    border-top-color: #cccccc;
+    border-width: 11px;
+    left: 48px;
+    margin-left: -11px;
+}
+.ol-popup-closer {
+    text-decoration: none;
+    position: absolute;
+    top: 2px;
+    right: 8px;
+}
+
+/* Choropleth Legend Styles */
+#map-legend {
+    position: absolute;
+    bottom: 40px;
+    right: 10px;
+    z-index: 1000;
+    pointer-events: auto;
+}
+
+.choropleth-legend {
+    background: white;
+    padding: 10px 14px;
+    border-radius: 4px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 12px;
+    margin-bottom: 8px;
+    max-width: 200px;
+}
+
+.choropleth-legend-title {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+    font-size: 13px;
+}
+
+.choropleth-legend-gradient {
+    height: 16px;
+    border-radius: 2px;
+    margin-bottom: 4px;
+    border: 1px solid #ddd;
+}
+
+.choropleth-legend-labels {
+    display: flex;
+    justify-content: space-between;
+    color: #666;
+    font-size: 11px;
+}
+
+.choropleth-legend-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.choropleth-legend-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.choropleth-legend-step-color {
+    width: 20px;
+    height: 14px;
+    border-radius: 2px;
+    border: 1px solid #ddd;
+    flex-shrink: 0;
+}
+
+.choropleth-legend-step-label {
+    color: #666;
+    font-size: 11px;
+}

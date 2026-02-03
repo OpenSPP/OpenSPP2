@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    SP-MIS Demo V2 - Additional Approval Definitions
+
+    Additional approval definitions for demo scenarios with different approver groups.
+    These complement the default approval definitions in spp_programs.
+-->
+<odoo noupdate="1">
+    <!--
+        Cycle Approval Definition - Program Manager
+        Requires program manager approval for cycles
+    -->
+    <record id="approval_definition_cycle_manager" model="spp.approval.definition">
+        <field name="name">Cycle Approval - Program Manager</field>
+        <field name="model_id" ref="spp_programs.model_spp_cycle"/>
+        <field name="approval_type">group</field>
+        <field name="approval_group_id" ref="spp_programs.group_programs_manager"/>
+        <field name="is_require_comment">False</field>
+        <field name="notify_on_submit">True</field>
+        <field name="sla_days">3</field>
+        <field name="active">True</field>
+    </record>
+
+    <!--
+        Entitlement Approval Definition - Program Manager
+        Requires program manager approval for entitlements
+    -->
+    <record id="approval_definition_entitlement_manager" model="spp.approval.definition">
+        <field name="name">Entitlement Approval - Program Manager</field>
+        <field name="model_id" ref="spp_programs.model_spp_entitlement"/>
+        <field name="approval_type">group</field>
+        <field name="approval_group_id" ref="spp_programs.group_programs_manager"/>
+        <field name="is_require_comment">False</field>
+        <field name="notify_on_submit">True</field>
+        <field name="sla_days">3</field>
+        <field name="active">True</field>
+    </record>
+
+    <!--
+        Entitlement Approval Definition - Cycle Approver
+        Requires cycle approver approval for entitlements
+    -->
+    <record id="approval_definition_entitlement_cycle_approver" model="spp.approval.definition">
+        <field name="name">Entitlement Approval - Cycle Approver</field>
+        <field name="model_id" ref="spp_programs.model_spp_entitlement"/>
+        <field name="approval_type">group</field>
+        <field name="approval_group_id" ref="spp_programs.group_programs_cycle_approver"/>
+        <field name="is_require_comment">False</field>
+        <field name="notify_on_submit">True</field>
+        <field name="sla_days">3</field>
+        <field name="active">True</field>
+    </record>
+
+    <!--
+        In-Kind Entitlement Approval Definition - Program Manager
+        Requires program manager approval for in-kind entitlements
+    -->
+    <record id="approval_definition_entitlement_inkind_manager" model="spp.approval.definition">
+        <field name="name">In-Kind Entitlement Approval - Program Manager</field>
+        <field name="model_id" ref="spp_programs.model_spp_entitlement_inkind"/>
+        <field name="approval_type">group</field>
+        <field name="approval_group_id" ref="spp_programs.group_programs_manager"/>
+        <field name="is_require_comment">False</field>
+        <field name="notify_on_submit">True</field>
+        <field name="sla_days">3</field>
+        <field name="active">True</field>
+    </record>
+
+    <!--
+        In-Kind Entitlement Approval Definition - Cycle Approver
+        Requires cycle approver approval for in-kind entitlements
+    -->
+    <record id="approval_definition_entitlement_inkind_cycle_approver" model="spp.approval.definition">
+        <field name="name">In-Kind Entitlement Approval - Cycle Approver</field>
+        <field name="model_id" ref="spp_programs.model_spp_entitlement_inkind"/>
+        <field name="approval_type">group</field>
+        <field name="approval_group_id" ref="spp_programs.group_programs_cycle_approver"/>
+        <field name="is_require_comment">False</field>
+        <field name="notify_on_submit">True</field>
+        <field name="sla_days">3</field>
+        <field name="active">True</field>
+    </record>
+</odoo>
+

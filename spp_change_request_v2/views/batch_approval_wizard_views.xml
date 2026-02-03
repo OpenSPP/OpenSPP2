@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- ══════════════════════════════════════════════════════════════════════════
+         BATCH APPROVAL WIZARD - MAIN FORM
+         ══════════════════════════════════════════════════════════════════════════ -->
+    <record id="view_batch_approval_wizard_form" model="ir.ui.view">
+        <field name="name">spp.cr.batch.approval.wizard.form</field>
+        <field name="model">spp.cr.batch.approval.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Batch Approval">
+                <sheet>
+                    <div class="oe_title mb-3">
+                        <h2>Batch Approval</h2>
+                        <p class="text-muted">
+                            Process multiple change requests at once
+                        </p>
+                    </div>
+
+                    <!-- Summary counts -->
+                    <div class="row mb-3">
+                        <div class="col-4">
+                            <div class="card text-center">
+                                <div class="card-body py-2">
+                                    <h3 class="mb-0"><field name="total_count" readonly="1" nolabel="1"/></h3>
+                                    <small class="text-muted">Total Selected</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="card text-center bg-success-subtle">
+                                <div class="card-body py-2">
+                                    <h3 class="mb-0 text-success"><field name="valid_count" readonly="1" nolabel="1"/></h3>
+                                    <small class="text-muted">Can Process</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="card text-center bg-warning-subtle">
+                                <div class="card-body py-2">
+                                    <h3 class="mb-0 text-warning"><field name="invalid_count" readonly="1" nolabel="1"/></h3>
+                                    <small class="text-muted">Cannot Process</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action selection -->
+                    <group>
+                        <field name="action_type" widget="radio" options="{'horizontal': true}"/>
+                    </group>
+
+                    <!-- Comment -->
+                    <group>
+                        <field name="comment"
+                               placeholder="Optional comment (applies to all selected requests)..."
+                               invisible="action_type == 'approve'"/>
+                        <field name="comment"
+                               placeholder="Reason for declining (required)..."
+                               invisible="action_type != 'reject'"
+                               required="action_type == 'reject'"/>
+                        <field name="comment"
+                               placeholder="What changes are needed? (required)..."
+                               invisible="action_type != 'revision'"
+                               required="action_type == 'revision'"/>
+                    </group>
+
+                    <!-- Selected requests -->
+                    <notebook>
+                        <page string="Selected Requests" name="requests">
+                            <field name="line_ids" nolabel="1">
+                                <list decoration-muted="not can_process"
+                                      decoration-danger="not can_process" editable="bottom">
+                                    <field name="cr_name" string="Reference"/>
+                                    <field name="cr_type" string="Type"/>
+                                    <field name="registrant_name" string="Registrant"/>
+                                    <field name="document_count" string="Docs"/>
+                                    <field name="can_process" column_invisible="1"/>
+                                    <field name="error_message" string="Status"
+                                           invisible="can_process"/>
+                                    <button icon="fa-check text-success" invisible="not can_process"
+                                            title="Ready to process"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+
+                    <!-- Hidden -->
+                    <field name="show_results" invisible="1"/>
+                </sheet>
+                <footer>
+                    <button string="Confirm" name="action_confirm" type="object"
+                            class="btn-primary" invisible="valid_count == 0"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════════════════════════
+         BATCH APPROVAL WIZARD - RESULTS VIEW
+         ══════════════════════════════════════════════════════════════════════════ -->
+    <record id="view_spp_cr_batch_approval_wizard_form_results" model="ir.ui.view">
+        <field name="name">spp.cr.batch.approval.wizard.results</field>
+        <field name="model">spp.cr.batch.approval.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Batch Approval Results">
+                <sheet>
+                    <div class="oe_title mb-3">
+                        <h2>Batch Action Complete</h2>
+                    </div>
+
+                    <!-- Summary counts -->
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <div class="card text-center bg-success-subtle">
+                                <div class="card-body py-2">
+                                    <h3 class="mb-0 text-success">
+                                        <field name="success_count" readonly="1" nolabel="1"/>
+                                    </h3>
+                                    <small class="text-muted">Successful</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="card text-center bg-danger-subtle">
+                                <div class="card-body py-2">
+                                    <h3 class="mb-0 text-danger">
+                                        <field name="failed_count" readonly="1" nolabel="1"/>
+                                    </h3>
+                                    <small class="text-muted">Failed</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Results table -->
+                    <group>
+                        <field name="result_html" nolabel="1" readonly="1" colspan="2"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button string="Done" name="action_done" type="object"
+                            class="btn-primary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════════════════════════
+         BATCH APPROVAL - SERVER ACTION (for list view context menu)
+         ══════════════════════════════════════════════════════════════════════════ -->
+    <!-- Note: Security is enforced via ir.model.access.csv - only validators can access wizard -->
+    <record id="action_batch_approve" model="ir.actions.act_window">
+        <field name="name">Batch Approve</field>
+        <field name="res_model">spp.cr.batch.approval.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_batch_approval_wizard_form"/>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="model_spp_change_request"/>
+        <field name="binding_view_types">list</field>
+        <field name="context">{'default_action_type': 'approve'}</field>
+    </record>
+
+    <record id="action_batch_reject" model="ir.actions.act_window">
+        <field name="name">Batch Decline</field>
+        <field name="res_model">spp.cr.batch.approval.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_batch_approval_wizard_form"/>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="model_spp_change_request"/>
+        <field name="binding_view_types">list</field>
+        <field name="context">{'default_action_type': 'reject'}</field>
+    </record>
+
+    <record id="action_batch_request_changes" model="ir.actions.act_window">
+        <field name="name">Batch Request Changes</field>
+        <field name="res_model">spp.cr.batch.approval.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_batch_approval_wizard_form"/>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="model_spp_change_request"/>
+        <field name="binding_view_types">list</field>
+        <field name="context">{'default_action_type': 'revision'}</field>
+    </record>
+
+</odoo>

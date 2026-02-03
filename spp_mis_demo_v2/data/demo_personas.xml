@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Demo Test Personas for MIS Demo V2
+
+    These personas represent realistic social protection beneficiaries with
+    compelling human stories for sales demos and training sessions.
+
+    Each persona includes:
+    - Name and demographics
+    - Occupation and family context
+    - Challenges they face
+    - Programs they qualify for
+    - Expected outcomes
+
+    Categories:
+    - eligible: Should pass eligibility checks
+    - ineligible: Should fail eligibility checks (demonstrates rejection logic)
+    - edge: Edge cases for testing boundary conditions
+-->
+<odoo>
+    <data noupdate="1">
+
+        <!-- ═══════════════════════════════════════════════════════════════════════
+             ELIGIBLE PERSONAS - Success Stories
+             ═══════════════════════════════════════════════════════════════════════ -->
+
+        <!-- Maria Santos - The Graduation Success Story -->
+        <record id="persona_maria_santos" model="spp.studio.test.persona">
+            <field name="name">Maria Santos</field>
+            <field name="description">SUCCESS STORY: 42-year-old rice farmer and mother of two from rural Laguna province. Started with 2.5 hectares and struggled with seasonal income. After 5 months in the Cash Transfer Program, she saved enough to buy better seeds and tools. Recently graduated from the program - demonstrating the pathway from poverty to self-sufficiency. Now mentors other farmers in her community.</field>
+            <field name="category">eligible</field>
+            <field name="is_global" eval="True"/>
+            <field name="sequence">10</field>
+            <field name="values">{"name": "Maria Santos", "age": 42, "is_registrant": true, "is_group": false, "active": true, "farm_size_hectares": 2.5, "income": 8000, "occupation": "rice_farmer", "region": "rural"}</field>
+        </record>
+
+        <!-- Rosa Garcia - Multi-Program Elderly Beneficiary -->
+        <record id="persona_rosa_garcia" model="spp.studio.test.persona">
+            <field name="name">Rosa Garcia</field>
+            <field name="description">ELDERLY SUPPORT: 67-year-old widow living alone in a small barangay. Lost her husband 3 years ago and has no formal pension. Her two children work abroad and send occasional remittances, but she still lives below the poverty line. Receives both the Elderly Social Pension (monthly cash) and Food Assistance (food baskets) - demonstrating multi-program enrollment for vulnerable populations.</field>
+            <field name="category">eligible</field>
+            <field name="is_global" eval="True"/>
+            <field name="sequence">20</field>
+            <field name="values">{"name": "Rosa Garcia", "age": 67, "is_registrant": true, "is_group": false, "active": true, "income": 2000, "has_formal_pension": false, "marital_status": "widowed", "living_arrangement": "alone"}</field>
+        </record>
+
+        <!-- Carlos &amp; Elena Morales Household - Child Support -->
+        <record id="persona_carlos_morales" model="spp.studio.test.persona">
+            <field name="name">Carlos &amp; Elena Morales Household</field>
+            <field name="description">CHILD WELFARE: Household of 5 headed by Carlos (38) and Elena (36) Morales with 3 school-age children (ages 6, 9, and 14). Carlos works as a tricycle driver while Elena does laundry for neighbors. Combined income is below poverty line. Receives Universal Child Grant calculated per-child ($50 × 3 = $150/month) - demonstrating dynamic entitlement calculation based on household composition.</field>
+            <field name="category">eligible</field>
+            <field name="is_global" eval="True"/>
+            <field name="sequence">30</field>
+            <field name="values">{"name": "Carlos Morales Household", "is_registrant": true, "is_group": true, "active": true, "hh_size": 5, "child_count": 3, "income": 4000, "head_occupation": "tricycle_driver", "spouse_occupation": "laundry_worker"}</field>
+        </record>
+
+        <!-- Ibrahim Hassan - Emergency Relief Displaced Person -->
+        <record id="persona_ibrahim_hassan" model="spp.studio.test.persona">
+            <field name="name">Ibrahim Hassan</field>
+            <field name="description">EMERGENCY RESPONSE: 50-year-old farmer displaced by recent flooding in his coastal village. Lost his home, crops, and livelihood. Currently staying in an evacuation center with vulnerability score of 85 (high). Receives Tier 2 emergency payments ($400) based on tiered vulnerability assessment - demonstrating crisis response targeting and ternary CEL expressions for benefit calculation.</field>
+            <field name="category">eligible</field>
+            <field name="is_global" eval="True"/>
+            <field name="sequence">40</field>
+            <field name="values">{"name": "Ibrahim Hassan", "age": 50, "is_registrant": true, "is_group": false, "active": true, "displacement_status": "displaced", "vulnerability_score": 85, "shelter_type": "evacuation_center", "previous_occupation": "farmer"}</field>
+        </record>
+
+        <!-- David &amp; Sofia Martinez Household - Disability Support -->
+        <record id="persona_david_martinez" model="spp.studio.test.persona">
+            <field name="name">David &amp; Sofia Martinez Household</field>
+            <field name="description">DISABILITY INCLUSION: Household of 3 - David (44) and Sofia (42) Martinez with their 12-year-old son Miguel who uses a wheelchair due to cerebral palsy. David works as a security guard while Sofia stays home to care for Miguel. They face extra costs for Miguel's medical needs and accessibility requirements. Receives Disability Support Grant (base $100 + $75 per disabled member) - demonstrating member-based benefit calculation.</field>
+            <field name="category">eligible</field>
+            <field name="is_global" eval="True"/>
+            <field name="sequence">50</field>
+            <field name="values">{"name": "David Martinez Household", "is_registrant": true, "is_group": true, "active": true, "hh_size": 3, "disabled_count": 1, "head_occupation": "security_guard", "disability_type": "physical"}</field>
+        </record>
+
+        <!-- Juan Dela Cruz Household - Emergency Case with GRM Integration -->
+        <record id="persona_juan_dela_cruz" model="spp.studio.test.persona">
+            <field name="name">Juan Dela Cruz Household</field>
+            <field name="description">EMERGENCY + GRM INTEGRATION: Household of 4 headed by Juan (45) Dela Cruz, displaced after house fire. Was enrolled in Cash Transfer Program when disaster struck. Filed GRM ticket about delayed emergency payment - demonstrating cross-module integration between programs, grievances, and case management. Case was escalated from GRM to case management for comprehensive support.</field>
+            <field name="category">eligible</field>
+            <field name="is_global" eval="True"/>
+            <field name="sequence">55</field>
+            <field name="values">{"name": "Juan Dela Cruz", "age": 45, "is_registrant": true, "is_group": true, "active": true, "hh_size": 4, "income": 3500, "displacement_status": "displaced", "displacement_reason": "house_fire", "has_grm_ticket": true, "has_case": true}</field>
+        </record>
+
+        <!-- Ahmed Said - Multiple Program Beneficiary with Active GRM -->
+        <record id="persona_ahmed_said" model="spp.studio.test.persona">
+            <field name="name">Ahmed Said</field>
+            <field name="description">MULTI-TICKET GRM: 38-year-old construction worker and father of 4 enrolled in Cash Transfer Program. Has filed multiple GRM tickets over time - payment delay (resolved), bank account update (resolved), and general inquiry about next payment. Demonstrates how the system tracks beneficiary interaction history and ticket patterns.</field>
+            <field name="category">eligible</field>
+            <field name="is_global" eval="True"/>
+            <field name="sequence">58</field>
+            <field name="values">{"name": "Ahmed Said", "age": 38, "is_registrant": true, "is_group": false, "active": true, "income": 5000, "occupation": "construction_worker", "child_count": 4, "grm_ticket_count": 3}</field>
+        </record>
+
+        <!-- Fatima Al-Rahman - Information Seeker -->
+        <record id="persona_fatima_al_rahman" model="spp.studio.test.persona">
+            <field name="name">Fatima Al-Rahman</field>
+            <field name="description">INFORMATION REQUEST: 32-year-old mother of 2 who filed a GRM ticket asking about program eligibility requirements. Her ticket was quickly resolved with information provided. Demonstrates the system's ability to handle inquiries efficiently. She is now being assessed for Universal Child Grant enrollment.</field>
+            <field name="category">eligible</field>
+            <field name="is_global" eval="True"/>
+            <field name="sequence">60</field>
+            <field name="values">{"name": "Fatima Al-Rahman", "age": 32, "is_registrant": true, "is_group": false, "active": true, "income": 4500, "child_count": 2, "marital_status": "married", "assessment_status": "pending"}</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════════════
+             INELIGIBLE PERSONAS - Rejection Demonstrations
+             ═══════════════════════════════════════════════════════════════════════ -->
+
+        <!-- Mary Johnson - Age Rejection (Below Retirement Age) -->
+        <record id="persona_mary_johnson" model="spp.studio.test.persona">
+            <field name="name">Mary Johnson</field>
+            <field name="description">REJECTION CASE - AGE: 55-year-old woman who applied for Elderly Social Pension. Although she has no formal pension and low income, she was REJECTED because she doesn't meet the age requirement (retirement_age = 65). Her application demonstrates how the system properly enforces age-based eligibility rules. She should reapply in 10 years when she turns 65.</field>
+            <field name="category">ineligible</field>
+            <field name="is_global" eval="True"/>
+            <field name="sequence">100</field>
+            <field name="values">{"name": "Mary Johnson", "age": 55, "is_registrant": true, "is_group": false, "active": true, "income": 3000, "has_formal_pension": false, "rejection_reason": "below_retirement_age"}</field>
+        </record>
+
+        <!-- Childless Household - No Child Benefit -->
+        <record id="persona_childless_household" model="spp.studio.test.persona">
+            <field name="name">Childless Household</field>
+            <field name="description">REJECTION CASE - NO CHILDREN: Adult couple household with no children under 18. Although they are low-income, they are INELIGIBLE for the Universal Child Grant because the program requires at least one child (members.count where age &lt; child_age_limit &gt; 0). Demonstrates how member aggregation correctly identifies households without qualifying members.</field>
+            <field name="category">ineligible</field>
+            <field name="is_global" eval="True"/>
+            <field name="sequence">110</field>
+            <field name="values">{"name": "Childless Household", "is_registrant": true, "is_group": true, "active": true, "hh_size": 2, "child_count": 0, "income": 3500}</field>
+        </record>
+
+        <!-- High Income Household - Above Poverty Line -->
+        <record id="persona_high_income_household" model="spp.studio.test.persona">
+            <field name="name">High Income Household</field>
+            <field name="description">REJECTION CASE - INCOME: Household with income above the poverty_line threshold. Although they have 2 children, they are INELIGIBLE for poverty-targeted programs because their income exceeds the cutoff. Demonstrates proper means-testing using constant comparison (income &lt; poverty_line).</field>
+            <field name="category">ineligible</field>
+            <field name="is_global" eval="True"/>
+            <field name="sequence">120</field>
+            <field name="values">{"name": "High Income Household", "is_registrant": true, "is_group": true, "active": true, "hh_size": 4, "child_count": 2, "income": 15000}</field>
+        </record>
+
+    </data>
+</odoo>

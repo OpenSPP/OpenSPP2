@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openspp.org/schemas/vocabulary.schema.json",
+  "title": "OpenSPP Vocabulary",
+  "description": "Standard format for OpenSPP vocabulary data files",
+  "type": "object",
+  "required": ["name", "namespace", "version", "codes"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Human-readable name of the vocabulary"
+    },
+    "namespace": {
+      "type": "string",
+      "format": "uri",
+      "description": "Unique namespace URI (e.g., urn:iso:std:iso:3166-1)"
+    },
+    "version": {
+      "type": "string",
+      "description": "Version of this vocabulary (e.g., 2024, 2011)"
+    },
+    "source_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL to official source documentation"
+    },
+    "source_standard": {
+      "type": "string",
+      "description": "Name of the standard (e.g., ISO 3166-1, ISCED 2011)"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date",
+      "description": "Date this file was last updated (YYYY-MM-DD)"
+    },
+    "domain": {
+      "type": "string",
+      "enum": ["core", "programs", "registry", "finance"],
+      "description": "OpenSPP domain this vocabulary belongs to"
+    },
+    "is_hierarchical": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether codes have parent-child relationships"
+    },
+    "codes": {
+      "type": "array",
+      "description": "List of vocabulary codes",
+      "items": {
+        "type": "object",
+        "required": ["code", "display"],
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Unique code identifier"
+          },
+          "display": {
+            "type": "string",
+            "description": "Human-readable display name"
+          },
+          "definition": {
+            "type": "string",
+            "description": "Detailed definition or description"
+          },
+          "parent_code": {
+            "type": "string",
+            "description": "Parent code for hierarchical vocabularies"
+          },
+          "deprecated": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether this code is deprecated"
+          },
+          "replaced_by": {
+            "type": "string",
+            "description": "Code that replaces this deprecated code"
+          }
+        }
+      }
+    }
+  }
+}

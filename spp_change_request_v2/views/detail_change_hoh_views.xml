@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Change Head of Household Detail Form View -->
+    <record id="spp_cr_detail_change_hoh_form" model="ir.ui.view">
+        <field name="name">spp.cr.detail.change_hoh.form</field>
+        <field name="model">spp.cr.detail.change_hoh</field>
+        <field name="arch" type="xml">
+            <form string="Change Head of Household Details">
+                <sheet>
+                    <group>
+                        <group string="Current Head">
+                            <field name="current_head_id" readonly="1" />
+                        </group>
+                        <group string="New Head">
+                            <field name="available_individual_ids" invisible="1" />
+                            <field
+                                name="new_head_id"
+                                options="{'no_create': True}"
+                                domain="[('id', 'in', available_individual_ids)]"
+                                required="1"
+                            />
+                            <field name="new_head_membership_id" invisible="1" force_save="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Change Details">
+                            <field name="reason" />
+                            <field name="effective_date" />
+                        </group>
+                        <group string="Previous Head Reassignment">
+                            <field name="previous_head_new_role_id" options="{'no_create': True}" />
+                        </group>
+                    </group>
+                    <group string="Additional Information">
+                        <field name="remarks" placeholder="Enter any additional notes..." />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

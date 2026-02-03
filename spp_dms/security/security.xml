@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- =================================================================== -->
+    <!-- TIER 3: Technical Base Groups                                      -->
+    <!-- =================================================================== -->
+
+    <record id="group_dms_read" model="res.groups">
+        <field name="name">DMS: Read Access</field>
+        <field name="comment">Technical group for read access to DMS models.</field>
+    </record>
+
+    <record id="group_dms_write" model="res.groups">
+        <field name="name">DMS: Write Access</field>
+        <field name="comment">Technical group for write access to DMS models.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_dms_read'))]"/>
+    </record>
+
+    <record id="group_dms_create" model="res.groups">
+        <field name="name">DMS: Create Access</field>
+        <field name="comment">Technical group for DMS create access.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_dms_read'))]"/>
+    </record>
+
+    <record id="group_dms_delete" model="res.groups">
+        <field name="name">DMS: Delete Access</field>
+        <field name="comment">Technical group for DMS delete access.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_dms_read'))]"/>
+    </record>
+
+    <!-- =================================================================== -->
+    <!-- TIER 2: User-Facing Groups                                         -->
+    <!-- =================================================================== -->
+
+    <record id="group_dms_viewer" model="res.groups">
+        <field name="name">Viewer</field>
+        <field name="privilege_id" ref="privilege_dms"/>
+        <field name="comment">Can view documents and directories. Cannot modify data.</field>
+        <field name="implied_ids" eval="[
+            Command.link(ref('base.group_user')),
+            Command.link(ref('group_dms_read'))
+        ]"/>
+    </record>
+
+    <record id="group_dms_officer" model="res.groups">
+        <field name="name">Officer</field>
+        <field name="privilege_id" ref="privilege_dms"/>
+        <field name="comment">Can create and edit documents/directories. Cannot delete or configure categories.</field>
+        <field name="implied_ids" eval="[
+            Command.link(ref('group_dms_viewer')),
+            Command.link(ref('group_dms_write')),
+            Command.link(ref('group_dms_create'))
+        ]"/>
+    </record>
+
+    <record id="group_dms_user" model="res.groups">
+        <field name="name">User (Deprecated)</field>
+        <field name="privilege_id" ref="privilege_dms"/>
+        <field name="comment">DEPRECATED: Legacy group maintained for backwards compatibility. Use group_dms_officer instead.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_dms_officer'))]"/>
+    </record>
+
+    <!-- Special Groups -->
+    <record id="group_dms_config_admin" model="res.groups">
+        <field name="name">Config Access</field>
+        <field name="privilege_id" ref="privilege_dms"/>
+        <field name="comment">Access to DMS configuration menus (categories). Implied by DMS Manager.</field>
+        <field name="implied_ids" eval="[Command.link(ref('base.group_user'))]"/>
+    </record>
+
+    <!-- Uses separate privilege so it can be combined with basic roles -->
+    <record id="group_dms_restrict_self" model="res.groups">
+        <field name="name">Restrict to Own Documents</field>
+        <field name="privilege_id" ref="privilege_dms_specialized"/>
+        <field name="comment">SPECIALIZED ROLE: Restrict document access to only own uploads. Can be combined with viewer/officer roles.</field>
+        <field name="implied_ids" eval="[Command.link(ref('base.group_user'))]"/>
+    </record>
+
+    <record id="group_dms_manager" model="res.groups">
+        <field name="name">Manager</field>
+        <field name="privilege_id" ref="privilege_dms"/>
+        <field name="comment">Full DMS management including delete operations and configuration.</field>
+        <field name="implied_ids" eval="[
+            Command.link(ref('group_dms_officer')),
+            Command.link(ref('group_dms_delete')),
+            Command.link(ref('group_dms_config_admin'))
+        ]"/>
+    </record>
+
+    <!-- =================================================================== -->
+    <!-- Admin Linkage                                                       -->
+    <!-- =================================================================== -->
+
+    <!-- Link manager group to admin -->
+    <record id="spp_security.group_spp_admin" model="res.groups">
+        <field name="implied_ids" eval="[Command.link(ref('group_dms_manager'))]"/>
+    </record>
+</odoo>

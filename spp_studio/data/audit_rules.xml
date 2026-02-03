@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="1">
+        <!--
+            Audit Rules for Logic Studio Models
+            ===================================
+            These rules enable automatic audit logging via spp_audit
+            for create/write/unlink operations on Logic and Variable models.
+        -->
+
+        <!-- Logic Variable Audit Rule -->
+        <record id="audit_rule_logic_variable" model="spp.audit.rule">
+            <field name="name">Logic Variable Audit</field>
+            <field name="model_id" ref="spp_cel_domain.model_spp_cel_variable"/>
+            <field name="is_log_create">True</field>
+            <field name="is_log_write">True</field>
+            <field name="is_log_unlink">True</field>
+            <field name="is_log_activate">True</field>
+            <field name="is_log_deactivate">True</field>
+            <field name="is_log_state_change">True</field>
+            <field name="is_view_logs">True</field>
+        </record>
+
+        <!-- Logic (Formula) Audit Rule -->
+        <record id="audit_rule_logic" model="spp.audit.rule">
+            <field name="name">Logic Formula Audit</field>
+            <field name="model_id" ref="spp_cel_domain.model_spp_cel_expression"/>
+            <field name="is_log_create">True</field>
+            <field name="is_log_write">True</field>
+            <field name="is_log_unlink">True</field>
+            <field name="is_log_activate">True</field>
+            <field name="is_log_deactivate">True</field>
+            <field name="is_log_state_change">True</field>
+            <field name="is_view_logs">True</field>
+        </record>
+
+        <!-- Logic Test Audit Rule -->
+        <record id="audit_rule_logic_test" model="spp.audit.rule">
+            <field name="name">Logic Test Audit</field>
+            <field name="model_id" ref="model_spp_studio_test"/>
+            <field name="is_log_create">True</field>
+            <field name="is_log_write">True</field>
+            <field name="is_log_unlink">True</field>
+            <field name="is_view_logs">True</field>
+        </record>
+
+        <!-- Logic Pack Audit Rule -->
+        <record id="audit_rule_logic_pack" model="spp.audit.rule">
+            <field name="name">Logic Pack Audit</field>
+            <field name="model_id" ref="model_spp_studio_pack"/>
+            <field name="is_log_create">True</field>
+            <field name="is_log_write">True</field>
+            <field name="is_log_unlink">True</field>
+            <field name="is_view_logs">True</field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Default Attribute Mappings for Claim 169 -->
+
+    <!-- Claim 1: ID (inactive by default - configure external ID source field) -->
+    <record id="mapping_claim_1_id" model="spp.claim169.attribute.mapping">
+        <field name="name">ID (Claim 1)</field>
+        <field name="claim_number">1</field>
+        <field name="claim_name">id</field>
+        <field name="source_field">name</field>
+        <field name="transform_type">direct</field>
+        <field name="sequence">10</field>
+        <field name="is_active">False</field>
+    </record>
+
+    <!-- Claim 2: Version -->
+    <record id="mapping_claim_2_version" model="spp.claim169.attribute.mapping">
+        <field name="name">Version (Claim 2)</field>
+        <field name="claim_number">2</field>
+        <field name="claim_name">version</field>
+        <field name="source_field">name</field>
+        <field name="transform_type">direct</field>
+        <field name="sequence">20</field>
+        <field name="is_active">False</field>
+    </record>
+
+    <!-- Claim 4: Full Name -->
+    <record id="mapping_claim_4_full_name" model="spp.claim169.attribute.mapping">
+        <field name="name">Full Name (Claim 4)</field>
+        <field name="claim_number">4</field>
+        <field name="claim_name">full_name</field>
+        <field name="source_field">name</field>
+        <field name="transform_type">direct</field>
+        <field name="sequence">30</field>
+        <field name="is_active">True</field>
+    </record>
+
+    <!-- Claim 5: First Name -->
+    <record id="mapping_claim_5_first_name" model="spp.claim169.attribute.mapping">
+        <field name="name">First Name (Claim 5)</field>
+        <field name="claim_number">5</field>
+        <field name="claim_name">first_name</field>
+        <field name="source_field">firstname</field>
+        <field name="transform_type">direct</field>
+        <field name="sequence">40</field>
+        <field name="is_active">False</field>
+    </record>
+
+    <!-- Claim 6: Middle Name -->
+    <record id="mapping_claim_6_middle_name" model="spp.claim169.attribute.mapping">
+        <field name="name">Middle Name (Claim 6)</field>
+        <field name="claim_number">6</field>
+        <field name="claim_name">middle_name</field>
+        <field name="source_field">addl_name</field>
+        <field name="transform_type">direct</field>
+        <field name="sequence">45</field>
+        <field name="is_active">False</field>
+    </record>
+
+    <!-- Claim 7: Last Name -->
+    <record id="mapping_claim_7_last_name" model="spp.claim169.attribute.mapping">
+        <field name="name">Last Name (Claim 7)</field>
+        <field name="claim_number">7</field>
+        <field name="claim_name">last_name</field>
+        <field name="source_field">lastname</field>
+        <field name="transform_type">direct</field>
+        <field name="sequence">50</field>
+        <field name="is_active">False</field>
+    </record>
+
+    <!-- Claim 8: Date of Birth -->
+    <record id="mapping_claim_8_dob" model="spp.claim169.attribute.mapping">
+        <field name="name">Date of Birth (Claim 8)</field>
+        <field name="claim_number">8</field>
+        <field name="claim_name">date_of_birth</field>
+        <field name="source_field">birthdate</field>
+        <field name="transform_type">date_yyyymmdd</field>
+        <field name="sequence">60</field>
+        <field name="is_active">True</field>
+    </record>
+
+    <!-- Claim 9: Gender -->
+    <record id="mapping_claim_9_gender" model="spp.claim169.attribute.mapping">
+        <field name="name">Gender (Claim 9)</field>
+        <field name="claim_number">9</field>
+        <field name="claim_name">gender</field>
+        <field name="source_field">gender</field>
+        <field name="transform_type">gender_code</field>
+        <field name="sequence">70</field>
+        <field name="is_active">True</field>
+    </record>
+
+    <!-- Claim 10: Address -->
+    <record id="mapping_claim_10_address" model="spp.claim169.attribute.mapping">
+        <field name="name">Address (Claim 10)</field>
+        <field name="claim_number">10</field>
+        <field name="claim_name">address</field>
+        <field name="source_field">street</field>
+        <field name="transform_type">address_combined</field>
+        <field name="sequence">80</field>
+        <field name="is_active">True</field>
+    </record>
+
+    <!-- Claim 11: Email -->
+    <record id="mapping_claim_11_email" model="spp.claim169.attribute.mapping">
+        <field name="name">Email (Claim 11)</field>
+        <field name="claim_number">11</field>
+        <field name="claim_name">email</field>
+        <field name="source_field">email</field>
+        <field name="transform_type">direct</field>
+        <field name="sequence">90</field>
+        <field name="is_active">True</field>
+    </record>
+
+    <!-- Claim 12: Phone -->
+    <record id="mapping_claim_12_phone" model="spp.claim169.attribute.mapping">
+        <field name="name">Phone (Claim 12)</field>
+        <field name="claim_number">12</field>
+        <field name="claim_name">phone</field>
+        <field name="source_field">phone</field>
+        <field name="transform_type">direct</field>
+        <field name="sequence">100</field>
+        <field name="is_active">True</field>
+    </record>
+
+    <!-- Claim 13: Nationality -->
+    <record id="mapping_claim_13_nationality" model="spp.claim169.attribute.mapping">
+        <field name="name">Nationality (Claim 13)</field>
+        <field name="claim_number">13</field>
+        <field name="claim_name">nationality</field>
+        <field name="source_field">country_id.code</field>
+        <field name="transform_type">direct</field>
+        <field name="sequence">110</field>
+        <field name="is_active">False</field>
+    </record>
+
+    <!-- IR Sequence for Credentials -->
+    <record id="seq_claim169_credential" model="ir.sequence">
+        <field name="name">Claim 169 Credential Sequence</field>
+        <field name="code">spp.claim169.credential</field>
+        <field name="prefix">C169-</field>
+        <field name="padding">6</field>
+        <field name="number_increment">1</field>
+        <field name="implementation">standard</field>
+    </record>
+</odoo>

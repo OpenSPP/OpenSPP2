@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- ══════════════════════════════════════════════════════════════════════════
+         CREATE WIZARD - SINGLE STEP WITH PROGRESSIVE DISCLOSURE
+         ══════════════════════════════════════════════════════════════════════════ -->
+    <record id="view_cr_create_wizard_form" model="ir.ui.view">
+        <field name="name">spp.cr.create.wizard.form</field>
+        <field name="model">spp.cr.create.wizard</field>
+        <field name="arch" type="xml">
+            <form string="New Change Request">
+                <sheet>
+                    <div class="oe_title mb-3">
+                        <h2>New Change Request</h2>
+                    </div>
+
+                    <!-- Freeze warning at top if applicable -->
+                    <field name="is_frozen" invisible="1"/>
+                    <div invisible="not is_frozen" class="mb-3">
+                        <field name="freeze_message" nolabel="1" readonly="1"/>
+                    </div>
+
+                    <!-- Type Selection -->
+                    <group>
+                        <group>
+                            <field name="request_type_id"
+                                   string="Request Type"
+                                   options="{'no_create': True, 'no_open': True}"
+                                   placeholder="Select a change request type..."
+                                   widget="selection"/>
+                        </group>
+                    </group>
+
+                    <!-- Registrant Selection (shown after type selected) -->
+                    <field name="show_registrant" invisible="1"/>
+                    <field name="registrant_domain" invisible="1"/>
+
+                    <group invisible="not show_registrant">
+                        <group>
+                            <field name="registrant_id"
+                                   string="Registrant"
+                                   domain="registrant_domain"
+                                   context="{'show_registrant_id': True}"
+                                   options="{'no_create': True}"
+                                   placeholder="Search by name or ID..."
+                                   required="show_registrant"/>
+                        </group>
+                    </group>
+
+                    <!-- Selected registrant info (compact) -->
+                    <div class="alert alert-light border py-2 mb-3" role="status" invisible="not registrant_id">
+                        <field name="registrant_info_html" nolabel="1" readonly="1"/>
+                    </div>
+                </sheet>
+                <footer>
+                    <button string="Create"
+                            name="action_create_draft"
+                            type="object"
+                            class="btn-primary"
+                            invisible="not request_type_id or not registrant_id"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════════════════════════
+         CREATE WIZARD - ACTION
+         ══════════════════════════════════════════════════════════════════════════ -->
+    <record id="action_cr_create_wizard" model="ir.actions.act_window">
+        <field name="name">New Change Request</field>
+        <field name="res_model">spp.cr.create.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_cr_create_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

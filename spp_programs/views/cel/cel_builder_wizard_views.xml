@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <!-- CEL Builder Wizard Form -->
+    <record id="view_cel_builder_wizard_form" model="ir.ui.view">
+        <field name="name">spp.cel.builder.wizard.form</field>
+        <field name="model">spp.cel.builder.wizard</field>
+        <field name="arch" type="xml">
+            <form string="CEL Expression Builder">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Build Eligibility Expression</h1>
+                        <p class="text-muted">
+                            Write readable expressions to define who qualifies for this program.
+                        </p>
+                    </div>
+
+                    <group>
+                        <group>
+                            <field name="eligibility_manager_id" invisible="1" />
+                            <field name="compliance_manager_id" invisible="1" />
+                            <field name="target_type" widget="radio" options="{'horizontal': true}" />
+                        </group>
+                    </group>
+
+                    <separator string="Expression" />
+
+                    <group>
+                        <field
+                            name="cel_expression"
+                            widget="text"
+                            nolabel="1"
+                            placeholder="Enter your expression here, e.g.: age_years(r.birthdate) >= 60"
+                            class="oe_inline"
+                            style="width: 100%; min-height: 80px; font-family: monospace;"
+                        />
+                    </group>
+
+                    <div class="row">
+                        <div class="col-md-8">
+                            <!-- Validation Results -->
+                            <div class="alert alert-success" role="status" invisible="not is_valid">
+                                <i class="fa fa-check-circle" title="Success" /> Expression is valid.
+                                <strong><field name="preview_count" class="oe_inline" /></strong> records match.
+                            </div>
+                            <div class="alert alert-danger" role="alert" invisible="not preview_error">
+                                <i class="fa fa-exclamation-triangle" title="Warning" />
+                                <field name="preview_error" nolabel="1" class="oe_inline" />
+                            </div>
+
+                            <!-- Explanation -->
+                            <div invisible="not preview_explain" class="mb-3">
+                                <span class="o_form_label"><strong>How it works:</strong></span>
+                                <field name="preview_explain" nolabel="1" readonly="1" />
+                            </div>
+
+                            <!-- Sample Records -->
+                            <div invisible="not is_valid" class="mb-3">
+                                <span class="o_form_label"><strong>Sample Matching Records:</strong></span>
+                                <field name="sample_ids" nolabel="1" readonly="1">
+                                    <list create="0" delete="0" edit="0">
+                                        <field name="name" />
+                                        <field name="is_group" />
+                                    </list>
+                                </field>
+                            </div>
+                        </div>
+                    </div>
+
+                    <notebook>
+                        <page string="Available Symbols" name="symbols">
+                            <field name="available_symbols" nolabel="1" readonly="1" />
+                        </page>
+                        <page string="Functions" name="functions">
+                            <field name="available_functions" nolabel="1" readonly="1" />
+                        </page>
+                        <page string="Examples" name="examples">
+                            <p class="text-muted">Click an example to use it as a starting point:</p>
+                            <field name="example_expressions" nolabel="1" readonly="1" />
+                        </page>
+                    </notebook>
+
+                </sheet>
+                <footer>
+                    <button
+                        name="action_validate"
+                        string="Validate"
+                        type="object"
+                        class="btn-secondary"
+                        icon="fa-check"
+                    />
+                    <button
+                        name="action_preview_records"
+                        string="Preview Records"
+                        type="object"
+                        class="btn-secondary"
+                        icon="fa-eye"
+                        invisible="not is_valid"
+                    />
+                    <button
+                        name="action_apply"
+                        string="Apply Expression"
+                        type="object"
+                        class="btn-primary"
+                        icon="fa-save"
+                        invisible="not is_valid"
+                    />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- CEL Example Expressions - List View -->
+    <record id="view_cel_example_list" model="ir.ui.view">
+        <field name="name">spp.cel.example.list</field>
+        <field name="model">spp.cel.example</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="sequence" widget="handle" />
+                <field name="category" />
+                <field name="name" />
+                <field name="expression" widget="char" />
+                <field name="target_type" />
+                <field name="active" />
+            </list>
+        </field>
+    </record>
+
+    <!-- CEL Example Expressions - Search View -->
+    <record id="view_cel_example_search" model="ir.ui.view">
+        <field name="name">spp.cel.example.search</field>
+        <field name="model">spp.cel.example</field>
+        <field name="arch" type="xml">
+            <search string="Search CEL Examples">
+                <field name="name" />
+                <field name="expression" />
+                <field name="category" />
+                <field name="target_type" />
+                <separator />
+                <filter name="filter_eligibility" string="Eligibility" domain="[('category', '=', 'eligibility')]" />
+                <filter name="filter_amount" string="Entitlement Amount" domain="[('category', '=', 'amount')]" />
+                <filter name="filter_condition" string="Entitlement Condition" domain="[('category', '=', 'condition')]" />
+                <filter name="filter_compliance" string="Compliance" domain="[('category', '=', 'compliance')]" />
+                <filter name="filter_inkind" string="In-Kind Quantity" domain="[('category', '=', 'inkind_qty')]" />
+                <separator />
+                <filter name="filter_groups" string="Groups" domain="[('target_type', 'in', ['group', 'both'])]" />
+                <filter name="filter_individuals" string="Individuals" domain="[('target_type', 'in', ['individual', 'both'])]" />
+                <separator />
+                <filter name="group_by_category" string="Category" context="{'group_by': 'category'}" />
+                <filter name="group_by_target_type" string="Target Type" context="{'group_by': 'target_type'}" />
+            </search>
+        </field>
+    </record>
+
+    <!-- CEL Example Expressions - Form View -->
+    <record id="view_cel_example_form" model="ir.ui.view">
+        <field name="name">spp.cel.example.form</field>
+        <field name="model">spp.cel.example</field>
+        <field name="arch" type="xml">
+            <form string="CEL Example">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" />
+                            <field name="category" />
+                            <field name="target_type" widget="radio" />
+                        </group>
+                        <group>
+                            <field name="sequence" />
+                            <field name="active" />
+                        </group>
+                    </group>
+                    <group>
+                        <field name="expression" widget="text" placeholder="e.g., hh_size >= 4" />
+                        <field name="description" widget="text" placeholder="Describe what this expression does..." />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action to manage CEL examples -->
+    <record id="action_cel_examples" model="ir.actions.act_window">
+        <field name="name">CEL Expression Examples</field>
+        <field name="res_model">spp.cel.example</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

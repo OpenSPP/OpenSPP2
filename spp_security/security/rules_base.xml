@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        OpenSPP Base Record Rules
+        =========================
+        These are the foundational record rules that apply across all OpenSPP modules.
+        They implement multi-company security (users only see data from their companies).
+
+        Domain-specific rules (e.g., registrant visibility) are defined in their
+        respective modules (e.g., spp_registry_base).
+    -->
+
+    <!--
+        Multi-Company Rule Template
+        ===========================
+        This is the standard pattern for multi-company record rules.
+        Domain modules should follow this pattern for their models.
+
+        Note: The actual res.partner multi-company rule is defined in base Odoo.
+        We provide examples here for documentation purposes.
+    -->
+
+    <!--
+        Example multi-company rule (for documentation):
+
+        <record id="rule_partner_company" model="ir.rule">
+            <field name="name">Partner: Multi-Company</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="domain_force">[
+                '|',
+                ('company_id', '=', False),
+                ('company_id', 'in', company_ids)
+            ]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        Standard Domain Patterns:
+        - Multi-company: [('company_id', 'in', company_ids)]
+        - Company-optional: ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+        - User ownership: [('user_id', '=', user.id)]
+        - Team-based: [('team_id.member_ids', 'in', [user.id])]
+    -->
+
+    <!--
+        Note on Admin Access
+        ====================
+        OpenSPP Admin inherits from Odoo system admin (base.group_system),
+        which already has full access to all records. No additional rules needed.
+
+        Domain modules may define their own admin override rules if they have
+        specific record rules that should be bypassed by admins.
+
+        Example pattern for domain modules:
+        <record id="rule_registrant_admin_override" model="ir.rule">
+            <field name="name">Registrant: Admin Full Access</field>
+            <field name="model_id" ref="model_spp_registrant"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[Command.link(ref('spp_security.group_spp_admin'))]"/>
+        </record>
+    -->
+
+    <!-- ============================================================ -->
+    <!-- Active Record Rules                                          -->
+    <!-- ============================================================ -->
+
+    <data noupdate="1">
+
+        <!-- Multi-Company Access Rule for Partners -->
+        <record id="rule_partner_company" model="ir.rule">
+            <field name="name">Partners: Multi-company access</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="domain_force">[
+                '|',
+                ('company_id', '=', False),
+                ('company_id', 'in', company_ids)
+            ]</field>
+            <field name="global">True</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Self-Only Access Rule for Users -->
+        <record id="rule_user_self_only" model="ir.rule">
+            <field name="name">Users: See only self</field>
+            <field name="model_id" ref="base.model_res_users"/>
+            <field name="domain_force">[('id', '=', user.id)]</field>
+            <field name="groups" eval="[Command.link(ref('group_access_restrict_self'))]"/>
+        </record>
+
+    </data>
+
+</odoo>

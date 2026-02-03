@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+
+User roles for Change Request module.
+-->
+<odoo noupdate="1">
+
+    <!-- CR Requestor Role -->
+    <!-- For users who can create and submit change requests -->
+    <record id="global_role_cr_requestor" model="res.users.role">
+        <field name="name">CR Requestor</field>
+        <field name="role_type">global</field>
+        <field name="comment">Can create and submit change requests for approval.</field>
+        <field
+            name="implied_ids"
+            eval="[
+                Command.link(ref('base.group_user')),
+                Command.link(ref('group_cr_manager')),
+                Command.link(ref('spp_registry.group_registry_read')),
+            ]"
+        />
+    </record>
+
+    <!-- CR Local Validator Role -->
+    <!-- For field-level validators who can approve/reject change requests in their assigned areas -->
+    <record id="local_role_cr_validator" model="res.users.role">
+        <field name="name">CR Local Validator</field>
+        <field name="role_type">local</field>
+        <field name="comment">Change request validator for assigned areas.</field>
+        <field
+            name="implied_ids"
+            eval="[
+                Command.link(ref('base.group_user')),
+                Command.link(ref('group_cr_validator')),
+                Command.link(ref('spp_registry.group_registry_read')),
+            ]"
+        />
+    </record>
+
+    <!-- CR HQ Validator Role -->
+    <!-- For HQ-level validators who can approve/reject change requests across all areas -->
+    <record id="global_role_cr_validator_hq" model="res.users.role">
+        <field name="name">CR HQ Validator</field>
+        <field name="role_type">global</field>
+        <field name="comment">HQ-level change request validator for all areas.</field>
+        <field
+            name="implied_ids"
+            eval="[
+                Command.link(ref('base.group_user')),
+                Command.link(ref('group_cr_validator_hq')),
+                Command.link(ref('spp_registry.group_registry_read')),
+            ]"
+        />
+    </record>
+
+</odoo>

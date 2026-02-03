@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <!-- ========================================== -->
+    <!-- GIS REPORT DATA LIST VIEW                  -->
+    <!-- ========================================== -->
+    <record id="view_gis_report_data_list" model="ir.ui.view">
+        <field name="name">spp.gis.report.data.list</field>
+        <field name="model">spp.gis.report.data</field>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+            <list
+                create="0"
+                delete="0"
+                edit="0"
+                default_order="area_level, area_name"
+            >
+                <field name="area_code" />
+                <field name="area_name" />
+                <field name="area_level" />
+                <field name="raw_value" />
+                <field name="normalized_value" />
+                <field name="display_value" />
+                <field name="bucket_label" />
+                <field name="bucket_color" widget="color" />
+                <field name="is_rollup" widget="boolean" />
+                <field name="record_count" optional="show" />
+                <field name="computed_at" widget="timeago" optional="show" />
+            </list>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- GIS REPORT DATA SEARCH VIEW                -->
+    <!-- ========================================== -->
+    <record id="view_gis_report_data_search" model="ir.ui.view">
+        <field name="name">spp.gis.report.data.search</field>
+        <field name="model">spp.gis.report.data</field>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="area_name" />
+                <field name="area_code" />
+                <field name="report_id" />
+
+                <separator />
+
+                <filter name="rollup_only" string="Rollup Values" domain="[('is_rollup', '=', True)]" />
+                <filter name="base_only" string="Base Values" domain="[('is_rollup', '=', False)]" />
+
+                <separator />
+
+                <filter name="group_area_level" string="Area Level" context="{'group_by': 'area_level'}" />
+                <filter name="group_bucket" string="Bucket" context="{'group_by': 'bucket_label'}" />
+            </search>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- GIS REPORT DATA FORM VIEW                  -->
+    <!-- ========================================== -->
+    <record id="view_gis_report_data_form" model="ir.ui.view">
+        <field name="name">spp.gis.report.data.form</field>
+        <field name="model">spp.gis.report.data</field>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+            <form create="0" delete="0">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="area_name" readonly="1" />
+                        </h1>
+                        <h3>
+                            <field name="report_id" readonly="1" />
+                        </h3>
+                    </div>
+
+                    <group col="2">
+                        <group name="area_info">
+                            <field name="area_id" readonly="1" />
+                            <field name="area_code" readonly="1" />
+                            <field name="area_level" readonly="1" />
+                            <field name="parent_area_id" readonly="1" />
+                        </group>
+                        <group name="values">
+                            <field name="raw_value" readonly="1" />
+                            <field name="normalized_value" readonly="1" />
+                            <field name="display_value" readonly="1" />
+                            <field name="weight" readonly="1" />
+                            <field name="record_count" readonly="1" />
+                        </group>
+                    </group>
+
+                    <group col="2">
+                        <group name="bucket_info">
+                            <field name="bucket_index" readonly="1" />
+                            <field name="bucket_label" readonly="1" />
+                            <field name="bucket_color" widget="color" readonly="1" />
+                        </group>
+                        <group name="metadata">
+                            <field name="is_rollup" readonly="1" />
+                            <field name="source_area_count" readonly="1" invisible="not is_rollup" />
+                            <field name="computed_at" readonly="1" />
+                            <field name="is_stale" readonly="1" />
+                        </group>
+                    </group>
+
+                    <separator string="Disaggregation Data" invisible="not disaggregation" />
+                    <field name="disaggregation" readonly="1" invisible="not disaggregation" widget="ace" options="{'mode': 'json'}" />
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- GIS REPORT DATA ACTION                     -->
+    <!-- ========================================== -->
+    <record id="action_gis_report_data" model="ir.actions.act_window">
+        <field name="name">Report Data</field>
+        <field name="res_model">spp.gis.report.data</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{}</field>
+    </record>
+</odoo>

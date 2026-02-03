@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Cross-module implications for programs integration -->
+
+    <!-- Programs managers should have access to GIS reports for program data visualization -->
+    <record id="spp_programs.group_programs_manager" model="res.groups">
+        <field name="implied_ids" eval="[Command.link(ref('spp_gis_report.group_gis_report_user'))]" />
+    </record>
+</odoo>

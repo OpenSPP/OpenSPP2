@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_groups_event_data_form" model="ir.ui.view">
+        <field name="name">view_groups_event_data_form</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="spp_registry.view_individuals_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+              <button
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-calendar"
+                    name="open_create_event_wizard"
+                    invisible="disabled or not is_group"
+                    groups="spp_registry.group_registry_officer,spp_registry.group_registry_manager"
+                >
+                    <div class="o_form_field o_stat_info">
+                        <span class="o_stat_text">Event</span>
+                        <span class="o_stat_text">Data</span>
+                    </div>
+                </button>
+            </xpath>
+            <xpath expr="//div[@name='group_events_section']" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </xpath>
+            <xpath expr="//div[@name='group_events_section']" position="inside">
+                <separator string="Events" />
+                <group name="event_data_summary" col="2">
+                    <group name="event_data_group">
+                        <!-- Summary fields can be added here by other modules -->
+                    </group>
+                    <group name="event_data_group2">
+                        <!-- Additional summary fields -->
+                    </group>
+                </group>
+                <field name="event_data_ids" readonly="1" nolabel="1">
+                    <list>
+                        <field name="name" />
+                        <field name="event_type_id" />
+                        <field name="collection_date" />
+                        <field name="expiry_date" />
+                        <field
+                            name="state"
+                            decoration-success="state=='active'"
+                            decoration-warning="state=='inactive'"
+                            widget="badge"
+                        />
+                    </list>
+                </field>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_individual_event_data_form" model="ir.ui.view">
+        <field name="name">view_individual_event_data_form</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="spp_registry.view_individuals_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+              <button
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-calendar"
+                    name="open_create_event_wizard"
+                    invisible="disabled or is_group"
+                    groups="spp_registry.group_registry_officer,spp_registry.group_registry_manager"
+                >
+                    <div class="o_form_field o_stat_info">
+                        <span class="o_stat_text">Event</span>
+                        <span class="o_stat_text">Data</span>
+                    </div>
+                </button>
+            </xpath>
+            <xpath expr="//div[@name='events_section']" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </xpath>
+            <xpath expr="//div[@name='events_section']" position="inside">
+                <separator string="Events" />
+                <group name="event_data_summary" col="2">
+                    <group name="event_data_group">
+                        <!-- Summary fields can be added here by other modules -->
+                    </group>
+                    <group name="event_data_group2">
+                        <!-- Additional summary fields -->
+                    </group>
+                </group>
+                <field name="event_data_ids" readonly="1" nolabel="1">
+                    <list>
+                        <field name="name" />
+                        <field name="event_type_id" />
+                        <field name="collection_date" />
+                        <field name="expiry_date" />
+                        <field
+                            name="state"
+                            decoration-success="state=='active'"
+                            decoration-warning="state=='inactive'"
+                            widget="badge"
+                        />
+                    </list>
+                </field>
+            </xpath>
+        </field>
+    </record>
+</odoo>

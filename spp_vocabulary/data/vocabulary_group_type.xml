@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="vocab_group_type" model="spp.vocabulary">
+        <field name="name">Group Type</field>
+        <field name="namespace_uri">urn:openspp:vocab:group-type</field>
+        <field name="is_system">True</field>
+        <field name="domain">core</field>
+        <field name="description">Types of groups in the registry (e.g., household, family, farm)</field>
+    </record>
+
+    <record id="code_group_type_household" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_group_type"/>
+        <field name="code">household</field>
+        <field name="display">Household</field>
+        <field name="definition">A group of people living together and sharing resources.</field>
+        <field name="sequence">1</field>
+    </record>
+
+    <record id="code_group_type_family" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_group_type"/>
+        <field name="code">family</field>
+        <field name="display">Family</field>
+        <field name="definition">A group of people related by blood, marriage, or adoption.</field>
+        <field name="sequence">2</field>
+    </record>
+</odoo>

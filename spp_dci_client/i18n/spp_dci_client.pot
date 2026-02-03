@@ -1,0 +1,817 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* spp_dci_client
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/services/errors.py:0
+msgid ""
+"\n"
+"\n"
+"If the problem persists, contact the registry administrator."
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/services/errors.py:0
+msgid ""
+"\n"
+"\n"
+"Please check:\n"
+"• OAuth2 Token URL\n"
+"• Client ID and Secret\n"
+"• OAuth2 Scope"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_form
+msgid "API Endpoints (Optional Overrides)"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_search
+msgid "API Key"
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/services/errors.py:0
+msgid "Access denied. The external registry rejected our request."
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,field_description:spp_dci_client.field_spp_dci_data_source__active
+#: model:ir.model.fields.selection,name:spp_dci_client.selection__spp_dci_data_source__state__active
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_search
+msgid "Active"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_search
+msgid "Active Connection"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_search
+msgid "Active Status"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.ui.menu,name:spp_dci_client.menu_spp_dci_activity
+msgid "Activity Logs"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_form
+msgid "Additional notes about this data source..."
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/models/data_source.py:0
+#: code:addons/spp_dci_client/services/client.py:0
+#: code:addons/spp_dci_client/services/errors.py:0
+msgid "An unexpected error occurred. Please contact your administrator."
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,field_description:spp_dci_client.field_spp_dci_data_source__auth_endpoint
+msgid "Auth Endpoint"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_form
+msgid "Authentication"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,field_description:spp_dci_client.field_spp_dci_data_source__auth_type
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_search
+msgid "Authentication Type"
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/services/errors.py:0
+msgid ""
+"Authentication failed. Please verify the OAuth2 credentials in Data Source "
+"settings."
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,help:spp_dci_client.field_spp_dci_data_source__auth_type
+msgid "Authentication method for API requests"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_form
+msgid "Authentication method to use with this data source"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,field_description:spp_dci_client.field_spp_dci_data_source__base_url
+msgid "Base URL"
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/models/data_source.py:0
+msgid "Base URL must start with http:// or https://"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,help:spp_dci_client.field_spp_dci_data_source__base_url
+msgid "Base URL of the DCI API (e.g., https://crvs.example.org/api/v1)"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_form
+msgid "Base URL of the DCI registry API"
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/models/data_source.py:0
+msgid "Base URL should not end with a slash"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields.selection,name:spp_dci_client.selection__spp_dci_data_source__auth_type__basic
+msgid "Basic Authentication"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_form
+msgid "Basic Information"
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/models/data_source.py:0
+msgid "Basic authentication is not yet implemented."
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,field_description:spp_dci_client.field_spp_dci_data_source__bearer_token
+#: model:ir.model.fields.selection,name:spp_dci_client.selection__spp_dci_data_source__auth_type__bearer
+msgid "Bearer Token"
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/models/data_source.py:0
+msgid "Bearer Token is required when using Bearer Token authentication."
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/models/data_source.py:0
+msgid "Bearer token is not configured for this data source."
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,field_description:spp_dci_client.field_spp_dci_data_source___oauth2_access_token
+msgid "Cached Access Token"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,help:spp_dci_client.field_spp_dci_data_source___oauth2_access_token
+msgid "Cached OAuth2 access token (internal use only)"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,help:spp_dci_client.field_spp_dci_data_source___oauth2_token_expires_at
+msgid "Cached token expiration timestamp (internal use only)"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,field_description:spp_dci_client.field_spp_dci_data_source__our_callback_uri
+msgid "Callback URI"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,field_description:spp_dci_client.field_spp_dci_data_source__code
+msgid "Code"
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/models/data_source.py:0
+msgid "Code must be lowercase."
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/models/data_source.py:0
+msgid ""
+"Code must contain only lowercase alphanumeric characters and underscores."
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.ui.menu,name:spp_dci_client.menu_spp_dci_config
+msgid "Configuration"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.actions.act_window,help:spp_dci_client.action_spp_dci_data_source
+msgid ""
+"Configure external data sources for DCI integration.\n"
+"                Data sources define endpoints for DR Client and Indicator registries."
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields.selection,name:spp_dci_client.selection__spp_dci_data_source__state__error
+msgid "Connection Error"
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/models/data_source.py:0
+msgid "Connection Failed"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_form
+msgid "Connection Settings"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_form
+msgid "Connection Status"
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/models/data_source.py:0
+msgid "Connection Successful"
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/models/data_source.py:0
+msgid "Connection Test Error"
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/services/errors.py:0
+msgid "Connection error (HTTP %s)."
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/services/errors.py:0
+msgid "Connection failed: %s"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,help:spp_dci_client.field_spp_dci_data_source__state
+msgid "Connection status"
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/services/errors.py:0
+msgid "Connection timed out. The external registry is not responding."
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_form
+msgid "Connection timeout in seconds"
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/services/errors.py:0
+msgid "Could not connect to the external registry. Please check the Base URL."
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/services/errors.py:0
+msgid "Could not resolve the server address. Please check the Base URL."
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.actions.act_window,help:spp_dci_client.action_spp_dci_data_source
+msgid "Create a new Data Source"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,field_description:spp_dci_client.field_spp_dci_data_source__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,field_description:spp_dci_client.field_spp_dci_data_source__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,help:spp_dci_client.field_spp_dci_data_source__signing_key_id
+msgid "Cryptographic key for signing outgoing requests"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_form
+msgid "Custom auth endpoint (if different from base_url/auth)"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_form
+msgid "Custom search endpoint (if different from base_url/search)"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_form
+msgid "Custom subscribe endpoint (if different from base_url/subscribe)"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.ui.menu,name:spp_dci_client.menu_spp_dci_root
+msgid "DCI"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model,name:spp_dci_client.model_spp_dci_data_source
+msgid "DCI Data Source"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_search
+msgid "DCI Data Sources"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_form
+msgid "DCI Protocol Configuration"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_search
+msgid "DR Client"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_form
+msgid "Data Source Name"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.actions.act_window,name:spp_dci_client.action_spp_dci_data_source
+#: model:ir.ui.menu,name:spp_dci_client.menu_spp_dci_data_source
+msgid "Data Sources"
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/models/data_source.py:0
+msgid "Data source code must be unique. Please choose a different code."
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/models/data_source.py:0
+msgid "Data source with code '%s' not found or is inactive."
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,help:spp_dci_client.field_spp_dci_data_source__name
+msgid "Descriptive name for this data source"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,field_description:spp_dci_client.field_spp_dci_data_source__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_search
+msgid "Draft"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_search
+msgid "Error"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,field_description:spp_dci_client.field_spp_dci_data_source__id
+msgid "ID"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_search
+msgid "Inactive"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_form
+msgid "Inactive sources will not be used for data retrieval"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_search
+msgid "Indicator Registry"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_form
+msgid "Key ID used for signing DCI messages"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,field_description:spp_dci_client.field_spp_dci_data_source__last_error
+msgid "Last Error"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,field_description:spp_dci_client.field_spp_dci_data_source__last_test_date
+msgid "Last Test"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,field_description:spp_dci_client.field_spp_dci_data_source__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,field_description:spp_dci_client.field_spp_dci_data_source__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,help:spp_dci_client.field_spp_dci_data_source__last_error
+msgid "Last connection error message"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_form
+msgid "Last error message from connection test"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,help:spp_dci_client.field_spp_dci_data_source__last_test_date
+msgid "Last successful connection test"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_form
+msgid "Last time connection was tested"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_form
+msgid "Message Signing"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,field_description:spp_dci_client.field_spp_dci_data_source__name
+msgid "Name"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_search
+msgid "No Auth"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields.selection,name:spp_dci_client.selection__spp_dci_data_source__auth_type__none
+msgid "None"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields.selection,name:spp_dci_client.selection__spp_dci_data_source__state__draft
+msgid "Not Configured"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,field_description:spp_dci_client.field_spp_dci_data_source__notes
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_form
+msgid "Notes"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields.selection,name:spp_dci_client.selection__spp_dci_data_source__auth_type__oauth2
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_search
+msgid "OAuth2"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,field_description:spp_dci_client.field_spp_dci_data_source__oauth2_client_id
+msgid "OAuth2 Client ID"
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/models/data_source.py:0
+msgid "OAuth2 Client ID is required when using OAuth2 authentication."
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,field_description:spp_dci_client.field_spp_dci_data_source__oauth2_client_secret
+msgid "OAuth2 Client Secret"
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/models/data_source.py:0
+msgid "OAuth2 Client Secret is required when using OAuth2 authentication."
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,field_description:spp_dci_client.field_spp_dci_data_source__oauth2_scope
+msgid "OAuth2 Scope"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,field_description:spp_dci_client.field_spp_dci_data_source__oauth2_token_url
+msgid "OAuth2 Token URL"
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/models/data_source.py:0
+msgid "OAuth2 Token URL is required when using OAuth2 authentication."
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_form
+msgid "OAuth2 client ID"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,help:spp_dci_client.field_spp_dci_data_source__oauth2_client_id
+msgid "OAuth2 client identifier"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_form
+msgid "OAuth2 client secret"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,help:spp_dci_client.field_spp_dci_data_source__oauth2_client_secret
+msgid "OAuth2 client secret (visible only to system administrators)"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_form
+msgid "OAuth2 scope (optional)"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,help:spp_dci_client.field_spp_dci_data_source__oauth2_scope
+msgid "OAuth2 scope (space-separated if multiple)"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,help:spp_dci_client.field_spp_dci_data_source__oauth2_token_url
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_form
+msgid "OAuth2 token endpoint URL"
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/models/data_source.py:0
+msgid "OAuth2 token response did not contain access_token"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,help:spp_dci_client.field_spp_dci_data_source__notes
+msgid "Optional notes about this data source"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,field_description:spp_dci_client.field_spp_dci_data_source__our_sender_id
+msgid "Our Sender ID"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,help:spp_dci_client.field_spp_dci_data_source__our_callback_uri
+msgid "Our callback URI for receiving async responses and notifications"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,help:spp_dci_client.field_spp_dci_data_source__our_sender_id
+msgid ""
+"Our organization's sender ID for DCI messages (e.g., 'openspp.example.org')"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_form
+msgid "Our sender ID for DCI messaging protocol"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,help:spp_dci_client.field_spp_dci_data_source__auth_endpoint
+msgid "Path to OAuth2 token endpoint (default: /oauth2/client/token)"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,help:spp_dci_client.field_spp_dci_data_source__search_endpoint
+msgid "Path to search endpoint (default: /registry/sync/search)"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,help:spp_dci_client.field_spp_dci_data_source__subscribe_endpoint
+msgid "Path to subscribe endpoint (default: /registry/subscribe)"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,field_description:spp_dci_client.field_spp_dci_data_source__receiver_id
+msgid "Receiver ID"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_form
+msgid "Receiver ID of the remote DCI system"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,field_description:spp_dci_client.field_spp_dci_data_source__registry_type
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_search
+msgid "Registry Type"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,help:spp_dci_client.field_spp_dci_data_source__timeout
+msgid "Request timeout in seconds"
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/services/errors.py:0
+msgid ""
+"SSL certificate verification failed. Check 'Verify SSL' setting or contact "
+"administrator."
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,field_description:spp_dci_client.field_spp_dci_data_source__search_endpoint
+msgid "Search Endpoint"
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/models/data_source.py:0
+msgid "Sender ID is required for authenticated connections."
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,help:spp_dci_client.field_spp_dci_data_source__active
+msgid "Set to false to deactivate this data source"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,help:spp_dci_client.field_spp_dci_data_source__code
+msgid "Short code identifier (e.g., 'crvs_main', 'ibr_national')"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,field_description:spp_dci_client.field_spp_dci_data_source__signing_key_id
+msgid "Signing Key"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_search
+msgid "State"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,help:spp_dci_client.field_spp_dci_data_source__bearer_token
+msgid ""
+"Static Bearer token for API authentication (visible only to system "
+"administrators)"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,field_description:spp_dci_client.field_spp_dci_data_source__state
+msgid "Status"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,field_description:spp_dci_client.field_spp_dci_data_source__subscribe_endpoint
+msgid "Subscribe Endpoint"
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/models/data_source.py:0
+msgid "Successfully connected to %s at %s (HTTP %s)"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,help:spp_dci_client.field_spp_dci_data_source__receiver_id
+msgid "Target registry's receiver ID (defaults to base URL if not set)"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_form
+msgid "Test Connection"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields.selection,name:spp_dci_client.selection__spp_dci_data_source__state__testing
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_search
+msgid "Testing"
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/services/errors.py:0
+msgid "The external registry encountered an error. Please try again later."
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/services/errors.py:0
+msgid ""
+"The external registry is temporarily unavailable. Please try again later."
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/services/errors.py:0
+msgid "The request was invalid. Please check your data and try again."
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/services/errors.py:0
+msgid "The requested resource was not found on the external registry."
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/models/data_source.py:0
+msgid "This data source does not use OAuth2 authentication."
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,field_description:spp_dci_client.field_spp_dci_data_source__timeout
+msgid "Timeout (seconds)"
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/models/data_source.py:0
+msgid "Timeout must be a positive integer."
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,field_description:spp_dci_client.field_spp_dci_data_source___oauth2_token_expires_at
+msgid "Token Expiry"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,help:spp_dci_client.field_spp_dci_data_source__registry_type
+msgid "Type of DCI registry"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_form
+msgid "Type of registry: DR Client or Indicator"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_form
+msgid "URI where we receive callbacks from the remote system"
+msgstr ""
+
+#. module: spp_dci_client
+#. odoo-python
+#: code:addons/spp_dci_client/services/errors.py:0
+msgid "Unable to reach the external registry. Please try again later."
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_form
+msgid "Unique identifier for this data source"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,field_description:spp_dci_client.field_spp_dci_data_source__verify_ssl
+msgid "Verify SSL"
+msgstr ""
+
+#. module: spp_dci_client
+#: model_terms:ir.ui.view,arch_db:spp_dci_client.view_spp_dci_data_source_form
+msgid "Verify SSL certificates for HTTPS connections"
+msgstr ""
+
+#. module: spp_dci_client
+#: model:ir.model.fields,help:spp_dci_client.field_spp_dci_data_source__verify_ssl
+msgid "Verify SSL certificates when making requests"
+msgstr ""

@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_dci_disability_status_admin,spp.dci.disability.status admin,model_spp_dci_disability_status,base.group_system,1,1,1,1
+access_spp_dci_disability_status_user,spp.dci.disability.status user,model_spp_dci_disability_status,base.group_user,1,1,1,0
+access_spp_dci_dr_sender_admin,spp.dci.dr.sender admin,model_spp_dci_dr_sender,base.group_system,1,1,1,1
+access_spp_dci_dr_sender_user,spp.dci.dr.sender user,model_spp_dci_dr_sender,base.group_user,1,0,0,0

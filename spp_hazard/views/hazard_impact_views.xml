@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Hazard Impact List View -->
+    <record id="view_hazard_impact_list" model="ir.ui.view">
+        <field name="name">view.hazard.impact.list</field>
+        <field name="model">spp.hazard.impact</field>
+        <field name="arch" type="xml">
+            <list decoration-info="verification_status == 'reported'"
+                  decoration-success="verification_status == 'verified'"
+                  decoration-warning="verification_status == 'disputed'"
+                  decoration-muted="verification_status == 'closed'">
+                <field name="incident_id"/>
+                <field name="registrant_id"/>
+                <field name="impact_type_id"/>
+                <field name="damage_level" widget="badge"/>
+                <field name="impact_date"/>
+                <field name="verification_status" widget="badge"
+                    decoration-info="verification_status == 'reported'"
+                    decoration-success="verification_status == 'verified'"
+                    decoration-warning="verification_status == 'disputed'"
+                    decoration-muted="verification_status == 'closed'"/>
+                <field name="verified_by_id" optional="hide"/>
+                <field name="verified_date" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Hazard Impact Form View -->
+    <record id="view_hazard_impact_form" model="ir.ui.view">
+        <field name="name">view.hazard.impact.form</field>
+        <field name="model">spp.hazard.impact</field>
+        <field name="arch" type="xml">
+            <form string="Hazard Impact">
+                <header>
+                    <button name="action_verify" type="object" string="Verify"
+                        invisible="verification_status != 'reported'"
+                        class="btn-primary"/>
+                    <button name="action_dispute" type="object" string="Mark Disputed"
+                        invisible="verification_status not in ('reported', 'verified')"
+                        class="btn-secondary"/>
+                    <button name="action_close" type="object" string="Close"
+                        invisible="verification_status == 'closed'"
+                        class="btn-secondary"/>
+                    <button name="action_reset_to_reported" type="object" string="Reset to Reported"
+                        invisible="verification_status not in ('disputed', 'closed')"
+                        class="btn-secondary"/>
+                    <field name="verification_status" widget="statusbar"
+                        statusbar_visible="reported,verified,disputed,closed"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="registrant_id"/>
+                        <h1>
+                            <field name="registrant_id" placeholder="Select Registrant..." options="{'no_create': True}"/>
+                        </h1>
+                        <label for="incident_id"/>
+                        <h2>
+                            <field name="incident_id" placeholder="Select Incident..." options="{'no_create': True}"/>
+                        </h2>
+                    </div>
+                    <group>
+                        <group name="incident_info">
+                            <field name="incident_status" invisible="1"/>
+                        </group>
+                        <group name="impact_details">
+                            <field name="impact_type_id" options="{'no_create': True}"/>
+                            <field name="damage_level"/>
+                            <field name="impact_date"/>
+                        </group>
+                    </group>
+                    <group name="verification_info" string="Verification Information"
+                        invisible="verification_status == 'reported'">
+                        <group>
+                            <field name="verified_by_id"/>
+                            <field name="verified_date"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Notes" name="notes">
+                            <field name="notes" placeholder="Additional details about the impact..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Hazard Impact Search View -->
+    <record id="view_hazard_impact_search" model="ir.ui.view">
+        <field name="name">view.hazard.impact.search</field>
+        <field name="model">spp.hazard.impact</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="incident_id"/>
+                <field name="registrant_id"/>
+                <field name="impact_type_id"/>
+                <filter name="reported" string="Reported"
+                    domain="[('verification_status', '=', 'reported')]"/>
+                <filter name="verified" string="Verified"
+                    domain="[('verification_status', '=', 'verified')]"/>
+                <filter name="disputed" string="Disputed"
+                    domain="[('verification_status', '=', 'disputed')]"/>
+                <filter name="closed" string="Closed"
+                    domain="[('verification_status', '=', 'closed')]"/>
+                <separator/>
+                <filter name="critical" string="Critical"
+                    domain="[('damage_level', 'in', ('critical', 'totally_damaged'))]"/>
+                <filter name="severe" string="Severe or Critical"
+                    domain="[('damage_level', 'in', ('severe', 'critical', 'totally_damaged'))]"/>
+                <separator/>
+                <group>
+                    <filter name="grp_incident" string="Incident"
+                        context="{'group_by': 'incident_id'}"/>
+                    <filter name="grp_impact_type" string="Impact Type"
+                        context="{'group_by': 'impact_type_id'}"/>
+                    <filter name="grp_damage" string="Damage Level"
+                        context="{'group_by': 'damage_level'}"/>
+                    <filter name="grp_status" string="Verification Status"
+                        context="{'group_by': 'verification_status'}"/>
+                    <filter name="grp_date" string="Impact Date"
+                        context="{'group_by': 'impact_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Hazard Impact Action -->
+    <record id="action_hazard_impact" model="ir.actions.act_window">
+        <field name="name">Impact Records</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">spp.hazard.impact</field>
+        <field name="view_mode">list,form</field>
+        <field name="path">hazard-impacts</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Record impacts on registrants
+            </p>
+            <p>
+                Document how specific registrants were affected by hazard incidents,
+                including the type and severity of impact.
+            </p>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,762 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* spp_mis_demo_v2
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: spp_mis_demo_v2
+#: model_terms:ir.ui.view,arch_db:spp_mis_demo_v2.view_mis_demo_wizard_form
+msgid ""
+"<strong>Background:</strong> Ahmed Said (Cash Transfer) &amp; Fatima Al-"
+"Rahman (Food Assistance) - Additional beneficiaries for volume"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model_terms:ir.ui.view,arch_db:spp_mis_demo_v2.view_mis_demo_wizard_form
+msgid ""
+"<strong>Cash Transfer Program</strong> - Regular poverty-targeted cash "
+"assistance with graduation pathway"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model_terms:ir.ui.view,arch_db:spp_mis_demo_v2.view_mis_demo_wizard_form
+msgid ""
+"<strong>Change Requests:</strong> Complete workflow demonstration with "
+"pending, approved, and rejected requests"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model_terms:ir.ui.view,arch_db:spp_mis_demo_v2.view_mis_demo_wizard_form
+msgid ""
+"<strong>Child Support:</strong> Carlos &amp; Elena Morales - Family of 5 "
+"with 3 school-age children"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model_terms:ir.ui.view,arch_db:spp_mis_demo_v2.view_mis_demo_wizard_form
+msgid "<strong>Demo Beneficiary Stories (8 personas):</strong>"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model_terms:ir.ui.view,arch_db:spp_mis_demo_v2.view_mis_demo_wizard_form
+msgid ""
+"<strong>Disability Support Grant</strong> - Household support with "
+"additional amounts per disabled member"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model_terms:ir.ui.view,arch_db:spp_mis_demo_v2.view_mis_demo_wizard_form
+msgid ""
+"<strong>Disability:</strong> David &amp; Sofia Martinez - Family caring for "
+"child with special needs"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model_terms:ir.ui.view,arch_db:spp_mis_demo_v2.view_mis_demo_wizard_form
+msgid ""
+"<strong>Elderly Social Pension</strong> - Age-verified pension for seniors "
+"without formal retirement income"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model_terms:ir.ui.view,arch_db:spp_mis_demo_v2.view_mis_demo_wizard_form
+msgid ""
+"<strong>Emergency Relief Fund</strong> - Tiered emergency payments based on "
+"vulnerability assessment"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model_terms:ir.ui.view,arch_db:spp_mis_demo_v2.view_mis_demo_wizard_form
+msgid ""
+"<strong>Emergency:</strong> Ibrahim Hassan - Displaced farmer receiving "
+"tiered emergency relief"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model_terms:ir.ui.view,arch_db:spp_mis_demo_v2.view_mis_demo_wizard_form
+msgid ""
+"<strong>Food Assistance</strong> - Monthly in-kind food basket distribution"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model_terms:ir.ui.view,arch_db:spp_mis_demo_v2.view_mis_demo_wizard_form
+msgid ""
+"<strong>Multi-Program:</strong> Rosa Garcia - 67-year-old widow receiving "
+"both pension and food assistance"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model_terms:ir.ui.view,arch_db:spp_mis_demo_v2.view_mis_demo_wizard_form
+msgid ""
+"<strong>Payment Issue:</strong> Juan Dela Cruz - Cash transfer recipient "
+"with a resolved payment failure"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model_terms:ir.ui.view,arch_db:spp_mis_demo_v2.view_mis_demo_wizard_form
+msgid ""
+"<strong>Rejection:</strong> Mary Johnson - Application rejected "
+"(demonstrates age eligibility enforcement)"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model_terms:ir.ui.view,arch_db:spp_mis_demo_v2.view_mis_demo_wizard_form
+msgid "<strong>Social Protection Programs (6):</strong>"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model_terms:ir.ui.view,arch_db:spp_mis_demo_v2.view_mis_demo_wizard_form
+msgid ""
+"<strong>Success Story:</strong> Maria Santos - Rice farmer who graduated "
+"from cash transfer after improving her livelihood"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model_terms:ir.ui.view,arch_db:spp_mis_demo_v2.view_mis_demo_wizard_form
+msgid ""
+"<strong>Tip:</strong> Use \"Executive Demo\" mode for sales presentations, "
+"\"Training\" mode for staff onboarding."
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model_terms:ir.ui.view,arch_db:spp_mis_demo_v2.view_mis_demo_wizard_form
+msgid ""
+"<strong>Universal Child Grant</strong> - Automatic per-child benefit "
+"calculation for households with children"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:spp.event.type,description:spp_mis_demo_v2.event_type_vulnerability_assessment
+msgid ""
+"Assessment to determine vulnerability level and eligibility for targeted "
+"programs."
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model_terms:ir.ui.view,arch_db:spp_mis_demo_v2.view_mis_demo_wizard_form
+msgid "Cancel"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model_terms:ir.ui.view,arch_db:spp_mis_demo_v2.view_mis_demo_wizard_form
+msgid "Case Demo (requires spp_case_demo)"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_generator__case_volume_count
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_wizard__case_volume_count
+msgid "Case Volume Count"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#. odoo-python
+#: code:addons/spp_mis_demo_v2/models/mis_demo_generator.py:0
+msgid "Cases: %(count)s created"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#. odoo-python
+#: code:addons/spp_mis_demo_v2/models/mis_demo_generator.py:0
+msgid "Change Requests: %(count)s created"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields.selection,name:spp_mis_demo_v2.selection__spp_mis_demo_generator__demo_mode__complete
+#: model:ir.model.fields.selection,name:spp_mis_demo_v2.selection__spp_mis_demo_wizard__demo_mode__complete
+msgid "Complete Demo"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields.selection,name:spp_mis_demo_v2.selection__spp_mis_demo_generator__state__completed
+#: model:ir.model.fields.selection,name:spp_mis_demo_v2.selection__spp_mis_demo_wizard__state__completed
+msgid "Completed"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_generator__locale_origin
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_wizard__locale_origin
+msgid "Country for Faker locale"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_generator__create_change_requests
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_wizard__create_change_requests
+msgid "Create Change Requests"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_generator__create_cycles
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_wizard__create_cycles
+msgid "Create Cycles"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_generator__create_demo_programs
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_wizard__create_demo_programs
+msgid "Create Demo Programs"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_generator__create_event_data
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_wizard__create_event_data
+msgid "Create Event Data"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_generator__create_fairness_analysis
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_wizard__create_fairness_analysis
+msgid "Create Fairness Analysis"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_generator__create_story_payments
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_wizard__create_story_payments
+msgid "Create Story Payments"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_generator__include_test_personas
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_wizard__include_test_personas
+msgid "Create Test Personas"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_generator__create_change_requests
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_wizard__create_change_requests
+msgid "Create change request records at various stages for demo stories"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_generator__create_event_data
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_wizard__create_event_data
+msgid "Create event records (training, visits, assessments) for demo stories"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_generator__create_fairness_analysis
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_wizard__create_fairness_analysis
+msgid "Create fairness analysis demo data (requires spp_dashboard_fairness)"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_generator__create_story_payments
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_wizard__create_story_payments
+msgid "Create payment history for demo stories (entitlements and payments)"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_generator__create_cycles
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_wizard__create_cycles
+msgid "Create program cycles with entitlements"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_generator__include_test_personas
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_wizard__include_test_personas
+msgid "Create test personas in Logic Studio for expression testing"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_generator__create_demo_programs
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_wizard__create_demo_programs
+msgid ""
+"Create the predefined demo programs (Input Subsidy, Cash Transfer, etc.)"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_generator__create_uid
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_wizard__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_generator__create_date
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_wizard__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model_terms:ir.ui.view,arch_db:spp_mis_demo_v2.view_mis_demo_wizard_form
+msgid "Cycles"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_generator__cycles_per_program
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_wizard__cycles_per_program
+msgid "Cycles per Program"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#. odoo-python
+#: code:addons/spp_mis_demo_v2/models/mis_demo_generator.py:0
+msgid "Cycles per program must be zero or positive"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#. odoo-python
+#: code:addons/spp_mis_demo_v2/models/mis_demo_generator.py:0
+msgid "Cycles: %(count)s created"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_generator__demo_mode
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_wizard__demo_mode
+#: model_terms:ir.ui.view,arch_db:spp_mis_demo_v2.view_mis_demo_wizard_form
+msgid "Demo Mode"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:spp.cel.variable.category,name:spp_mis_demo_v2.var_category_demo
+msgid "Demo Variables"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#. odoo-python
+#: code:addons/spp_mis_demo_v2/models/mis_demo_generator.py:0
+msgid "Demo data generation completed!"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields.selection,name:spp_mis_demo_v2.selection__spp_mis_demo_generator__demo_mode__testing
+#: model:ir.model.fields.selection,name:spp_mis_demo_v2.selection__spp_mis_demo_wizard__demo_mode__testing
+msgid "Developer Testing"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_generator__display_name
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_wizard__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields.selection,name:spp_mis_demo_v2.selection__spp_mis_demo_generator__state__draft
+#: model:ir.model.fields.selection,name:spp_mis_demo_v2.selection__spp_mis_demo_wizard__state__draft
+msgid "Draft"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:spp.cr.conflict.rule,name:spp_mis_demo_v2.conflict_rule_address_update
+msgid "Duplicate Address Update"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_generator__enroll_demo_stories
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_wizard__enroll_demo_stories
+msgid "Enroll Demo Stories"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_generator__enroll_demo_stories
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_wizard__enroll_demo_stories
+msgid ""
+"Enroll demo story personas (Maria Santos, Juan Dela Cruz, etc.) in their "
+"programs"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model_terms:ir.ui.view,arch_db:spp_mis_demo_v2.view_mis_demo_wizard_form
+msgid "Enrollments"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#. odoo-python
+#: code:addons/spp_mis_demo_v2/models/mis_demo_generator.py:0
+msgid "Enrollments: %(created)s created, %(skipped)s skipped"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#. odoo-python
+#: code:addons/spp_mis_demo_v2/models/mis_demo_generator.py:0
+msgid "Error generating demo data: %s"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model_terms:ir.ui.view,arch_db:spp_mis_demo_v2.view_mis_demo_wizard_form
+msgid "Events & Analytics"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#. odoo-python
+#: code:addons/spp_mis_demo_v2/models/mis_demo_generator.py:0
+msgid "Events: %(count)s created"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:spp.cr.conflict.rule,name:spp_mis_demo_v2.conflict_rule_exit_blocking
+msgid "Exit Blocks Other Changes"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:spp.event.type,name:spp_mis_demo_v2.event_type_extension_visit
+msgid "Extension Visit"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#. odoo-python
+#: code:addons/spp_mis_demo_v2/models/mis_demo_generator.py:0
+msgid "Fairness Analysis: %(count)s records created"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:spp.event.type,description:spp_mis_demo_v2.event_type_extension_visit
+msgid ""
+"Field extension visits by agricultural officers to provide technical "
+"assistance and monitor progress."
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:spp.event.type,description:spp_mis_demo_v2.event_type_verification
+msgid ""
+"Field verification visits to confirm eligibility and registration "
+"information."
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model_terms:ir.ui.view,arch_db:spp_mis_demo_v2.view_mis_demo_wizard_form
+msgid "GRM Demo (requires spp_grm_demo)"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#. odoo-python
+#: code:addons/spp_mis_demo_v2/models/mis_demo_generator.py:0
+msgid "GRM Tickets: %(count)s created"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_generator__grm_volume_tickets
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_wizard__grm_volume_tickets
+msgid "GRM Volume Tickets"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model_terms:ir.ui.view,arch_db:spp_mis_demo_v2.view_mis_demo_wizard_form
+msgid "General"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_generator__generate_case_demo
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_wizard__generate_case_demo
+msgid "Generate Case Demo"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model_terms:ir.ui.view,arch_db:spp_mis_demo_v2.view_mis_demo_wizard_form
+msgid "Generate Demo Data"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_generator__generate_grm_demo
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_wizard__generate_grm_demo
+msgid "Generate GRM Demo"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_generator__generate_grm_demo
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_wizard__generate_grm_demo
+msgid "Generate GRM tickets for demo stories (requires spp_grm_demo module)"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.actions.act_window,name:spp_mis_demo_v2.action_mis_demo_wizard
+#: model:ir.ui.menu,name:spp_mis_demo_v2.menu_mis_demo_wizard
+#: model_terms:ir.ui.view,arch_db:spp_mis_demo_v2.view_mis_demo_wizard_form
+msgid "Generate MIS Demo Data"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_generator__generate_random_groups
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_wizard__generate_random_groups
+msgid "Generate Random Groups"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_generator__generate_volume
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_wizard__generate_volume
+msgid "Generate Volume Data"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_generator__generate_volume
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_wizard__generate_volume
+msgid "Generate additional random enrollments for realistic dashboards"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_generator__generate_case_demo
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_wizard__generate_case_demo
+msgid "Generate cases for demo stories (requires spp_case_demo module)"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_generator__generate_random_groups
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_wizard__generate_random_groups
+msgid ""
+"Generate random households/groups with members to supplement story data"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_generator__id
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_wizard__id
+msgid "ID"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields.selection,name:spp_mis_demo_v2.selection__spp_mis_demo_generator__state__in_progress
+#: model:ir.model.fields.selection,name:spp_mis_demo_v2.selection__spp_mis_demo_wizard__state__in_progress
+msgid "In Progress"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_generator__install_logic_packs
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_wizard__install_logic_packs
+msgid "Install Logic Packs"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_generator__install_logic_packs
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_wizard__install_logic_packs
+msgid ""
+"Install Logic Packs used by demo programs (child_benefit, social_pension, "
+"etc.)"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_generator__write_uid
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_wizard__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_generator__write_date
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_wizard__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_generator__locale_origin
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_wizard__locale_origin
+msgid "Locale Origin"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model_terms:ir.ui.view,arch_db:spp_mis_demo_v2.view_mis_demo_wizard_form
+msgid "Logic Studio"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#. odoo-python
+#: code:addons/spp_mis_demo_v2/models/mis_demo_generator.py:0
+msgid "MIS Demo Data Generated"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model,name:spp_mis_demo_v2.model_spp_mis_demo_generator
+msgid "MIS Demo Data Generator V2"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model,name:spp_mis_demo_v2.model_spp_mis_demo_wizard
+msgid "MIS Demo Data Wizard"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_generator__members_per_group_max
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_wizard__members_per_group_max
+msgid "Max Members per Group"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#. odoo-python
+#: code:addons/spp_mis_demo_v2/models/mis_demo_generator.py:0
+msgid "Maximum members must be greater than or equal to minimum"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_generator__members_per_group_max
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_wizard__members_per_group_max
+msgid "Maximum number of members per random group"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_generator__members_per_group_min
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_wizard__members_per_group_min
+msgid "Min Members per Group"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#. odoo-python
+#: code:addons/spp_mis_demo_v2/models/mis_demo_generator.py:0
+msgid "Minimum members per group must be at least 1"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_generator__members_per_group_min
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_wizard__members_per_group_min
+msgid "Minimum number of members per random group"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_generator__name
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_wizard__name
+msgid "Name"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_generator__random_groups_count
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_wizard__random_groups_count
+msgid "Number of Groups"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_generator__grm_volume_tickets
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_wizard__grm_volume_tickets
+msgid "Number of additional random GRM tickets to generate"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_generator__case_volume_count
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_wizard__case_volume_count
+msgid "Number of additional random cases to generate"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_generator__cycles_per_program
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_wizard__cycles_per_program
+msgid "Number of cycles to create for each program"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#. odoo-python
+#: code:addons/spp_mis_demo_v2/models/mis_demo_generator.py:0
+msgid "Number of groups must be zero or positive"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_generator__random_groups_count
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_wizard__random_groups_count
+msgid "Number of random groups/households to generate"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_generator__volume_enrollments
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_wizard__volume_enrollments
+msgid "Number of random program enrollments to generate"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields.selection,name:spp_mis_demo_v2.selection__spp_mis_demo_generator__demo_mode__training
+#: model:ir.model.fields.selection,name:spp_mis_demo_v2.selection__spp_mis_demo_wizard__demo_mode__training
+msgid "Partner Training"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#. odoo-python
+#: code:addons/spp_mis_demo_v2/models/mis_demo_generator.py:0
+msgid "Payments: %(count)s created"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_generator__demo_mode
+#: model:ir.model.fields,help:spp_mis_demo_v2.field_spp_mis_demo_wizard__demo_mode
+msgid ""
+"Preset configuration for different use cases:\n"
+"- Sales: Fixed stories + minimal programs (fast)\n"
+"- Training: Full programs + Logic Packs (comprehensive)\n"
+"- Testing: Volume data + random generation (scale testing)\n"
+"- Complete: All features enabled"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model_terms:ir.ui.view,arch_db:spp_mis_demo_v2.view_mis_demo_wizard_form
+msgid "Programs"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#. odoo-python
+#: code:addons/spp_mis_demo_v2/models/mis_demo_generator.py:0
+msgid "Programs: %(created)s created, %(skipped)s existing"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_generator__volume_enrollments
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_wizard__volume_enrollments
+msgid "Random Enrollments"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model_terms:ir.ui.view,arch_db:spp_mis_demo_v2.view_mis_demo_wizard_form
+msgid "Random Groups"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#. odoo-python
+#: code:addons/spp_mis_demo_v2/models/mis_demo_generator.py:0
+msgid "Random Groups: %(groups)s groups, %(individuals)s members created"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#. odoo-python
+#: code:addons/spp_mis_demo_v2/models/mis_demo_generator.py:0
+msgid "Run 'Generate Stories' in spp_demo first."
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields.selection,name:spp_mis_demo_v2.selection__spp_mis_demo_generator__demo_mode__sales
+#: model:ir.model.fields.selection,name:spp_mis_demo_v2.selection__spp_mis_demo_wizard__demo_mode__sales
+msgid "Sales Demo"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_generator__state
+#: model:ir.model.fields,field_description:spp_mis_demo_v2.field_spp_mis_demo_wizard__state
+msgid "State"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#. odoo-python
+#: code:addons/spp_mis_demo_v2/models/mis_demo_generator.py:0
+msgid "Stories: %(count)s registrants auto-created"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:spp.event.type,name:spp_mis_demo_v2.event_type_training
+msgid "Training Session"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:spp.event.type,description:spp_mis_demo_v2.event_type_training
+msgid ""
+"Training sessions for beneficiaries including agricultural practices, "
+"financial literacy, and program orientation."
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:spp.event.type,name:spp_mis_demo_v2.event_type_verification
+msgid "Verification Visit"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#. odoo-python
+#: code:addons/spp_mis_demo_v2/models/mis_demo_generator.py:0
+msgid "Volume enrollments must be zero or positive"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#: model:spp.event.type,name:spp_mis_demo_v2.event_type_vulnerability_assessment
+msgid "Vulnerability Assessment"
+msgstr ""
+
+#. module: spp_mis_demo_v2
+#. odoo-python
+#: code:addons/spp_mis_demo_v2/models/mis_demo_generator.py:0
+msgid "Warning: Missing registrants: %(names)s"
+msgstr ""

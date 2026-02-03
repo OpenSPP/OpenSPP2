@@ -1,0 +1,58 @@
+{
+  "name": "ISCO-08 Occupation Classification",
+  "namespace": "urn:ilo:isco:08",
+  "version": "2008",
+  "source_url": "https://www.ilo.org/public/english/bureau/stat/isco/isco08/",
+  "source_standard": "ISCO-08",
+  "last_updated": "2024-01-15",
+  "domain": "core",
+  "is_hierarchical": true,
+  "codes": [
+    {"code": "0", "display": "Armed Forces Occupations", "definition": "Occupations in armed forces"},
+    {
+      "code": "1",
+      "display": "Managers",
+      "definition": "Plan, direct, coordinate and evaluate overall activities of enterprises, governments and other organizations"
+    },
+    {
+      "code": "2",
+      "display": "Professionals",
+      "definition": "Increase existing stock of knowledge, apply scientific/artistic concepts, teach about the foregoing"
+    },
+    {
+      "code": "3",
+      "display": "Technicians and Associate Professionals",
+      "definition": "Perform technical and related tasks connected with research and application of concepts"
+    },
+    {
+      "code": "4",
+      "display": "Clerical Support Workers",
+      "definition": "Record, organize, store, compute and retrieve information related to work"
+    },
+    {
+      "code": "5",
+      "display": "Service and Sales Workers",
+      "definition": "Provide personal and protective services, or sell goods in shops or markets"
+    },
+    {
+      "code": "6",
+      "display": "Skilled Agricultural, Forestry and Fishery Workers",
+      "definition": "Grow and harvest crops, raise animals, catch or cultivate fish"
+    },
+    {
+      "code": "7",
+      "display": "Craft and Related Trades Workers",
+      "definition": "Apply knowledge and skills in construction, production, installation and repair"
+    },
+    {
+      "code": "8",
+      "display": "Plant and Machine Operators and Assemblers",
+      "definition": "Operate and monitor industrial and agricultural machinery and equipment"
+    },
+    {
+      "code": "9",
+      "display": "Elementary Occupations",
+      "definition": "Perform simple and routine tasks requiring physical effort"
+    }
+  ]
+}

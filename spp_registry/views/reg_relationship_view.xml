@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+   Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <record id="view_reg_rel_tree" model="ir.ui.view">
+        <field name="name">view_reg_rel_tree</field>
+        <field name="model">spp.registry.relationship</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="disabled">
+                <field name="source" />
+                <field name="destination" />
+                <field name="relation_id" />
+                <field name="disabled" />
+                <field name="disabled_by" widget="many2one_avatar_user" />
+                <field name="start_date" />
+                <field name="end_date" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_reg_rel_form" model="ir.ui.view">
+        <field name="name">view_reg_rel_form</field>
+        <field name="model">spp.registry.relationship</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <form string="Registrant Relationship">
+                <sheet>
+                    <group invisible="1">
+                        <field name="available_relation_ids" />
+                    </group>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-ban"
+                            name="disable_relationship"
+                            invisible="disabled"
+                        >
+                            <div class="o_form_field o_stat_info">
+                                <span class="o_stat_text">Disable</span>
+                            </div>
+                        </button>
+                        <button
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-check"
+                            name="enable_relationship"
+                            invisible="not disabled"
+                        >
+                            <div class="o_form_field o_stat_info">
+                                <span class="o_stat_text">Enable</span>
+                            </div>
+                        </button>
+                    </div>
+                    <div class="oe_title mb24">
+                        <label for="source" string="Registrant: " />
+                        <h1>
+                            <field
+                                id="source"
+                                name="source"
+                                placeholder="Select Source..."
+                                readonly="disabled"
+                                options="{'no_open':True,'no_create_edit':True,'no_create':True}"
+                            />
+                        </h1>
+                        <label for="destination" string="Is Related to: " />
+                        <h1>
+                            <field
+                                id="destination"
+                                name="destination"
+                                placeholder="Select Destination..."
+                                readonly="disabled"
+                                options="{'no_open':True,'no_create_edit':True,'no_create':True}"
+                            />
+                        </h1>
+                        <div class="o_row">
+                            <label for="relation_id" string="Relation:" />
+                            <field
+                                id="relation_id"
+                                name="relation_id"
+                                domain="[('id', 'in', available_relation_ids)]"
+                                placeholder="Select Relationship..."
+                                readonly="disabled"
+                                options="{'no_open':True,'no_create_edit':True,'no_create':True}"
+                            />
+                        </div>
+                    </div>
+                    <group string="Date Range" colspan="4" col="4">
+                        <field name="start_date" readonly="disabled" />
+                        <field name="end_date" readonly="disabled" />
+                    </group>
+                    <group string="Disable Info" colspan="4" col="4">
+                        <field name="disabled" readonly="1" />
+                        <field
+                            name="disabled_by"
+                            readonly="1"
+                            options="{'no_open':True,'no_create_edit':True,'no_create':True}"
+                        />
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="reg_rel_filter" model="ir.ui.view">
+        <field name="name">reg_rel_filter</field>
+        <field name="model">spp.registry.relationship</field>
+        <field name="priority" eval="1" />
+        <field name="arch" type="xml">
+            <search string="Search Registrant Relationships">
+                <field
+                    name="source"
+                    string="Registrant"
+                    filter_domain="['|', ('source.name', 'ilike', self), ('destination.name', 'ilike', self)]"
+                />
+                <field name="relation_id" />
+                <separator/>
+                <filter string="Source" name="grp_source" context="{'group_by': 'source'}" />
+                <filter
+                    string="Destination"
+                    name="grp_destination"
+                    context="{'group_by': 'destination'}"
+                />
+                <filter string="Relation" name="grp_relation" context="{'group_by': 'relation_id'}" />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_reg_rel" model="ir.actions.act_window">
+        <field name="name">Registrant Relationships</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">spp.registry.relationship</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="reg_rel_filter" />
+        <field name="context">{}</field>
+        <field name="domain">[]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add a Registrant Relationship!
+            </p><p>
+                Click the create button to enter the new registrant's relationship information.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_reg_rel_tree_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1" />
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_reg_rel_tree" />
+        <field name="act_window_id" ref="action_reg_rel" />
+    </record>
+
+    <record id="action_reg_rel_form_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2" />
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_reg_rel_form" />
+        <field name="act_window_id" ref="action_reg_rel" />
+    </record>
+
+</odoo>

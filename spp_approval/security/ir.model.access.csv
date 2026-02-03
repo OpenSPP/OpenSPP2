@@ -1,0 +1,24 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_approval_definition_user,spp.approval.definition user,model_spp_approval_definition,base.group_user,1,0,0,0
+access_approval_tier_user,spp.approval.tier user,model_spp_approval_tier,base.group_user,1,0,0,0
+access_approval_config_user,spp.approval.config user,model_spp_approval_config,base.group_user,1,0,0,0
+access_approval_freeze_user,spp.approval.freeze user,model_spp_approval_freeze,base.group_user,1,0,0,0
+access_approval_review_user,spp.approval.review user,model_spp_approval_review,base.group_user,1,0,0,0
+access_approval_tier_review_user,spp.approval.tier.review user,model_spp_approval_tier_review,base.group_user,1,0,0,0
+access_approval_definition_viewer,spp.approval.definition.viewer,model_spp_approval_definition,spp_approval.group_approval_viewer,1,0,0,0
+access_approval_definition_officer,spp.approval.definition.officer,model_spp_approval_definition,spp_approval.group_approval_officer,1,1,1,0
+access_approval_definition_manager,spp.approval.definition.manager,model_spp_approval_definition,spp_approval.group_approval_manager,1,1,1,1
+access_approval_review_viewer,spp.approval.review.viewer,model_spp_approval_review,spp_approval.group_approval_viewer,1,0,0,0
+access_approval_review_approver,spp.approval.review.approver,model_spp_approval_review,spp_approval.group_approval_approver,1,1,0,0
+access_approval_review_manager,spp.approval.review.manager,model_spp_approval_review,spp_approval.group_approval_manager,1,1,1,1
+access_approval_config_viewer,spp.approval.config.viewer,model_spp_approval_config,spp_approval.group_approval_viewer,1,0,0,0
+access_approval_config_manager,spp.approval.config.manager,model_spp_approval_config,spp_approval.group_approval_manager,1,1,1,1
+access_approval_freeze_viewer,spp.approval.freeze.viewer,model_spp_approval_freeze,spp_approval.group_approval_viewer,1,0,0,0
+access_approval_freeze_officer,spp.approval.freeze.officer,model_spp_approval_freeze,spp_approval.group_approval_officer,1,1,1,0
+access_approval_freeze_manager,spp.approval.freeze.manager,model_spp_approval_freeze,spp_approval.group_approval_manager,1,1,1,1
+access_rejection_wizard_approver,spp.approval.rejection.wizard.approver,model_spp_approval_rejection_wizard,spp_approval.group_approval_approver,1,1,1,1
+access_revision_wizard_approver,spp.approval.revision.wizard.approver,model_spp_approval_revision_wizard,spp_approval.group_approval_approver,1,1,1,1
+access_approval_tier_approver,spp.approval.tier.approver,model_spp_approval_tier,spp_approval.group_approval_approver,1,0,0,0
+access_approval_tier_manager,spp.approval.tier.manager,model_spp_approval_tier,spp_approval.group_approval_manager,1,1,1,1
+access_approval_tier_review_approver,spp.approval.tier.review.approver,model_spp_approval_tier_review,spp_approval.group_approval_approver,1,1,0,0
+access_approval_tier_review_manager,spp.approval.tier.review.manager,model_spp_approval_tier_review,spp_approval.group_approval_manager,1,1,1,1

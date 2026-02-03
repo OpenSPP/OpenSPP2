@@ -1,0 +1,697 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Priority Levels Codes -->
+    <record id="code_drims_priority_routine" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_priority"/>
+        <field name="code">routine</field>
+        <field name="display">Routine</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="code_drims_priority_urgent" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_priority"/>
+        <field name="code">urgent</field>
+        <field name="display">Urgent</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="code_drims_priority_critical" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_priority"/>
+        <field name="code">critical</field>
+        <field name="display">Critical</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <!-- Donor Types Codes -->
+    <record id="code_drims_donor_government" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_donor_type"/>
+        <field name="code">government</field>
+        <field name="display">Government</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="code_drims_donor_ngo" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_donor_type"/>
+        <field name="code">ngo</field>
+        <field name="display">NGO</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="code_drims_donor_private" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_donor_type"/>
+        <field name="code">private</field>
+        <field name="display">Private Sector</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="code_drims_donor_individual" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_donor_type"/>
+        <field name="code">individual</field>
+        <field name="display">Individual</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="code_drims_donor_un" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_donor_type"/>
+        <field name="code">un</field>
+        <field name="display">UN Agency</field>
+        <field name="sequence">50</field>
+    </record>
+    <record id="code_drims_donor_military" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_donor_type"/>
+        <field name="code">military</field>
+        <field name="display">Military</field>
+        <field name="sequence">60</field>
+    </record>
+    <record id="code_drims_donor_religious" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_donor_type"/>
+        <field name="code">religious</field>
+        <field name="display">Religious Organization</field>
+        <field name="sequence">70</field>
+    </record>
+
+    <!-- Item Conditions Codes -->
+    <record id="code_drims_condition_new" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_item_condition"/>
+        <field name="code">new</field>
+        <field name="display">New</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="code_drims_condition_used_good" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_item_condition"/>
+        <field name="code">used_good</field>
+        <field name="display">Used (Good Condition)</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="code_drims_condition_damaged" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_item_condition"/>
+        <field name="code">damaged</field>
+        <field name="display">Damaged</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="code_drims_condition_expired" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_item_condition"/>
+        <field name="code">expired</field>
+        <field name="display">Expired</field>
+        <field name="sequence">40</field>
+    </record>
+
+    <!-- Item Dispositions Codes -->
+    <record id="code_drims_disposition_accept" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_item_disposition"/>
+        <field name="code">accept</field>
+        <field name="display">Accept</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="code_drims_disposition_quarantine" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_item_disposition"/>
+        <field name="code">quarantine</field>
+        <field name="display">Quarantine</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="code_drims_disposition_return" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_item_disposition"/>
+        <field name="code">return</field>
+        <field name="display">Return to Donor</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="code_drims_disposition_dispose" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_item_disposition"/>
+        <field name="code">dispose</field>
+        <field name="display">Dispose</field>
+        <field name="sequence">40</field>
+    </record>
+
+    <!-- Transport Modes Codes -->
+    <record id="code_drims_transport_road" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_transport_mode"/>
+        <field name="code">road</field>
+        <field name="display">Road</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="code_drims_transport_air" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_transport_mode"/>
+        <field name="code">air</field>
+        <field name="display">Air</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="code_drims_transport_sea" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_transport_mode"/>
+        <field name="code">sea</field>
+        <field name="display">Sea</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="code_drims_transport_foot" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_transport_mode"/>
+        <field name="code">foot</field>
+        <field name="display">On Foot</field>
+        <field name="sequence">40</field>
+    </record>
+
+    <!-- Request States Codes -->
+    <record id="code_drims_request_draft" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_request_state"/>
+        <field name="code">draft</field>
+        <field name="display">Draft</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="code_drims_request_submitted" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_request_state"/>
+        <field name="code">submitted</field>
+        <field name="display">Submitted</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="code_drims_request_approved" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_request_state"/>
+        <field name="code">approved</field>
+        <field name="display">Approved</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="code_drims_request_rejected" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_request_state"/>
+        <field name="code">rejected</field>
+        <field name="display">Rejected</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="code_drims_request_fulfilled" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_request_state"/>
+        <field name="code">fulfilled</field>
+        <field name="display">Fulfilled</field>
+        <field name="sequence">50</field>
+    </record>
+    <record id="code_drims_request_allocated" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_request_state"/>
+        <field name="code">allocated</field>
+        <field name="display">Allocated</field>
+        <field name="sequence">35</field>
+    </record>
+    <record id="code_drims_request_dispatched" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_request_state"/>
+        <field name="code">dispatched</field>
+        <field name="display">Dispatched</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="code_drims_request_delivered" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_request_state"/>
+        <field name="code">delivered</field>
+        <field name="display">Delivered</field>
+        <field name="sequence">45</field>
+    </record>
+    <record id="code_drims_request_cancelled" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_request_state"/>
+        <field name="code">cancelled</field>
+        <field name="display">Cancelled</field>
+        <field name="sequence">90</field>
+    </record>
+
+    <!-- Donation States Codes -->
+    <record id="code_drims_donation_announced" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_donation_state"/>
+        <field name="code">announced</field>
+        <field name="display">Announced</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="code_drims_donation_received" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_donation_state"/>
+        <field name="code">received</field>
+        <field name="display">Received</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="code_drims_donation_inspected" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_donation_state"/>
+        <field name="code">inspected</field>
+        <field name="display">Inspected</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="code_drims_donation_stocked" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_donation_state"/>
+        <field name="code">stocked</field>
+        <field name="display">Stocked</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="code_drims_donation_rejected" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_donation_state"/>
+        <field name="code">rejected</field>
+        <field name="display">Rejected</field>
+        <field name="sequence">50</field>
+    </record>
+    <record id="code_drims_donation_cancelled" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_donation_state"/>
+        <field name="code">cancelled</field>
+        <field name="display">Cancelled</field>
+        <field name="sequence">60</field>
+    </record>
+
+    <!-- POD Statuses Codes -->
+    <record id="code_drims_pod_complete" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_pod_status"/>
+        <field name="code">complete</field>
+        <field name="display">Complete</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="code_drims_pod_partial" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_pod_status"/>
+        <field name="code">partial</field>
+        <field name="display">Partial Delivery</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="code_drims_pod_damaged" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_pod_status"/>
+        <field name="code">damaged</field>
+        <field name="display">Damaged</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="code_drims_pod_not_received" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_pod_status"/>
+        <field name="code">not_received</field>
+        <field name="display">Not Received</field>
+        <field name="sequence">40</field>
+    </record>
+
+    <!-- DRIMS Types Codes -->
+    <record id="code_drims_type_donation_receipt" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_type"/>
+        <field name="code">donation_receipt</field>
+        <field name="display">Donation Receipt</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="code_drims_type_request_dispatch" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_type"/>
+        <field name="code">request_dispatch</field>
+        <field name="display">Request Dispatch</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="code_drims_type_internal_transfer" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_type"/>
+        <field name="code">internal_transfer</field>
+        <field name="display">Internal Transfer</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="code_drims_type_return" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_type"/>
+        <field name="code">return</field>
+        <field name="display">Return</field>
+        <field name="sequence">40</field>
+    </record>
+
+    <!-- Item Categories Codes -->
+    <record id="code_drims_category_food" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_item_category"/>
+        <field name="code">food</field>
+        <field name="display">Food &amp; Nutrition</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="code_drims_category_water" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_item_category"/>
+        <field name="code">water</field>
+        <field name="display">Water &amp; Beverages</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="code_drims_category_medical" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_item_category"/>
+        <field name="code">medical</field>
+        <field name="display">Medical &amp; Health</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="code_drims_category_shelter" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_item_category"/>
+        <field name="code">shelter</field>
+        <field name="display">Shelter &amp; Housing</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="code_drims_category_hygiene" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_item_category"/>
+        <field name="code">hygiene</field>
+        <field name="display">Hygiene &amp; WASH</field>
+        <field name="sequence">50</field>
+    </record>
+    <record id="code_drims_category_clothing" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_item_category"/>
+        <field name="code">clothing</field>
+        <field name="display">Clothing &amp; Bedding</field>
+        <field name="sequence">60</field>
+    </record>
+    <record id="code_drims_category_equipment" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_item_category"/>
+        <field name="code">equipment</field>
+        <field name="display">Equipment &amp; Tools</field>
+        <field name="sequence">70</field>
+    </record>
+
+    <!-- Donation Restrictions Codes -->
+    <record id="code_drims_restriction_none" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_restriction"/>
+        <field name="code">none</field>
+        <field name="display">No Restriction</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="code_drims_restriction_area" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_restriction"/>
+        <field name="code">area</field>
+        <field name="display">Specific Area Only</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="code_drims_restriction_incident" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_restriction"/>
+        <field name="code">incident</field>
+        <field name="display">Specific Incident Only</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="code_drims_restriction_category" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_restriction"/>
+        <field name="code">category</field>
+        <field name="display">Specific Category Only</field>
+        <field name="sequence">40</field>
+    </record>
+
+    <!-- Return Reasons Codes -->
+    <record id="code_drims_return_excess" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_return_reason"/>
+        <field name="code">excess</field>
+        <field name="display">Excess Quantity</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="code_drims_return_damaged" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_return_reason"/>
+        <field name="code">damaged</field>
+        <field name="display">Damaged in Transit</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="code_drims_return_wrong_item" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_return_reason"/>
+        <field name="code">wrong_item</field>
+        <field name="display">Wrong Item Delivered</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="code_drims_return_not_needed" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_return_reason"/>
+        <field name="code">not_needed</field>
+        <field name="display">No Longer Needed</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="code_drims_return_expired" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_return_reason"/>
+        <field name="code">expired</field>
+        <field name="display">Expired/Near Expiry</field>
+        <field name="sequence">50</field>
+    </record>
+
+    <!-- Return Conditions Codes -->
+    <record id="code_drims_return_cond_good" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_return_condition"/>
+        <field name="code">good</field>
+        <field name="display">Good (Restockable)</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="code_drims_return_cond_damaged" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_return_condition"/>
+        <field name="code">damaged</field>
+        <field name="display">Damaged (Needs Inspection)</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="code_drims_return_cond_unusable" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_return_condition"/>
+        <field name="code">unusable</field>
+        <field name="display">Unusable (Dispose)</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <!-- Distribution Types Codes -->
+    <record id="code_drims_dist_individual" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_distribution_type"/>
+        <field name="code">individual</field>
+        <field name="display">Individual</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="code_drims_dist_household" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_distribution_type"/>
+        <field name="code">household</field>
+        <field name="display">Household</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="code_drims_dist_group" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_distribution_type"/>
+        <field name="code">group</field>
+        <field name="display">Group/Community</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="code_drims_dist_institution" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_distribution_type"/>
+        <field name="code">institution</field>
+        <field name="display">Institution</field>
+        <field name="sequence">40</field>
+    </record>
+
+    <!-- Alert Types Codes -->
+    <record id="code_drims_alert_low_stock" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_alert_type"/>
+        <field name="code">low_stock</field>
+        <field name="display">Low Stock</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="code_drims_alert_expiry" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_alert_type"/>
+        <field name="code">expiry</field>
+        <field name="display">Expiring Items</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="code_drims_alert_sla_warning" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_alert_type"/>
+        <field name="code">sla_warning</field>
+        <field name="display">SLA Warning</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="code_drims_alert_sla_breach" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_alert_type"/>
+        <field name="code">sla_breach</field>
+        <field name="display">SLA Breach</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="code_drims_alert_critical_shortage" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_alert_type"/>
+        <field name="code">critical_shortage</field>
+        <field name="display">Critical Shortage</field>
+        <field name="sequence">50</field>
+    </record>
+    <record id="code_drims_alert_quality_issue" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_alert_type"/>
+        <field name="code">quality_issue</field>
+        <field name="display">Quality Issue</field>
+        <field name="sequence">60</field>
+    </record>
+
+    <!-- OCHA/IASC Humanitarian Clusters Codes -->
+    <record id="code_ocha_cluster_food_security" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_ocha_iasc_clusters"/>
+        <field name="code">food_security</field>
+        <field name="display">Food Security</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="code_ocha_cluster_shelter" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_ocha_iasc_clusters"/>
+        <field name="code">shelter</field>
+        <field name="display">Emergency Shelter</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="code_ocha_cluster_health" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_ocha_iasc_clusters"/>
+        <field name="code">health</field>
+        <field name="display">Health</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="code_ocha_cluster_wash" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_ocha_iasc_clusters"/>
+        <field name="code">wash</field>
+        <field name="display">Water, Sanitation and Hygiene</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="code_ocha_cluster_protection" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_ocha_iasc_clusters"/>
+        <field name="code">protection</field>
+        <field name="display">Protection</field>
+        <field name="sequence">50</field>
+    </record>
+    <record id="code_ocha_cluster_education" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_ocha_iasc_clusters"/>
+        <field name="code">education</field>
+        <field name="display">Education</field>
+        <field name="sequence">60</field>
+    </record>
+    <record id="code_ocha_cluster_nutrition" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_ocha_iasc_clusters"/>
+        <field name="code">nutrition</field>
+        <field name="display">Nutrition</field>
+        <field name="sequence">70</field>
+    </record>
+    <record id="code_ocha_cluster_camp_coordination" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_ocha_iasc_clusters"/>
+        <field name="code">camp_coordination</field>
+        <field name="display">Camp Coordination and Camp Management</field>
+        <field name="sequence">80</field>
+    </record>
+    <record id="code_ocha_cluster_early_recovery" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_ocha_iasc_clusters"/>
+        <field name="code">early_recovery</field>
+        <field name="display">Early Recovery</field>
+        <field name="sequence">90</field>
+    </record>
+    <record id="code_ocha_cluster_emergency_telecom" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_ocha_iasc_clusters"/>
+        <field name="code">emergency_telecom</field>
+        <field name="display">Emergency Telecommunications</field>
+        <field name="sequence">100</field>
+    </record>
+    <record id="code_ocha_cluster_logistics" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_ocha_iasc_clusters"/>
+        <field name="code">logistics</field>
+        <field name="display">Logistics</field>
+        <field name="sequence">110</field>
+    </record>
+
+    <!-- Organization Roles Codes -->
+    <record id="code_drims_organization_role_lead_agency" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_organization_role"/>
+        <field name="code">lead_agency</field>
+        <field name="display">Lead Agency</field>
+        <field name="definition">Government body leading response</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="code_drims_organization_role_implementing_partner" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_organization_role"/>
+        <field name="code">implementing_partner</field>
+        <field name="display">Implementing Partner</field>
+        <field name="definition">Organization delivering assistance</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="code_drims_organization_role_donor" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_organization_role"/>
+        <field name="code">donor</field>
+        <field name="display">Donor</field>
+        <field name="definition">Funding organization</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="code_drims_organization_role_coordinator" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_organization_role"/>
+        <field name="code">coordinator</field>
+        <field name="display">Coordinator</field>
+        <field name="definition">Coordination body (e.g., UN OCHA)</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="code_drims_organization_role_technical_support" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_organization_role"/>
+        <field name="code">technical_support</field>
+        <field name="display">Technical Support</field>
+        <field name="definition">Providing expertise/capacity building</field>
+        <field name="sequence">50</field>
+    </record>
+    <record id="code_drims_organization_role_observer" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_organization_role"/>
+        <field name="code">observer</field>
+        <field name="display">Observer</field>
+        <field name="definition">Monitoring organizations</field>
+        <field name="sequence">60</field>
+    </record>
+
+    <!-- Coordination Modes Codes -->
+    <record id="code_drims_coord_lead_agency" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_coordination_mode"/>
+        <field name="code">lead_agency</field>
+        <field name="display">Lead Agency Model</field>
+        <field name="definition">Single government agency leads, partners support</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="code_drims_coord_cluster" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_coordination_mode"/>
+        <field name="code">cluster</field>
+        <field name="display">Cluster Coordination</field>
+        <field name="definition">UN OCHA cluster system with sector leads</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="code_drims_coord_consortium" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_coordination_mode"/>
+        <field name="code">consortium</field>
+        <field name="display">Consortium Model</field>
+        <field name="definition">NGO partnership with shared leadership</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="code_drims_coord_bilateral" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_coordination_mode"/>
+        <field name="code">bilateral</field>
+        <field name="display">Bilateral Coordination</field>
+        <field name="definition">Direct government-to-government or agency-to-agency</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="code_drims_coord_decentralized" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_coordination_mode"/>
+        <field name="code">decentralized</field>
+        <field name="display">Decentralized Response</field>
+        <field name="definition">Local authorities lead with minimal central coordination</field>
+        <field name="sequence">50</field>
+    </record>
+
+    <!-- Personnel Roles Codes -->
+    <record id="code_drims_personnel_field_coordinator" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_personnel_roles"/>
+        <field name="code">field_coordinator</field>
+        <field name="display">Field Coordinator</field>
+        <field name="definition">Leads field operations and team coordination</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="code_drims_personnel_logistics_officer" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_personnel_roles"/>
+        <field name="code">logistics_officer</field>
+        <field name="display">Logistics Officer</field>
+        <field name="definition">Manages supply chain and distribution</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="code_drims_personnel_warehouse_manager" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_personnel_roles"/>
+        <field name="code">warehouse_manager</field>
+        <field name="display">Warehouse Manager</field>
+        <field name="definition">Oversees warehouse operations and inventory</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="code_drims_personnel_distribution_supervisor" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_personnel_roles"/>
+        <field name="code">distribution_supervisor</field>
+        <field name="display">Distribution Supervisor</field>
+        <field name="definition">Supervises relief distribution activities</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="code_drims_personnel_medical_officer" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_personnel_roles"/>
+        <field name="code">medical_officer</field>
+        <field name="display">Medical Officer</field>
+        <field name="definition">Provides medical care and health coordination</field>
+        <field name="sequence">50</field>
+    </record>
+    <record id="code_drims_personnel_camp_manager" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_personnel_roles"/>
+        <field name="code">camp_manager</field>
+        <field name="display">Camp Manager</field>
+        <field name="definition">Manages displacement camp operations</field>
+        <field name="sequence">60</field>
+    </record>
+    <record id="code_drims_personnel_assessment_leader" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_personnel_roles"/>
+        <field name="code">assessment_leader</field>
+        <field name="display">Assessment Team Leader</field>
+        <field name="definition">Leads needs assessment and damage surveys</field>
+        <field name="sequence">70</field>
+    </record>
+    <record id="code_drims_personnel_communications" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_personnel_roles"/>
+        <field name="code">communications</field>
+        <field name="display">Communications Officer</field>
+        <field name="definition">Handles comms equipment and information flow</field>
+        <field name="sequence">80</field>
+    </record>
+    <record id="code_drims_personnel_volunteer" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_personnel_roles"/>
+        <field name="code">volunteer</field>
+        <field name="display">Volunteer</field>
+        <field name="definition">Community volunteer supporting response</field>
+        <field name="sequence">90</field>
+    </record>
+    <record id="code_drims_personnel_driver" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_drims_personnel_roles"/>
+        <field name="code">driver</field>
+        <field name="display">Driver</field>
+        <field name="definition">Vehicle operator for transport and delivery</field>
+        <field name="sequence">100</field>
+    </record>
+</odoo>

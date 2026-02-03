@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Cron job to reset daily rate limit counters at midnight -->
+    <record id="ir_cron_reset_daily_rate_limits" model="ir.cron">
+        <field name="name">DCI: Reset Daily Rate Limit Counters</field>
+        <field name="model_id" ref="model_spp_dci_sender_registry" />
+        <field name="state">code</field>
+        <field name="code">model._cron_reset_daily_rate_limits()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="True" />
+        <!-- Run at midnight (00:00) -->
+        <field name="nextcall" eval="(DateTime.now() + timedelta(days=1)).replace(hour=0, minute=0, second=0)" />
+    </record>
+</odoo>

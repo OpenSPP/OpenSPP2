@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Extend the embedded entitlement item form in the cash manager form -->
+    <record id="view_entitlement_manager_cash_form_cel" model="ir.ui.view">
+        <field name="name">view_entitlement_manager_cash_form_cel</field>
+        <field name="model">spp.program.entitlement.manager.cash</field>
+        <field name="inherit_id" ref="spp_programs.view_entitlement_manager_cash_form"/>
+        <field name="arch" type="xml">
+            <!-- Add formula column to inline tree (mode column hidden since only one option) -->
+            <xpath expr="//field[@name='entitlement_item_ids']/list/field[@name='amount']" position="after">
+                <field name="amount_cel_expression" string="Formula" optional="show"/>
+            </xpath>
+
+            <!-- Hide amount mode in tree (single option) -->
+            <xpath expr="//field[@name='entitlement_item_ids']/list/field[@name='sequence']" position="after">
+                <field name="amount_mode" invisible="1"/>
+            </xpath>
+
+            <!-- Extend the inline form view -->
+            <!-- Hide amount mode field (only CEL mode now) -->
+            <xpath expr="//field[@name='entitlement_item_ids']/form/group/field[@name='amount']" position="before">
+                <field name="amount_mode" invisible="1"/>
+            </xpath>
+
+            <!-- Hide the fixed amount field (CEL expressions are used instead) -->
+            <xpath expr="//field[@name='entitlement_item_ids']/form/group/field[@name='amount']" position="attributes">
+                <attribute name="invisible">1</attribute>
+                <attribute name="required">0</attribute>
+            </xpath>
+
+            <!-- Add CEL expression fields after currency -->
+            <xpath expr="//field[@name='entitlement_item_ids']/form/group/field[@name='currency_id']" position="after">
+                <!-- CEL Expression Field with enhanced widget (always visible) -->
+                <field
+                    name="amount_cel_expression"
+                    colspan="4"
+                    widget="cel_expression"
+                    cel_profile="entitlements"
+                    show_symbol_browser="true"
+                    show_validation_count="false"
+                    placeholder="Enter amount formula (e.g., 500 or hh_size * 100)"
+                    required="1"
+                />
+                <field
+                    name="amount_cel_preview"
+                    readonly="1"
+                    colspan="4"
+                    invisible="amount_cel_preview == ''"
+                />
+                <field name="amount_cel_is_valid" invisible="1"/>
+                <div
+                    invisible="amount_cel_error == ''"
+                    colspan="4"
+                    class="alert alert-danger"
+                    role="alert"
+                >
+                    <field name="amount_cel_error" readonly="1" nolabel="1"/>
+                </div>
+            </xpath>
+
+            <!-- Hide multiplier fields (not used in CEL mode) -->
+            <xpath expr="//field[@name='entitlement_item_ids']/form//field[@name='multiplier_field']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='entitlement_item_ids']/form//field[@name='max_multiplier']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

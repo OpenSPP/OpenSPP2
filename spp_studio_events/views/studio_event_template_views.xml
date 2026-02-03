@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Event Field Template Tree View -->
+    <record id="view_studio_event_field_template_tree" model="ir.ui.view">
+        <field name="name">spp.studio.event.field.template.tree</field>
+        <field name="model">spp.studio.event.field.template</field>
+        <field name="arch" type="xml">
+            <list string="Event Field Templates">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="category"/>
+                <field name="field_count" string="Fields"/>
+                <field name="active" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Event Field Template Form View -->
+    <record id="view_studio_event_field_template_form" model="ir.ui.view">
+        <field name="name">spp.studio.event.field.template.form</field>
+        <field name="model">spp.studio.event.field.template</field>
+        <field name="arch" type="xml">
+            <form string="Event Field Template">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_apply_to_event_type"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-copy">
+                            <span>Apply</span>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name" string="Template Name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g., Income Assessment"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="category"/>
+                            <field name="sequence"/>
+                        </group>
+                        <group>
+                            <field name="description" placeholder="Description of what this template is for..."/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="fields" string="Fields">
+                            <field name="field_ids" nolabel="1">
+                                <list string="Template Fields" editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="label" required="1"/>
+                                    <field name="field_type" required="1"/>
+                                    <field name="selection_options"
+                                           invisible="field_type not in ('selection', 'multi_select')"/>
+                                    <field name="is_required"/>
+                                    <field name="validation_type" optional="hide"/>
+                                    <field name="help_text" optional="hide"/>
+                                </list>
+                                <form string="Template Field">
+                                    <group>
+                                        <group string="Field Definition">
+                                            <field name="label" required="1"/>
+                                            <field name="technical_name"/>
+                                            <field name="field_type" required="1"/>
+                                            <field name="is_required"/>
+                                            <field name="sequence"/>
+                                        </group>
+                                        <group string="Type Options">
+                                            <field name="selection_options"
+                                                   invisible="field_type not in ('selection', 'multi_select')"
+                                                   placeholder="value1|Label 1&#10;value2|Label 2"/>
+                                            <field name="link_model_name"
+                                                   invisible="field_type != 'link'"
+                                                   placeholder="res.partner"/>
+                                            <field name="link_domain"
+                                                   invisible="field_type != 'link'"/>
+                                        </group>
+                                    </group>
+                                    <group string="Validation" invisible="field_type in ('boolean', 'link')">
+                                        <group>
+                                            <field name="validation_type"/>
+                                        </group>
+                                        <group>
+                                            <field name="validation_min"
+                                                   invisible="validation_type != 'range'"/>
+                                            <field name="validation_max"
+                                                   invisible="validation_type != 'range'"/>
+                                            <field name="validation_regex"
+                                                   invisible="validation_type != 'regex'"/>
+                                            <field name="validation_error_message"
+                                                   invisible="validation_type == 'none'"/>
+                                        </group>
+                                    </group>
+                                    <group string="Help">
+                                        <field name="help_text" nolabel="1"/>
+                                    </group>
+                                </form>
+                            </field>
+                            <field name="field_count" invisible="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Event Field Template Search View -->
+    <record id="view_studio_event_field_template_search" model="ir.ui.view">
+        <field name="name">spp.studio.event.field.template.search</field>
+        <field name="model">spp.studio.event.field.template</field>
+        <field name="arch" type="xml">
+            <search string="Event Field Templates">
+                <field name="name" string="Name or Code"
+                       filter_domain="['|', ('name', 'ilike', self), ('code', 'ilike', self)]"/>
+                <field name="category"/>
+                <separator/>
+                <filter name="filter_active" string="Active" domain="[('active', '=', True)]"/>
+                <filter name="filter_inactive" string="Archived" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter name="group_category" string="Category" context="{'group_by': 'category'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Event Field Template Action -->
+    <record id="action_studio_event_field_template" model="ir.actions.act_window">
+        <field name="name">Event Field Templates</field>
+        <field name="path">studio-event-templates</field>
+        <field name="res_model">spp.studio.event.field.template</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_studio_event_field_template_search"/>
+        <field name="context">{'search_default_filter_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first event field template
+            </p>
+            <p>
+                Templates let you define reusable sets of fields that can be
+                applied to new event types, saving time and ensuring consistency.
+            </p>
+        </field>
+    </record>
+
+    <!-- Apply Template Wizard Form View -->
+    <record id="view_studio_event_field_template_apply_wizard_form" model="ir.ui.view">
+        <field name="name">spp.studio.event.field.template.apply.wizard.form</field>
+        <field name="model">spp.studio.event.field.template.apply.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Apply Template">
+                <group>
+                    <field name="template_id" readonly="1"/>
+                    <field name="template_field_count" string="Fields in Template"/>
+                </group>
+                <group>
+                    <field name="event_type_id" required="1"/>
+                    <field name="event_type_field_count" string="Current Fields"
+                           invisible="not event_type_id"/>
+                </group>
+                <group>
+                    <field name="replace_existing" widget="boolean_toggle"/>
+                </group>
+                <div class="alert alert-warning" role="alert" invisible="not replace_existing">
+                    <strong>Warning:</strong> Enabling "Replace Existing Fields" will delete
+                    all current fields from the event type before applying the template.
+                </div>
+                <footer>
+                    <button name="action_apply"
+                            type="object"
+                            string="Apply Template"
+                            class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Add menu entry under Studio -->
+    <menuitem id="menu_studio_event_templates"
+              name="Event Templates"
+              parent="spp_studio.menu_studio_config"
+              action="action_studio_event_field_template"
+              sequence="25"/>
+</odoo>

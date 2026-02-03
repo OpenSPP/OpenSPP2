@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Form View -->
+    <record id="view_spp_grm_subcategory_form" model="ir.ui.view">
+        <field name="name">view.spp_grm_subcategory.form</field>
+        <field name="model">spp.grm.ticket.subcategory</field>
+        <field name="arch" type="xml">
+            <form string="Subcategory">
+                <header>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" invisible="active" />
+
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only" />
+                        <h1>
+                            <field name="name" required="1" />
+                        </h1>
+                    </div>
+                    <group name="main">
+                        <group name="main_left">
+                            <field name="code" />
+                            <field name="category_id" />
+                            <field name="sequence" />
+                            <field name="active" invisible="1" />
+                        </group>
+                        <group name="main_right">
+                            <field name="default_severity" />
+                            <field name="default_sla_hours" />
+                            <field name="ticket_count" />
+                        </group>
+                    </group>
+                    <separator string="Description"/>
+                    <field name="description" nolabel="1" class="oe_inline"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View -->
+    <record id="view_spp_grm_subcategory_tree" model="ir.ui.view">
+        <field name="name">view.spp_grm_subcategory.tree</field>
+        <field name="model">spp.grm.ticket.subcategory</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle" />
+                <field name="code" />
+                <field name="name" />
+                <field name="category_id" />
+                <field name="default_severity" optional="show" />
+                <field name="default_sla_hours" optional="show" />
+                <field name="ticket_count" optional="hide" />
+                <field name="active" column_invisible="1" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_spp_grm_ticket_subcategory_search" model="ir.ui.view">
+        <field name="name">spp.grm.ticket.subcategory.search</field>
+        <field name="model">spp.grm.ticket.subcategory</field>
+        <field name="arch" type="xml">
+            <search string="Grievance Redress Mechanism Subcategory Search">
+                <field name="name"/>
+                <field name="category_id"/>
+                <field name="code"/>
+                <filter string="Archived" name="inactive" domain="[('active','=',False)]"/>
+                <separator/>
+                <group name="group_by">
+                    <filter string="Category" name="group_by_category" context="{'group_by': 'category_id'}"/>
+                    <filter string="Severity" name="group_by_severity" context="{'group_by': 'default_severity'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="spp_grm_ticket_subcategory_action" model="ir.actions.act_window">
+        <field name="name">Subcategories</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">spp.grm.ticket.subcategory</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_group_by_category': 1}</field>
+    </record>
+
+    <!-- Menu Item -->
+    <menuitem
+        id="spp_grm_ticket_subcategory_menu"
+        name="Subcategories"
+        parent="spp_grm_ticket_config_main_menu"
+        action="spp_grm_ticket_subcategory_action"
+        sequence="16"
+    />
+
+</odoo>

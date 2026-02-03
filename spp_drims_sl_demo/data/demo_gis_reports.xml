@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!--
+    GIS Report Demo Data for DRIMS Sri Lanka Demo
+
+    Creates sample GIS reports to demonstrate geographic visualization
+    of disaster response and inventory management data.
+    -->
+
+    <!-- Request Distribution by Area -->
+    <record id="gis_report_request_distribution" model="spp.gis.report">
+        <field name="name">Relief Request Distribution</field>
+        <field name="code">DRIMS_SL_REQUEST_DIST</field>
+        <field name="description">Geographic distribution of disaster relief requests. Shows which areas have the most pending or active requests to help coordinate response efforts.</field>
+        <field name="category_id" ref="spp_gis_report.category_disaster_response"/>
+        <field name="sequence">10</field>
+        <field name="source_model_id" search="[('model', '=', 'spp.drims.request')]"/>
+        <field name="area_field_path">destination_area_id</field>
+        <field name="filter_mode">domain</field>
+        <field name="filter_domain">[('state', 'not in', ['draft', 'cancelled'])]</field>
+        <field name="aggregation_method">count</field>
+        <field name="base_area_level">1</field>
+        <field name="normalization_method">raw</field>
+        <field name="enable_rollup">True</field>
+        <field name="rollup_method">sum</field>
+        <field name="rollup_weight_source">count</field>
+        <field name="color_scheme_id" ref="spp_gis.scheme_viridis"/>
+        <field name="threshold_mode">auto_quartile</field>
+        <field name="bucket_count">5</field>
+        <field name="refresh_mode">scheduled</field>
+        <field name="refresh_interval">hourly</field>
+        <field name="auto_create_layer" eval="True" />
+        <field name="layer_active_on_startup" eval="True" />
+    </record>
+
+    <!-- Affected Population Map -->
+    <record id="gis_report_affected_population" model="spp.gis.report">
+        <field name="name">Affected Population by Area</field>
+        <field name="code">DRIMS_SL_AFFECTED_POP</field>
+        <field name="description">Total affected population as reported in disaster relief requests. Helps prioritize areas with the highest number of people in need of assistance.</field>
+        <field name="category_id" ref="spp_gis_report.category_disaster_response"/>
+        <field name="sequence">20</field>
+        <field name="source_model_id" search="[('model', '=', 'spp.drims.request')]"/>
+        <field name="area_field_path">destination_area_id</field>
+        <field name="filter_mode">domain</field>
+        <field name="filter_domain">[('state', 'not in', ['draft', 'cancelled', 'rejected'])]</field>
+        <field name="aggregation_method">sum</field>
+        <field name="aggregation_field">affected_population</field>
+        <field name="base_area_level">1</field>
+        <field name="normalization_method">per_area_sqkm</field>
+        <field name="enable_rollup">True</field>
+        <field name="rollup_method">sum</field>
+        <field name="rollup_weight_source">count</field>
+        <field name="color_scheme_id" ref="spp_gis.scheme_blues"/>
+        <field name="threshold_mode">auto_jenks</field>
+        <field name="bucket_count">5</field>
+        <field name="refresh_mode">scheduled</field>
+        <field name="refresh_interval">hourly</field>
+        <field name="auto_create_layer" eval="True" />
+        <field name="layer_active_on_startup" eval="True" />
+    </record>
+
+    <!-- Pending Requests Map -->
+    <record id="gis_report_pending_requests" model="spp.gis.report">
+        <field name="name">Pending Approval Requests</field>
+        <field name="code">DRIMS_SL_PENDING_REQUESTS</field>
+        <field name="description">Requests awaiting approval by geographic area. Highlights areas where response coordination needs attention to ensure timely relief delivery.</field>
+        <field name="category_id" ref="spp_gis_report.category_disaster_response"/>
+        <field name="sequence">30</field>
+        <field name="source_model_id" search="[('model', '=', 'spp.drims.request')]"/>
+        <field name="area_field_path">destination_area_id</field>
+        <field name="filter_mode">domain</field>
+        <field name="filter_domain">[('approval_state', 'in', ['pending', 'submitted'])]</field>
+        <field name="aggregation_method">count</field>
+        <field name="base_area_level">1</field>
+        <field name="normalization_method">raw</field>
+        <field name="enable_rollup">True</field>
+        <field name="rollup_method">sum</field>
+        <field name="rollup_weight_source">count</field>
+        <field name="color_scheme_id" ref="spp_gis.scheme_viridis"/>
+        <field name="threshold_mode">auto_quartile</field>
+        <field name="bucket_count">4</field>
+        <field name="refresh_mode">scheduled</field>
+        <field name="refresh_interval">hourly</field>
+        <field name="auto_create_layer" eval="True" />
+        <field name="layer_active_on_startup" eval="True" />
+    </record>
+
+    <!-- Relief Value Distribution -->
+    <record id="gis_report_relief_value" model="spp.gis.report">
+        <field name="name">Total Relief Value by Area</field>
+        <field name="code">DRIMS_SL_RELIEF_VALUE</field>
+        <field name="description">Cumulative value of relief supplies requested by area. Helps track resource distribution and identify areas with high material needs.</field>
+        <field name="category_id" ref="spp_gis_report.category_disaster_response"/>
+        <field name="sequence">40</field>
+        <field name="source_model_id" search="[('model', '=', 'spp.drims.request')]"/>
+        <field name="area_field_path">destination_area_id</field>
+        <field name="filter_mode">domain</field>
+        <field name="filter_domain">[('state', 'not in', ['draft', 'cancelled', 'rejected'])]</field>
+        <field name="aggregation_method">sum</field>
+        <field name="aggregation_field">total_value</field>
+        <field name="base_area_level">1</field>
+        <field name="normalization_method">raw</field>
+        <field name="enable_rollup">True</field>
+        <field name="rollup_method">sum</field>
+        <field name="rollup_weight_source">count</field>
+        <field name="color_scheme_id" ref="spp_gis.scheme_viridis"/>
+        <field name="threshold_mode">auto_quartile</field>
+        <field name="bucket_count">5</field>
+        <field name="refresh_mode">scheduled</field>
+        <field name="refresh_interval">daily</field>
+        <field name="auto_create_layer" eval="True" />
+        <field name="layer_active_on_startup" eval="True" />
+    </record>
+
+    <!-- Fulfillment Progress Map -->
+    <record id="gis_report_fulfillment_progress" model="spp.gis.report">
+        <field name="name">Request Fulfillment Progress</field>
+        <field name="code">DRIMS_SL_FULFILLMENT_PCT</field>
+        <field name="description">Average fulfillment percentage of relief requests by area. Identifies areas where delivery is lagging and additional logistics support may be needed.</field>
+        <field name="category_id" ref="spp_gis_report.category_disaster_response"/>
+        <field name="sequence">50</field>
+        <field name="source_model_id" search="[('model', '=', 'spp.drims.request')]"/>
+        <field name="area_field_path">destination_area_id</field>
+        <field name="filter_mode">domain</field>
+        <field name="filter_domain">[('state', 'not in', ['draft', 'cancelled', 'rejected'])]</field>
+        <field name="aggregation_method">avg</field>
+        <field name="aggregation_field">fulfillment_pct</field>
+        <field name="base_area_level">1</field>
+        <field name="normalization_method">raw</field>
+        <field name="enable_rollup">True</field>
+        <field name="rollup_method">weighted_avg</field>
+        <field name="rollup_weight_source">count</field>
+        <field name="color_scheme_id" ref="spp_gis.scheme_viridis"/>
+        <field name="threshold_mode">auto_equal</field>
+        <field name="bucket_count">5</field>
+        <field name="refresh_mode">scheduled</field>
+        <field name="refresh_interval">hourly</field>
+        <field name="auto_create_layer" eval="True" />
+        <field name="layer_active_on_startup" eval="True" />
+    </record>
+
+</odoo>

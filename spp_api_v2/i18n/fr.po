@@ -1,0 +1,1622 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* spp_api_v2
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#. module: spp_api_v2
+#: model:res.groups,comment:spp_api_v2.group_api_v2_manager
+msgid ""
+"\n"
+"                Full control over API V2 configuration.\n"
+"                Managers can create/modify API clients, manage scopes, and "
+"configure access.\n"
+"            "
+msgstr ""
+"\\n                Contrôle complet de la configuration de l'API V2."
+"\\n                Les gestionnaires peuvent créer/modifier des clients API, "
+"gérer les portées et configurer les accès.\\n            "
+
+#. module: spp_api_v2
+#: model:res.groups,comment:spp_api_v2.group_api_v2_create
+msgid ""
+"\n"
+"                Technical privilege for creating API V2 records.\n"
+"                Users with this group can create new API clients and "
+"scopes.\n"
+"            "
+msgstr ""
+"\\n                Privilège technique pour créer des enregistrements API V2."
+"\\n                Les utilisateurs de ce groupe peuvent créer de nouveaux "
+"clients API et des portées.\\n            "
+
+#. module: spp_api_v2
+#: model:res.groups,comment:spp_api_v2.group_api_v2_read
+msgid ""
+"\n"
+"                Technical privilege for reading API V2 data.\n"
+"                Users with this group can read API clients, scopes, and "
+"consent records.\n"
+"            "
+msgstr ""
+"\\n                Privilège technique pour lire les données API V2."
+"\\n                Les utilisateurs de ce groupe peuvent consulter les "
+"clients API, les portées et les enregistrements de consentement."
+"\\n            "
+
+#. module: spp_api_v2
+#: model:res.groups,comment:spp_api_v2.group_api_v2_write
+msgid ""
+"\n"
+"                Technical privilege for writing API V2 data.\n"
+"                Users with this group can modify API clients, scopes, and "
+"consent records.\n"
+"            "
+msgstr ""
+"\\n                Privilège technique pour modifier les données API V2."
+"\\n                Les utilisateurs de ce groupe peuvent modifier les "
+"clients API, les portées et les enregistrements de consentement."
+"\\n            "
+
+#. module: spp_api_v2
+#: model:res.groups,comment:spp_api_v2.group_api_v2_viewer
+msgid ""
+"\n"
+"                Users can view API V2 clients, scopes, and consent records.\n"
+"                This is a read-only role for monitoring and auditing API "
+"access.\n"
+"            "
+msgstr ""
+"\\n                Les utilisateurs peuvent consulter les clients API V2, "
+"les portées et les enregistrements de consentement.\\n                Ce "
+"rôle est en lecture seule pour le suivi et l'audit des accès à l'API."
+"\\n            "
+
+#. module: spp_api_v2
+#: model:res.groups,comment:spp_api_v2.group_api_v2_officer
+msgid ""
+"\n"
+"                Users can view and manage consent records.\n"
+"                Officers can grant/revoke consent but cannot modify API "
+"clients.\n"
+"            "
+msgstr ""
+"\\n                Les utilisateurs peuvent consulter et gérer les "
+"enregistrements de consentement.\\n                Les agents peuvent "
+"accorder/révoquer les consentements mais ne peuvent pas modifier les clients "
+"API.\\n            "
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent_access_log__api_client_id
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_client_form
+msgid "API Client"
+msgstr "Client API"
+
+#. module: spp_api_v2
+#: model:ir.model,name:spp_api_v2.model_spp_api_client_scope
+msgid "API Client Scope"
+msgstr "Portée du client API"
+
+#. module: spp_api_v2
+#: model:ir.actions.act_window,name:spp_api_v2.action_api_client
+#: model:ir.ui.menu,name:spp_api_v2.menu_api_clients
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_client_tree
+msgid "API Clients"
+msgstr "Clients API"
+
+#. module: spp_api_v2
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_extension_form
+msgid "API Extension"
+msgstr "Extension API"
+
+#. module: spp_api_v2
+#: model:ir.model,name:spp_api_v2.model_spp_api_extension
+msgid "API Extension Registry"
+msgstr "Registre des extensions API"
+
+#. module: spp_api_v2
+#: model:ir.actions.act_window,name:spp_api_v2.action_api_extension
+#: model:ir.ui.menu,name:spp_api_v2.menu_api_extensions
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_extension_tree
+msgid "API Extensions"
+msgstr "Extensions API"
+
+#. module: spp_api_v2
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_path_filter_form
+msgid "API Filter"
+msgstr "Filtre API"
+
+#. module: spp_api_v2
+#: model:ir.model,name:spp_api_v2.model_spp_api_filter_preset
+msgid "API Filter Preset"
+msgstr "Préréglage de filtre API"
+
+#. module: spp_api_v2
+#: model:ir.actions.act_window,name:spp_api_v2.action_api_path_filter
+#: model:ir.ui.menu,name:spp_api_v2.menu_api_filters
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_path_filter_list
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_path_filter_search
+msgid "API Filters"
+msgstr "Filtres API"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_filter_preset__path_id
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path_filter__path_id
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_filter_preset_search
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_path_filter_search
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_path_form
+msgid "API Path"
+msgstr "Chemin d'API"
+
+#. module: spp_api_v2
+#: model:ir.model,name:spp_api_v2.model_spp_api_path
+msgid "API Path Configuration"
+msgstr "Configuration du chemin d'API"
+
+#. module: spp_api_v2
+#: model:ir.model,name:spp_api_v2.model_spp_api_path_filter
+msgid "API Path Filter Configuration"
+msgstr "Configuration du filtre du chemin d'API"
+
+#. module: spp_api_v2
+#: model:ir.actions.act_window,name:spp_api_v2.action_api_path
+#: model:ir.ui.menu,name:spp_api_v2.menu_api_paths
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_path_list
+msgid "API Paths"
+msgstr "Chemins d'API"
+
+#. module: spp_api_v2
+#: model_terms:ir.actions.act_window,help:spp_api_v2.action_api_path
+msgid ""
+"API Paths define which resources are available via the V2 API\n"
+"                    and how they can be filtered."
+msgstr ""
+"Les chemins d'API définissent quelles ressources sont disponibles via l'API "
+"V2\\n                    et comment elles peuvent être filtrées."
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent__api_scope_ids
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_consent_form_api_v2
+msgid "API Scopes"
+msgstr "Portées API"
+
+#. module: spp_api_v2
+#: model:ir.ui.menu,name:spp_api_v2.menu_api_v2_root
+msgid "API V2"
+msgstr "API V2"
+
+#. module: spp_api_v2
+#: model:ir.model,name:spp_api_v2.model_spp_api_client
+msgid "API V2 Client"
+msgstr "Client API V2"
+
+#. module: spp_api_v2
+#: model:res.groups,name:spp_api_v2.group_api_v2_manager
+msgid "API V2 Manager"
+msgstr "Gestionnaire API V2"
+
+#. module: spp_api_v2
+#: model:res.groups,name:spp_api_v2.group_api_v2_officer
+msgid "API V2 Officer"
+msgstr "Agent API V2"
+
+#. module: spp_api_v2
+#: model:res.groups,name:spp_api_v2.group_api_v2_viewer
+msgid "API V2 Viewer"
+msgstr "Lecteur API V2"
+
+#. module: spp_api_v2
+#: model:res.groups,name:spp_api_v2.group_api_v2_create
+msgid "API V2: Create"
+msgstr "API V2 : Créer"
+
+#. module: spp_api_v2
+#: model:res.groups,name:spp_api_v2.group_api_v2_read
+msgid "API V2: Read"
+msgstr "API V2 : Lire"
+
+#. module: spp_api_v2
+#: model:res.groups,name:spp_api_v2.group_api_v2_write
+msgid "API V2: Write"
+msgstr "API V2 : Écrire"
+
+#. module: spp_api_v2
+#: model_terms:ir.actions.act_window,help:spp_api_v2.action_api_client
+msgid ""
+"API clients are applications that access OpenSPP data via the V2 API.\n"
+"                    Each client has OAuth credentials and scopes defining "
+"what data it can access."
+msgstr ""
+"Les clients API sont des applications qui accèdent aux données OpenSPP via "
+"l'API V2.\\n                    Chaque client dispose d'identifiants OAuth "
+"et de portées définissant les données auxquelles il peut accéder."
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_path_filter__path_id
+msgid "API endpoint this filter applies to"
+msgstr "Point de terminaison API auquel s'applique ce filtre"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_filter_preset__path_id
+msgid "API endpoint this preset applies to"
+msgstr "Point de terminaison API auquel s'applique ce préréglage"
+
+#. module: spp_api_v2
+#: model_terms:ir.actions.act_window,help:spp_api_v2.action_api_extension
+msgid ""
+"API extensions are registered by domain modules (e.g., spp_farmer_registry)\n"
+"                    to expose their custom fields via the API V2 interface."
+msgstr ""
+"Les extensions API sont enregistrées par des modules métiers (par ex. "
+"spp_farmer_registry)\\n                    afin d'exposer leurs champs "
+"personnalisés via l'interface de l'API V2."
+
+#. module: spp_api_v2
+#. odoo-python
+#: code:addons/spp_api_v2/models/api_path.py:0
+msgid "API path name must be unique. A path named '%s' already exists."
+msgstr ""
+"Le nom du chemin d'API doit être unique. Un chemin nommé '%s' existe déjà."
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_path__name
+msgid "API resource name (e.g., Individual, Group)"
+msgstr "Nom de la ressource API (par ex. Individu, Groupe)"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent__access_count
+msgid "Access Count"
+msgstr "Nombre d'accès"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent__access_log_ids
+msgid "Access Logs"
+msgstr "Journaux d'accès"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client_scope__action
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent_access_log__action
+msgid "Action"
+msgstr "Action"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client__active
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_extension__active
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_filter_preset__active
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path__active
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path_filter__active
+msgid "Active"
+msgstr "Actif"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_client_scope__action__all
+msgid "All Actions"
+msgstr "Toutes les actions"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_consent_scope__resource_type__all
+msgid "All Data"
+msgstr "Toutes les données"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_consent_scope__field_access__all
+msgid "All Fields"
+msgstr "Tous les champs"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path__allow_custom_filters
+msgid "Allow Custom Filters"
+msgstr "Autoriser les filtres personnalisés"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_path__allow_custom_filters
+msgid ""
+"Allow filtering on any model field (not just configured filters). Use with "
+"caution as it may expose sensitive fields."
+msgstr ""
+"Autoriser le filtrage sur n'importe quel champ du modèle (pas uniquement les "
+"filtres configurés). À utiliser avec prudence, car cela peut exposer des "
+"champs sensibles."
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent_scope__allowed_extensions
+msgid "Allowed Extensions"
+msgstr "Extensions autorisées"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client_scope__field_filter_ids
+msgid "Allowed Fields"
+msgstr "Champs autorisés"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path_filter__allowed_operators
+msgid "Allowed Operators"
+msgstr "Opérateurs autorisés"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_consent_scope__purpose__analytics
+msgid "Anonymized Analytics"
+msgstr "Analyses anonymisées"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_fastapi_endpoint__app
+msgid "App"
+msgstr "Application"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_extension__applies_to
+msgid "Applies To"
+msgstr "S'applique à"
+
+#. module: spp_api_v2
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_client_form
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_extension_form
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_filter_preset_form
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_filter_preset_search
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_path_filter_form
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_path_filter_search
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_path_form
+msgid "Archived"
+msgstr "Archivé"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_consent_scope__purpose__audit
+msgid "Audit/Compliance"
+msgstr "Audit/Conformité"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client__auth_type
+msgid "Authentication Type"
+msgstr "Type d'authentification"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_client__auth_type
+msgid ""
+"Authentication method used by this client. OAuth 2.0 for standard REST "
+"clients, HTTP Signature for DCI protocol."
+msgstr ""
+"Méthode d'authentification utilisée par ce client. OAuth 2.0 pour les "
+"clients REST standards, et Signature HTTP pour le protocole DCI."
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_consent_scope__field_access__basic
+msgid "Basic Info Only"
+msgstr "Informations de base uniquement"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_path_filter__filter_type__boolean
+msgid "Boolean"
+msgstr "Booléen"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_client__organization_type
+msgid ""
+"Classification of the organization for consent matching. Beneficiaries can "
+"consent to share data with specific organization types."
+msgstr ""
+"Classification de l'organisation pour l'appariement des consentements. Les "
+"bénéficiaires peuvent consentir à partager des données avec des types "
+"d'organisations spécifiques."
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client__client_id
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client_scope__client_id
+msgid "Client"
+msgstr "Client"
+
+#. module: spp_api_v2
+#. odoo-python
+#: code:addons/spp_api_v2/models/api_client.py:0
+msgid "Client ID is required for OAuth 2.0 authentication."
+msgstr "L'ID client est requis pour l'authentification OAuth 2.0."
+
+#. module: spp_api_v2
+#. odoo-python
+#: code:addons/spp_api_v2/models/api_client.py:0
+msgid "Client ID must be unique. A client with ID '%s' already exists."
+msgstr "L'ID client doit être unique. Un client avec l'ID '%s' existe déjà."
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_consent_access_log__ip_address
+msgid "Client IP address"
+msgstr "Adresse IP du client"
+
+#. module: spp_api_v2
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_client_scope_form
+msgid "Client Scope"
+msgstr "Portée du client"
+
+#. module: spp_api_v2
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_client_scope_tree
+msgid "Client Scopes"
+msgstr "Portées du client"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client__client_secret
+msgid "Client Secret"
+msgstr "Secret du client"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client__client_secret_hash
+msgid "Client Secret Hash"
+msgstr "Hachage du secret du client"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_client__name
+msgid "Client name for identification"
+msgstr "Nom du client pour l'identification"
+
+#. module: spp_api_v2
+#. odoo-python
+#: code:addons/spp_api_v2/models/api_client.py:0
+msgid ""
+"Client secret is required for OAuth 2.0 authentication. Please regenerate "
+"the secret."
+msgstr ""
+"Le secret du client est requis pour l'authentification OAuth 2.0. Veuillez "
+"régénérer le secret."
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_consent_scope__allowed_extensions
+msgid "Comma-separated extension names (e.g., 'farmer,disability')"
+msgstr ""
+"Noms d'extension séparés par des virgules (par ex. 'farmer,disability')"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_consent_scope__custom_fields
+msgid "Comma-separated field names when field_access='custom'"
+msgstr "Noms de champs séparés par des virgules lorsque field_access='custom'"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_path_filter__allowed_operators
+msgid ""
+"Comma-separated list of allowed operators. Leave empty to use defaults for "
+"filter type. Valid: eq, ne, gt, gte, lt, lte, in, nin, like, ilike, null"
+msgstr ""
+"Liste d'opérateurs autorisés séparés par des virgules. Laissez vide pour "
+"utiliser les valeurs par défaut du type de filtre. Valides : eq, ne, gt, "
+"gte, lt, lte, in, nin, like, ilike, null"
+
+#. module: spp_api_v2
+#: model_terms:ir.actions.act_window,help:spp_api_v2.action_api_path_filter
+msgid "Configure API Filters"
+msgstr "Configurer les filtres API"
+
+#. module: spp_api_v2
+#: model_terms:ir.actions.act_window,help:spp_api_v2.action_api_path
+msgid "Configure API Path Settings"
+msgstr "Configurer les paramètres des chemins d'API"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_path__filter_ids
+msgid "Configured filters for this endpoint"
+msgstr "Filtres configurés pour ce point de terminaison"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent_access_log__consent_id
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent_scope__consent_id
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_client_form
+msgid "Consent"
+msgstr "Consentement"
+
+#. module: spp_api_v2
+#: model:ir.model,name:spp_api_v2.model_spp_consent_access_log
+msgid "Consent Access Log"
+msgstr "Journal d'accès au consentement"
+
+#. module: spp_api_v2
+#: model:ir.model,name:spp_api_v2.model_spp_consent
+msgid "Consent Record (ISO 27560 / DPV-aligned)"
+msgstr "Enregistrement de consentement (ISO 27560 / aligné DPV)"
+
+#. module: spp_api_v2
+#: model:ir.model,name:spp_api_v2.model_spp_consent_scope
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_consent_scope_form
+msgid "Consent Scope"
+msgstr "Portée du consentement"
+
+#. module: spp_api_v2
+#: model:ir.model,name:spp_api_v2.model_res_partner
+msgid "Contact"
+msgstr "Contact"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_path_filter__filter_type__contains
+msgid "Contains (Partial Match)"
+msgstr "Contient (correspondance partielle)"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_client__legal_basis__contract
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_dci_sender_registry__legal_basis__contract
+msgid "Contractual Necessity (GDPR A6-1-b)"
+msgstr "Nécessité contractuelle (RGPD A6-1-b)"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_client_scope__action__create
+msgid "Create"
+msgstr "Créer"
+
+#. module: spp_api_v2
+#: model_terms:ir.actions.act_window,help:spp_api_v2.action_api_filter_preset
+msgid "Create Filter Presets"
+msgstr "Créer des préréglages de filtre"
+
+#. module: spp_api_v2
+#: model_terms:ir.actions.act_window,help:spp_api_v2.action_api_client
+msgid "Create an API Client"
+msgstr "Créer un client API"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client__create_uid
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client_scope__create_uid
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_extension__create_uid
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_filter_preset__create_uid
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path__create_uid
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path_filter__create_uid
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent_access_log__create_uid
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent_scope__create_uid
+msgid "Created by"
+msgstr "Créé par"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client__create_date
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client_scope__create_date
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_extension__create_date
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_filter_preset__create_date
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path__create_date
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path_filter__create_date
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent_access_log__create_date
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent_scope__create_date
+msgid "Created on"
+msgstr "Créé le"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_consent_scope__field_access__custom
+msgid "Custom Field List"
+msgstr "Liste de champs personnalisés"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent_scope__custom_fields
+msgid "Custom Fields"
+msgstr "Champs personnalisés"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path_filter__default_value
+msgid "Default Value"
+msgstr "Valeur par défaut"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_path_filter__default_value
+msgid ""
+"Default value if filter not provided (JSON format). Example: '\"active\"' "
+"for string, '18' for number"
+msgstr ""
+"Valeur par défaut si le filtre n'est pas fourni (format JSON). Exemple : "
+"'\"active\"' pour une chaîne, '18' pour un nombre"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_consent__api_scope_ids
+msgid "Define what resources and fields can be accessed via API"
+msgstr "Définir quelles ressources et quels champs sont accessibles via l'API"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_client_scope__action__delete
+msgid "Delete"
+msgstr "Supprimer"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client__description
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client_scope__description
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_filter_preset__description
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path__description
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path_filter__description
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent_scope__description
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_client_form
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_client_scope_form
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_consent_scope_form
+msgid "Description"
+msgstr "Description"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_path__description
+msgid "Description of this API resource"
+msgstr "Description de cette ressource API"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_path_filter__description
+msgid "Detailed description for API consumers"
+msgstr "Description détaillée à l'attention des consommateurs de l'API"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_fastapi_endpoint__display_name
+#: model:ir.model.fields,field_description:spp_api_v2.field_ir_http__display_name
+#: model:ir.model.fields,field_description:spp_api_v2.field_res_partner__display_name
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client__display_name
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client_scope__display_name
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_extension__display_name
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_filter_preset__display_name
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path__display_name
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path_filter__display_name
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent__display_name
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent_access_log__display_name
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent_scope__display_name
+msgid "Display Name"
+msgstr "Nom affiché"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_path__sequence
+msgid "Display order"
+msgstr "Ordre d'affichage"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_path_filter__sequence
+msgid "Display order in filter list"
+msgstr "Ordre d'affichage dans la liste des filtres"
+
+#. module: spp_api_v2
+#. odoo-python
+#: code:addons/spp_api_v2/models/api_client_scope.py:0
+msgid ""
+"Duplicate scope definition for this client. The scope '%s:%s' already exists."
+msgstr ""
+"Définition de portée en double pour ce client. La portée '%s:%s' existe déjà."
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_consent_scope__purpose__eligibility_verification
+msgid "Eligibility Verification"
+msgstr "Vérification de l'éligibilité"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_path_filter__filter_type__exact
+msgid "Exact Match"
+msgstr "Correspondance exacte"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_client__legal_basis__consent
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_dci_sender_registry__legal_basis__consent
+msgid "Explicit Consent (GDPR A6-1-a)"
+msgstr "Consentement explicite (RGPD A6-1-a)"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_consent_access_log__action__export
+msgid "Export/Download"
+msgstr "Exporter/Télécharger"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_extension__field_ids
+msgid "Extension Fields"
+msgstr "Champs d'extension"
+
+#. module: spp_api_v2
+#: model:ir.model.constraint,message:spp_api_v2.constraint_spp_api_extension_unique_url
+msgid "Extension URL must be unique"
+msgstr "L'URL de l'extension doit être unique"
+
+#. module: spp_api_v2
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_consent_scope_form
+msgid "Extensions"
+msgstr "Extensions"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent_access_log__extensions_accessed
+msgid "Extensions Accessed"
+msgstr "Extensions consultées"
+
+#. module: spp_api_v2
+#: model_terms:ir.actions.act_window,help:spp_api_v2.action_api_extension
+msgid ""
+"Extensions are typically registered automatically via post_init_hook\n"
+"                    when a module is installed."
+msgstr ""
+"Les extensions sont généralement enregistrées automatiquement via "
+"post_init_hook\\n                    lors de l'installation d'un module."
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_consent_access_log__resource_identifier
+msgid "External identifier of the accessed resource (e.g., registrant ID)"
+msgstr ""
+"Identifiant externe de la ressource consultée (par ex. ID de l'inscrit)"
+
+#. module: spp_api_v2
+#: model:ir.model,name:spp_api_v2.model_fastapi_endpoint
+msgid "FastAPI Endpoint"
+msgstr "Point de terminaison FastAPI"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent_scope__field_access
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_consent_scope_form
+msgid "Field Access"
+msgstr "Accès aux champs"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path_filter__field_path
+msgid "Field Path"
+msgstr "Chemin du champ"
+
+#. module: spp_api_v2
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_extension_form
+msgid "Fields"
+msgstr "Champs"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent_access_log__fields_accessed
+msgid "Fields Accessed"
+msgstr "Champs consultés"
+
+#. module: spp_api_v2
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_filter_preset_form
+msgid "Filter Configuration (JSON)"
+msgstr "Configuration du filtre (JSON)"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path__filter_count
+msgid "Filter Count"
+msgstr "Nombre de filtres"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path__filter_domain
+msgid "Filter Domain"
+msgstr "Domaine du filtre"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_filter_preset__filter_json
+msgid "Filter Json"
+msgstr "JSON du filtre"
+
+#. module: spp_api_v2
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_filter_preset_form
+msgid "Filter Preset"
+msgstr "Préréglage de filtre"
+
+#. module: spp_api_v2
+#: model:ir.actions.act_window,name:spp_api_v2.action_api_filter_preset
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path__filter_preset_ids
+#: model:ir.ui.menu,name:spp_api_v2.menu_filter_presets
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_filter_preset_list
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_filter_preset_search
+msgid "Filter Presets"
+msgstr "Préréglages de filtre"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path_filter__filter_type
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_path_filter_search
+msgid "Filter Type"
+msgstr "Type de filtre"
+
+#. module: spp_api_v2
+#. odoo-python
+#: code:addons/spp_api_v2/models/api_path_filter.py:0
+msgid ""
+"Filter name must be unique per API path. A filter named '%s' already exists "
+"for this path."
+msgstr ""
+"Le nom du filtre doit être unique par chemin d'API. Un filtre nommé '%s' "
+"existe déjà pour ce chemin."
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path__filter_ids
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_path_form
+msgid "Filters"
+msgstr "Filtres"
+
+#. module: spp_api_v2
+#: model_terms:ir.actions.act_window,help:spp_api_v2.action_api_path_filter
+msgid "Filters define which fields can be searched via API query parameters."
+msgstr ""
+"Les filtres définissent quels champs peuvent être recherchés via les "
+"paramètres de requête de l'API."
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_path_filter__is_indexed
+msgid ""
+"Flag indicating the field has a database index. Useful for warning about "
+"slow queries."
+msgstr ""
+"Indicateur signalant que le champ possède un index en base de données. Utile "
+"pour avertir des requêtes lentes."
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_path_filter__filter_type__fulltext
+msgid "Full-Text Search"
+msgstr "Recherche en texte intégral"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_client__organization_type__government
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_dci_sender_registry__organization_type__government
+msgid "Government Agency"
+msgstr "Agence gouvernementale"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_client_scope__resource__group
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_extension__applies_to__group
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_consent_access_log__resource_type__group
+msgid "Group"
+msgstr "Groupe"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_consent_scope__resource_type__group
+msgid "Group/Household Data"
+msgstr "Données du groupe/ménage"
+
+#. module: spp_api_v2
+#: model:ir.model,name:spp_api_v2.model_ir_http
+msgid "HTTP Routing"
+msgstr "Routage HTTP"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_client__auth_type__http_signature
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_dci_sender_registry__auth_type__http_signature
+msgid "HTTP Signature (DCI)"
+msgstr "Signature HTTP (DCI)"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_filter_preset__description
+msgid "Human-readable description of what this preset filters for"
+msgstr "Description lisible de ce que filtre ce préréglage"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_path_filter__label
+msgid "Human-readable label for API documentation"
+msgstr "Libellé lisible pour la documentation de l'API"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_extension__name
+msgid "Human-readable name for this extension"
+msgstr "Nom lisible pour cette extension"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_fastapi_endpoint__id
+#: model:ir.model.fields,field_description:spp_api_v2.field_ir_http__id
+#: model:ir.model.fields,field_description:spp_api_v2.field_res_partner__id
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client__id
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client_scope__id
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_extension__id
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_filter_preset__id
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path__id
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path_filter__id
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent__id
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent_access_log__id
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent_scope__id
+msgid "ID"
+msgstr "ID"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_client_scope__resource__identifier
+msgid "Identifier"
+msgstr "Identifiant"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_client_scope__field_filter_ids
+msgid "If empty, all fields are allowed. Otherwise, only listed fields."
+msgstr ""
+"Si vide, tous les champs sont autorisés. Sinon, uniquement les champs listés."
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_client_scope__program_ids
+msgid "If specified, limit access to these programs only"
+msgstr "Si renseigné, limiter l'accès à ces programmes uniquement"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_path_filter__filter_type__in
+msgid "In List"
+msgstr "Dans la liste"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent_scope__include_extensions
+msgid "Include Extensions"
+msgstr "Inclure les extensions"
+
+#. module: spp_api_v2
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_path_filter_search
+msgid "Indexed"
+msgstr "Indexé"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_client_scope__resource__individual
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_extension__applies_to__individual
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_consent_access_log__resource_type__individual
+msgid "Individual"
+msgstr "Individu"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_consent_scope__resource_type__individual
+msgid "Individual Data"
+msgstr "Données individuelles"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_extension__applies_to__both
+msgid "Individual and Group"
+msgstr "Individu et groupe"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_client__organization_type__ingo
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_dci_sender_registry__organization_type__ingo
+msgid "International NGO"
+msgstr "ONG internationale"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent_access_log__ip_address
+msgid "Ip Address"
+msgstr "Adresse IP"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path_filter__is_indexed
+msgid "Is Indexed"
+msgstr "Est indexé"
+
+#. module: spp_api_v2
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_extension_form
+msgid "JSON Schema"
+msgstr "Schéma JSON"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_extension__schema_json
+msgid "JSON Schema definition for this extension (optional)"
+msgstr "Définition du schéma JSON pour cette extension (facultatif)"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_filter_preset__filter_json
+msgid ""
+"JSON array of filter conditions. Format: [{\"field\": \"age\", \"operator\": "
+"\"gte\", \"value\": 65}, ...]"
+msgstr ""
+"Tableau JSON de conditions de filtre. Format : [{\"field\": \"age\", "
+"\"operator\": \"gte\", \"value\": 65}, ...]"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path_filter__label
+msgid "Label"
+msgstr "Libellé"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client__write_uid
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client_scope__write_uid
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_extension__write_uid
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_filter_preset__write_uid
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path__write_uid
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path_filter__write_uid
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent_access_log__write_uid
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent_scope__write_uid
+msgid "Last Updated by"
+msgstr "Dernière mise à jour par"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client__write_date
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client_scope__write_date
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_extension__write_date
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_filter_preset__write_date
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path__write_date
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path_filter__write_date
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent_access_log__write_date
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent_scope__write_date
+msgid "Last Updated on"
+msgstr "Dernière mise à jour le"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client__last_used_date
+msgid "Last Used Date"
+msgstr "Date de dernière utilisation"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client__legal_basis
+msgid "Legal Basis"
+msgstr "Base légale"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_client__legal_basis__legal_obligation
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_dci_sender_registry__legal_basis__legal_obligation
+msgid "Legal Obligation (GDPR A6-1-c)"
+msgstr "Obligation légale (RGPD A6-1-c)"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client__legal_basis_reference
+msgid "Legal Reference"
+msgstr "Référence juridique"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_client__legal_basis
+msgid ""
+"Legal basis for data processing per GDPR Article 6. For interagency data "
+"exchange, use 'Legal Obligation' or 'Public Interest' with a reference to "
+"the authorizing law."
+msgstr ""
+"Base légale du traitement des données conformément à l'article 6 du RGPD. "
+"Pour l'échange de données inter-agences, utilisez 'Obligation légale' ou "
+"'Intérêt public' avec une référence au texte autorisant l'accès."
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_client__legal_basis__legitimate_interest
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_dci_sender_registry__legal_basis__legitimate_interest
+msgid "Legitimate Interest (GDPR A6-1-f)"
+msgstr "Intérêt légitime (RGPD A6-1-f)"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_consent_access_log__extensions_accessed
+msgid "List of extension names that were returned"
+msgstr "Liste des noms d'extension renvoyés"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_consent_access_log__fields_accessed
+msgid "List of field names that were returned in the response"
+msgstr "Liste des noms de champs renvoyés dans la réponse"
+
+#. module: spp_api_v2
+#: model:res.groups.privilege,name:spp_api_v2.privilege_api_v2_manager
+msgid "Manager"
+msgstr "Gestionnaire"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path__max_filter_complexity
+msgid "Max Filter Complexity"
+msgstr "Complexité maximale des filtres"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path_filter__max_values
+msgid "Max Values"
+msgstr "Nombre maximal de valeurs"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_path__max_filter_complexity
+msgid "Maximum number of filter conditions allowed per request"
+msgstr "Nombre maximal de conditions de filtre autorisées par requête"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_path_filter__max_values
+msgid "Maximum number of values for 'in'/'nin' filters"
+msgstr "Nombre maximal de valeurs pour les filtres 'in'/'nin'"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_client__rate_limit_per_day
+msgid "Maximum requests per day"
+msgstr "Nombre maximal de requêtes par jour"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_client__rate_limit_per_minute
+msgid "Maximum requests per minute"
+msgstr "Nombre maximal de requêtes par minute"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_res_partner__mobile
+#: model:ir.model.fields,field_description:spp_api_v2.field_res_users__mobile
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_program_membership__mobile
+msgid "Mobile"
+msgstr "Mobile"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_filter_preset__model_id
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path__model_id
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path_filter__model_id
+msgid "Model"
+msgstr "Modèle"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path__model_name
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path_filter__model_name
+msgid "Model Name"
+msgstr "Nom du modèle"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_path_filter__model_id
+msgid "Model this filter operates on"
+msgstr "Modèle sur lequel ce filtre s'applique"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_extension__module_id
+msgid "Module"
+msgstr "Module"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_extension__module_id
+msgid "Module that provides this extension"
+msgstr "Module qui fournit cette extension"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_client__organization_type__ngo
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_dci_sender_registry__organization_type__ngo
+msgid "NGO / Non-Profit"
+msgstr "ONG / Organisation à but non lucratif"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client__name
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_extension__name
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_filter_preset__name
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path__name
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path_filter__name
+msgid "Name"
+msgstr "Nom"
+
+#. module: spp_api_v2
+#: model_terms:ir.actions.act_window,help:spp_api_v2.action_api_extension
+msgid "No API Extensions Registered"
+msgstr "Aucune extension API enregistrée"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_client__auth_type__none
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_dci_sender_registry__auth_type__none
+msgid "No Authentication"
+msgstr "Aucune authentification"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_path_filter__filter_type__nin
+msgid "Not In List"
+msgstr "Pas dans la liste"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_path_filter__filter_type__null
+msgid "Null Check"
+msgstr "Test de valeur nulle"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_consent_access_log__result_count
+msgid "Number of results returned (for search action)"
+msgstr "Nombre de résultats renvoyés (pour l'action de recherche)"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_client__auth_type__oauth2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_dci_sender_registry__auth_type__oauth2
+msgid "OAuth 2.0"
+msgstr "OAuth 2.0"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_client__client_id
+msgid "OAuth client_id used for authentication (required for OAuth clients)"
+msgstr ""
+"client_id OAuth utilisé pour l'authentification (requis pour les clients "
+"OAuth)"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_client__client_secret
+msgid "OAuth client_secret - shown only once on creation/regeneration"
+msgstr ""
+"client_secret OAuth - affiché une seule fois lors de la création/régénération"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_path_filter__requires_scope
+msgid ""
+"OAuth scope required to use this filter (e.g., 'individual:search:advanced')"
+msgstr ""
+"Portée OAuth requise pour utiliser ce filtre (par ex. 'individual:search:"
+"advanced')"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_path_filter__field_path
+msgid ""
+"Odoo field path. Supports dot notation for related fields (e.g., 'partner_id."
+"phone', 'program_id.name')"
+msgstr ""
+"Chemin du champ Odoo. Prend en charge la notation par points pour les champs "
+"liés (par ex. 'partner_id.phone', 'program_id.name')"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_extension__field_ids
+msgid "Odoo fields that should be exposed in this extension"
+msgstr "Champs Odoo à exposer dans cette extension"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_filter_preset__model_id
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_path__model_id
+msgid "Odoo model this API path exposes"
+msgstr "Modèle Odoo exposé par ce chemin d'API"
+
+#. module: spp_api_v2
+#: model:res.groups.privilege,name:spp_api_v2.privilege_api_v2_officer
+msgid "Officer"
+msgstr "Agent"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__fastapi_endpoint__app__api_v2
+msgid "OpenSPP API V2"
+msgstr "API OpenSPP V2"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client__partner_id
+msgid "Organization"
+msgstr "Organisation"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client__organization_type
+msgid "Organization Type"
+msgstr "Type d'organisation"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client__organization_type_verified
+msgid "Organization Type Verified"
+msgstr "Type d'organisation vérifié"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_client__partner_id
+msgid "Organization this API client represents"
+msgstr "Organisation que représente ce client API"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_client__organization_type__other
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_dci_sender_registry__organization_type__other
+msgid "Other"
+msgstr "Autre"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path__preset_count
+msgid "Preset Count"
+msgstr "Nombre de préréglages"
+
+#. module: spp_api_v2
+#. odoo-python
+#: code:addons/spp_api_v2/models/api_filter_preset.py:0
+msgid ""
+"Preset name must be unique per API path. A preset named '%s' already exists "
+"for this path."
+msgstr ""
+"Le nom du préréglage doit être unique par chemin d'API. Un préréglage nommé "
+"'%s' existe déjà pour ce chemin."
+
+#. module: spp_api_v2
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_path_form
+msgid "Presets"
+msgstr "Préréglages"
+
+#. module: spp_api_v2
+#: model_terms:ir.actions.act_window,help:spp_api_v2.action_api_filter_preset
+msgid ""
+"Presets are saved filter combinations that API consumers can reference by "
+"name."
+msgstr ""
+"Les préréglages sont des combinaisons de filtres enregistrées que les "
+"consommateurs de l'API peuvent référencer par nom."
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_client__organization_type__private
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_dci_sender_registry__organization_type__private
+msgid "Private Sector"
+msgstr "Secteur privé"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_client_scope__resource__program
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_consent_access_log__resource_type__program
+msgid "Program"
+msgstr "Programme"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_consent_scope__resource_type__program_membership
+msgid "Program Enrollment"
+msgstr "Inscription au programme"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_client_scope__resource__program_membership
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_consent_access_log__resource_type__program_membership
+msgid "Program Membership"
+msgstr "Adhésion au programme"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_filter_preset__public
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_filter_preset_search
+msgid "Public"
+msgstr "Public"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_client__legal_basis__public_interest
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_dci_sender_registry__legal_basis__public_interest
+msgid "Public Interest (GDPR A6-1-e)"
+msgstr "Intérêt public (RGPD A6-1-e)"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_client__legal_basis__public_task
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_dci_sender_registry__legal_basis__public_task
+msgid "Public Task / Official Authority"
+msgstr "Mission publique / Autorité officielle"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent_access_log__purpose
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent_scope__purpose
+msgid "Purpose"
+msgstr "Finalité"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_consent_access_log__purpose
+msgid "Purpose of use from the consent scope"
+msgstr "Finalité d'usage issue de la portée du consentement"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_path_filter__filter_type__range
+msgid "Range (Numeric/Date)"
+msgstr "Plage (numérique/date)"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client__rate_limit_per_day
+msgid "Rate Limit Per Day"
+msgstr "Limite de requêtes par jour"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client__rate_limit_per_minute
+msgid "Rate Limit Per Minute"
+msgstr "Limite de requêtes par minute"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_client_scope__action__read
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_consent_access_log__action__read
+msgid "Read Single"
+msgstr "Lire un enregistrement"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_client__legal_basis_reference
+msgid ""
+"Reference to law, regulation, MOU, or contract authorizing access. E.g., "
+"'Data Protection Act 2019, Section 45' or 'MOU-2024-001'"
+msgstr ""
+"Référence à une loi, un règlement, un MOU ou un contrat autorisant l'accès. "
+"Par ex. 'Data Protection Act 2019, Section 45' ou 'MOU-2024-001'"
+
+#. module: spp_api_v2
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_client_form
+msgid "Regenerate Secret"
+msgstr "Régénérer le secret"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent_access_log__request_id
+msgid "Request"
+msgstr "Requête"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client__request_count
+msgid "Request Count"
+msgstr "Nombre de requêtes"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client__require_consent
+msgid "Require Consent"
+msgstr "Exiger le consentement"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path_filter__required
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_path_filter_search
+msgid "Required"
+msgstr "Obligatoire"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path_filter__requires_scope
+msgid "Requires Scope"
+msgstr "Nécessite une portée"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_consent_scope__purpose__research
+msgid "Research"
+msgstr "Recherche"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_client__organization_type__research
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_dci_sender_registry__organization_type__research
+msgid "Research Institution"
+msgstr "Institution de recherche"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client_scope__resource
+msgid "Resource"
+msgstr "Ressource"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent_access_log__resource_identifier
+msgid "Resource Identifier"
+msgstr "Identifiant de ressource"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent_access_log__resource_type
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent_scope__resource_type
+msgid "Resource Type"
+msgstr "Type de ressource"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client_scope__program_ids
+msgid "Restricted Programs"
+msgstr "Programmes restreints"
+
+#. module: spp_api_v2
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_client_scope_form
+msgid "Restrictions"
+msgstr "Restrictions"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent_access_log__result_count
+msgid "Result Count"
+msgstr "Nombre de résultats"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_path__filter_preset_ids
+msgid "Saved filter presets for this endpoint"
+msgstr "Préréglages de filtre enregistrés pour ce point de terminaison"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_extension__schema_json
+msgid "Schema Json"
+msgstr "JSON du schéma"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client__scope_count
+msgid "Scope Count"
+msgstr "Nombre de portées"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client__scope_ids
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_client_form
+msgid "Scopes"
+msgstr "Portées"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_client__client_secret_hash
+msgid "Scrypt hash of client_secret (never exposed via API)"
+msgstr "Hachage Scrypt de client_secret (jamais exposé via l'API)"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent_access_log__search_parameters
+msgid "Search Parameters"
+msgstr "Paramètres de recherche"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_consent_access_log__search_parameters
+msgid "Search parameters used (for search action)"
+msgstr "Paramètres de recherche utilisés (pour l'action de recherche)"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_client_scope__action__search
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_consent_access_log__action__search
+msgid "Search/List"
+msgstr "Rechercher/Lister"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path__sequence
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_path_filter__sequence
+msgid "Sequence"
+msgstr "Séquence"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_consent_scope__purpose__service_delivery
+msgid "Service Delivery"
+msgstr "Prestation de services"
+
+#. module: spp_api_v2
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_path_form
+msgid "Static Filter Domain"
+msgstr "Domaine de filtre statique"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_path__filter_domain
+msgid ""
+"Static domain filter applied to all requests (Python expression). Example: "
+"[('active', '=', True)]"
+msgstr ""
+"Filtre de domaine statique appliqué à toutes les requêtes (expression "
+"Python). Exemple : [('active', '=', True)]"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_consent_access_log__timestamp
+msgid "Timestamp"
+msgstr "Horodatage"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_path_filter__filter_type
+msgid "Type of filtering supported for this field"
+msgstr "Type de filtrage pris en charge pour ce champ"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_client__organization_type__un
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_dci_sender_registry__organization_type__un
+msgid "UN Agency"
+msgstr "Agence des Nations Unies"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_extension__url
+msgid "URN for this extension, e.g., urn:openspp:extension:farmer"
+msgstr "URN pour cette extension, par ex. urn:openspp:extension:farmer"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_path_filter__name
+msgid "Unique filter name used in API parameters (e.g., 'age', 'city')"
+msgstr ""
+"Nom de filtre unique utilisé dans les paramètres de l'API (par ex. 'age', "
+"'city')"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_filter_preset__name
+msgid "Unique preset name (e.g., 'vulnerable_seniors', 'active_beneficiaries')"
+msgstr ""
+"Nom de préréglage unique (par ex. 'vulnerable_seniors', "
+"'active_beneficiaries')"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_consent_access_log__request_id
+msgid "Unique request identifier for correlation"
+msgstr "Identifiant unique de requête pour la corrélation"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_client_scope__action__update
+msgid "Update"
+msgstr "Mettre à jour"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_extension__url
+msgid "Url"
+msgstr "URL"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client__organization_type_verified_by
+msgid "Verified By"
+msgstr "Vérifié par"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,field_description:spp_api_v2.field_spp_api_client__organization_type_verified_date
+msgid "Verified Date"
+msgstr "Date de vérification"
+
+#. module: spp_api_v2
+#: model:res.groups.privilege,name:spp_api_v2.privilege_api_v2_viewer
+msgid "Viewer"
+msgstr "Lecteur"
+
+#. module: spp_api_v2
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_api_client__legal_basis__vital_interest
+#: model:ir.model.fields.selection,name:spp_api_v2.selection__spp_dci_sender_registry__legal_basis__vital_interest
+msgid "Vital Interest (GDPR A6-1-d)"
+msgstr "Intérêt vital (RGPD A6-1-d)"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_client__require_consent
+msgid ""
+"Whether explicit individual consent is required for data access. Set to "
+"False for legal_obligation, public_interest, or vital_interest bases."
+msgstr ""
+"Indique si le consentement explicite de l'individu est requis pour l'accès "
+"aux données. Mettre à False pour les bases legal_obligation, public_interest "
+"ou vital_interest."
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_client__organization_type_verified
+msgid "Whether organization type has been verified by administrator"
+msgstr "Indique si le type d'organisation a été vérifié par un administrateur"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_path_filter__required
+msgid "Whether this filter must be provided in API requests"
+msgstr "Indique si ce filtre doit être fourni dans les requêtes API"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_filter_preset__public
+msgid "Whether this preset is visible to all API clients"
+msgstr "Indique si ce préréglage est visible pour tous les clients API"
+
+#. module: spp_api_v2
+#: model:ir.model.fields,help:spp_api_v2.field_spp_api_extension__applies_to
+msgid "Which resource types this extension applies to"
+msgstr "Types de ressources auxquels s'applique cette extension"
+
+#. module: spp_api_v2
+#. odoo-python
+#: code:addons/spp_api_v2/services/group_service.py:0
+msgid ""
+"You do not have permission to create groups via the API V2 service. Contact "
+"an API V2 manager."
+msgstr ""
+"Vous n'avez pas l'autorisation de créer des groupes via le service API V2. "
+"Contactez un gestionnaire API V2."
+
+#. module: spp_api_v2
+#. odoo-python
+#: code:addons/spp_api_v2/services/individual_service.py:0
+msgid ""
+"You do not have permission to create individuals via the API V2 service. "
+"Contact an API V2 manager."
+msgstr ""
+"Vous n'avez pas l'autorisation de créer des individus via le service API V2. "
+"Contactez un gestionnaire API V2."
+
+#. module: spp_api_v2
+#: model_terms:ir.ui.view,arch_db:spp_api_v2.view_api_path_form
+msgid "[('active', '=', True)]"
+msgstr "[('active', '=', True)]"

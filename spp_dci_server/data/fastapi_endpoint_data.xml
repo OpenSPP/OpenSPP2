@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+        <!-- DCI API Endpoint Registration -->
+        <record id="fastapi_endpoint_dci_api" model="fastapi.endpoint">
+            <field name="name">OpenSPP DCI API</field>
+            <field name="root_path">/dci_api/v1</field>
+            <field name="app">dci_api</field>
+            <field name="user_id" ref="base.public_user" />
+            <field name="save_http_session" eval="False" />
+            <field name="description">
+# OpenSPP DCI API Server
+
+Digital Convergence Initiative (DCI) API server for social registry data exchange.
+
+## Key Features
+
+- **DCI Protocol Compliance** - Implements DCI Connect specifications
+- **HTTP Signature Authentication** - Ed25519/RSA signature verification
+- **JWKS Support** - Public key distribution via /.well-known/jwks.json
+- **Search API** - POST /registry/sync/search endpoint
+- **Registry Sync** - Bidirectional social registry synchronization
+
+## Endpoints
+
+- **POST /registry/sync/search** - Search registry records
+- **GET /.well-known/jwks.json** - Public signing keys (JWKS format)
+
+## Authentication
+
+This API uses HTTP Signatures (draft-cavage-http-signatures):
+
+1. Register your sender_id and public key with administrator
+2. Sign requests using your private key
+3. Include signature in request envelope
+4. Server verifies signature using your registered public key
+
+## Documentation
+
+- DCI Specification: `docs/specs/dci-api-v2/SPEC.md`
+- Integration Guide: `docs/architecture/decisions/ADR-018-dci-api-v2.md`
+            </field>
+        </record>
+
+    </data>
+</odoo>

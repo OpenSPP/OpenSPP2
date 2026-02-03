@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Field Builder Wizard Form View -->
+    <record id="view_studio_field_builder_wizard_form" model="ir.ui.view">
+        <field name="name">spp.studio.field.builder.wizard.form</field>
+        <field name="model">spp.studio.field.builder.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Add Custom Field">
+                <field name="step" invisible="1" />
+                <field name="placement_zones_grouped" invisible="1" />
+
+                <!-- Load CSS -->
+                <link rel="stylesheet" href="/spp_studio/static/src/css/field_builder_wizard.css" />
+
+                <!-- Step indicator -->
+                <div class="alert alert-info text-center" role="status">
+                    <span class="badge rounded-pill" t-attf-class="#{step == 'basic' and 'bg-primary' or 'bg-secondary'}">1. Basic Info</span>
+                    <i class="fa fa-arrow-right mx-2" />
+                    <span class="badge rounded-pill" t-attf-class="#{step == 'config' and 'bg-primary' or 'bg-secondary'}">2. Configure</span>
+                    <i class="fa fa-arrow-right mx-2" />
+                    <span class="badge rounded-pill" t-attf-class="#{step == 'review' and 'bg-primary' or 'bg-secondary'}">3. Review</span>
+                </div>
+
+                <!-- Step 1: Basic Info -->
+                <div invisible="step != 'basic'" class="p-3">
+                    <div class="alert alert-info mb-3" role="alert">
+                        <strong>What are custom fields?</strong><br/>
+                        Custom fields let you collect additional information about individuals or groups in your registry.
+                        Think of these like questions in a form - similar to questions you create in KoboToolbox.
+                    </div>
+
+                    <!-- Target Type Selector -->
+                    <group string="Where do you want to add the field?" class="mb-3">
+                        <field name="target_type" widget="radio" options="{'horizontal': True}" />
+                    </group>
+
+                    <!-- Field Type Selector -->
+                    <group string="What type of field do you want to add?" class="mb-3">
+                        <field name="field_type" widget="radio" options="{'horizontal': False}" />
+                    </group>
+
+                    <!-- Field Details -->
+                    <group string="Field Details">
+                        <field name="label" placeholder="e.g., Disability Status" />
+                        <field name="help_text" placeholder="Optional help text shown as tooltip" />
+                    </group>
+                </div>
+
+                <!-- Step 2: Configuration -->
+                <div invisible="step != 'config'" class="p-3">
+                    <div class="alert alert-info mb-3" role="alert">
+                        <strong>Configure your field</strong><br/>
+                        Choose where this field will appear in the form and set options like whether it's required or searchable.
+                    </div>
+                    <!-- Placement Zone Selector -->
+                    <group string="Where should this field appear?">
+                        <div class="spp_placement_zones">
+                            <!-- We'll use widget="radio" with custom rendering -->
+                            <field name="placement_zone_id"
+                                   widget="radio"
+                                   options="{'horizontal': False}"
+                                   domain="[('target_type', 'in', [target_type, 'both'])]" />
+                        </div>
+                    </group>
+
+                    <group string="Options">
+                        <field name="is_required" />
+                        <field name="is_searchable" />
+                    </group>
+
+                    <!-- Selection options (shown for selection/multi_select) -->
+                    <group string="Selection Options" invisible="field_type not in ('selection', 'multi_select')">
+                        <field name="selection_options"
+                               placeholder="Option 1&#10;Option 2&#10;value|Display Label"
+                               nolabel="1"
+                               colspan="2" />
+                        <div class="text-muted" colspan="2">
+                            <small>Enter one option per line. Format: <code>value|Label</code> or just <code>Label</code></small>
+                        </div>
+                    </group>
+
+                    <!-- Link options (shown for link type) -->
+                    <group string="Link Configuration" invisible="field_type != 'link'">
+                        <field name="link_model_id" options="{'no_create': True}" />
+                        <field name="link_domain" invisible="not link_model_id" />
+                    </group>
+
+                    <!-- Conditional visibility -->
+                    <group string="Visibility">
+                        <field name="visibility_condition" widget="radio" />
+                    </group>
+                    <group invisible="visibility_condition != 'conditional'" col="4">
+                        <field name="visibility_field_id" options="{'no_create': True}" />
+                        <field name="visibility_operator" />
+                        <field name="visibility_value" invisible="visibility_operator in ('set', 'not_set')" />
+                    </group>
+                </div>
+
+                <!-- Step 3: Review -->
+                <group invisible="step != 'review'">
+                    <group string="Summary">
+                        <field name="label" readonly="1" />
+                        <field name="target_type" readonly="1" />
+                        <field name="field_type" readonly="1" />
+                        <field name="placement_zone_id" readonly="1" />
+                    </group>
+                    <group string="Technical Details">
+                        <field name="preview_technical_name" />
+                        <field name="preview_odoo_type" />
+                    </group>
+                    <group string="Options">
+                        <field name="is_required" readonly="1" />
+                        <field name="is_searchable" readonly="1" />
+                        <field name="visibility_condition" readonly="1" />
+                        <field name="create_as_draft" />
+                    </group>
+                    <div class="alert alert-warning" role="alert">
+                        <i class="fa fa-info-circle" title="Info"/>
+                        By default the field will be <strong>created and activated</strong>
+                        so it is immediately usable. Enable \"Create as Draft\" if you prefer
+                        to review and activate it later from the Custom Fields screen.
+                    </div>
+                </group>
+
+                <footer>
+                    <button name="action_previous"
+                            string="Previous"
+                            type="object"
+                            class="btn-secondary"
+                            invisible="step == 'basic'" />
+                    <button name="action_next"
+                            string="Next"
+                            type="object"
+                            class="btn-primary"
+                            invisible="step == 'review'" />
+                    <button name="action_create_field"
+                            string="Create Field"
+                            type="object"
+                            class="btn-primary"
+                            invisible="step != 'review'" />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action to open wizard -->
+    <record id="action_studio_field_builder_wizard" model="ir.actions.act_window">
+        <field name="name">Add Custom Field</field>
+        <field name="res_model">spp.studio.field.builder.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="view_studio_field_builder_wizard_form" />
+    </record>
+</odoo>

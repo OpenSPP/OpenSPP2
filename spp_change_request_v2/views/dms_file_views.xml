@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- DMS File List View for Change Request Documents -->
+    <record id="view_spp_dms_file_list_cr" model="ir.ui.view">
+        <field name="name">spp.dms.file.list.cr</field>
+        <field name="model">spp.dms.file</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="name" readonly="1"/>
+                <field name="document_type_id" string="Document Type" options="{'no_create': True}"/>
+                <field name="category_id" optional="hide" options="{'no_create': True}"/>
+                <field name="directory_id" invisible="1"/>
+                <field name="mimetype" readonly="1" optional="hide"/>
+                <field name="human_size" readonly="1"/>
+                <field name="create_date" readonly="1" widget="datetime" optional="show"/>
+                <field name="create_uid" readonly="1" widget="many2one_avatar_user" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- DMS File Kanban View for Change Request Documents -->
+    <record id="view_spp_dms_file_kanban_cr" model="ir.ui.view">
+        <field name="name">spp.dms.file.kanban.cr</field>
+        <field name="model">spp.dms.file</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <field name="name"/>
+                <field name="document_type_id"/>
+                <field name="category_id"/>
+                <field name="mimetype"/>
+                <field name="human_size"/>
+                <field name="image_1920"/>
+                <field name="directory_id"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="o_kanban_image">
+                            <img t-att-src="kanban_image('spp.dms.file', 'image_1920', record.id.raw_value)"
+                                 alt="Document" class="o_image_64_cover"/>
+                        </div>
+                        <div class="o_kanban_details">
+                            <strong><field name="name"/></strong>
+                            <div t-if="record.document_type_id.raw_value">
+                                <field name="document_type_id" widget="badge"/>
+                            </div>
+                            <div t-if="!record.document_type_id.raw_value and record.category_id.raw_value">
+                                <field name="category_id" widget="badge"/>
+                            </div>
+                            <div class="text-muted">
+                                <field name="human_size"/>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+</odoo>

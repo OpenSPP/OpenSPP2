@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Service Types Vocabulary -->
+    <record id="vocab_service_types" model="spp.vocabulary">
+        <field name="name">Service Types</field>
+        <field name="namespace_uri">urn:openspp:vocab:service-types</field>
+        <field name="description">Types of services offered at service points.</field>
+        <field name="domain">core</field>
+        <field name="is_system">False</field>
+        <field name="is_hierarchical">False</field>
+    </record>
+</odoo>

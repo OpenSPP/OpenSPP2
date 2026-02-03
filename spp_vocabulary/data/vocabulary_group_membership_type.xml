@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="vocab_group_membership_type" model="spp.vocabulary">
+        <field name="name">Group Membership Type</field>
+        <field name="namespace_uri">urn:openspp:vocab:group-membership-type</field>
+        <field name="is_system">True</field>
+        <field name="domain">core</field>
+        <field name="description">Types of membership roles within a group (e.g., head, child, spouse)</field>
+    </record>
+
+    <record id="code_membership_type_head" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_group_membership_type"/>
+        <field name="code">head</field>
+        <field name="display">Head</field>
+        <field name="definition">Head of the group/household. Only one head is allowed per group.</field>
+        <field name="sequence">1</field>
+    </record>
+<!--
+    <record id="code_membership_type_child" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_group_membership_type"/>
+        <field name="code">child</field>
+        <field name="display">Child</field>
+        <field name="definition">Child member of the group/household.</field>
+        <field name="sequence">2</field>
+    </record>
+
+    <record id="code_membership_type_spouse" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_group_membership_type"/>
+        <field name="code">spouse</field>
+        <field name="display">Spouse</field>
+        <field name="definition">Spouse or partner of the head of household.</field>
+        <field name="sequence">3</field>
+    </record>
+
+    <record id="code_membership_type_other" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_group_membership_type"/>
+        <field name="code">other</field>
+        <field name="display">Other</field>
+        <field name="definition">Other member of the group/household (e.g., relative, dependent).</field>
+        <field name="sequence">10</field>
+    </record> -->
+</odoo>

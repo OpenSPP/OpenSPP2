@@ -1,0 +1,58 @@
+{
+  "name": "ISCED 2011 Education Levels",
+  "namespace": "urn:unesco:isced:2011",
+  "version": "2011",
+  "source_url": "https://uis.unesco.org/en/topic/international-standard-classification-education-isced",
+  "source_standard": "ISCED 2011",
+  "last_updated": "2024-01-15",
+  "domain": "core",
+  "is_hierarchical": false,
+  "codes": [
+    {
+      "code": "0",
+      "display": "Early childhood education",
+      "definition": "Education designed to support early development in preparation for participation in school and society"
+    },
+    {
+      "code": "1",
+      "display": "Primary education",
+      "definition": "Designed to provide a sound basic education in reading, writing and mathematics"
+    },
+    {
+      "code": "2",
+      "display": "Lower secondary education",
+      "definition": "First stage of secondary education building on primary education"
+    },
+    {
+      "code": "3",
+      "display": "Upper secondary education",
+      "definition": "Second/final stage of secondary education preparing for tertiary education or employment"
+    },
+    {
+      "code": "4",
+      "display": "Post-secondary non-tertiary education",
+      "definition": "Programs providing learning experiences that build on secondary education"
+    },
+    {
+      "code": "5",
+      "display": "Short-cycle tertiary education",
+      "definition": "Programs that are practically oriented and occupationally specific"
+    },
+    {
+      "code": "6",
+      "display": "Bachelor's or equivalent level",
+      "definition": "Programs designed to provide intermediate academic and/or professional knowledge"
+    },
+    {
+      "code": "7",
+      "display": "Master's or equivalent level",
+      "definition": "Programs designed to provide advanced academic and/or professional knowledge"
+    },
+    {
+      "code": "8",
+      "display": "Doctoral or equivalent level",
+      "definition": "Programs designed primarily to lead to an advanced research qualification"
+    },
+    {"code": "9", "display": "Not elsewhere classified", "definition": "Education level not elsewhere classified"}
+  ]
+}

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="pack_cash_transfer_basic" model="spp.studio.pack">
+            <field name="name">Cash Transfer Basic</field>
+            <field name="code">cash_transfer_basic</field>
+            <field name="description">Simple cash transfer program with poverty line eligibility and flat benefit amount</field>
+            <field name="category">cash_transfer</field>
+            <field name="version">1.0</field>
+            <field name="author">OpenSPP</field>
+            <field name="state">available</field>
+        </record>
+
+        <record id="pack_cash_transfer_basic_item_1" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_cash_transfer_basic"/>
+            <field name="name">Poverty Line Eligibility</field>
+            <field name="context_type">group</field>
+            <field name="expression_type">filter</field>
+            <field name="description">Checks if household income is below the poverty line threshold</field>
+            <field name="logic_data">{"cel_expression": "income &lt; poverty_line"}</field>
+        </record>
+
+        <record id="pack_cash_transfer_basic_item_2" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_cash_transfer_basic"/>
+            <field name="name">Flat Benefit Amount</field>
+            <field name="context_type">both</field>
+            <field name="expression_type">formula</field>
+            <field name="description">Provides a fixed benefit amount based on base_benefit variable</field>
+            <field name="logic_data">{"cel_expression": "base_benefit"}</field>
+        </record>
+    </data>
+</odoo>

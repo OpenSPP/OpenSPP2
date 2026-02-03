@@ -1,0 +1,341 @@
+/* Variable Picker Component Styles */
+
+.variable-picker {
+    position: relative;
+    width: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Input Container */
+.variable-picker .vp-input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.variable-picker .vp-search-input {
+    flex: 1;
+    padding: 8px 36px 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 14px;
+    transition:
+        border-color 0.15s ease-in-out,
+        box-shadow 0.15s ease-in-out;
+}
+
+.variable-picker .vp-search-input:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.variable-picker.readonly .vp-search-input {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}
+
+/* Chevron Icon */
+.variable-picker .vp-chevron {
+    position: absolute;
+    right: 12px;
+    color: #6c757d;
+    pointer-events: none;
+    transition: transform 0.2s ease;
+}
+
+.variable-picker .vp-chevron.rotated {
+    transform: rotate(180deg);
+}
+
+/* Clear Button */
+.variable-picker .vp-clear-btn {
+    position: absolute;
+    right: 32px;
+    padding: 2px 6px;
+    color: #6c757d;
+    font-size: 12px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 1;
+}
+
+.variable-picker .vp-clear-btn:hover {
+    color: #dc3545;
+}
+
+/* Dropdown */
+.variable-picker .vp-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    max-height: 400px;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1050;
+    animation: dropdownSlideIn 0.15s ease-out;
+}
+
+@keyframes dropdownSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Section */
+.variable-picker .vp-section {
+    margin: 0;
+}
+
+.variable-picker .vp-section-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 12px;
+    font-weight: 600;
+    color: #495057;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.variable-picker .vp-category-header {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.variable-picker .vp-category-header:hover {
+    background: #e9ecef;
+}
+
+.variable-picker .vp-count {
+    font-size: 11px;
+    font-weight: 400;
+    color: #6c757d;
+}
+
+.variable-picker .vp-expand {
+    font-size: 10px;
+    transition: transform 0.2s ease;
+}
+
+/* Divider */
+.variable-picker .vp-divider {
+    height: 1px;
+    background: #e9ecef;
+    margin: 4px 0;
+}
+
+/* Items */
+.variable-picker .vp-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.1s ease;
+    border-left: 3px solid transparent;
+}
+
+.variable-picker .vp-item:hover {
+    background: #f1f3f5;
+}
+
+.variable-picker .vp-item.highlighted {
+    background: #e7f5ff;
+    border-left-color: #339af0;
+}
+
+.variable-picker .vp-item-indicator {
+    font-size: 14px;
+    flex-shrink: 0;
+    width: 20px;
+    text-align: center;
+}
+
+.variable-picker .vp-item-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.variable-picker .vp-item-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #212529;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.variable-picker .vp-item-description,
+.variable-picker .vp-item-cel {
+    font-size: 12px;
+    color: #6c757d;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.variable-picker .vp-item-type {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+/* Category Items */
+.variable-picker .vp-category-items {
+    animation: categoryExpand 0.2s ease-out;
+}
+
+@keyframes categoryExpand {
+    from {
+        opacity: 0;
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        max-height: 500px;
+    }
+}
+
+/* Empty State */
+.variable-picker .vp-empty {
+    padding: 24px 16px;
+    text-align: center;
+    color: #6c757d;
+}
+
+.variable-picker .vp-empty i {
+    display: block;
+    margin-bottom: 8px;
+    opacity: 0.5;
+}
+
+/* Footer */
+.variable-picker .vp-footer {
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+}
+
+.variable-picker .vp-create-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    text-decoration: none;
+    color: #007bff;
+    transition: color 0.15s ease;
+}
+
+.variable-picker .vp-create-link:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+/* Scrollbar Styling */
+.variable-picker .vp-dropdown::-webkit-scrollbar {
+    width: 8px;
+}
+
+.variable-picker .vp-dropdown::-webkit-scrollbar-track {
+    background: #f8f9fa;
+}
+
+.variable-picker .vp-dropdown::-webkit-scrollbar-thumb {
+    background: #ced4da;
+    border-radius: 4px;
+}
+
+.variable-picker .vp-dropdown::-webkit-scrollbar-thumb:hover {
+    background: #adb5bd;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .variable-picker .vp-dropdown {
+        max-height: 300px;
+    }
+
+    .variable-picker .vp-item {
+        padding: 10px 12px;
+    }
+}
+
+/* Badge color variants based on type */
+.variable-picker .badge.badge-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+/* Recently Used Section Styling */
+.variable-picker .vp-recent-section .vp-section-header {
+    background: #fff3cd;
+    color: #856404;
+    border-bottom: 1px solid #ffeaa7;
+}
+
+/* Search Results Section Styling */
+.variable-picker .vp-search-results .vp-section-header {
+    background: #d1ecf1;
+    color: #0c5460;
+    border-bottom: 1px solid #bee5eb;
+}
+
+/* Category Section Styling */
+.variable-picker .vp-category-section:not(:last-of-type) {
+    border-bottom: 1px solid #e9ecef;
+}
+
+/* Loading State (if needed in the future) */
+.variable-picker .vp-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    color: #6c757d;
+}
+
+.variable-picker .vp-loading i {
+    margin-right: 8px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Focus visible for accessibility */
+.variable-picker .vp-item:focus-visible {
+    outline: 2px solid #339af0;
+    outline-offset: -2px;
+}
+
+.variable-picker .vp-category-header:focus-visible {
+    outline: 2px solid #339af0;
+    outline-offset: -2px;
+}

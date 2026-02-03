@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Main Menu: Key Management -->
+    <menuitem
+        id="menu_key_management_root"
+        name="Key Management"
+        parent="base.menu_administration"
+        sequence="760"
+        groups="group_key_admin,base.group_system"/>
+
+    <!-- Submenu: Key Providers -->
+    <menuitem
+        id="menu_key_providers"
+        name="Key Providers"
+        parent="menu_key_management_root"
+        action="action_key_provider_registry"
+        sequence="10"/>
+
+    <!-- Submenu: Encryption Keys -->
+    <menuitem
+        id="menu_encryption_keys"
+        name="Encryption Keys"
+        parent="menu_key_management_root"
+        action="action_encryption_key"
+        sequence="20"/>
+
+    <!-- Submenu: Asymmetric Keys (Signing Keys) -->
+    <menuitem
+        id="menu_asymmetric_keys"
+        name="Asymmetric Keys"
+        parent="menu_key_management_root"
+        action="action_asymmetric_key"
+        sequence="25"/>
+
+    <!-- Submenu: Key Purposes -->
+    <menuitem
+        id="menu_key_purposes"
+        name="Key Purposes"
+        parent="menu_key_management_root"
+        action="action_key_purpose"
+        sequence="30"/>
+
+</odoo>

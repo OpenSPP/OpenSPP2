@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <!-- Program Manager -->
+    <record id="view_program_manager_tree" model="ir.ui.view">
+        <field name="name">view_program_manager_tree</field>
+        <field name="model">spp.program.manager</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="manager_ref_id" />
+                <field name="program_id" />
+                <field name="manager_id" column_invisible="1" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_program_manager_form" model="ir.ui.view">
+        <field name="name">view_program_manager_form</field>
+        <field name="model">spp.program.manager</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <form string="Program Manager">
+                <sheet>
+                    <group colspan="4" col="4">
+                        <field
+                            name="manager_ref_id"
+                            options="{'no_quick_create':True}"
+                            colspan="4"
+                            context="{'default_program_id':program_id}"
+                        />
+                        <field name="program_id" invisible="1" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Default Program Manager -->
+    <record id="view_program_manager_default_tree" model="ir.ui.view">
+        <field name="name">view_program_manager_default_tree</field>
+        <field name="model">spp.program.manager.default</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <list sample="1">
+                <field name="name" />
+                <field name="program_id" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_program_manager_default_form" model="ir.ui.view">
+        <field name="name">view_program_manager_default_form</field>
+        <field name="model">spp.program.manager.default</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <form string="Default Program Manager">
+                <sheet>
+                    <div class="oe_button_box" name="button_box" />
+                    <div class="oe_title mb24">
+                        <label for="name" string="Name:" />
+                        <h1>
+                            <field id="name" name="name" placeholder="Enter the Manager Name..." />
+                        </h1>
+                        <field name="program_id" invisible="1" />
+                    </div>
+                    <group colspan="4" col="4">
+                        <field name="number_of_cycles" />
+                        <field name="copy_last_cycle_on_new_cycle" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="program_manager_default_filter" model="ir.ui.view">
+        <field name="name">program_manager_default_filter</field>
+        <field name="model">spp.program.manager.default</field>
+        <field name="priority" eval="1" />
+        <field name="arch" type="xml">
+            <search string="Search Default Program Manager">
+                <field name="name" />
+                <field name="program_id" />
+                <separator />
+                    <filter string="Program" name="grp_program_id" context="{'group_by': 'program_id'}" />
+                <!--<searchpanel>
+                    <field name="group" icon="fa-users"/>
+                </searchpanel> -->
+            </search>
+        </field>
+    </record>
+
+    <record id="action_program_manager_default" model="ir.actions.act_window">
+        <field name="name">Program Managers</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="path">program-managers</field>
+        <field name="res_model">spp.program.manager.default</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="program_manager_default_filter" />
+        <field name="context">{}</field>
+        <field name="domain">[]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add a Program Manager!
+            </p><p>
+                Click the create button to enter a new program manager.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_program_manager_default_tree_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1" />
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_program_manager_default_tree" />
+        <field name="act_window_id" ref="action_program_manager_default" />
+    </record>
+
+    <record id="action_program_manager_default_form_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1" />
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_program_manager_default_form" />
+        <field name="act_window_id" ref="action_program_manager_default" />
+    </record>
+
+</odoo>

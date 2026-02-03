@@ -1,0 +1,26 @@
+{
+  "name": "UN Marital Status",
+  "namespace": "urn:un:marital-status",
+  "version": "2017",
+  "source_url": "https://unstats.un.org/unsd/demographic-social/census/",
+  "source_standard": "UN Principles and Recommendations for Population and Housing Censuses",
+  "last_updated": "2024-01-15",
+  "domain": "core",
+  "is_hierarchical": false,
+  "codes": [
+    {"code": "1", "display": "Single (never married)", "definition": "Person who has never been married"},
+    {"code": "2", "display": "Married", "definition": "Person currently married"},
+    {"code": "3", "display": "Widowed", "definition": "Person whose spouse has died and who has not remarried"},
+    {
+      "code": "4",
+      "display": "Divorced",
+      "definition": "Person whose marriage has been legally dissolved and who has not remarried"
+    },
+    {
+      "code": "5",
+      "display": "Separated",
+      "definition": "Person who is legally or informally separated from their spouse"
+    },
+    {"code": "9", "display": "Unknown", "definition": "Marital status unknown or not stated"}
+  ]
+}

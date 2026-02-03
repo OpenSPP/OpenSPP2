@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+   Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <record id="view_reg_id_tree" model="ir.ui.view">
+        <field name="name">view_reg_id_tree</field>
+        <field name="model">spp.registry.id</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <list editable="top">
+                <field name="partner_id" options="{'no_open':True,'no_create_edit':True,'no_create':True}" />
+                <field name="id_type_id" options="{'no_open':True,'no_create_edit':True,'no_create':True}" />
+                <field name="value" />
+                <field name="status" />
+                <field name="description" />
+            </list>
+        </field>
+    </record>
+
+    <record id="reg_id_filter" model="ir.ui.view">
+        <field name="name">reg_id_filter</field>
+        <field name="model">spp.registry.id</field>
+        <field name="priority" eval="1" />
+        <field name="arch" type="xml">
+            <search string="Search Registrant IDs">
+                <field name="partner_id" />
+                <field name="value" />
+                <field name="status" />
+                <field name="description" />
+                <separator/>
+                <filter string="Registrant" name="grp_registrant" context="{'group_by': 'partner_id'}" />
+                <searchpanel>
+                    <field name="id_type_id" icon="fa-id-card-o" string="ID Types" />
+                </searchpanel>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_reg_id" model="ir.actions.act_window">
+        <field name="name">Registrant IDs</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">spp.registry.id</field>
+        <field name="view_mode">list</field>
+        <field name="search_view_id" ref="reg_id_filter" />
+        <field name="context">{}</field>
+        <field name="domain">[]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add a Registrant's ID!
+            </p><p>
+                Click the create button to enter the new registrant's ID information.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_reg_id_tree_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1" />
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_reg_id_tree" />
+        <field name="act_window_id" ref="action_reg_id" />
+    </record>
+
+</odoo>

@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <record id="view_payment_tree" model="ir.ui.view">
+        <field name="name">view_payment_tree</field>
+        <field name="model">spp.payment</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <list create="0" delete="0" decoration-info="state == 'issued'" decoration-muted="state == 'reconciled'">
+                <field name="name" />
+                <field name="partner_id" />
+                <field name="entitlement_id" />
+                <field name="cycle_id" />
+                <field name="program_id" />
+                <field name="batch_id" />
+                <field name="account_number" />
+                <field name="currency_id" column_invisible="1" />
+                <field name="amount_issued" sum="Total Amount Issued" />
+                <field name="amount_paid" sum="Total Amount Paid" />
+                <field name="issuance_date" />
+                <field name="payment_datetime" />
+                <field
+                    name="state"
+                    decoration-info="state == 'issued'"
+                    decoration-warning="state == 'sent'"
+                    decoration-success="state == 'reconciled'"
+                    widget="badge"
+                    string="State"
+                />
+                <field
+                    name="status"
+                    decoration-success="status == 'paid'"
+                    decoration-danger="status == 'failed'"
+                    widget="badge"
+                    string="Payment Status"
+                    optional="show"
+                />
+                <field name="company_id" groups="base.group_multi_company" optional="hide" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_payment_form" model="ir.ui.view">
+        <field name="name">view_payment_form</field>
+        <field name="model">spp.payment</field>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <form string="Payment">
+                <header>
+                    <button
+                        type="object"
+                        class="btn-primary"
+                        icon="fa-paper-plane"
+                        name="send_payment"
+                        invisible="state != 'issued'"
+                        string="Send Payment"
+                    />
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="issued,sent,reconciled"
+                    />
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                    </div>
+                    <div class="oe_title mb24">
+                        <label for="name" string="Payment Reference:" />
+                        <h1>
+                            <field id="name" name="name" readonly="1" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field
+                                name="partner_id"
+                                readonly="1"
+                                options="{'no_open':True,'no_quick_create':True,'no_create':True}"
+                            />
+                            <field
+                                name="entitlement_id"
+                                readonly="1"
+                                options="{'no_open':True,'no_quick_create':True,'no_create':True}"
+                            />
+                            <field
+                                name="cycle_id"
+                                readonly="1"
+                                options="{'no_open':True,'no_quick_create':True,'no_create':True}"
+                            />
+                            <field
+                                name="program_id"
+                                readonly="1"
+                                options="{'no_open':True,'no_quick_create':True,'no_create':True}"
+                            />
+                            <field
+                                name="batch_id"
+                                options="{'no_open':True,'no_quick_create':True,'no_create':True}"
+                            />
+                            <field
+                                name="company_id"
+                                groups="base.group_multi_company"
+                                options="{'no_create': True}"
+                                force_save="1"
+                                readonly="1"
+                            />
+                        </group>
+                        <group>
+                            <field name="account_number" readonly="state != 'issued'" />
+                            <field name="issuance_date" readonly="1" />
+                            <field name="payment_datetime" readonly="1" />
+                            <field name="status" />
+                            <field name="is_status_final" />
+                            <field name="status_datetime" readonly="1" />
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Payment Amounts">
+                            <field name="currency_id" options="{'no_open':True}" readonly="1" />
+                            <field name="amount_issued" readonly="state != 'issued'" />
+                            <field name="amount_paid" readonly="1" />
+                            <field name="payment_fee" readonly="1" />
+                        </group>
+                    </group>
+                    <field name="journal_id" invisible="1" />
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="payment_filter" model="ir.ui.view">
+        <field name="name">payment_filter</field>
+        <field name="model">spp.payment</field>
+        <field name="priority" eval="1" />
+        <field name="arch" type="xml">
+            <search string="Search Payments">
+                <field name="name" />
+                <field name="partner_id" />
+                <field name="entitlement_id" />
+                <field name="cycle_id" />
+                <field name="program_id" />
+                <field name="batch_id" />
+                <field name="account_number" />
+                <separator />
+                <filter name="filter_issuance_date" date="issuance_date" />
+                <filter name="filter_payment_datetime" date="payment_datetime" />
+                <separator />
+                <filter name="issued_state" string="Issued" domain="[('state','=','issued')]" />
+                <filter name="sent_state" string="Sent" domain="[('state','=','sent')]" />
+                <filter name="reconciled_state" string="Reconciled" domain="[('state','=','reconciled')]" />
+                <separator />
+                <filter name="paid_status" string="Paid" domain="[('status','=','paid')]" />
+                <filter name="failed_status" string="Failed" domain="[('status','=','failed')]" />
+                <group>
+                    <filter string="State" name="grp_state" context="{'group_by': 'state'}" />
+                    <filter string="Payment Status" name="grp_status" context="{'group_by': 'status'}" />
+                    <filter string="Program" name="grp_program_id" context="{'group_by': 'program_id'}" />
+                    <filter string="Cycle" name="grp_cycle_id" context="{'group_by': 'cycle_id'}" />
+                    <filter string="Batch" name="grp_batch_id" context="{'group_by': 'batch_id'}" />
+                    <filter string="Issuance Date" name="grp_issuance_date" context="{'group_by': 'issuance_date'}" />
+                    <filter string="Company" name="grp_company_id" context="{'group_by': 'company_id'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_payment" model="ir.actions.act_window">
+        <field name="name">Payments</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">spp.payment</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="payment_filter" />
+        <field name="context">{}</field>
+        <field name="domain">[]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No payments found!
+            </p><p>
+                Payments are created automatically when entitlements are processed.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_payment_tree_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1" />
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_payment_tree" />
+        <field name="act_window_id" ref="action_payment" />
+    </record>
+
+    <record id="action_payment_form_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2" />
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_payment_form" />
+        <field name="act_window_id" ref="action_payment" />
+    </record>
+
+</odoo>

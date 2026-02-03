@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Deactivation Confirmation Wizard View -->
+    <record id="view_studio_deactivate_wizard_form" model="ir.ui.view">
+        <field name="name">spp.studio.deactivate.wizard.form</field>
+        <field name="model">spp.studio.deactivate.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Confirm Deactivation">
+                <div class="alert alert-warning" role="alert">
+                    <h4 class="alert-heading">
+                        <i class="fa fa-warning"/> Warning
+                    </h4>
+                    <p>
+                        You are about to deactivate the following <field name="config_type"/> configuration:
+                    </p>
+                    <p>
+                        <strong><field name="config_name"/></strong>
+                    </p>
+                </div>
+
+                <group>
+                    <group>
+                        <field name="record_count" string="Affected Records"/>
+                    </group>
+                </group>
+
+                <separator string="Impact"/>
+                <field name="impact_message" nolabel="1" readonly="1"
+                       widget="text" class="oe_read_only"/>
+
+                <div class="alert alert-info mt-3" role="alert">
+                    <i class="fa fa-info-circle" title="Info"/>
+                    <strong>Note:</strong> Existing data will be preserved.
+                    The configuration can be reactivated later if needed.
+                </div>
+
+                <footer>
+                    <button string="Confirm Deactivation"
+                            name="action_confirm_deactivate"
+                            type="object"
+                            class="btn-danger"/>
+                    <button string="Cancel"
+                            name="action_cancel"
+                            type="object"
+                            class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+
+                <!-- Hidden fields -->
+                <field name="config_model" invisible="1"/>
+                <field name="config_id" invisible="1"/>
+            </form>
+        </field>
+    </record>
+</odoo>

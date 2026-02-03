@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Remove Member Detail Form View -->
+    <record id="spp_cr_detail_remove_member_form" model="ir.ui.view">
+        <field name="name">spp.cr.detail.remove_member.form</field>
+        <field name="model">spp.cr.detail.remove_member</field>
+        <field name="arch" type="xml">
+            <form string="Remove Member Details">
+                <sheet>
+                    <group>
+                        <group string="Member Selection">
+                            <field name="available_individual_ids" invisible="1" />
+                            <field
+                                name="individual_id"
+                                options="{'no_create': True}"
+                                domain="[('id', 'in', available_individual_ids)]"
+                                required="1"
+                            />
+                            <field name="member_name" />
+                            <field name="membership_id" invisible="1" force_save="1" />
+                        </group>
+                        <group string="Removal Details">
+                            <field name="end_date" />
+                            <field name="end_reason" />
+                        </group>
+                    </group>
+                    <group string="Additional Information">
+                        <field name="remarks" placeholder="Enter any additional notes..." />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

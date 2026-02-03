@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Bulk Activate Server Action -->
+    <record id="action_studio_field_bulk_activate" model="ir.actions.server">
+        <field name="name">Activate Selected</field>
+        <field name="model_id" ref="model_spp_studio_field"/>
+        <field name="binding_model_id" ref="model_spp_studio_field"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    action = records.action_bulk_activate()
+        </field>
+    </record>
+
+    <!-- Bulk Deactivate Server Action -->
+    <record id="action_studio_field_bulk_deactivate" model="ir.actions.server">
+        <field name="name">Deactivate Selected</field>
+        <field name="model_id" ref="model_spp_studio_field"/>
+        <field name="binding_model_id" ref="model_spp_studio_field"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    action = records.action_bulk_deactivate()
+        </field>
+    </record>
+</odoo>

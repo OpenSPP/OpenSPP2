@@ -1,0 +1,620 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ============================================== -->
+    <!-- Logic Variable Views                           -->
+    <!-- ============================================== -->
+
+    <!-- Variable Tree View -->
+    <record id="view_logic_variable_tree" model="ir.ui.view">
+        <field name="name">spp.studio.variable.tree</field>
+        <field name="model">spp.cel.variable</field>
+        <field name="arch" type="xml">
+            <list string="Variables" default_group_by="category_id" multi_edit="1">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="label"/>
+                <field name="category_id"/>
+                <field name="applies_to" widget="badge"/>
+                <field name="value_type" widget="badge"/>
+                <field name="source_type" widget="badge"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'active'"
+                       decoration-warning="state == 'draft'"
+                       decoration-muted="state == 'inactive'"
+                       optional="show"/>
+                <field name="field_exists" widget="badge"
+                       decoration-success="field_exists == 'exists'"
+                       decoration-danger="field_exists == 'missing'"
+                       decoration-warning="field_exists == 'unknown'"
+                       optional="hide"
+                       string="Field Status"/>
+                <field name="coverage_percent" widget="progressbar" optional="show"/>
+                <field name="data_source" optional="hide"/>
+                <field name="cache_strategy" widget="badge"
+                       decoration-info="cache_strategy == 'ttl'"
+                       decoration-warning="cache_strategy == 'manual'"
+                       decoration-muted="cache_strategy == 'none'"
+                       optional="hide"/>
+                <field name="is_system" optional="hide" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Variable Form View -->
+    <record id="view_logic_variable_form" model="ir.ui.view">
+        <field name="name">spp.studio.variable.form</field>
+        <field name="model">spp.cel.variable</field>
+        <field name="arch" type="xml">
+            <form string="Variable">
+                <header>
+                    <!-- Lifecycle buttons (from spp.studio.mixin) -->
+                    <button name="action_activate" string="Activate"
+                            type="object" class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_deactivate" string="Deactivate"
+                            type="object" class="btn-secondary"
+                            invisible="state != 'active'"/>
+                    <button name="action_reactivate" string="Reactivate"
+                            type="object" class="btn-primary"
+                            invisible="state != 'inactive'"/>
+                    <button name="action_set_draft" string="Set to Draft"
+                            type="object" class="btn-secondary"
+                            invisible="state != 'inactive'"/>
+                    <button name="action_view_source" string="View Source" type="object"
+                            invisible="source_type not in ('external', 'vocabulary') or not (external_provider_id or source_concept_id)"
+                            class="btn-link"/>
+                    <button name="action_open_schedule_wizard" string="Schedule Version" type="object"
+                            class="btn-secondary"
+                            invisible="state != 'active'"
+                            groups="spp_studio.group_studio_manager"
+                            title="Create and schedule a new version for future activation"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,active"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_logic_usage" type="object"
+                                class="oe_stat_button" icon="fa-code">
+                            <field name="logic_usage_count" widget="statinfo" string="Used In"/>
+                        </button>
+                        <button name="action_view_versions" type="object"
+                                class="oe_stat_button" icon="fa-history"
+                                title="View version history">
+                            <span class="o_stat_text">Versions</span>
+                        </button>
+                        <button name="action_refresh_usage_count" type="object"
+                                class="btn-secondary"
+                                title="Refresh usage count"
+                                icon="fa-refresh">
+                            <span>Refresh Count</span>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <widget name="web_ribbon" title="Inactive" bg_color="text-bg-warning" invisible="state != 'inactive'"/>
+
+                    <div class="oe_title mb-3">
+                        <label for="name" string="Variable Name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g., income, hh_size, is_female" required="1"/>
+                        </h1>
+                    </div>
+
+                    <!-- Simple/Advanced Toggle -->
+                    <div class="mb-3">
+                        <field name="show_advanced" widget="boolean_toggle" class="me-2"/>
+                        <label for="show_advanced" string="Show Advanced Options" class="text-muted"/>
+                    </div>
+
+                    <group>
+                        <group string="Basic Information">
+                            <field name="label" placeholder="e.g., Household Income"
+                                   help="User-friendly name shown in forms and reports"/>
+                            <field name="description" placeholder="What this variable represents"
+                                   invisible="not show_advanced"
+                                   help="Brief explanation of what this variable measures or represents"/>
+                            <field name="category_id" options="{'no_create': True}"
+                                   help="Group related variables together for easier discovery"/>
+                            <field name="applies_to" widget="radio" options="{'horizontal': true}"
+                                   invisible="not show_advanced"
+                                   help="Individual: per-person data. Group: per-household data. Both: available for either context"/>
+                            <field name="value_type" widget="radio" options="{'horizontal': true}"
+                                   invisible="not show_advanced"
+                                   help="The data type this variable returns (number, yes/no, text, etc.)"/>
+                            <field name="unit" placeholder="e.g., USD, years, %"
+                                   invisible="not show_advanced or value_type not in ('number', 'money')"
+                                   help="Unit of measurement (e.g., PHP, USD, years, kg)"/>
+                            <field name="placement_zone_code"
+                                   invisible="not show_advanced or source_type != 'field'"
+                                   placeholder="Optional default placement for custom fields"
+                                   help="Where to display this field in the registrant form"/>
+                        </group>
+
+                        <group string="Source Configuration">
+                            <field name="source_type" widget="selection"
+                                   help="Where does this variable get its data from?"/>
+
+                            <!-- ═══ Model Field Source ═══ -->
+                            <field name="source_model"
+                                   invisible="source_type != 'field'"
+                                   placeholder="e.g., res.partner"
+                                   help="The Odoo model containing the field (usually res.partner)"/>
+                            <field name="source_field"
+                                   invisible="source_type != 'field'"
+                                   placeholder="e.g., x_income"
+                                   help="Technical name of the field on the model"/>
+                            <label for="field_exists"
+                                   invisible="source_type != 'field'"
+                                   string="Field Status"/>
+                            <div invisible="source_type != 'field'" class="d-flex align-items-center">
+                                <field name="field_exists" widget="badge"
+                                       decoration-success="field_exists == 'exists'"
+                                       decoration-danger="field_exists == 'missing'"
+                                       decoration-warning="field_exists == 'unknown'"
+                                       class="me-2"/>
+                                <field name="field_exists_message" nolabel="1" class="text-muted small flex-grow-1"/>
+                                <button name="action_refresh_field_status"
+                                        string="Refresh"
+                                        type="object"
+                                        class="btn-secondary btn-sm ms-2"
+                                        icon="fa-refresh"
+                                        title="Refresh field existence status"/>
+                            </div>
+                            <div invisible="source_type != 'field' or field_exists != 'missing'" colspan="2">
+                                <button name="action_create_field"
+                                        string="Create Field"
+                                        type="object"
+                                        class="btn-secondary btn-sm me-2"
+                                        icon="fa-plus"
+                                        help="Create a new custom field on the registrant model"/>
+                                <button name="action_remap_field"
+                                        string="Map to Existing Field"
+                                        type="object"
+                                        class="btn-secondary btn-sm"
+                                        icon="fa-exchange"
+                                        help="Link this variable to an existing field"/>
+                            </div>
+
+                            <!-- ═══ External Source ═══ -->
+                            <field name="external_provider_id"
+                                   invisible="source_type != 'external'"
+                                   options="{'no_create': True}"
+                                   help="External data provider (API, database, etc.)"/>
+
+                            <!-- NOTE: Scoring source field added by spp_studio_scoring bridge -->
+
+                            <!-- ═══ Vocabulary Source ═══ -->
+                            <field name="source_concept_id"
+                                   invisible="source_type != 'vocabulary'"
+                                   options="{'no_create': True}"
+                                   help="Vocabulary concept to look up"/>
+
+                            <!-- ═══ Computed (CEL) Source ═══ -->
+                            <label for="cel_expression"
+                                   invisible="source_type != 'computed'"
+                                   string="CEL Expression"/>
+                            <div invisible="source_type != 'computed'" class="w-100">
+                                <field name="cel_expression"
+                                       widget="cel_expression"
+                                       cel_profile="registry_groups"
+                                       nolabel="1"
+                                       placeholder="e.g., age_years(r.birthdate)"
+                                       help="Formula to calculate this variable. Use r.fieldname to access fields."/>
+                            </div>
+
+                            <!-- ═══ Constant Source ═══ -->
+                            <field name="default_value"
+                                   invisible="source_type != 'constant'"
+                                   placeholder="e.g., 1000"
+                                   help="Fixed value returned by this variable"/>
+                            <field name="is_program_configurable"
+                                   invisible="source_type != 'constant'"
+                                   help="Allow programs to override this constant with their own value"/>
+
+                            <!-- ═══ Aggregate Source ═══ -->
+                            <field name="aggregate_type"
+                                   invisible="source_type != 'aggregate'"
+                                   help="How to combine member values (sum, average, count, etc.)"/>
+                            <field name="aggregate_target"
+                                   invisible="source_type != 'aggregate'"
+                                   help="Which records to aggregate (household members, etc.)"/>
+                            <field name="aggregate_field"
+                                   invisible="source_type != 'aggregate'"
+                                   placeholder="e.g., m.income"
+                                   help="Field to aggregate, using m. prefix for member fields"/>
+                            <label for="aggregate_filter"
+                                   invisible="source_type != 'aggregate'"
+                                   string="Filter (optional)"/>
+                            <field name="aggregate_filter"
+                                   invisible="source_type != 'aggregate'"
+                                   nolabel="1"
+                                   placeholder="e.g., age_years(m.birthdate) &lt; 18"
+                                   help="Only include members matching this condition"/>
+
+                            <!-- ═══ CEL Accessor (always shown) ═══ -->
+                            <separator string="Variable Access" colspan="2"/>
+                            <field name="cel_accessor"
+                                   placeholder="e.g., age, income, is_female"
+                                   required="1"
+                                   help="Name used to reference this variable in CEL expressions. Example: income, hh_size, is_disabled"/>
+
+                            <!-- Switch to field action for computed/aggregate -->
+                            <div invisible="source_type not in ('computed', 'aggregate')" colspan="2" class="text-muted small mt-2">
+                                <button name="action_remap_field"
+                                        string="Use Existing Field Instead"
+                                        type="object"
+                                        class="btn-link btn-sm p-0"
+                                        icon="fa-exchange"
+                                        help="Switch this variable to use an existing model field"/>
+                            </div>
+                        </group>
+                    </group>
+
+                    <notebook invisible="not show_advanced">
+                        <page string="Discoverability" name="discoverability">
+                            <div class="alert alert-light mb-3" role="alert">
+                                <i class="fa fa-lightbulb-o me-2" title="Tip"/>
+                                Help users find this variable by adding search terms and examples.
+                            </div>
+                            <group>
+                                <field name="synonyms"
+                                       placeholder="e.g., family size, household members, people in home"
+                                       help="Alternative names users might search for. Comma-separated."/>
+                                <field name="example_values"
+                                       placeholder="e.g., 1000, 5000, 10000 or Small, Medium, Large"
+                                       help="Typical values this variable returns. Helps users understand the data."/>
+                            </group>
+                        </page>
+
+                        <page string="Data Availability" name="data_availability">
+                            <div class="alert alert-light mb-3" role="alert">
+                                <i class="fa fa-database me-2" title="Database"/>
+                                Track how much of your registry has data for this variable.
+                            </div>
+                            <group>
+                                <field name="data_source"
+                                       help="Where the underlying data is stored"/>
+                                <label for="coverage_percent"/>
+                                <div class="d-flex align-items-center">
+                                    <field name="coverage_percent" widget="progressbar" class="flex-grow-1"/>
+                                    <button name="action_calculate_coverage"
+                                            string="Calculate"
+                                            type="object"
+                                            class="btn-secondary ms-2"
+                                            icon="fa-refresh"
+                                            help="Count how many registrants have data for this variable"/>
+                                </div>
+                            </group>
+                        </page>
+
+                        <page string="Caching &amp; History" name="caching">
+                            <div class="alert alert-light mb-3" role="alert">
+                                <i class="fa fa-clock-o me-2" title="Schedule"/>
+                                Configure how values are cached and whether historical data is tracked.
+                            </div>
+                            <group string="Cache Strategy">
+                                <group>
+                                    <field name="cache_strategy" widget="radio"
+                                           help="None: Always compute fresh. TTL: Cache with expiry. Manual: Cache until cleared."/>
+                                    <field name="cache_ttl_seconds"
+                                           invisible="cache_strategy != 'ttl'"
+                                           help="Time in seconds before cached values expire (e.g., 3600 = 1 hour)"/>
+                                </group>
+                                <group>
+                                    <field name="invalidate_on_member_change"
+                                           invisible="source_type != 'aggregate'"
+                                           help="Re-calculate when group membership changes"/>
+                                    <field name="invalidate_on_field_change"
+                                           placeholder="e.g., income,age"
+                                           help="Field names that trigger cache refresh when changed"/>
+                                </group>
+                            </group>
+                            <group string="Historical Data">
+                                <group>
+                                    <field name="period_granularity" widget="radio"
+                                           help="How often to snapshot values for historical analysis"/>
+                                    <field name="supports_historical" readonly="1"
+                                           help="Whether this variable's values are tracked over time"/>
+                                </group>
+                            </group>
+                            <div class="alert alert-info" role="alert"
+                                 invisible="cache_strategy == 'none'">
+                                <strong><i class="fa fa-info-circle me-1"/> Caching Enabled:</strong>
+                                Values will be stored in the unified data cache.
+                                Use cache invalidation triggers to ensure data freshness.
+                            </div>
+                        </page>
+
+                        <page string="Metadata" name="metadata">
+                            <group>
+                                <group>
+                                    <field name="sequence" help="Order in which this variable appears in lists"/>
+                                    <field name="is_system" readonly="1" help="System variables cannot be deleted"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Variable Search View -->
+    <record id="view_logic_variable_search" model="ir.ui.view">
+        <field name="name">spp.studio.variable.search</field>
+        <field name="model">spp.cel.variable</field>
+        <field name="arch" type="xml">
+            <search string="Search Variables">
+                <field name="name" string="Variable"
+                       filter_domain="['|', '|', '|', ('name', 'ilike', self), ('label', 'ilike', self), ('synonyms', 'ilike', self), ('cel_accessor', 'ilike', self)]"/>
+                <field name="category_id"/>
+                <field name="source_type"/>
+                <field name="value_type"/>
+
+                <separator/>
+                <filter string="Active" name="filter_active" domain="[('active', '=', True)]"/>
+                <filter string="Archived" name="filter_inactive" domain="[('active', '=', False)]"/>
+
+                <separator/>
+                <filter string="System Variables" name="filter_system" domain="[('is_system', '=', True)]"/>
+                <filter string="User Variables" name="filter_user" domain="[('is_system', '=', False)]"/>
+
+                <separator/>
+                <filter string="Individual Scope" name="filter_scope_individual" domain="[('applies_to', '=', 'individual')]"/>
+                <filter string="Group Scope" name="filter_scope_group" domain="[('applies_to', '=', 'group')]"/>
+                <filter string="Shared Scope" name="filter_scope_both" domain="[('applies_to', '=', 'both')]"/>
+
+                <separator/>
+                <filter string="Model Fields" name="filter_field" domain="[('source_type', '=', 'field')]"/>
+                <filter string="External Data" name="filter_external" domain="[('source_type', '=', 'external')]"/>
+                <filter string="Vocabulary" name="filter_vocabulary" domain="[('source_type', '=', 'vocabulary')]"/>
+                <filter string="Computed" name="filter_computed" domain="[('source_type', '=', 'computed')]"/>
+                <filter string="Aggregates" name="filter_aggregate" domain="[('source_type', '=', 'aggregate')]"/>
+                <filter string="Constant" name="filter_constant" domain="[('source_type', '=', 'constant')]"/>
+
+                <separator/>
+                <filter string="Cached (TTL)" name="filter_cached_ttl" domain="[('cache_strategy', '=', 'ttl')]"/>
+                <filter string="Cached (Manual)" name="filter_cached_manual" domain="[('cache_strategy', '=', 'manual')]"/>
+                <filter string="Not Cached" name="filter_not_cached" domain="[('cache_strategy', '=', 'none')]"/>
+                <filter string="Historical Data" name="filter_historical" domain="[('supports_historical', '=', True)]"/>
+
+                <separator/>
+                <filter string="Number" name="filter_number" domain="[('value_type', '=', 'number')]"/>
+                <filter string="Boolean" name="filter_boolean" domain="[('value_type', '=', 'boolean')]"/>
+                <filter string="Text" name="filter_string" domain="[('value_type', '=', 'string')]"/>
+                <filter string="Date" name="filter_date" domain="[('value_type', '=', 'date')]"/>
+                <filter string="Money" name="filter_money" domain="[('value_type', '=', 'money')]"/>
+
+                <group>
+                    <filter string="Category" name="group_category" context="{'group_by': 'category_id'}"/>
+                    <filter string="Source Type" name="group_source_type" context="{'group_by': 'source_type'}"/>
+                    <filter string="Value Type" name="group_value_type" context="{'group_by': 'value_type'}"/>
+                    <filter string="Cache Strategy" name="group_cache" context="{'group_by': 'cache_strategy'}"/>
+                    <filter string="Scope" name="group_applies_to" context="{'group_by': 'applies_to'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action: Logic Variable List -->
+    <record id="action_logic_variable_list" model="ir.actions.act_window">
+        <field name="name">Variables</field>
+        <field name="path">logic-variables</field>
+        <field name="res_model">spp.cel.variable</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_filter_active': 1, 'search_default_group_category': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first Logic Variable
+            </p>
+            <p>
+                Variables represent data points that can be used in CEL expressions.<br/>
+                They can come from model fields, indicators, scoring results, or vocabulary concepts.
+            </p>
+        </field>
+    </record>
+
+    <!-- ============================================== -->
+    <!-- Bulk Operations (Server Actions)               -->
+    <!-- ============================================== -->
+
+    <!-- Bulk Activate Variables -->
+    <record id="action_variable_bulk_activate" model="ir.actions.server">
+        <field name="name">Activate Selected</field>
+        <field name="model_id" ref="spp_cel_domain.model_spp_cel_variable"/>
+        <field name="binding_model_id" ref="spp_cel_domain.model_spp_cel_variable"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+activated = 0
+skipped = 0
+errors = []
+for record in records:
+    if record.state == 'draft':
+        try:
+            record.action_activate()
+            activated += 1
+        except Exception as e:
+            errors.append(f"{record.label or record.name}: {str(e)}")
+            skipped += 1
+    elif record.state == 'inactive':
+        try:
+            record.action_reactivate()
+            activated += 1
+        except Exception as e:
+            errors.append(f"{record.label or record.name}: {str(e)}")
+            skipped += 1
+    else:
+        skipped += 1
+
+msg_parts = []
+if activated:
+    msg_parts.append(f"{activated} variable(s) activated")
+if skipped:
+    msg_parts.append(f"{skipped} skipped")
+if errors:
+    msg_parts.append("Errors: " + "; ".join(errors[:3]))
+    if len(errors) > 3:
+        msg_parts.append(f"... and {len(errors) - 3} more")
+
+action = {
+    'type': 'ir.actions.client',
+    'tag': 'display_notification',
+    'params': {
+        'title': 'Bulk Activate',
+        'message': '. '.join(msg_parts) if msg_parts else 'No changes made',
+        'type': 'success' if activated and not errors else 'warning' if errors else 'info',
+        'sticky': bool(errors),
+    }
+}
+        </field>
+    </record>
+
+    <!-- Bulk Deactivate Variables -->
+    <record id="action_variable_bulk_deactivate" model="ir.actions.server">
+        <field name="name">Deactivate Selected</field>
+        <field name="model_id" ref="spp_cel_domain.model_spp_cel_variable"/>
+        <field name="binding_model_id" ref="spp_cel_domain.model_spp_cel_variable"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+deactivated = 0
+skipped = 0
+for record in records:
+    if record.state == 'active':
+        record._do_deactivate()
+        deactivated += 1
+    else:
+        skipped += 1
+
+msg_parts = []
+if deactivated:
+    msg_parts.append(f"{deactivated} variable(s) deactivated")
+if skipped:
+    msg_parts.append(f"{skipped} skipped (not active)")
+
+action = {
+    'type': 'ir.actions.client',
+    'tag': 'display_notification',
+    'params': {
+        'title': 'Bulk Deactivate',
+        'message': '. '.join(msg_parts) if msg_parts else 'No changes made',
+        'type': 'success' if deactivated else 'info',
+        'sticky': False,
+    }
+}
+        </field>
+    </record>
+
+    <!-- ============================================== -->
+    <!-- Variable Category Views                        -->
+    <!-- ============================================== -->
+
+    <!-- Category Tree View (with hierarchy) -->
+    <record id="view_logic_variable_category_tree" model="ir.ui.view">
+        <field name="name">spp.studio.variable.category.tree</field>
+        <field name="model">spp.cel.variable.category</field>
+        <field name="arch" type="xml">
+            <list string="Variable Categories" default_order="sequence,name">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="icon" optional="show"/>
+                <field name="variable_count" string="Variables" sum="Total Variables"/>
+                <field name="parent_id" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Category Form View -->
+    <record id="view_logic_variable_category_form" model="ir.ui.view">
+        <field name="name">spp.studio.variable.category.form</field>
+        <field name="model">spp.cel.variable.category</field>
+        <field name="arch" type="xml">
+            <form string="Variable Category">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_variables" type="object" class="oe_stat_button" icon="fa-list">
+                            <field name="variable_count" widget="statinfo" string="Variables"/>
+                        </button>
+                    </div>
+
+                    <div class="oe_title">
+                        <label for="name" string="Category Name"/>
+                        <h1>
+                            <field name="icon" widget="fa" class="me-2"/>
+                            <field name="name" placeholder="e.g., Demographics" required="1"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group>
+                            <field name="code" placeholder="e.g., demographics" required="1"/>
+                            <field name="parent_id" options="{'no_create': True}"/>
+                        </group>
+                        <group>
+                            <field name="icon" placeholder="fa-folder"/>
+                            <field name="color" widget="color"/>
+                            <field name="sequence"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Variables" name="variables">
+                            <field name="variable_ids">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="label"/>
+                                    <field name="value_type" widget="badge"/>
+                                    <field name="source_type" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <page string="Subcategories" name="subcategories">
+                            <field name="child_ids">
+                                <list>
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="code"/>
+                                    <field name="variable_count"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Category Search View -->
+    <record id="view_logic_variable_category_search" model="ir.ui.view">
+        <field name="name">spp.studio.variable.category.search</field>
+        <field name="model">spp.cel.variable.category</field>
+        <field name="arch" type="xml">
+            <search string="Search Categories">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="parent_id"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action: Variable Category List -->
+    <record id="action_logic_variable_category_list" model="ir.actions.act_window">
+        <field name="name">Variable Categories</field>
+        <field name="path">logic-variable-categories</field>
+        <field name="res_model">spp.cel.variable.category</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first Variable Category
+            </p>
+            <p>
+                Categories help organize variables into logical groups for easier discovery.
+            </p>
+        </field>
+    </record>
+
+</odoo>

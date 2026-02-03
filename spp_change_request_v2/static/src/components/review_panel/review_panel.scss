@@ -1,0 +1,50 @@
+/* Review Panel Styles */
+
+.cr-review-panel {
+    background: white;
+    min-height: 500px;
+
+    .cr-review-header {
+        flex-shrink: 0;
+    }
+
+    .cr-review-content {
+        min-height: 300px;
+    }
+
+    .cr-review-actions {
+        flex-shrink: 0;
+    }
+
+    /* Keyboard hint styling */
+    kbd {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 3px;
+        padding: 2px 6px;
+        font-size: 0.75rem;
+        font-family: inherit;
+    }
+
+    /* Split pane borders */
+    .border-end {
+        border-right: 1px solid #dee2e6 !important;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .cr-review-panel {
+        .cr-review-content {
+            .row {
+                flex-direction: column;
+
+                > .col-6 {
+                    width: 100%;
+                    border-right: none !important;
+                    border-bottom: 1px solid #dee2e6;
+                }
+            }
+        }
+    }
+}

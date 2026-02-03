@@ -1,0 +1,538 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Default Privacy Notices for Common Social Protection Use Cases
+
+    These templates help organizations get started quickly with ISO 29184-compliant
+    privacy notices. They should be customized based on your organization's specific
+    data processing activities, legal requirements, and jurisdiction.
+-->
+<odoo>
+    <data noupdate="1">
+
+        <!-- ================================================================== -->
+        <!-- 1. PROGRAM ENROLLMENT NOTICE -->
+        <!-- ================================================================== -->
+        <record id="notice_program_enrollment" model="spp.consent.notice">
+            <field name="code">PROGRAM_ENROLLMENT</field>
+            <field name="name">Sample: Social Protection Program Enrollment</field>
+            <field name="version">1.0</field>
+            <field name="state">active</field>
+            <field name="language">en</field>
+
+            <field name="summary">We collect your personal information to determine your eligibility for social protection programs and to provide you with benefits and services. Your information will be kept confidential and only shared with authorized partners involved in program delivery.</field>
+
+            <field name="full_text"><![CDATA[
+<h2>Privacy Notice for Social Protection Program Enrollment</h2>
+
+<h3>Why we collect your information</h3>
+<p>We collect your personal information to:</p>
+<ul>
+    <li>Verify your identity and eligibility for social protection programs</li>
+    <li>Register you in our social registry</li>
+    <li>Assess your household's needs and circumstances</li>
+    <li>Determine appropriate benefit amounts</li>
+    <li>Deliver benefits and services to you</li>
+    <li>Monitor program effectiveness and prevent fraud</li>
+</ul>
+
+<h3>What information we collect</h3>
+<p>We will collect:</p>
+<ul>
+    <li>Your name, date of birth, and identification documents</li>
+    <li>Contact information (address, phone number)</li>
+    <li>Household composition and relationships</li>
+    <li>Economic status and income information</li>
+    <li>Information about disabilities or special needs</li>
+</ul>
+
+<h3>How we protect your information</h3>
+<p>Your information is stored securely and protected according to data protection laws. We use technical and organizational measures to prevent unauthorized access, disclosure, or loss of your data.</p>
+
+<h3>Your rights</h3>
+<p>You have the right to:</p>
+<ul>
+    <li>Access your personal information</li>
+    <li>Request corrections to inaccurate information</li>
+    <li>Withdraw your consent (though this may affect your program eligibility)</li>
+    <li>File a complaint with the data protection authority</li>
+</ul>
+            ]]></field>
+
+            <field name="controller_info">
+[Your Organization Name]
+[Address]
+Phone: [Phone Number]
+Email: [Email Address]
+
+Data Protection Officer: [DPO Name and Contact]
+            </field>
+
+            <field name="purpose_description">
+We process your personal data for the following purposes:
+- Registration in the social protection registry
+- Eligibility assessment for social protection programs
+- Enrollment in programs for which you qualify
+- Benefit calculation and payment processing
+- Program monitoring and evaluation
+- Fraud prevention and detection
+- Legal compliance and reporting to government authorities
+            </field>
+
+            <field name="data_categories_description">
+We collect and process the following categories of personal data:
+- Identifying information (name, ID number, date of birth, photo)
+- Contact details (address, phone, email)
+- Household composition (family members, relationships)
+- Financial information (income, assets, employment status)
+- Health information (disabilities, medical conditions affecting eligibility)
+- Education information (school enrollment, literacy)
+- Geographic data (location, region, district)
+            </field>
+
+            <field name="recipients_description">
+Your information may be shared with:
+- Government agencies responsible for social protection programs
+- Partner organizations involved in program implementation (NGOs, UN agencies)
+- Payment service providers for benefit delivery
+- Monitoring and evaluation teams
+- Auditors and oversight bodies
+
+We will NOT share your information with private companies for marketing purposes.
+            </field>
+
+            <field name="retention_description">
+We will keep your information for:
+- Active program participants: Duration of enrollment plus 5 years
+- Rejected applicants: 2 years from application date
+- Historical records: 10 years for audit and accountability purposes
+
+After these periods, your information will be securely deleted or anonymized.
+            </field>
+
+            <field name="rights_description">
+Under data protection law, you have the right to:
+- Access: Request a copy of your personal information
+- Rectification: Correct inaccurate or incomplete information
+- Erasure: Request deletion of your information (with limitations)
+- Restriction: Limit how we process your information
+- Objection: Object to certain types of processing
+- Data portability: Receive your information in a portable format
+- Complaint: File a complaint with the data protection authority
+
+To exercise these rights, contact our Data Protection Officer using the contact information above.
+            </field>
+
+            <field name="withdrawal_description">
+You can withdraw your consent at any time by:
+- Visiting our office in person with your ID
+- Calling our hotline: [Phone Number]
+- Sending an email to: [Email Address]
+- Through the online portal: [URL]
+
+Please note: Withdrawing consent may affect your eligibility to receive benefits and services. We may be required by law to retain certain information even after withdrawal.
+            </field>
+
+            <field name="contact_email">privacy@example.org</field>
+            <field name="contact_url">https://example.org/contact</field>
+            <field name="full_policy_url">https://example.org/privacy-policy</field>
+
+            <!-- Consent Boundary: Organization types allowed under this notice -->
+            <field name="max_recipient_types" eval="[(6, 0, [
+                ref('org_type_government'),
+                ref('org_type_ngo'),
+                ref('org_type_un'),
+            ])]"/>
+        </record>
+
+        <!-- ================================================================== -->
+        <!-- 2. DATA SHARING WITH PARTNERS NOTICE -->
+        <!-- ================================================================== -->
+        <record id="notice_data_sharing" model="spp.consent.notice">
+            <field name="code">DATA_SHARING</field>
+            <field name="name">Sample: Data Sharing with Partner Organizations</field>
+            <field name="version">1.0</field>
+            <field name="state">active</field>
+            <field name="language">en</field>
+
+            <field name="summary">We would like to share your information with trusted partner organizations to help coordinate services and avoid duplication. You can choose which types of organizations can access your information.</field>
+
+            <field name="full_text"><![CDATA[
+<h2>Privacy Notice for Data Sharing</h2>
+
+<h3>Purpose of data sharing</h3>
+<p>Sharing your information with partner organizations helps us:</p>
+<ul>
+    <li>Coordinate services between different providers</li>
+    <li>Avoid duplication of benefits</li>
+    <li>Provide you with comprehensive support</li>
+    <li>Improve program efficiency</li>
+    <li>Conduct research to improve social protection systems</li>
+</ul>
+
+<h3>Who we share with</h3>
+<p>We may share your information with:</p>
+<ul>
+    <li>Government ministries and agencies</li>
+    <li>Non-governmental organizations (NGOs) providing services</li>
+    <li>International organizations (UN agencies, international NGOs)</li>
+    <li>Research institutions conducting approved studies</li>
+</ul>
+
+<h3>Your control</h3>
+<p>You can choose to:</p>
+<ul>
+    <li>Allow sharing with all partner types</li>
+    <li>Allow sharing only with specific types of organizations (e.g., only government and NGOs, but not private sector)</li>
+    <li>Refuse data sharing (though this may limit services available to you)</li>
+</ul>
+
+<h3>How shared data is protected</h3>
+<p>All partner organizations must:</p>
+<ul>
+    <li>Sign data sharing agreements</li>
+    <li>Comply with data protection laws</li>
+    <li>Use your information only for agreed purposes</li>
+    <li>Protect your information with appropriate security measures</li>
+    <li>Delete or return your information when no longer needed</li>
+</ul>
+            ]]></field>
+
+            <field name="controller_info">
+[Your Organization Name]
+[Address]
+Phone: [Phone Number]
+Email: [Email Address]
+            </field>
+
+            <field name="purpose_description">
+Data sharing purposes:
+- Service coordination and referrals
+- Prevention of duplicate benefits
+- Integrated case management
+- Program monitoring and evaluation
+- Research to improve social protection effectiveness
+- Emergency response coordination
+            </field>
+
+            <field name="data_categories_description">
+Shared information may include:
+- Basic identifying information (name, ID number, date of birth)
+- Contact details
+- Program enrollment status
+- Benefit amounts and payment history
+- Service needs and referrals
+- Household composition (for household-level programs)
+
+Sensitive information (health, ethnicity, religion) is only shared when absolutely necessary and with your explicit consent.
+            </field>
+
+            <field name="recipients_description">
+Authorized recipients include:
+- Government agencies implementing social protection programs
+- NGOs and civil society organizations providing complementary services
+- UN agencies (WFP, UNHCR, UNICEF, etc.)
+- International NGOs (Red Cross, Save the Children, CARE, etc.)
+- Research institutions with approved research protocols
+- Donor organizations for monitoring and evaluation
+
+You can specify which categories of organizations can access your information.
+            </field>
+
+            <field name="retention_description">
+Partners may retain your information for:
+- Duration of service provision plus 1 year
+- Research data: up to 5 years (anonymized when possible)
+
+After these periods, partners must securely delete your information or return it to us.
+            </field>
+
+            <field name="rights_description">
+You have the right to:
+- Know which organizations have accessed your information
+- Withdraw consent for data sharing at any time
+- Request that specific organizations not receive your information
+- Access information held by partner organizations
+- Complain if you believe your information has been misused
+
+Contact our Data Protection Officer to exercise these rights.
+            </field>
+
+            <field name="withdrawal_description">
+To withdraw consent for data sharing:
+- Visit our office or call our hotline
+- Specify which organizations should no longer receive your information
+- We will notify partners and instruct them to stop processing your data
+
+Note: Existing information already shared may be retained by partners for legal record-keeping periods. New information will not be shared after withdrawal.
+            </field>
+
+            <field name="contact_email">datasharing@example.org</field>
+
+            <!-- Consent Boundary: Organization types allowed under this notice -->
+            <field name="max_recipient_types" eval="[(6, 0, [
+                ref('org_type_government'),
+                ref('org_type_ngo'),
+                ref('org_type_ingo'),
+                ref('org_type_un'),
+            ])]"/>
+        </record>
+
+        <!-- ================================================================== -->
+        <!-- 3. BENEFICIARY VERIFICATION NOTICE -->
+        <!-- ================================================================== -->
+        <record id="notice_beneficiary_verification" model="spp.consent.notice">
+            <field name="code">BENEFICIARY_VERIFICATION</field>
+            <field name="name">Sample: Beneficiary Verification and Authentication</field>
+            <field name="version">1.0</field>
+            <field name="state">active</field>
+            <field name="language">en</field>
+
+            <field name="summary">We collect biometric information (fingerprints, facial recognition, or iris scans) to verify your identity and prevent fraud in benefit distribution. This ensures that benefits reach the intended recipients.</field>
+
+            <field name="full_text"><![CDATA[
+<h2>Privacy Notice for Biometric Verification</h2>
+
+<h3>Why we use biometrics</h3>
+<p>We collect biometric information to:</p>
+<ul>
+    <li>Verify your identity when you collect benefits</li>
+    <li>Prevent fraud and impersonation</li>
+    <li>Ensure benefits reach intended recipients</li>
+    <li>Eliminate duplicate registrations</li>
+    <li>Protect program integrity</li>
+</ul>
+
+<h3>What biometric data we collect</h3>
+<p>We may collect one or more of:</p>
+<ul>
+    <li>Fingerprints</li>
+    <li>Facial photograph (for facial recognition)</li>
+    <li>Iris scan</li>
+    <li>Voice recognition</li>
+</ul>
+
+<h3>How biometric data is stored</h3>
+<p>Your biometric data is:</p>
+<ul>
+    <li>Encrypted using strong cryptographic methods</li>
+    <li>Stored separately from other personal information</li>
+    <li>Accessible only to authorized verification systems</li>
+    <li>Never shared with third parties except as required by law</li>
+    <li>Deleted when you are no longer enrolled in programs</li>
+</ul>
+
+<h3>Your rights</h3>
+<p>If biometric collection is mandatory for program participation, this will be clearly explained. In some cases, alternative verification methods may be available.</p>
+            ]]></field>
+
+            <field name="controller_info">
+[Your Organization Name]
+[Address]
+Phone: [Phone Number]
+Email: [Email Address]
+            </field>
+
+            <field name="purpose_description">
+Biometric data processing purposes:
+- Identity verification during benefit collection
+- Deduplication to prevent multiple registrations
+- Fraud prevention and detection
+- Audit and accountability
+- Authentication for online services
+            </field>
+
+            <field name="data_categories_description">
+Biometric information collected:
+- Fingerprints (typically thumbprints from both hands)
+- Facial photographs and facial recognition templates
+- Iris scans (in some locations)
+- Biographic information linked to biometrics (name, ID number, date of birth)
+
+This is SENSITIVE PERSONAL DATA and receives the highest level of protection.
+            </field>
+
+            <field name="recipients_description">
+Biometric data access is strictly limited to:
+- Authorized verification systems at distribution points
+- System administrators for maintenance (under strict controls)
+- Law enforcement agencies (only with legal warrant or court order)
+- Auditors (only for verification purposes, under confidentiality agreements)
+
+Biometric data is NEVER shared with partners, donors, or other external parties.
+            </field>
+
+            <field name="retention_description">
+Biometric data retention:
+- Active beneficiaries: Duration of program enrollment
+- Inactive beneficiaries: 1 year after last transaction (to handle reinstatement requests)
+- After retention period: Secure deletion using certified data destruction methods
+
+Biometric data is deleted upon request if you withdraw from all programs.
+            </field>
+
+            <field name="rights_description">
+You have the right to:
+- Be informed about what biometric data is collected and why
+- Refuse biometric collection (if alternative verification methods exist)
+- Request deletion of your biometric data when you are no longer enrolled
+- Know when and where your biometric data was accessed
+- Complain if you believe your biometric data has been misused
+
+Biometric data is subject to additional protections under data protection law.
+            </field>
+
+            <field name="withdrawal_description">
+To request deletion of biometric data:
+- You must first be deregistered from all programs using biometric verification
+- Submit a written request to our Data Protection Officer
+- Deletion will be completed within 30 days
+- You will receive written confirmation of deletion
+
+Note: We may be required by law to retain biometric data for specific periods for audit or legal purposes.
+            </field>
+
+            <field name="contact_email">biometrics@example.org</field>
+
+            <!-- Consent Boundary: Organization types allowed under this notice
+                 Note: Biometric data has very restricted sharing - government only -->
+            <field name="max_recipient_types" eval="[(6, 0, [
+                ref('org_type_government'),
+            ])]"/>
+        </record>
+
+        <!-- ================================================================== -->
+        <!-- 4. RESEARCH AND EVALUATION NOTICE -->
+        <!-- ================================================================== -->
+        <record id="notice_research" model="spp.consent.notice">
+            <field name="code">RESEARCH_EVALUATION</field>
+            <field name="name">Sample: Research and Program Evaluation</field>
+            <field name="version">1.0</field>
+            <field name="state">active</field>
+            <field name="language">en</field>
+
+            <field name="summary">We would like to use your information for research and program evaluation to improve social protection systems. Your participation is voluntary, and your information will be anonymized in research outputs. Your decision will not affect your program benefits.</field>
+
+            <field name="full_text"><![CDATA[
+<h2>Privacy Notice for Research and Evaluation</h2>
+
+<h3>Purpose of research</h3>
+<p>We conduct research to:</p>
+<ul>
+    <li>Understand the effectiveness of social protection programs</li>
+    <li>Identify ways to improve services</li>
+    <li>Study the impact of programs on poverty and well-being</li>
+    <li>Develop evidence-based policies</li>
+    <li>Share lessons learned with the development community</li>
+</ul>
+
+<h3>Your participation is voluntary</h3>
+<p><strong>Important:</strong> Consenting to research is completely voluntary. Your decision will NOT affect your eligibility for or receipt of benefits. You can withdraw from research at any time.</p>
+
+<h3>How research is conducted</h3>
+<p>Research may involve:</p>
+<ul>
+    <li>Analysis of anonymized program data</li>
+    <li>Surveys and interviews (if you agree to participate)</li>
+    <li>Household visits by researchers</li>
+    <li>Comparison with other data sources (census, health records) with appropriate approvals</li>
+</ul>
+
+<h3>Protection of your privacy</h3>
+<p>All research follows ethical guidelines:</p>
+<ul>
+    <li>Your identity is protected in research outputs</li>
+    <li>Individual information is never published</li>
+    <li>Only aggregate statistics are reported</li>
+    <li>Researchers sign confidentiality agreements</li>
+    <li>Research protocols are reviewed by ethics committees</li>
+</ul>
+            ]]></field>
+
+            <field name="controller_info">
+[Your Organization Name]
+[Research Department]
+[Address]
+Phone: [Phone Number]
+Email: [Email Address]
+            </field>
+
+            <field name="purpose_description">
+Research purposes:
+- Impact evaluation of social protection programs
+- Analysis of program effectiveness and efficiency
+- Research on poverty, vulnerability, and well-being
+- Development of improved targeting methodologies
+- Policy research and evidence generation
+- Academic research (with approved protocols)
+            </field>
+
+            <field name="data_categories_description">
+Information used for research:
+- Demographic information (anonymized)
+- Program enrollment and benefit receipt
+- Household economic status
+- Service utilization
+- Outcomes (education, health, food security)
+
+Identifying information is removed or encrypted for research. Published results contain only aggregate statistics, never individual data.
+            </field>
+
+            <field name="recipients_description">
+Research data may be accessed by:
+- Internal research and evaluation teams
+- Independent research organizations (with approved protocols)
+- Academic researchers (with data use agreements)
+- Government policy units
+- Development partners and donors (aggregate results only)
+
+All researchers must:
+- Sign data use agreements
+- Follow ethical research guidelines
+- Protect confidentiality
+- Use data only for approved research purposes
+            </field>
+
+            <field name="retention_description">
+Research data retention:
+- Anonymized datasets: up to 10 years for replication and verification
+- Identified research data: maximum 5 years, then anonymized or deleted
+- Published research results: permanent (but contain no individual identities)
+
+You can request that your specific data be excluded from future research at any time.
+            </field>
+
+            <field name="rights_description">
+You have the right to:
+- Decline to participate in research (without affecting program benefits)
+- Withdraw from research at any time
+- Request information about research projects using your data
+- Access published research findings
+- Request exclusion of your data from future research studies
+- Complain if ethical guidelines are not followed
+
+Contact our Research Ethics Officer with any concerns.
+            </field>
+
+            <field name="withdrawal_description">
+To withdraw from research:
+- Contact our Research Department
+- Your data will be excluded from NEW research projects
+- Data already used in completed or ongoing research cannot be retroactively removed
+- Aggregate statistics already published remain (but contain no identifying information)
+
+Your program benefits will continue unaffected by research participation decisions.
+            </field>
+
+            <field name="contact_email">research@example.org</field>
+
+            <!-- Consent Boundary: Organization types allowed under this notice -->
+            <field name="max_recipient_types" eval="[(6, 0, [
+                ref('org_type_government'),
+                ref('org_type_research'),
+                ref('org_type_un'),
+                ref('org_type_ingo'),
+            ])]"/>
+        </record>
+
+    </data>
+</odoo>

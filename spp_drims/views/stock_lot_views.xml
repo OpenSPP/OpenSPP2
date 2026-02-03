@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- DRIMS Lot/Serial Numbers Action -->
+    <record id="action_drims_lot" model="ir.actions.act_window">
+        <field name="name">Lots &amp; Batches</field>
+        <field name="res_model">stock.lot</field>
+        <field name="view_mode">list,form</field>
+        <field name="path">drims-lots</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No lots or batches found
+            </p>
+            <p>
+                Lots and batches are created when receiving donations with lot-tracked products.
+                Use lots to track expiry dates for medicines and food items.
+            </p>
+        </field>
+    </record>
+
+    <!-- DRIMS Lot Tree View Extension -->
+    <record id="view_stock_lot_tree_drims" model="ir.ui.view">
+        <field name="name">stock.lot.tree.drims</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="stock.view_production_lot_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='product_id']" position="after">
+                <field name="product_qty" optional="show" string="Qty On Hand"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- DRIMS Lot Search View Extension -->
+    <record id="view_stock_lot_search_drims" model="ir.ui.view">
+        <field name="name">stock.lot.search.drims</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="stock.search_product_lot_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <separator/>
+                <group>
+                    <filter string="Product" name="group_product"
+                            context="{'group_by': 'product_id'}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

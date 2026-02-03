@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- Vocabulary Definition -->
+    <record id="vocab_relationship" model="spp.vocabulary">
+        <field name="name">Relationship Type</field>
+        <field name="namespace_uri">urn:openspp:vocab:relationship</field>
+        <field name="is_system">True</field>
+        <field name="domain">core</field>
+    </record>
+
+    <!-- 1. Head -->
+    <record id="code_rel_head" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_relationship"/>
+        <field name="code">head</field>
+        <field name="display">Head of Household</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <!-- 2. Spouse -->
+    <record id="code_rel_spouse" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_relationship"/>
+        <field name="code">spouse</field>
+        <field name="display">Spouse/Partner</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <!-- 3. Children & Descendants -->
+    <record id="code_rel_child" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_relationship"/>
+        <field name="code">child</field>
+        <field name="display">Child</field> <!-- Includes biological, adopted, step -->
+        <field name="sequence">30</field>
+    </record>
+
+    <record id="code_rel_child_in_law" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_relationship"/>
+        <field name="code">child_in_law</field>
+        <field name="display">Son/Daughter-in-law</field>
+        <field name="sequence">35</field>
+    </record>
+
+    <record id="code_rel_grandchild" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_relationship"/>
+        <field name="code">grandchild</field>
+        <field name="display">Grandchild</field>
+        <field name="sequence">40</field>
+    </record>
+
+    <!-- 4. Parents & Ascendants -->
+    <record id="code_rel_parent" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_relationship"/>
+        <field name="code">parent</field>
+        <field name="display">Parent</field>
+        <field name="sequence">50</field>
+    </record>
+
+    <record id="code_rel_parent_in_law" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_relationship"/>
+        <field name="code">parent_in_law</field>
+        <field name="display">Parent-in-law</field>
+        <field name="sequence">55</field>
+    </record>
+
+    <record id="code_rel_grandparent" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_relationship"/>
+        <field name="code">grandparent</field>
+        <field name="display">Grandparent</field>
+        <field name="sequence">60</field>
+    </record>
+
+    <!-- 5. Extended Family -->
+    <record id="code_rel_sibling" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_relationship"/>
+        <field name="code">sibling</field>
+        <field name="display">Sibling</field>
+        <field name="sequence">70</field>
+    </record>
+
+    <record id="code_rel_other" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_relationship"/>
+        <field name="code">other_relative</field>
+        <field name="display">Other Relative</field>
+        <field name="sequence">80</field>
+    </record>
+
+    <!-- 6. Non-Relatives -->
+    <record id="code_rel_non_relative" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_relationship"/>
+        <field name="code">non_relative</field>
+        <field name="display">Non-Relative</field>
+        <field name="sequence">90</field>
+    </record>
+
+    <!-- 7. Group-to-Group Relationships -->
+    <record id="code_rel_parent_org" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_relationship"/>
+        <field name="code">parent_organization</field>
+        <field name="display">Parent Organization</field>
+        <field name="sequence">100</field>
+    </record>
+
+    <record id="code_rel_subsidiary" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_relationship"/>
+        <field name="code">subsidiary</field>
+        <field name="display">Subsidiary</field>
+        <field name="sequence">110</field>
+    </record>
+
+    <record id="code_rel_partner_org" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_relationship"/>
+        <field name="code">partner_organization</field>
+        <field name="display">Partner Organization</field>
+        <field name="sequence">120</field>
+    </record>
+
+    <record id="code_rel_affiliated" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_relationship"/>
+        <field name="code">affiliated_with</field>
+        <field name="display">Affiliated With</field>
+        <field name="sequence">130</field>
+    </record>
+
+    <!-- Concept Groups for Relationship Applicability -->
+
+    <!-- Individual-to-Individual Relationships -->
+    <record id="group_rel_individual_to_individual" model="spp.vocabulary.concept.group">
+        <field name="name">rel_individual_to_individual</field>
+        <field name="label">Individual-to-Individual Relationships</field>
+        <field name="description">Relationship types applicable between individuals (familial relationships)</field>
+        <field name="code_ids" eval="[Command.set([
+            ref('code_rel_head'),
+            ref('code_rel_spouse'),
+            ref('code_rel_child'),
+            ref('code_rel_child_in_law'),
+            ref('code_rel_grandchild'),
+            ref('code_rel_parent'),
+            ref('code_rel_parent_in_law'),
+            ref('code_rel_grandparent'),
+            ref('code_rel_sibling'),
+            ref('code_rel_other'),
+            ref('code_rel_non_relative'),
+        ])]"/>
+    </record>
+
+    <!-- Group-to-Group Relationships -->
+    <record id="group_rel_group_to_group" model="spp.vocabulary.concept.group">
+        <field name="name">rel_group_to_group</field>
+        <field name="label">Group-to-Group Relationships</field>
+        <field name="description">Relationship types applicable between groups (organizational relationships)</field>
+        <field name="code_ids" eval="[Command.set([
+            ref('code_rel_parent_org'),
+            ref('code_rel_subsidiary'),
+            ref('code_rel_partner_org'),
+            ref('code_rel_affiliated'),
+        ])]"/>
+    </record>
+
+    <!-- Mixed (Individual-to-Group or Group-to-Individual) Relationships -->
+    <record id="group_rel_mixed" model="spp.vocabulary.concept.group">
+        <field name="name">rel_mixed</field>
+        <field name="label">Individual-to-Group Relationships</field>
+        <field name="description">Relationship types applicable between individual and group (e.g., head of household)</field>
+        <field name="code_ids" eval="[Command.set([
+            ref('code_rel_head'),
+        ])]"/>
+    </record>
+
+</odoo>

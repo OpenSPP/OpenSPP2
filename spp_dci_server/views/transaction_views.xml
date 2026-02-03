@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_spp_dci_transaction_tree" model="ir.ui.view">
+        <field name="name">spp.dci.transaction.tree</field>
+        <field name="model">spp.dci.transaction</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="state == 'rejected'" decoration-warning="state == 'callback_failed'" decoration-success="state == 'callback_sent'">
+                <field name="transaction_id" />
+                <field name="action" />
+                <field name="reg_type" />
+                <field name="sender_id" />
+                <field name="state" widget="badge" decoration-success="state in ('success', 'callback_sent')" decoration-warning="state in ('pending', 'processing')" decoration-danger="state in ('rejected', 'callback_failed')" />
+                <field name="received_at" />
+                <field name="processed_at" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_spp_dci_transaction_form" model="ir.ui.view">
+        <field name="name">spp.dci.transaction.form</field>
+        <field name="model">spp.dci.transaction</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button
+                        name="action_retry_callback"
+                        string="Retry Callback"
+                        type="object"
+                        class="btn-primary"
+                        invisible="state not in ('callback_failed', 'success')"
+                    />
+                    <button
+                        name="action_view_job"
+                        string="View Job"
+                        type="object"
+                        invisible="not job_uuid"
+                    />
+                    <field name="state" widget="statusbar" statusbar_visible="received,processing,success,callback_sent" />
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="transaction_id" readonly="1" />
+                        </h1>
+                    </div>
+
+                    <group string="Transaction Details">
+                        <group>
+                            <field name="message_id" />
+                            <field name="correlation_id" />
+                            <field name="action" />
+                            <field name="reg_type" />
+                        </group>
+                        <group>
+                            <field name="sender_id" />
+                            <field name="sender_uri" />
+                            <field name="callback_uri" widget="url" />
+                            <field name="dci_status" />
+                        </group>
+                    </group>
+
+                    <group string="Timing">
+                        <group>
+                            <field name="received_at" />
+                            <field name="processed_at" />
+                        </group>
+                        <group>
+                            <field name="callback_sent_at" />
+                            <field name="retry_count" />
+                        </group>
+                    </group>
+
+                    <group string="Job Information" invisible="not job_uuid">
+                        <group>
+                            <field name="job_uuid" />
+                            <field name="job_state" />
+                        </group>
+                    </group>
+
+                    <group string="Error Information" invisible="not error_message">
+                        <field name="error_code" />
+                        <field name="error_message" />
+                    </group>
+
+                    <notebook>
+                        <page string="Request Payload" name="request">
+                            <field name="request_payload" widget="ace" options="{'mode': 'javascript'}" />
+                        </page>
+                        <page string="Response Payload" name="response">
+                            <field name="response_payload" widget="ace" options="{'mode': 'javascript'}" />
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_spp_dci_transaction_search" model="ir.ui.view">
+        <field name="name">spp.dci.transaction.search</field>
+        <field name="model">spp.dci.transaction</field>
+        <field name="arch" type="xml">
+            <search string="DCI Transactions">
+                <field name="transaction_id" />
+                <field name="message_id" />
+                <field name="sender_id" />
+                <filter string="Search" name="filter_search" domain="[('action', '=', 'search')]" />
+                <filter string="Subscribe" name="filter_subscribe" domain="[('action', '=', 'subscribe')]" />
+                <filter string="Success" name="filter_success" domain="[('state', 'in', ('success', 'callback_sent'))]" />
+                <filter string="Failed" name="filter_failed" domain="[('state', 'in', ('rejected', 'callback_failed'))]" />
+                <filter string="Pending" name="filter_pending" domain="[('state', 'in', ('received', 'pending', 'processing'))]" />
+                <filter string="Today" name="filter_today" domain="[('received_at', '&gt;=', (context_today()).strftime('%Y-%m-%d'))]" />
+                <group>
+                    <filter string="Action" name="group_by_action" context="{'group_by': 'action'}" />
+                    <filter string="State" name="group_by_state" context="{'group_by': 'state'}" />
+                    <filter string="Sender" name="group_by_sender" context="{'group_by': 'sender_id'}" />
+                    <filter string="Date" name="group_by_date" context="{'group_by': 'received_at:day'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_spp_dci_transaction" model="ir.actions.act_window">
+        <field name="name">DCI Transactions</field>
+        <field name="res_model">spp.dci.transaction</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_filter_today': 1}</field>
+    </record>
+
+    <!-- Menu Item -->
+    <menuitem
+        id="menu_spp_dci_transaction"
+        name="Transactions"
+        parent="spp_dci_client.menu_spp_dci_config"
+        action="action_spp_dci_transaction"
+        sequence="30"
+    />
+</odoo>

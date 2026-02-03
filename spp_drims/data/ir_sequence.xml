@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Donation Reference Sequence -->
+    <record id="seq_drims_donation" model="ir.sequence">
+        <field name="name">DRIMS Donation Reference</field>
+        <field name="code">spp.drims.donation</field>
+        <field name="prefix">DON-%(year)s-</field>
+        <field name="padding">5</field>
+        <field name="number_next">1</field>
+        <field name="number_increment">1</field>
+    </record>
+
+    <!-- Request Reference Sequence -->
+    <record id="seq_drims_request" model="ir.sequence">
+        <field name="name">DRIMS Request Reference</field>
+        <field name="code">spp.drims.request</field>
+        <field name="prefix">REQ-%(year)s-</field>
+        <field name="padding">5</field>
+        <field name="number_next">1</field>
+        <field name="number_increment">1</field>
+    </record>
+
+    <!-- Waybill Reference Sequence -->
+    <record id="seq_drims_waybill" model="ir.sequence">
+        <field name="name">DRIMS Waybill Reference</field>
+        <field name="code">spp.drims.waybill</field>
+        <field name="prefix">WB-%(year)s-</field>
+        <field name="padding">6</field>
+        <field name="number_next">1</field>
+        <field name="number_increment">1</field>
+    </record>
+
+    <!-- DRIMS Alert Reference Sequence
+         Uses ALT- prefix to distinguish DRIMS-specific alerts from
+         general alerts (ALR-) from the spp_alerts module.
+    -->
+    <record id="seq_drims_alert" model="ir.sequence">
+        <field name="name">DRIMS Alert Reference</field>
+        <field name="code">spp.drims.alert</field>
+        <field name="prefix">ALT-%(year)s-</field>
+        <field name="padding">5</field>
+        <field name="number_next">1</field>
+        <field name="number_increment">1</field>
+    </record>
+
+    <!-- Return Reference Sequence -->
+    <record id="seq_drims_return" model="ir.sequence">
+        <field name="name">DRIMS Return Reference</field>
+        <field name="code">spp.drims.return</field>
+        <field name="prefix">RTN-%(year)s-</field>
+        <field name="padding">5</field>
+        <field name="number_next">1</field>
+        <field name="number_increment">1</field>
+    </record>
+</odoo>

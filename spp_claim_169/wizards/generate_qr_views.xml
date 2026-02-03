@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Generate QR Wizard Form View -->
+    <record id="view_claim169_generate_qr_wizard_form" model="ir.ui.view">
+        <field name="name">spp.claim169.generate.qr.wizard.form</field>
+        <field name="model">spp.claim169.generate.qr.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Generate QR Credentials">
+                <field name="state" invisible="1"/>
+
+                <!-- Info Banner (shown in draft state) -->
+                <div class="alert alert-info mb-3" role="alert" invisible="state == 'done'">
+                    <strong>QR Credential Generator</strong>
+                    <p class="mb-0 mt-1">
+                        Generates MOSIP Claim 169 compliant QR codes for selected registrants.
+                        Each QR code contains digitally signed identity claims that can be
+                        verified offline by compatible applications.
+                    </p>
+                </div>
+
+                <!-- Form fields (draft state) -->
+                <group invisible="state == 'done'">
+                    <group string="Registrants">
+                        <field name="partner_ids" widget="many2many_tags"
+                               options="{'no_create': True}"
+                               placeholder="Select individual registrants..."
+                               domain="[('is_registrant', '=', True), ('is_group', '=', False)]"
+                               help="Only individual registrants can receive QR credentials"/>
+                        <field name="partner_count" string="Selected"/>
+                    </group>
+                    <group string="Credential Settings">
+                        <field name="issuer_config_id"
+                               options="{'no_create': True, 'no_open': True}"
+                               help="Determines the signing key and issuer identity"/>
+                        <field name="validity_days"
+                               help="Credentials expire after this many days. Uses issuer default if empty."/>
+                        <field name="generate_mode"
+                               help="How to handle registrants who already have credentials"/>
+                    </group>
+                </group>
+
+                <!-- Results (done state) -->
+                <group invisible="state != 'done'">
+                    <field name="result_message" nolabel="1" colspan="2"/>
+                </group>
+
+                <footer>
+                    <button name="action_generate" type="object" string="Generate Credentials"
+                            class="btn-primary" invisible="state == 'done'"
+                            icon="fa-qrcode"/>
+                    <button name="action_view_credentials" type="object"
+                            string="View Generated Credentials"
+                            class="btn-primary" invisible="state != 'done'"
+                            icon="fa-list"/>
+                    <button string="Close" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action to Open Wizard (binding for Action menu on partner list) -->
+    <!-- Access is controlled via ir.model.access.csv for the wizard model -->
+    <record id="action_claim169_generate_qr_wizard" model="ir.actions.act_window">
+        <field name="name">Generate QR Credentials</field>
+        <field name="res_model">spp.claim169.generate.qr.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="base.model_res_partner"/>
+        <field name="binding_view_types">list</field>
+    </record>
+
+    <!-- Standalone Action (accessible from menu without pre-selection) -->
+    <record id="action_claim169_generate_qr_wizard_standalone" model="ir.actions.act_window">
+        <field name="name">Generate QR Credentials</field>
+        <field name="res_model">spp.claim169.generate.qr.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_partner_ids': []}</field>
+        <field name="help" type="html">
+            <p>
+                Generate MOSIP Claim 169 QR credentials for registrants.
+                Select individual registrants and configure credential settings.
+            </p>
+        </field>
+    </record>
+</odoo>

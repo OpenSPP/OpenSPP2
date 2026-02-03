@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Key Provider Registry Tree View -->
+    <record id="spp_key_provider_registry_view_tree" model="ir.ui.view">
+        <field name="name">spp.key.provider.registry.view.tree</field>
+        <field name="model">spp.key.provider.registry</field>
+        <field name="arch" type="xml">
+            <list string="Key Providers">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="provider_type"/>
+                <field name="is_default"/>
+                <field name="purpose_ids" widget="many2many_tags"/>
+                <field name="connection_status" decoration-success="connection_status == 'connected'" decoration-danger="connection_status == 'error'" decoration-muted="connection_status == 'unknown'" widget="badge"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Key Provider Registry Form View -->
+    <record id="spp_key_provider_registry_view_form" model="ir.ui.view">
+        <field name="name">spp.key.provider.registry.view.form</field>
+        <field name="model">spp.key.provider.registry</field>
+        <field name="arch" type="xml">
+            <form string="Key Provider">
+                <header>
+                    <button name="action_test_connection" string="Test Connection" type="object" class="btn-primary"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Default" bg_color="text-bg-success" invisible="not is_default"/>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <group>
+                        <group string="Configuration">
+                            <field name="name"/>
+                            <field name="provider_type"/>
+                            <field name="sequence"/>
+                            <field name="active" widget="boolean_toggle"/>
+                        </group>
+                        <group string="Scope">
+                            <field name="is_default"/>
+                            <field name="purpose_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    <group string="Connection Status">
+                        <field name="connection_status" widget="badge" decoration-success="connection_status == 'connected'" decoration-danger="connection_status == 'error'"/>
+                        <field name="last_test_date"/>
+                        <field name="last_test_message" invisible="not last_test_message"/>
+                    </group>
+                    <div class="alert alert-info" role="alert" invisible="provider_type != 'config'">
+                        <strong>Configuration File Provider</strong>
+                        <p>Keys are read from odoo.conf. Add keys with format:</p>
+                        <code>spp_encryption_key_[key_id] = base64_encoded_key</code>
+                    </div>
+                    <div class="alert alert-info" role="alert" invisible="provider_type != 'database'">
+                        <strong>Database Provider</strong>
+                        <p>Keys are stored encrypted in the database using a master key from odoo.conf:</p>
+                        <code>spp_encryption_master_key = base64_encoded_master_key</code>
+                    </div>
+                    <div class="alert alert-info" role="alert" invisible="provider_type != 'vault'">
+                        <strong>HashiCorp Vault Provider</strong>
+                        <p>Configure in odoo.conf:</p>
+                        <code>spp_vault_url, spp_vault_token, spp_vault_mount_point</code>
+                    </div>
+                    <div class="alert alert-info" role="alert" invisible="provider_type != 'aws_kms'">
+                        <strong>AWS KMS Provider</strong>
+                        <p>Configure in odoo.conf or use IAM roles:</p>
+                        <code>spp_aws_region, spp_aws_kms_key_alias</code>
+                    </div>
+                    <div class="alert alert-info" role="alert" invisible="provider_type != 'gcp_kms'">
+                        <strong>Google Cloud KMS Provider</strong>
+                        <p>Configure in odoo.conf:</p>
+                        <code>spp_gcp_project, spp_gcp_keyring, spp_gcp_location</code>
+                    </div>
+                    <div class="alert alert-info" role="alert" invisible="provider_type != 'azure_keyvault'">
+                        <strong>Azure Key Vault Provider</strong>
+                        <p>Configure in odoo.conf:</p>
+                        <code>spp_azure_vault_url, spp_azure_tenant_id, spp_azure_client_id</code>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Key Provider Registry Action -->
+    <record id="action_key_provider_registry" model="ir.actions.act_window">
+        <field name="name">Key Providers</field>
+        <field name="res_model">spp.key.provider.registry</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Configure a key provider
+            </p>
+            <p>
+                Key providers define where and how encryption keys are stored.
+                Choose from configuration file, database, or cloud KMS options.
+            </p>
+        </field>
+    </record>
+
+    <!-- Key Purpose Tree View -->
+    <record id="spp_key_purpose_view_tree" model="ir.ui.view">
+        <field name="name">spp.key.purpose.view.tree</field>
+        <field name="model">spp.key.purpose</field>
+        <field name="arch" type="xml">
+            <list string="Key Purposes">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="key_rotation_days"/>
+                <field name="require_hardware_key"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Key Purpose Form View -->
+    <record id="spp_key_purpose_view_form" model="ir.ui.view">
+        <field name="name">spp.key.purpose.view.form</field>
+        <field name="model">spp.key.purpose</field>
+        <field name="arch" type="xml">
+            <form string="Key Purpose">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="code"/>
+                            <field name="sequence"/>
+                        </group>
+                        <group>
+                            <field name="key_rotation_days"/>
+                            <field name="require_hardware_key"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <separator string="Description"/>
+                    <field name="description" nolabel="1" class="oe_inline"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Key Purpose Action -->
+    <record id="action_key_purpose" model="ir.actions.act_window">
+        <field name="name">Key Purposes</field>
+        <field name="res_model">spp.key.purpose</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

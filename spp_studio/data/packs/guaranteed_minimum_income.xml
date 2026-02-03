@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Guaranteed Minimum Income Pack: Income floor programs -->
+        <record id="pack_guaranteed_minimum" model="spp.studio.pack">
+            <field name="name">Guaranteed Minimum Income</field>
+            <field name="code">guaranteed_minimum_income</field>
+            <field name="description">Logic pack for guaranteed minimum income and poverty gap-filling programs. Calculates transfers to bring households up to minimum income threshold.</field>
+            <field name="category">cash_transfer</field>
+            <field name="version">1.0</field>
+            <field name="author">OpenSPP</field>
+            <field name="state">available</field>
+        </record>
+
+        <!-- Eligibility: Below Minimum Threshold -->
+        <record id="pack_gmi_item_below_threshold" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_guaranteed_minimum"/>
+            <field name="name">Below Minimum Income</field>
+            <field name="context_type">group</field>
+            <field name="description">Household income is below guaranteed minimum threshold.</field>
+            <field name="expression_type">filter</field>
+            <field name="logic_data">{"cel_expression": "total_income &lt; minimum_income_threshold"}</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <!-- Eligibility: Working Age with Barriers -->
+        <record id="pack_gmi_item_work_barriers" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_guaranteed_minimum"/>
+            <field name="name">Employment Barriers Check</field>
+            <field name="context_type">group</field>
+            <field name="description">Working-age members have legitimate barriers to employment.</field>
+            <field name="expression_type">filter</field>
+            <field name="logic_data">{"cel_expression": "has_disabled_member || has_caregiver_responsibilities || is_single_parent || no_working_age_members"}</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <!-- Eligibility: Asset Test -->
+        <record id="pack_gmi_item_asset_test" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_guaranteed_minimum"/>
+            <field name="name">Asset Means Test</field>
+            <field name="context_type">group</field>
+            <field name="description">Household assets below threshold (excludes primary residence).</field>
+            <field name="expression_type">filter</field>
+            <field name="logic_data">{"cel_expression": "liquid_assets &lt;= 10000 &amp;&amp; non_housing_assets &lt;= 50000"}</field>
+            <field name="sequence">30</field>
+        </record>
+
+        <!-- Eligibility: Residency/Citizenship -->
+        <record id="pack_gmi_item_residency" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_guaranteed_minimum"/>
+            <field name="name">Residency Requirement</field>
+            <field name="context_type">individual</field>
+            <field name="description">Legal residency and minimum duration requirement.</field>
+            <field name="expression_type">filter</field>
+            <field name="logic_data">{"cel_expression": "is_legal_resident &amp;&amp; residency_months >= 12"}</field>
+            <field name="sequence">40</field>
+        </record>
+
+        <!-- Scoring: Income Gap Score -->
+        <record id="pack_gmi_item_gap_score" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_guaranteed_minimum"/>
+            <field name="name">Income Gap Score</field>
+            <field name="context_type">group</field>
+            <field name="description">Score based on size of gap between income and minimum threshold.</field>
+            <field name="expression_type">scoring</field>
+            <field name="logic_data">{"cel_expression": "(minimum_income - total_income) / minimum_income * 100"}</field>
+            <field name="sequence">50</field>
+        </record>
+
+        <!-- Benefit: Basic Gap Fill -->
+        <record id="pack_gmi_item_gap_fill" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_guaranteed_minimum"/>
+            <field name="name">Income Gap Fill</field>
+            <field name="context_type">group</field>
+            <field name="description">Transfer amount equals difference between current income and minimum threshold.</field>
+            <field name="expression_type">formula</field>
+            <field name="logic_data">{"cel_expression": "(minimum_income - total_income) > 0 ? (minimum_income - total_income) : 0"}</field>
+            <field name="sequence">60</field>
+        </record>
+
+        <!-- Benefit: Per-Capita Minimum -->
+        <record id="pack_gmi_item_per_capita_min" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_guaranteed_minimum"/>
+            <field name="name">Per-Capita Minimum Income</field>
+            <field name="context_type">group</field>
+            <field name="description">Guarantee minimum per-capita income using equivalence scale.</field>
+            <field name="expression_type">formula</field>
+            <field name="logic_data">{"cel_expression": "((per_capita_minimum * equivalence_scale) - total_income) > 0 ? ((per_capita_minimum * equivalence_scale) - total_income) : 0"}</field>
+            <field name="sequence">70</field>
+        </record>
+
+        <!-- Benefit: Household Size Adjusted -->
+        <record id="pack_gmi_item_size_adjusted" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_guaranteed_minimum"/>
+            <field name="name">Size-Adjusted Minimum</field>
+            <field name="context_type">group</field>
+            <field name="description">Minimum income threshold adjusted by household size (with economies of scale).</field>
+            <field name="expression_type">formula</field>
+            <field name="logic_data">{"cel_expression": "((base_minimum + per_additional_member * (hh_size - 1) * 0.7) - total_income) > 0 ? ((base_minimum + per_additional_member * (hh_size - 1) * 0.7) - total_income) : 0"}</field>
+            <field name="sequence">80</field>
+        </record>
+
+        <!-- Benefit: With Earnings Disregard -->
+        <record id="pack_gmi_item_earnings_disregard" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_guaranteed_minimum"/>
+            <field name="name">Gap Fill with Earnings Disregard</field>
+            <field name="context_type">both</field>
+            <field name="description">Ignores portion of earned income to encourage work (e.g., first 20% disregarded).</field>
+            <field name="expression_type">formula</field>
+            <field name="logic_data">{"cel_expression": "(minimum_income - (unearned_income + earned_income * 0.8)) > 0 ? (minimum_income - (unearned_income + earned_income * 0.8)) : 0"}</field>
+            <field name="sequence">90</field>
+        </record>
+
+        <!-- Benefit: Tapered Withdrawal -->
+        <record id="pack_gmi_item_tapered" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_guaranteed_minimum"/>
+            <field name="name">Tapered Benefit Withdrawal</field>
+            <field name="context_type">group</field>
+            <field name="description">Benefit reduces gradually as income increases (e.g., 50 cents per dollar earned).</field>
+            <field name="expression_type">formula</field>
+            <field name="logic_data">{"cel_expression": "(maximum_benefit - (total_income * 0.5)) > 0 ? (maximum_benefit - (total_income * 0.5)) : 0"}</field>
+            <field name="sequence">100</field>
+        </record>
+
+        <!-- Benefit: With Housing Allowance -->
+        <record id="pack_gmi_item_housing" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_guaranteed_minimum"/>
+            <field name="name">GMI Plus Housing Allowance</field>
+            <field name="context_type">both</field>
+            <field name="description">Basic GMI plus additional housing cost support.</field>
+            <field name="expression_type">formula</field>
+            <field name="logic_data">{"cel_expression": "((minimum_income - non_housing_income) > 0 ? (minimum_income - non_housing_income) : 0) + (actual_rent &lt; max_housing_allowance ? actual_rent : max_housing_allowance)"}</field>
+            <field name="sequence">110</field>
+        </record>
+    </data>
+</odoo>

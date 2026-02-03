@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- DRIMS Relief Products Action -->
+    <record id="action_drims_product" model="ir.actions.act_window">
+        <field name="name">Relief Products</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">list,form,kanban</field>
+        <field name="path">drims-products</field>
+        <field name="domain">[('is_storable', '=', True)]</field>
+        <field name="context">{
+            'default_is_storable': True,
+            'default_type': 'consu'
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a relief product
+            </p>
+            <p>
+                Define products for disaster relief inventory management.
+                Products can be tracked by lot/serial number for expiry management.
+            </p>
+        </field>
+    </record>
+
+    <!-- DRIMS Product Tree View Extension -->
+    <record id="view_product_template_tree_drims" model="ir.ui.view">
+        <field name="name">product.template.tree.drims</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="categ_id" optional="show"/>
+                <field name="tracking" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- DRIMS Product Search View Extension -->
+    <record id="view_product_template_search_drims" model="ir.ui.view">
+        <field name="name">product.template.search.drims</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_search_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <separator/>
+                <filter string="Storable" name="storable"
+                        domain="[('is_storable', '=', True)]"/>
+                <filter string="Lot Tracked" name="lot_tracked"
+                        domain="[('tracking', '=', 'lot')]"/>
+                <separator/>
+                <group>
+                    <filter string="Category" name="group_category"
+                            context="{'group_by': 'categ_id'}"/>
+                    <filter string="Tracking" name="group_tracking"
+                            context="{'group_by': 'tracking'}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- DRIMS Product Categories Action -->
+    <record id="action_drims_product_category" model="ir.actions.act_window">
+        <field name="name">Product Categories</field>
+        <field name="res_model">product.category</field>
+        <field name="view_mode">list,form</field>
+        <field name="path">drims-product-categories</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a product category
+            </p>
+            <p>
+                Organize relief items into categories like Food, Medical, Shelter, etc.
+            </p>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,69 @@
+<!-- oca-hooks:disable=xml-create-user-wo-reset-password -->
+<odoo noupdate="0">
+    <!--
+    ==========================================================================
+    ROLE-BASED DEMO USERS
+    ==========================================================================
+    These users demonstrate the access control hierarchy. Each has progressively
+    more permissions. Additional module-specific groups are assigned by demo
+    generators (e.g., spp_mis_demo_v2) based on installed modules.
+
+    Login credentials: username / demo
+    ==========================================================================
+    -->
+
+    <!-- VIEWER: Read-only access across domains -->
+    <record id="demo_viewer" model="res.users">
+        <field name="name">Demo Viewer</field>
+        <field name="login">demo_viewer</field>
+        <field name="password">demo</field>
+        <field name="group_ids" eval="[Command.set([
+            ref('base.group_user'),
+            ref('spp_registry.group_registry_viewer'),
+        ])]"/>
+    </record>
+
+    <!-- OFFICER: Field worker - can create/edit own records -->
+    <record id="demo_officer" model="res.users">
+        <field name="name">Demo Officer</field>
+        <field name="login">demo_officer</field>
+        <field name="password">demo</field>
+        <field name="group_ids" eval="[Command.set([
+            ref('base.group_user'),
+            ref('spp_registry.group_registry_officer'),
+        ])]"/>
+    </record>
+
+    <!-- SUPERVISOR: Team lead - can approve workflows, see team records -->
+    <record id="demo_supervisor" model="res.users">
+        <field name="name">Demo Supervisor</field>
+        <field name="login">demo_supervisor</field>
+        <field name="password">demo</field>
+        <field name="group_ids" eval="[Command.set([
+            ref('base.group_user'),
+            ref('spp_registry.group_registry_officer'),
+        ])]"/>
+    </record>
+
+    <!-- MANAGER: Full domain access - can see all records, configure settings -->
+    <record id="demo_manager" model="res.users">
+        <field name="name">Demo Manager</field>
+        <field name="login">demo_manager</field>
+        <field name="password">demo</field>
+        <field name="group_ids" eval="[Command.set([
+            ref('base.group_user'),
+            ref('spp_registry.group_registry_manager'),
+        ])]"/>
+    </record>
+
+    <!-- ADMIN: System administrator - full access to everything -->
+    <record id="demo_admin" model="res.users">
+        <field name="name">OpenSPP Admin</field>
+        <field name="login">sppadmin</field>
+        <field name="password">demo</field>
+        <field name="group_ids" eval="[Command.set([
+            ref('base.group_user'),
+            ref('spp_security.group_spp_admin'),
+        ])]"/>
+    </record>
+</odoo>

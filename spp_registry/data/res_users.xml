@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="0">
+    <!-- Set chatter position to bottom for existing admin user -->
+    <function model="res.users" name="write">
+        <value eval="[ref('base.user_admin')]" />
+        <value eval="{'chatter_position': 'bottom'}" />
+    </function>
+</odoo>

@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Priority Levels -->
+    <record id="vocab_drims_priority" model="spp.vocabulary">
+        <field name="name">DRIMS Priority Levels</field>
+        <field name="namespace_uri">urn:openspp:vocab:drims:priority-levels</field>
+        <field name="version">2024</field>
+        <field name="is_system">True</field>
+        <field name="domain">core</field>
+    </record>
+
+    <!-- Donor Types -->
+    <record id="vocab_drims_donor_type" model="spp.vocabulary">
+        <field name="name">DRIMS Donor Types</field>
+        <field name="namespace_uri">urn:openspp:vocab:drims:donor-types</field>
+        <field name="version">2024</field>
+        <field name="is_system">True</field>
+        <field name="domain">core</field>
+    </record>
+
+    <!-- Item Conditions -->
+    <record id="vocab_drims_item_condition" model="spp.vocabulary">
+        <field name="name">DRIMS Item Conditions</field>
+        <field name="namespace_uri">urn:openspp:vocab:drims:item-conditions</field>
+        <field name="version">2024</field>
+        <field name="is_system">True</field>
+        <field name="domain">core</field>
+    </record>
+
+    <!-- Item Dispositions -->
+    <record id="vocab_drims_item_disposition" model="spp.vocabulary">
+        <field name="name">DRIMS Item Dispositions</field>
+        <field name="namespace_uri">urn:openspp:vocab:drims:item-dispositions</field>
+        <field name="version">2024</field>
+        <field name="is_system">True</field>
+        <field name="domain">core</field>
+    </record>
+
+    <!-- Transport Modes -->
+    <record id="vocab_drims_transport_mode" model="spp.vocabulary">
+        <field name="name">DRIMS Transport Modes</field>
+        <field name="namespace_uri">urn:openspp:vocab:drims:transport-modes</field>
+        <field name="version">2024</field>
+        <field name="is_system">True</field>
+        <field name="domain">core</field>
+    </record>
+
+    <!-- Request States -->
+    <record id="vocab_drims_request_state" model="spp.vocabulary">
+        <field name="name">DRIMS Request States</field>
+        <field name="namespace_uri">urn:openspp:vocab:drims:request-states</field>
+        <field name="version">2024</field>
+        <field name="is_system">True</field>
+        <field name="domain">core</field>
+    </record>
+
+    <!-- Donation States -->
+    <record id="vocab_drims_donation_state" model="spp.vocabulary">
+        <field name="name">DRIMS Donation States</field>
+        <field name="namespace_uri">urn:openspp:vocab:drims:donation-states</field>
+        <field name="version">2024</field>
+        <field name="is_system">True</field>
+        <field name="domain">core</field>
+    </record>
+
+    <!-- POD Statuses -->
+    <record id="vocab_drims_pod_status" model="spp.vocabulary">
+        <field name="name">DRIMS Proof of Delivery Statuses</field>
+        <field name="namespace_uri">urn:openspp:vocab:drims:pod-statuses</field>
+        <field name="version">2024</field>
+        <field name="is_system">True</field>
+        <field name="domain">core</field>
+    </record>
+
+    <!-- DRIMS Types -->
+    <record id="vocab_drims_type" model="spp.vocabulary">
+        <field name="name">DRIMS Transaction Types</field>
+        <field name="namespace_uri">urn:openspp:vocab:drims:drims-types</field>
+        <field name="version">2024</field>
+        <field name="is_system">True</field>
+        <field name="domain">core</field>
+    </record>
+
+    <!-- Item Categories -->
+    <record id="vocab_drims_item_category" model="spp.vocabulary">
+        <field name="name">DRIMS Item Categories</field>
+        <field name="namespace_uri">urn:openspp:vocab:drims:item-categories</field>
+        <field name="version">2024</field>
+        <field name="is_system">True</field>
+        <field name="domain">core</field>
+    </record>
+
+    <!-- Donation Restrictions -->
+    <record id="vocab_drims_restriction" model="spp.vocabulary">
+        <field name="name">DRIMS Donation Restrictions</field>
+        <field name="namespace_uri">urn:openspp:vocab:drims:restrictions</field>
+        <field name="version">2024</field>
+        <field name="is_system">True</field>
+        <field name="domain">core</field>
+    </record>
+
+    <!-- Return Reasons -->
+    <record id="vocab_drims_return_reason" model="spp.vocabulary">
+        <field name="name">DRIMS Return Reasons</field>
+        <field name="namespace_uri">urn:openspp:vocab:drims:return-reasons</field>
+        <field name="version">2024</field>
+        <field name="is_system">True</field>
+        <field name="domain">core</field>
+    </record>
+
+    <!-- Return Conditions -->
+    <record id="vocab_drims_return_condition" model="spp.vocabulary">
+        <field name="name">DRIMS Return Conditions</field>
+        <field name="namespace_uri">urn:openspp:vocab:drims:return-conditions</field>
+        <field name="version">2024</field>
+        <field name="is_system">True</field>
+        <field name="domain">core</field>
+    </record>
+
+    <!-- Distribution Types -->
+    <record id="vocab_drims_distribution_type" model="spp.vocabulary">
+        <field name="name">DRIMS Distribution Types</field>
+        <field name="namespace_uri">urn:openspp:vocab:drims:distribution-types</field>
+        <field name="version">2024</field>
+        <field name="is_system">True</field>
+        <field name="domain">core</field>
+    </record>
+
+    <!-- Alert Types -->
+    <record id="vocab_drims_alert_type" model="spp.vocabulary">
+        <field name="name">DRIMS Alert Types</field>
+        <field name="namespace_uri">urn:openspp:vocab:drims:alert-types</field>
+        <field name="version">2024</field>
+        <field name="is_system">True</field>
+        <field name="domain">core</field>
+    </record>
+
+    <!-- Agency Types -->
+    <record id="vocab_drims_agency_type" model="spp.vocabulary">
+        <field name="name">DRIMS Agency Types</field>
+        <field name="namespace_uri">urn:openspp:vocab:drims:agency-types</field>
+        <field name="version">2024</field>
+        <field name="is_system">True</field>
+        <field name="domain">core</field>
+    </record>
+
+    <!-- Hazard Types (for DRIMS use) -->
+    <record id="vocab_drims_hazard_type" model="spp.vocabulary">
+        <field name="name">DRIMS Hazard Types</field>
+        <field name="namespace_uri">urn:openspp:vocab:drims:hazard-types</field>
+        <field name="version">2024</field>
+        <field name="is_system">True</field>
+        <field name="domain">core</field>
+    </record>
+
+    <!-- Coordination Modes -->
+    <record id="vocab_drims_coordination_mode" model="spp.vocabulary">
+        <field name="name">DRIMS Coordination Modes</field>
+        <field name="namespace_uri">urn:openspp:vocab:drims:coordination-modes</field>
+        <field name="version">2024</field>
+        <field name="is_system">True</field>
+        <field name="domain">core</field>
+        <field name="description">Models for coordinating multi-agency disaster response</field>
+    </record>
+
+    <!-- Organization Roles (for 4W reporting) -->
+    <record id="vocab_drims_organization_role" model="spp.vocabulary">
+        <field name="name">DRIMS Organization Roles</field>
+        <field name="namespace_uri">urn:openspp:vocab:drims:organization-roles</field>
+        <field name="version">2024</field>
+        <field name="is_system">True</field>
+        <field name="domain">core</field>
+        <field name="description">Roles organizations play in disaster response coordination (4W reporting)</field>
+    </record>
+
+    <!-- OCHA/IASC Humanitarian Clusters -->
+    <record id="vocab_ocha_iasc_clusters" model="spp.vocabulary">
+        <field name="name">OCHA/IASC Humanitarian Clusters</field>
+        <field name="namespace_uri">urn:ocha:iasc:clusters</field>
+        <field name="version">2024</field>
+        <field name="is_system">True</field>
+        <field name="domain">core</field>
+        <field name="description">Standard humanitarian cluster coordination sectors defined by OCHA/IASC</field>
+        <field name="reference_url">https://www.humanitarianresponse.info/en/coordination/clusters</field>
+    </record>
+
+    <!-- Personnel Roles -->
+    <record id="vocab_drims_personnel_roles" model="spp.vocabulary">
+        <field name="name">DRIMS Personnel Roles</field>
+        <field name="namespace_uri">urn:openspp:vocab:drims:personnel-roles</field>
+        <field name="version">2024</field>
+        <field name="is_system">True</field>
+        <field name="domain">core</field>
+        <field name="description">Roles for deployed personnel in disaster response operations</field>
+    </record>
+</odoo>

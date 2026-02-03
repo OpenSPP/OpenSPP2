@@ -1,0 +1,21 @@
+/* Fix for registrant form view layout issue in Odoo 19
+ * The form sheet background was collapsing due to flex layout issues
+ * The sheet was shrinking to ~33px while chatter took all the space
+ */
+.o_form_renderer .o_form_sheet_bg {
+    min-width: 600px !important;
+    flex-shrink: 0 !important;
+    flex-basis: 990px !important;
+}
+
+/* Ensure the form sheet takes proper space in flex layout */
+.o_form_renderer.d-flex .o_form_sheet_bg {
+    flex: 2 0 600px !important;
+}
+
+/* Ensure chatter doesn't take all the space and has reasonable constraints */
+.o_form_renderer .oe_chatter {
+    flex: 0 1 auto !important;
+    min-width: 400px !important;
+    max-width: 600px !important;
+}

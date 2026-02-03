@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Clone CR Type Wizard Form View -->
+    <record id="view_clone_cr_type_wizard_form" model="ir.ui.view">
+        <field name="name">spp.studio.clone.cr.type.wizard.form</field>
+        <field name="model">spp.studio.clone.cr.type.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Clone Change Request Type">
+                <div class="alert alert-info" role="alert">
+                    <p class="mb-0">
+                        Create a copy of an existing CR type that you can customize.
+                        Cloned types are fully editable and can be modified via Studio.
+                    </p>
+                </div>
+
+                <group string="Source Type">
+                    <field name="source_type_id"
+                           options="{'no_create': True, 'no_quick_create': True}"/>
+                    <field name="source_code" invisible="not source_type_id"/>
+                </group>
+
+                <group string="New Type Configuration">
+                    <field name="new_name"/>
+                    <field name="new_code"/>
+                    <div class="alert alert-warning" role="alert" invisible="code_is_unique">
+                        <span class="fa fa-exclamation-triangle"/>
+                        This code already exists. Please choose a different code.
+                    </div>
+                </group>
+
+                <group string="Clone Options">
+                    <field name="copy_field_mappings"/>
+                    <field name="copy_approval_workflow"/>
+                    <field name="copy_document_requirements"/>
+                </group>
+
+                <footer>
+                    <button name="action_clone"
+                            string="Clone &amp; Edit"
+                            type="object"
+                            class="btn-primary"
+                            invisible="not code_is_unique"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Clone CR Type Wizard Action -->
+    <record id="action_clone_cr_type_wizard" model="ir.actions.act_window">
+        <field name="name">Clone Change Request Type</field>
+        <field name="res_model">spp.studio.clone.cr.type.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="spp_change_request_v2.model_spp_change_request_type"/>
+        <field name="binding_view_types">form,list</field>
+        <field name="context">{'default_source_type_id': active_id}</field>
+    </record>
+
+</odoo>

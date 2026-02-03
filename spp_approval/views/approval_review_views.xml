@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Approval Review Tree View -->
+    <record id="approval_review_view_tree" model="ir.ui.view">
+        <field name="name">spp.approval.review.tree</field>
+        <field name="model">spp.approval.review</field>
+        <field name="arch" type="xml">
+            <list decoration-warning="status == 'pending'" decoration-success="status == 'approved'" decoration-danger="status == 'rejected'">
+                <field name="model"/>
+                <field name="res_id"/>
+                <field name="definition_id"/>
+                <field name="status" widget="badge" decoration-warning="status == 'pending'" decoration-success="status == 'approved'" decoration-danger="status == 'rejected'"/>
+                <field name="requested_by_id"/>
+                <field name="requested_date"/>
+                <field name="reviewer_id"/>
+                <field name="review_date"/>
+                <field name="is_sla_exceeded" widget="boolean" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Approval Review Form View -->
+    <record id="approval_review_view_form" model="ir.ui.view">
+        <field name="name">spp.approval.review.form</field>
+        <field name="model">spp.approval.review</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="status" widget="statusbar" statusbar_visible="pending,approved,rejected"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group string="Record Information">
+                            <field name="model"/>
+                            <field name="res_id"/>
+                            <field name="definition_id"/>
+                        </group>
+                        <group string="Request Information">
+                            <field name="requested_by_id"/>
+                            <field name="requested_date"/>
+                            <field name="sla_deadline"/>
+                            <field name="is_sla_exceeded" widget="boolean"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Review Information" invisible="status == 'pending'">
+                            <field name="reviewer_id"/>
+                            <field name="review_date"/>
+                        </group>
+                    </group>
+                    <group string="Comment" invisible="not comment">
+                        <field name="comment" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Approval Review Search View -->
+    <record id="approval_review_view_search" model="ir.ui.view">
+        <field name="name">spp.approval.review.search</field>
+        <field name="model">spp.approval.review</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="model"/>
+                <field name="definition_id"/>
+                <field name="requested_by_id"/>
+                <field name="reviewer_id"/>
+                <filter string="Pending" name="pending" domain="[('status', '=', 'pending')]"/>
+                <filter string="Approved" name="approved" domain="[('status', '=', 'approved')]"/>
+                <filter string="Rejected" name="rejected" domain="[('status', '=', 'rejected')]"/>
+                <separator/>
+                <filter string="SLA Exceeded" name="sla_exceeded" domain="[('is_sla_exceeded', '=', True)]"/>
+                <separator/>
+                <filter string="My Requests" name="my_requests" domain="[('requested_by_id', '=', uid)]"/>
+                <filter string="My Reviews" name="my_reviews" domain="[('reviewer_id', '=', uid)]"/>
+                <group>
+                    <filter string="Status" name="group_status" context="{'group_by': 'status'}"/>
+                    <filter string="Model" name="group_model" context="{'group_by': 'model'}"/>
+                    <filter string="Definition" name="group_definition" context="{'group_by': 'definition_id'}"/>
+                    <filter string="Requested By" name="group_requested_by" context="{'group_by': 'requested_by_id'}"/>
+                    <filter string="Reviewer" name="group_reviewer" context="{'group_by': 'reviewer_id'}"/>
+                    <filter string="Request Date" name="group_request_date" context="{'group_by': 'requested_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Approval Review Action -->
+    <record id="approval_review_action" model="ir.actions.act_window">
+        <field name="name">Approval Reviews</field>
+        <field name="res_model">spp.approval.review</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_pending': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No approval reviews found
+            </p>
+            <p>
+                Approval reviews are created when records are submitted for approval.
+            </p>
+        </field>
+    </record>
+
+    <!-- My Pending Approvals Action -->
+    <record id="approval_review_my_pending_action" model="ir.actions.act_window">
+        <field name="name">My Pending Approvals</field>
+        <field name="res_model">spp.approval.review</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('status', '=', 'pending')]</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No pending approvals!
+            </p>
+            <p>
+                You have no records waiting for your approval.
+            </p>
+        </field>
+    </record>
+</odoo>

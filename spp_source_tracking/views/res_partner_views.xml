@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Source tracking page content (reused for both individual and group notebooks) -->
+
+    <!-- Add source tracking page to individual registrant notebook -->
+    <record id="view_partner_source_tracking_individual_form" model="ir.ui.view">
+        <field name="name">res.partner.source.tracking.individual.form</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="spp_registry.view_individuals_form"/>
+        <field name="priority">200</field>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook[@name='individual_detail']" position="inside">
+                <page string="Source Tracking" name="source_tracking">
+                    <group>
+                        <group string="Original Source">
+                            <field name="source_system"/>
+                            <field name="source_reference"/>
+                            <field name="collection_method"/>
+                            <field name="collection_date"/>
+                        </group>
+                        <group string="Last Update">
+                            <field name="last_update_system"/>
+                            <field name="last_update_reference"/>
+                        </group>
+                    </group>
+                    <group string="Merge Information"
+                           invisible="not merged_into_id and merge_count == 0">
+                        <group>
+                            <field name="merged_into_id"/>
+                        </group>
+                        <group>
+                            <field name="merge_count"/>
+                        </group>
+                    </group>
+                    <separator string="Merge History"
+                               invisible="merge_count == 0"/>
+                    <field name="merge_provenance_ids" nolabel="1"
+                           invisible="merge_count == 0"
+                           widget="one2many_list">
+                        <list string="Merged Records" create="false" delete="false">
+                            <field name="merge_date"/>
+                            <field name="merged_id"/>
+                            <field name="merged_source_system"/>
+                            <field name="merged_collection_method"/>
+                            <field name="merged_by_id"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add source tracking page to group registrant notebook -->
+    <record id="view_partner_source_tracking_group_form" model="ir.ui.view">
+        <field name="name">res.partner.source.tracking.group.form</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="spp_registry.view_individuals_form"/>
+        <field name="priority">200</field>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook[@name='group_detail']" position="inside">
+                <page string="Source Tracking" name="source_tracking_group">
+                    <group>
+                        <group string="Original Source">
+                            <field name="source_system"/>
+                            <field name="source_reference"/>
+                            <field name="collection_method"/>
+                            <field name="collection_date"/>
+                        </group>
+                        <group string="Last Update">
+                            <field name="last_update_system"/>
+                            <field name="last_update_reference"/>
+                        </group>
+                    </group>
+                    <group string="Merge Information"
+                           invisible="not merged_into_id and merge_count == 0">
+                        <group>
+                            <field name="merged_into_id"/>
+                        </group>
+                        <group>
+                            <field name="merge_count"/>
+                        </group>
+                    </group>
+                    <separator string="Merge History"
+                               invisible="merge_count == 0"/>
+                    <field name="merge_provenance_ids" nolabel="1"
+                           invisible="merge_count == 0"
+                           widget="one2many_list">
+                        <list string="Merged Records" create="false" delete="false">
+                            <field name="merge_date"/>
+                            <field name="merged_id"/>
+                            <field name="merged_source_system"/>
+                            <field name="merged_collection_method"/>
+                            <field name="merged_by_id"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend tree view to optionally show source tracking -->
+    <record id="view_partner_source_tracking_tree" model="ir.ui.view">
+        <field name="name">res.partner.source.tracking.tree</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree"/>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="inside">
+                <field name="source_system" optional="hide"/>
+                <field name="collection_method" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add source tracking filters to partner search view -->
+    <record id="view_partner_source_tracking_search" model="ir.ui.view">
+        <field name="name">res.partner.source.tracking.search</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <field name="source_system"/>
+                <field name="collection_method"/>
+                <filter name="filter_merged" string="Merged Records"
+                        domain="[('merged_into_id', '!=', False)]"/>
+                <filter name="filter_has_merges" string="Has Merged Records"
+                        domain="[('merge_count', '>', 0)]"/>
+                <separator/>
+            </xpath>
+            <xpath expr="//group" position="inside">
+                <filter name="group_source_system" string="Source System"
+                        context="{'group_by': 'source_system'}"/>
+                <filter name="group_collection_method" string="Collection Method"
+                        context="{'group_by': 'collection_method'}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

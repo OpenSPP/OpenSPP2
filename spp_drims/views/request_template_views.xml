@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Request Template Tree View -->
+    <record id="drims_request_template_view_tree" model="ir.ui.view">
+        <field name="name">spp.drims.request.template.tree</field>
+        <field name="model">spp.drims.request.template</field>
+        <field name="arch" type="xml">
+            <list sample="1">
+                <field name="name"/>
+                <field name="user_id"/>
+                <field name="is_shared" widget="boolean_toggle"/>
+                <field name="line_count" string="Items"/>
+                <field name="priority_id" optional="hide"/>
+                <field name="description" optional="hide"/>
+                <button name="action_create_request"
+                        type="object"
+                        string="Use Template"
+                        class="btn-primary"
+                        icon="fa-plus"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Request Template Form View -->
+    <record id="drims_request_template_view_form" model="ir.ui.view">
+        <field name="name">spp.drims.request.template.form</field>
+        <field name="model">spp.drims.request.template</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_create_request"
+                            type="object"
+                            string="Create Request from Template"
+                            class="btn-primary"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="user_id"/>
+                        </group>
+                        <group>
+                            <field name="is_shared"/>
+                            <field name="priority_id"/>
+                        </group>
+                    </group>
+                    <separator string="Description"/>
+                    <field name="description" nolabel="1" placeholder="Optional description of this template..."/>
+                    <notebook>
+                        <page string="Template Items" name="items">
+                            <field name="line_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="product_id"/>
+                                    <field name="quantity"/>
+                                    <field name="uom_id"/>
+                                    <field name="notes"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Request Template Search View -->
+    <record id="drims_request_template_view_search" model="ir.ui.view">
+        <field name="name">spp.drims.request.template.search</field>
+        <field name="model">spp.drims.request.template</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="user_id"/>
+                <field name="description"/>
+                <filter string="My Templates" name="my_templates"
+                        domain="[('user_id', '=', uid)]"/>
+                <filter string="Shared Templates" name="shared"
+                        domain="[('is_shared', '=', True)]"/>
+                <separator/>
+                <group>
+                    <filter string="Owner" name="group_user" context="{'group_by': 'user_id'}"/>
+                    <filter string="Priority" name="group_priority" context="{'group_by': 'priority_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Request Template Action -->
+    <record id="drims_request_template_action" model="ir.actions.act_window">
+        <field name="name">Request Templates</field>
+        <field name="res_model">spp.drims.request.template</field>
+        <field name="view_mode">list,form</field>
+        <field name="path">drims-request-templates</field>
+        <field name="context">{'search_default_my_templates': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a request template
+            </p>
+            <p>
+                Templates allow you to quickly create new requests with pre-defined items.
+                Set templates as "Shared" to make them available to all users.
+            </p>
+        </field>
+    </record>
+</odoo>

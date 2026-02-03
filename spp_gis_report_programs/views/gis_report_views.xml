@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <!-- Extend GIS Report form to add program context -->
+    <record id="view_gis_report_form_programs" model="ir.ui.view">
+        <field name="name">spp.gis.report.form.programs</field>
+        <field name="model">spp.gis.report</field>
+        <field name="inherit_id" ref="spp_gis_report.view_gis_report_form" />
+        <field name="arch" type="xml">
+            <!-- Make context group visible and add program field -->
+            <xpath expr="//group[@name='context_group']" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </xpath>
+            <xpath expr="//group[@name='context_group']" position="inside">
+                <field name="program_id" options="{'no_create': True}" />
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Inherit res.users form to add DRIMS preferences -->
+    <record id="view_res_users_form_inherit_drims" model="ir.ui.view">
+        <field name="name">res.users.form.inherit.drims</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <!-- Add DRIMS tab in user preferences -->
+            <xpath expr="//notebook" position="inside">
+                <page string="DRIMS Preferences" name="drims_preferences">
+                    <group>
+                        <group string="Default Values">
+                            <field name="drims_default_incident_id"
+                                   options="{'no_create': True}"/>
+                            <field name="drims_default_warehouse_id"
+                                   options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Area Access">
+                            <field name="drims_area_ids"
+                                   widget="many2many_tags"
+                                   options="{'no_create': True}"/>
+                        </group>
+                        <group string="Warehouse Access">
+                            <field name="drims_warehouse_ids"
+                                   widget="many2many_tags"
+                                   options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Inherit res.users simple form to add DRIMS preferences -->
+    <record id="view_res_users_simple_form_inherit_drims" model="ir.ui.view">
+        <field name="name">res.users.simple.form.inherit.drims</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form_simple_modif"/>
+        <field name="arch" type="xml">
+            <!-- Add DRIMS tab in simplified user form -->
+            <xpath expr="//notebook" position="inside">
+                <page string="DRIMS Preferences" name="drims_preferences">
+                    <group>
+                        <group string="Default Values">
+                            <field name="drims_default_incident_id"
+                                   options="{'no_create': True}"/>
+                            <field name="drims_default_warehouse_id"
+                                   options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Area Access">
+                            <field name="drims_area_ids"
+                                   widget="many2many_tags"
+                                   options="{'no_create': True}"/>
+                        </group>
+                        <group string="Warehouse Access">
+                            <field name="drims_warehouse_ids"
+                                   widget="many2many_tags"
+                                   options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

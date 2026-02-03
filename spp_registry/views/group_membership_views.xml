@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+   Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+
+    <record id="view_groups_form_membership" model="ir.ui.view">
+        <field name="name">view_groups_form_membership</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="spp_registry.view_individuals_form" />
+        <field name="arch" type="xml">
+            <!-- Make members section visible -->
+            <xpath expr="//div[@name='group_members_section']" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </xpath>
+            <xpath expr="//div[@name='group_members_section']" position="inside">
+                <separator string="Group Members" />
+                <field name="group_membership_ids" readonly="disabled" nolabel="1">
+                    <list editable="top" default_order='status asc,ended_date asc'>
+                        <button
+                            name="open_individual_form"
+                            type="object"
+                            icon="fa-external-link"
+                            class="btn-success"
+                            title="Open Individual Form"
+                        />
+                        <field
+                            name="individual"
+                            domain="[('is_registrant','=',True),('is_group','=',False)]"
+                            options="{'no_create':True}"
+                            string="Member Name"
+                            context="{'form_view_ref':'spp_registry.view_individuals_form'}"
+                        />
+                        <field name="individual_birthdate" string="Date of Birth" />
+                        <field name="individual_gender" string="Sex" />
+                        <field
+                            name="membership_type_ids"
+                            string="Membership Types"
+                            widget="many2many_tags"
+                            options="{'no_open':True, 'no_create_edit':True, 'no_create':True, 'no_quick_create':True}"
+                        />
+                        <field name="start_date" />
+                        <field name="ended_date" string="End date" />
+                        <field name="status" />
+                    </list>
+                </field>
+            </xpath>
+        </field>
+    </record>
+</odoo>

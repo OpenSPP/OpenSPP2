@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Change Requests - under Forms & Fields -->
+    <!-- "Configure change request workflows" -->
+    <menuitem id="menu_studio_cr_types"
+              name="Change Requests"
+              parent="spp_studio.menu_studio_type_builders"
+              action="spp_studio_change_requests.action_studio_cr_type"
+              sequence="30"
+              groups="spp_studio.group_studio_viewer"/>
+</odoo>

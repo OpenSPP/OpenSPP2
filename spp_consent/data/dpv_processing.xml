@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+DPV-Aligned Processing Operations for Consent Management.
+
+Based on W3C Data Privacy Vocabulary (DPV) v2.
+See: https://w3id.org/dpv#Processing
+-->
+<odoo noupdate="1">
+
+    <!-- ================================================================== -->
+    <!-- OBTAIN OPERATIONS -->
+    <!-- ================================================================== -->
+
+    <record id="proc_collect" model="spp.consent.processing">
+        <field name="code">Collect</field>
+        <field name="name">Collect</field>
+        <field name="dpv_uri">https://w3id.org/dpv#Collect</field>
+        <field name="dpv_concept">dpv:Collect</field>
+        <field name="description">Gathering data from the data subject or other sources</field>
+        <field name="category">obtain</field>
+        <field name="risk_level">low</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="proc_derive" model="spp.consent.processing">
+        <field name="code">Derive</field>
+        <field name="name">Derive</field>
+        <field name="dpv_uri">https://w3id.org/dpv#Derive</field>
+        <field name="dpv_concept">dpv:Derive</field>
+        <field name="description">Creating new data from existing data</field>
+        <field name="category">obtain</field>
+        <field name="risk_level">medium</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="proc_generate" model="spp.consent.processing">
+        <field name="code">Generate</field>
+        <field name="name">Generate</field>
+        <field name="dpv_uri">https://w3id.org/dpv#Generate</field>
+        <field name="dpv_concept">dpv:Generate</field>
+        <field name="description">Creating new data about the data subject</field>
+        <field name="category">obtain</field>
+        <field name="risk_level">medium</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <!-- ================================================================== -->
+    <!-- STORE OPERATIONS -->
+    <!-- ================================================================== -->
+
+    <record id="proc_store" model="spp.consent.processing">
+        <field name="code">Store</field>
+        <field name="name">Store</field>
+        <field name="dpv_uri">https://w3id.org/dpv#Store</field>
+        <field name="dpv_concept">dpv:Store</field>
+        <field name="description">Keeping data in storage</field>
+        <field name="category">store</field>
+        <field name="risk_level">low</field>
+        <field name="sequence">40</field>
+    </record>
+
+    <record id="proc_record" model="spp.consent.processing">
+        <field name="code">Record</field>
+        <field name="name">Record</field>
+        <field name="dpv_uri">https://w3id.org/dpv#Record</field>
+        <field name="dpv_concept">dpv:Record</field>
+        <field name="description">Recording data in a register or database</field>
+        <field name="category">store</field>
+        <field name="risk_level">low</field>
+        <field name="sequence">50</field>
+    </record>
+
+    <!-- ================================================================== -->
+    <!-- USE OPERATIONS -->
+    <!-- ================================================================== -->
+
+    <record id="proc_use" model="spp.consent.processing">
+        <field name="code">Use</field>
+        <field name="name">Use</field>
+        <field name="dpv_uri">https://w3id.org/dpv#Use</field>
+        <field name="dpv_concept">dpv:Use</field>
+        <field name="description">Using data for a purpose</field>
+        <field name="category">use</field>
+        <field name="risk_level">low</field>
+        <field name="sequence">60</field>
+    </record>
+
+    <record id="proc_analyse" model="spp.consent.processing">
+        <field name="code">Analyse</field>
+        <field name="name">Analyse</field>
+        <field name="dpv_uri">https://w3id.org/dpv#Analyse</field>
+        <field name="dpv_concept">dpv:Analyse</field>
+        <field name="description">Analysing data to gain insights</field>
+        <field name="category">use</field>
+        <field name="risk_level">medium</field>
+        <field name="sequence">70</field>
+    </record>
+
+    <record id="proc_consult" model="spp.consent.processing">
+        <field name="code">Consult</field>
+        <field name="name">Consult</field>
+        <field name="dpv_uri">https://w3id.org/dpv#Consult</field>
+        <field name="dpv_concept">dpv:Consult</field>
+        <field name="description">Accessing data for reference</field>
+        <field name="category">use</field>
+        <field name="risk_level">low</field>
+        <field name="sequence">80</field>
+    </record>
+
+    <record id="proc_profile" model="spp.consent.processing">
+        <field name="code">Profile</field>
+        <field name="name">Profile</field>
+        <field name="dpv_uri">https://w3id.org/dpv#Profiling</field>
+        <field name="dpv_concept">dpv:Profiling</field>
+        <field name="description">Creating profiles based on data</field>
+        <field name="category">use</field>
+        <field name="risk_level">high</field>
+        <field name="sequence">90</field>
+    </record>
+
+    <!-- ================================================================== -->
+    <!-- DISCLOSE OPERATIONS -->
+    <!-- ================================================================== -->
+
+    <record id="proc_share" model="spp.consent.processing">
+        <field name="code">Share</field>
+        <field name="name">Share</field>
+        <field name="dpv_uri">https://w3id.org/dpv#Share</field>
+        <field name="dpv_concept">dpv:Share</field>
+        <field name="description">Sharing data with third parties</field>
+        <field name="category">disclose</field>
+        <field name="risk_level">medium</field>
+        <field name="sequence">100</field>
+    </record>
+
+    <record id="proc_transmit" model="spp.consent.processing">
+        <field name="code">Transmit</field>
+        <field name="name">Transmit</field>
+        <field name="dpv_uri">https://w3id.org/dpv#Transmit</field>
+        <field name="dpv_concept">dpv:Transmit</field>
+        <field name="description">Sending data to another location or system</field>
+        <field name="category">disclose</field>
+        <field name="risk_level">medium</field>
+        <field name="sequence">110</field>
+    </record>
+
+    <record id="proc_disclose" model="spp.consent.processing">
+        <field name="code">Disclose</field>
+        <field name="name">Disclose</field>
+        <field name="dpv_uri">https://w3id.org/dpv#Disclose</field>
+        <field name="dpv_concept">dpv:Disclose</field>
+        <field name="description">Making data available to others</field>
+        <field name="category">disclose</field>
+        <field name="risk_level">high</field>
+        <field name="sequence">120</field>
+    </record>
+
+    <record id="proc_transfer" model="spp.consent.processing">
+        <field name="code">Transfer</field>
+        <field name="name">Transfer</field>
+        <field name="dpv_uri">https://w3id.org/dpv#Transfer</field>
+        <field name="dpv_concept">dpv:Transfer</field>
+        <field name="description">Transferring data to another controller</field>
+        <field name="category">disclose</field>
+        <field name="risk_level">high</field>
+        <field name="sequence">130</field>
+    </record>
+
+    <!-- ================================================================== -->
+    <!-- REMOVE OPERATIONS -->
+    <!-- ================================================================== -->
+
+    <record id="proc_delete" model="spp.consent.processing">
+        <field name="code">Delete</field>
+        <field name="name">Delete</field>
+        <field name="dpv_uri">https://w3id.org/dpv#Remove</field>
+        <field name="dpv_concept">dpv:Remove</field>
+        <field name="description">Removing data from storage</field>
+        <field name="category">remove</field>
+        <field name="risk_level">low</field>
+        <field name="sequence">140</field>
+    </record>
+
+    <record id="proc_anonymise" model="spp.consent.processing">
+        <field name="code">Anonymise</field>
+        <field name="name">Anonymise</field>
+        <field name="dpv_uri">https://w3id.org/dpv#Anonymise</field>
+        <field name="dpv_concept">dpv:Anonymise</field>
+        <field name="description">Removing identifying information from data</field>
+        <field name="category">remove</field>
+        <field name="risk_level">low</field>
+        <field name="sequence">150</field>
+    </record>
+
+</odoo>

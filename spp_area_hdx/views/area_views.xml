@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Extend spp.area form view to add HDX fields -->
+    <record id="view_spp_area_form_hdx" model="ir.ui.view">
+        <field name="name">spp.area.form.hdx</field>
+        <field name="model">spp.area</field>
+        <field name="inherit_id" ref="spp_area.view_spparea_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='code']" position="after">
+                <field name="hdx_pcode" />
+                <field name="hdx_last_update" />
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend spp.area tree view to add HDX P-code -->
+    <record id="view_spp_area_tree_hdx" model="ir.ui.view">
+        <field name="name">spp.area.tree.hdx</field>
+        <field name="model">spp.area</field>
+        <field name="inherit_id" ref="spp_area.view_spparea_tree" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='code']" position="after">
+                <field name="hdx_pcode" optional="show" />
+            </xpath>
+        </field>
+    </record>
+</odoo>

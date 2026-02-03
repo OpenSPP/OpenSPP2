@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+
+Bulk Consent Recording Wizard Views.
+-->
+<odoo>
+    <!-- Bulk Record Consent Wizard Form -->
+    <record id="view_bulk_record_consent_wizard_form" model="ir.ui.view">
+        <field name="name">spp.bulk.record.consent.wizard.form</field>
+        <field name="model">spp.bulk.record.consent.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Record Consent for Multiple Beneficiaries">
+                <sheet>
+                    <!-- Summary Alert -->
+                    <div class="alert alert-info mb-3" role="alert">
+                        <i class="fa fa-users me-2" aria-hidden="true" title="Registrants"/>
+                        <strong>Bulk Consent Recording</strong>
+                        <p class="mb-0">Recording consent for <field name="registrant_count" class="fw-bold" readonly="1"/> beneficiaries.</p>
+                    </div>
+
+                    <notebook>
+                        <!-- Page 1: Beneficiaries -->
+                        <page string="Beneficiaries" name="beneficiaries">
+                            <group name="beneficiary_section">
+                                <field name="registrant_ids"
+                                       widget="many2many_tags"
+                                       options="{'no_create': true, 'color_field': 'color'}"
+                                       placeholder="Select beneficiaries..."/>
+                            </group>
+                        </page>
+
+                        <!-- Page 2: Consent Details -->
+                        <page string="Consent Details" name="details">
+                            <group col="2">
+                                <group name="basic_info" string="Basic Information">
+                                    <field name="expiry" required="1"/>
+                                    <field name="legal_basis"
+                                           widget="radio"
+                                           options="{'horizontal': false}"
+                                           title="Legal basis for data processing"/>
+                                </group>
+                                <group name="controller_info" string="Data Controller">
+                                    <field name="controller_id"/>
+                                    <field name="collection_method"
+                                           widget="radio"
+                                           options="{'horizontal': false}"
+                                           title="How was consent obtained"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <!-- Page 3: Processing -->
+                        <page string="Processing" name="processing">
+                            <group col="2">
+                                <group name="purposes" string="Purposes">
+                                    <field name="purpose_ids"
+                                           widget="many2many_tags"
+                                           nolabel="1"
+                                           placeholder="Select purposes..."
+                                           help="Why is this data being collected?"/>
+                                </group>
+                                <group name="personal_data" string="Personal Data Categories">
+                                    <field name="personal_data_ids"
+                                           widget="many2many_tags"
+                                           nolabel="1"
+                                           placeholder="Select data categories..."
+                                           help="What types of personal data will be collected?"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <!-- Page 4: Privacy Notice & Notes -->
+                        <page string="Privacy Notice" name="notice">
+                            <group name="notice_section">
+                                <field name="notice_id"
+                                       domain="[('state', '=', 'active')]"
+                                       context="{'default_state': 'active'}"
+                                       help="Select the privacy notice that was shown to the data subjects."/>
+                                <field name="notes"
+                                       placeholder="Additional information about this bulk consent recording..."/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <footer>
+                    <button name="action_record_bulk_consent"
+                            string="Record Consent"
+                            type="object"
+                            class="btn-primary"
+                            title="Record consent for all selected beneficiaries"
+                            aria-label="Record consent for all selected beneficiaries"/>
+                    <button string="Cancel"
+                            class="btn-secondary"
+                            special="cancel"
+                            title="Cancel bulk consent recording"
+                            aria-label="Cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action to open wizard -->
+    <record id="action_bulk_record_consent_wizard" model="ir.actions.act_window">
+        <field name="name">Bulk Record Consent</field>
+        <field name="res_model">spp.bulk.record.consent.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="base.model_res_partner"/>
+        <field name="binding_view_types">list</field>
+    </record>
+</odoo>

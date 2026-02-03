@@ -1,0 +1,3 @@
+Module icon placeholder for spp_studio_events
+Icon: Calendar with custom fields/form overlay
+Theme: Event management and data collection

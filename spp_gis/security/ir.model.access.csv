@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_color_scheme_admin,Color Scheme Admin,spp_gis.model_spp_gis_color_scheme,spp_security.group_spp_admin,1,1,1,1
+access_spp_color_scheme_read,Color Scheme Read,spp_gis.model_spp_gis_color_scheme,spp_registry.group_registry_read,1,0,0,0
+access_spp_data_layer_admin,Data Layer Admin,spp_gis.model_spp_gis_data_layer,spp_security.group_spp_admin,1,1,1,1
+access_spp_raster_layer_admin,Raster Layer Admin,spp_gis.model_spp_gis_raster_layer,spp_security.group_spp_admin,1,1,1,1
+access_spp_raster_layer_type_admin,Raster Layer Type Admin,spp_gis.model_spp_gis_raster_layer_type,spp_security.group_spp_admin,1,1,1,1
+access_spp_data_layer_read,Data Layer Read,spp_gis.model_spp_gis_data_layer,spp_registry.group_registry_read,1,0,0,0
+access_spp_raster_layer_read,Raster Layer Read,spp_gis.model_spp_gis_raster_layer,spp_registry.group_registry_read,1,0,0,0

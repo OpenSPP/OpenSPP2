@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Concept Groups are now created via post_init_hook in __init__.py
+        using search-or-create pattern for idempotent installation/upgrade.
+
+        This file is kept for documentation purposes.
+
+        Standard concept groups created:
+        - feminine_gender (is_female)
+        - masculine_gender (is_male)
+        - head_of_household (is_head)
+        - pregnant_eligible (is_pregnant)
+        - climate_hazards
+        - geophysical_hazards
+        - children
+        - adults
+        - elderly
+        - persons_with_disability
+
+        To add codes to a concept group, use the UI or data files like:
+
+        <record id="group_feminine_gender_codes" model="spp.vocabulary.concept.group">
+            <field name="id" ref="spp_cel_vocabulary.group_feminine_gender"/>
+            <field name="code_ids" eval="[(4, ref('your_module.your_female_code'))]"/>
+        </record>
+
+        ADR-016 Phase 3: CEL Integration
+    -->
+</odoo>

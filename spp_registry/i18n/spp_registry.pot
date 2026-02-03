@@ -1,0 +1,1514 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* spp_registry
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_phone_number_form
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_reg_rel_form
+msgid "<span class=\"o_stat_text\">Disable</span>"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_reg_rel_form
+msgid "<span class=\"o_stat_text\">Enable</span>"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_phone_number_form
+msgid ""
+"<span class=\"o_stat_text\">Enable</span>\n"
+"                                <span class=\"o_stat_text\">Phone No.</span>"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.constraint,message:spp_registry.constraint_spp_registry_id_unique_partner_id_type
+msgid "A registrant cannot have duplicate ID types"
+msgstr ""
+
+#. module: spp_registry
+#: model:res.groups,comment:spp_registry.group_registry_config_admin
+msgid "Access to configuration menus; implied by Registry Manager."
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_relationship__message_needaction
+msgid "Action Needed"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_group_membership__active
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registrant_tags__active
+msgid "Active"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.actions.act_window,help:spp_registry.action_reg_rel
+msgid "Add a Registrant Relationship!"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.actions.act_window,help:spp_registry.action_reg_id
+msgid "Add a Registrant's ID!"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.actions.act_window,help:spp_registry.action_phone_number
+msgid "Add a Registrant's Phone Number!"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.actions.act_window,help:spp_registry.action_registrant_tags
+msgid "Add a Registrant's Tags!"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.actions.act_window,help:spp_registry.action_id_type
+msgid "Add an ID Type!"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.actions.act_window,help:spp_registry.action_group_membership
+msgid "Add an individual to a group!"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Add tags..."
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__addl_name
+#: model:ir.model.fields,field_description:spp_registry.field_res_users__addl_name
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Additional Name"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__address
+#: model:ir.model.fields,field_description:spp_registry.field_res_users__address
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_groups_list_tree_base
+msgid "Address"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__age
+#: model:ir.model.fields,field_description:spp_registry.field_res_users__age
+msgid "Age"
+msgstr ""
+
+#. module: spp_registry
+#. odoo-python
+#: code:addons/spp_registry/models/individual.py:0
+msgid "Age must be a valid integer."
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__birthdate_not_exact
+#: model:ir.model.fields,field_description:spp_registry.field_res_users__birthdate_not_exact
+msgid "Approximate Birthdate"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,help:spp_registry.field_spp_registrant_tags__active
+msgid "Archive to hide the RegistrantTag without removing it."
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.registrant_tags_filter
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_registry_groups_filter_base
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_registry_individuals_filter
+msgid "Archived"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_relationship__message_attachment_count
+msgid "Attachment Count"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Audit Information"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_relationship__available_relation_ids
+msgid "Available Relations"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_relationship__bidirectional
+msgid "Bi-directional"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__birth_place
+#: model:ir.model.fields,field_description:spp_registry.field_res_users__birth_place
+msgid "Birth Place"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields.selection,name:spp_registry.selection__spp_queue_background_task__task_status__completed
+msgid "COMPLETED"
+msgstr ""
+
+#. module: spp_registry
+#: model:res.groups,comment:spp_registry.group_registry_officer
+msgid "Can view and edit registry records. Cannot delete."
+msgstr ""
+
+#. module: spp_registry
+#: model:res.groups,comment:spp_registry.group_registry_viewer
+msgid "Can view registry records. Cannot modify data."
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.disable_registrant_wizard_form_view
+msgid "Cancel"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__civil_status_id
+#: model:ir.model.fields,field_description:spp_registry.field_res_users__civil_status_id
+msgid "Civil Status"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.actions.act_window,help:spp_registry.action_id_type
+msgid "Click the create button to enter a new ID type."
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.actions.act_window,help:spp_registry.action_phone_number
+msgid "Click the create button to enter a registrant's phone number."
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.actions.act_window,help:spp_registry.action_group_membership
+#: model_terms:ir.actions.act_window,help:spp_registry.action_groups_list
+msgid "Click the create button to enter the new group information."
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.actions.act_window,help:spp_registry.action_reg_id
+msgid "Click the create button to enter the new registrant's ID information."
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.actions.act_window,help:spp_registry.action_registrant_tags
+msgid ""
+"Click the create button to enter the new registrant's Tags information."
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.actions.act_window,help:spp_registry.action_individuals_list
+msgid "Click the create button to enter the new registrant's information."
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.actions.act_window,help:spp_registry.action_reg_rel
+msgid ""
+"Click the create button to enter the new registrant's relationship "
+"information."
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Collected"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registrant_tags__color
+msgid "Color"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__company_id
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_registry_groups_filter
+msgid "Company"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model,name:spp_registry.model_res_config_settings
+msgid "Config Settings"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.ui.menu,name:spp_registry.spp_configuration_menu_root
+msgid "Configuration"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Connections between this group and other registrants."
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model,name:spp_registry.model_res_partner
+msgid "Contact"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Contact Information"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_phone_number__country_id
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Country"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.actions.act_window,help:spp_registry.action_groups_list
+msgid "Create a new group!"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.actions.act_window,help:spp_registry.action_individuals_list
+msgid "Create a new individual registrant!"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_disable_registrant_wizard__create_uid
+#: model:ir.model.fields,field_description:spp_registry.field_spp_group_membership__create_uid
+#: model:ir.model.fields,field_description:spp_registry.field_spp_id_type__create_uid
+#: model:ir.model.fields,field_description:spp_registry.field_spp_phone_number__create_uid
+#: model:ir.model.fields,field_description:spp_registry.field_spp_queue_background_task__create_uid
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registrant_tags__create_uid
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_id__create_uid
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_relationship__create_uid
+#: model:ir.model.fields,field_description:spp_registry.field_spp_relationship__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_disable_registrant_wizard__create_date
+#: model:ir.model.fields,field_description:spp_registry.field_spp_group_membership__create_date
+#: model:ir.model.fields,field_description:spp_registry.field_spp_id_type__create_date
+#: model:ir.model.fields,field_description:spp_registry.field_spp_phone_number__create_date
+#: model:ir.model.fields,field_description:spp_registry.field_spp_queue_background_task__create_date
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registrant_tags__create_date
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_id__create_date
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_relationship__create_date
+#: model:ir.model.fields,field_description:spp_registry.field_spp_relationship__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_phone_number__date_collected
+msgid "Date Collected"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__disabled
+#: model:ir.model.fields,field_description:spp_registry.field_res_users__disabled
+#: model:ir.model.fields,field_description:spp_registry.field_spp_phone_number__disabled
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_relationship__disabled
+msgid "Date Disabled"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_group_membership_form
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_reg_rel_form
+msgid "Date Range"
+msgstr ""
+
+#. module: spp_registry
+#. odoo-python
+#: code:addons/spp_registry/models/phone_number.py:0
+msgid "Date collected cannot be in the future."
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__birthdate
+#: model:ir.model.fields,field_description:spp_registry.field_res_users__birthdate
+#: model:ir.model.fields,field_description:spp_registry.field_spp_group_membership__individual_birthdate
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_groups_form_membership
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_list_tree
+msgid "Date of Birth"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Date of Birth - mm/dd/yyyy"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Date when the group was registered"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Date when the individual was registered"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Demographics"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_id__description
+msgid "Description"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_relationship__destination
+#: model_terms:ir.ui.view,arch_db:spp_registry.reg_rel_filter
+msgid "Destination"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_relationship__destination_type
+msgid "Destination partner type"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.actions.act_window,name:spp_registry.action_disable_registrant_wizard
+#: model_terms:ir.ui.view,arch_db:spp_registry.disable_registrant_wizard_form_view
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Disable"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_phone_number_form
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_reg_rel_form
+msgid "Disable Info"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model,name:spp_registry.model_spp_disable_registrant_wizard
+msgid "Disable Registrant Wizard"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_registry_groups_filter
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_registry_individuals_filter_enhanced
+msgid "Disabled"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__disabled_by
+#: model:ir.model.fields,field_description:spp_registry.field_res_users__disabled_by
+#: model:ir.model.fields,field_description:spp_registry.field_spp_phone_number__disabled_by
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_relationship__disabled_by
+msgid "Disabled By"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__display_name
+#: model:ir.model.fields,field_description:spp_registry.field_spp_disable_registrant_wizard__display_name
+#: model:ir.model.fields,field_description:spp_registry.field_spp_group_membership__display_name
+#: model:ir.model.fields,field_description:spp_registry.field_spp_id_type__display_name
+#: model:ir.model.fields,field_description:spp_registry.field_spp_phone_number__display_name
+#: model:ir.model.fields,field_description:spp_registry.field_spp_queue_background_task__display_name
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registrant_tags__display_name
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_id__display_name
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_relationship__display_name
+#: model:ir.model.fields,field_description:spp_registry.field_spp_relationship__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: spp_registry
+#. odoo-python
+#: code:addons/spp_registry/models/group_membership.py:0
+msgid "Duplication of Member is not allowed "
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Email address (e.g., email@example.com)"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Enable"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_relationship__end_date
+msgid "End Date"
+msgstr ""
+
+#. module: spp_registry
+#. odoo-python
+#: code:addons/spp_registry/models/group_membership.py:0
+msgid "End Date cannot be earlier than Start Date"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_groups_form_membership
+msgid "End date"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_group_membership__ended_date
+msgid "Ended Date"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_id__expiry_date
+msgid "Expiry Date"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields.selection,name:spp_registry.selection__spp_queue_background_task__task_status__failed
+msgid "FAILED"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__family_name
+#: model:ir.model.fields,field_description:spp_registry.field_res_users__family_name
+msgid "Family Name"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Family and social connections for this person."
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_registry_individuals_filter_enhanced
+msgid "Female"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Financial Information"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "First Name"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_relationship__message_follower_ids
+msgid "Followers"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_relationship__message_partner_ids
+msgid "Followers (Partners)"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__force_recompute_canary
+#: model:ir.model.fields,field_description:spp_registry.field_res_users__force_recompute_canary
+msgid "Force Recompute Canary"
+msgstr ""
+
+#. module: spp_registry
+#: model:res.groups,comment:spp_registry.group_registry_manager
+msgid "Full registry management including delete operations."
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__gender_id
+#: model:ir.model.fields,field_description:spp_registry.field_res_users__gender_id
+#: model:ir.model.fields,field_description:spp_registry.field_spp_group_membership__individual_gender
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_registry_individuals_filter_enhanced
+msgid "Gender"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__given_name
+#: model:ir.model.fields,field_description:spp_registry.field_res_users__given_name
+msgid "Given Name"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,help:spp_registry.field_spp_id_type__namespace_uri
+#: model:ir.model.fields,help:spp_registry.field_spp_registry_id__namespace_uri
+msgid ""
+"Globally unique URI identifying this ID type. Example: "
+"urn:gov:ph:psa:national-id"
+msgstr ""
+
+#. module: spp_registry
+#. odoo-python
+#: code:addons/spp_registry/models/reg_relationship.py:0
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__is_group
+#: model:ir.model.fields,field_description:spp_registry.field_res_users__is_group
+#: model:ir.model.fields,field_description:spp_registry.field_spp_group_membership__group
+#: model_terms:ir.ui.view,arch_db:spp_registry.group_membership_filter
+msgid "Group"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__group_membership_ids
+#: model:ir.model.fields,field_description:spp_registry.field_res_users__group_membership_ids
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_groups_form_membership
+msgid "Group Members"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.actions.act_window,name:spp_registry.action_group_membership
+#: model:ir.model,name:spp_registry.model_spp_group_membership
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_group_membership_form
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form_membership
+msgid "Group Membership"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form_membership
+msgid "Group Name"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__group_type_id
+#: model:ir.model.fields,field_description:spp_registry.field_res_users__group_type_id
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_registry_groups_filter
+msgid "Group Type"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__group_type_name
+#: model:ir.model.fields,field_description:spp_registry.field_res_users__group_type_name
+msgid "Group Type Name"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_group_membership_form
+msgid "Group:"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.actions.act_window,name:spp_registry.action_groups_list
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_groups_list_tree_base
+msgid "Groups"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_registry_groups_filter
+msgid "Has Email"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_relationship__has_message
+msgid "Has Message"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_registry_groups_filter
+msgid "Has Phone"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "History"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,help:spp_registry.field_res_partner__group_type_name
+#: model:ir.model.fields,help:spp_registry.field_res_users__group_type_name
+#: model:ir.model.fields,help:spp_registry.field_spp_registry_relationship__relation_as_str
+msgid "Human-readable label"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_config_settings__id
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__id
+#: model:ir.model.fields,field_description:spp_registry.field_spp_disable_registrant_wizard__id
+#: model:ir.model.fields,field_description:spp_registry.field_spp_group_membership__id
+#: model:ir.model.fields,field_description:spp_registry.field_spp_id_type__id
+#: model:ir.model.fields,field_description:spp_registry.field_spp_phone_number__id
+#: model:ir.model.fields,field_description:spp_registry.field_spp_queue_background_task__id
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registrant_tags__id
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_id__id
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_relationship__id
+#: model:ir.model.fields,field_description:spp_registry.field_spp_relationship__id
+msgid "ID"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "ID Number"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model,name:spp_registry.model_spp_id_type
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_id__id_type_id
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_id_type_form
+msgid "ID Type"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_id_type_form
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_id_type_tree
+msgid "ID Type Validation"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.actions.act_window,name:spp_registry.action_id_type
+#: model_terms:ir.ui.view,arch_db:spp_registry.reg_id_filter
+msgid "ID Types"
+msgstr ""
+
+#. module: spp_registry
+#. odoo-python
+#: code:addons/spp_registry/models/reg_id.py:0
+msgid "ID type already exists"
+msgstr ""
+
+#. module: spp_registry
+#. odoo-python
+#: code:addons/spp_registry/models/reg_id.py:0
+msgid "ID type name should not be empty."
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__reg_ids_count
+#: model:ir.model.fields,field_description:spp_registry.field_res_users__reg_ids_count
+msgid "IDs Count"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_id_type__id_validation
+msgid "Id Validation"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Identity"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Identity Documents"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,help:spp_registry.field_spp_registry_relationship__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,help:spp_registry.field_spp_registry_relationship__message_has_error
+#: model:ir.model.fields,help:spp_registry.field_spp_registry_relationship__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__in_institutional_care
+#: model:ir.model.fields,field_description:spp_registry.field_res_users__in_institutional_care
+msgid "In Institutional Care"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields.selection,name:spp_registry.selection__spp_group_membership__status__inactive
+msgid "Inactive"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__income
+#: model:ir.model.fields,field_description:spp_registry.field_res_users__income
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Income"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,help:spp_registry.field_res_partner__in_institutional_care
+#: model:ir.model.fields,help:spp_registry.field_res_users__in_institutional_care
+msgid ""
+"Indicates if the individual is currently residing in institutional care "
+"(e.g., nursing home, care facility, orphanage)"
+msgstr ""
+
+#. module: spp_registry
+#. odoo-python
+#: code:addons/spp_registry/models/reg_relationship.py:0
+#: model:ir.model.fields,field_description:spp_registry.field_spp_group_membership__individual
+#: model_terms:ir.ui.view,arch_db:spp_registry.group_membership_filter
+msgid "Individual"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_group_membership_form
+msgid "Individual:"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.actions.act_window,name:spp_registry.action_individuals_list
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_list_tree
+msgid "Individuals"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields.selection,name:spp_registry.selection__spp_registry_id__status__invalid
+msgid "Invalid"
+msgstr ""
+
+#. module: spp_registry
+#. odoo-python
+#: code:addons/spp_registry/models/reg_id.py:0
+msgid ""
+"Invalid namespace URI format: %(uri)s\n"
+"Expected: urn:{namespace}:{type} (e.g., urn:gov:ph:psa:national-id)"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_relationship__name_inverse
+msgid "Inverse name"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_group_membership__is_ended
+msgid "Is Ended"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_relationship__message_is_follower
+msgid "Is Follower"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_reg_rel_form
+msgid "Is Related to:"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_queue_background_task__last_attempt_datetime
+msgid "Last Attempt Datetime"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_queue_background_task__last_attempt_error_code
+msgid "Last Attempt Error Code"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Last Name, Surname"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_disable_registrant_wizard__write_uid
+#: model:ir.model.fields,field_description:spp_registry.field_spp_group_membership__write_uid
+#: model:ir.model.fields,field_description:spp_registry.field_spp_id_type__write_uid
+#: model:ir.model.fields,field_description:spp_registry.field_spp_phone_number__write_uid
+#: model:ir.model.fields,field_description:spp_registry.field_spp_queue_background_task__write_uid
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registrant_tags__write_uid
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_id__write_uid
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_relationship__write_uid
+#: model:ir.model.fields,field_description:spp_registry.field_spp_relationship__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_disable_registrant_wizard__write_date
+#: model:ir.model.fields,field_description:spp_registry.field_spp_group_membership__write_date
+#: model:ir.model.fields,field_description:spp_registry.field_spp_id_type__write_date
+#: model:ir.model.fields,field_description:spp_registry.field_spp_phone_number__write_date
+#: model:ir.model.fields,field_description:spp_registry.field_spp_queue_background_task__write_date
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registrant_tags__write_date
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_id__write_date
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_relationship__write_date
+#: model:ir.model.fields,field_description:spp_registry.field_spp_relationship__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_registry_individuals_filter_enhanced
+msgid "Male"
+msgstr ""
+
+#. module: spp_registry
+#: model:res.groups,name:spp_registry.group_registry_manager
+#: model:res.groups.privilege,name:spp_registry.privilege_registry_manager
+msgid "Manager"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,help:spp_registry.field_res_partner__civil_status_id
+#: model:ir.model.fields,help:spp_registry.field_res_users__civil_status_id
+msgid ""
+"Marital/civil status based on UN Principles and Recommendations for "
+"Population and Housing Censuses"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_config_settings__max_registrants_count_job_queue
+msgid "Maximum Registrants Before Using Job Queue"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_groups_form_membership
+msgid "Member Name"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_group_membership__membership_type_ids
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_group_membership_tree
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_groups_form_membership
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form_membership
+msgid "Membership Types"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_group_membership_form
+msgid "Membership Types:"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__individual_membership_ids
+#: model:ir.model.fields,field_description:spp_registry.field_res_users__individual_membership_ids
+msgid "Membership to Groups"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_relationship__message_has_error
+msgid "Message Delivery error"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_relationship__message_ids
+msgid "Messages"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Middle Name"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__name
+#: model:ir.model.fields,field_description:spp_registry.field_res_users__name
+#: model:ir.model.fields,field_description:spp_registry.field_spp_id_type__name
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_id__id_type_as_str
+#: model:ir.model.fields,field_description:spp_registry.field_spp_relationship__name
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_groups_list_tree_base
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_list_tree
+msgid "Name"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Name of the group (e.g., Household, Family)"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_id__namespace_uri
+msgid "Namespace"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_id_type__namespace_uri
+msgid "Namespace URI"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.constraint,message:spp_registry.constraint_spp_id_type_unique_namespace_uri
+msgid "Namespace URI must be unique"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Number"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_queue_background_task__number_of_attempts
+msgid "Number Of Attempts"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_relationship__message_needaction_counter
+msgid "Number of Actions"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_config_settings__batch_registrants_count_job_queue
+msgid "Number of Registrants Per Batch"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_relationship__message_has_error_counter
+msgid "Number of errors"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,help:spp_registry.field_spp_registry_relationship__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,help:spp_registry.field_spp_registry_relationship__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__occupation_id
+#: model:ir.model.fields,field_description:spp_registry.field_res_users__occupation_id
+msgid "Occupation"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,help:spp_registry.field_res_partner__occupation_id
+#: model:ir.model.fields,help:spp_registry.field_res_users__occupation_id
+msgid "Occupation classification based on ILO ISCO-08 standard"
+msgstr ""
+
+#. module: spp_registry
+#: model:res.groups,name:spp_registry.group_registry_officer
+#: model:res.groups.privilege,name:spp_registry.privilege_registry_officer
+msgid "Officer"
+msgstr ""
+
+#. module: spp_registry
+#. odoo-python
+#: code:addons/spp_registry/models/group.py:0
+#: code:addons/spp_registry/models/group_membership.py:0
+#: code:addons/spp_registry/models/individual.py:0
+msgid "Only one %s is allowed per group"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_groups_form_membership
+msgid "Open Individual Form"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form_membership
+msgid "Open group form"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Open relationship"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Others Related to This Group"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Others Related to This Person"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields.selection,name:spp_registry.selection__spp_queue_background_task__task_status__pending
+msgid "PENDING"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__is_partial_group
+#: model:ir.model.fields,field_description:spp_registry.field_res_users__is_partial_group
+msgid "Partial Group"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Participation"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_groups_list_tree_base
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_list_tree
+msgid "Phone"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model,name:spp_registry.model_spp_phone_number
+#: model:ir.model.fields,field_description:spp_registry.field_spp_phone_number__phone_no
+msgid "Phone Number"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.actions.act_window,name:spp_registry.action_phone_number
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__phone_number_ids
+#: model:ir.model.fields,field_description:spp_registry.field_res_users__phone_number_ids
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Phone Numbers"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_phone_number__phone_sanitized
+msgid "Phone Sanitized"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Preferred language"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Profile"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_queue_background_task__queued_datetime
+msgid "Queued Datetime"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__disabled_reason
+#: model:ir.model.fields,field_description:spp_registry.field_res_users__disabled_reason
+msgid "Reason for Disabling"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_disable_registrant_wizard__disabled_reason
+#: model_terms:ir.ui.view,arch_db:spp_registry.disable_registrant_wizard_form_view
+msgid "Reason for disabling"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_registry_groups_filter
+msgid "Recently Registered"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__is_registrant
+#: model:ir.model.fields,field_description:spp_registry.field_res_users__is_registrant
+#: model:ir.model.fields,field_description:spp_registry.field_spp_disable_registrant_wizard__partner_id
+#: model:ir.model.fields,field_description:spp_registry.field_spp_phone_number__partner_id
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_id__partner_id
+#: model_terms:ir.ui.view,arch_db:spp_registry.phone_number_filter
+#: model_terms:ir.ui.view,arch_db:spp_registry.reg_id_filter
+#: model_terms:ir.ui.view,arch_db:spp_registry.reg_rel_filter
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Registrant"
+msgstr ""
+
+#. module: spp_registry
+#. odoo-python
+#: code:addons/spp_registry/models/reg_relationship.py:0
+msgid "Registrant 1 and Registrant 2 cannot be the same."
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model,name:spp_registry.model_spp_registry_id
+msgid "Registrant ID"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.actions.act_window,name:spp_registry.action_reg_id
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__reg_ids
+#: model:ir.model.fields,field_description:spp_registry.field_res_users__reg_ids
+msgid "Registrant IDs"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_phone_number_form
+msgid "Registrant Phone Number"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model,name:spp_registry.model_spp_registry_relationship
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_reg_rel_form
+msgid "Registrant Relationship"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.actions.act_window,name:spp_registry.action_reg_rel
+msgid "Registrant Relationships"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.actions.act_window,name:spp_registry.action_registrant_tags
+#: model:ir.model,name:spp_registry.model_spp_registrant_tags
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__tags_ids
+#: model:ir.model.fields,field_description:spp_registry.field_res_users__tags_ids
+msgid "Registrant Tags"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_phone_number_form
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_reg_rel_form
+msgid "Registrant:"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__registration_date
+#: model:ir.model.fields,field_description:spp_registry.field_res_users__registration_date
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_groups_list_tree_base
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_list_tree
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_registry_groups_filter
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_registry_individuals_filter_enhanced
+msgid "Registration Date"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_registry_individuals_filter_enhanced
+msgid "Registration Month"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_registry_individuals_filter_enhanced
+msgid "Registration Year"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.ui.menu,name:spp_registry.spp_main_menu_root
+msgid "Registry"
+msgstr ""
+
+#. module: spp_registry
+#: model:res.groups,name:spp_registry.group_registry_config_admin
+msgid "Registry Configuration Access"
+msgstr ""
+
+#. module: spp_registry
+#: model:res.groups.privilege,name:spp_registry.privilege_registry_config_admin
+msgid "Registry Configuration Access (Admin)"
+msgstr ""
+
+#. module: spp_registry
+#: model:res.groups,name:spp_registry.group_registry_create
+msgid "Registry: Create"
+msgstr ""
+
+#. module: spp_registry
+#: model:res.groups,name:spp_registry.group_registry_read
+msgid "Registry: Read"
+msgstr ""
+
+#. module: spp_registry
+#: model:res.groups,name:spp_registry.group_registry_write
+msgid "Registry: Write"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__related_1_ids
+#: model:ir.model.fields,field_description:spp_registry.field_res_users__related_1_ids
+msgid "Related to registrant 1"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__related_2_ids
+#: model:ir.model.fields,field_description:spp_registry.field_res_users__related_2_ids
+msgid "Related to registrant 2"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.reg_rel_filter
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Relation"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_reg_rel_form
+msgid "Relation:"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model,name:spp_registry.model_spp_relationship
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_relationship__relation_as_str
+msgid "Relationship"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_relationship__relation_id
+msgid "Relationship Type"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Relationships"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_res_partner__relationships_count
+#: model:ir.model.fields,field_description:spp_registry.field_res_users__relationships_count
+msgid "Relationships Count"
+msgstr ""
+
+#. module: spp_registry
+#: model:res.groups,name:spp_registry.group_registry_restrict_self
+msgid "Restrict Access To Self"
+msgstr ""
+
+#. module: spp_registry
+#: model:res.groups.privilege,name:spp_registry.privilege_registry_restrict_self_officer
+msgid "Restrict Access To Self (Officer)"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_relationship__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr ""
+
+#. module: spp_registry
+#: model:res.groups,comment:spp_registry.group_registry_restrict_self
+msgid ""
+"SPECIALIZED ROLE: Restrict access to only see own records. This is a "
+"functional role (not part of Viewer/Officer/Manager hierarchy). Can be "
+"combined with Viewer, Officer, or Manager groups to limit scope of access."
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model,name:spp_registry.model_spp_queue_background_task
+msgid "SPP Queue Background Task"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.group_membership_filter
+msgid "Search Group Memberships"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_registry_groups_filter_base
+msgid "Search Groups"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_registry_individuals_filter
+msgid "Search Individuals"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.phone_number_filter
+msgid "Search Phone Number"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.reg_id_filter
+msgid "Search Registrant IDs"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.reg_rel_filter
+msgid "Search Registrant Relationships"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.registrant_tags_filter
+msgid "Search Registrant Tags"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_reg_rel_form
+msgid "Select Destination..."
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_phone_number_form
+msgid "Select Registrant..."
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_reg_rel_form
+msgid "Select Relationship..."
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_reg_rel_form
+msgid "Select Source..."
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_group_membership_form
+msgid "Select a Group..."
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_group_membership_form
+msgid "Select an Individual..."
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_groups_form_membership
+msgid "Sex"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_relationship__source
+#: model_terms:ir.ui.view,arch_db:spp_registry.reg_rel_filter
+msgid "Source"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_relationship__source_type
+msgid "Source partner type"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_group_membership__start_date
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_relationship__start_date
+msgid "Start Date"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_group_membership__status
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_id__status
+msgid "Status"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Status Information"
+msgstr ""
+
+#. module: spp_registry
+#. odoo-python
+#: code:addons/spp_registry/models/tags.py:0
+msgid "Tag already Exists"
+msgstr ""
+
+#. module: spp_registry
+#. odoo-python
+#: code:addons/spp_registry/models/tags.py:0
+msgid "Tag name should not empty."
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registrant_tags__name
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Tags"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_queue_background_task__task_status
+msgid "Task Status"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,help:spp_registry.field_res_partner__force_recompute_canary
+#: model:ir.model.fields,help:spp_registry.field_res_users__force_recompute_canary
+msgid "Technical field to trigger group recomputation when members change"
+msgstr ""
+
+#. module: spp_registry
+#: model:res.groups,comment:spp_registry.group_registry_read
+msgid "Technical group for read access to registry models."
+msgstr ""
+
+#. module: spp_registry
+#: model:res.groups,comment:spp_registry.group_registry_create
+msgid ""
+"Technical group for registry create access. Grants permission to create new "
+"registry records."
+msgstr ""
+
+#. module: spp_registry
+#: model:res.groups,comment:spp_registry.group_registry_write
+msgid "Technical group for write access to registry models."
+msgstr ""
+
+#. module: spp_registry
+#. odoo-python
+#: code:addons/spp_registry/models/reg_id.py:0
+msgid "The provided %(id_type)s ID '%(value)s' is invalid."
+msgstr ""
+
+#. module: spp_registry
+#. odoo-python
+#: code:addons/spp_registry/models/reg_relationship.py:0
+msgid "The relationship type '%s' is not applicable for %s relationships."
+msgstr ""
+
+#. module: spp_registry
+#. odoo-python
+#: code:addons/spp_registry/models/reg_relationship.py:0
+msgid "The starting date cannot be after the ending date."
+msgstr ""
+
+#. module: spp_registry
+#. odoo-python
+#: code:addons/spp_registry/models/reg_relationship.py:0
+msgid "There is already a similar relation with overlapping dates"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "This Group is Related to"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "This Person is Related to"
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_individuals_form
+msgid "Type of group classification"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields.selection,name:spp_registry.selection__spp_registry_id__status__valid
+msgid "Valid"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_id__value
+msgid "Value"
+msgstr ""
+
+#. module: spp_registry
+#: model:res.groups,name:spp_registry.group_registry_viewer
+#: model:res.groups.privilege,name:spp_registry.privilege_registry_viewer
+msgid "Viewer"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_registry_relationship__website_message_ids
+msgid "Website Messages"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,help:spp_registry.field_spp_registry_relationship__website_message_ids
+msgid "Website communication history"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_queue_background_task__worker_payload
+msgid "Worker Payload"
+msgstr ""
+
+#. module: spp_registry
+#: model:ir.model.fields,field_description:spp_registry.field_spp_queue_background_task__worker_type
+msgid "Worker Type"
+msgstr ""
+
+#. module: spp_registry
+#. odoo-python
+#: code:addons/spp_registry/models/individual.py:0
+msgid "You can't select a date of birth greater than today"
+msgstr ""
+
+#. module: spp_registry
+#. odoo-python
+#: code:addons/spp_registry/controllers/mail.py:0
+msgid "You do not have permission to delete this attachment."
+msgstr ""
+
+#. module: spp_registry
+#. odoo-python
+#: code:addons/spp_registry/controllers/mail.py:0
+msgid "You do not have permission to update this message."
+msgstr ""
+
+#. module: spp_registry
+#. odoo-python
+#: code:addons/spp_registry/models/registrant.py:0
+msgid "You do not have the necessary permissions to delete partner records."
+msgstr ""
+
+#. module: spp_registry
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_id_type_form
+#: model_terms:ir.ui.view,arch_db:spp_registry.view_id_type_tree
+msgid "urn:gov:xx:agency:id-type"
+msgstr ""

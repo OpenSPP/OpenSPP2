@@ -1,0 +1,1033 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* spp_dms
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Language: fr\n"
+
+#. module: spp_dms
+#. odoo-python
+#: code:addons/spp_dms/models/dms_file_version.py:0
+msgid " (Current)"
+msgstr " (Actuelle)"
+
+#. module: spp_dms
+#. odoo-python
+#: code:addons/spp_dms/models/dms_directory.py:0
+msgid "%s Files"
+msgstr "%s fichiers"
+
+#. module: spp_dms
+#. odoo-python
+#: code:addons/spp_dms/models/dms_directory.py:0
+msgid "%s Subdirectories"
+msgstr "%s sous-répertoires"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_directory_form
+msgid "<span class=\"o_stat_text\">Files</span>"
+msgstr "<span class=\\"o_stat_text\\">Fichiers</span>"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_directory_form
+msgid "<span class=\"o_stat_text\">Subdirectories</span>"
+msgstr "<span class=\\"o_stat_text\\">Sous-répertoires</span>"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_file_version_form
+msgid ""
+"<span invisible=\"not is_current\" class=\"badge text-bg-success "
+"ms-2\">Current</span>"
+msgstr "<span invisible=\\"not is_current\\" class=\\"badge text-bg-success ms-2\\">Actuelle</span>"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_restore_version_wizard_form
+msgid "<strong>Warning:</strong> Restoring a previous version will:"
+msgstr "<strong>Avertissement :</strong> La restauration d'une version précédente entraînera :"
+
+#. module: spp_dms
+#: model:res.groups,comment:spp_dms.group_dms_config_admin
+msgid "Access to DMS configuration menus (categories). Implied by DMS Manager."
+msgstr "Accès aux menus de configuration du DMS (catégories). Accordé automatiquement au Gestionnaire du DMS."
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_directory__active
+msgid "Active"
+msgstr "Actif"
+
+#. module: spp_dms
+#: model_terms:ir.actions.act_window,help:spp_dms.action_spp_dms_directory
+msgid "Add a new Directory."
+msgstr "Ajouter un nouveau répertoire."
+
+#. module: spp_dms
+#: model_terms:ir.actions.act_window,help:spp_dms.action_spp_dms_file
+msgid "Add a new File."
+msgstr "Ajouter un nouveau fichier."
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_category__allowed_extensions
+msgid "Allowed Extensions"
+msgstr "Extensions autorisées"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_category__allowed_mimetypes
+msgid "Allowed Mimetypes"
+msgstr "Types MIME autorisés"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_file_form
+msgid ""
+"Are you sure you want to disable versioning? Existing versions will be "
+"preserved."
+msgstr "Êtes-vous sûr de vouloir désactiver la gestion des versions ? Les versions existantes seront conservées."
+
+#. module: spp_dms
+#. odoo-python
+#: code:addons/spp_dms/models/dms_file.py:0
+msgid "Auto-saved"
+msgstr "Enregistré automatiquement"
+
+#. module: spp_dms
+#. odoo-python
+#: code:addons/spp_dms/models/dms_file.py:0
+msgid "Auto-saved before restoring version %d"
+msgstr "Enregistré automatiquement avant la restauration de la version %d"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_category__blocked_extensions
+msgid "Blocked Extensions"
+msgstr "Extensions bloquées"
+
+#. module: spp_dms
+#: model:res.groups,comment:spp_dms.group_dms_officer
+msgid ""
+"Can create and edit documents/directories. Cannot delete or configure "
+"categories."
+msgstr "Peut créer et modifier des documents/répertoires. Ne peut pas supprimer ni configurer les catégories."
+
+#. module: spp_dms
+#: model:res.groups,comment:spp_dms.group_dms_viewer
+msgid "Can view documents and directories. Cannot modify data."
+msgstr "Peut consulter les documents et les répertoires. Ne peut pas modifier les données."
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_restore_version_wizard_form
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_file_new_form
+msgid "Cancel"
+msgstr "Annuler"
+
+#. module: spp_dms
+#: model:ir.actions.act_window,name:spp_dms.action_spp_dms_category
+#: model:ir.ui.menu,name:spp_dms.menu_spp_dms_category
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_category_search
+msgid "Categories"
+msgstr "Catégories"
+
+#. module: spp_dms
+#: model_terms:ir.actions.act_window,help:spp_dms.action_spp_dms_category
+msgid "Categories are used to categorize Documents."
+msgstr "Les catégories servent à classer les documents."
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file__category_id
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_category_form
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_file_search
+msgid "Category"
+msgstr "Catégorie"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file__checksum
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file_version__checksum
+msgid "Checksum/SHA512"
+msgstr "Somme de contrôle/SHA512"
+
+#. module: spp_dms
+#: model_terms:ir.actions.act_window,help:spp_dms.action_spp_dms_directories_all_directory
+#: model_terms:ir.actions.act_window,help:spp_dms.action_spp_dms_directories_directory
+msgid "Click to add a new directory."
+msgstr "Cliquez pour ajouter un nouveau répertoire."
+
+#. module: spp_dms
+#: model_terms:ir.actions.act_window,help:spp_dms.action_spp_dms_files_all_directory
+#: model_terms:ir.actions.act_window,help:spp_dms.action_spp_dms_files_directory
+msgid "Click to add a new file."
+msgstr "Cliquez pour ajouter un nouveau fichier."
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file__color
+msgid "Color"
+msgstr "Couleur"
+
+#. module: spp_dms
+#: model:ir.model.fields,help:spp_dms.field_spp_dms_category__allowed_mimetypes
+msgid ""
+"Comma-separated MIME types with wildcard support (e.g., 'application/"
+"pdf,image/*')"
+msgstr "Types MIME séparés par des virgules avec prise en charge des jokers (p. ex. : 'application/pdf,image/*')"
+
+#. module: spp_dms
+#: model:ir.model.fields,help:spp_dms.field_spp_dms_category__blocked_extensions
+msgid ""
+"Comma-separated blocked extensions (security). Applied before allowed list."
+msgstr "Extensions bloquées séparées par des virgules (sécurité). Appliquées avant la liste des extensions autorisées."
+
+#. module: spp_dms
+#: model:ir.model.fields,help:spp_dms.field_spp_dms_category__allowed_extensions
+msgid ""
+"Comma-separated list of allowed extensions (e.g., 'pdf,jpg,png'). Empty "
+"means all allowed."
+msgstr "Liste d’extensions autorisées séparées par des virgules (p. ex. : 'pdf,jpg,png'). Vide signifie que tout est autorisé."
+
+#. module: spp_dms
+#: model:res.groups,name:spp_dms.group_dms_config_admin
+msgid "Config Access"
+msgstr "Accès à la configuration"
+
+#. module: spp_dms
+#: model:res.groups.privilege,name:spp_dms.privilege_dms_config_admin
+msgid "Config Access (Admin)"
+msgstr "Accès à la configuration (Administrateur)"
+
+#. module: spp_dms
+#: model:ir.ui.menu,name:spp_dms.menu_spp_dms_config
+msgid "Configuration"
+msgstr "Configuration"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file__content
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file_version__content
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_file_version_form
+msgid "Content"
+msgstr "Contenu"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file__content_file
+msgid "Content File"
+msgstr "Fichier de contenu"
+
+#. module: spp_dms
+#. odoo-python
+#: code:addons/spp_dms/models/dms_file.py:0
+msgid ""
+"Could not create version due to concurrent modifications. Please try again."
+msgstr "Impossible de créer la version en raison de modifications concurrentes. Veuillez réessayer."
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_directory__count_elements
+msgid "Count Elements"
+msgstr "Nombre d’éléments"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_directory__count_files_title
+msgid "Count Files"
+msgstr "Nombre de fichiers"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_directory__count_files
+msgid "Count Files Title"
+msgstr "Titre du compteur de fichiers"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_directory__count_directories_title
+msgid "Count Subdirectories"
+msgstr "Nombre de sous-répertoires"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_directory__count_directories
+msgid "Count Subdirectories Title"
+msgstr "Titre du compteur de sous-répertoires"
+
+#. module: spp_dms
+#: model_terms:ir.actions.act_window,help:spp_dms.action_spp_dms_category
+msgid "Create a new Category."
+msgstr "Créer une nouvelle catégorie."
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_restore_version_wizard_form
+msgid "Create a new version for the restored content"
+msgstr "Créer une nouvelle version pour le contenu restauré"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file_version__created_by_id
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_restore_version_wizard__created_by_id
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_directory_form
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_file_form
+msgid "Created By"
+msgstr "Créé par"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file_version__created_date
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_restore_version_wizard__created_date
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_directory_form
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_file_form
+msgid "Created On"
+msgstr "Créé le"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_category__create_uid
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_directory__create_uid
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file__create_uid
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file_version__create_uid
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_restore_version_wizard__create_uid
+msgid "Created by"
+msgstr "Créé par"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_category__create_date
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_directory__create_date
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file__create_date
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file_version__create_date
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_restore_version_wizard__create_date
+msgid "Created on"
+msgstr "Créé le"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_directory_search
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_file_search
+msgid "Creation Date"
+msgstr "Date de création"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file__current_version_number
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file_version__is_current
+msgid "Current Version"
+msgstr "Version actuelle"
+
+#. module: spp_dms
+#: model:res.groups,comment:spp_dms.group_dms_user
+msgid ""
+"DEPRECATED: Legacy group maintained for backwards compatibility. Use "
+"group_dms_officer instead."
+msgstr "OBSOLÈTE : groupe historique conservé pour compatibilité ascendante. Utilisez plutôt group_dms_officer."
+
+#. module: spp_dms
+#: model:ir.ui.menu,name:spp_dms.main_menu_spp_dms
+msgid "DMS"
+msgstr "DMS"
+
+#. module: spp_dms
+#: model:ir.model,name:spp_dms.model_spp_dms_category
+msgid "DMS Category"
+msgstr "Catégorie DMS"
+
+#. module: spp_dms
+#: model:ir.model,name:spp_dms.model_spp_dms_directory
+msgid "DMS Directory"
+msgstr "Répertoire DMS"
+
+#. module: spp_dms
+#: model:ir.model,name:spp_dms.model_spp_dms_file
+msgid "DMS File"
+msgstr "Fichier DMS"
+
+#. module: spp_dms
+#: model:ir.model,name:spp_dms.model_spp_dms_file_version
+msgid "DMS File Version"
+msgstr "Version de fichier DMS"
+
+#. module: spp_dms
+#: model:ir.model,name:spp_dms.model_spp_dms_mixins_thumbnail
+msgid "DMS thumbnail and icon mixin"
+msgstr "Mixin DMS de miniatures et d’icônes"
+
+#. module: spp_dms
+#: model:res.groups,name:spp_dms.group_dms_create
+msgid "DMS: Create Access"
+msgstr "DMS : Accès de création"
+
+#. module: spp_dms
+#: model:res.groups,name:spp_dms.group_dms_delete
+msgid "DMS: Delete Access"
+msgstr "DMS : Accès de suppression"
+
+#. module: spp_dms
+#: model:res.groups,name:spp_dms.group_dms_read
+msgid "DMS: Read Access"
+msgstr "DMS : Accès de lecture"
+
+#. module: spp_dms
+#: model:res.groups,name:spp_dms.group_dms_write
+msgid "DMS: Write Access"
+msgstr "DMS : Accès d’écriture"
+
+#. module: spp_dms
+#: model:ir.model.fields,help:spp_dms.field_spp_dms_file_version__comment
+#: model:ir.model.fields,help:spp_dms.field_spp_dms_restore_version_wizard__comment
+msgid "Description of changes in this version"
+msgstr "Description des modifications apportées dans cette version"
+
+#. module: spp_dms
+#: model:ir.actions.act_window,name:spp_dms.action_spp_dms_directory
+#: model:ir.ui.menu,name:spp_dms.menu_spp_dms_directory
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_directory_tree
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_file_search
+msgid "Directories"
+msgstr "Répertoires"
+
+#. module: spp_dms
+#: model_terms:ir.actions.act_window,help:spp_dms.action_spp_dms_directories_all_directory
+#: model_terms:ir.actions.act_window,help:spp_dms.action_spp_dms_directory
+msgid ""
+"Directories can be used to structure and organize\n"
+"                files."
+msgstr ""
+"Les répertoires peuvent être utilisés pour structurer et organiser\n"
+"                les fichiers."
+
+#. module: spp_dms
+#: model_terms:ir.actions.act_window,help:spp_dms.action_spp_dms_directories_directory
+msgid "Directories can be used to structure and organize files."
+msgstr "Les répertoires peuvent être utilisés pour structurer et organiser les fichiers."
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file__directory_id
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_directory_form
+msgid "Directory"
+msgstr "Répertoire"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_directory_form
+msgid "Directory Details"
+msgstr "Détails du répertoire"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_directory__complete_name
+msgid "Directory Name"
+msgstr "Nom du répertoire"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_directory_form
+msgid "Directory Name..."
+msgstr "Nom du répertoire..."
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_file_form
+msgid "Disable Versioning"
+msgstr "Désactiver la gestion des versions"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_category__display_name
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_directory__display_name
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file__display_name
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file_version__display_name
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_mixins_thumbnail__display_name
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_restore_version_wizard__display_name
+msgid "Display Name"
+msgstr "Nom affiché"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file__is_versioned
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_file_form
+msgid "Enable Versioning"
+msgstr "Activer la gestion des versions"
+
+#. module: spp_dms
+#: model:ir.model.fields,help:spp_dms.field_spp_dms_file__is_versioned
+msgid "Enable version history tracking for this file"
+msgstr "Activer le suivi de l’historique des versions pour ce fichier"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file__extension
+msgid "Extension"
+msgstr "Extension"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file_version__file_id
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_restore_version_wizard__file_id
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_file_form
+msgid "File"
+msgstr "Fichier"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_file_form
+msgid "File Content"
+msgstr "Contenu du fichier"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_file_form
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_file_version_form
+msgid "File Details"
+msgstr "Détails du fichier"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_file_form
+msgid "File Size"
+msgstr "Taille du fichier"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_category_form
+msgid "File Type Restrictions"
+msgstr "Restrictions sur les types de fichiers"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_file_version_form
+msgid "File Version"
+msgstr "Version du fichier"
+
+#. module: spp_dms
+#: model:ir.actions.act_window,name:spp_dms.action_spp_dms_file_version
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_file_version_tree
+msgid "File Versions"
+msgstr "Versions du fichier"
+
+#. module: spp_dms
+#. odoo-python
+#: code:addons/spp_dms/models/dms_category.py:0
+msgid ""
+"File extension '.%(ext)s' is blocked for security reasons in category '%"
+"(category)s'."
+msgstr "L’extension de fichier '.%(ext)s' est bloquée pour des raisons de sécurité dans la catégorie '%(category)s'."
+
+#. module: spp_dms
+#. odoo-python
+#: code:addons/spp_dms/models/dms_category.py:0
+msgid ""
+"File extension '.%(ext)s' is not allowed in category '%(category)s'. Allowed "
+"extensions: %(allowed)s"
+msgstr "L’extension de fichier '.%(ext)s' n’est pas autorisée dans la catégorie '%(category)s'. Extensions autorisées : %(allowed)s"
+
+#. module: spp_dms
+#. odoo-python
+#: code:addons/spp_dms/wizard/restore_version_wizard.py:0
+msgid "File not found."
+msgstr "Fichier introuvable."
+
+#. module: spp_dms
+#. odoo-python
+#: code:addons/spp_dms/models/dms_category.py:0
+msgid ""
+"File size (%(size).2f MB) exceeds maximum allowed size of %(max)d MB for "
+"category '%(category)s'."
+msgstr "La taille du fichier (%(size).2f MB) dépasse la taille maximale autorisée de %(max)d MB pour la catégorie '%(category)s'."
+
+#. module: spp_dms
+#. odoo-python
+#: code:addons/spp_dms/models/dms_category.py:0
+msgid ""
+"File type '%(mimetype)s' is not allowed in category '%(category)s'. Allowed "
+"types: %(allowed)s"
+msgstr "Le type de fichier '%(mimetype)s' n’est pas autorisé dans la catégorie '%(category)s'. Types autorisés : %(allowed)s"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file__name
+msgid "Filename"
+msgstr "Nom de fichier"
+
+#. module: spp_dms
+#: model:ir.actions.act_window,name:spp_dms.action_spp_dms_file
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_category__file_ids
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_directory__file_ids
+#: model:ir.ui.menu,name:spp_dms.menu_spp_dms_file
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_directory_form
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_directory_tree
+msgid "Files"
+msgstr "Fichiers"
+
+#. module: spp_dms
+#: model_terms:ir.actions.act_window,help:spp_dms.action_spp_dms_file
+msgid "Files are used to save content directly in OpenSPP."
+msgstr "Les fichiers servent à enregistrer du contenu directement dans OpenSPP."
+
+#. module: spp_dms
+#: model_terms:ir.actions.act_window,help:spp_dms.action_spp_dms_files_all_directory
+#: model_terms:ir.actions.act_window,help:spp_dms.action_spp_dms_files_directory
+msgid "Files are used to save content."
+msgstr "Les fichiers servent à enregistrer du contenu."
+
+#. module: spp_dms
+#: model:res.groups,comment:spp_dms.group_dms_manager
+msgid "Full DMS management including delete operations and configuration."
+msgstr "Gestion complète du DMS, y compris les opérations de suppression et la configuration."
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_directory__human_size
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file__human_size
+msgid "Human Size"
+msgstr "Taille lisible"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_category__id
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_directory__id
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file__id
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file_version__id
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_mixins_thumbnail__id
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_restore_version_wizard__id
+msgid "ID"
+msgstr "ID"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file__icon_url
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_mixins_thumbnail__icon_url
+msgid "Icon URL"
+msgstr "URL de l’icône"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file__image_1920
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_mixins_thumbnail__image_1920
+msgid "Image"
+msgstr "Image"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file__image_1024
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_mixins_thumbnail__image_1024
+msgid "Image 1024"
+msgstr "Image 1024"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file__image_128
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_mixins_thumbnail__image_128
+msgid "Image 128"
+msgstr "Image 128"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file__image_256
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_mixins_thumbnail__image_256
+msgid "Image 256"
+msgstr "Image 256"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file__image_512
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_mixins_thumbnail__image_512
+msgid "Image 512"
+msgstr "Image 512"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_directory_form
+msgid "Information"
+msgstr "Information"
+
+#. module: spp_dms
+#. odoo-python
+#: code:addons/spp_dms/models/dms_file.py:0
+msgid "Initial version"
+msgstr "Version initiale"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_directory__is_root_directory
+msgid "Is Root Directory"
+msgstr "Est un répertoire racine"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_directory_form
+msgid "Items"
+msgstr "Éléments"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_directory_form
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_file_form
+msgid "Last Updated By"
+msgstr "Mis à jour par"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_directory_form
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_file_form
+msgid "Last Updated On"
+msgstr "Mis à jour le"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_category__write_uid
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_directory__write_uid
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file__write_uid
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file_version__write_uid
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_restore_version_wizard__write_uid
+msgid "Last Updated by"
+msgstr "Mis à jour par"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_category__write_date
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_directory__write_date
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file__write_date
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file_version__write_date
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_restore_version_wizard__write_date
+msgid "Last Updated on"
+msgstr "Mis à jour le"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file_version__mimetype
+msgid "MIME Type"
+msgstr "Type MIME"
+
+#. module: spp_dms
+#: model:res.groups,name:spp_dms.group_dms_manager
+#: model:res.groups.privilege,name:spp_dms.privilege_dms_manager
+msgid "Manager"
+msgstr "Gestionnaire"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_category__max_file_size_mb
+msgid "Max File Size Mb"
+msgstr "Taille maximale du fichier (Mo)"
+
+#. module: spp_dms
+#: model:ir.model.fields,help:spp_dms.field_spp_dms_category__max_file_size_mb
+msgid "Maximum file size in MB (0 = no limit)"
+msgstr "Taille maximale du fichier en MB (0 = aucune limite)"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_file_form
+msgid "Metadata"
+msgstr "Métadonnées"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_directory_search
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_file_search
+msgid "Modification Date"
+msgstr "Date de modification"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_directory_form
+msgid "Modified"
+msgstr "Modifié"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_directory_search
+msgid "My Directories"
+msgstr "Mes répertoires"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_file_search
+msgid "My Files"
+msgstr "Mes fichiers"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_category__name
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_directory__name
+msgid "Name"
+msgstr "Nom"
+
+#. module: spp_dms
+#: model:ir.actions.act_window,name:spp_dms.action_spp_dms_directory_new
+#: model:ir.actions.act_window,name:spp_dms.action_spp_dms_file_new
+msgid "New Root Directory"
+msgstr "Nouveau répertoire racine"
+
+#. module: spp_dms
+#: model:res.groups,name:spp_dms.group_dms_officer
+#: model:res.groups.privilege,name:spp_dms.privilege_dms_officer
+msgid "Officer"
+msgstr "Agent"
+
+#. module: spp_dms
+#. odoo-python
+#: code:addons/spp_dms/models/dms_file_version.py:0
+msgid "Only one version can be marked as current for file '%s'."
+msgstr "Une seule version peut être marquée comme actuelle pour le fichier '%s'."
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_file_form
+msgid "Organization"
+msgstr "Organisation"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_directory__parent_id
+msgid "Parent Directory"
+msgstr "Répertoire parent"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_directory__parent_path
+msgid "Parent Path"
+msgstr "Chemin parent"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file__path_json
+msgid "Path Json"
+msgstr "Chemin JSON"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file__path_names
+msgid "Path Names"
+msgstr "Noms du chemin"
+
+#. module: spp_dms
+#. odoo-python
+#: code:addons/spp_dms/wizard/restore_version_wizard.py:0
+msgid "Please select a version to restore."
+msgstr "Veuillez sélectionner une version à restaurer."
+
+#. module: spp_dms
+#: model:ir.actions.act_window,name:spp_dms.action_restore_version_from_tree
+#: model:ir.actions.act_window,name:spp_dms.action_restore_version_wizard
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_restore_version_wizard_form
+msgid "Restore File Version"
+msgstr "Restaurer une version du fichier"
+
+#. module: spp_dms
+#: model:ir.model,name:spp_dms.model_spp_dms_restore_version_wizard
+msgid "Restore File Version Wizard"
+msgstr "Assistant de restauration de version de fichier"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_file_version_form
+msgid "Restore This Version"
+msgstr "Restaurer cette version"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_restore_version_wizard_form
+msgid "Restore Version"
+msgstr "Restaurer la version"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_restore_version_wizard_form
+msgid "Restore the content from the selected version"
+msgstr "Restaurer le contenu à partir de la version sélectionnée"
+
+#. module: spp_dms
+#. odoo-python
+#: code:addons/spp_dms/models/dms_file.py:0
+msgid "Restored from version %d"
+msgstr "Restauré à partir de la version %d"
+
+#. module: spp_dms
+#: model:res.groups,comment:spp_dms.group_dms_restrict_self
+msgid ""
+"Restrict document access to only own uploads. Can be combined with viewer/"
+"officer roles."
+msgstr "Restreindre l’accès aux documents aux seuls téléversements de l’utilisateur. Peut être combiné avec les rôles Lecteur/Agent."
+
+#. module: spp_dms
+#: model:res.groups,name:spp_dms.group_dms_restrict_self
+msgid "Restrict to Own Documents"
+msgstr "Restreindre à ses propres documents"
+
+#. module: spp_dms
+#: model:res.groups.privilege,name:spp_dms.privilege_dms_restrict_self_officer
+msgid "Restrict to Own Documents (Officer)"
+msgstr "Restreindre à ses propres documents (Agent)"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_directory_search
+msgid "Root Directories"
+msgstr "Répertoires racines"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_directory__root_directory_id
+msgid "Root Directory"
+msgstr "Répertoire racine"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_restore_version_wizard_form
+msgid "Save the current file content as a new version before restoration"
+msgstr "Enregistrer le contenu actuel du fichier comme nouvelle version avant restauration"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_directory__size
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file__size
+msgid "Size"
+msgstr "Taille"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file_version__size
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_file_form
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_file_version_form
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_file_version_tree
+msgid "Size (bytes)"
+msgstr "Taille (octets)"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_category_form
+msgid "Size Limits"
+msgstr "Limites de taille"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_directory__child_directory_ids
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_directory_form
+msgid "Subdirectories"
+msgstr "Sous-répertoires"
+
+#. module: spp_dms
+#. odoo-python
+#: code:addons/spp_dms/wizard/restore_version_wizard.py:0
+msgid "Success"
+msgstr "Succès"
+
+#. module: spp_dms
+#: model:res.groups,comment:spp_dms.group_dms_create
+msgid "Technical group for DMS create access."
+msgstr "Groupe technique pour l’accès de création au DMS."
+
+#. module: spp_dms
+#: model:res.groups,comment:spp_dms.group_dms_delete
+msgid "Technical group for DMS delete access."
+msgstr "Groupe technique pour l’accès de suppression au DMS."
+
+#. module: spp_dms
+#: model:res.groups,comment:spp_dms.group_dms_read
+msgid "Technical group for read access to DMS models."
+msgstr "Groupe technique pour l’accès en lecture aux modèles DMS."
+
+#. module: spp_dms
+#: model:res.groups,comment:spp_dms.group_dms_write
+msgid "Technical group for write access to DMS models."
+msgstr "Groupe technique pour l’accès en écriture aux modèles DMS."
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_directory__count_total_files
+msgid "Total Files"
+msgstr "Total des fichiers"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_directory_form
+msgid "Total Size"
+msgstr "Taille totale"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_directory__count_total_directories
+msgid "Total Subdirectories"
+msgstr "Total des sous-répertoires"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file__mimetype
+msgid "Type"
+msgstr "Type"
+
+#. module: spp_dms
+#: model:ir.model.fields,help:spp_dms.field_spp_dms_directory__active
+msgid "Uncheck to archive the directory"
+msgstr "Décochez pour archiver le répertoire"
+
+#. module: spp_dms
+#: model:res.groups,name:spp_dms.group_dms_user
+msgid "User"
+msgstr "Utilisateur"
+
+#. module: spp_dms
+#: model:res.groups.privilege,name:spp_dms.privilege_dms_user
+msgid "User (Deprecated)"
+msgstr "Utilisateur (obsolète)"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file_version__version_number
+msgid "Version"
+msgstr "Version"
+
+#. module: spp_dms
+#. odoo-python
+#: code:addons/spp_dms/models/dms_file_version.py:0
+msgid "Version %d"
+msgstr "Version %d"
+
+#. module: spp_dms
+#. odoo-python
+#: code:addons/spp_dms/wizard/restore_version_wizard.py:0
+msgid "Version %d has been restored successfully."
+msgstr "La version %d a été restaurée avec succès."
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file_version__comment
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_restore_version_wizard__comment
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_restore_version_wizard_form
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_file_version_form
+msgid "Version Comment"
+msgstr "Commentaire de version"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file__version_count
+msgid "Version Count"
+msgstr "Nombre de versions"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_restore_version_wizard_form
+msgid "Version Details"
+msgstr "Détails de la version"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_file_form
+msgid "Version History"
+msgstr "Historique des versions"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_file_version_form
+msgid "Version Information"
+msgstr "Informations sur la version"
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_restore_version_wizard__version_number
+msgid "Version Number"
+msgstr "Numéro de version"
+
+#. module: spp_dms
+#. odoo-python
+#: code:addons/spp_dms/models/dms_file.py:0
+msgid "Version does not belong to this file."
+msgstr "La version n’appartient pas à ce fichier."
+
+#. module: spp_dms
+#. odoo-python
+#: code:addons/spp_dms/models/dms_file.py:0
+msgid "Version not found."
+msgstr "Version introuvable."
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_restore_version_wizard__version_id
+msgid "Version to Restore"
+msgstr "Version à restaurer"
+
+#. module: spp_dms
+#. odoo-python
+#: code:addons/spp_dms/models/dms_file.py:0
+msgid "Versioning is already enabled for file '%s'."
+msgstr "La gestion des versions est déjà activée pour le fichier '%s'."
+
+#. module: spp_dms
+#. odoo-python
+#: code:addons/spp_dms/models/dms_file.py:0
+msgid "Versioning is not enabled for file '%s'."
+msgstr "La gestion des versions n’est pas activée pour le fichier '%s'."
+
+#. module: spp_dms
+#: model:ir.model.fields,field_description:spp_dms.field_spp_dms_file__version_ids
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_file_form
+msgid "Versions"
+msgstr "Versions"
+
+#. module: spp_dms
+#. odoo-python
+#: code:addons/spp_dms/models/dms_file.py:0
+msgid "Versions - %s"
+msgstr "Versions - %s"
+
+#. module: spp_dms
+#: model:res.groups,name:spp_dms.group_dms_viewer
+#: model:res.groups.privilege,name:spp_dms.privilege_dms_viewer
+msgid "Viewer"
+msgstr "Lecteur"
+
+#. module: spp_dms
+#: model:ir.actions.act_window,name:spp_dms.action_spp_dms_directories_all_directory
+msgid "action_spp_dms_directories_all_directory"
+msgstr "action_spp_dms_directories_all_directory"
+
+#. module: spp_dms
+#: model:ir.actions.act_window,name:spp_dms.action_spp_dms_directories_directory
+msgid "action_spp_dms_directories_directory"
+msgstr "action_spp_dms_directories_directory"
+
+#. module: spp_dms
+#: model:ir.actions.act_window,name:spp_dms.action_spp_dms_files_all_directory
+msgid "action_spp_dms_files_all_directory"
+msgstr "action_spp_dms_files_all_directory"
+
+#. module: spp_dms
+#: model:ir.actions.act_window,name:spp_dms.action_spp_dms_files_directory
+msgid "action_spp_dms_files_directory"
+msgstr "action_spp_dms_files_directory"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_category_form
+msgid "e.g., application/pdf,image/*"
+msgstr "p. ex. : application/pdf,image/*"
+
+#. module: spp_dms
+#: model_terms:ir.ui.view,arch_db:spp_dms.view_spp_dms_category_form
+msgid "e.g., pdf,jpg,png,docx"
+msgstr "p. ex. : pdf,jpg,png,docx"

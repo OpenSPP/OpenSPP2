@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Verify QR Wizard Form View -->
+    <record id="view_claim169_verify_qr_wizard_form" model="ir.ui.view">
+        <field name="name">spp.claim169.verify.qr.wizard.form</field>
+        <field name="model">spp.claim169.verify.qr.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Verify QR Credential">
+                <field name="state" invisible="1"/>
+
+                <!-- Info Banner (shown in input state) -->
+                <div class="alert alert-info mb-3" role="alert" invisible="state == 'result'">
+                    <strong>QR Credential Verifier</strong>
+                    <p class="mb-0 mt-1">
+                        Verify the authenticity of a MOSIP Claim 169 QR credential.
+                        Paste the QR data (text content from the QR code) to check
+                        if the signature is valid and the credential has not expired.
+                    </p>
+                </div>
+
+                <!-- Input form (input state) -->
+                <group invisible="state == 'result'">
+                    <group string="QR Data" colspan="2">
+                        <field name="qr_data" widget="text" nolabel="1" colspan="2"
+                               placeholder="Paste Base45-encoded QR data here (starts with HC1:...)"/>
+                    </group>
+                    <group string="Verification Settings">
+                        <field name="auto_detect_key" widget="boolean_toggle"/>
+                        <field name="public_key_id"
+                               invisible="auto_detect_key"
+                               options="{'no_create': True}"
+                               help="Select the public key used to verify the signature"/>
+                    </group>
+                </group>
+
+                <!-- Result display (result state) -->
+                <group invisible="state != 'result'">
+                    <!-- Verification result banner -->
+                    <field name="verification_message" nolabel="1" colspan="2"/>
+
+                    <!-- Matched registrant -->
+                    <group string="Registrant Match" invisible="not matched_partner_id">
+                        <div class="alert alert-success" role="status" colspan="2">
+                            <i class="fa fa-user-check" title="Match"/>
+                            <strong>Registrant Found in System</strong>
+                        </div>
+                        <field name="matched_partner_id" readonly="1"
+                               options="{'no_create': True, 'no_open': True}"/>
+                        <button name="action_view_registrant" type="object"
+                                string="View Registrant" icon="fa-external-link"
+                                class="btn-link"/>
+                    </group>
+
+                    <!-- Credential metadata -->
+                    <group string="Credential Details" col="4">
+                        <field name="decoded_issuer" readonly="1"/>
+                        <field name="decoded_expires" readonly="1"/>
+                        <field name="is_valid" widget="boolean" readonly="1"/>
+                        <field name="verification_error" readonly="1"
+                               invisible="not verification_error"/>
+                    </group>
+
+                    <!-- Raw claims (collapsible) -->
+                    <group string="Raw Claims Data" colspan="2">
+                        <field name="decoded_claims" widget="text" readonly="1" nolabel="1"
+                               colspan="2"/>
+                    </group>
+                </group>
+
+                <footer>
+                    <!-- Input state buttons -->
+                    <button name="action_verify" type="object" string="Verify Credential"
+                            class="btn-primary" invisible="state == 'result'"
+                            icon="fa-check-circle"/>
+
+                    <!-- Result state buttons -->
+                    <button name="action_reset" type="object" string="Verify Another"
+                            class="btn-primary" invisible="state != 'result'"
+                            icon="fa-refresh"/>
+
+                    <button string="Close" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action to Open Verify Wizard -->
+    <record id="action_claim169_verify_qr_wizard" model="ir.actions.act_window">
+        <field name="name">Verify QR Credential</field>
+        <field name="res_model">spp.claim169.verify.qr.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

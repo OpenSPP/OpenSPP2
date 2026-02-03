@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+DPV-Aligned Purpose Taxonomy for Consent Management.
+
+Based on W3C Data Privacy Vocabulary (DPV) v2.
+See: https://w3id.org/dpv#Purpose
+
+Includes social protection-specific purposes that extend DPV.
+-->
+<odoo noupdate="1">
+
+    <!-- ================================================================== -->
+    <!-- TOP-LEVEL DPV PURPOSES -->
+    <!-- ================================================================== -->
+
+    <record id="purpose_service_provision" model="spp.consent.purpose">
+        <field name="code">ServiceProvision</field>
+        <field name="name">Service Provision</field>
+        <field name="dpv_uri">https://w3id.org/dpv#ServiceProvision</field>
+        <field name="dpv_concept">dpv:ServiceProvision</field>
+        <field name="description">Processing for providing a service or product</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="purpose_personalisation" model="spp.consent.purpose">
+        <field name="code">Personalisation</field>
+        <field name="name">Personalisation</field>
+        <field name="dpv_uri">https://w3id.org/dpv#Personalisation</field>
+        <field name="dpv_concept">dpv:Personalisation</field>
+        <field name="description">Processing for personalising services or content</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="purpose_marketing" model="spp.consent.purpose">
+        <field name="code">Marketing</field>
+        <field name="name">Marketing</field>
+        <field name="dpv_uri">https://w3id.org/dpv#Marketing</field>
+        <field name="dpv_concept">dpv:Marketing</field>
+        <field name="description">Processing for marketing purposes</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <record id="purpose_research" model="spp.consent.purpose">
+        <field name="code">ResearchAndDevelopment</field>
+        <field name="name">Research and Development</field>
+        <field name="dpv_uri">https://w3id.org/dpv#ResearchAndDevelopment</field>
+        <field name="dpv_concept">dpv:ResearchAndDevelopment</field>
+        <field name="description">Processing for research and development</field>
+        <field name="sequence">40</field>
+    </record>
+
+    <record id="purpose_identity_verification" model="spp.consent.purpose">
+        <field name="code">IdentityVerification</field>
+        <field name="name">Identity Verification</field>
+        <field name="dpv_uri">https://w3id.org/dpv#IdentityVerification</field>
+        <field name="dpv_concept">dpv:IdentityVerification</field>
+        <field name="description">Processing for verifying identity</field>
+        <field name="sequence">50</field>
+    </record>
+
+    <record id="purpose_legal_compliance" model="spp.consent.purpose">
+        <field name="code">LegalCompliance</field>
+        <field name="name">Legal Compliance</field>
+        <field name="dpv_uri">https://w3id.org/dpv#LegalCompliance</field>
+        <field name="dpv_concept">dpv:LegalCompliance</field>
+        <field name="description">Processing for compliance with legal obligations</field>
+        <field name="sequence">60</field>
+    </record>
+
+    <record id="purpose_record_management" model="spp.consent.purpose">
+        <field name="code">RecordManagement</field>
+        <field name="name">Record Management</field>
+        <field name="dpv_uri">https://w3id.org/dpv#RecordManagement</field>
+        <field name="dpv_concept">dpv:RecordManagement</field>
+        <field name="description">Processing for managing records</field>
+        <field name="sequence">70</field>
+    </record>
+
+    <!-- ================================================================== -->
+    <!-- SOCIAL PROTECTION-SPECIFIC PURPOSES (Extend DPV) -->
+    <!-- ================================================================== -->
+
+    <record id="purpose_sp_registration" model="spp.consent.purpose">
+        <field name="code">SPRegistration</field>
+        <field name="name">Beneficiary Registration</field>
+        <field name="parent_id" ref="purpose_service_provision" />
+        <field name="description">Processing for registering beneficiaries in social protection programs</field>
+        <field name="is_social_protection">True</field>
+        <field name="sequence">11</field>
+    </record>
+
+    <record id="purpose_sp_eligibility" model="spp.consent.purpose">
+        <field name="code">SPEligibilityAssessment</field>
+        <field name="name">Eligibility Assessment</field>
+        <field name="parent_id" ref="purpose_service_provision" />
+        <field name="description">Processing for assessing eligibility for benefits</field>
+        <field name="is_social_protection">True</field>
+        <field name="sequence">12</field>
+    </record>
+
+    <record id="purpose_sp_enrollment" model="spp.consent.purpose">
+        <field name="code">SPEnrollment</field>
+        <field name="name">Program Enrollment</field>
+        <field name="parent_id" ref="purpose_service_provision" />
+        <field name="description">Processing for enrolling beneficiaries in programs</field>
+        <field name="is_social_protection">True</field>
+        <field name="sequence">13</field>
+    </record>
+
+    <record id="purpose_sp_benefit_delivery" model="spp.consent.purpose">
+        <field name="code">SPBenefitDelivery</field>
+        <field name="name">Benefit Delivery</field>
+        <field name="parent_id" ref="purpose_service_provision" />
+        <field name="description">Processing for delivering benefits to beneficiaries</field>
+        <field name="is_social_protection">True</field>
+        <field name="sequence">14</field>
+    </record>
+
+    <record id="purpose_sp_grievance" model="spp.consent.purpose">
+        <field name="code">SPGrievanceHandling</field>
+        <field name="name">Grievance Handling</field>
+        <field name="parent_id" ref="purpose_service_provision" />
+        <field name="description">Processing for handling grievances and complaints</field>
+        <field name="is_social_protection">True</field>
+        <field name="sequence">15</field>
+    </record>
+
+    <record id="purpose_sp_monitoring" model="spp.consent.purpose">
+        <field name="code">SPMonitoringEvaluation</field>
+        <field name="name">Monitoring &amp; Evaluation</field>
+        <field name="parent_id" ref="purpose_research" />
+        <field name="description">Processing for program monitoring and evaluation</field>
+        <field name="is_social_protection">True</field>
+        <field name="sequence">41</field>
+    </record>
+
+    <record id="purpose_sp_deduplication" model="spp.consent.purpose">
+        <field name="code">SPDeduplication</field>
+        <field name="name">Deduplication</field>
+        <field name="parent_id" ref="purpose_identity_verification" />
+        <field name="description">Processing for detecting and removing duplicate registrations</field>
+        <field name="is_social_protection">True</field>
+        <field name="sequence">51</field>
+    </record>
+
+    <record id="purpose_sp_data_sharing" model="spp.consent.purpose">
+        <field name="code">SPInterAgencySharing</field>
+        <field name="name">Inter-Agency Data Sharing</field>
+        <field name="description">Processing for sharing data between agencies for coordinated service delivery</field>
+        <field name="is_social_protection">True</field>
+        <field name="sequence">80</field>
+    </record>
+
+    <record id="purpose_sp_case_management" model="spp.consent.purpose">
+        <field name="code">SPCaseManagement</field>
+        <field name="name">Case Management</field>
+        <field name="parent_id" ref="purpose_service_provision" />
+        <field name="description">Processing for managing beneficiary cases and referrals</field>
+        <field name="is_social_protection">True</field>
+        <field name="sequence">16</field>
+    </record>
+
+</odoo>

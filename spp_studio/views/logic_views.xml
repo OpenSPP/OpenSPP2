@@ -1,0 +1,461 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- TREE VIEW -->
+    <!-- ============================================================ -->
+
+    <record id="view_logic_tree" model="ir.ui.view">
+        <field name="name">spp.studio.tree</field>
+        <field name="model">spp.cel.expression</field>
+        <field name="arch" type="xml">
+            <list string="Logic"
+                  decoration-bf="state == 'published'"
+                  decoration-success="state == 'published'">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="expression_type"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'published'"
+                       decoration-warning="state == 'pending'"
+                       decoration-info="state == 'draft'"
+                       decoration-muted="state == 'archived'"/>
+                <field name="version"/>
+                <field name="output_type"/>
+                <field name="usage_count"/>
+                <field name="test_pass_count" string="Pass" optional="show"/>
+                <field name="test_fail_count" string="Fail" optional="show"/>
+                <field name="published_date" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- KANBAN VIEW -->
+    <!-- ============================================================ -->
+
+    <record id="view_logic_kanban" model="ir.ui.view">
+        <field name="name">spp.studio.kanban</field>
+        <field name="model">spp.cel.expression</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column">
+                <field name="id"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="expression_type"/>
+                <field name="state"/>
+                <field name="description"/>
+                <field name="test_pass_count"/>
+                <field name="test_fail_count"/>
+                <field name="usage_count"/>
+                <field name="version"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_card oe_kanban_global_click #{record.expression_type.raw_value == 'filter' ? 'oe_kanban_color_1' : record.expression_type.raw_value == 'formula' ? 'oe_kanban_color_2' : record.expression_type.raw_value == 'scoring' ? 'oe_kanban_color_4' : 'oe_kanban_color_0'}">
+                            <div class="oe_kanban_content">
+                                <!-- Header -->
+                                <div class="o_kanban_record_top">
+                                    <div class="o_kanban_record_headings">
+                                        <strong class="o_kanban_record_title">
+                                            <field name="name"/>
+                                        </strong>
+                                        <div class="o_kanban_record_subtitle">
+                                            <i t-att-class="record.expression_type.raw_value == 'filter' ? 'fa fa-filter' : record.expression_type.raw_value == 'formula' ? 'fa fa-calculator' : record.expression_type.raw_value == 'scoring' ? 'fa fa-star' : record.expression_type.raw_value == 'validation' ? 'fa fa-check-square-o' : 'fa fa-cog'" t-att-title="record.expression_type.value"/>
+                                            <field name="expression_type"/>
+                                        </div>
+                                    </div>
+                                    <div class="o_kanban_record_top_right">
+                                        <field name="state" widget="label"
+                                               options="{'classes': {'draft': 'default', 'pending': 'info', 'published': 'success', 'archived': 'secondary'}}"/>
+                                    </div>
+                                </div>
+
+                                <!-- Body -->
+                                <div class="o_kanban_record_body">
+                                    <field name="description" widget="text"/>
+                                    <div class="text-muted" t-if="record.code.raw_value">
+                                        Code: <field name="code"/>
+                                    </div>
+                                </div>
+
+                                <!-- Footer -->
+                                <div class="o_kanban_record_bottom">
+                                    <div class="oe_kanban_bottom_left">
+                                        <span class="badge badge-pill badge-secondary" t-if="record.version.raw_value &gt; 1">
+                                            v<field name="version"/>
+                                        </span>
+                                        <span class="badge badge-pill" t-attf-class="#{record.test_fail_count.raw_value &gt; 0 ? 'badge-danger' : record.test_pass_count.raw_value &gt; 0 ? 'badge-success' : 'badge-secondary'}">
+                                            <i class="fa fa-check" title="Tests passed"/> <field name="test_pass_count"/>
+                                            <i class="fa fa-times ml-1" title="Tests failed"/> <field name="test_fail_count"/>
+                                        </span>
+                                        <span class="badge badge-pill badge-info" t-if="record.usage_count.raw_value &gt; 0">
+                                            <i class="fa fa-link" title="Usage count"/> <field name="usage_count"/>
+                                        </span>
+                                    </div>
+                                    <div class="oe_kanban_bottom_right">
+                                        <!-- Quick action buttons visible on hover -->
+                                        <button name="action_test_all" type="object" class="btn btn-sm btn-secondary" title="Run Tests">
+                                            <i class="fa fa-play" title="Run Tests"/>
+                                        </button>
+                                        <button name="action_submit_for_approval" type="object" class="btn btn-sm btn-primary" title="Submit"
+                                                invisible="state != 'draft'">
+                                            <i class="fa fa-upload" title="Submit"/>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- FORM VIEW - Main Editor Interface -->
+    <!-- ============================================================ -->
+
+    <record id="view_logic_form" model="ir.ui.view">
+        <field name="name">spp.studio.form</field>
+        <field name="model">spp.cel.expression</field>
+        <field name="arch" type="xml">
+            <form string="Logic">
+                <header>
+                    <!-- State statusbar -->
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,pending,published,archived"/>
+
+                    <!-- Action buttons -->
+                    <button name="action_test_all" string="Run All Tests" type="object"
+                            class="btn-secondary"
+                            invisible="state == 'archived'"/>
+                    <!-- Submit for approval (when governance enabled) or direct publish -->
+                    <button name="action_submit_for_approval" string="Submit for Approval" type="object"
+                            class="btn-primary"
+                            invisible="state != 'draft'"
+                            groups="spp_studio.group_studio_editor_officer"/>
+                    <!-- Approve button (when governance enabled and pending) -->
+                    <button name="action_approve" string="Approve" type="object"
+                            class="btn-success"
+                            invisible="state != 'pending'"
+                            groups="spp_studio.group_studio_manager"/>
+                    <!-- Reject button (when governance enabled and pending) -->
+                    <button name="action_reject" string="Reject" type="object"
+                            class="btn-warning"
+                            invisible="state != 'pending'"
+                            groups="spp_studio.group_studio_manager"
+                            confirm="Reject this logic and return to draft?"/>
+                    <button name="action_archive" string="Archive" type="object"
+                            class="btn-secondary"
+                            invisible="state == 'archived'"
+                            groups="spp_studio.group_studio_editor_officer"
+                            confirm="Are you sure you want to archive this logic? It will no longer be available for use."/>
+                    <button name="action_draft" string="Create Draft" type="object"
+                            class="btn-secondary"
+                            invisible="state != 'published'"
+                            groups="spp_studio.group_studio_editor_officer"
+                            confirm="This will create a new draft version. Continue?"/>
+                    <button name="action_open_schedule_wizard" string="Schedule Version" type="object"
+                            class="btn-secondary"
+                            invisible="state != 'published'"
+                            groups="spp_studio.group_studio_manager"
+                            title="Create and schedule a new version for future activation"/>
+                </header>
+
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="state != 'archived'"/>
+                    <widget name="web_ribbon" title="Pending Approval" bg_color="text-bg-warning" invisible="state != 'pending'"/>
+
+                    <!-- Title -->
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Logic Name" required="1"/>
+                        </h1>
+                        <h3>
+                            <field name="code" placeholder="Auto-generated code" readonly="state != 'draft'"/>
+                        </h3>
+                    </div>
+
+                    <!-- Smart buttons -->
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_tests" type="object" class="oe_stat_button" icon="fa-check-square-o">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="test_pass_count" class="text-success"/> /
+                                    <field name="test_fail_count" class="text-danger"/>
+                                </span>
+                                <span class="o_stat_text">Tests</span>
+                            </div>
+                        </button>
+                        <button name="action_view_usage" type="object" class="oe_stat_button" icon="fa-link">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="usage_count"/>
+                                </span>
+                                <span class="o_stat_text">Used In</span>
+                            </div>
+                        </button>
+                        <button name="action_view_versions" type="object" class="oe_stat_button" icon="fa-history"
+                                invisible="version &lt;= 1">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="version"/>
+                                </span>
+                                <span class="o_stat_text">Versions</span>
+                            </div>
+                        </button>
+                    </div>
+
+                    <!-- Main content -->
+                    <group>
+                        <group name="main_info" string="Basic Information">
+                            <field name="expression_type" widget="radio" options="{'horizontal': true}"/>
+                            <field name="context_type" widget="radio" options="{'horizontal': true}"/>
+                            <field name="output_type"/>
+                            <field name="output_unit" placeholder="e.g., USD, %, years"
+                                   invisible="output_type == 'boolean'"/>
+                            <field name="sequence" groups="base.group_no_one"/>
+                            <field name="is_inline" invisible="1"/>
+                        </group>
+                        <group name="classification" string="Classification">
+                            <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}"/>
+                            <field name="published_date" readonly="1" invisible="state != 'published'"/>
+                            <field name="published_by" readonly="1" invisible="state != 'published'"/>
+                        </group>
+                    </group>
+
+                    <!-- Two-column layout for main editor -->
+                    <group col="2">
+                        <!-- LEFT COLUMN (70%) - Logic Editor -->
+                        <group colspan="2" col="1" name="logic_editor">
+
+                            <!-- ============================================ -->
+                            <!-- CEL Expression Editor -->
+                            <!-- ============================================ -->
+                            <group string="CEL Expression Editor">
+
+                                <field name="cel_expression" nolabel="1"
+                                       widget="cel_expression"
+                                       placeholder="Write your CEL expression here&#10;&#10;Example:&#10;  household.size >= 4 &amp;&amp; household.income &lt; 1000"
+                                       readonly="state == 'published'"
+                                       min_height="200px"/>
+
+                                <!-- Compiled/frozen expression -->
+                                <group string="Compiled Expression" name="advanced_preview"
+                                       invisible="state != 'published'">
+                                    <field name="compiled_expression" nolabel="1" readonly="1"
+                                           widget="text"
+                                           class="o_field_text_monospace"/>
+                                </group>
+                            </group>
+
+                        </group>
+
+                        <!-- RIGHT COLUMN (30%) - Metadata and Info -->
+                        <group name="metadata">
+
+                            <!-- Description -->
+                            <separator string="Description"/>
+                            <field name="description" nolabel="1" placeholder="Describe what this logic does and when to use it" class="oe_inline"/>
+
+                            <!-- Missing Variables Warning -->
+                            <group string="Variables" name="variables_group"
+                                   invisible="not missing_variables">
+                                <div class="alert alert-warning" role="alert">
+                                    <i class="fa fa-exclamation-triangle" title="Warning"/>
+                                    <strong>Missing Variables:</strong>
+                                    <field name="missing_variables" nolabel="1" readonly="1"/>
+                                    <div class="mt-2">
+                                        <button name="action_install_missing_variables" type="object"
+                                                string="Install Missing Variables"
+                                                class="btn btn-sm btn-primary"
+                                                icon="fa-download"
+                                                groups="spp_studio.group_studio_editor_officer"/>
+                                    </div>
+                                </div>
+                            </group>
+
+                        </group>
+                    </group>
+
+                    <!-- Bottom tabs -->
+                    <notebook>
+                        <!-- Tests Tab -->
+                        <page string="Tests" name="tests">
+                            <!-- Test Panel Component -->
+                            <field name="test_ids" nolabel="1"
+                                   widget="logic_test_panel"
+                                   context="{'default_logic_id': id}"/>
+                        </page>
+
+                        <!-- Version History Tab -->
+                        <page string="Version History" name="versions"
+                              invisible="version &lt;= 1">
+                            <field name="version_ids" nolabel="1">
+                                <list>
+                                    <field name="version"/>
+                                    <field name="published_date"/>
+                                    <field name="published_by"/>
+                                    <field name="state" widget="badge"/>
+                                    <button name="action_view_version" string="View" type="object"
+                                            icon="fa-eye" title="View this version"/>
+                                    <button name="action_restore_version" string="Restore" type="object"
+                                            icon="fa-undo" title="Restore this version"
+                                            groups="spp_studio.group_studio_editor_officer"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- Usage Tab -->
+                        <page string="Usage" name="usage">
+                            <field name="usage_ids" nolabel="1">
+                                <list>
+                                    <field name="res_model"/>
+                                    <field name="res_name"/>
+                                    <field name="res_id"/>
+                                    <field name="usage_type"/>
+                                    <button name="action_open_record" string="Open" type="object"
+                                            icon="fa-external-link" title="Open the record using this logic"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- Technical Info -->
+                        <page string="Technical" name="technical" groups="base.group_no_one">
+                            <group>
+                                <group>
+                                    <field name="id"/>
+                                    <field name="create_date"/>
+                                    <field name="create_uid"/>
+                                </group>
+                                <group>
+                                    <field name="write_date"/>
+                                    <field name="write_uid"/>
+                                    <field name="published_expression" widget="text"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- SEARCH VIEW -->
+    <!-- ============================================================ -->
+
+    <record id="view_logic_search" model="ir.ui.view">
+        <field name="name">spp.studio.search</field>
+        <field name="model">spp.cel.expression</field>
+        <field name="arch" type="xml">
+            <search string="Search Logic">
+                <!-- Search fields -->
+                <field name="name" string="Logic"
+                       filter_domain="['|', '|', ('name', 'ilike', self), ('code', 'ilike', self), ('description', 'ilike', self)]"/>
+                <field name="code"/>
+                <field name="tag_ids"/>
+
+                <!-- Filters -->
+                <separator/>
+                <filter name="filter_draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <filter name="filter_pending" string="Pending" domain="[('state', '=', 'pending')]"/>
+                <filter name="filter_published" string="Published" domain="[('state', '=', 'published')]"/>
+                <filter name="filter_archived" string="Archived" domain="[('state', '=', 'archived')]"/>
+
+                <separator/>
+                <filter name="filter_filter" string="Filter" domain="[('expression_type', '=', 'filter')]"/>
+                <filter name="filter_formula" string="Formula" domain="[('expression_type', '=', 'formula')]"/>
+                <filter name="filter_scoring" string="Scoring" domain="[('expression_type', '=', 'scoring')]"/>
+                <filter name="filter_validation" string="Validation" domain="[('expression_type', '=', 'validation')]"/>
+
+                <separator/>
+                <filter name="filter_failing_tests" string="Failing Tests" domain="[('test_fail_count', '>', 0)]"/>
+
+                <separator/>
+                <filter name="filter_my_logic" string="My Logic" domain="[('create_uid', '=', uid)]"/>
+
+                <!-- Group By -->
+                <group>
+                    <filter name="group_type" string="Type" context="{'group_by': 'expression_type'}"/>
+                    <filter name="group_state" string="State" context="{'group_by': 'state'}"/>
+                    <filter name="group_context" string="Context" context="{'group_by': 'context_type'}"/>
+                    <filter name="group_output" string="Output Type" context="{'group_by': 'output_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- ACTIONS -->
+    <!-- ============================================================ -->
+
+    <!-- Main Logic List Action -->
+    <record id="action_logic_list" model="ir.actions.act_window">
+        <field name="name">Logic</field>
+        <field name="path">logic</field>
+        <field name="res_model">spp.cel.expression</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="context">{
+            'search_default_filter_published': 1,
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first logic definition
+            </p>
+            <p>
+                Logic definitions define business rules for eligibility, benefits,
+                compliance checks, and more using CEL expressions.
+            </p>
+        </field>
+    </record>
+
+    <!-- Logic Tag Action -->
+    <record id="action_logic_tag_list" model="ir.actions.act_window">
+        <field name="name">Logic Tags</field>
+        <field name="path">logic-tags</field>
+        <field name="res_model">spp.vocabulary.code</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('namespace_uri', '=', 'urn:openspp:vocab:logic-tags')]</field>
+        <field name="context">{'default_vocabulary_id': ref('spp_studio.vocab_logic_tags')}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create tags to organize your logic
+            </p>
+            <p>
+                Tags help you categorize and filter logic definitions across your system.
+            </p>
+        </field>
+    </record>
+
+    <!-- Action for viewing tests from smart button -->
+    <record id="action_view_logic_tests" model="ir.actions.act_window">
+        <field name="name">Tests</field>
+        <field name="res_model">spp.studio.test</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('logic_id', '=', active_id)]</field>
+        <field name="context">{'default_logic_id': active_id}</field>
+    </record>
+
+    <!-- Action for viewing usage from smart button -->
+    <record id="action_view_logic_usage" model="ir.actions.act_window">
+        <field name="name">Usage</field>
+        <field name="res_model">spp.studio.usage</field>
+        <field name="view_mode">list</field>
+        <field name="domain">[('logic_id', '=', active_id)]</field>
+        <field name="context">{'default_logic_id': active_id}</field>
+    </record>
+
+    <!-- Action for viewing versions from smart button -->
+    <record id="action_view_logic_versions" model="ir.actions.act_window">
+        <field name="name">Version History</field>
+        <field name="res_model">spp.studio.version</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('logic_id', '=', active_id)]</field>
+        <field name="context">{'default_logic_id': active_id}</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+   Part of OpenSPP Registry. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+
+    <!-- Base Group List View - defines core structure -->
+    <record id="view_groups_list_tree_base" model="ir.ui.view">
+        <field name="name">spp_registry.view_groups_list_tree_base</field>
+        <field name="model">res.partner</field>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+            <list string="Groups" sample="1">
+                <field name="name" string="Name" />
+                <field name="address" string="Address" optional="show" />
+                <field name="phone" string="Phone" optional="show" />
+                <field name="tags_ids" widget="many2many_tags" optional="show" />
+                <field name="registration_date" string="Registration Date" optional="show" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Enhanced Group List View with Avatar -->
+    <record id="view_groups_list_tree" model="ir.ui.view">
+        <field name="name">spp_registry.view_groups_list_tree</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="view_groups_list_tree_base" />
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="attributes">
+                <attribute name="decoration-danger">disabled</attribute>
+                <attribute name="duplicate">0</attribute>
+            </xpath>
+            <xpath expr="//field[@name='address']" position="attributes">
+                <attribute name="optional">show</attribute>
+            </xpath>
+            <xpath expr="//field[@name='phone']" position="attributes">
+                <attribute name="optional">show</attribute>
+            </xpath>
+            <xpath expr="//field[@name='tags_ids']" position="attributes">
+                <attribute name="optional">show</attribute>
+            </xpath>
+            <xpath expr="//field[@name='registration_date']" position="attributes">
+                <attribute name="optional">show</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Base Group Search View - defines core structure -->
+    <record id="view_registry_groups_filter_base" model="ir.ui.view">
+        <field name="name">spp_registry.view_registry_groups_filter_base</field>
+        <field name="model">res.partner</field>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+            <search string="Search Groups">
+                <field name="name" />
+                <field name="phone" />
+                <field name="email" />
+                <!-- Archive filter restricted to officers/managers who can modify records -->
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"
+                        groups="spp_registry.group_registry_officer,spp_registry.group_registry_manager" />
+            </search>
+        </field>
+    </record>
+
+    <!-- Enhanced Group Search View -->
+    <record id="view_registry_groups_filter" model="ir.ui.view">
+        <field name="name">spp_registry.view_registry_groups_filter</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="view_registry_groups_filter_base" />
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <!-- Add filter groups -->
+            <xpath expr="//filter[@name='inactive']" position="after">
+                <filter string="Disabled" name="disabled" domain="[('disabled', '=', True)]" />
+                <separator />
+                <filter string="Recently Registered" name="recent" domain="[('registration_date', '&gt;=', (context_today() - datetime.timedelta(days=30)).strftime('%Y-%m-%d'))]" />
+                <separator />
+                <filter string="Has Email" name="has_email" domain="[('email', '!=', False)]" />
+                <filter string="Has Phone" name="has_phone" domain="[('phone_number_ids', '!=', False)]" />
+            </xpath>
+
+            <!-- Add group by options -->
+            <xpath expr="//search" position="inside">
+                <separator />
+                <filter string="Group Type" name="group_by_type" context="{'group_by': 'group_type_id'}" />
+                <filter string="Registration Date" name="group_by_reg_date" context="{'group_by': 'registration_date'}" />
+                <filter string="Company" name="group_by_company" context="{'group_by': 'company_id'}" groups="base.group_multi_company" />
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Registry actions (used by other modules, no direct menu) -->
+    <record id="action_groups_list" model="ir.actions.act_window">
+        <field name="name">Groups</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="spp_registry.view_registry_groups_filter" />
+        <field name="context">{'default_is_registrant': True, 'default_is_group': True}</field>
+        <field name="domain">[('is_registrant','=',True),('is_group','=',True)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new group!
+            </p>
+            <p>
+                Click the create button to enter the new group information.
+            </p>
+        </field>
+    </record>
+
+    <!-- Explicitly link list and form views to the action -->
+    <record id="action_groups_list_tree_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1" />
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_groups_list_tree" />
+        <field name="act_window_id" ref="action_groups_list" />
+    </record>
+
+    <record id="action_groups_list_form_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2" />
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_individuals_form" />
+        <field name="act_window_id" ref="action_groups_list" />
+    </record>
+
+</odoo>

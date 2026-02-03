@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- CEL Variables for DRIMS Approval Routing -->
+
+    <!-- Request Total Value -->
+    <record id="cel_var_request_value" model="spp.cel.variable">
+        <field name="name">drims_request_value</field>
+        <field name="cel_accessor">request_value</field>
+        <field name="source_type">field</field>
+        <field name="source_model">spp.drims.request</field>
+        <field name="source_field">total_value</field>
+        <field name="value_type">money</field>
+        <field name="applies_to">both</field>
+        <field name="is_system">True</field>
+    </record>
+
+    <!-- Life Threatening Flag -->
+    <record id="cel_var_life_threatening" model="spp.cel.variable">
+        <field name="name">drims_life_threatening</field>
+        <field name="cel_accessor">life_threatening</field>
+        <field name="source_type">field</field>
+        <field name="source_model">spp.drims.request</field>
+        <field name="source_field">is_life_threatening</field>
+        <field name="value_type">boolean</field>
+        <field name="applies_to">both</field>
+        <field name="is_system">True</field>
+    </record>
+
+    <!-- Affected Population -->
+    <record id="cel_var_affected_population" model="spp.cel.variable">
+        <field name="name">drims_affected_population</field>
+        <field name="cel_accessor">affected_population</field>
+        <field name="source_type">field</field>
+        <field name="source_model">spp.drims.request</field>
+        <field name="source_field">affected_population</field>
+        <field name="value_type">number</field>
+        <field name="applies_to">both</field>
+        <field name="is_system">True</field>
+    </record>
+
+    <!-- Item Count -->
+    <record id="cel_var_item_count" model="spp.cel.variable">
+        <field name="name">drims_item_count</field>
+        <field name="cel_accessor">item_count</field>
+        <field name="source_type">field</field>
+        <field name="source_model">spp.drims.request</field>
+        <field name="source_field">line_count</field>
+        <field name="value_type">number</field>
+        <field name="applies_to">both</field>
+        <field name="is_system">True</field>
+    </record>
+</odoo>

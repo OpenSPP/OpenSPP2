@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+
+User-friendly card-based configuration view for programs.
+Replaces the technical manager configuration with intuitive sections.
+-->
+<odoo>
+
+    <!-- Card-Based Configuration Tab -->
+    <record id="view_program_form_config_cards" model="ir.ui.view">
+        <field name="name">spp.program.form.config.cards</field>
+        <field name="model">spp.program</field>
+        <field name="inherit_id" ref="spp_programs.view_program_list_form" />
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <!-- Replace the Configuration tab content -->
+            <xpath expr="//page[@name='configuration']" position="replace">
+                <page name="configuration" string="Configuration" groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_validator">
+                    <!-- Hidden field for access control -->
+                    <field name="can_edit_configuration" invisible="1"/>
+
+                    <!-- ==================== ELIGIBILITY SECTION ==================== -->
+                    <div class="card mb-3 shadow-sm">
+                        <div class="card-header d-flex justify-content-between align-items-center py-2 bg-primary-subtle">
+                            <div class="d-flex align-items-center">
+                                <i class="fa fa-filter fa-lg me-3 text-primary" title="Eligibility"/>
+                                <div>
+                                    <h5 class="mb-0">Who Qualifies?</h5>
+                                    <small class="text-muted">Define eligibility criteria for this program</small>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge rounded-pill bg-success" invisible="not eligibility_configured">
+                                    <i class="fa fa-check me-1" />Configured
+                                </span>
+                                <button
+                                    name="action_configure_eligibility"
+                                    type="object"
+                                    class="btn btn-sm btn-primary"
+                                    invisible="not eligibility_configured or not can_edit_configuration"
+                                    icon="fa-edit"
+                                >Edit</button>
+                                <button
+                                    name="action_configure_eligibility"
+                                    type="object"
+                                    class="btn btn-sm btn-secondary"
+                                    invisible="not eligibility_configured or can_edit_configuration"
+                                    icon="fa-eye"
+                                >View</button>
+                            </div>
+                        </div>
+                        <div class="card-body py-3">
+                            <group invisible="not eligibility_configured">
+                                <group>
+                                    <field name="eligibility_manager_type" string="Method" readonly="1" />
+                                </group>
+                                <group>
+                                    <field name="eligibility_manager_summary" string="Details" readonly="1" />
+                                </group>
+                            </group>
+                            <separator string="Eligibility Method" />
+                            <field
+                                name="eligibility_manager_ids"
+                                readonly="state == 'ended' or not can_edit_configuration"
+                                context="{'default_program_id': id}"
+                                nolabel="1"
+                            >
+                                <list editable="bottom" create="1" delete="1">
+                                    <field
+                                        name="manager_ref_id"
+                                        string="Eligibility Method"
+                                        options="{'no_quick_create':True}"
+                                        context="{'default_program_id': parent.id}"
+                                    />
+                                    <button
+                                        name="open_manager_form"
+                                        type="object"
+                                        class="btn-link p-0"
+                                        icon="fa-cog"
+                                        title="Configure eligibility rules"
+                                    />
+                                </list>
+                            </field>
+                        </div>
+                    </div>
+
+                    <!-- ==================== ENTITLEMENT SECTION ==================== -->
+                    <div class="card mb-3 shadow-sm">
+                        <div class="card-header d-flex justify-content-between align-items-center py-2 bg-success-subtle">
+                            <div class="d-flex align-items-center">
+                                <i class="fa fa-gift fa-lg me-3 text-success" title="Entitlement"/>
+                                <div>
+                                    <h5 class="mb-0">What Do They Receive?</h5>
+                                    <small class="text-muted">Configure benefits and entitlement amounts</small>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge rounded-pill bg-success" invisible="not entitlement_configured">
+                                    <i class="fa fa-check me-1" />Configured
+                                </span>
+                                <button
+                                    name="action_configure_entitlement"
+                                    type="object"
+                                    class="btn btn-sm btn-primary"
+                                    invisible="not entitlement_configured or not can_edit_configuration"
+                                    icon="fa-edit"
+                                >Edit</button>
+                                <button
+                                    name="action_configure_entitlement"
+                                    type="object"
+                                    class="btn btn-sm btn-secondary"
+                                    invisible="not entitlement_configured or can_edit_configuration"
+                                    icon="fa-eye"
+                                >View</button>
+                            </div>
+                        </div>
+                        <div class="card-body py-3">
+                            <group invisible="not entitlement_configured">
+                                <group>
+                                    <field name="entitlement_manager_type" string="Type" readonly="1" />
+                                </group>
+                                <group>
+                                    <field name="entitlement_manager_summary" string="Details" readonly="1" />
+                                </group>
+                            </group>
+                            <separator string="Entitlement Type" />
+                            <field
+                                name="entitlement_manager_ids"
+                                readonly="state == 'ended' or not can_edit_configuration"
+                                context="{'default_program_id': id}"
+                                nolabel="1"
+                            >
+                                <list editable="bottom" create="1" delete="1">
+                                    <field
+                                        name="manager_ref_id"
+                                        string="Entitlement Type"
+                                        options="{'no_quick_create':True}"
+                                        context="{'default_program_id': parent.id}"
+                                    />
+                                    <button
+                                        name="open_manager_form"
+                                        type="object"
+                                        class="btn-link p-0"
+                                        icon="fa-cog"
+                                        title="Configure entitlement details"
+                                    />
+                                </list>
+                            </field>
+                        </div>
+                    </div>
+
+                    <!-- ==================== SCHEDULE SECTION ==================== -->
+                    <div class="card mb-3 shadow-sm">
+                        <div class="card-header d-flex justify-content-between align-items-center py-2 bg-info-subtle">
+                            <div class="d-flex align-items-center">
+                                <i class="fa fa-calendar fa-lg me-3 text-info" title="Schedule"/>
+                                <div>
+                                    <h5 class="mb-0">Program Schedule</h5>
+                                    <small class="text-muted">Configure cycle timing and recurrence</small>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge rounded-pill bg-success" invisible="not cycle_configured">
+                                    <i class="fa fa-check me-1" />Configured
+                                </span>
+                                <button
+                                    name="action_configure_cycle"
+                                    type="object"
+                                    class="btn btn-sm btn-primary"
+                                    invisible="not cycle_configured or not can_edit_configuration"
+                                    icon="fa-edit"
+                                >Edit</button>
+                                <button
+                                    name="action_configure_cycle"
+                                    type="object"
+                                    class="btn btn-sm btn-secondary"
+                                    invisible="not cycle_configured or can_edit_configuration"
+                                    icon="fa-eye"
+                                >View</button>
+                            </div>
+                        </div>
+                        <div class="card-body py-3">
+                            <group invisible="not cycle_configured">
+                                <group>
+                                    <field name="cycle_manager_summary" string="Schedule" readonly="1" />
+                                </group>
+                            </group>
+                            <separator string="Schedule Type" />
+                            <field
+                                name="cycle_manager_ids"
+                                readonly="state == 'ended' or not can_edit_configuration"
+                                context="{'default_program_id': id}"
+                                nolabel="1"
+                            >
+                                <list editable="bottom" create="1" delete="1">
+                                    <field
+                                        name="manager_ref_id"
+                                        string="Schedule Type"
+                                        options="{'no_quick_create':True}"
+                                        context="{'default_program_id': parent.id}"
+                                    />
+                                    <button
+                                        name="open_manager_form"
+                                        type="object"
+                                        class="btn-link p-0"
+                                        icon="fa-cog"
+                                        title="Configure schedule"
+                                    />
+                                </list>
+                            </field>
+                        </div>
+                    </div>
+
+                    <!-- ==================== COMPLIANCE SECTION ==================== -->
+                    <div class="card mb-3 shadow-sm">
+                        <div class="card-header d-flex justify-content-between align-items-center py-2 bg-danger-subtle">
+                            <div class="d-flex align-items-center">
+                                <i class="fa fa-check-circle fa-lg me-3 text-danger" title="Compliance"/>
+                                <div>
+                                    <h5 class="mb-0">Compliance Criteria</h5>
+                                    <small class="text-muted">Define ongoing conditions beneficiaries must meet</small>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge rounded-pill bg-success" invisible="not compliance_configured">
+                                    <i class="fa fa-check me-1" />Configured
+                                </span>
+                                <button
+                                    name="action_configure_compliance"
+                                    type="object"
+                                    class="btn btn-sm btn-primary"
+                                    invisible="not compliance_configured or not can_edit_configuration"
+                                    icon="fa-edit"
+                                >Edit</button>
+                                <button
+                                    name="action_configure_compliance"
+                                    type="object"
+                                    class="btn btn-sm btn-secondary"
+                                    invisible="not compliance_configured or can_edit_configuration"
+                                    icon="fa-eye"
+                                >View</button>
+                            </div>
+                        </div>
+                        <div class="card-body py-3">
+                            <group invisible="not compliance_configured">
+                                <group>
+                                    <field name="compliance_manager_type" string="Method" readonly="1" />
+                                </group>
+                                <group>
+                                    <field name="compliance_manager_summary" string="Criteria" readonly="1" />
+                                </group>
+                            </group>
+                            <separator string="Compliance Method" />
+                            <field
+                                name="compliance_manager_ids"
+                                readonly="state == 'ended' or not can_edit_configuration"
+                                context="{'default_program_id': id}"
+                                nolabel="1"
+                            >
+                                <list editable="bottom" create="1" delete="1">
+                                    <field
+                                        name="manager_ref_id"
+                                        string="Compliance Method"
+                                        options="{'no_quick_create':True}"
+                                        context="{'default_program_id': parent.id}"
+                                    />
+                                    <button
+                                        name="open_manager_form"
+                                        type="object"
+                                        class="btn-link p-0"
+                                        icon="fa-cog"
+                                        title="Configure compliance criteria"
+                                    />
+                                </list>
+                            </field>
+                        </div>
+                    </div>
+
+                    <!-- ==================== PAYMENT SECTION ==================== -->
+                    <div class="card mb-3 shadow-sm">
+                        <div class="card-header d-flex justify-content-between align-items-center py-2 bg-warning-subtle">
+                            <div class="d-flex align-items-center">
+                                <i class="fa fa-credit-card fa-lg me-3 text-warning" title="Payment"/>
+                                <div>
+                                    <h5 class="mb-0">Payment Processing</h5>
+                                    <small class="text-muted">Configure how payments are made</small>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge rounded-pill bg-success" invisible="not payment_configured">
+                                    <i class="fa fa-check me-1" />Configured
+                                </span>
+                                <button
+                                    name="action_configure_payment"
+                                    type="object"
+                                    class="btn btn-sm btn-primary"
+                                    invisible="not payment_configured or not can_edit_configuration"
+                                    icon="fa-edit"
+                                >Edit</button>
+                                <button
+                                    name="action_configure_payment"
+                                    type="object"
+                                    class="btn btn-sm btn-secondary"
+                                    invisible="not payment_configured or can_edit_configuration"
+                                    icon="fa-eye"
+                                >View</button>
+                            </div>
+                        </div>
+                        <div class="card-body py-3">
+                            <group invisible="not payment_configured">
+                                <group>
+                                    <field name="payment_manager_summary" string="Settings" readonly="1" />
+                                </group>
+                            </group>
+                            <separator string="Payment Method" />
+                            <field
+                                name="payment_manager_ids"
+                                readonly="state == 'ended' or not can_edit_configuration"
+                                context="{'default_program_id': id}"
+                                nolabel="1"
+                            >
+                                <list editable="bottom" create="1" delete="1">
+                                    <field
+                                        name="manager_ref_id"
+                                        string="Payment Method"
+                                        options="{'no_quick_create':True}"
+                                        context="{'default_program_id': parent.id}"
+                                    />
+                                    <button
+                                        name="open_manager_form"
+                                        type="object"
+                                        class="btn-link p-0"
+                                        icon="fa-cog"
+                                        title="Configure payment settings"
+                                    />
+                                </list>
+                            </field>
+                        </div>
+                    </div>
+
+                    <!-- ==================== OPTIONAL FEATURES ==================== -->
+                    <separator string="Optional Features" />
+
+                    <group col="2">
+                        <!-- Deduplication -->
+                        <group string="Duplicate Detection">
+                            <div class="mb-2 text-muted small" colspan="2">
+                                Check for duplicate beneficiaries by phone, ID, etc.
+                            </div>
+                            <field name="deduplication_manager_summary" string="Method" readonly="1" invisible="not deduplication_configured" />
+                            <field
+                                name="deduplication_manager_ids"
+                                readonly="state == 'ended' or not can_edit_configuration"
+                                context="{'default_program_id': id}"
+                                nolabel="1"
+                                colspan="2"
+                            >
+                                <list editable="bottom" create="1" delete="1">
+                                    <field
+                                        name="manager_ref_id"
+                                        string="Method"
+                                        options="{'no_quick_create':True}"
+                                        context="{'default_program_id': parent.id}"
+                                    />
+                                    <button
+                                        name="open_manager_form"
+                                        type="object"
+                                        class="btn-link p-0"
+                                        icon="fa-cog"
+                                        title="Configure"
+                                    />
+                                </list>
+                            </field>
+                        </group>
+
+                        <!-- Notifications -->
+                        <group string="Notifications">
+                            <div class="mb-2 text-muted small" colspan="2">
+                                Send SMS or other notifications to beneficiaries.
+                            </div>
+                            <field name="notification_manager_summary" string="Channel" readonly="1" invisible="not notification_configured" />
+                            <field
+                                name="notification_manager_ids"
+                                readonly="state == 'ended' or not can_edit_configuration"
+                                context="{'default_program_id': id}"
+                                nolabel="1"
+                                colspan="2"
+                            >
+                                <list editable="bottom" create="1" delete="1">
+                                    <field
+                                        name="manager_ref_id"
+                                        string="Channel"
+                                        options="{'no_quick_create':True}"
+                                        context="{'default_program_id': parent.id}"
+                                    />
+                                    <button
+                                        name="open_manager_form"
+                                        type="object"
+                                        class="btn-link p-0"
+                                        icon="fa-cog"
+                                        title="Configure"
+                                    />
+                                </list>
+                            </field>
+                        </group>
+                    </group>
+
+                    <!-- ==================== ACCOUNTING ==================== -->
+                    <separator string="Accounting" />
+                    <group col="2">
+                        <group>
+                            <field
+                                name="journal_id"
+                                string="Disbursement Journal"
+                                options="{'no_open': True, 'no_quick_create': True, 'no_create': True}"
+                                readonly="state == 'ended' or not can_edit_configuration"
+                            />
+                        </group>
+                        <group>
+                            <field name="is_one_time_distribution" readonly="state == 'ended' or not can_edit_configuration" />
+                        </group>
+                    </group>
+
+                    <!-- Hidden program manager (usually not user-configured) -->
+                    <field name="program_manager_ids" invisible="1" />
+
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

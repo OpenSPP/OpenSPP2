@@ -1,0 +1,92 @@
+/* Registry Search Portal Styles */
+
+.o_registry_search_portal {
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    overflow-y: auto;
+    height: 100%;
+}
+
+/* Fix scrolling within Odoo action container */
+.o_registry_search_portal.o_action {
+    overflow-y: auto !important;
+    max-height: 100vh;
+}
+
+.o_registry_search_portal .card {
+    border: none;
+    border-radius: 8px;
+}
+
+.o_registry_search_portal .input-group-lg .form-control {
+    border-radius: 0;
+}
+
+.o_registry_search_portal .input-group-lg .input-group-text {
+    border-radius: 8px 0 0 8px;
+    border-right: none;
+}
+
+.o_registry_search_portal .input-group-lg .form-control:focus {
+    box-shadow: none;
+    border-color: #ced4da;
+}
+
+.o_registry_search_portal .input-group-lg .btn {
+    border-radius: 0 8px 8px 0;
+}
+
+/* Recent cards */
+.o_registry_search_portal .o_recent_card {
+    cursor: pointer;
+    transition:
+        transform 0.15s ease-in-out,
+        box-shadow 0.15s ease-in-out;
+}
+
+.o_registry_search_portal .o_recent_card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Search results */
+.o_registry_search_portal .list-group-item {
+    border-left: none;
+    border-right: none;
+    transition: background-color 0.15s ease-in-out;
+}
+
+.o_registry_search_portal .list-group-item:first-child {
+    border-top: none;
+    border-radius: 8px 8px 0 0;
+}
+
+.o_registry_search_portal .list-group-item:last-child {
+    border-bottom: none;
+    border-radius: 0 0 8px 8px;
+}
+
+.o_registry_search_portal .list-group-item:hover {
+    background-color: #f8f9fa;
+}
+
+/* Empty state */
+.o_registry_search_portal .fa-4x {
+    opacity: 0.5;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .o_registry_search_portal h2 {
+        font-size: 1.5rem;
+    }
+
+    .o_registry_search_portal .btn-group {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .o_registry_search_portal .btn-group .btn {
+        margin-bottom: 0.25rem;
+    }
+}

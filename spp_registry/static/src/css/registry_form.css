@@ -1,0 +1,22 @@
+/* OpenSPP Registry Form Improvements */
+
+/* Text overflow with ellipsis for all text inputs */
+.o_form_view input.o_input[type="text"] {
+    text-overflow: ellipsis !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+}
+
+/* For readonly text fields (displayed as spans) */
+/* .o_form_view .o_field_widget span {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+} */
+
+/* Ensure title attribute is set so browser shows tooltip on hover */
+.o_form_view input.o_input[type="text"] {
+    cursor: default;
+}

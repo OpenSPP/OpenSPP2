@@ -1,0 +1,25 @@
+# Gitleaks configuration for OpenSPP
+# Narrow allowlist — only suppress specific known false positives.
+# Prefer path rules over fingerprints since fingerprints break when line numbers shift.
+
+[allowlist]
+description = "Known false positives and accepted risks"
+
+paths = [
+    '''static/security/''',                    # Scan reports contain secret examples
+    '''docs/security/SECURITY_SCANNING\.md$''', # Documentation with example references
+    '''queue_job/static/lib/''',               # Vendored minified JS
+    '''/tests/cassettes/''',                   # VCR cassettes with recorded responses
+    '''data/config_data\.xml$''',              # Demo/config data
+    '''spp_dci_compliance/__init__\.py$''',    # Module constant
+]
+
+# Stopwords suppress specific strings that are known false positives
+# in test data files. This is narrower than blanket path exclusions.
+stopwords = [
+    "EXAMPLE",
+    "example_key",
+    "test_secret",
+    "dummy",
+    "placeholder",
+]

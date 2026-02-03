@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <!-- ========================================== -->
+    <!-- EXTEND SPP.AREA FORM VIEW                  -->
+    <!-- Add population and household count fields -->
+    <!-- ========================================== -->
+    <record id="view_spp_area_form_gis_report" model="ir.ui.view">
+        <field name="name">spp.area.form.gis.report</field>
+        <field name="model">spp.area</field>
+        <field name="inherit_id" ref="spp_area.view_spparea_form" />
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <!-- Add Reference Data section after area_sqkm field -->
+            <xpath expr="//field[@name='area_sqkm']" position="after">
+                <separator string="Reference Data for GIS Reports" />
+                <group name="gis_reference_data" col="2">
+                    <group name="population_group">
+                        <field name="population" />
+                        <field name="population_date" />
+                        <field name="population_source" />
+                    </group>
+                    <group name="household_group">
+                        <field name="household_count" />
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

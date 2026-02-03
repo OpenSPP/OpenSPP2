@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- HDX COD Resource Form View -->
+    <record id="view_hdx_cod_resource_form" model="ir.ui.view">
+        <field name="name">spp.hdx.cod.resource.form</field>
+        <field name="model">spp.hdx.cod.resource</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button
+                        name="action_detect_field_mappings"
+                        string="Detect Field Mappings"
+                        type="object"
+                        class="oe_highlight"
+                        groups="spp_area_hdx.group_hdx_manager"
+                    />
+                    <button
+                        name="action_open_import_wizard"
+                        string="Import"
+                        type="object"
+                        class="btn-primary"
+                        groups="spp_area_hdx.group_hdx_manager"
+                    />
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="source_id" />
+                            <field name="name" />
+                            <field name="admin_level" />
+                            <field name="format" />
+                        </group>
+                        <group>
+                            <field name="hdx_resource_id" />
+                            <field name="download_url" widget="url" />
+                            <field name="feature_count" />
+                            <field name="last_download_date" />
+                        </group>
+                    </group>
+                    <group string="Field Mappings">
+                        <group>
+                            <field name="pcode_field" />
+                            <field name="name_field" />
+                        </group>
+                        <group>
+                            <field name="name_local_field" />
+                            <field name="parent_pcode_field" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

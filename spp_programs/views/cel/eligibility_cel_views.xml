@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <!-- Extend Default Eligibility Manager Form to add CEL support -->
+    <record id="view_eligibility_manager_default_form_cel" model="ir.ui.view">
+        <field name="name">spp.program.membership.manager.default.form.cel</field>
+        <field name="model">spp.program.membership.manager.default</field>
+        <field name="inherit_id" ref="spp_programs.view_eligibility_manager_default_form" />
+        <field name="arch" type="xml">
+
+            <!-- Replace the eligibility_domain field with CEL expression -->
+            <xpath expr="//field[@name='eligibility_domain']" position="replace">
+                <group col="1" name="cel_expression_section">
+                    <!-- Hidden fields for widget context -->
+                    <field name="eligibility_mode" invisible="1" />
+                    <field name="eligibility_cel_profile" invisible="1" />
+                    <field name="is_eligibility_locked" invisible="1" />
+                    <field name="has_drifted_from_template" invisible="1" />
+
+                    <!-- Template Lineage Information -->
+                    <group
+                        col="4"
+                        invisible="not source_expression_id"
+                        class="oe_read_only"
+                    >
+                        <field
+                            name="source_expression_id"
+                            colspan="2"
+                            options="{'no_open': False, 'no_create': True}"
+                            readonly="1"
+                        />
+                        <!-- Lock indicator -->
+                        <div colspan="1" invisible="not is_eligibility_locked" class="text-warning">
+                            <i class="fa fa-lock" />
+                            <span class="ms-1 fw-bold">Locked</span>
+                        </div>
+                        <!-- Drift indicator -->
+                        <div colspan="1" invisible="not has_drifted_from_template" class="text-info">
+                            <i class="fa fa-code-fork" />
+                            <span class="ms-1">Modified</span>
+                        </div>
+                    </group>
+
+                    <!-- Selected criteria display (shown when a template is selected) -->
+                    <group invisible="not source_expression_id">
+                        <field
+                            name="source_expression_id"
+                            readonly="1"
+                            string="Selected Criteria"
+                            options="{'no_open': False, 'no_create': True}"
+                        />
+                    </group>
+
+                    <!-- Lock warning message -->
+                    <div
+                        class="alert alert-warning mb-2"
+                        role="alert"
+                        invisible="not is_eligibility_locked"
+                    >
+                        <i class="fa fa-lock me-1" />
+                        This eligibility criteria is <strong>locked</strong> and cannot be modified.
+                        The expression is standardized for compliance purposes.
+                        Contact an administrator to unlock if changes are required.
+                    </div>
+
+                    <!-- CEL Expression - Using enhanced CEL widget (hidden when locked) -->
+                    <div class="w-100" invisible="is_eligibility_locked">
+                        <group>
+                            <field
+                                name="cel_expression"
+                                widget="cel_expression"
+                                options="{'profile_field': 'eligibility_cel_profile'}"
+                                show_symbol_browser="true"
+                                show_validation_count="true"
+                                placeholder="e.g.: age_years(r.birthdate) >= 60 and is_female(r.gender_id)"
+                            />
+                        </group>
+
+                        <!-- Action buttons -->
+                        <div class="o_row mb-3">
+                            <button
+                                name="action_open_cel_builder"
+                                string="Advanced Builder"
+                                type="object"
+                                class="btn-secondary"
+                                icon="fa-magic"
+                                title="Open the advanced expression builder wizard"
+                            />
+                            <button
+                                name="action_preview_beneficiaries"
+                                string="Preview Beneficiaries"
+                                type="object"
+                                class="btn-secondary"
+                                icon="fa-eye"
+                                invisible="not cel_is_valid"
+                            />
+                        </div>
+
+                        <!-- Validation alerts -->
+                        <div class="alert alert-success" role="status" invisible="not cel_is_valid or not cel_expression">
+                            <i class="fa fa-check-circle" title="Success" />
+                            Expression is valid.
+                            <strong><field name="cel_preview_count" class="oe_inline" /></strong>
+                            beneficiaries match this criteria.
+                        </div>
+
+                        <div class="alert alert-danger" role="alert" invisible="not cel_preview_error">
+                            <i class="fa fa-exclamation-triangle" title="Warning" />
+                            <field name="cel_preview_error" nolabel="1" class="oe_inline" />
+                        </div>
+                    </div>
+                </group>
+            </xpath>
+
+        </field>
+    </record>
+
+    <!-- Menu item for CEL Examples (under Configuration) -->
+    <menuitem
+        id="menu_cel_examples"
+        name="CEL Expression Examples"
+        parent="spp_programs.spp_programs_config_menu_root"
+        action="action_cel_examples"
+        sequence="200"
+        groups="spp_security.group_spp_admin"
+    />
+
+</odoo>

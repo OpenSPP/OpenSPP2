@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Extend Approval Definition Form View -->
+    <record id="view_spp_approval_definition_form_multitier" model="ir.ui.view">
+        <field name="name">spp.approval.definition.form.multitier</field>
+        <field name="model">spp.approval.definition</field>
+        <field name="inherit_id" ref="spp_approval.approval_definition_view_form"/>
+        <field name="arch" type="xml">
+            <!-- Add multi-tier toggle after approval_type -->
+            <xpath expr="//field[@name='approval_type']" position="before">
+                <field name="use_multitier"/>
+            </xpath>
+
+            <!-- Hide single-tier approver fields when multi-tier is enabled -->
+            <xpath expr="//field[@name='approval_type']" position="attributes">
+                <attribute name="invisible">use_multitier</attribute>
+            </xpath>
+            <xpath expr="//field[@name='approval_group_id']" position="attributes">
+                <attribute name="invisible">use_multitier or approval_type != 'group'</attribute>
+            </xpath>
+            <xpath expr="//field[@name='approval_user_ids']" position="attributes">
+                <attribute name="invisible">use_multitier or approval_type != 'user'</attribute>
+            </xpath>
+            <xpath expr="//field[@name='approval_field_id']" position="attributes">
+                <attribute name="invisible">use_multitier or approval_type != 'field'</attribute>
+            </xpath>
+
+            <!-- Add tier configuration section before notebook -->
+            <xpath expr="//notebook" position="before">
+                <group string="Approval Tiers" invisible="not use_multitier">
+                    <field name="tier_count" string="Number of Tiers"/>
+                    <field name="tier_ids" nolabel="1" colspan="2"
+                           context="{'default_definition_id': id}">
+                        <list editable="bottom">
+                            <field name="sequence" widget="handle"/>
+                            <field name="name"/>
+                            <field name="approval_type"/>
+                            <field name="approval_group_id"
+                                   invisible="approval_type != 'group'"
+                                   required="approval_type == 'group'"/>
+                            <field name="approval_user_ids"
+                                   widget="many2many_tags"
+                                   invisible="approval_type != 'user'"
+                                   required="approval_type == 'user'"/>
+                            <field name="approval_field"
+                                   invisible="approval_type != 'field'"
+                                   required="approval_type == 'field'"/>
+                            <field name="is_require_all"/>
+                            <field name="min_approvers" invisible="is_require_all"/>
+                            <field name="sla_hours" string="SLA (hrs)"/>
+                        </list>
+                    </field>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend Approval Definition List View -->
+    <record id="view_spp_approval_definition_tree_multitier" model="ir.ui.view">
+        <field name="name">spp.approval.definition.list.multitier</field>
+        <field name="model">spp.approval.definition</field>
+        <field name="inherit_id" ref="spp_approval.approval_definition_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='approval_type']" position="after">
+                <field name="use_multitier" string="Multi-Tier"/>
+                <field name="tier_count" string="Tiers" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

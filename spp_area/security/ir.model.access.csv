@@ -1,0 +1,33 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_area_user,spp.area user,spp_area.model_spp_area,base.group_user,1,0,0,0
+access_spp_area_type_user,spp.area.type user,spp_area.model_spp_area_type,base.group_user,1,0,0,0
+access_spp_area_tag_user,spp.area.tag user,spp_area.model_spp_area_tag,base.group_user,1,0,0,0
+access_spp_area_sysadmin,Area Admin Access,spp_area.model_spp_area,base.group_system,1,1,1,1
+access_spp_area_import_sysadmin,Area Import Admin Access,spp_area.model_spp_area_import,base.group_system,1,1,1,1
+access_spp_area_import_raw_sysadmin,Area Import Raw Admin Access,spp_area.model_spp_area_import_raw,base.group_system,1,1,1,1
+access_spp_area_type_sysadmin,Area Type Admin Access,spp_area.model_spp_area_type,base.group_system,1,1,1,1
+access_spp_area_import_json_sysadmin,Area Import JSON Admin Access,spp_area.model_spp_area_import_json,base.group_system,1,1,1,1
+access_spp_area_tag_sysadmin,Area Tag Admin Access,spp_area.model_spp_area_tag,base.group_system,1,1,1,1
+access_spp_area_import_language_wizard_sysadmin,Area Import Language Wizard Admin,spp_area.model_spp_area_import_language_wizard,base.group_system,1,1,1,1
+access_spp_area_admin,Area Admin Access,spp_area.model_spp_area,spp_security.group_spp_admin,1,1,1,1
+access_spp_area_import_admin,Area Import Admin Access,spp_area.model_spp_area_import,spp_security.group_spp_admin,1,1,1,1
+access_spp_area_import_raw_admin,Area Import Raw Admin Access,spp_area.model_spp_area_import_raw,spp_security.group_spp_admin,1,1,1,1
+access_spp_area_type_admin,Area Type Admin Access,spp_area.model_spp_area_type,spp_security.group_spp_admin,1,1,1,1
+access_spp_area_import_json_admin,Area Import JSON Admin Access,spp_area.model_spp_area_import_json,spp_security.group_spp_admin,1,1,1,1
+access_spp_area_tag_admin,Area Tag Admin Access,spp_area.model_spp_area_tag,spp_security.group_spp_admin,1,1,1,1
+access_spp_area_import_language_wizard_admin,Area Import Language Wizard Admin,spp_area.model_spp_area_import_language_wizard,spp_security.group_spp_admin,1,1,1,1
+access_spp_area_viewer,Area Viewer Access,spp_area.model_spp_area,spp_area.group_area_viewer,1,0,0,0
+access_spp_area_type_viewer,Area Type Viewer Access,spp_area.model_spp_area_type,spp_area.group_area_viewer,1,0,0,0
+access_spp_area_tag_viewer,Area Tag Viewer Access,spp_area.model_spp_area_tag,spp_area.group_area_viewer,1,0,0,0
+access_spp_area_import_viewer,Area Import Viewer Access,spp_area.model_spp_area_import,spp_area.group_area_viewer,1,0,0,0
+access_spp_area_import_raw_viewer,Area Import Raw Viewer Access,spp_area.model_spp_area_import_raw,spp_area.group_area_viewer,1,0,0,0
+access_spp_area_officer,Area Officer Access,spp_area.model_spp_area,spp_area.group_area_officer,1,1,1,0
+access_spp_area_type_officer,Area Type Officer Access,spp_area.model_spp_area_type,spp_area.group_area_officer,1,1,1,0
+access_spp_area_tag_officer,Area Tag Officer Access,spp_area.model_spp_area_tag,spp_area.group_area_officer,1,1,1,0
+access_spp_area_manager,Area Manager Access,spp_area.model_spp_area,spp_area.group_area_manager,1,1,1,1
+access_spp_area_type_manager,Area Type Manager Access,spp_area.model_spp_area_type,spp_area.group_area_manager,1,1,1,1
+access_spp_area_tag_manager,Area Tag Manager Access,spp_area.model_spp_area_tag,spp_area.group_area_manager,1,1,1,1
+access_spp_area_import_manager,Area Import Manager Access,spp_area.model_spp_area_import,spp_area.group_area_manager,1,1,1,1
+access_spp_area_import_raw_manager,Area Import Raw Manager Access,spp_area.model_spp_area_import_raw,spp_area.group_area_manager,1,1,1,1
+access_spp_area_import_json_manager,Area Import JSON Manager Access,spp_area.model_spp_area_import_json,spp_area.group_area_manager,1,1,1,1
+access_spp_area_import_language_wizard_manager,Area Import Language Wizard Manager,spp_area.model_spp_area_import_language_wizard,spp_area.group_area_manager,1,1,1,1

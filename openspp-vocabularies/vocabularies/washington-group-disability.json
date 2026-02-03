@@ -1,0 +1,18 @@
+{
+  "name": "Washington Group Short Set on Functioning",
+  "namespace": "urn:washingtongroup:ss",
+  "version": "2022",
+  "source_url": "https://www.washingtongroup-disability.com/question-sets/wg-short-set-on-functioning-wg-ss/",
+  "source_standard": "WG-SS (Washington Group Short Set)",
+  "last_updated": "2024-01-15",
+  "domain": "core",
+  "is_hierarchical": false,
+  "codes": [
+    {"code": "VIS", "display": "Seeing", "definition": "Difficulty seeing, even if wearing glasses"},
+    {"code": "HRG", "display": "Hearing", "definition": "Difficulty hearing, even if using a hearing aid"},
+    {"code": "MOB", "display": "Walking", "definition": "Difficulty walking or climbing steps"},
+    {"code": "COG", "display": "Remembering", "definition": "Difficulty remembering or concentrating"},
+    {"code": "SC", "display": "Self-care", "definition": "Difficulty with self-care such as washing or dressing"},
+    {"code": "COM", "display": "Communicating", "definition": "Difficulty communicating using usual language"}
+  ]
+}

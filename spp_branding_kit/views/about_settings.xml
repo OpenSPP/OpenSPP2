@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_res_config_settings_form_inherit_spp_branding_kit_about" model="ir.ui.view">
+        <field name="priority">99</field>
+        <field name="name">res.config.settings.view.form.inherit.openspp.about</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base_setup.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <!-- Insert an OpenSPP about card inside the About block of the settings page -->
+            <xpath expr="//div[@id='about']/block" position="inside">
+                <setting id="spp_about">
+                    <div class="o_setting_box">
+                        <div class="o_setting_left">
+                            <h3>OpenSPP Platform</h3>
+                            <p class="text-muted">
+                                Social Protection Platform<br />
+                                <small>Powered by Odoo Community Edition</small>
+                            </p>
+                        </div>
+                        <div class="o_setting_right">
+                            <div class="o_setting_right_pane">
+                                <a
+                                    href="https://openspp.org"
+                                    target="_blank"
+                                    class="btn btn-primary"
+                                    role="button"
+                                >
+                                    Visit OpenSPP Website
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </setting>
+            </xpath>
+        </field>
+    </record>
+</odoo>

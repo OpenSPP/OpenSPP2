@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Cron Job for Scheduled GIS Report Refresh -->
+
+        <record id="ir_cron_gis_report_refresh" model="ir.cron">
+            <field name="name">GIS Report: Scheduled Refresh</field>
+            <field name="model_id" ref="model_spp_gis_report" />
+            <field name="state">code</field>
+            <field name="code">model._cron_refresh_scheduled_reports()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">hours</field>
+            <field name="active">True</field>
+            <field name="priority">10</field>
+        </record>
+
+    </data>
+</odoo>

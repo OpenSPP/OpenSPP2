@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- DRIMS Record Rules -->
+
+        <!-- Request Rules: Area-based scoping -->
+
+        <!-- Field Officers: See own requests or requests for their assigned areas -->
+        <record id="rule_request_field_officer_scope" model="ir.rule">
+            <field name="name">DRIMS Request: Field Officer Scope</field>
+            <field name="model_id" ref="model_spp_drims_request"/>
+            <field name="domain_force">[
+                '|',
+                ('create_uid', '=', user.id),
+                ('destination_area_id', 'child_of', user.drims_area_ids.ids)
+            ]</field>
+            <field name="groups" eval="[(4, ref('group_drims_field_officer'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- District Coordinators: See requests for their assigned areas -->
+        <record id="rule_request_coordinator_scope" model="ir.rule">
+            <field name="name">DRIMS Request: Coordinator Scope</field>
+            <field name="model_id" ref="model_spp_drims_request"/>
+            <field name="domain_force">[
+                ('destination_area_id', 'child_of', user.drims_area_ids.ids)
+            ]</field>
+            <field name="groups" eval="[(4, ref('group_drims_coordinator_supervisor'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Approvers: See all requests (needed for approval workflow) -->
+        <record id="rule_request_approver_all" model="ir.rule">
+            <field name="name">DRIMS Request: Approver All Access</field>
+            <field name="model_id" ref="model_spp_drims_request"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_drims_approver'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Managers: See all requests -->
+        <record id="rule_request_manager_all" model="ir.rule">
+            <field name="name">DRIMS Request: Manager All Access</field>
+            <field name="model_id" ref="model_spp_drims_request"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_drims_manager'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+        <!-- Donation Rules: Warehouse-based access -->
+
+        <!-- Warehouse Staff: See donations for their assigned warehouses -->
+        <record id="rule_donation_warehouse_scope" model="ir.rule">
+            <field name="name">DRIMS Donation: Warehouse Scope</field>
+            <field name="model_id" ref="model_spp_drims_donation"/>
+            <field name="domain_force">[
+                '|',
+                ('warehouse_id', 'in', user.drims_warehouse_ids.ids),
+                ('create_uid', '=', user.id)
+            ]</field>
+            <field name="groups" eval="[(4, ref('group_drims_warehouse_worker'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Managers: See all donations -->
+        <record id="rule_donation_manager_all" model="ir.rule">
+            <field name="name">DRIMS Donation: Manager All Access</field>
+            <field name="model_id" ref="model_spp_drims_donation"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_drims_manager'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+        <!-- Request Template Rules: User-owned or shared -->
+
+        <!-- Officers: See own templates or shared templates -->
+        <record id="rule_request_template_user_scope" model="ir.rule">
+            <field name="name">DRIMS Request Template: User Scope</field>
+            <field name="model_id" ref="model_spp_drims_request_template"/>
+            <field name="domain_force">[
+                '|',
+                ('user_id', '=', user.id),
+                ('is_shared', '=', True)
+            ]</field>
+            <field name="groups" eval="[
+                (4, ref('group_drims_officer')),
+                (4, ref('group_drims_field_officer')),
+                (4, ref('group_drims_coordinator_supervisor')),
+                (4, ref('group_drims_warehouse_worker')),
+            ]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Managers: See all templates -->
+        <record id="rule_request_template_manager_all" model="ir.rule">
+            <field name="name">DRIMS Request Template: Manager All Access</field>
+            <field name="model_id" ref="model_spp_drims_request_template"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_drims_manager'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+        <!-- Multi-company isolation (if multi-company is enabled) -->
+
+        <!-- Requests: Company isolation -->
+        <record id="rule_request_multi_company" model="ir.rule">
+            <field name="name">DRIMS Request: Multi-Company</field>
+            <field name="model_id" ref="model_spp_drims_request"/>
+            <field name="domain_force">[
+                '|',
+                ('company_id', '=', False),
+                ('company_id', 'in', company_ids)
+            ]</field>
+            <field name="global" eval="True"/>
+        </record>
+
+        <!-- Donations: Company isolation -->
+        <record id="rule_donation_multi_company" model="ir.rule">
+            <field name="name">DRIMS Donation: Multi-Company</field>
+            <field name="model_id" ref="model_spp_drims_donation"/>
+            <field name="domain_force">[
+                '|',
+                ('company_id', '=', False),
+                ('company_id', 'in', company_ids)
+            ]</field>
+            <field name="global" eval="True"/>
+        </record>
+
+        <!-- Alert Rules: Warehouse-based and request-based scoping -->
+
+        <!-- Field Officers: See alerts for their warehouses or request areas -->
+        <record id="rule_alert_field_officer_scope" model="ir.rule">
+            <field name="name">DRIMS Alert: Field Officer Scope</field>
+            <field name="model_id" ref="model_spp_drims_alert"/>
+            <field name="domain_force">[
+                '|',
+                ('warehouse_id', 'in', user.drims_warehouse_ids.ids),
+                ('request_id.destination_area_id', 'child_of', user.drims_area_ids.ids)
+            ]</field>
+            <field name="groups" eval="[(4, ref('group_drims_field_officer'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Coordinators: See alerts for their areas via requests -->
+        <record id="rule_alert_coordinator_scope" model="ir.rule">
+            <field name="name">DRIMS Alert: Coordinator Scope</field>
+            <field name="model_id" ref="model_spp_drims_alert"/>
+            <field name="domain_force">[
+                '|',
+                ('warehouse_id', 'in', user.drims_warehouse_ids.ids),
+                ('request_id.destination_area_id', 'child_of', user.drims_area_ids.ids)
+            ]</field>
+            <field name="groups" eval="[(4, ref('group_drims_coordinator_supervisor'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Warehouse Staff: See alerts for their warehouses -->
+        <record id="rule_alert_warehouse_scope" model="ir.rule">
+            <field name="name">DRIMS Alert: Warehouse Staff Scope</field>
+            <field name="model_id" ref="model_spp_drims_alert"/>
+            <field name="domain_force">[
+                ('warehouse_id', 'in', user.drims_warehouse_ids.ids)
+            ]</field>
+            <field name="groups" eval="[(4, ref('group_drims_warehouse_worker'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Managers: See all alerts with full access -->
+        <record id="rule_alert_manager_all" model="ir.rule">
+            <field name="name">DRIMS Alert: Manager All Access</field>
+            <field name="model_id" ref="model_spp_drims_alert"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_drims_manager'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+        <!-- Alerts: Company isolation -->
+        <record id="rule_alert_multi_company" model="ir.rule">
+            <field name="name">DRIMS Alert: Multi-Company</field>
+            <field name="model_id" ref="model_spp_drims_alert"/>
+            <field name="domain_force">[
+                '|',
+                ('company_id', '=', False),
+                ('company_id', 'in', company_ids)
+            ]</field>
+            <field name="global" eval="True"/>
+        </record>
+
+        <!-- Return Rules: Warehouse-based scoping -->
+
+        <!-- Field Officers: See own returns or returns for their assigned warehouses -->
+        <record id="rule_return_field_officer_scope" model="ir.rule">
+            <field name="name">DRIMS Return: Field Officer Scope</field>
+            <field name="model_id" ref="model_spp_drims_return"/>
+            <field name="domain_force">[
+                '|',
+                ('create_uid', '=', user.id),
+                ('warehouse_id', 'in', user.drims_warehouse_ids.ids)
+            ]</field>
+            <field name="groups" eval="[(4, ref('group_drims_field_officer'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Coordinators: See returns for their assigned areas via incident -->
+        <record id="rule_return_coordinator_scope" model="ir.rule">
+            <field name="name">DRIMS Return: Coordinator Scope</field>
+            <field name="model_id" ref="model_spp_drims_return"/>
+            <field name="domain_force">[
+                '|',
+                ('warehouse_id', 'in', user.drims_warehouse_ids.ids),
+                ('create_uid', '=', user.id)
+            ]</field>
+            <field name="groups" eval="[(4, ref('group_drims_coordinator_supervisor'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Warehouse Staff: See returns for their assigned warehouses -->
+        <record id="rule_return_warehouse_scope" model="ir.rule">
+            <field name="name">DRIMS Return: Warehouse Staff Scope</field>
+            <field name="model_id" ref="model_spp_drims_return"/>
+            <field name="domain_force">[
+                ('warehouse_id', 'in', user.drims_warehouse_ids.ids)
+            ]</field>
+            <field name="groups" eval="[(4, ref('group_drims_warehouse_worker'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Managers: See all returns with full access -->
+        <record id="rule_return_manager_all" model="ir.rule">
+            <field name="name">DRIMS Return: Manager All Access</field>
+            <field name="model_id" ref="model_spp_drims_return"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_drims_manager'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+        <!-- Returns: Company isolation -->
+        <record id="rule_return_multi_company" model="ir.rule">
+            <field name="name">DRIMS Return: Multi-Company</field>
+            <field name="model_id" ref="model_spp_drims_return"/>
+            <field name="domain_force">[
+                '|',
+                ('company_id', '=', False),
+                ('company_id', 'in', company_ids)
+            ]</field>
+            <field name="global" eval="True"/>
+        </record>
+
+    </data>
+</odoo>

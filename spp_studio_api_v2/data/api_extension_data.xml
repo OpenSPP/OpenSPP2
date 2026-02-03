@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Studio API Extension for Individual -->
+        <record id="api_extension_studio_individual" model="spp.api.extension">
+            <field name="name">Studio Individual Fields</field>
+            <field name="url">urn:openspp:extension:studio-individual</field>
+            <field name="module_id" ref="base.module_spp_studio_api_v2"/>
+            <field name="applies_to">individual</field>
+            <field name="active">True</field>
+        </record>
+
+        <!-- Studio API Extension for Group -->
+        <record id="api_extension_studio_group" model="spp.api.extension">
+            <field name="name">Studio Group Fields</field>
+            <field name="url">urn:openspp:extension:studio-group</field>
+            <field name="module_id" ref="base.module_spp_studio_api_v2"/>
+            <field name="applies_to">group</field>
+            <field name="active">True</field>
+        </record>
+    </data>
+</odoo>

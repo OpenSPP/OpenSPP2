@@ -1,0 +1,79 @@
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <!-- ========================================== -->
+    <!-- PROGRAMS ROOT MENU                         -->
+    <!-- ========================================== -->
+    <menuitem
+        id="spp_programs.spp_program_menu_root"
+        name="Programs"
+        web_icon="spp_programs,static/description/OpenSPP-Icons-Program.png"
+        sequence="0"
+    />
+
+    <!-- ========================================== -->
+    <!-- PAYMENTS SUBMENU                           -->
+    <!-- ========================================== -->
+    <menuitem
+        id="spp_programs_payments_menu_root"
+        name="Payments"
+        parent="spp_programs.spp_program_menu_root"
+        sequence="40"
+    />
+
+    <!-- ========================================== -->
+    <!-- IN-KIND SUBMENU                            -->
+    <!-- ========================================== -->
+    <!-- Note: ID kept as spp_programs_root for backward compatibility with
+         modules that reference it (spp_entitlement_transactions, etc.) -->
+    <menuitem
+        id="spp_programs_root"
+        name="In-Kind"
+        parent="spp_programs.spp_program_menu_root"
+        sequence="60"
+    />
+
+    <!-- ========================================== -->
+    <!-- REPORTS SUBMENU (Direct child of Programs) -->
+    <!-- ========================================== -->
+    <menuitem
+        id="spp_programs_reports_menu_root"
+        name="Reports"
+        parent="spp_programs.spp_program_menu_root"
+        sequence="80"
+    />
+
+    <!-- ========================================== -->
+    <!-- Accounting SUBMENU                         -->
+    <!-- ========================================== -->
+    <menuitem
+        id="spp_programs_accounting_menu_root"
+        name="Accounting"
+        parent="spp_programs.spp_program_menu_root"
+        sequence="70"
+        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_validator"
+    />
+
+    <!-- ========================================== -->
+    <!-- TOOLS SUBMENU (Admin utilities)            -->
+    <!-- ========================================== -->
+    <menuitem
+        id="spp_programs_tools_menu_root"
+        name="Tools"
+        parent="spp_programs.spp_program_menu_root"
+        sequence="90"
+        groups="spp_security.group_spp_admin"
+    />
+
+    <!-- ========================================== -->
+    <!-- CONFIGURATION SUBMENU (Direct child of Programs) -->
+    <!-- ========================================== -->
+    <menuitem
+        id="spp_programs_config_menu_root"
+        name="Configuration"
+        parent="spp_programs.spp_program_menu_root"
+        sequence="200"
+        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager"
+    />
+</odoo>

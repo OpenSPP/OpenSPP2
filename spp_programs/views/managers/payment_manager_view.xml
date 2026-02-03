@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <!-- Payment Manager -->
+    <record id="view_payment_manager_tree" model="ir.ui.view">
+        <field name="name">view_payment_manager_tree</field>
+        <field name="model">spp.program.payment.manager</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="manager_ref_id" />
+                <field name="program_id" />
+                <field name="manager_id" column_invisible="1" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_payment_manager_form" model="ir.ui.view">
+        <field name="name">view_payment_manager_form</field>
+        <field name="model">spp.program.payment.manager</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <form string="Payment Manager">
+                <sheet>
+                    <group>
+                        <field
+                            name="manager_ref_id"
+                            options="{'no_quick_create':True}"
+                            colspan="4"
+                            context="{'default_program_id':program_id}"
+                        />
+                        <field name="program_id" invisible="1" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Default Payment Manager -->
+    <record id="view_payment_manager_default_tree" model="ir.ui.view">
+        <field name="name">view_payment_manager_default_tree</field>
+        <field name="model">spp.program.payment.manager.default</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <list sample="1">
+                <field name="name" />
+                <field name="program_id" />
+                <field name="create_batch" />
+                <field name="currency_id" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_payment_manager_default_form" model="ir.ui.view">
+        <field name="name">view_payment_manager_default_form</field>
+        <field name="model">spp.program.payment.manager.default</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <form string="Default Payment Manager">
+                <sheet>
+                    <div class="oe_button_box" name="button_box" />
+                    <div class="oe_title mb24">
+                        <label for="name" string="Name:" />
+                        <h1>
+                            <field id="name" name="name" placeholder="Enter the Manager Name..." />
+                        </h1>
+                        <field name="program_id" invisible="1" />
+                    </div>
+                    <group>
+                        <field name="create_batch" />
+                        <field
+                            name="currency_id"
+                            options="{'no_open':True,'no_create':True,'no_create_edit':True}"
+                        />
+                    </group>
+                    <group name="tagconfig" invisible="not create_batch">
+                        <field name="batch_tag_ids" invisible="not create_batch" colspan="2">
+                            <list>
+                                <field name="order" widget="handle" />
+                                <field name="name" />
+                                <field name="max_batch_size" />
+                                <field name="domain" />
+                            </list>
+                            <form>
+                                <group>
+                                    <field name="name" />
+                                    <field name="order" />
+                                    <field
+                                        name="domain"
+                                        widget="domain"
+                                        options="{'model': 'spp.entitlement'}"
+                                    />
+                                    <field name="max_batch_size" />
+                                </group>
+                            </form>
+                        </field>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="payment_manager_default_filter" model="ir.ui.view">
+        <field name="name">payment_manager_default_filter</field>
+        <field name="model">spp.program.payment.manager.default</field>
+        <field name="priority" eval="1" />
+        <field name="arch" type="xml">
+            <search string="Search Default Payment Manager">
+                <field name="name" />
+                <field name="program_id" />
+                <separator />
+                    <filter string="Program" name="grp_program_id" context="{'group_by': 'program_id'}" />
+                <!--<searchpanel>
+                    <field name="group" icon="fa-users"/>
+                </searchpanel> -->
+            </search>
+        </field>
+    </record>
+
+    <record id="action_payment_manager_default" model="ir.actions.act_window">
+        <field name="name">Payment Managers</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="path">program-payment-managers</field>
+        <field name="res_model">spp.program.payment.manager.default</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="payment_manager_default_filter" />
+        <field name="context">{}</field>
+        <field name="domain">[]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add a Payment Manager!
+            </p><p>
+                Click the create button to enter a new payment manager.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_payment_manager_default_tree_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1" />
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_payment_manager_default_tree" />
+        <field name="act_window_id" ref="action_payment_manager_default" />
+    </record>
+
+    <record id="action_payment_manager_default_form_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1" />
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_payment_manager_default_form" />
+        <field name="act_window_id" ref="action_payment_manager_default" />
+    </record>
+
+</odoo>

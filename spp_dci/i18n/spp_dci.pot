@@ -1,0 +1,302 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* spp_dci
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: spp_dci
+#. odoo-python
+#: code:addons/spp_dci/models/signing_key.py:0
+msgid "Activated"
+msgstr ""
+
+#. module: spp_dci
+#: model:ir.model.fields,field_description:spp_dci.field_spp_dci_signing_key__activated_date
+msgid "Activated Date"
+msgstr ""
+
+#. module: spp_dci
+#: model:ir.model.fields.selection,name:spp_dci.selection__spp_dci_signing_key__state__active
+msgid "Active"
+msgstr ""
+
+#. module: spp_dci
+#: model:ir.model.fields,field_description:spp_dci.field_spp_dci_signing_key__algorithm
+msgid "Algorithm"
+msgstr ""
+
+#. module: spp_dci
+#. odoo-python
+#: code:addons/spp_dci/models/signing_key.py:0
+msgid "Cannot activate a revoked key. Please create a new key."
+msgstr ""
+
+#. module: spp_dci
+#. odoo-python
+#: code:addons/spp_dci/models/signing_key.py:0
+msgid ""
+"Cannot activate key without generating key pair. Please generate keys first."
+msgstr ""
+
+#. module: spp_dci
+#. odoo-python
+#: code:addons/spp_dci/models/signing_key.py:0
+msgid ""
+"Cannot activate key without generating keypair. Please generate keys first."
+msgstr ""
+
+#. module: spp_dci
+#. odoo-python
+#: code:addons/spp_dci/models/signing_key.py:0
+msgid "Cannot generate JWKS entry without public key."
+msgstr ""
+
+#. module: spp_dci
+#. odoo-python
+#: code:addons/spp_dci/models/signing_key.py:0
+msgid "Cannot use key in %s state for signing. Please activate it first."
+msgstr ""
+
+#. module: spp_dci
+#: model:ir.model.fields,field_description:spp_dci.field_spp_dci_signing_key__created_date
+msgid "Created Date"
+msgstr ""
+
+#. module: spp_dci
+#: model:ir.model.fields,field_description:spp_dci.field_spp_dci_signing_key__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: spp_dci
+#: model:ir.model.fields,field_description:spp_dci.field_spp_dci_signing_key__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: spp_dci
+#: model:ir.model.fields,help:spp_dci.field_spp_dci_signing_key__algorithm
+msgid "Cryptographic signing algorithm"
+msgstr ""
+
+#. module: spp_dci
+#: model:ir.model,name:spp_dci.model_spp_dci_signing_key
+msgid "DCI Signing Key"
+msgstr ""
+
+#. module: spp_dci
+#: model:ir.model.fields,help:spp_dci.field_spp_dci_signing_key__activated_date
+msgid "Date when key was activated"
+msgstr ""
+
+#. module: spp_dci
+#: model:ir.model.fields,help:spp_dci.field_spp_dci_signing_key__revoked_date
+msgid "Date when key was revoked"
+msgstr ""
+
+#. module: spp_dci
+#: model:ir.model.fields,help:spp_dci.field_spp_dci_signing_key__name
+msgid "Descriptive name for this signing key"
+msgstr ""
+
+#. module: spp_dci
+#: model:ir.model.fields,field_description:spp_dci.field_spp_dci_signing_key__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: spp_dci
+#: model:ir.model.fields.selection,name:spp_dci.selection__spp_dci_signing_key__state__draft
+msgid "Draft"
+msgstr ""
+
+#. module: spp_dci
+#: model:ir.model.fields.selection,name:spp_dci.selection__spp_dci_signing_key__algorithm__ed25519
+msgid "Ed25519"
+msgstr ""
+
+#. module: spp_dci
+#: model:ir.model.fields,field_description:spp_dci.field_spp_dci_signing_key__expires_at
+msgid "Expiration Date"
+msgstr ""
+
+#. module: spp_dci
+#. odoo-python
+#: code:addons/spp_dci/models/signing_key.py:0
+msgid "Expiration date must be in the future."
+msgstr ""
+
+#. module: spp_dci
+#. odoo-python
+#: code:addons/spp_dci/models/signing_key.py:0
+msgid "Failed to generate JWKS entry: %s"
+msgstr ""
+
+#. module: spp_dci
+#. odoo-python
+#: code:addons/spp_dci/models/signing_key.py:0
+msgid "Failed to generate keypair: %s"
+msgstr ""
+
+#. module: spp_dci
+#: model:ir.model.fields,field_description:spp_dci.field_spp_dci_signing_key__id
+msgid "ID"
+msgstr ""
+
+#. module: spp_dci
+#. odoo-python
+#: code:addons/spp_dci/models/signing_key.py:0
+msgid "Key ID must be unique. Please choose a different identifier."
+msgstr ""
+
+#. module: spp_dci
+#. odoo-python
+#: code:addons/spp_dci/models/signing_key.py:0
+msgid ""
+"Key ID must contain only alphanumeric characters, hyphens, and underscores."
+msgstr ""
+
+#. module: spp_dci
+#: model:ir.model.fields,field_description:spp_dci.field_spp_dci_signing_key__key_id
+msgid "Key Identifier"
+msgstr ""
+
+#. module: spp_dci
+#: model:ir.model.fields,field_description:spp_dci.field_spp_dci_signing_key__name
+msgid "Key Name"
+msgstr ""
+
+#. module: spp_dci
+#. odoo-python
+#: code:addons/spp_dci/models/signing_key.py:0
+msgid "Key is already active."
+msgstr ""
+
+#. module: spp_dci
+#. odoo-python
+#: code:addons/spp_dci/models/signing_key.py:0
+msgid "Key is already revoked."
+msgstr ""
+
+#. module: spp_dci
+#: model:ir.model.fields,help:spp_dci.field_spp_dci_signing_key__state
+msgid "Key lifecycle state"
+msgstr ""
+
+#. module: spp_dci
+#. odoo-python
+#: code:addons/spp_dci/models/signing_key.py:0
+msgid "Keypair generated successfully for %s"
+msgstr ""
+
+#. module: spp_dci
+#. odoo-python
+#: code:addons/spp_dci/models/signing_key.py:0
+msgid ""
+"Keys already exist for this record. Please create a new key record to "
+"generate a new keypair."
+msgstr ""
+
+#. module: spp_dci
+#. odoo-python
+#: code:addons/spp_dci/models/signing_key.py:0
+msgid "Keys can only be generated in Draft state. Current state: %s"
+msgstr ""
+
+#. module: spp_dci
+#: model:ir.model.fields,field_description:spp_dci.field_spp_dci_signing_key__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: spp_dci
+#: model:ir.model.fields,field_description:spp_dci.field_spp_dci_signing_key__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: spp_dci
+#. odoo-python
+#: code:addons/spp_dci/models/signing_key.py:0
+msgid "No private key available for signing."
+msgstr ""
+
+#. module: spp_dci
+#: model:ir.model.fields,help:spp_dci.field_spp_dci_signing_key__expires_at
+msgid "Optional expiration date for key rotation"
+msgstr ""
+
+#. module: spp_dci
+#: model:ir.model.fields,help:spp_dci.field_spp_dci_signing_key__private_key
+msgid "PEM-encoded private key (stored encrypted)"
+msgstr ""
+
+#. module: spp_dci
+#: model:ir.model.fields,help:spp_dci.field_spp_dci_signing_key__public_key
+msgid "PEM-encoded public key"
+msgstr ""
+
+#. module: spp_dci
+#: model:ir.model.fields,field_description:spp_dci.field_spp_dci_signing_key__private_key
+msgid "Private Key"
+msgstr ""
+
+#. module: spp_dci
+#: model:ir.model.fields,field_description:spp_dci.field_spp_dci_signing_key__public_key
+msgid "Public Key"
+msgstr ""
+
+#. module: spp_dci
+#: model:ir.model.fields.selection,name:spp_dci.selection__spp_dci_signing_key__algorithm__rs256
+msgid "RSA-256"
+msgstr ""
+
+#. module: spp_dci
+#. odoo-python
+#: code:addons/spp_dci/models/signing_key.py:0
+#: model:ir.model.fields.selection,name:spp_dci.selection__spp_dci_signing_key__state__revoked
+msgid "Revoked"
+msgstr ""
+
+#. module: spp_dci
+#: model:ir.model.fields,field_description:spp_dci.field_spp_dci_signing_key__revoked_date
+msgid "Revoked Date"
+msgstr ""
+
+#. module: spp_dci
+#. odoo-python
+#: code:addons/spp_dci/models/signing_key.py:0
+msgid "Signing key '%s' has been revoked"
+msgstr ""
+
+#. module: spp_dci
+#. odoo-python
+#: code:addons/spp_dci/models/signing_key.py:0
+msgid "Signing key '%s' is now active"
+msgstr ""
+
+#. module: spp_dci
+#: model:ir.model.fields,field_description:spp_dci.field_spp_dci_signing_key__state
+msgid "State"
+msgstr ""
+
+#. module: spp_dci
+#. odoo-python
+#: code:addons/spp_dci/models/signing_key.py:0
+msgid "Success"
+msgstr ""
+
+#. module: spp_dci
+#: model:ir.model.fields,help:spp_dci.field_spp_dci_signing_key__key_id
+msgid "Unique identifier for JWKS (e.g., 'key1', 'primary-2024')"
+msgstr ""
+
+#. module: spp_dci
+#. odoo-python
+#: code:addons/spp_dci/models/signing_key.py:0
+msgid "Unsupported algorithm: %s"
+msgstr ""

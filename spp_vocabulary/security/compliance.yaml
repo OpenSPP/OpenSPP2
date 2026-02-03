@@ -1,0 +1,162 @@
+# OpenSPP Access Management Compliance Specification
+# Module: spp_vocabulary
+# Version: 1.0
+#
+# This file declares the expected access control configuration for this module.
+# Run: python -m scripts.compliance.checker spp_vocabulary
+# Generate tests: python -m scripts.compliance.test_generator spp_vocabulary
+
+module: spp_vocabulary
+domain: vocabulary
+version: "1.0"
+
+# =============================================================================
+# GROUP DEFINITIONS
+# Following ADR-004 Three-Tier Architecture
+# =============================================================================
+
+groups:
+  # --- Tier 3: Technical base groups ---
+  - id: group_vocabulary_read
+    tier: 3
+    comment: "Technical group for read access to vocabulary models."
+
+  - id: group_vocabulary_write
+    tier: 3
+    implied_ids: [group_vocabulary_read]
+    comment: "Technical group for write access to vocabulary models."
+
+  - id: group_vocabulary_create
+    tier: 3
+    implied_ids: [group_vocabulary_read]
+    comment: "Technical group for vocabulary create access. Grants permission to create new vocabulary records."
+
+  # --- Tier 2: User-facing groups ---
+  - id: group_vocabulary_viewer
+    tier: 2
+    privilege_id: privilege_vocabulary_viewer
+    implied_ids: [group_vocabulary_read]
+    comment: "Can view vocabularies and codes. Cannot modify data."
+
+  - id: group_vocabulary_officer
+    tier: 2
+    privilege_id: privilege_vocabulary_officer
+    implied_ids: [group_vocabulary_viewer, group_vocabulary_write, group_vocabulary_create]
+    comment: "Can view and edit vocabularies and codes. Cannot delete."
+
+  - id: group_vocabulary_manager
+    tier: 2
+    privilege_id: privilege_vocabulary_manager
+    implied_ids: [group_vocabulary_officer]
+    comment: "Full vocabulary management including delete operations."
+
+# Admin linkage - manager group links to spp_security.group_spp_admin
+admin_link_group: group_vocabulary_manager
+
+# =============================================================================
+# MODEL ACCESS (ir.model.access.csv)
+# Standard pattern: viewer=read, officer=read+write+create, manager=full CRUD
+# =============================================================================
+
+model_access:
+  # Vocabulary model
+  - model: spp.vocabulary
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  # Vocabulary codes
+  - model: spp.vocabulary.code
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  # Vocabulary mappings (for mapping codes between vocabularies)
+  - model: spp.vocabulary.mapping
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+# =============================================================================
+# RECORD RULES (ir.rule)
+# Data visibility rules based on group membership
+# =============================================================================
+
+record_rules:
+  # Global read access for all authenticated users to vocabularies
+  - id: rule_vocabulary_global_read
+    model: spp.vocabulary
+    groups: [] # Global rule applies to all users
+    domain_description: "All authenticated users can read vocabularies"
+    perm_read: true
+    perm_write: false
+    perm_create: false
+    perm_unlink: false
+    global: true
+
+  # Global read access for all authenticated users to vocabulary codes
+  - id: rule_vocabulary_code_global_read
+    model: spp.vocabulary.code
+    groups: [] # Global rule applies to all users
+    domain_description: "All authenticated users can read vocabulary codes"
+    perm_read: true
+    perm_write: false
+    perm_create: false
+    perm_unlink: false
+    global: true
+
+  # Global read access for all authenticated users to vocabulary mappings
+  - id: rule_vocabulary_mapping_global_read
+    model: spp.vocabulary.mapping
+    groups: [] # Global rule applies to all users
+    domain_description: "All authenticated users can read vocabulary mappings"
+    perm_read: true
+    perm_write: false
+    perm_create: false
+    perm_unlink: false
+    global: true
+
+# =============================================================================
+# MENU VISIBILITY
+# Which groups can see which menus
+# =============================================================================
+
+menus:
+  # Vocabularies root menu - under Configuration, inherits parent restrictions
+  # Parent is spp_configuration_menu_root which requires group_registry_manager
+  - id: menu_vocabulary_root
+    name: "Vocabularies"
+    parent: spp_registry_base.spp_configuration_menu_root
+    groups: [] # Inherits restriction from parent (registry manager only)
+
+  # Manage Vocabularies submenu
+  - id: menu_vocabulary
+    name: "Manage Vocabularies"
+    parent: menu_vocabulary_root
+    groups: [] # Inherits restriction from parent
+
+  # All Codes submenu
+  - id: menu_vocabulary_code
+    name: "All Codes"
+    parent: menu_vocabulary_root
+    groups: [] # Inherits restriction from parent
+
+  # Code Mappings submenu
+  - id: menu_vocabulary_mapping
+    name: "Code Mappings"
+    parent: menu_vocabulary_root
+    groups: [] # Inherits restriction from parent
+
+# =============================================================================
+# FIELD RESTRICTIONS
+# Fields with group-based visibility in views
+# =============================================================================
+
+field_restrictions: []
+
+# =============================================================================
+# ACTION RESTRICTIONS
+# Actions that are restricted to specific groups
+# =============================================================================
+
+actions: []

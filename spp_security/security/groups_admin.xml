@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        OpenSPP Security Groups
+        =======================
+        This file defines the core security groups for OpenSPP:
+        1. Administrator group - The central admin group that all domain-level manager groups inherit from
+        2. Utility groups - Special-purpose groups for access restrictions
+
+        When a domain module is installed (e.g., spp_registry_base), it adds its
+        manager group to this admin group's implied_ids, ensuring admins automatically
+        have full access to all installed domains.
+
+        All domain-specific groups are defined in their respective modules.
+    -->
+
+    <!-- OpenSPP Administrator Group -->
+    <record id="group_spp_admin" model="res.groups">
+        <field name="name">Administrator</field>
+        <field name="privilege_id" ref="privilege_spp_admin"/>
+        <field name="comment">Full administrative access to all OpenSPP modules.
+This group automatically inherits all manager-level permissions from installed domain modules.
+Assign this group to system administrators who need complete access.</field>
+    </record>
+
+    <!-- Utility Group: Self-Only Access -->
+    <record id="group_access_restrict_self" model="res.groups">
+        <field name="name">Restricted: Self Only</field>
+        <field name="privilege_id" ref="privilege_access_restrict_self_officer"/>
+        <field name="comment">Users in this group can only see their own user record.
+Used for field agents and limited-access users.</field>
+    </record>
+
+    <!--
+        Make Odoo system admins automatically OpenSPP admins.
+        This extends base.group_system to include group_spp_admin.
+    -->
+    <record id="base.group_system" model="res.groups">
+        <field name="implied_ids" eval="[Command.link(ref('group_spp_admin'))]"/>
+    </record>
+
+    <!--
+        How domain modules extend this:
+        ===============================
+        Each domain module adds its manager group to group_spp_admin.
+
+        Example in spp_registry_base/security/groups.xml:
+
+        <record id="spp_security.group_spp_admin" model="res.groups">
+            <field name="implied_ids" eval="[Command.link(ref('group_registry_manager'))]"/>
+        </record>
+
+        This ensures that when spp_registry_base is installed, admins automatically
+        get Registry Manager permissions without any manual configuration.
+    -->
+
+</odoo>

@@ -1,0 +1,363 @@
+# OpenSPP Production Docker Compose
+#
+# Small-scale deployment for 10k-100k beneficiaries on a single VPS.
+#
+# Architecture:
+#   Traefik (reverse proxy + SSL) -> Odoo (workers) -> PostgreSQL
+#                                 -> Queue Worker (background jobs)
+#
+# Usage:
+#   # Copy and configure environment
+#   cp docker/.env.production.example docker/.env.production
+#   # Edit docker/.env.production with your settings
+#
+#   # Start services
+#   docker compose -f docker/docker-compose.production.yml up -d
+#
+#   # View logs
+#   docker compose -f docker/docker-compose.production.yml logs -f
+#
+#   # Stop services
+#   docker compose -f docker/docker-compose.production.yml down
+#
+# Optional Profiles:
+#   # With ClamAV antivirus scanning (adds ~1GB RAM)
+#   docker compose -f docker/docker-compose.production.yml --profile clamav up -d
+#
+# External Database (RDS/Cloud SQL):
+#   Set DATABASE_URL in .env.production and remove/comment the db service.
+#
+# Sizing Guide (adjust in .env.production):
+#   10k beneficiaries:  ODOO_WORKERS=2, 4GB RAM total
+#   50k beneficiaries:  ODOO_WORKERS=4, 8GB RAM total
+#   100k beneficiaries: ODOO_WORKERS=6, 16GB RAM total
+
+services:
+  # ==========================================================================
+  # Traefik - Reverse Proxy with automatic SSL
+  # ==========================================================================
+  traefik:
+    image: traefik:v3.2
+    command:
+      # API and dashboard (disabled in production by default)
+      - "--api.dashboard=false"
+      # Docker provider
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=openspp-prod"
+      # Entrypoints
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      # HTTP -> HTTPS redirect
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      # Let's Encrypt
+      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      # Logging
+      - "--log.level=WARN"
+      - "--accesslog=true"
+      - "--accesslog.filepath=/var/log/traefik/access.log"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik_certs:/letsencrypt
+      - traefik_logs:/var/log/traefik
+    networks:
+      - openspp-prod
+    restart: unless-stopped
+    # Traefik should start first and stay healthy
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ==========================================================================
+  # PostgreSQL - Database (optional, can use external RDS)
+  # ==========================================================================
+  # Comment out this service if using DATABASE_URL with external database
+  db:
+    image: postgis/postgis:17-3.5-alpine
+    environment:
+      POSTGRES_USER: ${DB_USER:-odoo}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      POSTGRES_DB: ${DB_NAME:-openspp}
+      # Performance tuning for production
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - openspp-prod
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-odoo} -d ${DB_NAME:-openspp}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # Resource limits - adjust based on VPS size
+    deploy:
+      resources:
+        limits:
+          memory: ${DB_MEMORY_LIMIT:-4G}
+        reservations:
+          memory: ${DB_MEMORY_RESERVATION:-2G}
+
+  # ==========================================================================
+  # Odoo - Main web application
+  # ==========================================================================
+  odoo:
+    image: ${OPENSPP_IMAGE:-ghcr.io/openspp/openspp:latest}
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Database - use DATABASE_URL for external DB, or individual vars for local
+      DATABASE_URL: ${DATABASE_URL:-}
+      DB_HOST: ${DB_HOST:-db}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_USER: ${DB_USER:-odoo}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      DB_NAME: ${DB_NAME:-openspp}
+      DB_SSLMODE: ${DB_SSLMODE:-prefer}
+      DB_FILTER: "^${DB_NAME:-openspp}$$"
+      LIST_DB: "False"
+
+      # Admin credentials
+      ODOO_ADMIN_PASSWD: ${ODOO_ADMIN_PASSWD:?ODOO_ADMIN_PASSWD is required}
+
+      # Workers - adjust based on CPU cores (rule: 1 worker per 2 cores)
+      ODOO_WORKERS: ${ODOO_WORKERS:-2}
+      ODOO_CRON_THREADS: "1"
+
+      # Memory limits per worker (in bytes)
+      # Soft limit: worker recycled after this
+      # Hard limit: worker killed if exceeds
+      ODOO_MEMORY_SOFT: ${ODOO_MEMORY_SOFT:-2147483648}
+      ODOO_MEMORY_HARD: ${ODOO_MEMORY_HARD:-2684354560}
+
+      # Request timeouts (seconds)
+      ODOO_TIME_CPU: ${ODOO_TIME_CPU:-600}
+      ODOO_TIME_REAL: ${ODOO_TIME_REAL:-1200}
+
+      # Proxy mode (required behind Traefik)
+      PROXY_MODE: "True"
+
+      # Modules to initialize on first boot
+      ODOO_INIT_MODULES: ${ODOO_INIT_MODULES:-spp_base}
+
+      # Logging
+      LOG_LEVEL: ${LOG_LEVEL:-warn}
+
+      # Email (optional)
+      SMTP_SERVER: ${SMTP_SERVER:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SSL: ${SMTP_SSL:-True}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      EMAIL_FROM: ${EMAIL_FROM:-}
+    volumes:
+      - odoo_data:/var/lib/odoo
+      - odoo_addons:/mnt/extra-addons
+    networks:
+      - openspp-prod
+    restart: unless-stopped
+    labels:
+      # Traefik configuration
+      - "traefik.enable=true"
+      - "traefik.http.routers.odoo.rule=Host(`${DOMAIN:?DOMAIN is required}`)"
+      - "traefik.http.routers.odoo.entrypoints=websecure"
+      - "traefik.http.routers.odoo.tls.certresolver=letsencrypt"
+      - "traefik.http.services.odoo.loadbalancer.server.port=8069"
+      # Security headers
+      - "traefik.http.middlewares.odoo-headers.headers.stsSeconds=31536000"
+      - "traefik.http.middlewares.odoo-headers.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.odoo-headers.headers.contentTypeNosniff=true"
+      - "traefik.http.middlewares.odoo-headers.headers.frameDeny=true"
+      # Content Security Policy
+      # NOTE: unsafe-inline and unsafe-eval are required by Odoo's OWL framework
+      # and legacy JS. This CSP does not meaningfully prevent XSS in Odoo -- it
+      # exists to restrict resource origins and prevent framing attacks.
+      - "traefik.http.middlewares.odoo-headers.headers.contentSecurityPolicy=default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; frame-ancestors 'self'; base-uri 'self'; form-action 'self';"
+      # Hide server version (Werkzeug/Python)
+      - "traefik.http.middlewares.odoo-headers.headers.customResponseHeaders.Server=OpenSPP"
+      # Referrer policy
+      - "traefik.http.middlewares.odoo-headers.headers.referrerPolicy=strict-origin-when-cross-origin"
+      # Permissions policy (disable unused browser features)
+      - "traefik.http.middlewares.odoo-headers.headers.permissionsPolicy=camera=(), microphone=(), geolocation=(), payment=()"
+      # XSS protection
+      - "traefik.http.middlewares.odoo-headers.headers.browserXssFilter=true"
+      # NOTE: Odoo docs recommend `proxy_cookie_flags session_id samesite=lax secure`
+      # (nginx syntax). Traefik v3 does not support cookie flag rewriting natively.
+      # Werkzeug 2.3+ sets SameSite=Lax by default. Verify in production with:
+      #   curl -I https://yourdomain.com/web/login | grep -i set-cookie
+
+      # Block database manager access (redirect to login)
+      # NOTE: This is a URL rewrite, not a true block. A determined attacker can
+      # still reach the database manager via direct HTTP requests. The real controls
+      # are LIST_DB=False (above) and a strong ODOO_ADMIN_PASSWD.
+      - "traefik.http.routers.odoo-dbmanager.rule=Host(`${DOMAIN}`) && PathPrefix(`/web/database`)"
+      - "traefik.http.routers.odoo-dbmanager.entrypoints=websecure"
+      - "traefik.http.routers.odoo-dbmanager.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.odoo-dbmanager.priority=20"
+      - "traefik.http.routers.odoo-dbmanager.middlewares=block-dbmanager"
+      - "traefik.http.middlewares.block-dbmanager.replacepathregex.regex=^/web/database.*"
+      - "traefik.http.middlewares.block-dbmanager.replacepathregex.replacement=/web/login"
+
+      # Websocket routing (longpolling/live updates on port 8072)
+      - "traefik.http.routers.odoo-websocket.rule=Host(`${DOMAIN}`) && PathPrefix(`/websocket`)"
+      - "traefik.http.routers.odoo-websocket.entrypoints=websecure"
+      - "traefik.http.routers.odoo-websocket.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.odoo-websocket.priority=15"
+      - "traefik.http.routers.odoo-websocket.middlewares=odoo-headers"
+      - "traefik.http.services.odoo-websocket.loadbalancer.server.port=8072"
+      - "traefik.http.routers.odoo-websocket.service=odoo-websocket"
+
+      # Rate limiting (brute-force protection)
+      - "traefik.http.middlewares.odoo-ratelimit.ratelimit.average=50"
+      - "traefik.http.middlewares.odoo-ratelimit.ratelimit.burst=100"
+      - "traefik.http.middlewares.odoo-ratelimit.ratelimit.period=1m"
+
+      - "traefik.http.routers.odoo.middlewares=odoo-headers,odoo-ratelimit"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8069/web/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 120s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: ${ODOO_MEMORY_LIMIT:-4G}
+        reservations:
+          memory: ${ODOO_MEMORY_RESERVATION:-2G}
+
+  # ==========================================================================
+  # Queue Worker - Background job processing (OCA/queue_job)
+  # ==========================================================================
+  queue-worker:
+    image: ${OPENSPP_IMAGE:-ghcr.io/openspp/openspp:latest}
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+      odoo:
+        condition: service_healthy
+    environment:
+      # Same database config as odoo
+      DATABASE_URL: ${DATABASE_URL:-}
+      DB_HOST: ${DB_HOST:-db}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_USER: ${DB_USER:-odoo}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      DB_NAME: ${DB_NAME:-openspp}
+      DB_SSLMODE: ${DB_SSLMODE:-prefer}
+      ODOO_ADMIN_PASSWD: ${ODOO_ADMIN_PASSWD:?ODOO_ADMIN_PASSWD is required}
+
+      # Queue worker mode - no HTTP, just process jobs
+      ODOO_WORKERS: "0"
+      ODOO_CRON_THREADS: "0"
+
+      # Queue job channels (number of concurrent jobs)
+      QUEUE_JOB_CHANNELS: ${QUEUE_JOB_CHANNELS:-2}
+
+      # Logging
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    # Override command to run queue job worker
+    command: ["odoo", "gevent", "--limit-time-real=0"]
+    volumes:
+      - odoo_data:/var/lib/odoo
+      - odoo_addons:/mnt/extra-addons
+    networks:
+      - openspp-prod
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: ${QUEUE_MEMORY_LIMIT:-2G}
+        reservations:
+          memory: ${QUEUE_MEMORY_RESERVATION:-1G}
+
+  # ==========================================================================
+  # Backup - Automated PostgreSQL backups (optional but recommended)
+  # ==========================================================================
+  backup:
+    image: prodrigestivill/postgres-backup-local:17
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: ${DB_HOST:-db}
+      POSTGRES_PORT: ${DB_PORT:-5432}
+      POSTGRES_DB: ${DB_NAME:-openspp}
+      POSTGRES_USER: ${DB_USER:-odoo}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      # Backup schedule (default: daily at 2am)
+      SCHEDULE: ${BACKUP_SCHEDULE:-0 2 * * *}
+      # Keep 7 daily, 4 weekly, 6 monthly backups
+      BACKUP_KEEP_DAYS: 7
+      BACKUP_KEEP_WEEKS: 4
+      BACKUP_KEEP_MONTHS: 6
+      # Compression
+      POSTGRES_EXTRA_OPTS: "-Z6 --format=custom"
+    volumes:
+      - backup_data:/backups
+    networks:
+      - openspp-prod
+    restart: unless-stopped
+
+  # ==========================================================================
+  # ClamAV - Antivirus scanning (optional, enable with --profile clamav)
+  # ==========================================================================
+  # Enable when:
+  #   - Accepting file uploads from beneficiaries
+  #   - Processing documents from external sources
+  #   - Compliance requirements mandate antivirus scanning
+  #
+  # Resource usage: ~500MB-1GB RAM for virus definitions
+  # Install spp_attachment_av_scan module in Odoo to use this service
+  clamav:
+    image: clamav/clamav:stable
+    profiles:
+      - clamav
+    environment:
+      # Disable milter (not needed for file scanning)
+      CLAMAV_NO_MILTERD: "true"
+    volumes:
+      - clamav_data:/var/lib/clamav
+    networks:
+      - openspp-prod
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/clamdcheck.sh"]
+      interval: 60s
+      timeout: 10s
+      start_period: 120s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: ${CLAMAV_MEMORY_LIMIT:-1536M}
+        reservations:
+          memory: ${CLAMAV_MEMORY_RESERVATION:-512M}
+
+volumes:
+  traefik_certs:
+  traefik_logs:
+  postgres_data:
+  odoo_data:
+  odoo_addons:
+  backup_data:
+  clamav_data:
+
+networks:
+  openspp-prod:
+    driver: bridge

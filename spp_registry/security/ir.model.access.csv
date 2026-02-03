@@ -1,0 +1,40 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ir_model_fields_manager,Model Fields Manager Access,base.model_ir_model_fields,spp_security.group_spp_admin,1,1,1,1
+access_ir_model_manager,Model Manager Access,base.model_ir_model,spp_security.group_spp_admin,1,1,1,1
+access_spp_reg_rel_viewer,Registrant Relationship Viewer Access,spp_registry.model_spp_registry_relationship,group_registry_viewer,1,0,0,0
+access_spp_reg_rel_officer,Registrant Relationship Officer Access,spp_registry.model_spp_registry_relationship,group_registry_officer,1,1,1,0
+access_spp_reg_rel_manager,Registrant Relationship Manager Access,spp_registry.model_spp_registry_relationship,group_registry_manager,1,1,1,1
+access_spp_reg_id_viewer,Registrant ID Viewer Access,spp_registry.model_spp_registry_id,group_registry_viewer,1,0,0,0
+access_spp_reg_id_officer,Registrant ID Officer Access,spp_registry.model_spp_registry_id,group_registry_officer,1,1,1,0
+access_spp_reg_id_manager,Registrant ID Manager Access,spp_registry.model_spp_registry_id,group_registry_manager,1,1,1,1
+access_spp_id_type_viewer,ID Type Viewer Access,spp_registry.model_spp_id_type,group_registry_viewer,1,0,0,0
+access_spp_id_type_officer,ID Type Officer Access,spp_registry.model_spp_id_type,group_registry_officer,1,1,1,0
+access_spp_id_type_manager,ID Type Manager Access,spp_registry.model_spp_id_type,group_registry_manager,1,1,1,1
+access_spp_relationship_viewer,Relationship Viewer Access,spp_registry.model_spp_relationship,group_registry_viewer,1,0,0,0
+access_spp_relationship_officer,Relationship Officer Access,spp_registry.model_spp_relationship,base.group_user,1,0,0,0
+access_spp_relationship_manager,Relationship Manager Access,spp_registry.model_spp_relationship,group_registry_manager,1,1,1,1
+access_spp_phone_number_viewer,Phone Number Viewer Access,spp_registry.model_spp_phone_number,group_registry_viewer,1,0,0,0
+access_spp_phone_number_officer,Phone Number Officer Access,spp_registry.model_spp_phone_number,group_registry_officer,1,1,1,0
+access_spp_phone_number_manager,Phone Number Manager Access,spp_registry.model_spp_phone_number,group_registry_manager,1,1,1,1
+access_spp_disable_registrant_wizard_viewer,Disable Registrant Wizard Viewer Access,spp_registry.model_spp_disable_registrant_wizard,group_registry_viewer,1,0,0,0
+access_spp_disable_registrant_wizard_officer,Disable Registrant Wizard Officer Access,spp_registry.model_spp_disable_registrant_wizard,group_registry_officer,1,1,1,0
+access_spp_disable_registrant_wizard_manager,Disable Registrant Wizard Manager Access,spp_registry.model_spp_disable_registrant_wizard,group_registry_manager,1,1,1,1
+access_ir_module_module_manager,Odoo Module Model Manager Access,base.model_ir_module_module,spp_security.group_spp_admin,1,1,1,1
+access_ir_model_fields_selection_manager,Odoo Field Selections Model Manager Access,base.model_ir_model_fields_selection,spp_security.group_spp_admin,1,1,1,1
+
+access_ir_model_fields_officer,Model Fields Officer Access,base.model_ir_model_fields,group_registry_officer,1,0,0,0
+access_ir_model_officer,Model Officer Access,base.model_ir_model,group_registry_officer,1,0,0,0
+access_res_partner_viewer,Registrant Viewer Access,base.model_res_partner,group_registry_viewer,1,0,0,0
+access_res_partner_officer,Registrant Officer Access,base.model_res_partner,group_registry_officer,1,1,1,0
+access_res_partner_manager,Registrant Manager Access,base.model_res_partner,group_registry_manager,1,1,1,1
+access_spp_queue_background_task_viewer,Queue Background Task Viewer Access,model_spp_queue_background_task,group_registry_viewer,1,0,0,0
+access_spp_queue_background_task_officer,Queue Background Task Officer Access,model_spp_queue_background_task,group_registry_officer,1,1,1,0
+access_spp_queue_background_task_manager,Queue Background Task Manager Access,model_spp_queue_background_task,group_registry_manager,1,1,1,1
+
+access_portal_wizard,Portal Wizard Access,portal.model_portal_wizard,,1,1,1,0
+access_portal_wizard_user,Portal Wizard User Access,portal.model_portal_wizard_user,,1,1,1,0
+access_ir_config_parameter_system,IR Config Parameter System Access,base.model_ir_config_parameter,base.group_system,1,1,1,1
+
+access_spp_group_membership_admin,Membership Admin Access,model_spp_group_membership,spp_security.group_spp_admin,1,1,1,1
+access_spp_group_membership_registrar,Group Membership Registrar Access,model_spp_group_membership,group_registry_officer,1,1,1,0
+access_spp_group_membership_read,Group Membership Read Access,model_spp_group_membership,group_registry_read,1,0,0,0

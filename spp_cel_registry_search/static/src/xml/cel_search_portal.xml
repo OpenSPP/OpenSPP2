@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-name="spp_cel_registry_search.CelSearchPortal">
+        <div class="o_cel_search_portal o_action">
+            <div class="container-fluid py-4">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="mb-0">
+                        <i class="fa fa-code me-2" aria-hidden="true" />Advanced Search
+                    </h2>
+                </div>
+
+                <!-- CEL Expression Editor Section -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-body">
+                        <!-- Profile Selection -->
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="celProfileSelect" class="form-label fw-semibold">Profile</label>
+                                <select
+                                    id="celProfileSelect"
+                                    class="form-select"
+                                    t-on-change="onProfileChange"
+                                >
+                                    <option value="registry_individuals" t-att-selected="state.profile === 'registry_individuals'">
+                                        Individuals
+                                    </option>
+                                    <option value="registry_groups" t-att-selected="state.profile === 'registry_groups'">
+                                        Groups
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- CEL Expression Editor using shared component -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">CEL Expression</label>
+                            <CelEditor
+                                value="state.celExpression"
+                                profile="state.profile"
+                                readonly="false"
+                                placeholder="'Enter CEL expression...\\nExample: age_years(r.birthdate) >= 18 and is_female(r.gender_id)'"
+                                minHeight="'100px'"
+                                showToolbar="true"
+                                showSymbolBrowser="true"
+                                showValidationCount="true"
+                                showHelpText="false"
+                                onChange.bind="onEditorChange"
+                                onValidation.bind="onValidation"
+                                onReady.bind="onEditorReady"
+                            />
+                        </div>
+
+                        <!-- Search Buttons -->
+                        <div class="d-flex gap-2">
+                            <button
+                                class="btn btn-primary"
+                                type="button"
+                                t-on-click="performSearch"
+                                t-att-disabled="!canSearch || state.isSearching"
+                            >
+                                <t t-if="state.isSearching">
+                                    <i class="fa fa-spinner fa-spin me-1" />Searching...
+                                </t>
+                                <t t-else="">
+                                    <i class="fa fa-search me-1" />Search
+                                </t>
+                            </button>
+                            <button
+                                class="btn btn-outline-secondary"
+                                type="button"
+                                t-on-click="clearSearch"
+                                t-att-disabled="!state.celExpression &amp;&amp; !state.hasSearched"
+                            >
+                                <i class="fa fa-times me-1" />Clear
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div t-if="state.isSearching" class="text-center py-5" role="status" aria-live="polite">
+                    <i class="fa fa-spinner fa-spin fa-3x text-primary" aria-hidden="true" />
+                    <p class="mt-3 text-muted">Searching...</p>
+                </div>
+
+                <!-- Search Results -->
+                <t t-elif="state.hasSearched">
+                    <div class="mb-4" role="region" aria-label="Search results">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0" aria-live="polite">
+                                <t t-if="state.hasMoreResults">
+                                    Showing <t t-esc="state.results.length" /> of <t t-esc="state.totalCount" /> Result(s)
+                                </t>
+                                <t t-else="">
+                                    <t t-esc="state.totalCount" /> Result(s) Found
+                                </t>
+                            </h5>
+                        </div>
+
+                        <div t-if="state.results.length === 0" class="alert alert-info" role="alert">
+                            <i class="fa fa-info-circle me-2" aria-hidden="true" />
+                            No registrants found matching your CEL expression.
+                        </div>
+
+                        <div t-else="" class="list-group shadow-sm" role="list">
+                            <t t-foreach="state.results" t-as="result" t-key="result.id">
+                                <button
+                                    type="button"
+                                    class="list-group-item list-group-item-action d-flex align-items-center text-start"
+                                    t-attf-class="list-group-item list-group-item-action d-flex align-items-center text-start {{ result.disabled ? 'text-muted opacity-75' : '' }}"
+                                    t-on-click="() => this.openRegistrant(result.id, result.is_group)"
+                                    role="listitem"
+                                >
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex justify-content-between">
+                                            <h6 class="mb-1">
+                                                <t t-esc="result.name" />
+                                                <span t-if="result.disabled" class="badge bg-warning ms-2">Disabled</span>
+                                            </h6>
+                                            <small class="text-muted">
+                                                <t t-esc="formatDate(result.registration_date)" />
+                                            </small>
+                                        </div>
+                                        <small class="text-muted">
+                                            <span class="badge bg-light text-dark me-2">
+                                                <i t-att-class="'fa me-1 ' + getRegistrantIcon(result.is_group)" aria-hidden="true" />
+                                                <t t-esc="getRegistrantTypeLabel(result.is_group)" />
+                                            </span>
+                                            <t t-if="result.phone">
+                                                <i class="fa fa-phone me-1" aria-hidden="true" /><t t-esc="result.phone" />
+                                            </t>
+                                            <t t-if="result.email">
+                                                <span t-if="result.phone" class="mx-2">|</span>
+                                                <i class="fa fa-envelope me-1" aria-hidden="true" /><t t-esc="result.email" />
+                                            </t>
+                                        </small>
+                                    </div>
+                                    <i class="fa fa-chevron-right text-muted" aria-hidden="true" />
+                                </button>
+                            </t>
+                        </div>
+                    </div>
+                </t>
+
+                <!-- Empty State (no search yet) -->
+                <t t-else="">
+                    <div class="text-center py-5" role="status">
+                        <i class="fa fa-code fa-4x text-muted mb-3" aria-hidden="true" />
+                        <h4 class="text-muted">Search with CEL Expressions</h4>
+                        <p class="text-muted">
+                            Write a CEL expression to filter registrants, then click Search.
+                        </p>
+                        <div class="text-start mx-auto" style="max-width: 500px;">
+                            <p class="text-muted small mb-2"><strong>Example expressions:</strong></p>
+                            <ul class="text-muted small">
+                                <li><code>age_years(r.birthdate) >= 18</code> - Adults 18+</li>
+                                <li><code>is_female(r.gender_id)</code> - Females</li>
+                                <li><code>r.monthly_income &lt; 2500</code> - Low income</li>
+                            </ul>
+                        </div>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+</templates>

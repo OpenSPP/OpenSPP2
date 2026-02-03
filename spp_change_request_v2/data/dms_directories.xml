@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Parent DMS Directory for all Change Requests -->
+    <record id="dms_directory_change_request_root" model="spp.dms.directory">
+        <field name="name">Change Request</field>
+        <field name="is_root_directory" eval="True"/>
+    </record>
+</odoo>

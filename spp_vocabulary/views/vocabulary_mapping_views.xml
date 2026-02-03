@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vocabulary Mapping List View -->
+    <record id="view_vocabulary_mapping_list" model="ir.ui.view">
+        <field name="name">spp.vocabulary.mapping.list</field>
+        <field name="model">spp.vocabulary.mapping</field>
+        <field name="arch" type="xml">
+            <list string="Code Mappings" default_order="source_id">
+                <field name="source_id" string="Source Code"/>
+                <field name="source_vocabulary_id" string="Source Vocabulary" optional="show"/>
+                <field name="target_id" string="Target Code"/>
+                <field name="target_vocabulary_id" string="Target Vocabulary" optional="show"/>
+                <field name="equivalence"
+                       decoration-success="equivalence == 'equivalent'"
+                       decoration-info="equivalence in ('wider', 'narrower')"
+                       decoration-warning="equivalence == 'inexact'"/>
+                <field name="comment" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vocabulary Mapping Form View -->
+    <record id="view_vocabulary_mapping_form" model="ir.ui.view">
+        <field name="name">spp.vocabulary.mapping.form</field>
+        <field name="model">spp.vocabulary.mapping</field>
+        <field name="arch" type="xml">
+            <form string="Code Mapping">
+                <header>
+                    <!-- Extension point for workflow buttons -->
+                    <div name="header_buttons" invisible="1"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <!-- Extension point for stat buttons -->
+                        <div name="stat_buttons_extension" invisible="1"/>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="display_name" readonly="1"/>
+                        </h1>
+                    </div>
+
+                    <notebook>
+                        <page string="Mapping" name="mapping">
+                            <group name="mapping_section">
+                                <group name="source" string="Source">
+                                    <field name="source_id" required="1" options="{'no_create': True}"/>
+                                    <field name="source_vocabulary_id" string="Vocabulary" readonly="1"
+                                           invisible="not source_id"/>
+                                </group>
+                                <group name="target" string="Target">
+                                    <field name="target_id" required="1" options="{'no_create': True}"/>
+                                    <field name="target_vocabulary_id" string="Vocabulary" readonly="1"
+                                           invisible="not target_id"/>
+                                </group>
+                            </group>
+                            <group name="equivalence_section">
+                                <field name="equivalence" required="1" widget="radio"/>
+                            </group>
+                            <group name="comment_section" string="Notes">
+                                <field name="comment" nolabel="1" placeholder="Additional notes about this mapping..."/>
+                            </group>
+                            <!-- Extension point for additional mapping info -->
+                            <group name="mapping_extension" invisible="1"/>
+                        </page>
+
+                        <page string="Technical" name="technical" groups="base.group_no_one">
+                            <group name="technical_section" col="4">
+                                <group>
+                                    <field name="create_uid" readonly="1"/>
+                                    <field name="create_date" readonly="1"/>
+                                </group>
+                                <group>
+                                    <field name="write_uid" readonly="1"/>
+                                    <field name="write_date" readonly="1"/>
+                                </group>
+                            </group>
+                            <!-- Extension point for technical info -->
+                            <group name="technical_extension" invisible="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vocabulary Mapping Search View -->
+    <record id="view_vocabulary_mapping_search" model="ir.ui.view">
+        <field name="name">spp.vocabulary.mapping.search</field>
+        <field name="model">spp.vocabulary.mapping</field>
+        <field name="arch" type="xml">
+            <search string="Search Code Mappings">
+                <field name="source_id" string="Source Code"/>
+                <field name="target_id" string="Target Code"/>
+                <field name="source_vocabulary_id" string="Source Vocabulary"/>
+                <field name="target_vocabulary_id" string="Target Vocabulary"/>
+                <field name="comment" filter_domain="[('comment', 'ilike', self)]"/>
+                <separator/>
+                <filter string="Equivalent" name="filter_equivalent" domain="[('equivalence', '=', 'equivalent')]"/>
+                <filter string="Wider" name="filter_wider" domain="[('equivalence', '=', 'wider')]"/>
+                <filter string="Narrower" name="filter_narrower" domain="[('equivalence', '=', 'narrower')]"/>
+                <filter string="Inexact" name="filter_inexact" domain="[('equivalence', '=', 'inexact')]"/>
+                <group>
+                    <filter string="Source Vocabulary" name="group_source_vocab" context="{'group_by': 'source_vocabulary_id'}"/>
+                    <filter string="Target Vocabulary" name="group_target_vocab" context="{'group_by': 'target_vocabulary_id'}"/>
+                    <filter string="Equivalence" name="group_equivalence" context="{'group_by': 'equivalence'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Vocabulary Mapping Action -->
+    <record id="action_vocabulary_mapping" model="ir.actions.act_window">
+        <field name="name">Code Mappings</field>
+        <field name="res_model">spp.vocabulary.mapping</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new code mapping
+            </p>
+            <p>
+                Code mappings define relationships between codes in different vocabularies.
+                They enable translation between local codes and international standards,
+                supporting interoperability and cross-deployment reporting.
+            </p>
+        </field>
+    </record>
+</odoo>

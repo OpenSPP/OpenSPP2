@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Attribute Mapping Tree View -->
+    <record id="view_claim169_attribute_mapping_tree" model="ir.ui.view">
+        <field name="name">spp.claim169.attribute.mapping.tree</field>
+        <field name="model">spp.claim169.attribute.mapping</field>
+        <field name="arch" type="xml">
+            <list string="Attribute Mappings" default_order="sequence, claim_number">
+                <field name="sequence" widget="handle"/>
+                <field name="claim_number"/>
+                <field name="claim_name"/>
+                <field name="name"/>
+                <field name="source_field"/>
+                <field name="transform_type"/>
+                <field name="is_active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Attribute Mapping Form View -->
+    <record id="view_claim169_attribute_mapping_form" model="ir.ui.view">
+        <field name="name">spp.claim169.attribute.mapping.form</field>
+        <field name="model">spp.claim169.attribute.mapping</field>
+        <field name="arch" type="xml">
+            <form string="Attribute Mapping">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <field name="is_active" widget="boolean_button"
+                               options="{'terminology': 'active'}"/>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name" placeholder="e.g., Full Name"/>
+                            <field name="claim_number"/>
+                            <field name="claim_name" placeholder="e.g., full_name"/>
+                            <field name="sequence"/>
+                        </group>
+                        <group>
+                            <field name="source_field" placeholder="e.g., name, birthdate, phone"/>
+                            <field name="transform_type"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="CEL Expression" invisible="transform_type != 'cel'">
+                            <field name="cel_expression" placeholder="CEL expression for transformation"
+                                   widget="ace" options="{'mode': 'python'}"/>
+                        </page>
+                        <page string="Help">
+                            <group>
+                                <div class="alert alert-info" role="alert">
+                                    <h4>Claim 169 Attribute Mapping</h4>
+                                    <p>Configure how OpenSPP fields map to MOSIP Claim 169 numbered attributes.</p>
+                                    <ul>
+                                        <li><strong>Claim Number:</strong> Claim 169 attribute number (1-99)</li>
+                                        <li><strong>Source Field:</strong> Field path on res.partner (e.g., 'name', 'birthdate', 'parent_id.name')</li>
+                                        <li><strong>Transform Type:</strong>
+                                            <ul>
+                                                <li><em>Direct:</em> Use field value as-is</li>
+                                                <li><em>Date YYYYMMDD:</em> Convert date to YYYYMMDD integer</li>
+                                                <li><em>Gender Code:</em> Convert to Claim 169 codes (1=Male, 2=Female, 3=Others)</li>
+                                                <li><em>Address Combined:</em> Combine address fields</li>
+                                                <li><em>CEL Expression:</em> Custom transformation (advanced)</li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Attribute Mapping Search View -->
+    <record id="view_claim169_attribute_mapping_search" model="ir.ui.view">
+        <field name="name">spp.claim169.attribute.mapping.search</field>
+        <field name="model">spp.claim169.attribute.mapping</field>
+        <field name="arch" type="xml">
+            <search string="Attribute Mappings">
+                <field name="name"/>
+                <field name="claim_number"/>
+                <field name="claim_name"/>
+                <field name="source_field"/>
+                <filter string="Active" name="filter_active" domain="[('is_active', '=', True)]"/>
+                <filter string="Inactive" name="filter_inactive" domain="[('is_active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Attribute Mapping Action -->
+    <record id="action_claim169_attribute_mapping" model="ir.actions.act_window">
+        <field name="name">Attribute Mappings</field>
+        <field name="res_model">spp.claim169.attribute.mapping</field>
+        <field name="view_mode">list,form</field>
+        <field name="path">credential-mappings</field>
+        <field name="context">{'search_default_filter_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first Attribute Mapping
+            </p>
+            <p>
+                Attribute mappings define how OpenSPP fields are mapped to Claim 169 numbered attributes.
+            </p>
+        </field>
+    </record>
+</odoo>

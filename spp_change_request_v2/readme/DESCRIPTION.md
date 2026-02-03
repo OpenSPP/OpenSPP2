@@ -1,0 +1,90 @@
+Configuration-driven change request system for managing registrant data updates. Supports approval workflows, conflict detection, duplicate prevention, and document management. Enables field operators and administrators to submit structured requests for updating individual or group/household registrant data, with validation and audit trails.
+
+### Key Capabilities
+
+- Create change requests using configurable request types with custom detail models
+- Multi-tier approval workflows with automatic routing based on approval definitions
+- Detect conflicting change requests (same registrant, same group, or same field)
+- Prevent duplicate submissions with configurable similarity thresholds
+- Validate required fields and documents before submission
+- Preview changes before applying them to registrant records
+- Apply changes via field mapping or custom strategies
+- Track audit trail of all state changes via event data
+- Attach supporting documents organized in DMS directories
+
+### Key Models
+
+| Model                             | Description                                                |
+| --------------------------------- | ---------------------------------------------------------- |
+| `spp.change.request`              | Main change request record with approval workflow          |
+| `spp.change.request.type`         | Configuration for CR types: target, detail model, workflow |
+| `spp.change.request.type.mapping` | Field mappings for automatic application                   |
+| `spp.cr.conflict.rule`            | Rules for detecting conflicting change requests            |
+| `spp.cr.duplicate.config`         | Configuration for duplicate detection thresholds           |
+| `spp.cr.conflict.mixin`           | Mixin providing conflict and duplicate detection           |
+| `spp.cr.detail.base`              | Base model for all change request detail types             |
+| `spp.cr.detail.add_member`        | Detail model for adding members to groups                  |
+| `spp.cr.detail.edit_individual`   | Detail model for editing individual registrant data        |
+| `spp.cr.detail.edit_group`        | Detail model for editing group/household data              |
+| `spp.cr.detail.remove_member`     | Detail model for removing members from groups              |
+| `spp.cr.detail.change_hoh`        | Detail model for changing head of household                |
+| `spp.cr.detail.exit_registrant`   | Detail model for marking registrants as exited             |
+| `spp.cr.detail.transfer_member`   | Detail model for transferring members between groups       |
+| `spp.cr.detail.update_id`         | Detail model for updating registrant ID numbers            |
+| `spp.cr.detail.create_group`      | Detail model for creating new groups/households            |
+| `spp.cr.detail.merge_registrants` | Detail model for merging duplicate registrant records      |
+| `spp.cr.detail.split_household`   | Detail model for splitting households into separate groups |
+
+### Form Tabs
+
+Change request form view includes the following tabs:
+
+- **Details**: Split-pane view showing current registrant data and proposed changes
+- **Documents**: Upload and manage supporting documents via DMS integration
+- **Notes**: Description and internal notes fields
+- **Revision Requested**: Feedback from reviewers (visible when changes requested)
+- **Status History**: Timeline of approval reviews and state transitions
+
+### Configuration
+
+After installing:
+
+1. Navigate to **Change Requests > Configuration > Change Request Types**
+2. Create or configure CR types: set target type (individual/group), detail model, and approval workflow
+3. Define required fields and documents for each CR type
+4. Configure conflict rules under **Change Requests > Configuration > Conflict Rules** (optional)
+5. Configure duplicate detection under **Change Requests > Configuration > Duplicate Detection** (optional)
+6. Assign users to security groups: User, Validator, Validator HQ, or Manager
+
+### UI Location
+
+- **Menu**: Change Requests (top-level menu)
+  - **All Requests**: View all change requests with filtering
+  - **New Request**: Launch wizard to create change request
+  - **Pending Approval**: Queue of requests awaiting validator action (validators only)
+  - **Reporting > Analytics**: Pivot and graph views for change request analysis (managers only)
+  - **Configuration**: Change request types, conflict rules, duplicate detection (managers only)
+- **Registrant Profile**: Change requests appear in registrant form under smart buttons and related tabs
+- **Wizards**: New Request wizard for guided CR creation, batch approval for validators
+
+### Security
+
+| Group                                              | Access                                                         |
+| -------------------------------------------------- | -------------------------------------------------------------- |
+| `spp_change_request_v2.group_cr_user`              | Create and submit change requests (read/write/create)          |
+| `spp_change_request_v2.group_cr_validator`         | Approve/reject, field-level validation (read/write/create)     |
+| `spp_change_request_v2.group_cr_validator_hq`      | HQ-level approval with registry write (read/write/create)      |
+| `spp_change_request_v2.group_cr_manager`           | Full CRUD including configuration                              |
+| `spp_change_request_v2.group_cr_conflict_approver` | Override blocking conflict detections (specialized/functional) |
+
+### Extension Points
+
+- Inherit `spp.change.request.type` and override `get_apply_strategy()` to add custom application logic
+- Inherit `spp.cr.conflict.mixin` and override `_check_custom_conflicts()` for custom conflict detection
+- Create new detail models inheriting `spp.cr.detail.base` for custom change request types
+- Override `_validate_documents()` on `spp.change.request` for custom document validation
+- Use `_pre_enrollment_hook()` and `_post_enrollment_hook()` patterns for side effects during application
+
+### Dependencies
+
+`base`, `mail`, `spp_base_common`, `spp_registry`, `spp_security`, `spp_approval`, `spp_event_data`, `spp_dms`, `spp_vocabulary`

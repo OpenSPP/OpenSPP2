@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Demo Hazard Categories -->
+
+    <!-- Top-level Natural Disaster Category -->
+    <record id="category_natural" model="spp.hazard.category">
+        <field name="name">Natural Disaster</field>
+        <field name="code">NATURAL</field>
+        <field name="description">Natural disasters including weather events, geological events, and climate-related hazards</field>
+    </record>
+
+    <!-- Storm subcategory -->
+    <record id="category_storm" model="spp.hazard.category">
+        <field name="name">Storm</field>
+        <field name="code">NAT_STORM</field>
+        <field name="parent_id" ref="category_natural"/>
+        <field name="description">Storm events including tropical cyclones, typhoons, hurricanes</field>
+    </record>
+
+    <record id="category_typhoon" model="spp.hazard.category">
+        <field name="name">Typhoon</field>
+        <field name="code">NAT_STORM_TYPHOON</field>
+        <field name="parent_id" ref="category_storm"/>
+        <field name="description">Tropical cyclone in the Pacific region</field>
+    </record>
+
+    <!-- Geological subcategory -->
+    <record id="category_geological" model="spp.hazard.category">
+        <field name="name">Geological</field>
+        <field name="code">NAT_GEOLOGICAL</field>
+        <field name="parent_id" ref="category_natural"/>
+        <field name="description">Geological events including earthquakes, volcanic eruptions, landslides</field>
+    </record>
+
+    <record id="category_earthquake" model="spp.hazard.category">
+        <field name="name">Earthquake</field>
+        <field name="code">NAT_GEO_EARTHQUAKE</field>
+        <field name="parent_id" ref="category_geological"/>
+        <field name="description">Seismic events causing ground shaking</field>
+    </record>
+
+    <record id="category_volcanic" model="spp.hazard.category">
+        <field name="name">Volcanic Eruption</field>
+        <field name="code">NAT_GEO_VOLCANIC</field>
+        <field name="parent_id" ref="category_geological"/>
+        <field name="description">Volcanic activity including eruptions and lahars</field>
+    </record>
+
+    <!-- Hydrological subcategory -->
+    <record id="category_hydrological" model="spp.hazard.category">
+        <field name="name">Hydrological</field>
+        <field name="code">NAT_HYDRO</field>
+        <field name="parent_id" ref="category_natural"/>
+        <field name="description">Water-related hazards including floods and tsunamis</field>
+    </record>
+
+    <record id="category_flood" model="spp.hazard.category">
+        <field name="name">Flood</field>
+        <field name="code">NAT_HYDRO_FLOOD</field>
+        <field name="parent_id" ref="category_hydrological"/>
+        <field name="description">Flooding events from rivers, coastal areas, or flash floods</field>
+    </record>
+
+    <!-- Climate subcategory -->
+    <record id="category_climate" model="spp.hazard.category">
+        <field name="name">Climate</field>
+        <field name="code">NAT_CLIMATE</field>
+        <field name="parent_id" ref="category_natural"/>
+        <field name="description">Climate-related hazards including drought and extreme temperatures</field>
+    </record>
+
+    <record id="category_drought" model="spp.hazard.category">
+        <field name="name">Drought</field>
+        <field name="code">NAT_CLIMATE_DROUGHT</field>
+        <field name="parent_id" ref="category_climate"/>
+        <field name="description">Extended period of below-normal precipitation</field>
+    </record>
+
+    <!-- Health Emergency Category -->
+    <record id="category_health" model="spp.hazard.category">
+        <field name="name">Health Emergency</field>
+        <field name="code">HEALTH</field>
+        <field name="description">Health emergencies including disease outbreaks and pandemics</field>
+    </record>
+
+    <record id="category_pandemic" model="spp.hazard.category">
+        <field name="name">Pandemic</field>
+        <field name="code">HEALTH_PANDEMIC</field>
+        <field name="parent_id" ref="category_health"/>
+        <field name="description">Global disease outbreak affecting large populations</field>
+    </record>
+
+    <record id="category_outbreak" model="spp.hazard.category">
+        <field name="name">Disease Outbreak</field>
+        <field name="code">HEALTH_OUTBREAK</field>
+        <field name="parent_id" ref="category_health"/>
+        <field name="description">Localized disease outbreak</field>
+    </record>
+
+    <!-- Conflict Category -->
+    <record id="category_conflict" model="spp.hazard.category">
+        <field name="name">Conflict</field>
+        <field name="code">CONFLICT</field>
+        <field name="description">Armed conflicts, civil unrest, and forced displacement</field>
+    </record>
+
+    <record id="category_armed_conflict" model="spp.hazard.category">
+        <field name="name">Armed Conflict</field>
+        <field name="code">CONFLICT_ARMED</field>
+        <field name="parent_id" ref="category_conflict"/>
+        <field name="description">Armed conflict between parties</field>
+    </record>
+
+    <!-- Economic Category -->
+    <record id="category_economic" model="spp.hazard.category">
+        <field name="name">Economic Shock</field>
+        <field name="code">ECONOMIC</field>
+        <field name="description">Economic shocks including market disruptions and food insecurity</field>
+    </record>
+
+    <record id="category_food_crisis" model="spp.hazard.category">
+        <field name="name">Food Crisis</field>
+        <field name="code">ECONOMIC_FOOD</field>
+        <field name="parent_id" ref="category_economic"/>
+        <field name="description">Food insecurity and shortages affecting populations</field>
+    </record>
+
+    <!-- Demo Incidents -->
+    <record id="incident_typhoon_demo" model="spp.hazard.incident">
+        <field name="name">Demo Typhoon Alpha</field>
+        <field name="code">2024-DEMO-TYPHOON</field>
+        <field name="category_id" ref="category_typhoon"/>
+        <field name="start_date">2024-11-15</field>
+        <field name="status">recovery</field>
+        <field name="severity">4</field>
+        <field name="description"><![CDATA[
+            <p>Demo typhoon incident for testing purposes.</p>
+            <p>This represents a severe typhoon affecting multiple regions.</p>
+        ]]></field>
+    </record>
+
+    <record id="incident_flood_demo" model="spp.hazard.incident">
+        <field name="name">Demo Flooding Event</field>
+        <field name="code">2024-DEMO-FLOOD</field>
+        <field name="category_id" ref="category_flood"/>
+        <field name="start_date">2024-10-01</field>
+        <field name="end_date">2024-10-15</field>
+        <field name="status">closed</field>
+        <field name="severity">3</field>
+        <field name="description"><![CDATA[
+            <p>Demo flooding incident for testing purposes.</p>
+            <p>Localized flooding in riverine areas.</p>
+        ]]></field>
+    </record>
+
+    <record id="incident_drought_demo" model="spp.hazard.incident">
+        <field name="name">Demo Drought 2024</field>
+        <field name="code">2024-DEMO-DROUGHT</field>
+        <field name="category_id" ref="category_drought"/>
+        <field name="start_date">2024-03-01</field>
+        <field name="status">active</field>
+        <field name="severity">3</field>
+        <field name="description"><![CDATA[
+            <p>Ongoing drought affecting agricultural regions.</p>
+            <p>Below-normal rainfall for 6+ months.</p>
+        ]]></field>
+    </record>
+
+</odoo>

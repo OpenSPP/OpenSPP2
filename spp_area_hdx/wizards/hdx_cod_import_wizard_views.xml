@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- HDX COD Import Wizard Form View -->
+    <record id="view_hdx_cod_import_wizard_form" model="ir.ui.view">
+        <field name="name">spp.hdx.cod.import.wizard.form</field>
+        <field name="model">spp.hdx.cod.import.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button
+                        name="action_preview"
+                        string="Preview"
+                        type="object"
+                        class="oe_highlight"
+                        invisible="state != 'config'"
+                    />
+                    <button
+                        name="action_import"
+                        string="Import"
+                        type="object"
+                        class="oe_highlight"
+                        invisible="state != 'preview'"
+                    />
+                    <button
+                        name="action_back_to_config"
+                        string="Back"
+                        type="object"
+                        invisible="state == 'config'"
+                    />
+                    <field name="state" widget="statusbar" statusbar_visible="config,preview,done" />
+                </header>
+                <sheet>
+                    <!-- Educational header explaining HDX -->
+                    <div class="alert alert-info mb-3" role="alert" invisible="state != 'config'">
+                        <h5 class="alert-heading">
+                            <i class="fa fa-globe" /> HDX Administrative Boundaries Import
+                        </h5>
+                        <p class="mb-2">
+                            <strong>HDX (Humanitarian Data Exchange)</strong> is OCHA's platform for sharing
+                            humanitarian data. This wizard imports <strong>Common Operational Datasets (COD)</strong>
+                            which provide standardized administrative boundary polygons used across humanitarian
+                            organizations.
+                        </p>
+                        <p class="mb-0">
+                            <strong>P-codes</strong> (Place codes like LK-11) are unique identifiers that enable
+                            consistent data sharing between systems.
+                        </p>
+                    </div>
+
+                    <group invisible="state != 'config'">
+                        <group>
+                            <field
+                                name="import_mode"
+                                widget="radio"
+                                help="Download from HDX: Fetch official boundary data from OCHA. Upload GeoJSON: Import your own boundary file."
+                            />
+                            <field name="country_id" invisible="import_mode != 'hdx'" />
+                            <field name="source_id" invisible="import_mode != 'hdx'" domain="[('country_id', '=', country_id)]" />
+                        </group>
+                    </group>
+
+                    <!-- HDX Mode Configuration -->
+                    <notebook invisible="state != 'config' or import_mode != 'hdx'">
+                        <page string="Admin Levels" name="levels">
+                            <field name="resource_ids" domain="[('source_id', '=', source_id)]">
+                                <list>
+                                    <field name="name" />
+                                    <field name="admin_level" />
+                                    <field name="pcode_field" />
+                                    <field name="name_field" />
+                                    <field name="feature_count" />
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Options" name="options">
+                            <group>
+                                <field
+                                    name="update_existing"
+                                    help="Update existing area records with polygon boundaries from HDX. Recommended for adding GIS data to existing areas."
+                                />
+                                <field
+                                    name="create_missing"
+                                    help="Create new area records for P-codes not found in the system. Use with caution - verify area hierarchy first."
+                                />
+                                <field
+                                    name="update_names"
+                                    help="Replace existing area names with names from HDX. Warning: This may override local customizations."
+                                />
+                            </group>
+                        </page>
+                    </notebook>
+
+                    <!-- File Upload Mode Configuration -->
+                    <group invisible="state != 'config' or import_mode != 'file'">
+                        <group>
+                            <field name="file_data" filename="file_name" />
+                            <field name="file_name" invisible="1" />
+                            <field name="file_admin_level" />
+                        </group>
+                        <group string="Field Mappings">
+                            <field name="pcode_field" />
+                            <field name="name_field" />
+                            <field name="name_local_field" />
+                            <field name="parent_pcode_field" />
+                        </group>
+                    </group>
+
+                    <group invisible="state != 'config' or import_mode != 'file'">
+                        <group string="Options">
+                            <field name="update_existing" />
+                            <field name="create_missing" />
+                            <field name="update_names" />
+                        </group>
+                    </group>
+
+                    <!-- Preview -->
+                    <group string="Import Preview" invisible="state != 'preview'">
+                        <div class="alert alert-info mb-3" role="alert">
+                            <p class="mb-0">
+                                Review the counts below. If many P-codes are missing, you may need to create
+                                area records first or enable "Create Missing Areas".
+                            </p>
+                        </div>
+                        <group>
+                            <field name="preview_matched" string="Areas to Update" help="Existing areas that will be updated with boundary polygons" />
+                            <field name="preview_missing" string="P-codes Not Found" help="P-codes in the HDX data without matching area records" />
+                            <field name="preview_new" string="Areas to Create" help="New area records that will be created (if 'Create Missing' is enabled)" />
+                        </group>
+                    </group>
+
+                    <!-- Import Log -->
+                    <group string="Import Log" invisible="state not in ('importing', 'done')">
+                        <field name="import_log" nolabel="1" />
+                    </group>
+                </sheet>
+                <footer>
+                    <button string="Close" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- HDX COD Import Wizard Action -->
+    <record id="action_hdx_cod_import_wizard" model="ir.actions.act_window">
+        <field name="name">Import COD from HDX</field>
+        <field name="res_model">spp.hdx.cod.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

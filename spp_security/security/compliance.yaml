@@ -1,0 +1,258 @@
+# OpenSPP Access Management Compliance Specification
+# Module: spp_security
+# Version: 1.0
+#
+# This file declares the expected access control configuration for this module.
+# Run: python -m scripts.compliance.checker spp_security
+# Generate tests: python -m scripts.compliance.test_generator spp_security
+
+module: spp_security
+domain: admin
+version: "1.0"
+
+# =============================================================================
+# GROUP DEFINITIONS
+# Following ADR-004 Three-Tier Architecture
+# =============================================================================
+
+groups:
+  # --- Tier 2: User-facing groups ---
+  - id: group_spp_admin
+    tier: 2
+    privilege_id: privilege_spp_admin
+    comment:
+      "Full administrative access to all OpenSPP modules. This group automatically inherits all manager-level
+      permissions from installed domain modules. Assign this group to system administrators who need complete access."
+
+  - id: group_access_restrict_self
+    tier: 2
+    privilege_id: privilege_access_restrict_self_officer
+    comment: "Users in this group can only see their own user record. Used for field agents and limited-access users."
+
+# Admin linkage - this module IS the admin module, no linkage needed
+# Domain modules should link their manager groups to group_spp_admin
+admin_link_group: null
+
+# =============================================================================
+# MODEL ACCESS (ir.model.access.csv)
+# This module defines no model access - it only provides groups and rules
+# =============================================================================
+
+model_access: []
+
+# =============================================================================
+# RECORD RULES (ir.rule)
+# Foundation record rules that apply across OpenSPP modules
+# =============================================================================
+
+record_rules:
+  # Multi-company access rule for partners
+  - id: rule_partner_company
+    model: res.partner
+    groups: [] # Global rule (no specific groups)
+    domain_description:
+      "Partners: Multi-company access - users can only see partners from their companies or without company"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: true
+    global: true
+    comment:
+      "Global multi-company rule ensuring users only access partners from their assigned companies or company-neutral
+      records"
+
+  # Self-only access rule for users with restricted access
+  - id: rule_user_self_only
+    model: res.users
+    groups: [group_access_restrict_self]
+    domain_description: "Users: See only self - users can only see their own user record"
+    perm_read: true
+    perm_write: false
+    perm_create: false
+    perm_unlink: false
+    comment: "Restricts users in group_access_restrict_self to only view their own user record"
+
+# =============================================================================
+# MENU VISIBILITY
+# This module defines no menus - menus are defined in domain modules
+# =============================================================================
+
+menus: []
+
+# =============================================================================
+# FIELD RESTRICTIONS
+# This module defines no field restrictions
+# =============================================================================
+
+field_restrictions: []
+
+# =============================================================================
+# ACTION RESTRICTIONS
+# This module defines no action restrictions
+# =============================================================================
+
+actions: []
+
+# =============================================================================
+# PRIVILEGES
+# Privileges defined in this module (res.groups.privilege)
+# =============================================================================
+
+privileges:
+  - id: privilege_spp_admin
+    name: Administrator
+    category_id: category_spp_admin
+    sequence: 1
+    comment: "Top-level administrative privilege for complete OpenSPP access"
+
+  - id: privilege_access_restrict_self_officer
+    name: "Restricted: Self Only (Officer)"
+    category_id: category_spp_admin
+    sequence: 10
+    comment: "Utility privilege for self-only access restriction"
+
+# =============================================================================
+# CATEGORIES
+# Module categories defined in this module (ir.module.category)
+# =============================================================================
+
+categories:
+  - id: category_spp
+    name: OpenSPP
+    parent_id: null
+    sequence: 1
+    description: "OpenSPP Social Protection Platform modules"
+
+  - id: category_spp_admin
+    name: Administration
+    parent_id: category_spp
+    sequence: 1
+    description: "System administration and configuration"
+
+  - id: category_spp_registry
+    name: Registry
+    parent_id: category_spp
+    sequence: 10
+    description: "Beneficiary and group registry management"
+
+  - id: category_spp_programs
+    name: Programs
+    parent_id: category_spp
+    sequence: 20
+    description: "Program and cycle management"
+
+  - id: category_spp_entitlements
+    name: Entitlements
+    parent_id: category_spp
+    sequence: 30
+    description: "Entitlement management and processing"
+
+  - id: category_spp_change_request
+    name: Change Requests
+    parent_id: category_spp
+    sequence: 40
+    description: "Change request workflow management"
+
+  - id: category_spp_approvals
+    name: Approvals
+    parent_id: category_spp
+    sequence: 50
+    description: "Approval workflow management"
+
+  - id: category_spp_payments
+    name: Payments
+    parent_id: category_spp
+    sequence: 60
+    description: "Payment processing and disbursement"
+
+  - id: category_spp_grm
+    name: Grievance Management
+    parent_id: category_spp
+    sequence: 70
+    description: "Grievance/ticket management"
+
+  - id: category_spp_case
+    name: Case Management
+    parent_id: category_spp
+    sequence: 75
+    description: "Social work case management and intervention planning"
+
+  - id: category_spp_farmer
+    name: Farmer Registry
+    parent_id: category_spp
+    sequence: 80
+    description: "Farmer-specific registry and land management"
+
+  - id: category_spp_service_points
+    name: Service Points
+    parent_id: category_spp
+    sequence: 90
+    description: "Service point and device management"
+
+  - id: category_spp_area
+    name: Areas & GIS
+    parent_id: category_spp
+    sequence: 100
+    description: "Geographic area and GIS management"
+
+  - id: category_spp_identity
+    name: Identity & Credentials
+    parent_id: category_spp
+    sequence: 110
+    description: "Digital identity and credential management"
+
+  - id: category_spp_api
+    name: API Access
+    parent_id: category_spp
+    sequence: 120
+    description: "API and external integration access"
+
+  - id: category_spp_audit
+    name: Audit & Compliance
+    parent_id: category_spp
+    sequence: 130
+    description: "Audit logging and compliance management"
+
+  - id: category_spp_graduation
+    name: Graduation
+    parent_id: category_spp
+    sequence: 140
+    description: "Graduation pathways and assessments"
+
+  - id: category_spp_services
+    name: Service Directory
+    parent_id: category_spp
+    sequence: 150
+    description: "Service provider and referral directory"
+
+  - id: category_spp_sessions
+    name: Sessions
+    parent_id: category_spp
+    sequence: 160
+    description: "Session and attendance tracking"
+# =============================================================================
+# ARCHITECTURE NOTES
+# =============================================================================
+#
+# This module (spp_security) is the foundation security module for OpenSPP.
+# It defines:
+#
+# 1. The central Administrator group (group_spp_admin) that all domain
+#    manager groups inherit from
+#
+# 2. All module categories for organizing security groups in the UI
+#
+# 3. Foundation record rules (multi-company, self-only access)
+#
+# 4. Utility groups like group_access_restrict_self for special access patterns
+#
+# Domain modules (spp_registry_base, spp_programs, etc.) extend this by:
+# - Defining their own three-tier groups (viewer/officer/manager)
+# - Linking their manager group to group_spp_admin via implied_ids
+# - Adding domain-specific privileges under the appropriate category
+# - Implementing domain-specific record rules and model access
+#
+# This ensures:
+# - Clean separation: only installed domains appear in the UI
+# - Automatic admin access: admins get all manager permissions
+# - Consistent architecture: all domains follow the same pattern

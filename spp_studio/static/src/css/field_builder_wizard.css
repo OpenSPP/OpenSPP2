@@ -1,0 +1,63 @@
+/* Field Builder Wizard Styling */
+
+/* Enhanced radio button styling for target type and field type */
+/*
+.o_form_view .o_field_radio .o_radio_item {
+    margin: 8px 0;
+    padding: 12px 16px;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    background: #fff;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.o_form_view .o_field_radio .o_radio_item:hover {
+    border-color: #0d6efd;
+    background: #f8f9fa;
+    transform: translateX(2px);
+}
+
+.o_form_view .o_field_radio .o_radio_item input[type="radio"]:checked + label {
+    font-weight: 600;
+}
+
+.o_form_view .o_field_radio .o_radio_item:has(input[type="radio"]:checked) {
+    border-color: #0d6efd;
+    background: #e7f1ff;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+}
+
+.o_form_view .o_field_radio.o_horizontal .o_radio_item {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 12px;
+    min-width: 200px;
+    justify-content: center;
+} */
+
+.o_form_view .o_field_radio label {
+    margin: 0;
+    padding-left: 8px;
+    cursor: pointer;
+    line-height: 1.4;
+}
+
+/* Placement zone selector - uses same styling as other radio buttons */
+.spp_placement_zones .o_field_radio .o_radio_item {
+    margin: 6px 0;
+    padding: 10px 14px;
+}
+
+.spp_placement_zones .o_field_radio label {
+    font-size: 13px;
+}
+
+/* Wizard step padding */
+.p-3 {
+    padding: 1rem !important;
+}
+
+.mb-3 {
+    margin-bottom: 1rem !important;
+}

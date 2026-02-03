@@ -1,0 +1,16 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_dms_directory_viewer,DMS Directory Viewer Access,spp_dms.model_spp_dms_directory,spp_dms.group_dms_viewer,1,0,0,0
+access_spp_dms_directory_officer,DMS Directory Officer Access,spp_dms.model_spp_dms_directory,spp_dms.group_dms_officer,1,1,1,0
+access_spp_dms_directory_manager,DMS Directory Manager Access,spp_dms.model_spp_dms_directory,spp_dms.group_dms_manager,1,1,1,1
+access_spp_dms_file_viewer,DMS File Viewer Access,spp_dms.model_spp_dms_file,spp_dms.group_dms_viewer,1,0,0,0
+access_spp_dms_file_officer,DMS File Officer Access,spp_dms.model_spp_dms_file,spp_dms.group_dms_officer,1,1,1,0
+access_spp_dms_file_manager,DMS File Manager Access,spp_dms.model_spp_dms_file,spp_dms.group_dms_manager,1,1,1,1
+access_spp_dms_file_version_viewer,DMS File Version Viewer Access,spp_dms.model_spp_dms_file_version,spp_dms.group_dms_viewer,1,0,0,0
+access_spp_dms_file_version_officer,DMS File Version Officer Access,spp_dms.model_spp_dms_file_version,spp_dms.group_dms_officer,1,1,1,0
+access_spp_dms_file_version_manager,DMS File Version Manager Access,spp_dms.model_spp_dms_file_version,spp_dms.group_dms_manager,1,1,1,1
+access_spp_dms_category_viewer,DMS Category Viewer Access,spp_dms.model_spp_dms_category,spp_dms.group_dms_viewer,1,0,0,0
+access_spp_dms_category_officer,DMS Category Officer Access,spp_dms.model_spp_dms_category,spp_dms.group_dms_officer,1,0,0,0
+access_spp_dms_category_manager,DMS Category Manager Access,spp_dms.model_spp_dms_category,spp_dms.group_dms_manager,1,1,1,1
+access_spp_dms_restore_version_wizard_viewer,DMS Restore Version Wizard Viewer Access,spp_dms.model_spp_dms_restore_version_wizard,spp_dms.group_dms_viewer,1,0,0,0
+access_spp_dms_restore_version_wizard_officer,DMS Restore Version Wizard Officer Access,spp_dms.model_spp_dms_restore_version_wizard,spp_dms.group_dms_officer,1,1,1,1
+access_spp_dms_restore_version_wizard_manager,DMS Restore Version Wizard Manager Access,spp_dms.model_spp_dms_restore_version_wizard,spp_dms.group_dms_manager,1,1,1,1

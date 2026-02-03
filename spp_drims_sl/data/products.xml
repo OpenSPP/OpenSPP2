@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!--
+    DRIMS Sample Relief Products - Sri Lanka
+
+    Product tracking:
+    - 'lot': Batch tracking with optional expiry (for perishables)
+    - 'none': No tracking (for non-perishables)
+
+    type='product' means storable (tracked in inventory)
+    -->
+
+    <!-- ==================== FOOD - DRY RATIONS ==================== -->
+
+    <record id="product_rice_5kg" model="product.product">
+        <field name="name">Rice - 5kg Bag</field>
+        <field name="default_code">FOOD-RICE-5KG</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="categ_id" ref="categ_food_dry"/>
+        <field name="tracking">none</field>
+        <field name="use_expiration_date" eval="True"/>
+        <field name="expiration_time">180</field><!-- 180 days shelf life -->
+        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="standard_price">850</field><!-- LKR -->
+        <field name="description">White rice, 5kg family pack. Staple relief food item.</field>
+    </record>
+
+    <record id="product_dhal_1kg" model="product.product">
+        <field name="name">Dhal (Lentils) - 1kg</field>
+        <field name="default_code">FOOD-DHAL-1KG</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="categ_id" ref="categ_food_dry"/>
+        <field name="tracking">none</field>
+        <field name="use_expiration_date" eval="True"/>
+        <field name="expiration_time">365</field><!-- 1 year -->
+        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="standard_price">450</field>
+    </record>
+
+    <record id="product_sugar_1kg" model="product.product">
+        <field name="name">Sugar - 1kg</field>
+        <field name="default_code">FOOD-SUGR-1KG</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="categ_id" ref="categ_food_dry"/>
+        <field name="tracking">none</field>
+        <field name="use_expiration_date" eval="True"/>
+        <field name="expiration_time">730</field><!-- 2 years -->
+        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="standard_price">200</field>
+    </record>
+
+    <record id="product_biscuits" model="product.product">
+        <field name="name">Biscuits - Family Pack</field>
+        <field name="default_code">FOOD-BISC-FAM</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="categ_id" ref="categ_food_dry"/>
+        <field name="tracking">none</field>
+        <field name="use_expiration_date" eval="True"/>
+        <field name="expiration_time">90</field><!-- 90 days -->
+        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="standard_price">150</field>
+    </record>
+
+    <record id="product_canned_fish" model="product.product">
+        <field name="name">Canned Fish - 425g</field>
+        <field name="default_code">FOOD-FISH-CAN</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="categ_id" ref="categ_food_dry"/>
+        <field name="tracking">none</field>
+        <field name="use_expiration_date" eval="True"/>
+        <field name="expiration_time">730</field><!-- 2 years -->
+        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="standard_price">350</field>
+    </record>
+
+    <!-- ==================== FOOD - INFANT ==================== -->
+
+    <record id="product_milk_powder" model="product.product">
+        <field name="name">Milk Powder - 400g</field>
+        <field name="default_code">FOOD-MILK-400</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="categ_id" ref="categ_food_infant"/>
+        <field name="tracking">none</field>
+        <field name="use_expiration_date" eval="True"/>
+        <field name="expiration_time">365</field>
+        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="standard_price">950</field>
+    </record>
+
+    <!-- ==================== WATER ==================== -->
+
+    <record id="product_water_bottle" model="product.product">
+        <field name="name">Drinking Water - 1.5L Bottle</field>
+        <field name="default_code">WATR-BTL-1.5L</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="categ_id" ref="categ_water"/>
+        <field name="tracking">none</field>
+        <field name="use_expiration_date" eval="True"/>
+        <field name="expiration_time">365</field>
+        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="standard_price">80</field>
+    </record>
+
+    <record id="product_water_tank" model="product.product">
+        <field name="name">Water Storage Tank - 1000L</field>
+        <field name="default_code">WATR-TANK-1000</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="categ_id" ref="categ_water"/>
+        <field name="tracking">none</field>
+        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="standard_price">25000</field>
+        <field name="description">Plastic water storage tank, 1000L capacity. Reusable.</field>
+    </record>
+
+    <!-- ==================== MEDICAL SUPPLIES ==================== -->
+
+    <record id="product_first_aid_kit" model="product.product">
+        <field name="name">First Aid Kit - Standard</field>
+        <field name="default_code">MED-FAID-STD</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="categ_id" ref="categ_first_aid"/>
+        <field name="tracking">none</field>
+        <field name="use_expiration_date" eval="True"/>
+        <field name="expiration_time">730</field>
+        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="standard_price">2500</field>
+        <field name="description">Standard first aid kit with bandages, antiseptic, painkillers.</field>
+    </record>
+
+    <record id="product_paracetamol" model="product.product">
+        <field name="name">Paracetamol 500mg - 100 tablets</field>
+        <field name="default_code">MED-PARA-500</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="categ_id" ref="categ_medicine"/>
+        <field name="tracking">none</field>
+        <field name="use_expiration_date" eval="True"/>
+        <field name="expiration_time">730</field>
+        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="standard_price">150</field>
+    </record>
+
+    <record id="product_ors" model="product.product">
+        <field name="name">ORS Sachets - Pack of 20</field>
+        <field name="default_code">MED-ORS-20</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="categ_id" ref="categ_medicine"/>
+        <field name="tracking">none</field>
+        <field name="use_expiration_date" eval="True"/>
+        <field name="expiration_time">730</field>
+        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="standard_price">200</field>
+        <field name="description">Oral Rehydration Salts for treating dehydration.</field>
+    </record>
+
+    <!-- ==================== HYGIENE ==================== -->
+
+    <record id="product_soap" model="product.product">
+        <field name="name">Bathing Soap - 100g</field>
+        <field name="default_code">HYG-SOAP-100</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="categ_id" ref="categ_hygiene_personal"/>
+        <field name="tracking">none</field>
+        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="standard_price">50</field>
+    </record>
+
+    <record id="product_toothpaste" model="product.product">
+        <field name="name">Toothpaste - 100g</field>
+        <field name="default_code">HYG-TPST-100</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="categ_id" ref="categ_hygiene_personal"/>
+        <field name="tracking">none</field>
+        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="standard_price">120</field>
+    </record>
+
+    <record id="product_sanitary_pads" model="product.product">
+        <field name="name">Sanitary Pads - Pack of 10</field>
+        <field name="default_code">HYG-SNPD-10</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="categ_id" ref="categ_hygiene_personal"/>
+        <field name="tracking">none</field>
+        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="standard_price">200</field>
+    </record>
+
+    <record id="product_bucket" model="product.product">
+        <field name="name">Plastic Bucket - 20L</field>
+        <field name="default_code">HYG-BCKT-20L</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="categ_id" ref="categ_hygiene_cleaning"/>
+        <field name="tracking">none</field>
+        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="standard_price">450</field>
+    </record>
+
+    <!-- ==================== SHELTER ==================== -->
+
+    <record id="product_tent_family" model="product.product">
+        <field name="name">Family Tent - 4 Person</field>
+        <field name="default_code">SHLT-TENT-4P</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="categ_id" ref="categ_shelter_tents"/>
+        <field name="tracking">none</field>
+        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="standard_price">15000</field>
+        <field name="description">Waterproof family tent for 4 persons. Reusable item.</field>
+    </record>
+
+    <record id="product_tarpaulin" model="product.product">
+        <field name="name">Tarpaulin - 4m x 6m</field>
+        <field name="default_code">SHLT-TARP-4X6</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="categ_id" ref="categ_shelter_tents"/>
+        <field name="tracking">none</field>
+        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="standard_price">3500</field>
+    </record>
+
+    <record id="product_blanket" model="product.product">
+        <field name="name">Blanket - Fleece</field>
+        <field name="default_code">SHLT-BLKT-FLC</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="categ_id" ref="categ_shelter_bedding"/>
+        <field name="tracking">none</field>
+        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="standard_price">800</field>
+    </record>
+
+    <record id="product_mattress" model="product.product">
+        <field name="name">Sleeping Mat</field>
+        <field name="default_code">SHLT-MAT-SLP</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="categ_id" ref="categ_shelter_bedding"/>
+        <field name="tracking">none</field>
+        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="standard_price">1200</field>
+    </record>
+
+    <!-- ==================== EQUIPMENT ==================== -->
+
+    <record id="product_torch" model="product.product">
+        <field name="name">LED Torch with Batteries</field>
+        <field name="default_code">EQUIP-TRCH-LED</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="categ_id" ref="categ_equipment_power"/>
+        <field name="tracking">none</field>
+        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="standard_price">500</field>
+    </record>
+
+    <record id="product_rope" model="product.product">
+        <field name="name">Nylon Rope - 50m</field>
+        <field name="default_code">EQUIP-ROPE-50M</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="categ_id" ref="categ_equipment_rescue"/>
+        <field name="tracking">none</field>
+        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="standard_price">1500</field>
+    </record>
+
+    <record id="product_radio" model="product.product">
+        <field name="name">Two-Way Radio</field>
+        <field name="default_code">EQUIP-RADIO-2W</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="categ_id" ref="categ_equipment_communication"/>
+        <field name="tracking">none</field>
+        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="standard_price">8500</field>
+        <field name="description">Handheld two-way radio for coordination. Reusable.</field>
+    </record>
+
+    <!-- ==================== KITCHEN ==================== -->
+
+    <record id="product_cooking_set" model="product.product">
+        <field name="name">Cooking Pot Set</field>
+        <field name="default_code">KTCH-POTS-SET</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="categ_id" ref="categ_kitchen"/>
+        <field name="tracking">none</field>
+        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="standard_price">2500</field>
+        <field name="description">Set of 3 cooking pots with lids. Reusable.</field>
+    </record>
+
+    <record id="product_stove" model="product.product">
+        <field name="name">Kerosene Stove</field>
+        <field name="default_code">KTCH-STOV-KRS</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="categ_id" ref="categ_kitchen"/>
+        <field name="tracking">none</field>
+        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="standard_price">3500</field>
+    </record>
+
+</odoo>

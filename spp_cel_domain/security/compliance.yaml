@@ -1,0 +1,266 @@
+# OpenSPP Access Management Compliance Specification
+# Module: spp_cel_domain
+# Version: 1.0
+#
+# This file declares the expected access control configuration for this module.
+# Run: python -m scripts.compliance.checker spp_cel_domain
+# Generate tests: python -m scripts.compliance.test_generator spp_cel_domain
+
+module: spp_cel_domain
+domain: cel_domain
+version: "1.0"
+
+# =============================================================================
+# MODULE OVERVIEW
+# =============================================================================
+# CEL Domain Query Builder - Core infrastructure module for query building
+# using Common Expression Language (CEL). This module provides:
+#   - Variable and expression management for building queries
+#   - Data providers and caching system for computed values
+#   - Credential management for secure data access
+#   - CEL parser, translator, and executor services
+#
+# Security Model:
+#   - Viewer: Can view CEL configurations (read-only access)
+#   - Manager: Can configure variables, expressions, providers, and data cache
+#   - Admin: Can manage sensitive credentials (superset of Manager)
+
+# =============================================================================
+# GROUP DEFINITIONS
+# Following ADR-004 Three-Tier Architecture
+# =============================================================================
+
+groups:
+  # --- Tier 3: Technical groups ---
+  - id: group_cel_domain_read
+    tier: 3
+    privilege_id: null
+    implied_ids: []
+    comment: "Technical read access to CEL domain configurations."
+
+  # --- Tier 2: User-facing groups ---
+  - id: group_cel_domain_viewer
+    tier: 2
+    privilege_id: privilege_cel_domain_viewer
+    implied_ids: [group_cel_domain_read]
+    comment: "Can view CEL domain query builder configurations including variables, expressions, and data cache."
+
+  - id: group_cel_domain_manager
+    tier: 2
+    privilege_id: privilege_cel_domain_manager
+    implied_ids: [group_cel_domain_viewer]
+    comment:
+      "Can manage CEL domain query builder configurations including variables, expressions, providers, and data cache.
+      Cannot manage credentials."
+
+  - id: group_cel_domain_admin
+    tier: 2
+    privilege_id: privilege_cel_domain_admin
+    implied_ids: [group_cel_domain_manager]
+    comment: "Can manage credentials and sensitive configurations. Includes all Manager permissions."
+
+# Admin linkage - admin group links to spp_security.group_spp_admin
+admin_link_group: group_cel_domain_admin
+
+# =============================================================================
+# MODEL ACCESS (ir.model.access.csv)
+# Security Pattern:
+#   - viewer: read access to CEL configurations
+#   - manager: full CRUD on all models except credentials
+#   - admin: full CRUD on credentials only
+# =============================================================================
+
+# NOTE: This module uses viewer/manager/admin pattern (NO officer role).
+# The officer role is intentionally omitted as CEL domain is infrastructure
+# that doesn't need an intermediate operational role.
+
+model_access:
+  # Variable categories (organizational structure for variables)
+  - model: spp.cel.variable.category
+    viewer: [read]
+    officer: [] # No officer role for this module
+    manager: [read, write, create, unlink]
+
+  # Variables (field references and computed values)
+  - model: spp.cel.variable
+    viewer: [read]
+    officer: [] # No officer role for this module
+    manager: [read, write, create, unlink]
+
+  # Expressions (reusable CEL queries)
+  - model: spp.cel.expression
+    viewer: [read]
+    officer: [] # No officer role for this module
+    manager: [read, write, create, unlink]
+
+  # Data providers (sources of computed/cached data)
+  - model: spp.data.provider
+    viewer: [read]
+    officer: [] # No officer role for this module
+    manager: [read, write, create, unlink]
+
+  # Data values (cached variable values)
+  - model: spp.data.value
+    viewer: [read]
+    officer: [] # No officer role for this module
+    manager: [read, write, create, unlink]
+
+  # Credentials (sensitive - admin only, no viewer/manager access)
+  - model: spp.data.credential
+    viewer: [] # No viewer access to credentials
+    officer: [] # No officer role for this module
+    manager: [] # No manager access to credentials
+    admin: [read, write, create, unlink]
+
+  # Transient wizard models - manager only, not tracked by compliance checker
+  # - spp.cel.rule.wizard: manager [read, write, create]
+  # - spp.cel.rule.wizard.metric: manager [read, create, unlink]
+
+# =============================================================================
+# RECORD RULES (ir.rule)
+# Data visibility rules based on group membership
+# =============================================================================
+
+record_rules:
+  # Company isolation for data providers
+  - id: rule_data_provider_company
+    model: spp.data.provider
+    groups: [] # Global rule
+    domain_description:
+      "Users can only access data providers for their company (or global providers without company_id)"
+    perm_read: true
+    perm_write: false
+    perm_create: false
+    perm_unlink: false
+    global: true
+
+  # Company isolation for data values (cached data)
+  - id: rule_data_value_company
+    model: spp.data.value
+    groups: [] # Global rule
+    domain_description: "Users can only access cached data values for their company"
+    perm_read: true
+    perm_write: false
+    perm_create: false
+    perm_unlink: false
+    global: true
+
+  # Company isolation for credentials
+  - id: rule_data_credential_company
+    model: spp.data.credential
+    groups: [] # Global rule
+    domain_description: "Users can only access credentials for their company (or global credentials without company_id)"
+    perm_read: true
+    perm_write: false
+    perm_create: false
+    perm_unlink: false
+    global: true
+
+# =============================================================================
+# MENU VISIBILITY
+# Which groups can see which menus
+# =============================================================================
+
+menus:
+  # Root menu for CEL Domain
+  - id: menu_cel_domain_root
+    name: "CEL Domain"
+    parent: base.menu_custom
+    groups: [spp_cel_domain.group_cel_domain_manager]
+    comment: "Main CEL Domain menu - visible to managers and admins"
+
+  # Data Management submenu
+  - id: menu_data_management
+    name: "Data Management"
+    parent: menu_cel_domain_root
+    groups: [] # Inherits from parent
+    comment: "Submenu for managing data providers and cache"
+
+  # Data Providers menu item
+  - id: menu_data_providers
+    name: "Data Providers"
+    parent: menu_data_management
+    groups: [] # Inherits from parent
+    comment: "Manage data provider configurations"
+
+  # Data Cache menu item
+  - id: menu_data_cache
+    name: "Data Cache"
+    parent: menu_data_management
+    groups: [] # Inherits from parent
+    comment: "View and manage cached data values"
+
+  # Tools submenu
+  - id: menu_cel_tools
+    name: "Tools"
+    parent: menu_cel_domain_root
+    groups: [] # Inherits from parent
+    comment: "Tools for testing and debugging CEL expressions"
+
+  # Rule Preview menu item
+  - id: menu_cel_rule_wizard
+    name: "Rule Preview"
+    parent: menu_cel_tools
+    groups: [spp_cel_domain.group_cel_domain_manager]
+    comment: "Wizard for previewing and testing CEL rules"
+
+# =============================================================================
+# FIELD RESTRICTIONS
+# Fields with group-based visibility in views
+# =============================================================================
+
+field_restrictions:
+  # Data Provider credential fields
+  - view_id: view_data_provider_form
+    field_name: credential_ids
+    groups: [spp_cel_domain.group_cel_domain_admin]
+    reason: "Credentials are sensitive and only visible to admins"
+
+# =============================================================================
+# ACTION RESTRICTIONS
+# Actions that are restricted to specific groups
+# =============================================================================
+
+actions:
+  - id: action_cel_rule_wizard
+    name: "Rule Preview"
+    model: spp.cel.rule.wizard
+    groups: [spp_cel_domain.group_cel_domain_manager]
+    comment: "Wizard action for testing CEL rules"
+
+  - id: action_data_provider_list
+    name: "Data Providers"
+    model: spp.data.provider
+    groups: [] # Accessible through menu which has group restrictions
+    comment: "List view action for data providers"
+
+  - id: action_data_value_list
+    name: "Data Cache"
+    model: spp.data.value
+    groups: [] # Accessible through menu which has group restrictions
+    comment: "List view action for cached data values"
+# =============================================================================
+# NOTES AND CONSIDERATIONS
+# =============================================================================
+# 1. This module follows the standard three-tier architecture:
+#    - Tier 3: group_cel_domain_read (technical read access)
+#    - Tier 2: group_cel_domain_viewer (read-only access with privilege)
+#    - Tier 2: group_cel_domain_manager (full CRUD except credentials)
+#    - Tier 2: group_cel_domain_admin (includes credential management)
+#
+# 2. The viewer group provides read access to CEL configurations. Users with
+#    viewer access can see variables, expressions, and data providers to
+#    understand what CEL configurations are available for building eligibility
+#    criteria.
+#
+# 3. Credentials are strictly separated - only admin can access them, while
+#    manager can configure everything else.
+#
+# 4. Company isolation rules ensure multi-tenant data separation for:
+#    - Data providers (configurations)
+#    - Data values (cached computed values)
+#    - Credentials (authentication tokens)
+#
+# 5. Dependencies: This is a core infrastructure module depended on by ~20
+#    other modules. Security changes here must be carefully considered for
+#    downstream impact.

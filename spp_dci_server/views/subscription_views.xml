@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_spp_dci_subscription_tree" model="ir.ui.view">
+        <field name="name">spp.dci.subscription.tree</field>
+        <field name="model">spp.dci.subscription</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="state != 'active'" decoration-danger="state == 'error'">
+                <field name="subscription_code" />
+                <field name="sender_id" />
+                <field name="event_type" />
+                <field name="reg_type" />
+                <field name="state" widget="badge" decoration-success="state == 'active'" decoration-warning="state == 'pending'" decoration-danger="state in ('error', 'cancelled')" />
+                <field name="notification_count" />
+                <field name="last_notification" />
+                <field name="expires" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_spp_dci_subscription_form" model="ir.ui.view">
+        <field name="name">spp.dci.subscription.form</field>
+        <field name="model">spp.dci.subscription</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button
+                        name="action_confirm"
+                        string="Confirm"
+                        type="object"
+                        class="btn-primary"
+                        invisible="state != 'pending'"
+                    />
+                    <button
+                        name="action_cancel"
+                        string="Cancel"
+                        type="object"
+                        invisible="state in ('cancelled', 'expired')"
+                    />
+                    <button
+                        name="action_reactivate"
+                        string="Reactivate"
+                        type="object"
+                        invisible="state not in ('cancelled', 'expired', 'error')"
+                    />
+                    <field name="state" widget="statusbar" statusbar_visible="pending,active" />
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            class="oe_stat_button"
+                            type="object"
+                            name="action_view_notifications"
+                            icon="fa-bell"
+                            invisible="notification_count == 0"
+                        >
+                            <field name="notification_count" widget="statinfo" string="Notifications" />
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active" />
+                    <div class="oe_title">
+                        <h1>
+                            <field name="subscription_code" readonly="1" />
+                        </h1>
+                    </div>
+
+                    <group string="Subscriber">
+                        <group>
+                            <field name="sender_id" />
+                            <field name="callback_uri" widget="url" />
+                        </group>
+                        <group>
+                            <field name="active" widget="boolean_toggle" />
+                            <field name="expires" />
+                        </group>
+                    </group>
+
+                    <group string="Event Configuration">
+                        <group>
+                            <field name="event_type" />
+                            <field name="reg_type" />
+                        </group>
+                        <group>
+                            <field name="last_notification" />
+                            <field name="failed_count" />
+                        </group>
+                    </group>
+
+                    <group string="Original Request" invisible="not original_message_id">
+                        <group>
+                            <field name="original_message_id" />
+                            <field name="original_transaction_id" />
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Filter Expression" name="filter" invisible="not filter_expression">
+                            <field name="filter_expression" widget="ace" options="{'mode': 'javascript'}" />
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_spp_dci_subscription_search" model="ir.ui.view">
+        <field name="name">spp.dci.subscription.search</field>
+        <field name="model">spp.dci.subscription</field>
+        <field name="arch" type="xml">
+            <search string="DCI Subscriptions">
+                <field name="subscription_code" />
+                <field name="sender_id" />
+                <filter string="Active" name="filter_active" domain="[('state', '=', 'active')]" />
+                <filter string="Pending" name="filter_pending" domain="[('state', '=', 'pending')]" />
+                <filter string="Error" name="filter_error" domain="[('state', '=', 'error')]" />
+                <filter string="Registration Events" name="filter_registration" domain="[('event_type', '=', 'registration')]" />
+                <filter string="Update Events" name="filter_update" domain="[('event_type', '=', 'update')]" />
+                <filter string="Delete Events" name="filter_delete" domain="[('event_type', '=', 'delete')]" />
+                <filter string="Archived" name="filter_archived" domain="[('active', '=', False)]" />
+                <group>
+                    <filter string="Event Type" name="group_by_event" context="{'group_by': 'event_type'}" />
+                    <filter string="Registry Type" name="group_by_reg" context="{'group_by': 'reg_type'}" />
+                    <filter string="State" name="group_by_state" context="{'group_by': 'state'}" />
+                    <filter string="Sender" name="group_by_sender" context="{'group_by': 'sender_id'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_spp_dci_subscription" model="ir.actions.act_window">
+        <field name="name">DCI Subscriptions</field>
+        <field name="res_model">spp.dci.subscription</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_filter_active': 1}</field>
+    </record>
+
+    <!-- Menu Item -->
+    <menuitem
+        id="menu_spp_dci_subscription"
+        name="Subscriptions"
+        parent="spp_dci_client.menu_spp_dci_config"
+        action="action_spp_dci_subscription"
+        sequence="40"
+    />
+</odoo>

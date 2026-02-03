@@ -1,0 +1,2477 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* spp_consent
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 15.0\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2023-11-23 04:46+0000\n"
+"Last-Translator: Weblate Admin <rj@newlogic.com>\n"
+"Language-Team: French <https://translate.openspp.org/projects/openspp/"
+"spp_consent/fr/>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 4.14\n"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_registrant_consent_form
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_registrant_consent_group_form
+msgid ""
+"<span class=\"o_stat_text\">Record</span>\n"
+"                          <span class=\"o_stat_text\">Consent</span>"
+msgstr ""
+"<span class=\"o_stat_text\">Enregistrer</span> \n"
+"                                       <span "
+"class=\"o_stat_text\">Consentement</span>"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent__withdrawal_channel__api
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_history__channel__api
+msgid "API"
+msgstr "API"
+
+#. module: spp_consent
+#: model:spp.consent.processing,description:spp_consent.proc_consult
+msgid "Accessing data for reference"
+msgstr "Accès aux données à des fins de référence"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_history__action
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_history_form
+msgid "Action"
+msgstr "Action"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__message_needaction
+msgid "Action Needed"
+msgstr "Action requise"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_notice_form
+msgid "Activate"
+msgstr "Activer"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_notice__active
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_org_type__active
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_personal_data__active
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_processing__active
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_purpose__active
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_notice__state__active
+msgid "Active"
+msgstr "Actif"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__activity_ids
+msgid "Activities"
+msgstr "Activités"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "Décoration de l'exception d'activité"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__activity_state
+msgid "Activity State"
+msgstr "État de l'activité"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "Icône du type d'activité"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_history__notes
+msgid "Additional notes about this action"
+msgstr "Notes complémentaires concernant cette action"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__allowed_recipient_types
+msgid "Allowed Organization Types"
+msgstr "Types d'organisation autorisés"
+
+#. module: spp_consent
+#: model:spp.consent.processing,name:spp_consent.proc_analyse
+msgid "Analyse"
+msgstr "Analyser"
+
+#. module: spp_consent
+#: model:spp.consent.processing,description:spp_consent.proc_analyse
+msgid "Analysing data to gain insights"
+msgstr "Analyse des données afin d'en tirer des informations"
+
+#. module: spp_consent
+#: model:spp.consent.processing,name:spp_consent.proc_anonymise
+msgid "Anonymise"
+msgstr "Anonymiser"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_notice__applicable_law
+msgid "Applicable Law"
+msgstr "Droit applicable"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_notice__applicable_law
+msgid "Applicable data protection law"
+msgstr "Droit applicable en matière de protection des données"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_notice__language__ar
+msgid "Arabic"
+msgstr "Arabe"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_notice_form
+msgid "Archive"
+msgstr "Archiver"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_notice__state__archived
+msgid "Archived"
+msgstr "Archivé"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__message_attachment_count
+msgid "Attachment Count"
+msgstr "Nombre de pièces jointes"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_form
+msgid "Audit Trail"
+msgstr "Piste d'audit"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent__delegation_type__representative
+msgid "Authorized Representative"
+msgstr "Représentant autorisé"
+
+#. module: spp_consent
+#: model:spp.consent.purpose,name:spp_consent.purpose_sp_registration
+msgid "Beneficiary Registration"
+msgstr "Enregistrement des bénéficiaires"
+
+#. module: spp_consent
+#: model:spp.consent.purpose,name:spp_consent.purpose_sp_benefit_delivery
+msgid "Benefit Delivery"
+msgstr "Versement des prestations"
+
+#. module: spp_consent
+#: model:spp.consent.personal.data,name:spp_consent.pd_sp_benefit
+msgid "Benefit History Data"
+msgstr "Données sur l'historique des prestations"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent__collection_method__biometric
+msgid "Biometric Confirmation"
+msgstr "Confirmation biométrique"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_personal_data__sensitivity_reason__biometric
+#: model:spp.consent.personal.data,name:spp_consent.pd_biometric
+msgid "Biometric Data"
+msgstr "Données biométriques"
+
+#. module: spp_consent
+#: model:spp.consent.personal.data,description:spp_consent.pd_biometric
+msgid "Biometric identifiers"
+msgstr "Identifiants biométriques"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_notice__summary
+msgid "Brief plain-language summary of the notice"
+msgstr "Bref résumé de l'avis en langage clair"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_history__user_agent
+msgid "Browser/client user agent if electronic"
+msgstr "Agent utilisateur du navigateur/du client si électronique"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.record_consent_wizard_form_view
+msgid "Cancel"
+msgstr "Annuler"
+
+#. module: spp_consent
+#: model:spp.consent.purpose,name:spp_consent.purpose_sp_case_management
+msgid "Case Management"
+msgstr "Gestion des cas"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__allowed_recipient_types
+msgid ""
+"Categories of organizations allowed to receive data. E.g., 'All NGOs and "
+"government agencies, but not private sector'"
+msgstr "Catégories d’organisations autorisées à recevoir les données. Ex. : « toutes les ONG et agences gouvernementales, mais pas le secteur privé »"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_notice__data_categories_description
+msgid "Categories of personal data processed"
+msgstr "Catégories de données à caractère personnel traitées"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_notice__recipients_description
+msgid "Categories of recipients"
+msgstr "Catégories de destinataires"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_processing__category
+msgid "Category"
+msgstr "Catégorie"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_history__changed_by_id
+msgid "Changed By"
+msgstr "Modifié par"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_history__changed_date
+msgid "Changed Date"
+msgstr "Date de modification"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_history__changed_fields
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_history_form
+msgid "Changed Fields"
+msgstr "Champs modifiés"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_history__channel
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_history_form
+msgid "Channel"
+msgstr "Canal"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_history__channel
+msgid "Channel through which action was taken"
+msgstr "Canal par lequel l'action a été effectuée"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_purpose__child_ids
+msgid "Child Purposes"
+msgstr "Sous-finalités"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__recipient_mode
+msgid "Choose whether consent is for specific organizations or categories"
+msgstr "Choisissez si le consentement concerne des organisations spécifiques ou des catégories"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_personal_data_form
+msgid "Classification"
+msgstr "Classification"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_notice__code
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_org_type__code
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_personal_data__code
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_processing__code
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_purpose__code
+msgid "Code"
+msgstr "Code"
+
+#. module: spp_consent
+#: model:spp.consent.processing,name:spp_consent.proc_collect
+msgid "Collect"
+msgstr "Collecter"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_form
+msgid "Collection"
+msgstr "Collecte"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__collection_method
+msgid "Collection Method"
+msgstr "Méthode de collecte"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_org_type__color
+msgid "Color Index"
+msgstr "Index de couleur"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_history__changed_fields
+msgid "Comma-separated list of changed field names"
+msgstr "Liste des noms de champs modifiés, séparés par des virgules"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_notice__full_text
+msgid "Complete privacy notice content"
+msgstr "Contenu complet de l'avis de confidentialité"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_record_consent_wizard__config_id
+msgid "Config"
+msgstr "Configuration"
+
+#. module: spp_consent
+#: model:ir.ui.menu,name:spp_consent.menu_spp_consent_config
+#, fuzzy
+msgid "Configuration"
+msgstr "Configuration"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_history__consent_id
+#: model:ir.model.fields,field_description:spp_consent.field_spp_record_consent_wizard__name
+msgid "Consent"
+msgstr "Consentement"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent__legal_basis__consent
+msgid "Consent (GDPR A6-1-a)"
+msgstr "Consentement (RGPD A6-1-a)"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_form
+#, fuzzy
+msgid "Consent Details"
+msgstr "Consentements"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_record_consent_wizard__is_group
+msgid "Consent For Group"
+msgstr "Consentement pour le groupe"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_res_partner__consent_ids
+#: model:ir.model.fields,field_description:spp_consent.field_res_users__consent_ids
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_mixin__consent_ids
+msgid "Consent IDS"
+msgstr "IDS consentement"
+
+#. module: spp_consent
+#: model:ir.ui.menu,name:spp_consent.menu_spp_consent_root
+#, fuzzy
+msgid "Consent Management"
+msgstr "Mélange de consentement"
+
+#. module: spp_consent
+#: model:ir.model,name:spp_consent.model_spp_consent_mixin
+msgid "Consent Mixin"
+msgstr "Mélange de consentement"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__name
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_form
+#, fuzzy
+msgid "Consent Name"
+msgstr "Consentement"
+
+#. module: spp_consent
+#: model:ir.model,name:spp_consent.model_spp_consent_purpose
+msgid "Consent Purpose (DPV-aligned)"
+msgstr "Finalité du consentement (alignée sur DPV)"
+
+#. module: spp_consent
+#: model:ir.actions.act_window,name:spp_consent.action_spp_consent_purpose
+msgid "Consent Purposes (DPV)"
+msgstr "Finalités du consentement (DPV)"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent__record_type__consent_receipt
+#, fuzzy
+msgid "Consent Receipt"
+msgstr "Mélange de consentement"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent__record_type__consent_record
+#, fuzzy
+msgid "Consent Record"
+msgstr "Consentement"
+
+#. module: spp_consent
+#: model:ir.model,name:spp_consent.model_spp_consent
+msgid "Consent Record (ISO 27560 / DPV-aligned)"
+msgstr "Enregistrement de consentement (ISO 27560 / aligné sur DPV)"
+
+#. module: spp_consent
+#: model:ir.actions.act_window,name:spp_consent.action_spp_consent
+#: model:ir.ui.menu,name:spp_consent.menu_spp_consent_records
+#, fuzzy
+msgid "Consent Records"
+msgstr "Consentements"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__config_id
+#, fuzzy
+msgid "Consent Type"
+msgstr "Consentement"
+
+#. module: spp_consent
+#: model:ir.model,name:spp_consent.model_spp_consent_history
+msgid "Consent Version History"
+msgstr "Historique des versions du consentement"
+
+#. module: spp_consent
+#: model:ir.actions.server,name:spp_consent.ir_cron_check_expired_consents_ir_actions_server
+#, fuzzy
+msgid "Consent: Check for Expired Consents"
+msgstr "Aucun consentement expiré"
+
+#. module: spp_consent
+#: model:spp.consent.processing,name:spp_consent.proc_consult
+#, fuzzy
+msgid "Consult"
+msgstr "Consentement"
+
+#. module: spp_consent
+#: model:ir.model,name:spp_consent.model_res_partner
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_notice_form
+msgid "Contact"
+msgstr "Contact"
+
+#. module: spp_consent
+#: model:spp.consent.personal.data,name:spp_consent.pd_contact
+#, fuzzy
+msgid "Contact Data"
+msgstr "Contact"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_notice__contact_email
+#, fuzzy
+msgid "Contact Email"
+msgstr "Contact"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_notice__contact_url
+#, fuzzy
+msgid "Contact URL"
+msgstr "Contact"
+
+#. module: spp_consent
+#: model:spp.consent.personal.data,description:spp_consent.pd_contact
+msgid "Contact information"
+msgstr "Coordonnées"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent__legal_basis__contract
+msgid "Contract (GDPR A6-1-b)"
+msgstr "Contrat (RGPD A6-1-b)"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.record_consent_wizard_form_view
+msgid "Create Consent"
+msgstr "Créer un consentement"
+
+#. module: spp_consent
+#: model_terms:ir.actions.act_window,help:spp_consent.action_spp_consent
+#, fuzzy
+msgid "Create a Consent Record"
+msgstr "Créer un consentement"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_history__action__create
+#, fuzzy
+msgid "Created"
+msgstr "Créé par"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__created_by_id
+#, fuzzy
+msgid "Created By"
+msgstr "Créé par"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__create_uid
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_config__create_uid
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_history__create_uid
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_notice__create_uid
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_org_type__create_uid
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_personal_data__create_uid
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_processing__create_uid
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_purpose__create_uid
+#: model:ir.model.fields,field_description:spp_consent.field_spp_record_consent_wizard__create_uid
+msgid "Created by"
+msgstr "Créé par"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__create_date
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_config__create_date
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_history__create_date
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_notice__create_date
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_org_type__create_date
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_personal_data__create_date
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_processing__create_date
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_purpose__create_date
+#: model:ir.model.fields,field_description:spp_consent.field_spp_record_consent_wizard__create_date
+msgid "Created on"
+msgstr "Créé sur"
+
+#. module: spp_consent
+#: model:spp.consent.processing,description:spp_consent.proc_generate
+msgid "Creating new data about the data subject"
+msgstr "Création de nouvelles données concernant la personne concernée"
+
+#. module: spp_consent
+#: model:spp.consent.processing,description:spp_consent.proc_derive
+msgid "Creating new data from existing data"
+msgstr "Création de nouvelles données à partir de données existantes"
+
+#. module: spp_consent
+#: model:spp.consent.processing,description:spp_consent.proc_profile
+msgid "Creating profiles based on data"
+msgstr "Création de profils à partir de données"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_form
+#, fuzzy
+msgid "Creation"
+msgstr "Créé sur"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_personal_data__sensitivity_reason__criminal
+msgid "Criminal Convictions"
+msgstr "Condamnations pénales"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__current_version
+msgid "Current Version"
+msgstr "Version actuelle"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__current_version
+msgid "Current version number"
+msgstr "Numéro de version actuel"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_personal_data__dpv_concept
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_processing__dpv_concept
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_purpose__dpv_concept
+msgid "DPV Concept"
+msgstr "Concept DPV"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_personal_data__dpv_uri
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_processing__dpv_uri
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_purpose__dpv_uri
+msgid "DPV URI"
+msgstr "URI DPV"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_processing__dpv_concept
+msgid "DPV concept name (e.g., 'dpv:Collect')"
+msgstr "Nom du concept DPV (p. ex., « dpv:Collect »)"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_personal_data__dpv_concept
+msgid "DPV concept name (e.g., 'dpv:Identifying')"
+msgstr "Nom du concept DPV (p. ex., « dpv:Identifying »)"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_purpose__dpv_concept
+msgid "DPV concept name (e.g., 'dpv:ServiceProvision')"
+msgstr "Nom du concept DPV (p. ex., « dpv:ServiceProvision »)"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_processing__category
+msgid "DPV processing category"
+msgstr "Catégorie de traitement DPV"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_notice__data_categories_description
+msgid "Data Categories"
+msgstr "Catégories de données"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__controller_id
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_form
+msgid "Data Controller"
+msgstr "Responsable du traitement"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_notice__controller_info
+msgid "Data Controller Information"
+msgstr "Informations sur le responsable du traitement"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__recipient_ids
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_form
+msgid "Data Recipients"
+msgstr "Destinataires des données"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__signatory_id
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_form
+msgid "Data Subject"
+msgstr "Personne concernée"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_notice__rights_description
+msgid "Data Subject Rights"
+msgstr "Droits de la personne concernée"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_personal_data__is_social_protection
+msgid "Data category specific to social protection"
+msgstr "Catégorie de données propre à la protection sociale"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_history__indicated_by_id
+msgid "Data subject or delegate who indicated the action"
+msgstr "Personne concernée ou délégué ayant indiqué l'action"
+
+#. module: spp_consent
+#: model:spp.consent.personal.data,description:spp_consent.pd_identifying
+msgid "Data used to identify an individual"
+msgstr "Données utilisées pour identifier une personne"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__effective_date
+msgid "Date when consent becomes effective"
+msgstr "Date d'entrée en vigueur du consentement"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__expiry
+msgid "Date when consent expires"
+msgstr "Date d'expiration du consentement"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__days_until_expiry
+msgid "Days Until Expiry"
+msgstr "Jours avant expiration"
+
+#. module: spp_consent
+#: model:spp.consent.purpose,name:spp_consent.purpose_sp_deduplication
+msgid "Deduplication"
+msgstr "Déduplication"
+
+#. module: spp_consent
+#: model_terms:ir.actions.act_window,help:spp_consent.action_spp_consent_org_type
+msgid "Define Organization Types"
+msgstr "Définir les types d'organisation"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__delegation_evidence
+msgid "Delegation Evidence"
+msgstr "Justificatif de délégation"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__delegation_evidence_filename
+msgid "Delegation Evidence Filename"
+msgstr "Nom de fichier du justificatif de délégation"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__delegation_type
+msgid "Delegation Type"
+msgstr "Type de délégation"
+
+#. module: spp_consent
+#: model:spp.consent.processing,name:spp_consent.proc_delete
+msgid "Delete"
+msgstr "Supprimer"
+
+#. module: spp_consent
+#: model:spp.consent.personal.data,name:spp_consent.pd_demographic
+msgid "Demographic Data"
+msgstr "Données démographiques"
+
+#. module: spp_consent
+#: model:spp.consent.personal.data,description:spp_consent.pd_demographic
+msgid "Demographic information about an individual"
+msgstr "Informations démographiques sur une personne"
+
+#. module: spp_consent
+#: model:spp.consent.processing,name:spp_consent.proc_derive
+msgid "Derive"
+msgstr "Déduire"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_org_type__description
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_personal_data__description
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_processing__description
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_purpose__description
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_org_type_form
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_personal_data_form
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_processing_form
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_purpose_form
+msgid "Description"
+msgstr "Description"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_notice__purpose_description
+msgid "Description of processing purposes"
+msgstr "Description des finalités de traitement"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__name
+msgid "Descriptive name for this consent record"
+msgstr "Nom descriptif de cet enregistrement de consentement"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_history_form
+msgid "Details"
+msgstr "Détails"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_processing__category__disclose
+#: model:spp.consent.processing,name:spp_consent.proc_disclose
+msgid "Disclose"
+msgstr "Divulguer"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_res_partner__display_name
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__display_name
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_config__display_name
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_history__display_name
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_mixin__display_name
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_notice__display_name
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_org_type__display_name
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_personal_data__display_name
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_processing__display_name
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_purpose__display_name
+#: model:ir.model.fields,field_description:spp_consent.field_spp_record_consent_wizard__display_name
+msgid "Display Name"
+msgstr "Afficher un nom"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__delegation_evidence
+msgid "Documentation proving authority to consent on behalf of data subject"
+msgstr "Documentation attestant l'autorité à consentir au nom de la personne concernée"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_notice__state__draft
+msgid "Draft"
+msgstr "Brouillon"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_notice__effective_date
+msgid "Effective Date"
+msgstr "Date d'effet"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__effective_date
+msgid "Effective From"
+msgstr "En vigueur à partir du"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent__collection_method__electronic
+msgid "Electronic/Digital"
+msgstr "Électronique/numérique"
+
+#. module: spp_consent
+#: model:spp.consent.purpose,name:spp_consent.purpose_sp_eligibility
+msgid "Eligibility Assessment"
+msgstr "Évaluation de l'éligibilité"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_notice__language__en
+msgid "English"
+msgstr "Anglais"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_form
+msgid "Evidence"
+msgstr "Justificatif"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__evidence_attachment
+msgid "Evidence Document"
+msgstr "Document justificatif"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__evidence_filename
+msgid "Evidence Filename"
+msgstr "Nom de fichier du justificatif"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_history__evidence_reference
+msgid "Evidence Reference"
+msgstr "Référence du justificatif"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_personal_data__example_fields
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_personal_data_form
+msgid "Example Fields"
+msgstr "Champs d'exemple"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_personal_data__example_fields
+msgid "Example data fields in this category"
+msgstr "Champs de données d’exemple dans cette catégorie"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent__status__expired
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_history__action__expire
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_search
+#, fuzzy
+msgid "Expired"
+msgstr "Date d'expiration"
+
+#. module: spp_consent
+#: model:ir.actions.act_window,name:spp_consent.action_spp_expired_consent
+#: model:ir.ui.menu,name:spp_consent.menu_spp_expired_consent
+msgid "Expired Consents"
+msgstr "Consentements expirés"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_search
+msgid "Expiring Soon (30 days)"
+msgstr "Expiration imminente (30 jours)"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__expiry
+#: model:ir.model.fields,field_description:spp_consent.field_spp_record_consent_wizard__expiry
+msgid "Expiry Date"
+msgstr "Date d'expiration"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_form
+msgid "Export JSON-LD"
+msgstr "Exporter en JSON-LD"
+
+#. module: spp_consent
+#: model:ir.model.constraint,message:spp_consent.constraint_spp_consent_unique_external_id
+msgid "External ID must be unique"
+msgstr "L'identifiant externe doit être unique"
+
+#. module: spp_consent
+#: model:spp.consent.personal.data,name:spp_consent.pd_family
+msgid "Family Data"
+msgstr "Données familiales"
+
+#. module: spp_consent
+#: model:spp.consent.personal.data,name:spp_consent.pd_financial
+msgid "Financial Data"
+msgstr "Données financières"
+
+#. module: spp_consent
+#: model:spp.consent.personal.data,description:spp_consent.pd_financial
+msgid "Financial and economic information"
+msgstr "Informations financières et économiques"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__message_follower_ids
+msgid "Followers"
+msgstr "Abonnés"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "Abonnés (partenaires)"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "Icône Font Awesome (p. ex., fa-tasks)"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_notice__language__fr
+msgid "French"
+msgstr "Français"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_notice_form
+msgid "Full Notice"
+msgstr "Avis complet"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_notice__full_text
+msgid "Full Notice Text"
+msgstr "Texte complet de l'avis"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_notice__full_policy_url
+msgid "Full Privacy Policy URL"
+msgstr "URL complète de la politique de confidentialité"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_personal_data__sensitivity_reason
+msgid "GDPR Article 9 special category"
+msgstr "Catégorie particulière au sens de l'article 9 du RGPD"
+
+#. module: spp_consent
+#: model:spp.consent.processing,description:spp_consent.proc_collect
+msgid "Gathering data from the data subject or other sources"
+msgstr "Collecte de données auprès de la personne concernée ou d’autres sources"
+
+#. module: spp_consent
+#: model:spp.consent.processing,name:spp_consent.proc_generate
+msgid "Generate"
+msgstr "Générer"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_personal_data__sensitivity_reason__genetic
+#: model:spp.consent.personal.data,name:spp_consent.pd_genetic
+msgid "Genetic Data"
+msgstr "Données génétiques"
+
+#. module: spp_consent
+#: model:spp.consent.personal.data,description:spp_consent.pd_genetic
+msgid "Genetic information"
+msgstr "Informations génétiques"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__storage_location
+msgid "Geographic location of data storage"
+msgstr "Emplacement géographique du stockage des données"
+
+#. module: spp_consent
+#: model:spp.consent.personal.data,description:spp_consent.pd_location
+msgid "Geographic or location information"
+msgstr "Informations géographiques ou de localisation"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent__status__given
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_history__action__give
+msgid "Given"
+msgstr "Donné"
+
+#. module: spp_consent
+#: model:spp.consent.org.type,name:spp_consent.org_type_government
+msgid "Government Agency"
+msgstr "Agence gouvernementale"
+
+#. module: spp_consent
+#: model:spp.consent.purpose,name:spp_consent.purpose_sp_grievance
+msgid "Grievance Handling"
+msgstr "Gestion des réclamations"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__group_id
+#: model:ir.model.fields,field_description:spp_consent.field_spp_record_consent_wizard__group_id
+#: model_terms:ir.ui.view,arch_db:spp_consent.record_consent_wizard_form_view
+msgid "Group"
+msgstr "Groupe"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_search
+msgid "Group By: Collection Method"
+msgstr "Grouper par : Méthode de collecte"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_search
+msgid "Group By: Data Controller"
+msgstr "Grouper par : Responsable du traitement"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_search
+msgid "Group By: Legal Basis"
+msgstr "Grouper par : Base juridique"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_search
+msgid "Group By: Status"
+msgstr "Grouper par : Statut"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__group_id
+msgid "Group this consent applies to (if group consent)"
+msgstr "Groupe auquel s'applique ce consentement (en cas de consentement de groupe)"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__has_message
+msgid "Has Message"
+msgstr "A un message"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_personal_data__sensitivity_reason__health
+#: model:spp.consent.personal.data,name:spp_consent.pd_health
+msgid "Health Data"
+msgstr "Données de santé"
+
+#. module: spp_consent
+#: model:spp.consent.personal.data,description:spp_consent.pd_health
+msgid "Health and medical information"
+msgstr "Informations sanitaires et médicales"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_processing__risk_level__high
+msgid "High"
+msgstr "Élevé"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_form
+#, fuzzy
+msgid "History"
+msgstr "Signataire"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__history_count
+msgid "History Count"
+msgstr "Nombre d'historiques"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__collection_method
+msgid "How consent was collected"
+msgstr "Comment le consentement a été recueilli"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_notice__retention_description
+msgid "How long data will be kept"
+msgstr "Durée de conservation des données"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_notice__withdrawal_description
+msgid "How to Withdraw Consent"
+msgstr "Comment retirer le consentement"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_res_partner__id
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__id
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_config__id
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_history__id
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_mixin__id
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_notice__id
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_org_type__id
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_personal_data__id
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_processing__id
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_purpose__id
+#: model:ir.model.fields,field_description:spp_consent.field_spp_record_consent_wizard__id
+msgid "ID"
+msgstr "ID"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_history__ip_address
+msgid "IP address if consent was given/modified electronically"
+msgstr "Adresse IP si le consentement a été donné/modifié électroniquement"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_notice_form
+msgid "ISO 29184 Elements"
+msgstr "Éléments ISO 29184"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__activity_exception_icon
+msgid "Icon"
+msgstr "Icône"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "Icône indiquant une activité en exception."
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_form
+msgid "Identifiers"
+msgstr "Identifiants"
+
+#. module: spp_consent
+#: model:spp.consent.personal.data,name:spp_consent.pd_identifying
+msgid "Identifying Data"
+msgstr "Données d'identification"
+
+#. module: spp_consent
+#: model:spp.consent.purpose,name:spp_consent.purpose_identity_verification
+msgid "Identity Verification"
+msgstr "Vérification de l'identité"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_notice__controller_info
+msgid "Identity and contact details of the controller"
+msgstr "Identité et coordonnées du responsable du traitement"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "Si cette option est cochée, de nouveaux messages nécessitent votre attention."
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__message_has_error
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "Si cette option est cochée, certains messages présentent une erreur de livraison."
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__indicated_by_id
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_history__indicated_by_id
+msgid "Indicated By"
+msgstr "Indiqué par"
+
+#. module: spp_consent
+#: model:spp.consent.personal.data,description:spp_consent.pd_sp_benefit
+msgid "Information about benefits received"
+msgstr "Informations sur les prestations reçues"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_notice__rights_description
+msgid "Information about data subject rights"
+msgstr "Informations sur les droits de la personne concernée"
+
+#. module: spp_consent
+#: model:spp.consent.personal.data,description:spp_consent.pd_family
+msgid "Information about family relationships"
+msgstr "Informations sur les liens familiaux"
+
+#. module: spp_consent
+#: model:spp.consent.personal.data,description:spp_consent.pd_sp_livelihood
+msgid "Information about livelihoods and occupation"
+msgstr "Informations sur les moyens de subsistance et l'occupation"
+
+#. module: spp_consent
+#: model:spp.consent.personal.data,description:spp_consent.pd_sp_enrollment
+msgid "Information about program enrollments"
+msgstr "Informations sur les inscriptions aux programmes"
+
+#. module: spp_consent
+#: model:spp.consent.personal.data,description:spp_consent.pd_sp_vulnerability
+msgid "Information from vulnerability assessments"
+msgstr "Informations issues d'évaluations de vulnérabilité"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__withdrawal_instructions
+msgid "Instructions for how to withdraw consent"
+msgstr "Instructions sur la manière de retirer le consentement"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_notice__withdrawal_description
+msgid "Instructions for withdrawing consent"
+msgstr "Instructions de retrait du consentement"
+
+#. module: spp_consent
+#: model:spp.consent.purpose,name:spp_consent.purpose_sp_data_sharing
+msgid "Inter-Agency Data Sharing"
+msgstr "Partage de données inter-agences"
+
+#. module: spp_consent
+#: model:spp.consent.org.type,name:spp_consent.org_type_ingo
+msgid "International NGO"
+msgstr "ONG internationale"
+
+#. module: spp_consent
+#: model:spp.consent.org.type,description:spp_consent.org_type_ingo
+msgid ""
+"International non-governmental organizations operating across multiple "
+"countries (e.g., Red Cross, Save the Children, CARE)."
+msgstr "Organisations non gouvernementales internationales opérant dans plusieurs pays (p. ex., Croix-Rouge, Save the Children, CARE)."
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent__status__invalidated
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_history__action__invalidate
+msgid "Invalidated"
+msgstr "Invalidé"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_history__ip_address
+msgid "Ip Address"
+msgstr "Adresse IP"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__message_is_follower
+msgid "Is Follower"
+msgstr "Est abonné"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__is_valid
+msgid "Is Valid"
+msgstr "Est valide"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_history__new_values
+msgid "JSON of field values after the change"
+msgstr "JSON des valeurs des champs après la modification"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_history__previous_values
+msgid "JSON of field values before the change"
+msgstr "JSON des valeurs des champs avant la modification"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__jurisdiction
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_notice__jurisdiction
+msgid "Jurisdiction"
+msgstr "Juridiction"
+
+#. module: spp_consent
+#: model:spp.consent.processing,description:spp_consent.proc_store
+msgid "Keeping data in storage"
+msgstr "Conservation des données en stockage"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_notice__language
+msgid "Language"
+msgstr "Langue"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__write_uid
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_config__write_uid
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_history__write_uid
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_notice__write_uid
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_org_type__write_uid
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_personal_data__write_uid
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_processing__write_uid
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_purpose__write_uid
+#: model:ir.model.fields,field_description:spp_consent.field_spp_record_consent_wizard__write_uid
+msgid "Last Updated by"
+msgstr "Dernière mise à jour par"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__write_date
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_config__write_date
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_history__write_date
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_notice__write_date
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_org_type__write_date
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_personal_data__write_date
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_processing__write_date
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_purpose__write_date
+#: model:ir.model.fields,field_description:spp_consent.field_spp_record_consent_wizard__write_date
+msgid "Last Updated on"
+msgstr "Mise à jour le"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__config_id
+msgid "Legacy consent configuration type"
+msgstr "Type de configuration de consentement hérité"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__legal_basis
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_form
+msgid "Legal Basis"
+msgstr "Base juridique"
+
+#. module: spp_consent
+#: model:spp.consent.purpose,name:spp_consent.purpose_legal_compliance
+msgid "Legal Compliance"
+msgstr "Conformité légale"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent__delegation_type__guardian
+msgid "Legal Guardian"
+msgstr "Tuteur légal"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent__legal_basis__legal_obligation
+msgid "Legal Obligation (GDPR A6-1-c)"
+msgstr "Obligation légale (RGPD A6-1-c)"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__legal_basis_reference
+msgid "Legal Reference"
+msgstr "Référence juridique"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_notice__jurisdiction
+msgid "Legal jurisdiction (e.g., 'EU', 'KE')"
+msgstr "Juridiction applicable (p. ex., « EU », « KE »)"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent__legal_basis__legitimate_interest
+msgid "Legitimate Interest (GDPR A6-1-f)"
+msgstr "Intérêt légitime (RGPD A6-1-f)"
+
+#. module: spp_consent
+#: model:spp.consent.personal.data,name:spp_consent.pd_sp_livelihood
+msgid "Livelihood Data"
+msgstr "Données relatives aux moyens de subsistance"
+
+#. module: spp_consent
+#: model:spp.consent.personal.data,name:spp_consent.pd_location
+msgid "Location Data"
+msgstr "Données de localisation"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_processing__risk_level__low
+msgid "Low"
+msgstr "Faible"
+
+#. module: spp_consent
+#: model:spp.consent.processing,description:spp_consent.proc_disclose
+msgid "Making data available to others"
+msgstr "Mise à disposition des données à des tiers"
+
+#. module: spp_consent
+#: model_terms:ir.actions.act_window,help:spp_consent.action_spp_consent
+msgid "Manage consent records aligned with ISO 27560 and W3C DPV standards."
+msgstr "Gérer des enregistrements de consentement alignés sur les normes ISO 27560 et W3C DPV."
+
+#. module: spp_consent
+#: model:spp.consent.purpose,name:spp_consent.purpose_marketing
+msgid "Marketing"
+msgstr "Marketing"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_processing__risk_level__medium
+msgid "Medium"
+msgstr "Moyen"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__message_has_error
+msgid "Message Delivery error"
+msgstr "Erreur de livraison du message"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__message_ids
+msgid "Messages"
+msgstr "Messages"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent__withdrawal_channel__mobile
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_history__channel__mobile
+msgid "Mobile App"
+msgstr "Application mobile"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_history__action__modify
+#, fuzzy
+msgid "Modified"
+msgstr "Modification le"
+
+#. module: spp_consent
+#: model:spp.consent.purpose,name:spp_consent.purpose_sp_monitoring
+msgid "Monitoring & Evaluation"
+msgstr "Suivi et évaluation"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "Mon échéance d'activité"
+
+#. module: spp_consent
+#: model:spp.consent.org.type,name:spp_consent.org_type_ngo
+msgid "NGO / Non-Profit"
+msgstr "ONG / Organisation à but non lucratif"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_config__name
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_notice__name
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_org_type__name
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_personal_data__name
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_processing__name
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_purpose__name
+msgid "Name"
+msgstr "Nom"
+
+#. module: spp_consent
+#: model:spp.consent.org.type,description:spp_consent.org_type_ngo
+msgid ""
+"National non-governmental organizations and non-profit entities working in "
+"social protection and humanitarian assistance."
+msgstr "Organisations non gouvernementales nationales et entités à but non lucratif œuvrant dans la protection sociale et l’assistance humanitaire."
+
+#. module: spp_consent
+#: model:spp.consent.org.type,description:spp_consent.org_type_government
+msgid ""
+"National or local government agencies, ministries, and public sector bodies "
+"responsible for social protection programs."
+msgstr "Agences gouvernementales nationales ou locales, ministères et organismes du secteur public responsables des programmes de protection sociale."
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_history__new_status
+msgid "New Status"
+msgstr "Nouveau statut"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_history__new_values
+msgid "New Values"
+msgstr "Nouvelles valeurs"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__activity_calendar_event_id
+msgid "Next Activity Calendar Event"
+msgstr "Prochain événement du calendrier"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "Échéance de la prochaine activité"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__activity_summary
+msgid "Next Activity Summary"
+msgstr "Résumé de la prochaine activité"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__activity_type_id
+msgid "Next Activity Type"
+msgstr "Type de la prochaine activité"
+
+#. module: spp_consent
+#: model_terms:ir.actions.act_window,help:spp_consent.action_spp_expired_consent
+msgid "No Expired Consents"
+msgstr "Aucun consentement expiré"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_history__notes
+msgid "Notes"
+msgstr "Notes"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__notice_version
+msgid "Notice Version"
+msgstr "Version de l'avis"
+
+#. module: spp_consent
+#: model:ir.model.constraint,message:spp_consent.constraint_spp_consent_notice_unique_code_version
+msgid "Notice code + version must be unique"
+msgstr "Le code de l'avis et la version doivent être uniques"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_notice__version
+msgid "Notice version (e.g., '1.0', '2.1')"
+msgstr "Version de l'avis (p. ex., '1.0', '2.1')"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__message_needaction_counter
+msgid "Number of Actions"
+msgstr "Nombre d'actions"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__message_has_error_counter
+msgid "Number of errors"
+msgstr "Nombre d'erreurs"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "Nombre de messages nécessitant une action"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "Nombre de messages avec erreur de livraison"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_processing__category__obtain
+msgid "Obtain"
+msgstr "Obtenir"
+
+#. module: spp_consent
+#: model:ir.model,name:spp_consent.model_spp_consent_config
+msgid "OpenSPP Consent Config"
+msgstr "Configuration du consentement OpenSPP"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent__recipient_mode__category
+msgid "Organization Categories"
+msgstr "Catégories d'organisations"
+
+#. module: spp_consent
+#: model:ir.model,name:spp_consent.model_spp_consent_org_type
+msgid "Organization Type for Consent"
+msgstr "Type d'organisation pour le consentement"
+
+#. module: spp_consent
+#: model:ir.actions.act_window,name:spp_consent.action_spp_consent_org_type
+#: model:ir.ui.menu,name:spp_consent.menu_spp_consent_org_type
+msgid "Organization Types"
+msgstr "Types d'organisation"
+
+#. module: spp_consent
+#: model:ir.model.constraint,message:spp_consent.constraint_spp_consent_org_type_unique_code
+msgid "Organization type code must be unique"
+msgstr "Le code du type d'organisation doit être unique"
+
+#. module: spp_consent
+#: model_terms:ir.actions.act_window,help:spp_consent.action_spp_consent_org_type
+msgid ""
+"Organization types allow beneficiaries to consent to data sharing\n"
+"                with categories of organizations (e.g., \"all NGOs\" or "
+"\"government agencies only\")\n"
+"                rather than listing specific organizations."
+msgstr "Les types d’organisation permettent aux bénéficiaires de consentir au partage de données\n                avec des catégories d’organisations (p. ex., « toutes les ONG » ou « uniquement les agences gouvernementales »)\n                plutôt que de lister des organisations spécifiques."
+
+#. module: spp_consent
+#: model:spp.consent.org.type,description:spp_consent.org_type_other
+msgid "Organizations that don't fit into the above categories."
+msgstr "Organisations qui n'entrent pas dans les catégories ci-dessus."
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent__withdrawal_channel__other
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_history__channel__other
+#: model:spp.consent.org.type,name:spp_consent.org_type_other
+msgid "Other"
+msgstr "Autre"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent__withdrawal_channel__paper
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_history__channel__paper
+msgid "Paper Form"
+msgstr "Formulaire papier"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_purpose__parent_path
+msgid "Parent Path"
+msgstr "Chemin parent"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_purpose__parent_id
+msgid "Parent Purpose"
+msgstr "Finalité parente"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent__delegation_type__parent
+msgid "Parent/Caretaker"
+msgstr "Parent/Tuteur"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_search
+#, fuzzy
+msgid "Pending Consent"
+msgstr "Enregistrer le consentement"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__personal_data_ids
+#: model:ir.ui.menu,name:spp_consent.menu_spp_consent_personal_data
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_form
+msgid "Personal Data Categories"
+msgstr "Catégories de données à caractère personnel"
+
+#. module: spp_consent
+#: model:ir.actions.act_window,name:spp_consent.action_spp_consent_personal_data
+msgid "Personal Data Categories (DPV)"
+msgstr "Catégories de données à caractère personnel (DPV)"
+
+#. module: spp_consent
+#: model:ir.model,name:spp_consent.model_spp_consent_personal_data
+msgid "Personal Data Category (DPV-aligned)"
+msgstr "Catégorie de données à caractère personnel (alignée sur DPV)"
+
+#. module: spp_consent
+#: model:ir.model.constraint,message:spp_consent.constraint_spp_consent_personal_data_unique_code
+msgid "Personal data code must be unique"
+msgstr "Le code des données à caractère personnel doit être unique"
+
+#. module: spp_consent
+#: model:spp.consent.purpose,name:spp_consent.purpose_personalisation
+msgid "Personalisation"
+msgstr "Personnalisation"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_personal_data__sensitivity_reason__political
+msgid "Political Opinions"
+msgstr "Opinions politiques"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent__delegation_type__poa
+msgid "Power of Attorney"
+msgstr "Procuration"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_history__previous_status
+msgid "Previous Status"
+msgstr "Statut précédent"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_history__previous_values
+msgid "Previous Values"
+msgstr "Valeurs précédentes"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_notice__supersedes_id
+msgid "Previous version this notice replaces"
+msgstr "Version précédente que cet avis remplace"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_notice__language
+msgid "Primary language of the notice"
+msgstr "Langue principale de l'avis"
+
+#. module: spp_consent
+#: model:ir.model,name:spp_consent.model_spp_consent_notice
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__notice_id
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_form
+msgid "Privacy Notice"
+msgstr "Avis de confidentialité"
+
+#. module: spp_consent
+#: model:ir.actions.act_window,name:spp_consent.action_spp_consent_notice
+#: model:ir.ui.menu,name:spp_consent.menu_spp_consent_notice
+msgid "Privacy Notices"
+msgstr "Avis de confidentialité"
+
+#. module: spp_consent
+#: model:spp.consent.org.type,name:spp_consent.org_type_private
+msgid "Private Sector"
+msgstr "Secteur privé"
+
+#. module: spp_consent
+#: model:spp.consent.org.type,description:spp_consent.org_type_private
+msgid ""
+"Private companies and commercial entities. Note: Beneficiaries often exclude "
+"this category from consent."
+msgstr "Entreprises privées et entités commerciales. Remarque : les bénéficiaires excluent souvent cette catégorie du consentement."
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_form
+msgid "Processing"
+msgstr "Traitement"
+
+#. module: spp_consent
+#: model:ir.model,name:spp_consent.model_spp_consent_processing
+msgid "Processing Operation (DPV-aligned)"
+msgstr "Opération de traitement (alignée sur DPV)"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__processing_ids
+#: model:ir.ui.menu,name:spp_consent.menu_spp_consent_processing
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_form
+msgid "Processing Operations"
+msgstr "Opérations de traitement"
+
+#. module: spp_consent
+#: model:ir.actions.act_window,name:spp_consent.action_spp_consent_processing
+msgid "Processing Operations (DPV)"
+msgstr "Opérations de traitement (DPV)"
+
+#. module: spp_consent
+#: model:ir.model.constraint,message:spp_consent.constraint_spp_consent_processing_unique_code
+msgid "Processing code must be unique"
+msgstr "Le code de traitement doit être unique"
+
+#. module: spp_consent
+#: model:spp.consent.purpose,description:spp_consent.purpose_sp_eligibility
+msgid "Processing for assessing eligibility for benefits"
+msgstr "Traitement pour évaluer l'éligibilité aux prestations"
+
+#. module: spp_consent
+#: model:spp.consent.purpose,description:spp_consent.purpose_legal_compliance
+msgid "Processing for compliance with legal obligations"
+msgstr "Traitement pour se conformer aux obligations légales"
+
+#. module: spp_consent
+#: model:spp.consent.purpose,description:spp_consent.purpose_sp_benefit_delivery
+msgid "Processing for delivering benefits to beneficiaries"
+msgstr "Traitement pour verser des prestations aux bénéficiaires"
+
+#. module: spp_consent
+#: model:spp.consent.purpose,description:spp_consent.purpose_sp_deduplication
+msgid "Processing for detecting and removing duplicate registrations"
+msgstr "Traitement pour détecter et supprimer les inscriptions en double"
+
+#. module: spp_consent
+#: model:spp.consent.purpose,description:spp_consent.purpose_sp_enrollment
+msgid "Processing for enrolling beneficiaries in programs"
+msgstr "Traitement pour inscrire les bénéficiaires aux programmes"
+
+#. module: spp_consent
+#: model:spp.consent.purpose,description:spp_consent.purpose_sp_grievance
+msgid "Processing for handling grievances and complaints"
+msgstr "Traitement pour gérer les réclamations et plaintes"
+
+#. module: spp_consent
+#: model:spp.consent.purpose,description:spp_consent.purpose_sp_case_management
+msgid "Processing for managing beneficiary cases and referrals"
+msgstr "Traitement pour gérer les cas des bénéficiaires et les orientations"
+
+#. module: spp_consent
+#: model:spp.consent.purpose,description:spp_consent.purpose_record_management
+msgid "Processing for managing records"
+msgstr "Traitement pour gérer les enregistrements"
+
+#. module: spp_consent
+#: model:spp.consent.purpose,description:spp_consent.purpose_marketing
+msgid "Processing for marketing purposes"
+msgstr "Traitement à des fins de marketing"
+
+#. module: spp_consent
+#: model:spp.consent.purpose,description:spp_consent.purpose_personalisation
+msgid "Processing for personalising services or content"
+msgstr "Traitement pour personnaliser les services ou le contenu"
+
+#. module: spp_consent
+#: model:spp.consent.purpose,description:spp_consent.purpose_sp_monitoring
+msgid "Processing for program monitoring and evaluation"
+msgstr "Traitement pour le suivi et l’évaluation des programmes"
+
+#. module: spp_consent
+#: model:spp.consent.purpose,description:spp_consent.purpose_service_provision
+msgid "Processing for providing a service or product"
+msgstr "Traitement pour fournir un service ou un produit"
+
+#. module: spp_consent
+#: model:spp.consent.purpose,description:spp_consent.purpose_sp_registration
+msgid "Processing for registering beneficiaries in social protection programs"
+msgstr "Traitement pour enregistrer les bénéficiaires dans des programmes de protection sociale"
+
+#. module: spp_consent
+#: model:spp.consent.purpose,description:spp_consent.purpose_research
+msgid "Processing for research and development"
+msgstr "Traitement pour la recherche et le développement"
+
+#. module: spp_consent
+#: model:spp.consent.purpose,description:spp_consent.purpose_sp_data_sharing
+msgid ""
+"Processing for sharing data between agencies for coordinated service delivery"
+msgstr "Traitement pour partager des données entre agences afin d’assurer une prestation coordonnée des services"
+
+#. module: spp_consent
+#: model:spp.consent.purpose,description:spp_consent.purpose_identity_verification
+msgid "Processing for verifying identity"
+msgstr "Traitement pour vérifier l’identité"
+
+#. module: spp_consent
+#: model:spp.consent.processing,name:spp_consent.proc_profile
+msgid "Profile"
+msgstr "Profil"
+
+#. module: spp_consent
+#: model:spp.consent.purpose,name:spp_consent.purpose_sp_enrollment
+msgid "Program Enrollment"
+msgstr "Inscription au programme"
+
+#. module: spp_consent
+#: model:spp.consent.personal.data,name:spp_consent.pd_sp_enrollment
+msgid "Program Enrollment Data"
+msgstr "Données d'inscription au programme"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent__legal_basis__public_interest
+msgid "Public Interest (GDPR A6-1-e)"
+msgstr "Intérêt public (RGPD A6-1-e)"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_notice__purpose_description
+msgid "Purpose Description"
+msgstr "Description de la finalité"
+
+#. module: spp_consent
+#: model:ir.model.constraint,message:spp_consent.constraint_spp_consent_purpose_unique_code
+msgid "Purpose code must be unique"
+msgstr "Le code de la finalité doit être unique"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_purpose__is_social_protection
+msgid "Purpose specific to social protection (extends DPV)"
+msgstr "Finalité propre à la protection sociale (étend DPV)"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__purpose_ids
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_form
+msgid "Purposes"
+msgstr "Finalités"
+
+#. module: spp_consent
+#: model:ir.ui.menu,name:spp_consent.menu_spp_consent_purpose
+msgid "Purposes (DPV)"
+msgstr "Finalités (DPV)"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_personal_data__sensitivity_reason__racial_ethnic
+msgid "Racial or Ethnic Origin"
+msgstr "Origine raciale ou ethnique"
+
+#. module: spp_consent
+#: model:spp.consent.personal.data,description:spp_consent.pd_racial_ethnic
+msgid "Racial or ethnic origin information"
+msgstr "Informations sur l'origine raciale ou ethnique"
+
+#. module: spp_consent
+#: model:spp.consent.personal.data,name:spp_consent.pd_racial_ethnic
+msgid "Racial/Ethnic Origin"
+msgstr "Origine raciale/ethnique"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_history__reason
+msgid "Reason"
+msgstr "Raison"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_history__reason
+msgid "Reason for the change (especially for withdrawal)"
+msgstr "Motif du changement (en particulier pour le retrait)"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__recipient_mode
+msgid "Recipient Mode"
+msgstr "Mode de destinataire"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_notice__recipients_description
+msgid "Recipients"
+msgstr "Destinataires"
+
+#. module: spp_consent
+#: model:spp.consent.processing,name:spp_consent.proc_record
+#, fuzzy
+msgid "Record"
+msgstr "Enregistrer le consentement"
+
+#. module: spp_consent
+#. odoo-python
+#: code:addons/spp_consent/models/consent_mixin.py:0
+msgid "Record Consent"
+msgstr "Enregistrer le consentement"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_form
+#, fuzzy
+msgid "Record Consent Given"
+msgstr "Enregistrer le consentement"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_form
+#, fuzzy
+msgid "Record Consent Refused"
+msgstr "Enregistrer le consentement"
+
+#. module: spp_consent
+#: model:ir.model,name:spp_consent.model_spp_record_consent_wizard
+msgid "Record Consent Wizard"
+msgstr "Assistant d'enregistrement de consentement"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__external_id
+#, fuzzy
+msgid "Record ID"
+msgstr "Enregistrer le consentement"
+
+#. module: spp_consent
+#: model:spp.consent.purpose,name:spp_consent.purpose_record_management
+#, fuzzy
+msgid "Record Management"
+msgstr "Enregistrer le consentement"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__record_type
+#, fuzzy
+msgid "Record Type"
+msgstr "Enregistrer le consentement"
+
+#. module: spp_consent
+#: model:spp.consent.processing,description:spp_consent.proc_record
+msgid "Recording data in a register or database"
+msgstr "Enregistrement des données dans un registre ou une base de données"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_history__evidence_reference
+msgid "Reference to evidence document if applicable"
+msgstr "Référence au document justificatif, le cas échéant"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__legal_basis_reference
+msgid "Reference to law, regulation, or contract"
+msgstr "Référence à une loi, un règlement ou un contrat"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent__status__refused
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_history__action__refuse
+msgid "Refused"
+msgstr "Refusé"
+
+#. module: spp_consent
+#: model:spp.consent.personal.data,name:spp_consent.pd_religious
+msgid "Religious Beliefs"
+msgstr "Convictions religieuses"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_personal_data__sensitivity_reason__religious
+msgid "Religious or Philosophical Beliefs"
+msgstr "Convictions religieuses ou philosophiques"
+
+#. module: spp_consent
+#: model:spp.consent.personal.data,description:spp_consent.pd_religious
+msgid "Religious or philosophical beliefs"
+msgstr "Convictions religieuses ou philosophiques"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_processing__category__remove
+msgid "Remove"
+msgstr "Supprimer"
+
+#. module: spp_consent
+#: model:spp.consent.processing,description:spp_consent.proc_delete
+msgid "Removing data from storage"
+msgstr "Suppression des données du stockage"
+
+#. module: spp_consent
+#: model:spp.consent.processing,description:spp_consent.proc_anonymise
+msgid "Removing identifying information from data"
+msgstr "Suppression des informations d'identification des données"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_form
+#, fuzzy
+msgid "Renew Consent"
+msgstr "Créer un consentement"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent__status__renewed
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_history__action__renew
+msgid "Renewed"
+msgstr "Renouvelé"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent__status__requested
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_history__action__request
+msgid "Requested"
+msgstr "Demandé"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_purpose__requires_explicit_consent
+msgid "Requires Explicit Consent"
+msgstr "Nécessite un consentement explicite"
+
+#. module: spp_consent
+#: model:spp.consent.org.type,name:spp_consent.org_type_research
+msgid "Research Institution"
+msgstr "Institution de recherche"
+
+#. module: spp_consent
+#: model:spp.consent.purpose,name:spp_consent.purpose_research
+msgid "Research and Development"
+msgstr "Recherche et développement"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__activity_user_id
+msgid "Responsible User"
+msgstr "Utilisateur responsable"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_notice__retention_description
+msgid "Retention Period"
+msgstr "Durée de conservation"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__storage_duration
+msgid "Retention Period (days)"
+msgstr "Durée de conservation (jours)"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_processing__risk_level
+msgid "Risk Level"
+msgstr "Niveau de risque"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_processing__risk_level
+msgid "Risk level associated with this processing"
+msgstr "Niveau de risque associé à ce traitement"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "Erreur de livraison SMS"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__schema_version
+msgid "Schema Version"
+msgstr "Version du schéma"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__schema_version
+msgid "Schema version for interoperability"
+msgstr "Version du schéma pour l'interopérabilité"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent__delegation_type__self
+msgid "Self"
+msgstr "Soi-même"
+
+#. module: spp_consent
+#: model:spp.consent.processing,description:spp_consent.proc_transmit
+msgid "Sending data to another location or system"
+msgstr "Envoi des données vers un autre emplacement ou système"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_personal_data__is_sensitive
+msgid "Sensitive Data"
+msgstr "Données sensibles"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_personal_data_form
+msgid "Sensitivity"
+msgstr "Sensibilité"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_personal_data__sensitivity_reason
+msgid "Sensitivity Category"
+msgstr "Catégorie de sensibilité"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_org_type__sequence
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_personal_data__sequence
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_processing__sequence
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_purpose__sequence
+msgid "Sequence"
+msgstr "Séquence"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_history__version
+msgid "Sequential version number for this consent"
+msgstr "Numéro de version séquentiel pour ce consentement"
+
+#. module: spp_consent
+#: model:spp.consent.purpose,name:spp_consent.purpose_service_provision
+msgid "Service Provision"
+msgstr "Prestation de service"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_personal_data__sensitivity_reason__sex_life
+msgid "Sex Life or Sexual Orientation"
+msgstr "Vie sexuelle ou orientation sexuelle"
+
+#. module: spp_consent
+#: model:spp.consent.processing,name:spp_consent.proc_share
+msgid "Share"
+msgstr "Partager"
+
+#. module: spp_consent
+#: model:spp.consent.processing,description:spp_consent.proc_share
+msgid "Sharing data with third parties"
+msgstr "Partage de données avec des tiers"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_record_consent_wizard__signatory_id
+#: model_terms:ir.ui.view,arch_db:spp_consent.record_consent_wizard_form_view
+msgid "Signatory"
+msgstr "Signataire"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__evidence_attachment
+msgid "Signed consent form or other proof"
+msgstr "Formulaire de consentement signé ou autre preuve"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_personal_data__is_social_protection
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_purpose__is_social_protection
+msgid "Social Protection Specific"
+msgstr "Spécifique à la protection sociale"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_notice__language__es
+msgid "Spanish"
+msgstr "Espagnol"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_personal_data__is_sensitive
+msgid "Special category data requiring additional protection (GDPR Art. 9)"
+msgstr "Données de catégorie particulière nécessitant une protection renforcée (RGPD art. 9)"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent__recipient_mode__specific
+msgid "Specific Organizations"
+msgstr "Organisations spécifiques"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_notice__state
+msgid "State"
+msgstr "État"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__status
+msgid "Status"
+msgstr "Statut"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_history_form
+msgid "Status Change"
+msgstr "Changement de statut"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__status_dpv_uri
+msgid "Status DPV URI"
+msgstr "URI DPV du statut"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_history__new_status
+msgid "Status after this action"
+msgstr "Statut après cette action"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr "Statut basé sur les activités\nEn retard : la date d’échéance est déjà dépassée\nAujourd’hui : la date de l’activité est aujourd’hui\nPlanifié : activités futures."
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_history__previous_status
+msgid "Status before this action"
+msgstr "Statut avant cette action"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_form
+msgid "Storage Conditions"
+msgstr "Conditions de stockage"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__storage_location
+msgid "Storage Location"
+msgstr "Emplacement de stockage"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_processing__category__store
+#: model:spp.consent.processing,name:spp_consent.proc_store
+msgid "Store"
+msgstr "Stocker"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_notice__summary
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_notice_form
+msgid "Summary"
+msgstr "Résumé"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_notice__supersedes_id
+msgid "Supersedes"
+msgstr "Remplace"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_notice__language__sw
+msgid "Swahili"
+msgstr "Swahili"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_form
+msgid "Technical"
+msgstr "Technique"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_org_type__code
+msgid "Technical code used for matching (e.g., 'ngo', 'government')"
+msgstr "Code technique utilisé pour l'appariement (p. ex., 'ngo', 'government')"
+
+#. module: spp_consent
+#. odoo-python
+#: code:addons/spp_consent/wizard/record_consent.py:0
+msgid "There are no selected Signatory!"
+msgstr "Il n'y a pas de signataire sélectionné !"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_personal_data__sensitivity_reason__trade_union
+msgid "Trade Union Membership"
+msgstr "Appartenance syndicale"
+
+#. module: spp_consent
+#: model:spp.consent.processing,name:spp_consent.proc_transfer
+msgid "Transfer"
+msgstr "Transférer"
+
+#. module: spp_consent
+#: model:spp.consent.processing,description:spp_consent.proc_transfer
+msgid "Transferring data to another controller"
+msgstr "Transfert des données vers un autre responsable du traitement"
+
+#. module: spp_consent
+#: model:spp.consent.processing,name:spp_consent.proc_transmit
+msgid "Transmit"
+msgstr "Transmettre"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__delegation_type
+msgid "Type of delegation if consent given by someone other than data subject"
+msgstr "Type de délégation si le consentement est donné par une personne autre que la personne concernée"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__record_type
+msgid "Type of record per ISO 27560"
+msgstr "Type d'enregistrement selon l'ISO 27560"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "Type de l'activité en exception enregistrée."
+
+#. module: spp_consent
+#: model:spp.consent.org.type,name:spp_consent.org_type_un
+msgid "UN Agency"
+msgstr "Agence des Nations Unies"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__withdrawal_uri
+msgid "URI/URL for consent withdrawal"
+msgstr "URI/URL pour le retrait du consentement"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_processing__code
+msgid "Unique code (e.g., 'Collect', 'Store', 'Share')"
+msgstr "Code unique (p. ex., 'Collect', 'Store', 'Share')"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_personal_data__code
+msgid "Unique code (e.g., 'Identifying', 'Financial')"
+msgstr "Code unique (p. ex., 'Identifying', 'Financial')"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_notice__code
+msgid "Unique code for this notice type"
+msgstr "Code unique pour ce type d'avis"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_purpose__code
+msgid "Unique code for this purpose (e.g., 'ServiceProvision')"
+msgstr "Code unique pour cette finalité (p. ex., 'ServiceProvision')"
+
+#. module: spp_consent
+#: model:spp.consent.org.type,description:spp_consent.org_type_un
+msgid ""
+"United Nations agencies and programs (e.g., WFP, UNHCR, UNICEF, ILO, WHO)."
+msgstr "Agences et programmes des Nations Unies (p. ex., WFP, UNHCR, UNICEF, ILO, WHO)."
+
+#. module: spp_consent
+#: model:spp.consent.org.type,description:spp_consent.org_type_research
+msgid ""
+"Universities, research institutes, and academic organizations conducting "
+"studies on social protection."
+msgstr "Universités, instituts de recherche et organisations académiques menant des études sur la protection sociale."
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_processing__category__use
+#: model:spp.consent.processing,name:spp_consent.proc_use
+msgid "Use"
+msgstr "Utiliser"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_history__user_agent
+msgid "User Agent"
+msgstr "Agent utilisateur"
+
+#. module: spp_consent
+#: model:spp.consent.processing,description:spp_consent.proc_use
+msgid "Using data for a purpose"
+msgstr "Utilisation des données à une fin"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_search
+#, fuzzy
+msgid "Valid Consents"
+msgstr "Consentements expirés"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_form
+msgid "Validity"
+msgstr "Validité"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_history__channel__verbal
+msgid "Verbal"
+msgstr "Verbal"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent__collection_method__verbal
+msgid "Verbal (Witnessed)"
+msgstr "Verbal (avec témoin)"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent__withdrawal_channel__verbal
+msgid "Verbal Request"
+msgstr "Demande verbale"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_form
+msgid "Verification"
+msgstr "Vérification"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__verified_by_id
+msgid "Verified By"
+msgstr "Vérifié par"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__verified_date
+msgid "Verified Date"
+msgstr "Date de vérification"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_form
+msgid "Verify"
+msgstr "Vérifier"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_history__version
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent_notice__version
+msgid "Version"
+msgstr "Version"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__history_ids
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_form
+msgid "Version History"
+msgstr "Historique des versions"
+
+#. module: spp_consent
+#: model:ir.model.constraint,message:spp_consent.constraint_spp_consent_history_unique_consent_version
+msgid "Version must be unique per consent"
+msgstr "La version doit être unique par consentement"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__notice_version
+msgid "Version of notice shown at time of consent"
+msgstr "Version de l'avis affichée au moment du consentement"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent__legal_basis__vital_interest
+msgid "Vital Interest (GDPR A6-1-d)"
+msgstr "Intérêt vital (RGPD A6-1-d)"
+
+#. module: spp_consent
+#: model:spp.consent.personal.data,name:spp_consent.pd_sp_vulnerability
+msgid "Vulnerability Assessment Data"
+msgstr "Données d'évaluation de la vulnérabilité"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_processing__dpv_uri
+msgid "W3C DPV URI (e.g., 'https://w3id.org/dpv#Collect')"
+msgstr "URI DPV du W3C (p. ex., 'https://w3id.org/dpv#Collect')"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_personal_data__dpv_uri
+msgid "W3C DPV URI (e.g., 'https://w3id.org/dpv#Identifying')"
+msgstr "URI DPV du W3C (p. ex., 'https://w3id.org/dpv#Identifying')"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_purpose__dpv_uri
+msgid "W3C DPV URI (e.g., 'https://w3id.org/dpv#ServiceProvision')"
+msgstr "URI DPV du W3C (p. ex., 'https://w3id.org/dpv#ServiceProvision')"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__status_dpv_uri
+msgid "W3C DPV URI for current status"
+msgstr "URI DPV du W3C pour le statut actuel"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent__withdrawal_channel__web
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_history__channel__web
+msgid "Web Portal"
+msgstr "Portail web"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__website_message_ids
+msgid "Website Messages"
+msgstr "Messages du site web"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__website_message_ids
+msgid "Website communication history"
+msgstr "Historique des communications du site web"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_notice__effective_date
+msgid "When this version becomes effective"
+msgstr "Date d'entrée en vigueur de cette version"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__is_valid
+msgid "Whether consent is currently valid for processing"
+msgstr "Si le consentement est actuellement valide pour le traitement"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent_purpose__requires_explicit_consent
+msgid "Whether this purpose requires explicit consent"
+msgstr "Si cette finalité nécessite un consentement explicite"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_history_form
+msgid "Who"
+msgstr "Qui"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_form
+#, fuzzy
+msgid "Withdraw Consent"
+msgstr "Créer un consentement"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__withdrawal_channel
+msgid "Withdrawal Channel"
+msgstr "Canal de retrait"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_form
+msgid "Withdrawal Details"
+msgstr "Détails du retrait"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__withdrawal_instructions
+msgid "Withdrawal Instructions"
+msgstr "Instructions de retrait"
+
+#. module: spp_consent
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_form
+msgid "Withdrawal Mechanism"
+msgstr "Mécanisme de retrait"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__withdrawal_reason
+msgid "Withdrawal Reason"
+msgstr "Motif du retrait"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__withdrawal_uri
+msgid "Withdrawal URI"
+msgstr "URI de retrait"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent__status__withdrawn
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent_history__action__withdraw
+#: model_terms:ir.ui.view,arch_db:spp_consent.view_spp_consent_search
+msgid "Withdrawn"
+msgstr "Retiré"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__withdrawn_by_id
+msgid "Withdrawn By"
+msgstr "Retiré par"
+
+#. module: spp_consent
+#: model:ir.model.fields,field_description:spp_consent.field_spp_consent__withdrawn_date
+msgid "Withdrawn Date"
+msgstr "Date de retrait"
+
+#. module: spp_consent
+#: model:ir.model.fields.selection,name:spp_consent.selection__spp_consent__collection_method__written
+msgid "Written/Signed Form"
+msgstr "Formulaire écrit/signé"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__status
+msgid "dpv:hasConsentStatus - Current status of consent"
+msgstr "dpv:hasConsentStatus - Statut actuel du consentement"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__controller_id
+msgid "dpv:hasDataController - Organization responsible for processing"
+msgstr "dpv:hasDataController - Organisation responsable du traitement"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__signatory_id
+msgid "dpv:hasDataSubject - Individual whose data is processed"
+msgstr "dpv:hasDataSubject - Personne dont les données sont traitées"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__external_id
+msgid "dpv:hasIdentifier - Unique external identifier (UUID)"
+msgstr "dpv:hasIdentifier - Identifiant externe unique (UUID)"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__jurisdiction
+msgid "dpv:hasJurisdiction - Applicable legal jurisdiction (e.g., 'EU', 'KE')"
+msgstr "dpv:hasJurisdiction - Juridiction légale applicable (p. ex., 'EU', 'KE')"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__legal_basis
+msgid "dpv:hasLegalBasis - Legal basis for processing"
+msgstr "dpv:hasLegalBasis - Base juridique du traitement"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__notice_id
+msgid "dpv:hasNotice - Privacy notice shown to data subject"
+msgstr "dpv:hasNotice - Avis de confidentialité présenté à la personne concernée"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__personal_data_ids
+msgid "dpv:hasPersonalData - Types of data covered"
+msgstr "dpv:hasPersonalData - Types de données couvertes"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__processing_ids
+msgid "dpv:hasProcessing - What operations are permitted"
+msgstr "dpv:hasProcessing - Opérations autorisées"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__purpose_ids
+msgid "dpv:hasPurpose - Why data is being processed"
+msgstr "dpv:hasPurpose - Finalité du traitement"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__recipient_ids
+msgid "dpv:hasRecipient - Specific third parties data may be shared with"
+msgstr "dpv:hasRecipient - Tiers spécifiques avec lesquels les données peuvent être partagées"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__storage_duration
+msgid "dpv:hasStorageCondition - How long data is kept"
+msgstr "dpv:hasStorageCondition - Durée de conservation des données"
+
+#. module: spp_consent
+#: model:ir.model.fields,help:spp_consent.field_spp_consent__indicated_by_id
+msgid "dpv:isIndicatedBy - Who gave the consent indication"
+msgstr "dpv:isIndicatedBy - Personne ayant fourni l'indication de consentement"
+
+#~ msgid "OpenSPP Consent"
+#~ msgstr "Consentement OpenSPP"

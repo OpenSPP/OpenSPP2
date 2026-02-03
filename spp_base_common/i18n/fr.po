@@ -1,0 +1,190 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* spp_base_common
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#. module: spp_base_common
+#: model_terms:ir.ui.view,arch_db:spp_base_common.view_phone_validation_tree
+msgid "Activate"
+msgstr "Activer"
+
+#. module: spp_base_common
+#: model:ir.model.fields,field_description:spp_base_common.field_spp_phone_validation__active
+#: model:ir.model.fields.selection,name:spp_base_common.selection__spp_phone_validation__state__active
+#: model_terms:ir.ui.view,arch_db:spp_base_common.view_phone_validation_search
+msgid "Active"
+msgstr "Actif"
+
+#. module: spp_base_common
+#: model_terms:ir.actions.act_window,help:spp_base_common.action_phone_validation
+msgid "Add a Phone Validation!"
+msgstr "Ajoutez une validation de numéro de téléphone !"
+
+#. module: spp_base_common
+#: model_terms:ir.ui.view,arch_db:spp_base_common.view_phone_validation_search
+msgid "Archived"
+msgstr "Archivé"
+
+#. module: spp_base_common
+#: model_terms:ir.actions.act_window,help:spp_base_common.action_phone_validation
+msgid "Click the create button to enter a phone validation."
+msgstr ""
+"Cliquez sur le bouton Créer pour saisir une validation de numéro de "
+"téléphone."
+
+#. module: spp_base_common
+#: model:ir.model.fields,field_description:spp_base_common.field_res_partner__company_id
+msgid "Company"
+msgstr "Société"
+
+#. module: spp_base_common
+#: model:ir.model,name:spp_base_common.model_res_partner
+msgid "Contact"
+msgstr "Contact"
+
+#. module: spp_base_common
+#: model:ir.model.fields,field_description:spp_base_common.field_spp_phone_validation__create_uid
+msgid "Created by"
+msgstr "Créé par"
+
+#. module: spp_base_common
+#: model:ir.model.fields,field_description:spp_base_common.field_spp_phone_validation__create_date
+msgid "Created on"
+msgstr "Créé le"
+
+#. module: spp_base_common
+#: model_terms:ir.ui.view,arch_db:spp_base_common.view_phone_validation_tree
+msgid "Deactivate"
+msgstr "Désactiver"
+
+#. module: spp_base_common
+#: model:ir.model.fields,field_description:spp_base_common.field_ir_module_module__display_name
+#: model:ir.model.fields,field_description:spp_base_common.field_res_partner__display_name
+#: model:ir.model.fields,field_description:spp_base_common.field_spp_phone_number__display_name
+#: model:ir.model.fields,field_description:spp_base_common.field_spp_phone_validation__display_name
+msgid "Display Name"
+msgstr "Nom affiché"
+
+#. module: spp_base_common
+#: model_terms:ir.ui.view,arch_db:spp_base_common.view_phone_validation_search
+msgid "Filter to show only active phone validations."
+msgstr ""
+"Filtrer pour afficher uniquement les validations de numéro de téléphone "
+"actives."
+
+#. module: spp_base_common
+#: model_terms:ir.ui.view,arch_db:spp_base_common.view_phone_validation_search
+msgid "Filter to show only archived phone validations."
+msgstr ""
+"Filtrer pour afficher uniquement les validations de numéro de téléphone "
+"archivées."
+
+#. module: spp_base_common
+#: model_terms:ir.ui.view,arch_db:spp_base_common.view_phone_validation_search
+msgid "Filter to show only inactive phone validations."
+msgstr ""
+"Filtrer pour afficher uniquement les validations de numéro de téléphone "
+"inactives."
+
+#. module: spp_base_common
+#: model:ir.model.fields,field_description:spp_base_common.field_ir_module_module__id
+#: model:ir.model.fields,field_description:spp_base_common.field_res_partner__id
+#: model:ir.model.fields,field_description:spp_base_common.field_spp_phone_number__id
+#: model:ir.model.fields,field_description:spp_base_common.field_spp_phone_validation__id
+msgid "ID"
+msgstr "ID"
+
+#. module: spp_base_common
+#: model:ir.model.fields.selection,name:spp_base_common.selection__spp_phone_validation__state__inactive
+#: model_terms:ir.ui.view,arch_db:spp_base_common.view_phone_validation_search
+msgid "Inactive"
+msgstr "Inactif"
+
+#. module: spp_base_common
+#: model:ir.model.fields,field_description:spp_base_common.field_spp_phone_validation__write_uid
+msgid "Last Updated by"
+msgstr "Dernière mise à jour par"
+
+#. module: spp_base_common
+#: model:ir.model.fields,field_description:spp_base_common.field_spp_phone_validation__write_date
+msgid "Last Updated on"
+msgstr "Dernière mise à jour le"
+
+#. module: spp_base_common
+#: model:ir.model,name:spp_base_common.model_ir_module_module
+msgid "Module"
+msgstr "Module"
+
+#. module: spp_base_common
+#: model:ir.model.fields,field_description:spp_base_common.field_spp_phone_validation__number_of_digits
+msgid "Number of Digits"
+msgstr "Nombre de chiffres"
+
+#. module: spp_base_common
+#: model:ir.model,name:spp_base_common.model_spp_phone_number
+msgid "Phone Number"
+msgstr "Numéro de Téléphone"
+
+#. module: spp_base_common
+#: model:ir.actions.act_window,name:spp_base_common.action_phone_validation
+msgid "Phone Validation"
+msgstr "Validation du numéro de téléphone"
+
+#. module: spp_base_common
+#. odoo-python
+#: code:addons/spp_base_common/models/phone_number.py:0
+msgid ""
+"Phone number contains invalid special characters. Only digits, '-', and an "
+"optional leading '+' are allowed."
+msgstr ""
+"Le numéro de téléphone contient des caractères spéciaux non valides. Seuls "
+"les chiffres, '-', et un '+' optionnel en début de numéro sont autorisés."
+
+#. module: spp_base_common
+#. odoo-python
+#: code:addons/spp_base_common/models/phone_number.py:0
+msgid "Phone number must match one of the following formats: "
+msgstr ""
+"Le numéro de téléphone doit correspondre à l’un des formats suivants : "
+
+#. module: spp_base_common
+#. odoo-python
+#: code:addons/spp_base_common/models/phone_number.py:0
+msgid "Phone number must not contain letters."
+msgstr "Le numéro de téléphone ne doit pas contenir de lettres."
+
+#. module: spp_base_common
+#: model:ir.model.fields,field_description:spp_base_common.field_spp_phone_validation__prefix
+msgid "Prefix"
+msgstr "Préfixe"
+
+#. module: spp_base_common
+#: model:ir.model,name:spp_base_common.model_spp_phone_validation
+msgid "SPP Phone Validation"
+msgstr "Validation du numéro de téléphone SPP"
+
+#. module: spp_base_common
+#: model:ir.model.fields,field_description:spp_base_common.field_spp_phone_validation__name
+msgid "Sample Format"
+msgstr "Format d’exemple"
+
+#. module: spp_base_common
+#: model:ir.model.fields,field_description:spp_base_common.field_spp_phone_validation__state
+msgid "State"
+msgstr "État"
+
+#. module: spp_base_common
+#: model:ir.model.fields,field_description:spp_base_common.field_spp_phone_validation__is_with_prefix
+msgid "With Prefix"
+msgstr "Avec préfixe"

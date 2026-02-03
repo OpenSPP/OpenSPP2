@@ -1,0 +1,131 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* spp_hide_menus_base
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#. module: spp_hide_menus_base
+#: model:res.groups,comment:spp_hide_menus_base.group_hide_menus_user
+msgid "Can view and manage visibility of non-OpenSPP navigation menus."
+msgstr ""
+"Peut consulter et gérer la visibilité des menus de navigation non-OpenSPP."
+
+#. module: spp_hide_menus_base
+#: model_terms:ir.actions.act_window,help:spp_hide_menus_base.action_spp_hide_menu
+msgid ""
+"Click the create button to enter the information of the Menu to be hidden."
+msgstr ""
+"Cliquez sur le bouton Créer pour saisir les informations du menu à masquer."
+
+#. module: spp_hide_menus_base
+#: model_terms:ir.actions.act_window,help:spp_hide_menus_base.action_spp_hide_menu
+msgid "Create a new Hide Menu Configuration!"
+msgstr "Créez une nouvelle configuration de masquage des menus !"
+
+#. module: spp_hide_menus_base
+#: model:ir.model.fields,field_description:spp_hide_menus_base.field_spp_hide_menu__create_uid
+msgid "Created by"
+msgstr "Créé par"
+
+#. module: spp_hide_menus_base
+#: model:ir.model.fields,field_description:spp_hide_menus_base.field_spp_hide_menu__create_date
+msgid "Created on"
+msgstr "Créé le"
+
+#. module: spp_hide_menus_base
+#: model:ir.model.fields,field_description:spp_hide_menus_base.field_spp_hide_menu__default_group_ids
+msgid "Default Group"
+msgstr "Groupe par défaut"
+
+#. module: spp_hide_menus_base
+#: model:ir.model.fields,field_description:spp_hide_menus_base.field_ir_module_module__display_name
+#: model:ir.model.fields,field_description:spp_hide_menus_base.field_spp_hide_menu__display_name
+msgid "Display Name"
+msgstr "Nom affiché"
+
+#. module: spp_hide_menus_base
+#: model:ir.model.fields.selection,name:spp_hide_menus_base.selection__spp_hide_menu__state__hide
+msgid "Hidden"
+msgstr "Masqué"
+
+#. module: spp_hide_menus_base
+#: model:ir.ui.menu,name:spp_hide_menus_base.menu_spp_hide_menu
+msgid "Hidden Menus"
+msgstr "Menus masqués"
+
+#. module: spp_hide_menus_base
+#: model_terms:ir.ui.view,arch_db:spp_hide_menus_base.view_spp_hide_menu_tree
+msgid "Hide Menu"
+msgstr "Masquer le menu"
+
+#. module: spp_hide_menus_base
+#: model:ir.actions.act_window,name:spp_hide_menus_base.action_spp_hide_menu
+#: model:ir.model,name:spp_hide_menus_base.model_spp_hide_menu
+msgid "Hide Menu Configuration"
+msgstr "Configuration du masquage des menus"
+
+#. module: spp_hide_menus_base
+#: model:ir.model.fields,field_description:spp_hide_menus_base.field_ir_module_module__id
+#: model:ir.model.fields,field_description:spp_hide_menus_base.field_spp_hide_menu__id
+msgid "ID"
+msgstr "ID"
+
+#. module: spp_hide_menus_base
+#: model:ir.model.fields,field_description:spp_hide_menus_base.field_spp_hide_menu__write_uid
+msgid "Last Updated by"
+msgstr "Dernière mise à jour par"
+
+#. module: spp_hide_menus_base
+#: model:ir.model.fields,field_description:spp_hide_menus_base.field_spp_hide_menu__write_date
+msgid "Last Updated on"
+msgstr "Dernière mise à jour le"
+
+#. module: spp_hide_menus_base
+#: model:ir.model.fields,field_description:spp_hide_menus_base.field_spp_hide_menu__menu_id
+msgid "Menu"
+msgstr "Menu"
+
+#. module: spp_hide_menus_base
+#: model:res.groups.privilege,name:spp_hide_menus_base.privilege_hide_menus_user
+msgid "Menu Visibility"
+msgstr "Visibilité des menus"
+
+#. module: spp_hide_menus_base
+#: model:ir.model,name:spp_hide_menus_base.model_ir_module_module
+msgid "Module"
+msgstr "Module"
+
+#. module: spp_hide_menus_base
+#: model:ir.model.fields.selection,name:spp_hide_menus_base.selection__spp_hide_menu__state__show
+msgid "Show"
+msgstr "Afficher"
+
+#. module: spp_hide_menus_base
+#: model_terms:ir.ui.view,arch_db:spp_hide_menus_base.view_spp_hide_menu_tree
+msgid "Show Menu"
+msgstr "Afficher le menu"
+
+#. module: spp_hide_menus_base
+#: model:res.groups,name:spp_hide_menus_base.group_hide_menus_user
+msgid "Show Non-OpenSPP Menu"
+msgstr "Afficher les menus non-OpenSPP"
+
+#. module: spp_hide_menus_base
+#: model:ir.model.fields,field_description:spp_hide_menus_base.field_spp_hide_menu__state
+msgid "State"
+msgstr "État"
+
+#. module: spp_hide_menus_base
+#: model:ir.model.fields,field_description:spp_hide_menus_base.field_spp_hide_menu__xml_id
+msgid "Xml"
+msgstr "XML"

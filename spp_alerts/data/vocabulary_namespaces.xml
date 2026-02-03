@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Alert Types Vocabulary Namespace -->
+    <record id="vocab_alert_types" model="spp.vocabulary">
+        <field name="name">Alert Types</field>
+        <field name="namespace_uri">urn:openspp:vocab:alerts</field>
+        <field name="version">2024</field>
+        <field name="is_system">True</field>
+        <field name="domain">core</field>
+        <field name="description">Generic alert types for threshold monitoring, expiry tracking, and deadline management across OpenSPP modules.</field>
+    </record>
+</odoo>

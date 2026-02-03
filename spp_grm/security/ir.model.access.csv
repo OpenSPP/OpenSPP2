@@ -1,0 +1,48 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_grm_ticket_viewer,GRM Ticket Viewer Access,model_spp_grm_ticket,group_grm_viewer,1,0,0,0
+access_spp_grm_ticket_officer,GRM Ticket Officer Access,model_spp_grm_ticket,group_grm_officer,1,1,1,0
+access_spp_grm_ticket_manager,GRM Ticket Manager Access,model_spp_grm_ticket,group_grm_manager,1,1,1,1
+access_spp_grm_ticket_base_user,GRM Ticket Base User Access,model_spp_grm_ticket,base.group_user,1,0,0,0
+access_spp_grm_ticket_portal_user,GRM Ticket Portal User Access,model_spp_grm_ticket,base.group_portal,1,1,1,0
+
+access_spp_grm_ticket_stage_viewer,GRM Ticket Stage Viewer Access,model_spp_grm_ticket_stage,group_grm_viewer,1,0,0,0
+access_spp_grm_ticket_stage_officer,GRM Ticket Stage Officer Access,model_spp_grm_ticket_stage,group_grm_officer,1,0,0,0
+access_spp_grm_ticket_stage_manager,GRM Ticket Stage Manager Access,model_spp_grm_ticket_stage,group_grm_manager,1,1,1,1
+access_spp_grm_ticket_stage_base_user,GRM Ticket Stage Base User Access,model_spp_grm_ticket_stage,base.group_user,1,0,0,0
+access_spp_grm_ticket_stage_portal_user,GRM Ticket Stage Portal User Access,model_spp_grm_ticket_stage,base.group_portal,1,0,0,0
+
+access_spp_grm_ticket_tag_viewer,GRM Ticket Tags Viewer Access,model_spp_grm_ticket_tag,group_grm_viewer,1,0,0,0
+access_spp_grm_ticket_tag_officer,GRM Ticket Tags Officer Access,model_spp_grm_ticket_tag,group_grm_officer,1,1,1,0
+access_spp_grm_ticket_tag_manager,GRM Ticket Tags Manager Access,model_spp_grm_ticket_tag,group_grm_manager,1,1,1,1
+access_spp_grm_ticket_tag_base_user,GRM Ticket Tags Base User Access,model_spp_grm_ticket_tag,base.group_user,1,0,0,0
+access_spp_grm_ticket_tag_portal_user,GRM Ticket Tags Portal User Access,model_spp_grm_ticket_tag,base.group_portal,1,0,0,0
+
+access_spp_grm_ticket_channel_viewer,GRM Ticket Channels Viewer Access,model_spp_grm_ticket_channel,group_grm_viewer,1,0,0,0
+access_spp_grm_ticket_channel_officer,GRM Ticket Channels Officer Access,model_spp_grm_ticket_channel,group_grm_officer,1,0,0,0
+access_spp_grm_ticket_channel_manager,GRM Ticket Channels Manager Access,model_spp_grm_ticket_channel,group_grm_manager,1,1,1,1
+access_spp_grm_ticket_channel_base_user,GRM Ticket Channels Base User Access,model_spp_grm_ticket_channel,base.group_user,1,0,0,0
+access_spp_grm_ticket_channel_portal_user,GRM Ticket Channels Portal User Access,model_spp_grm_ticket_channel,base.group_portal,1,0,0,0
+
+access_spp_grm_ticket_category_viewer,GRM Ticket Category Viewer Access,model_spp_grm_ticket_category,group_grm_viewer,1,0,0,0
+access_spp_grm_ticket_category_officer,GRM Ticket Category Officer Access,model_spp_grm_ticket_category,group_grm_officer,1,0,0,0
+access_spp_grm_ticket_category_manager,GRM Ticket Category Manager Access,model_spp_grm_ticket_category,group_grm_manager,1,1,1,1
+access_spp_grm_ticket_category_base_user,GRM Ticket Category Base User Access,model_spp_grm_ticket_category,base.group_user,1,0,0,0
+access_spp_grm_ticket_category_portal_user,GRM Ticket Category Portal User Access,model_spp_grm_ticket_category,base.group_portal,1,0,0,0
+
+access_spp_grm_ticket_subcategory_viewer,GRM Ticket Subcategory Viewer Access,model_spp_grm_ticket_subcategory,group_grm_viewer,1,0,0,0
+access_spp_grm_ticket_subcategory_officer,GRM Ticket Subcategory Officer Access,model_spp_grm_ticket_subcategory,group_grm_officer,1,0,0,0
+access_spp_grm_ticket_subcategory_manager,GRM Ticket Subcategory Manager Access,model_spp_grm_ticket_subcategory,group_grm_manager,1,1,1,1
+access_spp_grm_ticket_subcategory_base_user,GRM Ticket Subcategory Base User Access,model_spp_grm_ticket_subcategory,base.group_user,1,0,0,0
+access_spp_grm_ticket_subcategory_portal_user,GRM Ticket Subcategory Portal User Access,model_spp_grm_ticket_subcategory,base.group_portal,1,0,0,0
+
+access_spp_grm_team_viewer,GRM Team Viewer Access,model_spp_grm_team,group_grm_viewer,1,0,0,0
+access_spp_grm_team_officer,GRM Team Officer Access,model_spp_grm_team,group_grm_officer,1,0,0,0
+access_spp_grm_team_manager,GRM Team Manager Access,model_spp_grm_team,group_grm_manager,1,1,1,1
+access_spp_grm_team_base_user,GRM Team Base User Access,model_spp_grm_team,base.group_user,1,0,0,0
+access_spp_grm_team_portal_user,GRM Team Portal User Access,model_spp_grm_team,base.group_portal,1,0,0,0
+
+access_spp_grm_sla_rule_viewer,GRM SLA Rule Viewer Access,model_spp_grm_sla_rule,group_grm_viewer,1,0,0,0
+access_spp_grm_sla_rule_officer,GRM SLA Rule Officer Access,model_spp_grm_sla_rule,group_grm_officer,1,0,0,0
+access_spp_grm_sla_rule_manager,GRM SLA Rule Manager Access,model_spp_grm_sla_rule,group_grm_manager,1,1,1,1
+access_spp_grm_sla_rule_base_user,GRM SLA Rule Base User Access,model_spp_grm_sla_rule,base.group_user,1,0,0,0
+access_spp_grm_sla_rule_portal_user,GRM SLA Rule Portal User Access,model_spp_grm_sla_rule,base.group_portal,1,0,0,0

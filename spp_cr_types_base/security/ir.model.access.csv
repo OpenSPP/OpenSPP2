@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_cr_detail_edit_individual_user,spp.cr.detail.edit_individual.user,model_spp_cr_detail_edit_individual,spp_change_request_v2.group_cr_user,1,1,1,0
+access_spp_cr_detail_edit_individual_manager,spp.cr.detail.edit_individual.manager,model_spp_cr_detail_edit_individual,spp_change_request_v2.group_cr_manager,1,1,1,1
+access_spp_cr_detail_edit_group_user,spp.cr.detail.edit_group.user,model_spp_cr_detail_edit_group,spp_change_request_v2.group_cr_user,1,1,1,0
+access_spp_cr_detail_edit_group_manager,spp.cr.detail.edit_group.manager,model_spp_cr_detail_edit_group,spp_change_request_v2.group_cr_manager,1,1,1,1
+access_spp_cr_detail_update_id_user,spp.cr.detail.update_id.user,model_spp_cr_detail_update_id,spp_change_request_v2.group_cr_user,1,1,1,0
+access_spp_cr_detail_update_id_manager,spp.cr.detail.update_id.manager,model_spp_cr_detail_update_id,spp_change_request_v2.group_cr_manager,1,1,1,1

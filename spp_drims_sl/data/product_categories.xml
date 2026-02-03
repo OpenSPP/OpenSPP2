@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!--
+    DRIMS Relief Item Categories - Sri Lanka
+    Based on DMC relief item classification
+    -->
+
+    <!-- Root Category -->
+    <record id="categ_relief_items" model="product.category">
+        <field name="name">Relief Items</field>
+    </record>
+
+    <!-- Level 1: Main Categories -->
+
+    <!-- 1. Food Items -->
+    <record id="categ_food" model="product.category">
+        <field name="name">Food</field>
+        <field name="parent_id" ref="categ_relief_items"/>
+    </record>
+
+    <record id="categ_food_dry" model="product.category">
+        <field name="name">Dry Rations</field>
+        <field name="parent_id" ref="categ_food"/>
+    </record>
+
+    <record id="categ_food_cooked" model="product.category">
+        <field name="name">Cooked Meals</field>
+        <field name="parent_id" ref="categ_food"/>
+    </record>
+
+    <record id="categ_food_infant" model="product.category">
+        <field name="name">Infant Food</field>
+        <field name="parent_id" ref="categ_food"/>
+    </record>
+
+    <!-- 2. Water & Beverages -->
+    <record id="categ_water" model="product.category">
+        <field name="name">Water &amp; Beverages</field>
+        <field name="parent_id" ref="categ_relief_items"/>
+    </record>
+
+    <!-- 3. Medicine & Medical Supplies -->
+    <record id="categ_medical" model="product.category">
+        <field name="name">Medical Supplies</field>
+        <field name="parent_id" ref="categ_relief_items"/>
+    </record>
+
+    <record id="categ_medicine" model="product.category">
+        <field name="name">Medicines</field>
+        <field name="parent_id" ref="categ_medical"/>
+    </record>
+
+    <record id="categ_first_aid" model="product.category">
+        <field name="name">First Aid Kits</field>
+        <field name="parent_id" ref="categ_medical"/>
+    </record>
+
+    <record id="categ_medical_equipment" model="product.category">
+        <field name="name">Medical Equipment</field>
+        <field name="parent_id" ref="categ_medical"/>
+    </record>
+
+    <!-- 4. Hygiene & Sanitation -->
+    <record id="categ_hygiene" model="product.category">
+        <field name="name">Hygiene &amp; Sanitation</field>
+        <field name="parent_id" ref="categ_relief_items"/>
+    </record>
+
+    <record id="categ_hygiene_personal" model="product.category">
+        <field name="name">Personal Hygiene</field>
+        <field name="parent_id" ref="categ_hygiene"/>
+    </record>
+
+    <record id="categ_hygiene_cleaning" model="product.category">
+        <field name="name">Cleaning Supplies</field>
+        <field name="parent_id" ref="categ_hygiene"/>
+    </record>
+
+    <!-- 5. Shelter & Housing -->
+    <record id="categ_shelter" model="product.category">
+        <field name="name">Shelter &amp; Housing</field>
+        <field name="parent_id" ref="categ_relief_items"/>
+    </record>
+
+    <record id="categ_shelter_tents" model="product.category">
+        <field name="name">Tents &amp; Tarpaulins</field>
+        <field name="parent_id" ref="categ_shelter"/>
+    </record>
+
+    <record id="categ_shelter_bedding" model="product.category">
+        <field name="name">Bedding &amp; Blankets</field>
+        <field name="parent_id" ref="categ_shelter"/>
+    </record>
+
+    <record id="categ_shelter_construction" model="product.category">
+        <field name="name">Construction Materials</field>
+        <field name="parent_id" ref="categ_shelter"/>
+    </record>
+
+    <!-- 6. Clothing -->
+    <record id="categ_clothing" model="product.category">
+        <field name="name">Clothing</field>
+        <field name="parent_id" ref="categ_relief_items"/>
+    </record>
+
+    <!-- 7. Equipment & Tools -->
+    <record id="categ_equipment" model="product.category">
+        <field name="name">Equipment &amp; Tools</field>
+        <field name="parent_id" ref="categ_relief_items"/>
+    </record>
+
+    <record id="categ_equipment_rescue" model="product.category">
+        <field name="name">Rescue Equipment</field>
+        <field name="parent_id" ref="categ_equipment"/>
+    </record>
+
+    <record id="categ_equipment_communication" model="product.category">
+        <field name="name">Communication Equipment</field>
+        <field name="parent_id" ref="categ_equipment"/>
+    </record>
+
+    <record id="categ_equipment_power" model="product.category">
+        <field name="name">Power &amp; Lighting</field>
+        <field name="parent_id" ref="categ_equipment"/>
+    </record>
+
+    <!-- 8. Kitchen & Cooking -->
+    <record id="categ_kitchen" model="product.category">
+        <field name="name">Kitchen &amp; Cooking</field>
+        <field name="parent_id" ref="categ_relief_items"/>
+    </record>
+
+</odoo>

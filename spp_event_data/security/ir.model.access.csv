@@ -1,0 +1,30 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_event_type_admin,Event Type Admin Access,spp_event_data.model_spp_event_type,spp_security.group_spp_admin,1,1,1,1
+access_spp_event_type_manager,Event Type Manager Access,spp_event_data.model_spp_event_type,spp_registry.group_registry_manager,1,1,1,1
+access_spp_event_type_officer,Event Type Officer Access,spp_event_data.model_spp_event_type,spp_registry.group_registry_officer,1,0,0,0
+access_spp_event_type_viewer,Event Type Viewer Access,spp_event_data.model_spp_event_type,spp_registry.group_registry_viewer,1,0,0,0
+access_spp_event_type_read,Event Type Read Access,spp_event_data.model_spp_event_type,spp_registry.group_registry_read,1,0,0,0
+access_spp_event_field_admin,Event Field Admin Access,spp_event_data.model_spp_event_field,spp_security.group_spp_admin,1,1,1,1
+access_spp_event_field_manager,Event Field Manager Access,spp_event_data.model_spp_event_field,spp_registry.group_registry_manager,1,1,1,1
+access_spp_event_field_officer,Event Field Officer Access,spp_event_data.model_spp_event_field,spp_registry.group_registry_officer,1,0,0,0
+access_spp_event_field_viewer,Event Field Viewer Access,spp_event_data.model_spp_event_field,spp_registry.group_registry_viewer,1,0,0,0
+access_spp_event_field_read,Event Field Read Access,spp_event_data.model_spp_event_field,spp_registry.group_registry_read,1,0,0,0
+access_spp_event_type_mapping_admin,Event Type Mapping Admin Access,spp_event_data.model_spp_event_type_mapping,spp_security.group_spp_admin,1,1,1,1
+access_spp_event_type_mapping_manager,Event Type Mapping Manager Access,spp_event_data.model_spp_event_type_mapping,spp_registry.group_registry_manager,1,1,1,1
+access_spp_event_type_mapping_officer,Event Type Mapping Officer Access,spp_event_data.model_spp_event_type_mapping,spp_registry.group_registry_officer,1,0,0,0
+access_spp_event_type_mapping_viewer,Event Type Mapping Viewer Access,spp_event_data.model_spp_event_type_mapping,spp_registry.group_registry_viewer,1,0,0,0
+access_spp_event_type_mapping_read,Event Type Mapping Read Access,spp_event_data.model_spp_event_type_mapping,spp_registry.group_registry_read,1,0,0,0
+access_spp_event_data_admin,Event Data Admin Access,spp_event_data.model_spp_event_data,spp_security.group_spp_admin,1,1,1,1
+access_spp_event_data_manager,Event Data Manager Access,spp_event_data.model_spp_event_data,spp_registry.group_registry_manager,1,1,1,1
+access_spp_event_data_officer,Event Data Officer Access,spp_event_data.model_spp_event_data,spp_registry.group_registry_officer,1,1,1,0
+access_spp_event_data_viewer,Event Data Viewer Access,spp_event_data.model_spp_event_data,spp_registry.group_registry_viewer,1,0,0,0
+access_spp_event_data_read,Event Data Read Access,spp_event_data.model_spp_event_data,spp_registry.group_registry_read,1,0,0,0
+access_spp_event_data_write,Event Data Write Access,spp_event_data.model_spp_event_data,spp_registry.group_registry_write,1,1,0,0
+access_spp_event_data_create,Event Data Create Access,spp_event_data.model_spp_event_data,spp_registry.group_registry_create,1,1,1,0
+access_spp_create_event_wizard_admin,Create Event Wizard Admin Access,spp_event_data.model_spp_create_event_wizard,spp_security.group_spp_admin,1,1,1,1
+access_spp_create_event_wizard_manager,Create Event Wizard Manager Access,spp_event_data.model_spp_create_event_wizard,spp_registry.group_registry_manager,1,1,1,1
+access_spp_create_event_wizard_officer,Create Event Wizard Officer Access,spp_event_data.model_spp_create_event_wizard,spp_registry.group_registry_officer,1,1,1,0
+access_spp_create_event_wizard_viewer,Create Event Wizard Viewer Access,spp_event_data.model_spp_create_event_wizard,spp_registry.group_registry_viewer,1,0,0,0
+access_spp_create_event_wizard_read,Create Event Wizard Read Access,spp_event_data.model_spp_create_event_wizard,spp_registry.group_registry_read,1,0,0,0
+access_spp_create_event_wizard_write,Create Event Wizard Write Access,spp_event_data.model_spp_create_event_wizard,spp_registry.group_registry_write,1,1,0,0
+access_spp_create_event_wizard_create,Create Event Wizard Create Access,spp_event_data.model_spp_create_event_wizard,spp_registry.group_registry_create,1,1,1,0

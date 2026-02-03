@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Create Group Detail Form View -->
+    <record id="spp_cr_detail_create_group_form" model="ir.ui.view">
+        <field name="name">spp.cr.detail.create_group.form</field>
+        <field name="model">spp.cr.detail.create_group</field>
+        <field name="arch" type="xml">
+            <form string="Create New Group Details">
+                <sheet>
+                    <group>
+                        <group string="Group Information">
+                            <field name="group_name" required="1"/>
+                            <field name="group_type_id" options="{'no_create': True}" />
+                        </group>
+                        <group string="Contact">
+                            <field name="phone" />
+                            <field name="email" />
+                        </group>
+                    </group>
+
+                    <separator string="Head of Household" />
+                    <group>
+                        <group>
+                            <field name="create_new_head" />
+                        </group>
+                    </group>
+                    <group invisible="create_new_head">
+                        <group string="Select Existing Individual">
+                            <field name="head_individual_id" options="{'no_create': True}" />
+                        </group>
+                    </group>
+                    <group invisible="not create_new_head">
+                        <group string="New Head Information">
+                            <field name="head_given_name" required="create_new_head"/>
+                            <field name="head_family_name" required="create_new_head"/>
+                            <field name="head_name" readonly="1" force_save="1"/>
+                            <field name="head_birthdate" />
+                            <field name="head_gender_id" options="{'no_create': True}" />
+                            <field name="head_phone" />
+                        </group>
+                    </group>
+
+                    <separator string="Address" />
+                    <group>
+                        <group>
+                            <field name="address_line1" />
+                            <field name="address_line2" />
+                            <field name="city" />
+                        </group>
+                        <group>
+                            <field name="state_id" options="{'no_create': True}" />
+                            <field name="postal_code" />
+                            <field name="country_id" options="{'no_create': True}" />
+                        </group>
+                    </group>
+
+                    <group invisible="1">
+                        <field name="created_group_id" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

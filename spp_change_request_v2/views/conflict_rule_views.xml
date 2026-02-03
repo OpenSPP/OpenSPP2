@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         CONFLICT RULE VIEWS
+         ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Conflict Rule Form View -->
+    <record id="view_spp_cr_conflict_rule_form" model="ir.ui.view">
+        <field name="name">spp.cr.conflict.rule.form</field>
+        <field name="model">spp.cr.conflict.rule</field>
+        <field name="arch" type="xml">
+            <form string="Conflict Rule">
+                <sheet>
+                    <div class="oe_button_box" name="button_box"/>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="cr_type_id"/>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                        </group>
+                        <group>
+                            <field name="scope"/>
+                            <field name="action"/>
+                            <field name="conflict_states"/>
+                        </group>
+                    </group>
+                    <group string="Scope Configuration">
+                        <group>
+                            <field name="check_same_type_only"/>
+                            <field name="conflict_type_ids" widget="many2many_tags"
+                                   invisible="check_same_type_only"/>
+                        </group>
+                        <group>
+                            <field name="time_window_hours"/>
+                            <field name="conflict_fields"
+                                   invisible="scope != 'field'"
+                                   placeholder="e.g., street, city, phone"/>
+                        </group>
+                    </group>
+                    <group string="Messaging">
+                        <field name="conflict_message" nolabel="1"
+                               placeholder="Custom message to show when conflict detected..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Conflict Rule List View -->
+    <record id="view_spp_cr_conflict_rule_list" model="ir.ui.view">
+        <field name="name">spp.cr.conflict.rule.list</field>
+        <field name="model">spp.cr.conflict.rule</field>
+        <field name="arch" type="xml">
+            <list string="Conflict Rules" default_order="sequence, id">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="cr_type_id"/>
+                <field name="scope"/>
+                <field name="action" widget="badge"
+                       decoration-danger="action == 'block'"
+                       decoration-warning="action == 'warn'"
+                       decoration-muted="action == 'log'"/>
+                <field name="conflict_states"/>
+                <field name="time_window_hours"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Conflict Rule Search View -->
+    <record id="view_spp_cr_conflict_rule_search" model="ir.ui.view">
+        <field name="name">spp.cr.conflict.rule.search</field>
+        <field name="model">spp.cr.conflict.rule</field>
+        <field name="arch" type="xml">
+            <search string="Conflict Rules">
+                <field name="name"/>
+                <field name="cr_type_id"/>
+                <filter name="active" string="Active" domain="[('active', '=', True)]"/>
+                <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
+                <separator/>
+                <filter name="blocking" string="Blocking" domain="[('action', '=', 'block')]"/>
+                <filter name="warning" string="Warning" domain="[('action', '=', 'warn')]"/>
+                <separator/>
+                <group>
+                    <filter name="group_by_type" string="CR Type" context="{'group_by': 'cr_type_id'}"/>
+                    <filter name="group_by_action" string="Action" context="{'group_by': 'action'}"/>
+                    <filter name="group_by_scope" string="Scope" context="{'group_by': 'scope'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Conflict Rule Action -->
+    <record id="action_spp_cr_conflict_rule" model="ir.actions.act_window">
+        <field name="name">Conflict Rules</field>
+        <field name="res_model">spp.cr.conflict.rule</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No conflict rules defined yet
+            </p>
+            <p>
+                Conflict rules define how the system detects and handles
+                conflicting change requests for the same registrant.
+            </p>
+        </field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         DUPLICATE CONFIG VIEWS
+         ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Duplicate Config Form View -->
+    <record id="view_spp_cr_duplicate_config_form" model="ir.ui.view">
+        <field name="name">spp.cr.duplicate.config.form</field>
+        <field name="model">spp.cr.duplicate.config</field>
+        <field name="arch" type="xml">
+            <form string="Duplicate Detection Configuration">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <group>
+                        <group string="Basic Settings">
+                            <field name="cr_type_id"/>
+                            <field name="active"/>
+                        </group>
+                        <group string="Time Window">
+                            <field name="time_window_hours"/>
+                        </group>
+                    </group>
+                    <group string="Similarity Configuration">
+                        <group>
+                            <field name="similarity_threshold"/>
+                            <label for="similarity_threshold"/>
+                            <div class="text-muted">
+                                Percentage threshold (0-100) to consider a CR as duplicate.
+                                100% = exact match only.
+                            </div>
+                        </group>
+                        <group>
+                            <field name="check_fields"
+                                   placeholder="e.g., given_name, family_name, phone"/>
+                            <label for="check_fields"/>
+                            <div class="text-muted">
+                                Comma-separated list of detail fields to compare.
+                                Leave empty to compare all stored fields.
+                            </div>
+                        </group>
+                    </group>
+                    <group string="Auto-Merge">
+                        <group>
+                            <field name="auto_merge_enabled"/>
+                            <field name="auto_merge_states" invisible="not auto_merge_enabled"/>
+                        </group>
+                        <group invisible="not auto_merge_enabled">
+                            <div class="alert alert-info" role="alert">
+                                <strong>Auto-Merge:</strong> When enabled, exact duplicates (100% similarity)
+                                in the allowed states will be automatically merged, keeping the older CR.
+                            </div>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Duplicate Config List View -->
+    <record id="view_spp_cr_duplicate_config_list" model="ir.ui.view">
+        <field name="name">spp.cr.duplicate.config.list</field>
+        <field name="model">spp.cr.duplicate.config</field>
+        <field name="arch" type="xml">
+            <list string="Duplicate Detection Configurations">
+                <field name="cr_type_id"/>
+                <field name="time_window_hours"/>
+                <field name="similarity_threshold"/>
+                <field name="auto_merge_enabled"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Duplicate Config Action -->
+    <record id="action_spp_cr_duplicate_config" model="ir.actions.act_window">
+        <field name="name">Duplicate Detection</field>
+        <field name="res_model">spp.cr.duplicate.config</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No duplicate detection configurations yet
+            </p>
+            <p>
+                Configure how the system detects and handles duplicate
+                change requests for the same registrant.
+            </p>
+        </field>
+    </record>
+
+</odoo>

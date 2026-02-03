@@ -1,0 +1,106 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+/.venv
+/.pytest_cache
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+bin/
+# Ignore build artifacts but keep packaging scripts
+build-venv/
+*.deb
+*.rpm
+*.exe
+!build/
+develop-eggs/
+dist/
+eggs/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+*.eggs
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+
+# Translations
+*.mo
+
+# Pycharm
+.idea
+
+# Eclipse
+.settings
+
+# Visual Studio cache/options directory
+.vs/
+.vscode
+
+# OSX Files
+.DS_Store
+
+# Django stuff:
+*.log
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
+
+# Rope
+.ropeproject
+
+# Sphinx documentation
+docs/_build/
+
+# Backup files
+*~
+*.swp
+
+# Excel temp files
+~$*.xlsx
+~$*.xls
+
+# OCA rules
+!static/lib/
+
+#ruff
+.ruff_cache
+.aider*
+
+# Local release planning files (ignored)
+.release/
+reports/
+
+# Security scan reports (generated, not versioned)
+# Use CI artifacts for historical reports
+static/security/
+
+# Production environment files (contain secrets)
+docker/.env.production
+.env.production
+.env.local
+
+# act (local GitHub Actions runner)
+.act-secrets
+.actrc
+scripts/run_ci_local.sh
+.github/workflows/ci-local.yml

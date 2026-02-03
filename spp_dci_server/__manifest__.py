@@ -1,0 +1,23 @@
+{  # pylint: disable=pointless-statement
+    "name": "OpenSPP DCI Server",
+    "summary": "DCI API server infrastructure with FastAPI routers",
+    "version": "19.0.1.0.0",
+    "category": "OpenSPP/Integration",
+    "author": "OpenSPP.org",
+    "website": "https://github.com/OpenSPP/openspp-modules",
+    "license": "LGPL-3",
+    "development_status": "Alpha",
+    "depends": ["base", "fastapi", "queue_job", "spp_dci", "spp_dci_client", "spp_api_v2"],
+    "data": [
+        "security/ir.model.access.csv",
+        "data/fastapi_endpoint_data.xml",
+        "data/queue_job_channel.xml",
+        "data/cron_data.xml",
+        "data/server_key_default.xml",
+        "views/sender_registry_views.xml",
+        "views/transaction_views.xml",
+        "views/subscription_views.xml",
+    ],
+    "installable": True,
+    "application": False,
+}

@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_dci_crvs_event_admin,spp.dci.crvs.event admin,model_spp_dci_crvs_event,base.group_system,1,1,1,1
+access_spp_dci_crvs_event_user,spp.dci.crvs.event user,model_spp_dci_crvs_event,base.group_user,1,1,1,0
+access_spp_dci_crvs_sender_admin,spp.dci.crvs.sender admin,model_spp_dci_crvs_sender,base.group_system,1,1,1,1
+access_spp_dci_crvs_sender_user,spp.dci.crvs.sender user,model_spp_dci_crvs_sender,base.group_user,1,0,0,0

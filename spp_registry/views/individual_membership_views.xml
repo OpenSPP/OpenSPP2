@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+   Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <record id="view_individuals_form_membership" model="ir.ui.view">
+        <field name="name">view_individuals_form_membership</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="spp_registry.view_individuals_form" />
+        <field name="arch" type="xml">
+            <!-- Make membership section visible -->
+            <xpath expr="//div[@name='membership_section']" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </xpath>
+            <xpath expr="//div[@name='membership_section']" position="inside">
+                <separator string="Group Membership" />
+                <field name="individual_membership_ids" readonly="disabled" nolabel="1">
+                    <list editable="top">
+                        <button
+                            name="open_group_form"
+                            type="object"
+                            icon="fa-external-link"
+                            class="btn-success"
+                            title="Open group form"
+                        />
+                        <field
+                            name="group"
+                            domain="[('is_registrant','=',True),('is_group','=',True)]"
+                            options="{'no_create':True}"
+                            string="Group Name"
+                            context="{'form_view_ref':'spp_registry.view_individuals_form'}"
+                        />
+                        <field
+                            name="membership_type_ids"
+                            string="Membership Types"
+                            widget="many2many_tags"
+                            options="{'no_open':True, 'no_create_edit':True}"
+                        />
+                        <field name="start_date" />
+                        <field name="ended_date" />
+                    </list>
+                </field>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Alert Menus under Settings > Technical -->
+
+    <!-- Main Alerts Menu -->
+    <menuitem id="menu_spp_alerts_root"
+              name="Alerts"
+              parent="base.menu_custom"
+              sequence="100"
+              groups="group_alerts_viewer"/>
+
+    <!-- Alerts Submenu -->
+    <menuitem id="menu_spp_alerts"
+              name="Alerts"
+              parent="menu_spp_alerts_root"
+              action="action_spp_alert"
+              sequence="10"
+              groups="group_alerts_viewer"/>
+
+    <!-- Alert Rules Submenu -->
+    <menuitem id="menu_spp_alert_rules"
+              name="Alert Rules"
+              parent="menu_spp_alerts_root"
+              action="action_spp_alert_rule"
+              sequence="20"
+              groups="group_alerts_manager"/>
+
+</odoo>

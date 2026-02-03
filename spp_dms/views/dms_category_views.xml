@@ -1,0 +1,73 @@
+<odoo>
+
+    <record id="view_spp_dms_category_search" model="ir.ui.view">
+        <field name="name">view_spp_dms_category_search</field>
+        <field name="model">spp.dms.category</field>
+        <field name="arch" type="xml">
+            <search string="Categories">
+                <field name="name" />
+            </search>
+        </field>
+    </record>
+
+    <record id="view_spp_dms_category_tree" model="ir.ui.view">
+        <field name="name">view_spp_dms_category_tree</field>
+        <field name="model">spp.dms.category</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="name" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_spp_dms_category_form" model="ir.ui.view">
+        <field name="name">view_spp_dms_category_form</field>
+        <field name="model">spp.dms.category</field>
+        <field name="arch" type="xml">
+            <form string="Category">
+                <sheet>
+                    <div class="oe_button_box" name="button_box" />
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only" />
+                        <h1>
+                            <field name="name" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="File Type Restrictions">
+                            <field name="allowed_extensions" placeholder="e.g., pdf,jpg,png,docx" />
+                            <field name="blocked_extensions" />
+                            <field name="allowed_mimetypes" placeholder="e.g., application/pdf,image/*" />
+                        </group>
+                        <group string="Size Limits">
+                            <field name="max_file_size_mb" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_spp_dms_category" model="ir.actions.act_window">
+        <field name="name">Categories</field>
+        <field name="res_model">spp.dms.category</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new Category.
+            </p>
+            <p>
+                Categories are used to categorize Documents.
+            </p>
+        </field>
+    </record>
+
+    <menuitem
+        id="menu_spp_dms_category"
+        name="Categories"
+        parent="menu_spp_dms_config"
+        action="action_spp_dms_category"
+    />
+
+</odoo>

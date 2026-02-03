@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- ════════════════════════════════════════════════════════════════════════ -->
+    <!-- ADVANCED CHANGE REQUEST TYPES (Python-Only) -->
+    <!-- These types use custom strategies and cannot be edited via Studio -->
+    <!-- ════════════════════════════════════════════════════════════════════════ -->
+
+    <!-- ════════════════════════════════════════════════════════════════════════ -->
+    <!-- MEMBERSHIP OPERATIONS -->
+    <!-- ════════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Add Member to Group -->
+    <record id="cr_type_add_member" model="spp.change.request.type">
+        <field name="name">Add Group Member</field>
+        <field name="code">add_member</field>
+        <field name="description">Add a new member to an existing group/household</field>
+        <field name="target_type">group</field>
+        <field name="detail_model">spp.cr.detail.add_member</field>
+        <field name="detail_form_view_id" ref="spp_change_request_v2.spp_cr_detail_add_member_form"/>
+        <field name="apply_strategy">custom</field>
+        <field name="apply_model">spp.cr.apply.add_member</field>
+        <field name="icon">fa-user-plus</field>
+        <field name="sequence">10</field>
+        <!-- Editability flags - Python-only type -->
+        <field name="is_studio_editable">False</field>
+        <field name="is_studio_cloneable">False</field>
+        <field name="is_system_type">True</field>
+        <field name="source_module">spp_cr_types_advanced</field>
+        <field name="locked_reason">This type requires custom Python logic to create individuals and group memberships. Cannot be edited via Studio.</field>
+    </record>
+
+    <!-- Remove Member from Group -->
+    <record id="cr_type_remove_member" model="spp.change.request.type">
+        <field name="name">Remove Group Member</field>
+        <field name="code">remove_member</field>
+        <field name="description">Remove a member from an existing group/household</field>
+        <field name="target_type">group</field>
+        <field name="detail_model">spp.cr.detail.remove_member</field>
+        <field name="detail_form_view_id" ref="spp_change_request_v2.spp_cr_detail_remove_member_form"/>
+        <field name="apply_strategy">custom</field>
+        <field name="apply_model">spp.cr.apply.remove_member</field>
+        <field name="icon">fa-user-minus</field>
+        <field name="sequence">40</field>
+        <!-- Editability flags - Python-only type -->
+        <field name="is_studio_editable">False</field>
+        <field name="is_studio_cloneable">False</field>
+        <field name="is_system_type">True</field>
+        <field name="source_module">spp_cr_types_advanced</field>
+        <field name="locked_reason">This type requires custom Python logic to end memberships. Cannot be edited via Studio.</field>
+    </record>
+
+    <!-- Change Head of Household -->
+    <record id="cr_type_change_hoh" model="spp.change.request.type">
+        <field name="name">Change Head of Household</field>
+        <field name="code">change_hoh</field>
+        <field name="description">Change the head of household for a group</field>
+        <field name="target_type">group</field>
+        <field name="detail_model">spp.cr.detail.change_hoh</field>
+        <field name="detail_form_view_id" ref="spp_change_request_v2.spp_cr_detail_change_hoh_form"/>
+        <field name="apply_strategy">custom</field>
+        <field name="apply_model">spp.cr.apply.change_hoh</field>
+        <field name="icon">fa-user-shield</field>
+        <field name="sequence">50</field>
+        <!-- Editability flags - Python-only type -->
+        <field name="is_studio_editable">False</field>
+        <field name="is_studio_cloneable">False</field>
+        <field name="is_system_type">True</field>
+        <field name="source_module">spp_cr_types_advanced</field>
+        <field name="locked_reason">This type requires custom Python logic to reassign membership roles. Cannot be edited via Studio.</field>
+    </record>
+
+    <!-- Transfer Member -->
+    <record id="cr_type_transfer_member" model="spp.change.request.type">
+        <field name="name">Transfer Member</field>
+        <field name="code">transfer_member</field>
+        <field name="description">Transfer a member from one group to another</field>
+        <field name="target_type">group</field>
+        <field name="detail_model">spp.cr.detail.transfer_member</field>
+        <field name="detail_form_view_id" ref="spp_change_request_v2.spp_cr_detail_transfer_member_form"/>
+        <field name="apply_strategy">custom</field>
+        <field name="apply_model">spp.cr.apply.transfer_member</field>
+        <field name="icon">fa-exchange-alt</field>
+        <field name="sequence">60</field>
+        <!-- Editability flags - Python-only type -->
+        <field name="is_studio_editable">False</field>
+        <field name="is_studio_cloneable">False</field>
+        <field name="is_system_type">True</field>
+        <field name="source_module">spp_cr_types_advanced</field>
+        <field name="locked_reason">This type requires custom Python logic to transfer memberships between groups. Cannot be edited via Studio.</field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════════════════════ -->
+    <!-- REGISTRANT LIFECYCLE -->
+    <!-- ════════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Exit/Deactivate Registrant -->
+    <record id="cr_type_exit_registrant" model="spp.change.request.type">
+        <field name="name">Exit Registrant</field>
+        <field name="code">exit_registrant</field>
+        <field name="description">Deactivate or exit a registrant from the system</field>
+        <field name="target_type">both</field>
+        <field name="detail_model">spp.cr.detail.exit_registrant</field>
+        <field name="detail_form_view_id" ref="spp_change_request_v2.spp_cr_detail_exit_registrant_form"/>
+        <field name="apply_strategy">custom</field>
+        <field name="apply_model">spp.cr.apply.exit_registrant</field>
+        <field name="icon">fa-user-slash</field>
+        <field name="sequence">70</field>
+        <!-- Editability flags - Python-only type -->
+        <field name="is_studio_editable">False</field>
+        <field name="is_studio_cloneable">False</field>
+        <field name="is_system_type">True</field>
+        <field name="source_module">spp_cr_types_advanced</field>
+        <field name="locked_reason">This type requires custom Python logic to deactivate registrants and cascade membership updates. Cannot be edited via Studio.</field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════════════════════ -->
+    <!-- GROUP OPERATIONS -->
+    <!-- ════════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Create New Group -->
+    <record id="cr_type_create_group" model="spp.change.request.type">
+        <field name="name">Create New Group</field>
+        <field name="code">create_group</field>
+        <field name="description">Create a new group/household</field>
+        <field name="target_type">group</field>
+        <field name="detail_model">spp.cr.detail.create_group</field>
+        <field name="detail_form_view_id" ref="spp_change_request_v2.spp_cr_detail_create_group_form"/>
+        <field name="apply_strategy">custom</field>
+        <field name="apply_model">spp.cr.apply.create_group</field>
+        <field name="icon">fa-home</field>
+        <field name="sequence">90</field>
+        <!-- Editability flags - Python-only type -->
+        <field name="is_studio_editable">False</field>
+        <field name="is_studio_cloneable">False</field>
+        <field name="is_system_type">True</field>
+        <field name="source_module">spp_cr_types_advanced</field>
+        <field name="locked_reason">This type requires custom Python logic to create groups with optional head of household. Cannot be edited via Studio.</field>
+    </record>
+
+    <!-- Split Household -->
+    <record id="cr_type_split_household" model="spp.change.request.type">
+        <field name="name">Split Household</field>
+        <field name="code">split_household</field>
+        <field name="description">Split a household into two separate groups</field>
+        <field name="target_type">group</field>
+        <field name="detail_model">spp.cr.detail.split_household</field>
+        <field name="detail_form_view_id" ref="spp_change_request_v2.spp_cr_detail_split_household_form"/>
+        <field name="apply_strategy">custom</field>
+        <field name="apply_model">spp.cr.apply.split_household</field>
+        <field name="icon">fa-code-branch</field>
+        <field name="sequence">100</field>
+        <!-- Editability flags - Python-only type -->
+        <field name="is_studio_editable">False</field>
+        <field name="is_studio_cloneable">False</field>
+        <field name="is_system_type">True</field>
+        <field name="source_module">spp_cr_types_advanced</field>
+        <field name="locked_reason">This type requires custom Python logic to split groups and transfer memberships. Cannot be edited via Studio.</field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════════════════════ -->
+    <!-- DATA QUALITY -->
+    <!-- ════════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Merge Registrants -->
+    <record id="cr_type_merge_registrants" model="spp.change.request.type">
+        <field name="name">Merge Registrants</field>
+        <field name="code">merge_registrants</field>
+        <field name="description">Merge duplicate registrant records</field>
+        <field name="target_type">both</field>
+        <field name="detail_model">spp.cr.detail.merge_registrants</field>
+        <field name="detail_form_view_id" ref="spp_change_request_v2.spp_cr_detail_merge_registrants_form"/>
+        <field name="apply_strategy">custom</field>
+        <field name="apply_model">spp.cr.apply.merge_registrants</field>
+        <field name="icon">fa-compress-arrows-alt</field>
+        <field name="sequence">110</field>
+        <!-- Editability flags - Python-only type -->
+        <field name="is_studio_editable">False</field>
+        <field name="is_studio_cloneable">False</field>
+        <field name="is_system_type">True</field>
+        <field name="source_module">spp_cr_types_advanced</field>
+        <field name="locked_reason">This type requires complex Python logic to merge data, memberships, and IDs across registrants. Cannot be edited via Studio.</field>
+    </record>
+
+</odoo>

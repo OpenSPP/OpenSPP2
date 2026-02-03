@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2022 ACSONE SA/NV
+     License LGPL-3.0 or later (http://www.gnu.org/licenses/LGPL). -->
+<odoo>
+    <!-- FastAPI Privileges -->
+    <record id="privilege_fastapi_user" model="res.groups.privilege">
+        <field name="name">User</field>
+        <field name="category_id" ref="spp_security.category_spp_api"/>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="privilege_fastapi_manager" model="res.groups.privilege">
+        <field name="name">Administrator</field>
+        <field name="category_id" ref="spp_security.category_spp_api"/>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="privilege_fastapi_endpoint_runner" model="res.groups.privilege">
+        <field name="name">Endpoint Runner</field>
+        <field name="category_id" ref="spp_security.category_spp_api"/>
+        <field name="sequence">30</field>
+    </record>
+</odoo>

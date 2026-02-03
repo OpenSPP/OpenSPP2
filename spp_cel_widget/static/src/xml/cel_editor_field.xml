@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="spp_cel_widget.CelEditorField">
+        <div class="o_cel_editor_field">
+            <CelEditor
+                value="value"
+                profile="profile"
+                expressionType="expressionType"
+                outputType="outputType"
+                readonly="isReadonly"
+                placeholder="props.placeholder"
+                minHeight="props.minHeight"
+                showToolbar="true"
+                showSymbolBrowser="props.showSymbolBrowser !== false"
+                showValidationCount="props.showValidationCount !== false"
+                showHelpText="true"
+                onChange.bind="onChange"
+                onReady.bind="onEditorReady"
+            />
+        </div>
+    </t>
+
+</templates>

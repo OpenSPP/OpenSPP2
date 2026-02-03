@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Area Domain Groups -->
+    <!-- Following ADR-004 three-tier architecture -->
+
+    <!-- Tier 3: Technical base groups -->
+    <record id="group_area_read" model="res.groups">
+        <field name="name">Area: Read</field>
+        <field name="comment">Technical group for read access to area models.</field>
+    </record>
+
+    <record id="group_area_write" model="res.groups">
+        <field name="name">Area: Write</field>
+        <field name="comment">Technical group for write access to area models.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_area_read'))]" />
+    </record>
+
+    <record id="group_area_create" model="res.groups">
+        <field name="name">Area: Create</field>
+        <field name="comment">Technical group for area create access. Grants permission to create new area records.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_area_read'))]" />
+    </record>
+
+    <!-- Tier 2: User-facing groups -->
+    <!-- All groups share the same privilege for unified UI presentation -->
+    <record id="group_area_viewer" model="res.groups">
+        <field name="name">Viewer</field>
+        <field name="privilege_id" ref="privilege_area" />
+        <field name="comment">Can view area configuration. Cannot modify data.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_area_read'))]" />
+    </record>
+
+    <record id="group_area_officer" model="res.groups">
+        <field name="name">Officer</field>
+        <field name="privilege_id" ref="privilege_area" />
+        <field name="comment">Can view and edit area configuration including area types and tags. Cannot delete.</field>
+        <field
+            name="implied_ids"
+            eval="[Command.link(ref('group_area_viewer')), Command.link(ref('group_area_write')), Command.link(ref('group_area_create'))]"
+        />
+    </record>
+
+    <record id="group_area_manager" model="res.groups">
+        <field name="name">Manager</field>
+        <field name="privilege_id" ref="privilege_area" />
+        <field name="comment">Full area management including delete operations and bulk imports.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_area_officer'))]" />
+    </record>
+
+    <!-- Cross-module implications: Registry groups should have area access -->
+
+    <!-- Registry viewers can see areas in dropdowns (read-only reference data) -->
+    <record id="spp_registry.group_registry_viewer" model="res.groups">
+        <field name="implied_ids" eval="[Command.link(ref('group_area_read'))]" />
+    </record>
+
+    <!-- Registry managers handle configuration, so they get area management rights -->
+    <record id="spp_registry.group_registry_manager" model="res.groups">
+        <field name="implied_ids" eval="[Command.link(ref('group_area_manager'))]" />
+    </record>
+
+    <!-- Link manager to admin (IMPORTANT!) -->
+    <record id="spp_security.group_spp_admin" model="res.groups">
+        <field name="implied_ids" eval="[Command.link(ref('group_area_manager'))]" />
+    </record>
+</odoo>

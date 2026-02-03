@@ -1,0 +1,725 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Base Individual List View - defines core structure -->
+    <record id="view_individuals_list_tree" model="ir.ui.view">
+        <field name="name">spp_registry.view_individuals_list_tree</field>
+        <field name="model">res.partner</field>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+            <list string="Individuals" sample="1">
+                <field name="name" string="Name" />
+                <field name="phone" string="Phone" optional="show" />
+                <field name="tags_ids" widget="many2many_tags" optional="show" />
+                <field name="birthdate" string="Date of Birth" optional="show" />
+                <field name="registration_date" string="Registration Date" optional="show" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Base Individual Search View - defines core structure -->
+    <record id="view_registry_individuals_filter" model="ir.ui.view">
+        <field name="name">spp_registry.view_registry_individuals_filter</field>
+        <field name="model">res.partner</field>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+            <search string="Search Individuals">
+                <field name="name" />
+                <field name="phone" />
+                <field name="email" />
+                <!-- Archive filter restricted to officers/managers who can modify records -->
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"
+                        groups="spp_registry.group_registry_officer,spp_registry.group_registry_manager" />
+            </search>
+        </field>
+    </record>
+
+
+    <!-- Enhanced Individual List View with Avatar -->
+    <record id="view_individuals_list_enhanced" model="ir.ui.view">
+        <field name="name">view_individuals_list_enhanced</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="view_individuals_list_tree" />
+        <field name="arch" type="xml">
+            <!-- Make additional columns optional for better info density -->
+            <xpath expr="//list/field[@name='phone']" position="attributes">
+                <attribute name="optional">show</attribute>
+            </xpath>
+            <xpath expr="//list/field[@name='tags_ids']" position="attributes">
+                <attribute name="optional">show</attribute>
+            </xpath>
+            <xpath expr="//list/field[@name='birthdate']" position="attributes">
+                <attribute name="optional">show</attribute>
+            </xpath>
+            <xpath expr="//list/field[@name='registration_date']" position="attributes">
+                <attribute name="optional">show</attribute>
+            </xpath>
+
+            <!-- Add additional useful columns -->
+            <xpath expr="//list/field[@name='registration_date']" position="after">
+                <field name="gender_id" optional="hide" />
+                <field name="age" optional="hide" />
+                <field name="email" optional="hide" />
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Enhanced Search View with Filters and Group By -->
+    <record id="view_registry_individuals_filter_enhanced" model="ir.ui.view">
+        <field name="name">view_registry_individuals_filter_enhanced</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="spp_registry.view_registry_individuals_filter" />
+        <field name="arch" type="xml">
+            <!-- Add disabled filter -->
+            <xpath expr="//filter[@name='inactive']" position="after">
+                <filter string="Disabled" name="disabled" domain="[('disabled', '=', True)]" />
+                <separator />
+                <filter string="Male" name="male" domain="[('gender_id.display', '=', 'Male')]" />
+                <filter string="Female" name="female" domain="[('gender_id.display', '=', 'Female')]" />
+                <separator />
+            </xpath>
+
+            <!-- Add group by options -->
+            <xpath expr="//search" position="inside">
+                <separator />
+                <filter string="Gender" name="group_by_gender" context="{'group_by': 'gender_id'}" />
+                <filter string="Registration Date" name="group_by_registration_date" context="{'group_by': 'registration_date'}" />
+                <filter
+                    string="Registration Month"
+                    name="group_by_registration_month"
+                    context="{'group_by': 'registration_date:month'}"
+                />
+                <filter
+                    string="Registration Year"
+                    name="group_by_registration_year"
+                    context="{'group_by': 'registration_date:year'}"
+                />
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Unified Registrant Form View - handles both individuals and groups -->
+    <!-- Both notebooks are included with visibility conditions based on is_group -->
+    <record id="view_individuals_form" model="ir.ui.view">
+        <field name="name">spp_registry.view_registrant_form</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form" />
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <!-- Replace the entire sheet to remove the default contact UI and use registry UI -->
+            <xpath expr="//sheet" position="replace">
+                <sheet>
+                    <div name="button_box">
+                        <!-- Disable button - restricted to officers/managers -->
+                        <button
+                            type="action"
+                            class="oe_stat_button"
+                            icon="fa-ban"
+                            name="%(spp_registry.action_disable_registrant_wizard)d"
+                            invisible="disabled"
+                            groups="spp_registry.group_registry_officer,spp_registry.group_registry_manager"
+                            title="Disable"
+                        >
+                            <div class="o_form_field o_stat_info">
+                                <span class="o_stat_text">Disable</span>
+                            </div>
+                        </button>
+                        <!-- Enable button - restricted to officers/managers -->
+                        <button
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-check"
+                            name="enable_registrant"
+                            invisible="not disabled"
+                            groups="spp_registry.group_registry_officer,spp_registry.group_registry_manager"
+                            title="Enable"
+                        >
+                            <div class="o_form_field o_stat_info">
+                                <span class="o_stat_text">Enable</span>
+                            </div>
+                        </button>
+                    </div>
+
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" invisible="active" />
+                    <widget name="web_ribbon" title="Disabled" bg_color="bg-warning" invisible="not disabled" />
+
+                    <!-- Hidden flags to evaluate visibility conditions -->
+                    <group invisible="1">
+                        <field name="is_group" />
+                        <field name="is_registrant" />
+                    </group>
+
+                    <!-- Compatibility stub for inherited xpaths (e.g., sale properties) -->
+                    <group name="sale" invisible="1" />
+
+                    <!-- Compatibility notebook to keep inherited xpaths (e.g., sales_purchases page) working -->
+                    <notebook name="compat_stub" invisible="1">
+                        <page name="sales_purchases">
+                            <group name="sale" />
+                            <group name="warnings" />
+                        </page>
+                    </notebook>
+
+                    <!-- INDIVIDUAL NOTEBOOK - visible when is_group = False -->
+                    <notebook name="individual_detail" invisible="is_group">
+                        <!-- PROFILE TAB -->
+                        <page name="profile" string="Profile">
+                            <!-- Header Section with Photo on Left -->
+                            <div class="oe_avatar_container">
+                                <field
+                                    name="image_1920"
+                                    widget="image"
+                                    options="{'preview_image': 'avatar_128', 'size': [120, 120]}"
+                                    nolabel="1"
+                                    class="oe_avatar"
+                                />
+                                <div class="oe_title_container">
+                                    <group name="header_section">
+                                        <group>
+                                            <field name="family_name"
+                                                   required="not is_group"
+                                                   readonly="disabled"
+                                                   help="Last Name, Surname"/>
+                                            <field name="given_name"
+                                                   required="not is_group"
+                                                   readonly="disabled"
+                                                   help="First Name"/>
+                                            <field name="addl_name"
+                                                   string="Middle Name"
+                                                   readonly="disabled"
+                                                   help="Additional Name"/>
+                                        </group>
+                                        <group>
+                                            <field name="registration_date"
+                                                   readonly="disabled or registration_date"
+                                                   help="Date when the individual was registered"/>
+                                            <field name="lang"
+                                                   readonly="disabled"
+                                                   invisible="active_lang_count &lt;= 1"
+                                                   help="Preferred language"/>
+                                        </group>
+                                    </group>
+                                </div>
+                            </div>
+
+                            <!-- Tags Section -->
+                            <separator string="Tags"/>
+                            <group name="tags_section">
+                                <field
+                                    name="tags_ids"
+                                    widget="many2many_tags"
+                                    options="{'color_field': 'color', 'no_create_edit': True}"
+                                    placeholder="Add tags..."
+                                    readonly="disabled"
+                                    nolabel="1"
+                                    colspan="2"
+                                />
+                            </group>
+
+                            <!-- Demographics Section - 3 columns -->
+                            <separator string="Demographics" />
+                            <group name="demographics_section" col="3">
+                                <group>
+                                    <field name="birthdate" readonly="disabled" help="Date of Birth - mm/dd/yyyy" />
+                                </group>
+                                <group>
+                                    <field name="gender_id" readonly="disabled" />
+                                </group>
+                                <group>
+                                    <field name="age" />
+                                </group>
+                                <group>
+                                    <field name="birth_place" readonly="disabled" />
+                                </group>
+                                <group>
+                                    <field name="birthdate_not_exact" readonly="disabled" />
+                                </group>
+                                <group>
+                                    <field
+                                        name="civil_status_id"
+                                        readonly="disabled"
+                                        options="{'no_create': True, 'no_create_edit': True}"
+                                        domain="[('namespace_uri', '=', 'urn:un:unsd:pop-census:marital-status')]"
+                                    />
+                                </group>
+                                <group>
+                                    <field
+                                        name="occupation_id"
+                                        readonly="disabled"
+                                        options="{'no_create': True, 'no_create_edit': True}"
+                                    />
+                                </group>
+                                <group>
+                                    <field name="income" string="Income" readonly="disabled" />
+                                </group>
+                            </group>
+
+                            <!-- Contact Section -->
+                            <separator string="Contact Information"/>
+                            <group name="contact_section">
+                                <group>
+                                    <field name="address"
+                                           readonly="disabled"/>
+                                    <field name="email"
+                                           widget="email"
+                                           readonly="disabled"
+                                           help="Email address (e.g., email@example.com)"/>
+                                </group>
+                            </group>
+                            <group name="phone_section" string="Phone Numbers">
+                                <field
+                                    name="phone_number_ids"
+                                    readonly="disabled"
+                                    context="{'reg_form':True}"
+                                    nolabel="1"
+                                    colspan="2"
+                                >
+                                    <list decoration-danger="disabled" editable="bottom">
+                                        <field name="phone_no" string="Number" widget="phone" options="{'enable_sms': false}"/>
+                                        <field name="country_id" string="Country" optional="show"/>
+                                        <field name="date_collected" string="Collected" optional="hide"/>
+                                        <field name="disabled" column_invisible="1"/>
+                                    </list>
+                                </field>
+                            </group>
+
+                            <!-- Financial Section (placeholder for spp_banking) -->
+                            <group name="financial_section" invisible="1">
+                                <separator string="Financial Information" colspan="2" />
+                                <!-- Bank accounts will be added here by spp_banking module -->
+                            </group>
+                        </page>
+
+                        <!-- IDENTITY TAB -->
+                        <page name="identity" string="Identity">
+                            <!-- IDs Section -->
+                            <separator string="Identity Documents" />
+                            <group name="ids_section">
+                                <field name="reg_ids" readonly="disabled" nolabel="1" colspan="2">
+                                    <list editable="bottom">
+                                        <field name="available_id_type_ids" column_invisible="1" />
+                                        <field
+                                            name="id_type_id"
+                                            domain="[('id', 'in', available_id_type_ids)]"
+                                            options="{'no_open':True,'no_create_edit':True,'no_create':True}"
+                                        />
+                                        <field name="value" string="ID Number" />
+                                        <field name="expiry_date" />
+                                        <field
+                                            name="status"
+                                            decoration-danger="status == 'invalid'"
+                                            decoration-success="status == 'valid'"
+                                            widget="badge"
+                                        />
+                                        <field name="description" optional="hide" />
+                                    </list>
+                                </field>
+                            </group>
+
+                            <!-- Relationships Section - side by side lists -->
+                            <separator string="Relationships" />
+                            <div class="text-muted small mb-2">
+                                Family and social connections for this person.
+                            </div>
+                            <group name="relationships_section" col="2">
+                                <group>
+                                    <separator string="Others Related to This Person" colspan="2" />
+                                    <field name="related_1_ids" readonly="disabled" nolabel="1" colspan="2">
+                                        <list editable="bottom" decoration-danger="disabled">
+                                            <field name="available_relation_ids" column_invisible="1" />
+                                            <button
+                                                name="open_relationship1_form"
+                                                type="object"
+                                                icon="fa-external-link"
+                                                class="btn-success"
+                                                title="Open relationship"
+                                            />
+                                            <field
+                                                name="source"
+                                                domain="[('is_registrant','=',True),('id','!=',parent.id)]"
+                                                options="{'no_open':True, 'no_quick_create':True, 'no_create':True}"
+                                                string="Registrant"
+                                            />
+                                            <field
+                                                name="relation_id"
+                                                domain="[('id', 'in', available_relation_ids)]"
+                                                options="{'no_open':True, 'no_quick_create':True, 'no_create':True}"
+                                                string="Relation"
+                                                required="1"
+                                            />
+                                            <field name="start_date" optional="hide" />
+                                            <field name="end_date" optional="hide" />
+                                            <field name="disabled" optional="hide" />
+                                            <field name="disabled_by" optional="hide" />
+                                        </list>
+                                    </field>
+                                </group>
+                                <group>
+                                    <separator string="This Person is Related to" colspan="2" />
+                                    <field name="related_2_ids" readonly="disabled" nolabel="1" colspan="2">
+                                        <list editable="bottom" decoration-danger="disabled">
+                                            <field name="available_relation_ids" column_invisible="1" />
+                                            <button
+                                                name="open_relationship2_form"
+                                                type="object"
+                                                icon="fa-external-link"
+                                                class="btn-success"
+                                                title="Open relationship"
+                                            />
+                                            <field
+                                                name="destination"
+                                                domain="[('is_registrant','=',True),('id','!=',parent.id)]"
+                                                options="{'no_open':True, 'no_quick_create':True, 'no_create':True}"
+                                                string="Registrant"
+                                            />
+                                            <field
+                                                name="relation_id"
+                                                domain="[('id', 'in', available_relation_ids)]"
+                                                options="{'no_open':True, 'no_quick_create':True, 'no_create':True}"
+                                                string="Relation"
+                                            />
+                                            <field name="start_date" optional="hide" />
+                                            <field name="end_date" optional="hide" />
+                                            <field name="disabled" optional="hide" />
+                                            <field name="disabled_by" optional="hide" />
+                                        </list>
+                                    </field>
+                                </group>
+                            </group>
+
+                            <!-- Verification Section (placeholder for future verification features) -->
+                            <group name="verification_section" invisible="1">
+                                <!-- Identity verification status and history will be added here -->
+                            </group>
+                        </page>
+
+                        <!-- PARTICIPATION TAB -->
+                        <page name="participation" string="Participation">
+                            <!-- Membership Section (placeholder for group membership) -->
+                            <div name="membership_section" invisible="1">
+                                <!-- Group memberships injected by spp_registry_group_membership -->
+                            </div>
+
+                            <!-- Programs Section (placeholder for program enrollment) -->
+                            <div name="programs_section" invisible="1">
+                                <!-- Program enrollments injected by spp_programs -->
+                            </div>
+
+                            <!-- Entitlements Section (placeholder for entitlements) -->
+                            <div name="entitlements_section" invisible="1">
+                                <!-- Entitlements injected by spp_entitlement -->
+                            </div>
+
+                            <!-- Events Section (placeholder for participation events) -->
+                            <div name="events_section" invisible="1">
+                                <!-- Event data injected by spp_event_data -->
+                            </div>
+                        </page>
+
+                        <!-- HISTORY TAB -->
+                        <page name="history" string="History">
+                            <!-- Audit Section - 2 columns -->
+                            <separator string="Audit Information" />
+                            <group name="audit_section" col="2">
+                                <group>
+                                    <field name="create_date" />
+                                    <field name="create_uid" />
+                                </group>
+                                <group>
+                                    <field name="write_date" />
+                                    <field name="write_uid" />
+                                </group>
+                            </group>
+
+                            <!-- Status Section - 2 columns -->
+                            <separator string="Status Information" />
+                            <group name="status_section" col="2">
+                                <group>
+                                    <field name="disabled" readonly="1" />
+                                    <field name="disabled_by" readonly="1" />
+                                </group>
+                                <group>
+                                    <field name="disabled_reason" readonly="1" />
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+
+                    <!-- GROUP NOTEBOOK - visible when is_group = True -->
+                    <notebook name="group_detail" invisible="not is_group">
+                        <!-- Profile Tab: Group info, contact details, financial -->
+                        <page string="Profile" name="group_profile">
+                            <!-- Header Section with Photo on Left -->
+                            <div class="oe_avatar_container">
+                                <field
+                                    name="image_1920"
+                                    widget="image"
+                                    options="{'preview_image': 'avatar_128', 'size': [120, 120]}"
+                                    nolabel="1"
+                                    class="oe_avatar"
+                                />
+                                <div class="oe_title_container">
+                                    <group name="group_header_section">
+                                        <group>
+                                            <field name="name"
+                                                   string="Group Name"
+                                                   required="is_group"
+                                                   readonly="disabled"
+                                                   help="Name of the group (e.g., Household, Family)"/>
+                                            <field
+                                                name="group_type_id"
+                                                string="Group Type"
+                                                options="{'no_open':True, 'no_create_edit':True,'no_create':True}"
+                                                readonly="disabled"
+                                                help="Type of group classification"
+                                            />
+                                        </group>
+                                        <group>
+                                            <field name="registration_date"
+                                                   readonly="disabled or registration_date"
+                                                   help="Date when the group was registered"/>
+                                            <field name="lang"
+                                                   readonly="disabled"
+                                                   invisible="active_lang_count &lt;= 1"
+                                                   help="Preferred language"/>
+                                        </group>
+                                    </group>
+                                </div>
+                            </div>
+
+                            <!-- Tags Section -->
+                            <separator string="Tags"/>
+                            <group name="group_tags_section">
+                                <field
+                                    name="tags_ids"
+                                    widget="many2many_tags"
+                                    options="{'color_field': 'color', 'no_create_edit': True}"
+                                    placeholder="Add tags..."
+                                    readonly="disabled"
+                                    nolabel="1"
+                                    colspan="2"
+                                />
+                            </group>
+
+                            <!-- Contact Section -->
+                            <separator string="Contact Information"/>
+                            <group name="group_contact_section">
+                                <group>
+                                    <field name="address"
+                                           readonly="disabled"
+                                           class="o_text_overflow"/>
+                                    <field name="email"
+                                           widget="email"
+                                           readonly="disabled"
+                                           class="o_text_overflow"
+                                           help="Email address (e.g., email@example.com)"/>
+                                </group>
+                            </group>
+                            <group name="group_phone_section" string="Phone Numbers">
+                                <field
+                                    name="phone_number_ids"
+                                    readonly="disabled"
+                                    context="{'reg_form':True}"
+                                    nolabel="1"
+                                    colspan="2"
+                                >
+                                    <list decoration-danger="disabled" editable="bottom">
+                                        <field name="phone_no" string="Number" widget="phone" options="{'enable_sms': false}"/>
+                                        <field name="country_id" string="Country" optional="show"/>
+                                        <field name="date_collected" string="Collected" optional="hide"/>
+                                        <field name="disabled" column_invisible="1"/>
+                                    </list>
+                                </field>
+                            </group>
+
+                            <!-- Financial Section (placeholder for spp_banking) -->
+                            <group name="group_financial_section" invisible="1">
+                                <separator string="Financial Information" colspan="2" />
+                                <!-- Banking and financial fields will be injected here by spp_banking module -->
+                            </group>
+                        </page>
+
+                        <!-- Identity Tab: IDs, relationships, verification -->
+                        <page string="Identity" name="group_identity">
+                            <!-- IDs Section -->
+                            <separator string="Identity Documents" />
+                            <group name="group_ids_section">
+                                <field name="reg_ids" readonly="disabled" nolabel="1" colspan="2">
+                                    <list editable="bottom">
+                                        <field name="available_id_type_ids" column_invisible="1" />
+                                        <field
+                                            name="id_type_id"
+                                            domain="[('id', 'in', available_id_type_ids)]"
+                                            options="{'no_open':True,'no_create_edit':True,'no_create':True}"
+                                        />
+                                        <field name="value" string="ID Number" />
+                                        <field name="expiry_date" />
+                                    </list>
+                                </field>
+                            </group>
+
+                            <!-- Relationships Section - side by side lists -->
+                            <separator string="Relationships" />
+                            <div class="text-muted small mb-2">
+                                Connections between this group and other registrants.
+                            </div>
+                            <group name="group_relationships_section" col="2">
+                                <group>
+                                    <separator string="Others Related to This Group" colspan="2" />
+                                    <field name="related_1_ids" readonly="disabled" nolabel="1" colspan="2">
+                                        <list editable="bottom" decoration-danger="disabled">
+                                            <field name="available_relation_ids" column_invisible="1" />
+                                            <button
+                                                name="open_relationship1_form"
+                                                type="object"
+                                                icon="fa-external-link"
+                                                class="btn-success"
+                                                title="Open relationship"
+                                            />
+                                            <field
+                                                name="source"
+                                                domain="[('is_registrant','=',True),('id','!=',parent.id)]"
+                                                options="{'no_open':True, 'no_quick_create':True, 'no_create':True}"
+                                                string="Registrant"
+                                            />
+                                            <field
+                                                name="relation_id"
+                                                domain="[('id', 'in', available_relation_ids)]"
+                                                options="{'no_open':True, 'no_quick_create':True, 'no_create':True}"
+                                                string="Relation"
+                                                required="1"
+                                            />
+                                            <field name="start_date" optional="hide" />
+                                            <field name="end_date" optional="hide" />
+                                            <field name="disabled" optional="hide" />
+                                        </list>
+                                    </field>
+                                </group>
+                                <group>
+                                    <separator string="This Group is Related to" colspan="2" />
+                                    <field name="related_2_ids" readonly="disabled" nolabel="1" colspan="2">
+                                        <list editable="bottom" decoration-danger="disabled">
+                                            <field name="available_relation_ids" column_invisible="1" />
+                                            <button
+                                                name="open_relationship2_form"
+                                                type="object"
+                                                icon="fa-external-link"
+                                                class="btn-success"
+                                                title="Open relationship"
+                                            />
+                                            <field
+                                                name="destination"
+                                                domain="[('is_registrant','=',True),('id','!=',parent.id)]"
+                                                options="{'no_open':True, 'no_quick_create':True, 'no_create':True}"
+                                                string="Registrant"
+                                            />
+                                            <field
+                                                name="relation_id"
+                                                domain="[('id', 'in', available_relation_ids)]"
+                                                options="{'no_open':True, 'no_quick_create':True, 'no_create':True}"
+                                                string="Relation"
+                                            />
+                                            <field name="start_date" optional="hide" />
+                                            <field name="end_date" optional="hide" />
+                                            <field name="disabled" optional="hide" />
+                                        </list>
+                                    </field>
+                                </group>
+                            </group>
+
+                            <!-- Verification Section (placeholder for future verification/consent modules) -->
+                            <group name="group_verification_section" invisible="1">
+                                <!-- Verification and consent fields will be injected here by future modules -->
+                            </group>
+                        </page>
+
+                        <!-- Participation Tab: Members, programs, entitlements, events -->
+                        <page string="Participation" name="group_participation">
+                            <!-- Members Section (placeholder for group membership) -->
+                            <div name="group_members_section" invisible="1">
+                                <!-- Group members injected by spp_registry_group_membership -->
+                            </div>
+
+                            <!-- Programs Section (placeholder for program enrollment) -->
+                            <div name="group_programs_section" invisible="1">
+                                <!-- Program enrollments injected by spp_programs -->
+                            </div>
+
+                            <!-- Entitlements Section (placeholder for entitlements) -->
+                            <div name="group_entitlements_section" invisible="1">
+                                <!-- Entitlements injected by spp_entitlement -->
+                            </div>
+
+                            <!-- Events Section (placeholder for event data) -->
+                            <div name="group_events_section" invisible="1">
+                                <!-- Event data injected by spp_event_data -->
+                            </div>
+                        </page>
+
+                        <!-- History Tab: Audit info, disabled status -->
+                        <page string="History" name="group_history">
+                            <!-- Audit Section - 2 columns -->
+                            <separator string="Audit Information" />
+                            <group name="group_audit_section" col="2">
+                                <group>
+                                    <field name="create_date" />
+                                    <field name="create_uid" />
+                                </group>
+                                <group>
+                                    <field name="write_date" />
+                                    <field name="write_uid" />
+                                </group>
+                            </group>
+
+                            <!-- Status Section - 2 columns -->
+                            <separator string="Status Information" />
+                            <group name="group_status_section" col="2">
+                                <group>
+                                    <field name="disabled" readonly="1" />
+                                    <field name="disabled_by" readonly="1" />
+                                </group>
+                                <group>
+                                    <field name="disabled_reason" readonly="1" />
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Registry actions (used by other modules, no direct menu) -->
+    <record id="action_individuals_list" model="ir.actions.act_window">
+        <field name="name">Individuals</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="spp_registry.view_registry_individuals_filter" />
+        <field name="context">{'default_is_registrant': True, 'default_is_group': False, 'registrant_form': True}</field>
+        <field name="domain">[('is_registrant','=',True),('is_group','=',False)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new individual registrant!
+            </p>
+            <p>
+                Click the create button to enter the new registrant's information.
+            </p>
+        </field>
+    </record>
+
+    <!-- Explicitly link list and form views to the action -->
+    <record id="action_individuals_list_tree_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1" />
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_individuals_list_tree" />
+        <field name="act_window_id" ref="action_individuals_list" />
+    </record>
+
+    <record id="action_individuals_list_form_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2" />
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_individuals_form" />
+        <field name="act_window_id" ref="action_individuals_list" />
+    </record>
+
+</odoo>

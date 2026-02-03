@@ -1,0 +1,428 @@
+# OpenSPP Access Management Compliance Specification
+# Module: spp_programs
+# Version: 1.0
+#
+# This file declares the expected access control configuration for this module.
+# Run: python -m scripts.compliance.checker spp_programs
+# Generate tests: python -m scripts.compliance.test_generator spp_programs
+
+module: spp_programs
+domain: programs
+version: "1.0"
+
+# =============================================================================
+# GROUP DEFINITIONS
+# Following ADR-004 Three-Tier Architecture
+# =============================================================================
+
+groups:
+  # --- Tier 3: Technical base groups ---
+  - id: group_programs_read
+    tier: 3
+    comment: "Technical group for read access to programs models."
+
+  - id: group_programs_write
+    tier: 3
+    implied_ids: [group_programs_read]
+    comment: "Technical group for write access to programs models."
+
+  - id: group_programs_create
+    tier: 3
+    implied_ids: [group_programs_read]
+    comment: "Technical group for create access to program/cycle/entitlement models."
+
+  # --- Tier 2: User-facing groups ---
+  - id: group_programs_viewer
+    tier: 2
+    privilege_id: privilege_programs_viewer
+    implied_ids: [group_programs_read]
+    comment: "Can view program records. Cannot modify data."
+
+  - id: group_programs_officer
+    tier: 2
+    privilege_id: privilege_programs_officer
+    implied_ids: [group_programs_viewer, group_programs_write, group_programs_create]
+    comment: "Can view and edit program records. Cannot delete."
+
+  - id: group_programs_manager
+    tier: 2
+    privilege_id: privilege_programs_manager
+    implied_ids: [group_programs_officer]
+    comment: "Full programs management; deletion controlled by access rules."
+
+  # --- Special role groups ---
+  - id: group_programs_validator
+    tier: 2
+    privilege_id: privilege_programs_validator
+    implied_ids: [group_programs_officer]
+    comment: "SPECIALIZED ROLE: Can validate finance operations."
+
+  - id: group_programs_rejector
+    tier: 2
+    privilege_id: privilege_programs_rejector
+    implied_ids: [group_programs_read]
+    comment:
+      "SPECIALIZED ROLE: Can reject entitlements. This is a functional role (not part of Viewer/Officer/Manager
+      hierarchy)."
+
+  - id: group_programs_cycle_approver
+    tier: 2
+    privilege_id: privilege_cycle_approver
+    implied_ids: [group_programs_read]
+    comment:
+      "SPECIALIZED ROLE: Can approve cycles. This is a functional role (not part of Viewer/Officer/Manager hierarchy)."
+
+# Admin linkage - manager group links to spp_security.group_spp_admin
+admin_link_group: group_programs_manager
+
+# =============================================================================
+# MODEL ACCESS (ir.model.access.csv)
+# Standard pattern: viewer=read, officer=read+write+create, manager=full CRUD
+# Special roles: validator has specific model access patterns
+# =============================================================================
+
+model_access:
+  - model: spp.program
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create]
+
+  - model: spp.program.membership
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.cycle
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.cycle.membership
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.entitlement
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+    validator: [read, write, create]
+
+  - model: spp.payment
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+    validator: [read, write, create]
+
+  - model: spp.payment.batch
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+    validator: [read, write, create]
+
+  - model: spp.payment.batch.tag
+    viewer: []
+    officer: []
+    manager: [read, write, create, unlink]
+
+  - model: spp.program.membership.duplicate
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.eligibility.manager
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.program.membership.manager
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.program.membership.manager.default
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.program.membership.manager.id_dedup
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.program.membership.manager.phone_number
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.deduplication.manager
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.deduplication.manager.id_dedup
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.deduplication.manager.phone_number
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.deduplication.manager.default
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.program.notification.manager
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.program.notification.manager.sms
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.program.manager
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.program.manager.default
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.cycle.manager
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.cycle.manager.default
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.program.entitlement.manager
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.program.entitlement.manager.default
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.program.payment.manager
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.program.payment.manager.default
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.assign.program.wizard
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.program.create.wizard
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.multi.entitlement.approval.wizard
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.multi.entitlement.approval
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.assign.payments.batch.wizard
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.program.fund
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+    validator: [read, write, create]
+
+  - model: spp.program.fund.report.view
+    viewer: [read]
+    officer: [read]
+    manager: [read, write, create, unlink]
+    validator: [read, write, create]
+
+# =============================================================================
+# RECORD RULES (ir.rule)
+# Data visibility rules based on group membership
+# =============================================================================
+
+record_rules:
+  - id: rule_spp_program_membership_disabled
+    model: spp.program.membership
+    global: true
+    domain_description: "Exclude program memberships for disabled partners"
+    perm_read: true
+    perm_write: false
+    perm_create: false
+    perm_unlink: false
+
+  - id: rule_spp_program_membership_disabled_edit
+    model: spp.program.membership
+    groups: [group_programs_officer, group_programs_manager]
+    domain_description: "Allow officers/managers to manage memberships for active partners"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: true
+
+  - id: rule_spp_cycle_membership_disabled
+    model: spp.cycle.membership
+    global: true
+    domain_description: "Exclude cycle memberships for disabled partners"
+    perm_read: true
+    perm_write: false
+    perm_create: false
+    perm_unlink: false
+
+  - id: rule_spp_cycle_membership_disabled_edit
+    model: spp.cycle.membership
+    groups: [group_programs_officer, group_programs_manager]
+    domain_description: "Allow officers/managers to manage cycle memberships for active partners"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: true
+
+  - id: rule_spp_program_company
+    model: spp.program
+    global: true
+    domain_description: "Multi-company access: programs with no company or user's companies"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: true
+
+# =============================================================================
+# MENU VISIBILITY
+# Which groups can see which menus
+# =============================================================================
+
+menus:
+  - id: spp_programs.spp_program_menu_root
+    name: "Programs"
+    groups: []
+
+  - id: spp_programs_root
+    name: "In-Kind"
+    parent: spp_programs.spp_program_menu_root
+    groups: []
+
+  - id: spp_programs_reports_menu_root
+    name: "Reports"
+    parent: spp_programs_root
+    groups: []
+
+  - id: spp_programs_config_menu_root
+    name: "Configuration"
+    parent: spp_programs_root
+    groups: [spp_security.group_spp_admin, group_programs_manager]
+
+  - id: spp_programs.menu_program_list
+    name: "Programs"
+    parent: spp_programs_root
+    groups: [spp_security.group_spp_admin, group_programs_manager, group_programs_validator]
+
+  - id: menu_program_fund
+    name: "Funds"
+    parent: spp_programs_reports_menu_root
+    groups: [spp_security.group_spp_admin, group_programs_manager, group_programs_validator]
+
+  - id: menu_program_fund_report
+    name: "Fund Reports"
+    parent: spp_programs_reports_menu_root
+    groups: [spp_security.group_spp_admin, group_programs_manager, group_programs_validator]
+
+  - id: menu_account_journal_prog_benf
+    name: "Accounting Journal"
+    parent: spp_programs_reports_menu_root
+    groups: [spp_security.group_spp_admin, group_programs_manager, group_programs_validator]
+
+  - id: menu_payment_batch
+    name: "Payment Batches"
+    parent: spp_programs_root
+    groups: [spp_security.group_spp_admin, group_programs_manager, group_programs_validator]
+
+  - id: menu_payment_batch_tags
+    name: "Payment Batch Tags"
+    parent: spp_programs_config_menu_root
+    groups: [spp_security.group_spp_admin, group_programs_manager]
+
+# =============================================================================
+# FIELD RESTRICTIONS
+# Fields with group-based visibility in views
+# =============================================================================
+
+field_restrictions:
+  - model: spp.program
+    field_name: company_id
+    groups: [base.group_multi_company]
+    reason: "Only relevant in multi-company installations"
+
+  - model: spp.cycle
+    field_name: company_id
+    groups: [base.group_multi_company]
+    reason: "Only relevant in multi-company installations"
+
+  - model: spp.entitlement
+    field_name: company_id
+    groups: [base.group_multi_company]
+    reason: "Only relevant in multi-company installations"
+
+  - model: spp.payment
+    field_name: company_id
+    groups: [base.group_multi_company]
+    reason: "Only relevant in multi-company installations"
+
+  - model: spp.payment.batch
+    field_name: company_id
+    groups: [base.group_multi_company]
+    reason: "Only relevant in multi-company installations"
+
+  - model: res.partner
+    field_name: program_membership_ids
+    groups: [spp_registry.group_registry_officer, spp_security.group_spp_admin]
+    reason: "Only registry officers and admins need program membership view"
+
+  - model: res.partner
+    field_name: entitlement_ids
+    groups: [spp_registry.group_registry_officer, spp_security.group_spp_admin]
+    reason: "Only registry officers and admins need entitlement view"
+
+# =============================================================================
+# BUTTON RESTRICTIONS
+# Buttons that are restricted to specific groups
+# =============================================================================
+
+button_restrictions:
+  - model: spp.cycle
+    button_name: action_print_summary
+    groups: [group_programs_manager, group_programs_validator, spp_security.group_spp_admin]
+    reason: "Only managers, validators, and admins can print cycle summaries"
+
+# =============================================================================
+# ACTION RESTRICTIONS
+# Actions that are restricted to specific groups
+# =============================================================================
+
+actions: []
