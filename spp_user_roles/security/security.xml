@@ -1,0 +1,8 @@
+<odoo>
+    <record id="group_local_registrar" model="res.groups">
+        <field name="name">Local Registrar</field>
+        <field name="privilege_id" ref="privilege_local_registrar"/>
+        <field name="comment">Can register beneficiaries within assigned local areas.</field>
+    </record>
+
+</odoo>

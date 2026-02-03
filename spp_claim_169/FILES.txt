@@ -1,0 +1,185 @@
+COMPLETE FILE LISTING - spp_claim_169 Module
+============================================
+
+ROOT FILES
+----------
+/home/user/openspp-modules-v2/spp_claim_169/__init__.py
+/home/user/openspp-modules-v2/spp_claim_169/__manifest__.py
+/home/user/openspp-modules-v2/spp_claim_169/README.md
+/home/user/openspp-modules-v2/spp_claim_169/MODULE_SUMMARY.md
+/home/user/openspp-modules-v2/spp_claim_169/QUICKSTART.md
+
+MODELS (4 files)
+----------------
+/home/user/openspp-modules-v2/spp_claim_169/models/__init__.py
+/home/user/openspp-modules-v2/spp_claim_169/models/attribute_mapping.py
+  → spp.claim169.attribute.mapping
+  → Configurable field mappings with transformations
+
+/home/user/openspp-modules-v2/spp_claim_169/models/issuer_config.py
+  → spp.claim169.issuer.config
+  → Issuer configurations with signing keys
+
+/home/user/openspp-modules-v2/spp_claim_169/models/credential.py
+  → spp.claim169.credential
+  → Stored credentials with QR codes and chatter
+
+/home/user/openspp-modules-v2/spp_claim_169/models/claim169_service.py
+  → spp.claim169.service (AbstractModel)
+  → Main service with CWT generation, Base45 encoding, verification
+
+WIZARDS (2 files)
+-----------------
+/home/user/openspp-modules-v2/spp_claim_169/wizards/__init__.py
+/home/user/openspp-modules-v2/spp_claim_169/wizards/generate_qr_wizard.py
+  → spp.claim169.generate.qr.wizard
+  → Batch credential generation with multiple modes
+
+VIEWS (5 files)
+---------------
+/home/user/openspp-modules-v2/spp_claim_169/views/attribute_mapping_views.xml
+  → Tree, Form, Search views with drag-drop reordering
+
+/home/user/openspp-modules-v2/spp_claim_169/views/issuer_config_views.xml
+  → Tree, Form, Search views with stat buttons
+
+/home/user/openspp-modules-v2/spp_claim_169/views/credential_views.xml
+  → Tree, Kanban, Form, Search views with QR display
+
+/home/user/openspp-modules-v2/spp_claim_169/views/menu_views.xml
+  → Application menu structure
+
+/home/user/openspp-modules-v2/spp_claim_169/wizards/generate_qr_views.xml
+  → Wizard form view
+
+SECURITY (2 files)
+------------------
+/home/user/openspp-modules-v2/spp_claim_169/security/security_groups.xml
+  → 2 security groups (user, manager)
+  → 5 record rules (company-based access)
+
+/home/user/openspp-modules-v2/spp_claim_169/security/ir.model.access.csv
+  → 8 access control entries (3-tier: user, manager, admin)
+
+DATA (1 file)
+-------------
+/home/user/openspp-modules-v2/spp_claim_169/data/default_mappings.xml
+  → 12 default attribute mappings (Claims 1,2,4,5,7,8,9,10,11,12,13)
+  → IR sequence for credential IDs (C169-XXXXXX)
+
+TESTS (2 files)
+---------------
+/home/user/openspp-modules-v2/spp_claim_169/tests/__init__.py
+/home/user/openspp-modules-v2/spp_claim_169/tests/test_claim169.py
+  → 20+ comprehensive test methods
+  → Coverage: mappings, transformations, encoding, credentials, wizards
+
+STATIC (2 files)
+----------------
+/home/user/openspp-modules-v2/spp_claim_169/static/description/index.html
+  → Module description page
+
+/home/user/openspp-modules-v2/spp_claim_169/static/description/icon.png.txt
+  → Placeholder for module icon
+
+TOTAL: 24 files
+
+KEY FEATURES IMPLEMENTED
+========================
+
+1. ATTRIBUTE MAPPING SYSTEM
+   - Configurable claim number → field path mapping
+   - 5 transform types: direct, date_yyyymmdd, gender_code, address_combined, cel
+   - Unique active claim number validation
+   - Sequence-based ordering
+
+2. CWT GENERATION
+   - Integration with spp_cbor_cose
+   - COSE Sign1 signatures
+   - Standard CWT claims (iss, iat, exp)
+   - Claim 169 numbered attributes
+
+3. QR CODE GENERATION
+   - zlib compression for size optimization
+   - Base45 encoding (custom implementation)
+   - PNG image generation
+   - QR data storage
+
+4. CREDENTIAL MANAGEMENT
+   - Status tracking (active/expired/revoked)
+   - SHA256 hash for verification
+   - Revocation workflow
+   - Regeneration support
+   - Chatter integration
+
+5. BATCH PROCESSING
+   - Wizard for multi-partner generation
+   - 3 generation modes (new_only, replace_expired, replace_all)
+   - HTML result summary
+   - Error handling
+
+6. VERIFICATION
+   - Full verification pipeline
+   - Expiration checking
+   - Signature validation via spp_cbor_cose
+
+7. SECURITY
+   - Three-tier access control
+   - Company-based record rules
+   - Revocation tracking
+
+8. VIEWS
+   - Tree/Kanban/Form for all models
+   - Advanced search filters
+   - Stat buttons
+   - QR image display
+
+CODE QUALITY
+============
+✓ OpenSPP naming conventions (spp_*, spp.*)
+✓ Boolean field naming (is_*, has_*)
+✓ Logger usage (_logger, no print())
+✓ Specific exceptions (no bare except)
+✓ @api.constrains for validation
+✓ Comprehensive docstrings
+✓ Test coverage
+✓ Mail integration (chatter)
+✓ Multi-company support
+
+DEPENDENCIES
+============
+Odoo Modules:
+  - base
+  - mail
+  - spp_registry
+  - spp_cbor_cose
+  - spp_key_management
+
+Python Packages:
+  - qrcode
+  - Pillow
+
+TESTING
+=======
+Run tests:
+  ./scripts/test_single_module.sh spp_claim_169
+
+Test coverage areas:
+  - Attribute extraction and transformation
+  - Base45 encoding/decoding round-trips
+  - Constraint validation
+  - Credential lifecycle
+  - Wizard functionality
+  - Status computation
+  - Hash generation
+
+NEXT STEPS
+==========
+1. Install module in development environment
+2. Run test suite
+3. Configure issuer and signing keys
+4. Review/customize attribute mappings
+5. Generate test credentials
+6. Verify QR codes
+7. Integrate with verification endpoints
+8. Deploy to production

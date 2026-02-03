@@ -1,0 +1,265 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* spp_security
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: spp_security
+#: model:ir.module.category,name:spp_security.category_spp_api
+msgid "API Access"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,description:spp_security.category_spp_api
+msgid "API and external integration access"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,name:spp_security.category_spp_admin
+msgid "Administration"
+msgstr ""
+
+#. module: spp_security
+#: model:res.groups,name:spp_security.group_spp_admin
+#: model:res.groups.privilege,name:spp_security.privilege_spp_admin
+msgid "Administrator"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,description:spp_security.category_spp_approvals
+msgid "Approval workflow management"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,name:spp_security.category_spp_approvals
+msgid "Approvals"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,name:spp_security.category_spp_area
+msgid "Areas and GIS"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,name:spp_security.category_spp_audit
+msgid "Audit and Compliance"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,description:spp_security.category_spp_audit
+msgid "Audit logging and compliance management"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,description:spp_security.category_spp_registry
+msgid "Beneficiary and group registry management"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,name:spp_security.category_spp_case
+msgid "Case Management"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,name:spp_security.category_spp_change_request
+msgid "Change Requests"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,description:spp_security.category_spp_change_request
+msgid "Change request workflow management"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,description:spp_security.category_spp_identity
+msgid "Digital identity and credential management"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,description:spp_security.category_spp_entitlements
+msgid "Entitlement management and processing"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,name:spp_security.category_spp_entitlements
+msgid "Entitlements"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,name:spp_security.category_spp_farmer
+msgid "Farmer Registry"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,description:spp_security.category_spp_farmer
+msgid "Farmer-specific registry and land management"
+msgstr ""
+
+#. module: spp_security
+#: model:res.groups,comment:spp_security.group_spp_admin
+msgid ""
+"Full administrative access to all OpenSPP modules.\n"
+"This group automatically inherits all manager-level permissions from installed domain modules.\n"
+"Assign this group to system administrators who need complete access."
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,description:spp_security.category_spp_area
+msgid "Geographic area and GIS management"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,name:spp_security.category_spp_graduation
+msgid "Graduation"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,description:spp_security.category_spp_graduation
+msgid "Graduation pathways and assessments"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,name:spp_security.category_spp_grm
+msgid "Grievance Management"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,description:spp_security.category_spp_grm
+msgid "Grievance/ticket management"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,name:spp_security.category_spp_hazard
+msgid "Hazard & Emergency"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,description:spp_security.category_spp_hazard
+msgid "Hazard classification, incident tracking, and impact assessment"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,name:spp_security.category_spp_health_monitoring
+msgid "Health Monitoring"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,description:spp_security.category_spp_health_monitoring
+msgid "Health event tracking and compliance monitoring"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,name:spp_security.category_spp_identity
+msgid "Identity and Credentials"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,name:spp_security.category_spp
+msgid "OpenSPP"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,description:spp_security.category_spp
+msgid "OpenSPP Social Protection Platform modules"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,description:spp_security.category_spp_payments
+msgid "Payment processing and disbursement"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,name:spp_security.category_spp_payments
+msgid "Payments"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,description:spp_security.category_spp_programs
+msgid "Program and cycle management"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,name:spp_security.category_spp_programs
+msgid "Programs"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,name:spp_security.category_spp_registry
+msgid "Registry"
+msgstr ""
+
+#. module: spp_security
+#: model:res.groups,name:spp_security.group_access_restrict_self
+msgid "Restricted: Self Only"
+msgstr ""
+
+#. module: spp_security
+#: model:res.groups.privilege,name:spp_security.privilege_access_restrict_self_officer
+msgid "Restricted: Self Only (Officer)"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,name:spp_security.category_spp_scoring
+msgid "Scoring"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,description:spp_security.category_spp_scoring
+msgid "Scoring and assessment framework for beneficiary targeting"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,name:spp_security.category_spp_services
+msgid "Service Directory"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,name:spp_security.category_spp_service_points
+msgid "Service Points"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,description:spp_security.category_spp_service_points
+msgid "Service point and device management"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,description:spp_security.category_spp_services
+msgid "Service provider and referral directory"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,description:spp_security.category_spp_sessions
+msgid "Session and attendance tracking"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,name:spp_security.category_spp_sessions
+msgid "Sessions"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,description:spp_security.category_spp_case
+msgid "Social work case management and intervention planning"
+msgstr ""
+
+#. module: spp_security
+#: model:ir.module.category,description:spp_security.category_spp_admin
+msgid "System administration and configuration"
+msgstr ""
+
+#. module: spp_security
+#: model:res.groups,comment:spp_security.group_access_restrict_self
+msgid ""
+"Users in this group can only see their own user record.\n"
+"Used for field agents and limited-access users."
+msgstr ""

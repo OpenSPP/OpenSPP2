@@ -1,0 +1,45 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* spp_cr_types_base
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#. module: spp_cr_types_base
+#: model:spp.change.request.type,description:spp_cr_types_base.cr_type_update_id
+msgid "Add, update, or remove identification documents"
+msgstr "Ajouter, mettre à jour ou supprimer des documents d’identification"
+
+#. module: spp_cr_types_base
+#: model:spp.change.request.type,name:spp_cr_types_base.cr_type_edit_group
+msgid "Edit Group Information"
+msgstr "Modifier les informations du groupe"
+
+#. module: spp_cr_types_base
+#: model:spp.change.request.type,name:spp_cr_types_base.cr_type_edit_individual
+msgid "Edit Individual Information"
+msgstr "Modifier les informations individuelles"
+
+#. module: spp_cr_types_base
+#: model:spp.change.request.type,name:spp_cr_types_base.cr_type_update_id
+msgid "Update ID Document"
+msgstr "Mettre à jour le document d’identité"
+
+#. module: spp_cr_types_base
+#: model:spp.change.request.type,description:spp_cr_types_base.cr_type_edit_group
+msgid "Update information for a group/household"
+msgstr "Mettre à jour les informations d’un Groupe/Ménage"
+
+#. module: spp_cr_types_base
+#: model:spp.change.request.type,description:spp_cr_types_base.cr_type_edit_individual
+msgid "Update personal information for an individual registrant"
+msgstr "Mettre à jour les informations personnelles d’un Inscrit individuel"

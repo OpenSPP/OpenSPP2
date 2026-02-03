@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+   Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <record id="view_id_type_tree" model="ir.ui.view">
+        <field name="name">view_id_type_tree</field>
+        <field name="model">spp.id.type</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <list editable="top">
+                <field name="name" required="1" />
+                <field name="namespace_uri" placeholder="urn:gov:xx:agency:id-type" optional="show" />
+                <field name="id_validation" string="ID Type Validation" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_id_type_form" model="ir.ui.view">
+        <field name="name">view_id_type_form</field>
+        <field name="model">spp.id.type</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <form string="ID Type">
+                <sheet>
+                    <group>
+                        <field name="name" required="1" />
+                        <field name="namespace_uri" placeholder="urn:gov:xx:agency:id-type" />
+                        <field name="id_validation" string="ID Type Validation" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_id_type" model="ir.actions.act_window">
+        <field name="name">ID Types</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="path">registry-id-types</field>
+        <field name="res_model">spp.id.type</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{}</field>
+        <field name="domain">[]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add an ID Type!
+            </p><p>
+                Click the create button to enter a new ID type.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_id_type_tree_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1" />
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_id_type_tree" />
+        <field name="act_window_id" ref="action_id_type" />
+    </record>
+
+    <record id="action_id_type_form_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2" />
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_id_type_form" />
+        <field name="act_window_id" ref="action_id_type" />
+    </record>
+
+</odoo>

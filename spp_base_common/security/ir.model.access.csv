@@ -1,0 +1,34 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_res_partner_registry_read,Registry Read Access,base.model_res_partner,spp_registry.group_registry_read,1,0,0,0
+access_spp_phone_number_registry_read,Phone Number Read Access,spp_registry.model_spp_phone_number,spp_registry.group_registry_read,1,0,0,0
+access_spp_reg_id_registry_read,Reg ID Read Access,spp_registry.model_spp_registry_id,spp_registry.group_registry_read,1,0,0,0
+access_spp_reg_rel_registry_read,Reg Rel Read Access,spp_registry.model_spp_registry_relationship,spp_registry.group_registry_read,1,0,0,0
+access_spp_id_type_registry_read,ID Type Read Access,spp_registry.model_spp_id_type,spp_registry.group_registry_read,1,0,0,0
+access_ir_model_registry_read,Res Model Read Access,base.model_ir_model,spp_registry.group_registry_read,1,0,0,0
+access_ir_model_fields_registry_read,Res Model Fields Read Access,base.model_ir_model_fields,spp_registry.group_registry_read,1,0,0,0
+access_spp_phone_validation_system,Phone Number Validation Admin Access,spp_base_common.model_spp_phone_validation,base.group_system,1,1,1,1
+access_spp_phone_validation_registry_read,Phone Number Validation Read Access,spp_base_common.model_spp_phone_validation,spp_registry.group_registry_read,1,0,0,0
+access_ir_actions_act_window_registry_read,IR Actions Act Window Read Access,base.model_ir_actions_act_window,spp_registry.group_registry_read,1,0,0,0
+access_ir_actions_act_window_view_registry_read,IR Actions Act Window View Read Access,base.model_ir_actions_act_window_view,spp_registry.group_registry_read,1,0,0,0
+access_res_partner_registry_write,Registry Write Access,base.model_res_partner,spp_registry.group_registry_write,1,1,0,0
+access_spp_phone_number_registry_write,Phone Number Write Access,spp_registry.model_spp_phone_number,spp_registry.group_registry_write,1,1,0,0
+access_spp_reg_id_registry_write,Reg ID Write Access,spp_registry.model_spp_registry_id,spp_registry.group_registry_write,1,1,0,0
+access_spp_reg_rel_registry_write,Reg Rel Write Access,spp_registry.model_spp_registry_relationship,spp_registry.group_registry_write,1,1,0,0
+access_spp_id_type_registry_write,ID Type Write Access,spp_registry.model_spp_id_type,spp_registry.group_registry_write,1,1,0,0
+access_ir_model_registry_write,Res Model Write Access,base.model_ir_model,spp_registry.group_registry_write,1,1,0,0
+access_ir_model_fields_registry_write,Res Model Fields Write Access,base.model_ir_model_fields,spp_registry.group_registry_write,1,1,0,0
+access_spp_phone_validation_registry_write,Phone Number Validation Write Access,spp_base_common.model_spp_phone_validation,spp_registry.group_registry_write,1,1,0,0
+access_ir_actions_act_window_registry_write,IR Actions Act Window Write Access,base.model_ir_actions_act_window,spp_registry.group_registry_write,1,1,0,0
+access_ir_actions_act_window_view_registry_write,IR Actions Act Window View Write Access,base.model_ir_actions_act_window_view,spp_registry.group_registry_write,1,1,0,0
+access_res_partner_registry_create,Registry Create Access,base.model_res_partner,spp_registry.group_registry_create,1,0,1,0
+access_spp_phone_number_registry_create,Phone Number Create Access,spp_registry.model_spp_phone_number,spp_registry.group_registry_create,1,0,1,0
+access_spp_reg_id_registry_create,Reg ID Create Access,spp_registry.model_spp_registry_id,spp_registry.group_registry_create,1,0,1,0
+access_spp_reg_rel_registry_create,Reg Rel Create Access,spp_registry.model_spp_registry_relationship,spp_registry.group_registry_create,1,0,1,0
+access_spp_id_type_registry_create,ID Type Create Access,spp_registry.model_spp_id_type,spp_registry.group_registry_create,1,0,1,0
+access_ir_model_registry_create,Res Model Create Access,base.model_ir_model,spp_registry.group_registry_create,1,0,1,0
+access_ir_model_fields_registry_create,Res Model Fields Create Access,base.model_ir_model_fields,spp_registry.group_registry_create,1,0,1,0
+access_spp_phone_validation_registry_create,Phone Number Validation Create Access,spp_base_common.model_spp_phone_validation,spp_registry.group_registry_create,1,0,1,0
+access_ir_actions_act_window_registry_create,IR Actions Act Window Create Access,base.model_ir_actions_act_window,spp_registry.group_registry_create,1,0,1,0
+access_ir_actions_act_window_view_registry_create,IR Actions Act Window View Create Access,base.model_ir_actions_act_window_view,spp_registry.group_registry_create,1,0,1,0
+access_ir_actions_act_window_user,IR Actions Act Window User Access,base.model_ir_actions_act_window,base.group_user,1,0,0,0
+access_ir_actions_act_window_view_user,IR Actions Act Window View User Access,base.model_ir_actions_act_window_view,base.group_user,1,0,0,0

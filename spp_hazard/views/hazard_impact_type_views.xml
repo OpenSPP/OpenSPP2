@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Hazard Impact Type List View -->
+    <record id="view_hazard_impact_type_list" model="ir.ui.view">
+        <field name="name">view.hazard.impact.type.list</field>
+        <field name="model">spp.hazard.impact.type</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="category" widget="badge"/>
+                <field name="impact_count" string="Usage"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Hazard Impact Type Form View -->
+    <record id="view_hazard_impact_type_form" model="ir.ui.view">
+        <field name="name">view.hazard.impact.type.form</field>
+        <field name="model">spp.hazard.impact.type</field>
+        <field name="arch" type="xml">
+            <form string="Impact Type">
+                <sheet>
+                    <widget name="web_ribbon" title="Inactive" bg_color="text-bg-danger"
+                        invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g., Displacement"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group name="main_info">
+                            <field name="code" placeholder="e.g., DISPLACEMENT"/>
+                            <field name="category"/>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                        </group>
+                        <group name="stats">
+                            <field name="impact_count"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Description" name="description">
+                            <field name="description"
+                                placeholder="Describe what this impact type means..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Hazard Impact Type Search View -->
+    <record id="view_hazard_impact_type_search" model="ir.ui.view">
+        <field name="name">view.hazard.impact.type.search</field>
+        <field name="model">spp.hazard.impact.type</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="code"/>
+                <filter name="active" string="Active" domain="[('active', '=', True)]"/>
+                <filter name="inactive" string="Inactive" domain="[('active', '=', False)]"/>
+                <separator/>
+                <filter name="physical" string="Physical" domain="[('category', '=', 'physical')]"/>
+                <filter name="economic" string="Economic" domain="[('category', '=', 'economic')]"/>
+                <filter name="health" string="Health" domain="[('category', '=', 'health')]"/>
+                <filter name="social" string="Social" domain="[('category', '=', 'social')]"/>
+                <separator/>
+                <group>
+                    <filter name="grp_category" string="Category"
+                        context="{'group_by': 'category'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Hazard Impact Type Action -->
+    <record id="action_hazard_impact_type" model="ir.actions.act_window">
+        <field name="name">Impact Types</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">spp.hazard.impact.type</field>
+        <field name="view_mode">list,form</field>
+        <field name="path">hazard-impact-types</field>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Define impact types
+            </p>
+            <p>
+                Create types of impacts to classify how registrants are affected
+                (e.g., Displacement, Property Damage, Livelihood Loss).
+            </p>
+        </field>
+    </record>
+</odoo>

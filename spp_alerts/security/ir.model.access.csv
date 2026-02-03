@@ -1,0 +1,13 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_alert_sysadmin,Alert System Admin,model_spp_alert,base.group_system,1,1,1,1
+access_spp_alert_rule_sysadmin,Alert Rule System Admin,model_spp_alert_rule,base.group_system,1,1,1,1
+access_spp_alert_admin,Alert Admin,model_spp_alert,spp_security.group_spp_admin,1,1,1,1
+access_spp_alert_rule_admin,Alert Rule Admin,model_spp_alert_rule,spp_security.group_spp_admin,1,1,1,1
+access_spp_alert_read,Alert Read,model_spp_alert,group_alerts_read,1,0,0,0
+access_spp_alert_rule_read,Alert Rule Read,model_spp_alert_rule,group_alerts_read,1,0,0,0
+access_spp_alert_write,Alert Write,model_spp_alert,group_alerts_write,1,1,0,0
+access_spp_alert_create,Alert Create,model_spp_alert,group_alerts_create,1,1,1,0
+access_spp_alert_manager,Alert Manager,model_spp_alert,group_alerts_manager,1,1,1,1
+access_spp_alert_rule_manager,Alert Rule Manager,model_spp_alert_rule,group_alerts_manager,1,1,1,1
+access_spp_alert_officer,Alert Officer,model_spp_alert,group_alerts_officer,1,1,1,0
+access_spp_alert_viewer,Alert Viewer,model_spp_alert,group_alerts_viewer,1,0,0,0

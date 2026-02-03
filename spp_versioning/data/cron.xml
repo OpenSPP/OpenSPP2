@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="ir_cron_activate_scheduled_versions" model="ir.cron">
+        <field name="name">Activate Scheduled Artifact Versions</field>
+        <field name="model_id" ref="model_spp_artifact_version"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_activate_scheduled_versions()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active">True</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,603 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* spp_service_points
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 15.0\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2023-02-24 02:22+0000\n"
+"Last-Translator: Ammar ALBAYATI <ammar.albayati@wfp.org>\n"
+"Language-Team: Arabic <https://translate.openspp.org/projects/openspp/"
+"spp_service_points/ar/>\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
+"X-Generator: Weblate 4.14\n"
+
+#. module: spp_service_points
+#: model_terms:ir.ui.view,arch_db:spp_service_points.view_service_points_form
+msgid "+63 XXX XXX XXXX"
+msgstr ""
+
+#. module: spp_service_points
+#: model_terms:ir.ui.view,arch_db:spp_service_points.view_service_points_form
+msgid ""
+"<span class=\"o_stat_text\">Create</span>\n"
+"                                <span class=\"o_stat_value\">User Account</"
+"span>"
+msgstr ""
+
+#. module: spp_service_points
+#: model_terms:ir.ui.view,arch_db:spp_service_points.view_service_points_form
+msgid ""
+"<span class=\"o_stat_text\">View</span>\n"
+"                                <span class=\"o_stat_value\">Area Details</"
+"span>"
+msgstr ""
+
+#. module: spp_service_points
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_point__message_needaction
+msgid "Action Needed"
+msgstr ""
+
+#. module: spp_service_points
+#: model_terms:ir.ui.view,arch_db:spp_service_points.service_points_filter
+#: model_terms:ir.ui.view,arch_db:spp_service_points.view_service_points_form
+msgid "Active"
+msgstr ""
+
+#. module: spp_service_points
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_point__is_contract_active
+#: model_terms:ir.ui.view,arch_db:spp_service_points.view_service_points_tree
+msgid "Active Contract"
+msgstr "حالة الوكالة"
+
+#. module: spp_service_points
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_point__shop_address
+#: model_terms:ir.ui.view,arch_db:spp_service_points.service_points_filter
+#: model_terms:ir.ui.view,arch_db:spp_service_points.view_service_points_form
+#: model_terms:ir.ui.view,arch_db:spp_service_points.view_service_points_tree
+msgid "Address"
+msgstr "عنوان"
+
+#. module: spp_service_points
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_point__name
+msgid "Agent"
+msgstr "الوكيل"
+
+#. module: spp_service_points
+#: model_terms:ir.ui.view,arch_db:spp_service_points.service_points_filter
+#, fuzzy
+msgid "Agent Name"
+msgstr "أسم الوكيل"
+
+#. module: spp_service_points
+#: model_terms:ir.ui.view,arch_db:spp_service_points.view_service_points_form
+msgid "Agent Name..."
+msgstr "أسم الوكيل"
+
+#. module: spp_service_points
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_point__area_id
+#: model_terms:ir.ui.view,arch_db:spp_service_points.service_points_filter
+msgid "Area"
+msgstr "المركز"
+
+#. module: spp_service_points
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_point__message_attachment_count
+msgid "Attachment Count"
+msgstr ""
+
+#. module: spp_service_points
+#: model:res.groups,comment:spp_service_points.group_service_points_officer
+msgid ""
+"Can view and edit service points and types. Can create new service points. "
+"Cannot delete. Standard role for service point coordinators."
+msgstr ""
+
+#. module: spp_service_points
+#: model:res.groups,comment:spp_service_points.group_service_points_viewer
+msgid ""
+"Can view service points and types. Cannot modify data. Useful for users who "
+"need to reference service points."
+msgstr ""
+
+#. module: spp_service_points
+#: model_terms:ir.actions.act_window,help:spp_service_points.action_service_points
+msgid "Click <strong>Create</strong> to add your first service point."
+msgstr ""
+
+#. module: spp_service_points
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_point__res_partner_company_id
+#: model_terms:ir.ui.view,arch_db:spp_service_points.view_service_points_form
+#: model_terms:ir.ui.view,arch_db:spp_service_points.view_service_points_tree
+msgid "Company"
+msgstr ""
+
+#. module: spp_service_points
+#. odoo-python
+#: code:addons/spp_service_points/models/registrant.py:0
+msgid "Company does not have contacts."
+msgstr ""
+
+#. module: spp_service_points
+#: model_terms:ir.ui.view,arch_db:spp_service_points.view_service_points_form
+msgid "Complete address of the service point..."
+msgstr ""
+
+#. module: spp_service_points
+#: model:ir.ui.menu,name:spp_service_points.service_points_configuration_menu_root
+msgid "Configuration"
+msgstr ""
+
+#. module: spp_service_points
+#: model:ir.model,name:spp_service_points.model_res_partner
+msgid "Contact"
+msgstr "اتصال"
+
+#. module: spp_service_points
+#: model_terms:ir.ui.view,arch_db:spp_service_points.view_service_points_form
+msgid "Contact Information"
+msgstr ""
+
+#. module: spp_service_points
+#: model_terms:ir.ui.view,arch_db:spp_service_points.service_points_filter
+#, fuzzy
+msgid "Contract Status"
+msgstr "اتصال"
+
+#. module: spp_service_points
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_point__country_id
+#: model_terms:ir.ui.view,arch_db:spp_service_points.service_points_filter
+msgid "Country"
+msgstr "البلد"
+
+#. module: spp_service_points
+#. odoo-python
+#: code:addons/spp_service_points/models/registrant.py:0
+#: code:addons/spp_service_points/tests/test_service_point.py:0
+msgid "Create SP User"
+msgstr ""
+
+#. module: spp_service_points
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_point__create_uid
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_type__create_uid
+msgid "Created by"
+msgstr "انشأ من قبل"
+
+#. module: spp_service_points
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_point__create_date
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_type__create_date
+msgid "Created on"
+msgstr "انشأ على"
+
+#. module: spp_service_points
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_point__disabled_date
+msgid "Date Disabled"
+msgstr ""
+
+#. module: spp_service_points
+#: model:res.groups,comment:spp_service_points.group_service_points_user
+msgid ""
+"Deprecated: Use group_service_points_officer instead. Can access service "
+"point management features."
+msgstr ""
+
+#. module: spp_service_points
+#: model:res.groups,comment:spp_service_points.service_point_users
+msgid "Deprecated: Use group_service_points_user instead."
+msgstr ""
+
+#. module: spp_service_points
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_point__disabled_reason
+msgid "Disable Reason"
+msgstr "سبب الايقاف"
+
+#. module: spp_service_points
+#: model_terms:ir.ui.view,arch_db:spp_service_points.view_service_points_form
+msgid "Disable Service Point"
+msgstr ""
+
+#. module: spp_service_points
+#: model_terms:ir.ui.view,arch_db:spp_service_points.view_service_points_form
+msgid "Disable this service point? You will need to provide a reason."
+msgstr ""
+
+#. module: spp_service_points
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_point__is_disabled
+#: model_terms:ir.ui.view,arch_db:spp_service_points.service_points_filter
+#: model_terms:ir.ui.view,arch_db:spp_service_points.view_service_points_form
+#: model_terms:ir.ui.view,arch_db:spp_service_points.view_service_points_tree
+msgid "Disabled"
+msgstr "ايقاف"
+
+#. module: spp_service_points
+#: model_terms:ir.ui.view,arch_db:spp_service_points.view_service_points_tree
+#, fuzzy
+msgid "Disabled On"
+msgstr "ايقاف"
+
+#. module: spp_service_points
+#: model:ir.model.fields,field_description:spp_service_points.field_res_partner__display_name
+#: model:ir.model.fields,field_description:spp_service_points.field_res_users__display_name
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_point__display_name
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_type__display_name
+msgid "Display Name"
+msgstr "الاسم"
+
+#. module: spp_service_points
+#: model_terms:ir.ui.view,arch_db:spp_service_points.view_service_points_form
+msgid "Enable Service Point"
+msgstr ""
+
+#. module: spp_service_points
+#: model_terms:ir.ui.view,arch_db:spp_service_points.view_service_points_form
+msgid "Enable this service point? It will become active again."
+msgstr ""
+
+#. module: spp_service_points
+#. odoo-python
+#: code:addons/spp_service_points/models/registrant.py:0
+msgid "Error on individual {child_name}: {error}"
+msgstr ""
+
+#. module: spp_service_points
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_point__message_follower_ids
+msgid "Followers"
+msgstr ""
+
+#. module: spp_service_points
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_point__message_partner_ids
+msgid "Followers (Partners)"
+msgstr ""
+
+#. module: spp_service_points
+#: model:res.groups,comment:spp_service_points.group_service_points_manager
+msgid ""
+"Full service point management including delete operations and configuration "
+"access. For service point administrators."
+msgstr ""
+
+#. module: spp_service_points
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_point__has_message
+msgid "Has Message"
+msgstr ""
+
+#. module: spp_service_points
+#: model:ir.model.fields,field_description:spp_service_points.field_res_partner__id
+#: model:ir.model.fields,field_description:spp_service_points.field_res_users__id
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_point__id
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_type__id
+msgid "ID"
+msgstr ""
+
+#. module: spp_service_points
+#: model:ir.model.fields,help:spp_service_points.field_spp_service_point__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr ""
+
+#. module: spp_service_points
+#: model:ir.model.fields,help:spp_service_points.field_spp_service_point__message_has_error
+#: model:ir.model.fields,help:spp_service_points.field_spp_service_point__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr ""
+
+#. module: spp_service_points
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_point__individual_ids
+msgid "Individual"
+msgstr ""
+
+#. module: spp_service_points
+#: model:ir.model.fields,field_description:spp_service_points.field_res_partner__individual_service_points_ids
+#: model:ir.model.fields,field_description:spp_service_points.field_res_users__individual_service_points_ids
+#, fuzzy
+msgid "Individual Service Points"
+msgstr "الوكلاء"
+
+#. module: spp_service_points
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_point__message_is_follower
+msgid "Is Follower"
+msgstr ""
+
+#. module: spp_service_points
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_point__write_uid
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_type__write_uid
+msgid "Last Updated by"
+msgstr "آخر تحديث بواسطة"
+
+#. module: spp_service_points
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_point__write_date
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_type__write_date
+msgid "Last Updated on"
+msgstr "آخر تحديث في"
+
+#. module: spp_service_points
+#: model:res.groups,name:spp_service_points.group_service_points_manager
+#: model:res.groups.privilege,name:spp_service_points.privilege_service_points_manager
+msgid "Manager"
+msgstr ""
+
+#. module: spp_service_points
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_point__message_has_error
+msgid "Message Delivery error"
+msgstr ""
+
+#. module: spp_service_points
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_point__message_ids
+msgid "Messages"
+msgstr ""
+
+#. module: spp_service_points
+#: model_terms:ir.ui.view,arch_db:spp_service_points.service_points_filter
+#, fuzzy
+msgid "No Active Contract"
+msgstr "حالة الوكالة"
+
+#. module: spp_service_points
+#: model_terms:ir.actions.act_window,help:spp_service_points.action_service_points
+#, fuzzy
+msgid "No service points found"
+msgstr "الوكلاء"
+
+#. module: spp_service_points
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_point__message_needaction_counter
+msgid "Number of Actions"
+msgstr ""
+
+#. module: spp_service_points
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_point__message_has_error_counter
+msgid "Number of errors"
+msgstr ""
+
+#. module: spp_service_points
+#: model:ir.model.fields,help:spp_service_points.field_spp_service_point__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr ""
+
+#. module: spp_service_points
+#: model:ir.model.fields,help:spp_service_points.field_spp_service_point__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr ""
+
+#. module: spp_service_points
+#: model:res.groups,name:spp_service_points.group_service_points_officer
+#: model:res.groups.privilege,name:spp_service_points.privilege_service_points_officer
+msgid "Officer"
+msgstr ""
+
+#. module: spp_service_points
+#: model_terms:ir.ui.view,arch_db:spp_service_points.service_points_filter
+#: model_terms:ir.ui.view,arch_db:spp_service_points.view_service_points_tree
+msgid "Phone"
+msgstr ""
+
+#. module: spp_service_points
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_point__phone_no
+msgid "Phone Number"
+msgstr "رقم الهاتف"
+
+#. module: spp_service_points
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_point__phone_sanitized
+msgid "Phone Sanitized"
+msgstr "رقم الهاتف"
+
+#. module: spp_service_points
+#: model_terms:ir.ui.view,arch_db:spp_service_points.view_service_points_form
+msgid "Provide reason for disabling this service point..."
+msgstr ""
+
+#. module: spp_service_points
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_point__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr ""
+
+#. module: spp_service_points
+#: model_terms:ir.ui.view,arch_db:spp_service_points.view_service_points_form
+#, fuzzy
+msgid "Sanitized Phone"
+msgstr "رقم الهاتف"
+
+#. module: spp_service_points
+#: model_terms:ir.ui.view,arch_db:spp_service_points.service_points_filter
+msgid "Search Service Points"
+msgstr "البحث عن وكيل"
+
+#. module: spp_service_points
+#: model_terms:ir.ui.view,arch_db:spp_service_points.view_service_points_form
+msgid "Select Area..."
+msgstr ""
+
+#. module: spp_service_points
+#: model_terms:ir.ui.view,arch_db:spp_service_points.view_service_points_form
+#, fuzzy
+msgid "Service Information"
+msgstr "الوكيل"
+
+#. module: spp_service_points
+#: model:ir.model,name:spp_service_points.model_spp_service_point
+#: model:ir.ui.menu,name:spp_service_points.service_points_main_menu_root
+#: model_terms:ir.ui.view,arch_db:spp_service_points.view_service_points_form
+msgid "Service Point"
+msgstr "الوكيل"
+
+#. module: spp_service_points
+#: model_terms:ir.ui.view,arch_db:spp_service_points.view_service_points_form
+#, fuzzy
+msgid "Service Point Disabled"
+msgstr "الوكلاء"
+
+#. module: spp_service_points
+#: model:res.groups,name:spp_service_points.service_point_users
+#, fuzzy
+msgid "Service Point User (Deprecated)"
+msgstr "الوكالة مفعلة."
+
+#. module: spp_service_points
+#: model:ir.actions.act_window,name:spp_service_points.action_service_points
+#: model:ir.model.fields,field_description:spp_service_points.field_res_partner__service_point_ids
+#: model:ir.model.fields,field_description:spp_service_points.field_res_users__service_point_ids
+#: model:ir.ui.menu,name:spp_service_points.menu_service_points
+#: model_terms:ir.ui.view,arch_db:spp_service_points.view_service_point_groups_form
+msgid "Service Points"
+msgstr "الوكلاء"
+
+#. module: spp_service_points
+#: model:res.groups,name:spp_service_points.group_service_points_create
+#, fuzzy
+msgid "Service Points: Create"
+msgstr "الوكلاء"
+
+#. module: spp_service_points
+#: model:res.groups,name:spp_service_points.group_service_points_read
+#, fuzzy
+msgid "Service Points: Read"
+msgstr "الوكلاء"
+
+#. module: spp_service_points
+#: model:res.groups,name:spp_service_points.group_service_points_write
+#, fuzzy
+msgid "Service Points: Write"
+msgstr "الوكلاء"
+
+#. module: spp_service_points
+#: model:ir.model,name:spp_service_points.model_spp_service_type
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_type__name
+#: model_terms:ir.ui.view,arch_db:spp_service_points.service_points_filter
+msgid "Service Type"
+msgstr "نوع الوكالة"
+
+#. module: spp_service_points
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_point__service_type_ids
+msgid "Service Types"
+msgstr "انواع الوكالات"
+
+#. module: spp_service_points
+#. odoo-python
+#: code:addons/spp_service_points/models/registrant.py:0
+msgid "Service point does not have company."
+msgstr ""
+
+#. module: spp_service_points
+#. odoo-python
+#: code:addons/spp_service_points/models/registrant.py:0
+msgid "Service point is already disabled."
+msgstr "الوكالة غير فعالة."
+
+#. module: spp_service_points
+#. odoo-python
+#: code:addons/spp_service_points/models/registrant.py:0
+msgid "Service point is already enabled."
+msgstr "الوكالة مفعلة."
+
+#. module: spp_service_points
+#: model_terms:ir.actions.act_window,help:spp_service_points.action_service_points
+msgid ""
+"Service points are agents or locations that provide services to registrants."
+msgstr ""
+
+#. module: spp_service_points
+#: model_terms:ir.ui.view,arch_db:spp_service_points.service_points_filter
+msgid "Status"
+msgstr ""
+
+#. module: spp_service_points
+#: model_terms:ir.ui.view,arch_db:spp_service_points.view_service_points_form
+msgid "Status Management"
+msgstr ""
+
+#. module: spp_service_points
+#. odoo-python
+#: code:addons/spp_service_points/models/registrant.py:0
+#: code:addons/spp_service_points/tests/test_service_point.py:0
+msgid "Successfully created users for the contacts of the company"
+msgstr ""
+
+#. module: spp_service_points
+#: model:res.groups,comment:spp_service_points.group_service_points_read
+msgid "Technical group for read access to service point models."
+msgstr ""
+
+#. module: spp_service_points
+#: model:res.groups,comment:spp_service_points.group_service_points_create
+msgid ""
+"Technical group for service point create access. Grants permission to create "
+"new service points and types."
+msgstr ""
+
+#. module: spp_service_points
+#: model:res.groups,comment:spp_service_points.group_service_points_write
+msgid "Technical group for write access to service point models."
+msgstr ""
+
+#. module: spp_service_points
+#: model_terms:ir.ui.view,arch_db:spp_service_points.view_service_points_form
+msgid ""
+"This service point is currently disabled and cannot accept new "
+"transactions.\n"
+"                                    Click \"Enable Service Point\" to "
+"reactivate."
+msgstr ""
+
+#. module: spp_service_points
+#: model:ir.model,name:spp_service_points.model_res_users
+msgid "User"
+msgstr ""
+
+#. module: spp_service_points
+#: model:res.groups,name:spp_service_points.group_service_points_user
+#: model:res.groups.privilege,name:spp_service_points.privilege_service_points_user
+msgid "User (Deprecated)"
+msgstr ""
+
+#. module: spp_service_points
+#: model:res.groups,name:spp_service_points.group_service_points_viewer
+#: model:res.groups.privilege,name:spp_service_points.privilege_service_points_viewer
+msgid "Viewer"
+msgstr ""
+
+#. module: spp_service_points
+#: model:ir.model.fields,field_description:spp_service_points.field_spp_service_point__website_message_ids
+msgid "Website Messages"
+msgstr ""
+
+#. module: spp_service_points
+#: model:ir.model.fields,help:spp_service_points.field_spp_service_point__website_message_ids
+msgid "Website communication history"
+msgstr ""
+
+#. module: spp_service_points
+#: model_terms:ir.ui.view,arch_db:spp_service_points.service_points_filter
+#, fuzzy
+msgid "With Active Contract"
+msgstr "حالة الوكالة"
+
+#. module: spp_service_points
+#. odoo-python
+#: code:addons/spp_service_points/models/registrant.py:0
+msgid "{child_name} does not have email."
+msgstr ""
+
+#~ msgid "Agent:"
+#~ msgstr "الوكيل :"
+
+#~ msgid "Area Name..."
+#~ msgstr "المركز..."
+
+#~ msgid "Area:"
+#~ msgstr "المركز:"
+
+#~ msgid "Create a new Service Point!"
+#~ msgstr "انشاء وكيل جديد!"
+
+#~ msgid "Group By"
+#~ msgstr "مجموعة من"
+
+#, fuzzy
+#~ msgid "DMS Directories"
+#~ msgstr "دليل الوثائق"
+
+#~ msgid "Last Modified on"
+#~ msgstr "تاريخ آخر تعديل"

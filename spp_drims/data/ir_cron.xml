@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Low Stock Alert Check Cron -->
+    <record id="cron_drims_check_low_stock" model="ir.cron">
+        <field name="name">DRIMS: Check Low Stock Levels</field>
+        <field name="model_id" ref="model_spp_drims_alert"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_check_low_stock()</field>
+        <field name="interval_number">4</field>
+        <field name="interval_type">hours</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- Expiry Alert Check Cron -->
+    <record id="cron_drims_check_expiry" model="ir.cron">
+        <field name="name">DRIMS: Check Item Expiry Dates</field>
+        <field name="model_id" ref="model_spp_drims_alert"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_check_expiry()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- SLA Breach Alert Check Cron -->
+    <record id="cron_drims_check_sla" model="ir.cron">
+        <field name="name">DRIMS: Check SLA Compliance</field>
+        <field name="model_id" ref="model_spp_drims_alert"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_check_sla()</field>
+        <field name="interval_number">2</field>
+        <field name="interval_type">hours</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- KPI Cache Refresh Cron -->
+    <record id="cron_refresh_drims_kpis" model="ir.cron">
+        <field name="name">DRIMS: Refresh KPI Cache</field>
+        <field name="model_id" ref="spp_hazard.model_spp_hazard_incident"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_refresh_drims_kpis()</field>
+        <field name="interval_number">15</field>
+        <field name="interval_type">minutes</field>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

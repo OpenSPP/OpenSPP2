@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!-- Variable Picker Component Template -->
+    <t t-name="spp_studio.VariablePicker">
+        <div class="variable-picker" t-att-class="{ 'open': state.isOpen, 'readonly': props.readonly }">
+
+            <!-- Selected display / Search input -->
+            <div class="vp-input-container" t-on-click="toggleDropdown">
+                <input
+                    type="text"
+                    class="vp-search-input form-control"
+                    t-ref="vpInput"
+                    t-att-placeholder="props.placeholder"
+                    t-model="state.searchTerm"
+                    t-on-input="onSearchInput"
+                    t-on-keydown="onKeyDown"
+                    t-att-readonly="props.readonly"
+                    autocomplete="off"
+                />
+                <i class="fa fa-chevron-down vp-chevron" t-att-class="{ 'rotated': state.isOpen }"/>
+
+                <!-- Clear button (shown when there's a selection) -->
+                <button
+                    t-if="props.selectedValue and !props.readonly"
+                    class="btn btn-link vp-clear-btn"
+                    t-on-click="clearSelection"
+                    title="Clear selection"
+                >
+                    <i class="fa fa-times"/>
+                </button>
+            </div>
+
+            <!-- Dropdown -->
+            <div class="vp-dropdown" t-if="state.isOpen" t-ref="vpDropdown">
+
+                <!-- Scope filter -->
+                <div class="vp-section vp-scope-section">
+                    <div class="vp-section-header">
+                        <i class="fa fa-filter"/> Scope
+                        <div class="ms-auto btn-group btn-group-sm">
+                            <button
+                                t-att-class="'btn btn-sm ' + (state.scopeFilter === 'all' ? 'btn-primary' : 'btn-outline-secondary')"
+                                t-on-click="() => this.setScopeFilter('all')"
+                            >
+                                All
+                            </button>
+                            <button
+                                t-att-class="'btn btn-sm ' + (state.scopeFilter === 'individual' ? 'btn-primary' : 'btn-outline-secondary')"
+                                t-on-click="() => this.setScopeFilter('individual')"
+                            >
+                                Individual
+                            </button>
+                            <button
+                                t-att-class="'btn btn-sm ' + (state.scopeFilter === 'group' ? 'btn-primary' : 'btn-outline-secondary')"
+                                t-on-click="() => this.setScopeFilter('group')"
+                            >
+                                Group
+                            </button>
+                            <button
+                                t-att-class="'btn btn-sm ' + (state.scopeFilter === 'shared' ? 'btn-primary' : 'btn-outline-secondary')"
+                                t-on-click="() => this.setScopeFilter('shared')"
+                            >
+                                Shared
+                            </button>
+                        </div>
+                    </div>
+                    <div class="text-muted small px-2 py-1">
+                        Shared = usable in both Individual and Group logic.
+                    </div>
+                </div>
+
+                <!-- Recently used section -->
+                <t t-if="recentlyUsedVariables.length and !state.searchTerm">
+                    <div class="vp-section vp-recent-section">
+                        <div class="vp-section-header">
+                            <i class="fa fa-clock-o"/> Recently Used
+                        </div>
+                        <t t-foreach="recentlyUsedVariables" t-as="variable" t-key="variable.id">
+                            <div
+                                class="vp-item"
+                                t-att-class="{ 'highlighted': isHighlighted(variable) }"
+                                t-on-click="() => this.selectVariable(variable)"
+                            >
+                                <span
+                                    class="vp-item-indicator"
+                                    t-att-title="getAvailabilityTitle(variable)"
+                                    t-esc="getAvailabilityIcon(variable)"
+                                />
+                                <div class="vp-item-content">
+                                    <div class="d-flex align-items-center gap-1">
+                                        <span class="vp-item-name" t-esc="variable.label || variable.name"/>
+                                        <span
+                                            class="badge badge-warning"
+                                            t-if="variable.source_type === 'constant'"
+                                        >
+                                            Constant
+                                        </span>
+                                        <span
+                                            class="badge badge-info"
+                                            t-if="getScopeLabel(variable)"
+                                            t-esc="getScopeLabel(variable)"
+                                        />
+                                    </div>
+                                </div>
+                                <span class="vp-item-type badge badge-secondary ms-auto" t-esc="variable.value_type"/>
+                            </div>
+                        </t>
+                    </div>
+                    <div class="vp-divider"/>
+                </t>
+
+                <!-- Constants section (when not searching) -->
+                <t t-if="!state.searchTerm and constantVariables.length">
+                    <div class="vp-section vp-constant-section">
+                        <div class="vp-section-header">
+                            <i class="fa fa-sliders"/> Constants &amp; Parameters
+                            <span class="vp-count text-muted ms-2">
+                                (<t t-esc="constantVariables.length"/>)
+                            </span>
+                        </div>
+                        <t t-foreach="constantVariables" t-as="variable" t-key="variable.id">
+                            <div
+                                class="vp-item"
+                                t-att-class="{ 'highlighted': isHighlighted(variable) }"
+                                t-on-click="() => this.selectVariable(variable)"
+                            >
+                                <span
+                                    class="vp-item-indicator"
+                                    t-att-title="getAvailabilityTitle(variable)"
+                                    t-esc="getAvailabilityIcon(variable)"
+                                />
+                                <div class="vp-item-content">
+                                    <div class="d-flex align-items-center gap-1">
+                                        <span class="vp-item-name" t-esc="variable.label || variable.name"/>
+                                        <span class="badge badge-warning">
+                                            Constant
+                                        </span>
+                                        <span
+                                            class="badge badge-info"
+                                            t-if="getScopeLabel(variable)"
+                                            t-esc="getScopeLabel(variable)"
+                                        />
+                                    </div>
+                                    <span class="vp-item-description text-muted" t-if="variable.description">
+                                        <small t-esc="variable.description"/>
+                                    </span>
+                                </div>
+                                <span class="vp-item-type badge badge-secondary ms-auto" t-esc="variable.value_type"/>
+                            </div>
+                        </t>
+                    </div>
+                    <div class="vp-divider"/>
+                </t>
+
+                <!-- Search results (flat list when searching) -->
+                <t t-if="state.searchTerm">
+                    <div class="vp-section vp-search-results">
+                        <div class="vp-section-header">
+                            <i class="fa fa-search"/> Search Results
+                            <span class="vp-count text-muted ms-2">
+                                (<t t-esc="filteredVariables.length"/>)
+                            </span>
+                        </div>
+
+                        <t t-if="filteredVariables.length">
+                            <t t-foreach="filteredVariables" t-as="variable" t-key="variable.id">
+                                <div
+                                    class="vp-item"
+                                    t-att-class="{ 'highlighted': isHighlighted(variable) }"
+                                    t-on-click="() => this.selectVariable(variable)"
+                                >
+                                    <span
+                                        class="vp-item-indicator"
+                                        t-att-title="getAvailabilityTitle(variable)"
+                                        t-esc="getAvailabilityIcon(variable)"
+                                    />
+                                    <div class="vp-item-content">
+                                        <div class="d-flex align-items-center gap-1">
+                                            <span class="vp-item-name" t-esc="variable.label || variable.name"/>
+                                            <span
+                                                class="badge badge-warning"
+                                                t-if="variable.source_type === 'constant'"
+                                            >
+                                                Constant
+                                            </span>
+                                            <span
+                                                class="badge badge-info"
+                                                t-if="getScopeLabel(variable)"
+                                                t-esc="getScopeLabel(variable)"
+                                            />
+                                        </div>
+                                        <span class="vp-item-cel text-muted" t-if="variable.cel_accessor">
+                                            <small t-esc="variable.cel_accessor"/>
+                                        </span>
+                                    </div>
+                                    <span class="vp-item-type badge badge-secondary ms-auto" t-esc="variable.value_type"/>
+                                </div>
+                            </t>
+                        </t>
+
+                        <div class="vp-empty text-muted text-center py-3" t-if="!filteredVariables.length">
+                            <i class="fa fa-search fa-2x mb-2 opacity-50"/>
+                            <div>No variables match "<t t-esc="state.searchTerm"/>"</div>
+                        </div>
+                    </div>
+                </t>
+
+                <!-- Categorized list (when not searching) -->
+                <t t-else="">
+                    <t t-foreach="variablesByCategory" t-as="category" t-key="category.id">
+                        <div class="vp-section vp-category-section">
+                            <div
+                                class="vp-section-header vp-category-header"
+                                t-on-click="() => this.toggleCategory(category.id)"
+                            >
+                                <i t-att-class="'fa ' + (category.icon || 'fa-folder')"/>
+                                <span class="vp-category-name" t-esc="category.name"/>
+                                <span class="vp-count text-muted">
+                                    (<t t-esc="category.variables.length"/>)
+                                </span>
+                                <i
+                                    class="fa vp-expand ms-auto"
+                                    t-att-class="{
+                                        'fa-chevron-down': isCategoryExpanded(category.id),
+                                        'fa-chevron-right': !isCategoryExpanded(category.id)
+                                    }"
+                                />
+                            </div>
+
+                            <div class="vp-category-items" t-if="isCategoryExpanded(category.id)">
+                                <t t-foreach="category.variables" t-as="variable" t-key="variable.id">
+                                    <div
+                                        class="vp-item"
+                                        t-att-class="{ 'highlighted': isHighlighted(variable) }"
+                                        t-on-click="() => this.selectVariable(variable)"
+                                    >
+                                        <span
+                                            class="vp-item-indicator"
+                                            t-att-title="getAvailabilityTitle(variable)"
+                                            t-esc="getAvailabilityIcon(variable)"
+                                        />
+                                        <div class="vp-item-content">
+                                            <div class="d-flex align-items-center gap-1">
+                                                <span class="vp-item-name" t-esc="variable.label || variable.name"/>
+                                                <span
+                                                    class="badge badge-warning"
+                                                    t-if="variable.source_type === 'constant'"
+                                                >
+                                                    Constant
+                                                </span>
+                                                <span
+                                                    class="badge badge-info"
+                                                    t-if="getScopeLabel(variable)"
+                                                    t-esc="getScopeLabel(variable)"
+                                                />
+                                            </div>
+                                            <span class="vp-item-description text-muted" t-if="variable.description">
+                                                <small t-esc="variable.description"/>
+                                            </span>
+                                        </div>
+                                        <span class="vp-item-type badge badge-secondary ms-auto" t-esc="variable.value_type"/>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </t>
+
+                    <!-- Empty state when no categories -->
+                    <div class="vp-empty text-muted text-center py-4" t-if="!variablesByCategory.length">
+                        <i class="fa fa-database fa-2x mb-2 opacity-50"/>
+                        <div>No variables available</div>
+                        <div><small>Create your first variable below</small></div>
+                    </div>
+                </t>
+
+                <!-- Footer with quick create link -->
+                <div class="vp-footer">
+                    <a
+                        href="#"
+                        class="vp-create-link text-primary"
+                        t-on-click="openCreateVariable"
+                    >
+                        <i class="fa fa-plus-circle"/> Can't find what you need? Create a new variable
+                    </a>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>

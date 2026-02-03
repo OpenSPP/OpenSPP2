@@ -1,0 +1,52 @@
+# Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+{
+    "name": "OpenSPP: Vocabulary",
+    "category": "OpenSPP",
+    "version": "19.0.1.6.0",
+    "sequence": 1,
+    "author": "OpenSPP.org",
+    "website": "https://github.com/OpenSPP/openspp-modules",
+    "license": "LGPL-3",
+    "development_status": "Stable",
+    "depends": ["base", "mail", "spp_security"],
+    "data": [
+        "security/privileges.xml",
+        "security/groups.xml",
+        "security/ir.model.access.csv",
+        "security/rules.xml",
+        "views/menu_root.xml",  # Root menu only (no actions) - must be first
+        "views/vocabulary_views.xml",
+        "views/vocabulary_code_views.xml",
+        "views/vocabulary_mapping_views.xml",
+        "views/concept_group_views.xml",
+        "views/deployment_profile_views.xml",
+        "views/vocabulary_selection_views.xml",
+        # Temporarily disabled to break circular dependency with spp_registry
+        # "views/relationship_views.xml",
+        "views/menu.xml",  # Child menus with actions - must be after view files
+        "data/vocabulary_gender.xml",
+        "data/vocabulary_relationship.xml",
+        "data/vocabulary_group_type.xml",
+        "data/vocabulary_group_membership_type.xml",
+        "data/vocabulary_marital_status.xml",
+        "data/vocabulary_occupation.xml",
+        "data/vocabulary_education_level.xml",
+        "data/vocabulary_ethnocultural.xml",
+        "data/vocabulary_disability.xml",
+        "data/vocabulary_housing.xml",
+        "data/vocabulary_economic_activity.xml",
+        "data/vocabulary_language.xml",
+        "data/vocabulary_country.xml",
+        "data/vocabulary_currency.xml",
+        "data/vocabulary_religion.xml",
+        "data/concept_groups.xml",
+        "data/vocabulary_id_type.xml",
+        "data/vocabulary_cr_document_types.xml",
+        # Temporarily disabled - references spp.relationship model from spp_registry
+        # "data/relationship_types.xml",
+    ],
+    "application": False,
+    "installable": True,
+    "auto_install": False,
+    # Note: Circular dependency with spp_registry handled by ensuring both are installed together
+}

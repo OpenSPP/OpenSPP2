@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- CCT Program Pack: Conditional Cash Transfer programs -->
+        <record id="pack_cct_program" model="spp.studio.pack">
+            <field name="name">Conditional Cash Transfer</field>
+            <field name="code">cct_program</field>
+            <field name="description">Complete logic pack for Conditional Cash Transfer (CCT) programs. Includes poverty targeting, conditionality compliance verification, and conditional benefit calculation.</field>
+            <field name="category">cash_transfer</field>
+            <field name="version">1.0</field>
+            <field name="author">OpenSPP</field>
+            <field name="state">available</field>
+        </record>
+
+        <!-- Eligibility: Income/Poverty Threshold -->
+        <record id="pack_cct_item_poverty_threshold" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_cct_program"/>
+            <field name="name">Poverty Threshold Check</field>
+            <field name="context_type">group</field>
+            <field name="description">Household income below national/regional poverty line.</field>
+            <field name="expression_type">filter</field>
+            <field name="logic_data">{"cel_expression": "per_capita_income &lt;= poverty_line"}</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <!-- Eligibility: Has Eligible Children -->
+        <record id="pack_cct_item_eligible_children" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_cct_program"/>
+            <field name="name">Eligible Children Present</field>
+            <field name="context_type">group</field>
+            <field name="description">Household must have children in eligible age range (typically 0-18).</field>
+            <field name="expression_type">filter</field>
+            <field name="logic_data">{"cel_expression": "children_0_5 > 0 || children_6_14 > 0 || children_15_18 > 0"}</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <!-- Eligibility: Education Conditionality -->
+        <record id="pack_cct_item_education_compliance" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_cct_program"/>
+            <field name="name">Education Conditionality Compliance</field>
+            <field name="context_type">group</field>
+            <field name="description">School-age children meeting minimum attendance requirement (typically 80-85%).</field>
+            <field name="expression_type">filter</field>
+            <field name="logic_data">{"cel_expression": "school_age_children == 0 || avg_school_attendance >= 85"}</field>
+            <field name="sequence">30</field>
+        </record>
+
+        <!-- Eligibility: Health Conditionality -->
+        <record id="pack_cct_item_health_compliance" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_cct_program"/>
+            <field name="name">Health Conditionality Compliance</field>
+            <field name="context_type">group</field>
+            <field name="description">Children under 5 meeting health checkup and vaccination requirements.</field>
+            <field name="expression_type">filter</field>
+            <field name="logic_data">{"cel_expression": "children_0_5 == 0 || (health_checkups_completed &amp;&amp; vaccinations_current)"}</field>
+            <field name="sequence">40</field>
+        </record>
+
+        <!-- Scoring: Poverty Depth Score -->
+        <record id="pack_cct_item_poverty_depth" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_cct_program"/>
+            <field name="name">Poverty Depth Score</field>
+            <field name="context_type">group</field>
+            <field name="description">Score based on poverty gap (distance below poverty line). Higher score = deeper poverty.</field>
+            <field name="expression_type">scoring</field>
+            <field name="logic_data">{"cel_expression": "(poverty_line - per_capita_income) / poverty_line * 100"}</field>
+            <field name="sequence">60</field>
+        </record>
+
+        <!-- Scoring: Conditionality Compliance Score -->
+        <record id="pack_cct_item_compliance_score" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_cct_program"/>
+            <field name="name">Conditionality Compliance Score</field>
+            <field name="context_type">group</field>
+            <field name="description">Weighted compliance across education and health conditionalities.</field>
+            <field name="expression_type">scoring</field>
+            <field name="logic_data">{"cel_expression": "(avg_school_attendance / 100 * 60) + (health_compliance_rate / 100 * 40)"}</field>
+            <field name="sequence">70</field>
+        </record>
+
+        <!-- Benefit: Base Household Grant -->
+        <record id="pack_cct_item_base_grant" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_cct_program"/>
+            <field name="name">Base Household Grant</field>
+            <field name="context_type">both</field>
+            <field name="description">Fixed base transfer amount per eligible household.</field>
+            <field name="expression_type">formula</field>
+            <field name="logic_data">{"cel_expression": "base_benefit"}</field>
+            <field name="sequence">80</field>
+        </record>
+
+        <!-- Benefit: Per-Child Education Bonus -->
+        <record id="pack_cct_item_education_bonus" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_cct_program"/>
+            <field name="name">Per-Child Education Bonus</field>
+            <field name="context_type">both</field>
+            <field name="description">Additional amount per school-age child meeting attendance requirements.</field>
+            <field name="expression_type">formula</field>
+            <field name="logic_data">{"cel_expression": "compliant_school_children * 200"}</field>
+            <field name="sequence">90</field>
+        </record>
+
+        <!-- Benefit: Health Compliance Bonus -->
+        <record id="pack_cct_item_health_bonus" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_cct_program"/>
+            <field name="name">Health Compliance Bonus</field>
+            <field name="context_type">both</field>
+            <field name="description">Bonus for households meeting all health conditionalities.</field>
+            <field name="expression_type">formula</field>
+            <field name="logic_data">{"cel_expression": "health_fully_compliant ? 300 : 0"}</field>
+            <field name="sequence">100</field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data noupdate="0">
+        <!-- API Path Configurations -->
+
+        <!-- Individual Resource Path -->
+        <record id="api_path_individual" model="spp.api.path">
+            <field name="sequence">10</field>
+            <field name="name">Individual</field>
+            <field name="model_id" ref="base.model_res_partner" />
+            <field name="description">Individual registrants in the social protection registry</field>
+            <field name="allow_custom_filters">False</field>
+            <field name="max_filter_complexity">10</field>
+            <field name="filter_domain">[('is_registrant', '=', True), ('is_group', '=', False)]</field>
+        </record>
+
+        <!-- Group Resource Path -->
+        <record id="api_path_group" model="spp.api.path">
+            <field name="sequence">20</field>
+            <field name="name">Group</field>
+            <field name="model_id" ref="base.model_res_partner" />
+            <field name="description">Group registrants (households, families) in the social protection registry</field>
+            <field name="allow_custom_filters">False</field>
+            <field name="max_filter_complexity">10</field>
+            <field name="filter_domain">[('is_registrant', '=', True), ('is_group', '=', True)]</field>
+        </record>
+
+        <!-- Program Resource Path -->
+        <record id="api_path_program" model="spp.api.path">
+            <field name="sequence">30</field>
+            <field name="name">Program</field>
+            <field name="model_id" ref="spp_programs.model_spp_program" />
+            <field name="description">Social protection programs</field>
+            <field name="allow_custom_filters">False</field>
+            <field name="max_filter_complexity">10</field>
+        </record>
+
+        <!-- ProgramMembership Resource Path -->
+        <record id="api_path_program_membership" model="spp.api.path">
+            <field name="sequence">40</field>
+            <field name="name">ProgramMembership</field>
+            <field name="model_id" ref="spp_programs.model_spp_program_membership" />
+            <field name="description">Beneficiary enrollments in programs</field>
+            <field name="allow_custom_filters">False</field>
+            <field name="max_filter_complexity">10</field>
+        </record>
+
+    </data>
+</odoo>

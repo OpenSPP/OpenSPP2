@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Encryption Key Tree View -->
+    <record id="spp_encryption_key_view_tree" model="ir.ui.view">
+        <field name="name">spp.encryption.key.view.tree</field>
+        <field name="model">spp.encryption.key</field>
+        <field name="arch" type="xml">
+            <list string="Encryption Keys" create="false" delete="false">
+                <field name="key_id"/>
+                <field name="version"/>
+                <field name="is_current" widget="boolean"/>
+                <field name="create_date"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Encryption Key Form View -->
+    <record id="spp_encryption_key_view_form" model="ir.ui.view">
+        <field name="name">spp.encryption.key.view.form</field>
+        <field name="model">spp.encryption.key</field>
+        <field name="arch" type="xml">
+            <form string="Encryption Key" create="false" delete="false">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="key_id"/>
+                            <field name="version"/>
+                            <field name="is_current"/>
+                        </group>
+                        <group>
+                            <field name="create_date"/>
+                            <field name="write_date"/>
+                        </group>
+                    </group>
+                    <group string="Encrypted Key Data">
+                        <field name="encrypted_key" readonly="1" password="True"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Encryption Key Action -->
+    <record id="action_encryption_key" model="ir.actions.act_window">
+        <field name="name">Encryption Keys</field>
+        <field name="res_model">spp.encryption.key</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_empty_folder">
+                No encryption keys found
+            </p>
+            <p>
+                Encryption keys are automatically created when data is encrypted.
+                Keys are stored securely using envelope encryption.
+            </p>
+        </field>
+    </record>
+
+</odoo>

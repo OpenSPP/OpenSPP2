@@ -1,0 +1,538 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- ========== Package Views ========== -->
+
+    <!-- Pack Kanban View (Primary - "App Store" Style) -->
+    <record id="view_logic_pack_kanban" model="ir.ui.view">
+        <field name="name">spp.studio.pack.kanban</field>
+        <field name="model">spp.studio.pack</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="category"/>
+                <field name="description"/>
+                <field name="version"/>
+                <field name="author"/>
+                <field name="state"/>
+                <field name="item_count"/>
+                <field name="missing_variable_count"/>
+                <field name="installed_date"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <!-- Category Badge -->
+                            <div class="o_kanban_record_top mb-2">
+                                <div class="o_kanban_record_headings">
+                                    <div class="float-end">
+                                        <span t-if="record.category.raw_value == 'cash_transfer'"
+                                              class="badge rounded-pill text-bg-primary">
+                                            <i class="fa fa-money" title="Money"/> Cash Transfer
+                                        </span>
+                                        <span t-elif="record.category.raw_value == 'emergency'"
+                                              class="badge rounded-pill text-bg-danger">
+                                            <i class="fa fa-exclamation-triangle" title="Warning"/> Emergency
+                                        </span>
+                                        <span t-elif="record.category.raw_value == 'education'"
+                                              class="badge rounded-pill text-bg-success">
+                                            <i class="fa fa-graduation-cap" title="Education"/> Education
+                                        </span>
+                                        <span t-elif="record.category.raw_value == 'health'"
+                                              class="badge rounded-pill" style="background-color: #9b59b6; color: white;">
+                                            <i class="fa fa-heartbeat" title="Health"/> Health
+                                        </span>
+                                        <span t-elif="record.category.raw_value == 'food_security'"
+                                              class="badge rounded-pill text-bg-warning">
+                                            <i class="fa fa-cutlery" title="Food"/> Food Security
+                                        </span>
+                                        <span t-elif="record.category.raw_value == 'social_pension'"
+                                              class="badge rounded-pill text-bg-info">
+                                            <i class="fa fa-user-circle" title="User"/> Social Pension
+                                        </span>
+                                        <span t-elif="record.category.raw_value == 'child_benefit'"
+                                              class="badge rounded-pill" style="background-color: #f39c12; color: white;">
+                                            <i class="fa fa-child" title="Child"/> Child Benefit
+                                        </span>
+                                        <span t-elif="record.category.raw_value == 'disability'"
+                                              class="badge rounded-pill" style="background-color: #16a085; color: white;">
+                                            <i class="fa fa-wheelchair" title="Disability"/> Disability
+                                        </span>
+                                        <span t-else="" class="badge rounded-pill text-bg-secondary">
+                                            <i class="fa fa-tag" title="Tag"/> Other
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pack Name -->
+                            <div class="o_kanban_record_title">
+                                <strong><field name="name"/></strong>
+                            </div>
+
+                            <!-- Version and Item Count -->
+                            <div class="text-muted small mb-2">
+                                <i class="fa fa-code-fork" title="Version"/> v<t t-esc="record.version.value"/>
+                                <span class="ms-2">
+                                    <i class="fa fa-cubes" title="Items"/> <t t-esc="record.item_count.value"/> items
+                                </span>
+                            </div>
+
+                            <!-- Description Preview -->
+                            <div class="o_kanban_record_body mb-2">
+                                <field name="description" widget="text"
+                                       class="text-muted"
+                                       t-att-title="record.description.value"/>
+                            </div>
+
+                            <!-- Author -->
+                            <div class="text-muted small mb-2" t-if="record.author.value">
+                                <i class="fa fa-user" title="Author"/> by <t t-esc="record.author.value"/>
+                            </div>
+
+                            <!-- Missing Variables Warning -->
+                            <div t-if="record.missing_variable_count.raw_value > 0"
+                                 class="alert alert-warning py-1 px-2 mb-2" role="alert">
+                                <i class="fa fa-exclamation-triangle" title="Warning"/>
+                                <t t-esc="record.missing_variable_count.value"/> missing variable(s)
+                            </div>
+
+                            <!-- Bottom: State and Actions -->
+                            <div class="o_kanban_record_bottom mt-2">
+                                <div class="oe_kanban_bottom_left">
+                                    <span t-if="record.state.raw_value == 'installed'"
+                                          class="badge text-bg-success">
+                                        <i class="fa fa-check" title="Installed"/> Installed
+                                    </span>
+                                    <span t-else="" class="badge text-bg-info">
+                                        <i class="fa fa-download" title="Download"/> Available
+                                    </span>
+                                </div>
+                                <div class="oe_kanban_bottom_right">
+                                    <button t-if="record.state.raw_value == 'available'"
+                                            name="action_install"
+                                            type="object"
+                                            class="btn btn-primary btn-sm">
+                                        <i class="fa fa-download" title="Download"/> Install
+                                    </button>
+                                    <span t-else="" class="text-muted small">
+                                        <i class="fa fa-calendar" title="Date"/>
+                                        <t t-esc="record.installed_date.value"/>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Pack Tree View -->
+    <record id="view_logic_pack_tree" model="ir.ui.view">
+        <field name="name">spp.studio.pack.tree</field>
+        <field name="model">spp.studio.pack</field>
+        <field name="arch" type="xml">
+            <list string="Packages" multi_edit="0">
+                <field name="sequence" widget="handle"/>
+                <field name="name" string="Package Name"/>
+                <field name="category" widget="badge"/>
+                <field name="version"/>
+                <field name="item_count"/>
+                <field name="state"
+                       widget="badge"
+                       decoration-success="state == 'installed'"
+                       />
+                <field name="installed_date" optional="show"/>
+                <field name="author" optional="show"/>
+                <button name="action_install"
+                        type="object"
+                        string="Install"
+                        icon="fa-download"
+                        class="btn-primary"
+                        invisible="state == 'installed'"
+                        groups="spp_studio.group_studio_manager"/>
+                <button name="action_uninstall"
+                        type="object"
+                        string="Uninstall"
+                        icon="fa-trash"
+                        class="btn-secondary"
+                        invisible="state == 'available'"
+                        groups="spp_studio.group_studio_manager"
+                        data-hotkey="x"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Pack Form View -->
+    <record id="view_logic_pack_form" model="ir.ui.view">
+        <field name="name">spp.studio.pack.form</field>
+        <field name="model">spp.studio.pack</field>
+        <field name="arch" type="xml">
+            <form string="Package">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="available,installed"/>
+                    <button name="action_install"
+                            type="object"
+                            string="Install"
+                            class="btn-primary"
+                            invisible="state == 'installed'"
+                            groups="spp_studio.group_studio_manager"/>
+                    <button name="action_uninstall"
+                            type="object"
+                            string="Uninstall"
+                            class="btn-secondary"
+                            invisible="state == 'available'"
+                            groups="spp_studio.group_studio_manager"
+                            confirm="Are you sure you want to uninstall this package? This will not delete the installed items."/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_items"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-cubes">
+                            <field name="item_count" widget="statinfo" string="Items"/>
+                        </button>
+                    </div>
+
+                    <widget name="web_ribbon"
+                            title="Installed"
+                            bg_color="text-bg-success"
+                            invisible="state != 'installed'"/>
+
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Pack Name" required="1"/>
+                        </h1>
+                        <h3>
+                            <field name="code" placeholder="unique_pack_code" required="1"/>
+                        </h3>
+                    </div>
+
+                    <group>
+                        <group name="basic_info">
+                            <field name="category" required="1"/>
+                            <field name="version"/>
+                            <field name="author"/>
+                            <field name="sequence"/>
+                        </group>
+                        <group name="installation_info">
+                            <field name="installed_date" readonly="1" invisible="state != 'installed'"/>
+                            <field name="missing_variable_count"
+                                   invisible="1"/>
+                        </group>
+                    </group>
+
+                    <separator string="Description"/>
+                    <field name="description"
+                           nolabel="1"
+                           placeholder="Describe what this pack provides and when to use it..."
+                           class="oe_inline"/>
+
+                    <notebook>
+                        <page string="Contents" name="contents">
+                            <field name="item_ids" nolabel="1">
+                                <list decoration-success="is_installed">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="expression_type"
+                                           widget="badge"
+                                           decoration-primary="expression_type == 'filter'"
+                                           decoration-success="expression_type == 'formula'"
+                                           decoration-warning="expression_type == 'scoring'"/>
+                                    <field name="description" optional="show"/>
+                                    <field name="is_installed" widget="boolean_toggle" readonly="1"/>
+                                    <button name="action_view_installed"
+                                            type="object"
+                                            string="View"
+                                            icon="fa-external-link"
+                                            invisible="not is_installed"/>
+                                </list>
+                            </field>
+                            <div class="text-muted mt-2" invisible="item_ids">
+                                <i class="fa fa-info-circle" title="Information"/> This package contains no items yet.
+                            </div>
+                        </page>
+
+                        <page string="Requirements" name="requirements">
+                            <!-- Required Variables -->
+                            <group string="Required Variables">
+                                <field name="required_variable_ids"
+                                       nolabel="1"
+                                       widget="many2many_tags"
+                                       options="{'no_create': True}"/>
+                            </group>
+
+                            <!-- Missing Variables Warning -->
+                            <div invisible="missing_variable_count == 0"
+                                 class="alert alert-warning mt-2"
+                                 role="alert">
+                                <strong>
+                                    <i class="fa fa-exclamation-triangle" title="Warning"/> Warning:
+                                </strong>
+                                <field name="missing_variable_count"/> required variable(s) are missing.
+                                The package can be installed but some expressions may not work correctly.
+                            </div>
+
+                            <!-- Required Modules -->
+                            <group string="Required Modules">
+                                <field name="required_modules"
+                                       placeholder="e.g., spp_programs, spp_eligibility_tags"
+                                       help="Comma-separated list of required Odoo modules"/>
+                            </group>
+                        </page>
+
+                        <page string="Test Personas" name="personas">
+                            <group>
+                                <field name="persona_ids" nolabel="1">
+                                    <list>
+                                        <field name="name"/>
+                                        <field name="category"/>
+                                        <field name="description"/>
+                                    </list>
+                                </field>
+                            </group>
+                            <div class="text-muted mt-2" invisible="persona_ids">
+                                <i class="fa fa-info-circle" title="Information"/>
+                                No test personas included with this package.
+                                Test personas help validate that the expressions work correctly.
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Pack Search View -->
+    <record id="view_logic_pack_search" model="ir.ui.view">
+        <field name="name">spp.studio.pack.search</field>
+        <field name="model">spp.studio.pack</field>
+        <field name="arch" type="xml">
+            <search string="Search Packages">
+                <field name="name" string="Package" filter_domain="['|', ('name', 'ilike', self), ('description', 'ilike', self)]"/>
+                <field name="code"/>
+                <field name="category"/>
+                <field name="author"/>
+                <separator/>
+                <filter name="filter_available"
+                        string="Available"
+                        domain="[('state', '=', 'available')]"/>
+                <filter name="filter_installed"
+                        string="Installed"
+                        domain="[('state', '=', 'installed')]"/>
+                <separator/>
+                <filter name="filter_cash_transfer"
+                        string="Cash Transfer"
+                        domain="[('category', '=', 'cash_transfer')]"/>
+                <filter name="filter_emergency"
+                        string="Emergency"
+                        domain="[('category', '=', 'emergency')]"/>
+                <filter name="filter_education"
+                        string="Education"
+                        domain="[('category', '=', 'education')]"/>
+                <filter name="filter_health"
+                        string="Health"
+                        domain="[('category', '=', 'health')]"/>
+                <filter name="filter_food_security"
+                        string="Food Security"
+                        domain="[('category', '=', 'food_security')]"/>
+                <filter name="filter_social_pension"
+                        string="Social Pension"
+                        domain="[('category', '=', 'social_pension')]"/>
+                <filter name="filter_child_benefit"
+                        string="Child Benefit"
+                        domain="[('category', '=', 'child_benefit')]"/>
+                <filter name="filter_disability"
+                        string="Disability"
+                        domain="[('category', '=', 'disability')]"/>
+                <separator/>
+                <group>
+                    <filter name="group_category"
+                            string="Category"
+                            context="{'group_by': 'category'}"/>
+                    <filter name="group_state"
+                            string="Status"
+                            context="{'group_by': 'state'}"/>
+                    <filter name="group_author"
+                            string="Author"
+                            context="{'group_by': 'author'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ========== Package Item Views ========== -->
+
+    <!-- Package Item Tree View (Standalone) -->
+    <record id="view_logic_pack_item_tree" model="ir.ui.view">
+        <field name="name">spp.studio.pack.item.tree</field>
+        <field name="model">spp.studio.pack.item</field>
+        <field name="arch" type="xml">
+            <list string="Package Items" multi_edit="0">
+                <field name="sequence" widget="handle"/>
+                <field name="pack_id"/>
+                <field name="name"/>
+                <field name="expression_type"
+                       widget="badge"
+                       decoration-primary="expression_type == 'filter'"
+                       decoration-success="expression_type == 'formula'"
+                       decoration-warning="expression_type == 'scoring'"
+                       />
+                <field name="context_type" widget="badge"/>
+                <field name="description"/>
+                <field name="is_installed" widget="boolean_toggle"/>
+                <button name="action_view_installed"
+                        type="object"
+                        string="View Installed"
+                        icon="fa-external-link"
+                        invisible="not is_installed"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Package Item Form View -->
+    <record id="view_logic_pack_item_form" model="ir.ui.view">
+        <field name="name">spp.studio.pack.item.form</field>
+        <field name="model">spp.studio.pack.item</field>
+        <field name="arch" type="xml">
+            <form string="Package Item">
+                <sheet>
+                    <widget name="web_ribbon"
+                            title="Installed"
+                            bg_color="text-bg-success"
+                            invisible="not is_installed"/>
+
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_installed"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-external-link"
+                                invisible="not is_installed">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_text">View</span>
+                                <span class="o_stat_text">Installed</span>
+                            </div>
+                        </button>
+                    </div>
+
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Logic Item Name" required="1"/>
+                        </h1>
+                        <h3>
+                            <field name="pack_id" readonly="1"/>
+                        </h3>
+                    </div>
+
+                    <group>
+                        <group name="basic">
+                            <field name="expression_type" required="1"/>
+                            <field name="context_type"/>
+                            <field name="sequence"/>
+                        </group>
+                        <group name="status">
+                            <field name="is_installed" readonly="1"/>
+                            <field name="installed_logic_id" readonly="1" invisible="not is_installed"/>
+                        </group>
+                    </group>
+
+                    <separator string="Description"/>
+                    <field name="description"
+                           nolabel="1"
+                           placeholder="Describe what this logic item does..."/>
+
+                    <separator string="Logic Definition"/>
+                    <field name="logic_data"
+                           nolabel="1"
+                           widget="ace"
+                           options="{'mode': 'javascript', 'height': 250}"
+                           placeholder='{"cel_expression": "..."}'/>
+
+                    <div class="alert alert-info mt-2" role="alert">
+                        <i class="fa fa-info-circle" title="Information"/>
+                        <strong>Note:</strong>
+                        The logic data is stored as JSON and will be parsed during installation
+                        to create the actual logic records.
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Package Item Search View -->
+    <record id="view_logic_pack_item_search" model="ir.ui.view">
+        <field name="name">spp.studio.pack.item.search</field>
+        <field name="model">spp.studio.pack.item</field>
+        <field name="arch" type="xml">
+            <search string="Search Package Items">
+                <field name="name"/>
+                <field name="pack_id"/>
+                <field name="expression_type"/>
+                <field name="context_type"/>
+                <separator/>
+                <filter name="filter_installed"
+                        string="Installed"
+                        domain="[('is_installed', '=', True)]"/>
+                <filter name="filter_not_installed"
+                        string="Not Installed"
+                        domain="[('is_installed', '=', False)]"/>
+                <separator/>
+                <group>
+                    <filter name="group_pack"
+                            string="Package"
+                            context="{'group_by': 'pack_id'}"/>
+                    <filter name="group_type"
+                            string="Expression Type"
+                            context="{'group_by': 'expression_type'}"/>
+                    <filter name="group_context"
+                            string="Context"
+                            context="{'group_by': 'context_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ========== Actions ========== -->
+
+    <!-- Main Package Browser Action -->
+    <record id="action_logic_pack_list" model="ir.actions.act_window">
+        <field name="name">Packages</field>
+        <field name="path">packages</field>
+        <field name="res_model">spp.studio.pack</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="search_view_id" ref="view_logic_pack_search"/>
+        <field name="context">{'search_default_filter_available': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No packages available
+            </p>
+            <p>
+                Packages are pre-configured bundles of expressions, eligibility rules,
+                and other logic for common use cases like cash transfers, food security programs,
+                emergency response, and more.
+            </p>
+            <p>
+                Browse available packages and install them to quickly set up your programs.
+            </p>
+        </field>
+    </record>
+
+    <!-- Package Items Action -->
+    <record id="action_logic_pack_item_list" model="ir.actions.act_window">
+        <field name="name">Package Items</field>
+        <field name="res_model">spp.studio.pack.item</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_logic_pack_item_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No package items found
+            </p>
+            <p>
+                Package items are individual expression definitions within a package.
+            </p>
+        </field>
+    </record>
+
+</odoo>

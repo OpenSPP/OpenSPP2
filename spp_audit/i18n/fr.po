@@ -1,0 +1,404 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* spp_audit
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#. module: spp_audit
+#. odoo-python
+#: code:addons/spp_audit/models/spp_audit_rule.py:0
+msgid "A rule is already existed for the selected model."
+msgstr "Une règle existe déjà pour le modèle sélectionné."
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_rule__action_id
+msgid "Add in the 'More' menu"
+msgstr "Ajouter dans le menu « Plus »"
+
+#. module: spp_audit
+#: model:ir.ui.menu,name:spp_audit.audit_submenu
+msgid "Audit"
+msgstr "Audit"
+
+#. module: spp_audit
+#: model:ir.actions.act_window,name:spp_audit.spp_audit_log_action_window
+#: model:ir.ui.menu,name:spp_audit.menu_root
+#: model_terms:ir.ui.view,arch_db:spp_audit.spp_audit_log_form
+msgid "Audit Log"
+msgstr "Journal d’audit"
+
+#. module: spp_audit
+#: model:ir.actions.act_window,name:spp_audit.spp_audit_rule_action_window
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_log__audit_rule_id
+#: model_terms:ir.ui.view,arch_db:spp_audit.spp_audit_rule_form
+msgid "Audit Rule"
+msgstr "Règle d’audit"
+
+#. module: spp_audit
+#: model_terms:ir.ui.view,arch_db:spp_audit.spp_audit_log_form
+msgid "Changes"
+msgstr "Modifications"
+
+#. module: spp_audit
+#: model:ir.model,name:spp_audit.model_res_partner
+msgid "Contact"
+msgstr "Contact"
+
+#. module: spp_audit
+#: model_terms:ir.actions.act_window,help:spp_audit.spp_audit_log_action_window
+msgid "Create and manage the audit log."
+msgstr "Créer et gérer le journal d’audit."
+
+#. module: spp_audit
+#: model_terms:ir.actions.act_window,help:spp_audit.spp_audit_rule_action_window
+msgid "Create and manage the audit rule."
+msgstr "Créer et gérer la règle d’audit."
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_log__create_uid
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_rule__create_uid
+msgid "Created by"
+msgstr "Créé par"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_rule__create_date
+msgid "Created on"
+msgstr "Créé le"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_log__data
+msgid "Data"
+msgstr "Données"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_log__create_date
+msgid "Date"
+msgstr "Date"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_res_partner__display_name
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_log__display_name
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_rule__display_name
+msgid "Display Name"
+msgstr "Nom affiché"
+
+#. module: spp_audit
+#. odoo-python
+#: code:addons/spp_audit/models/spp_audit_log.py:0
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_rule__field_id
+msgid "Field"
+msgstr "Champ"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_rule__field_id_domain
+msgid "Field Id Domain"
+msgstr "Domaine de l’identifiant du champ"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_rule__field_to_log_ids_domain
+msgid "Field To Log Ids Domain"
+msgstr "Domaine des identifiants des champs à journaliser"
+
+#. module: spp_audit
+#. odoo-python
+#: code:addons/spp_audit/models/spp_audit_rule.py:0
+msgid "Field is required if the rule is a child rule."
+msgstr "Le champ est obligatoire si la règle est une règle enfant."
+
+#. module: spp_audit
+#: model:ir.model.fields,help:spp_audit.field_spp_audit_rule__field_id
+msgid "Field that connects this model to the model of the parent rule."
+msgstr "Champ qui relie ce modèle au modèle de la règle parente."
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_rule__field_to_log_ids
+msgid "Fields to log"
+msgstr "Champs à journaliser"
+
+#. module: spp_audit
+#: model_terms:ir.ui.view,arch_db:spp_audit.spp_audit_rule_form
+msgid "File Access Logging"
+msgstr "Journalisation des accès aux fichiers"
+
+#. module: spp_audit
+#: model:res.groups,comment:spp_audit.group_audit_manager
+msgid "Full audit log management including configuration and log viewing."
+msgstr ""
+"Gestion complète des journaux d’audit, y compris la configuration et la "
+"consultation des journaux."
+
+#. module: spp_audit
+#: model_terms:ir.ui.view,arch_db:spp_audit.spp_audit_rule_form
+msgid "General"
+msgstr "Général"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_res_partner__group_member_names
+#: model:ir.model.fields,field_description:spp_audit.field_res_users__group_member_names
+#: model:ir.model.fields,field_description:spp_audit.field_spp_program_membership__group_member_names
+msgid "Group Member Names"
+msgstr "Noms des membres du groupe"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_log__data_html
+msgid "HTML Data"
+msgstr "Données HTML"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_rule__is_mail_thread
+msgid "Has Mail Thread"
+msgstr "Dispose d’un fil de discussion"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_res_partner__id
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_log__id
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_rule__id
+msgid "ID"
+msgstr "ID"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_log__write_uid
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_rule__write_uid
+msgid "Last Updated by"
+msgstr "Dernière mise à jour par"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_log__write_date
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_rule__write_date
+msgid "Last Updated on"
+msgstr "Dernière mise à jour le"
+
+#. module: spp_audit
+#: model_terms:ir.ui.view,arch_db:spp_audit.spp_audit_rule_form
+msgid "Lifecycle Actions (Explicit)"
+msgstr "Actions du cycle de vie (explicites)"
+
+#. module: spp_audit
+#: model:ir.ui.menu,name:spp_audit.log_menu
+msgid "Log"
+msgstr "Journal"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_rule__is_log_activate
+msgid "Log Activation"
+msgstr "Journaliser l’activation"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_rule__is_log_create
+msgid "Log Creation"
+msgstr "Journaliser la création"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_rule__is_log_export
+msgid "Log Data Exports"
+msgstr "Journaliser les exportations de données"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_rule__is_log_deactivate
+msgid "Log Deactivation"
+msgstr "Journaliser la désactivation"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_rule__is_log_unlink
+msgid "Log Deletion"
+msgstr "Journaliser la suppression"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_rule__is_log_download
+msgid "Log File Downloads"
+msgstr "Journaliser les téléchargements de fichiers"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_rule__is_log_preview
+msgid "Log File Previews"
+msgstr "Journaliser les aperçus de fichiers"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_rule__is_log_state_change
+msgid "Log State Changes"
+msgstr "Journaliser les changements d’état"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_log__log_to
+msgid "Log To"
+msgstr "Journaliser vers"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_rule__is_log_write
+msgid "Log Update"
+msgstr "Journaliser la mise à jour"
+
+#. module: spp_audit
+#: model:ir.model.fields,help:spp_audit.field_spp_audit_rule__is_log_state_change
+msgid "Log generic state changes like set_draft, approve, reject"
+msgstr ""
+"Journaliser les changements d’état génériques tels que set_draft, approve, "
+"reject"
+
+#. module: spp_audit
+#: model:ir.model.fields,help:spp_audit.field_spp_audit_rule__is_log_export
+msgid "Log when data from this model is exported"
+msgstr "Journaliser lorsque les données de ce modèle sont exportées"
+
+#. module: spp_audit
+#: model:ir.model.fields,help:spp_audit.field_spp_audit_rule__is_log_download
+msgid "Log when files associated with this model are downloaded"
+msgstr "Journaliser lorsque les fichiers associés à ce modèle sont téléchargés"
+
+#. module: spp_audit
+#: model:ir.model.fields,help:spp_audit.field_spp_audit_rule__is_log_preview
+msgid "Log when files associated with this model are previewed"
+msgstr ""
+"Journaliser lorsque les fichiers associés à ce modèle sont prévisualisés"
+
+#. module: spp_audit
+#: model:ir.model.fields,help:spp_audit.field_spp_audit_rule__is_log_activate
+msgid ""
+"Log when records are activated (requires explicit call to "
+"log_lifecycle_action)"
+msgstr ""
+"Journaliser lorsque les enregistrements sont activés (nécessite un appel "
+"explicite à log_lifecycle_action)"
+
+#. module: spp_audit
+#: model:ir.model.fields,help:spp_audit.field_spp_audit_rule__is_log_deactivate
+msgid ""
+"Log when records are deactivated (requires explicit call to "
+"log_lifecycle_action)"
+msgstr ""
+"Journaliser lorsque les enregistrements sont désactivés (nécessite un appel "
+"explicite à log_lifecycle_action)"
+
+#. module: spp_audit
+#: model:res.groups,name:spp_audit.group_audit_manager
+#: model:res.groups.privilege,name:spp_audit.privilege_audit_manager
+msgid "Manager"
+msgstr "Gestionnaire"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_log__method
+msgid "Method"
+msgstr "Méthode"
+
+#. module: spp_audit
+#. odoo-python
+#: code:addons/spp_audit/models/spp_audit_log.py:0
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_log__model_id
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_rule__model_id
+msgid "Model"
+msgstr "Modèle"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_log__model
+msgid "Model Name"
+msgstr "Nom du modèle"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_rule__name
+msgid "Name"
+msgstr "Nom"
+
+#. module: spp_audit
+#. odoo-python
+#: code:addons/spp_audit/models/spp_audit_log.py:0
+msgid "New value"
+msgstr "Nouvelle valeur"
+
+#. module: spp_audit
+#. odoo-python
+#: code:addons/spp_audit/models/spp_audit_log.py:0
+msgid "Old value"
+msgstr "Ancienne valeur"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_log__parent_data_html
+msgid "Parent HTML Data"
+msgstr "Données HTML du parent"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_log__parent_model_id
+msgid "Parent Model"
+msgstr "Modèle parent"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_rule__parent_path
+msgid "Parent Path"
+msgstr "Chemin du parent"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_log__parent_res_ids_str
+msgid "Parent Res Ids Str"
+msgstr "Chaîne des identifiants de ressources parentes"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_rule__parent_id
+msgid "Parent Rule"
+msgstr "Règle parente"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_rule__child_ids
+#: model_terms:ir.ui.view,arch_db:spp_audit.spp_audit_rule_form
+msgid "Related Rules"
+msgstr "Règles liées"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_log__res_id
+msgid "Resource Id"
+msgstr "Identifiant de la ressource"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_log__name
+msgid "Resource Name"
+msgstr "Nom de la ressource"
+
+#. module: spp_audit
+#: model:ir.ui.menu,name:spp_audit.rule_menu
+msgid "Rule"
+msgstr "Règle"
+
+#. module: spp_audit
+#: model:ir.model,name:spp_audit.model_spp_audit_log
+msgid "SPP Audit Log"
+msgstr "Journal d’audit SPP"
+
+#. module: spp_audit
+#: model:ir.model,name:spp_audit.model_spp_audit_rule
+msgid "SPP Audit Rule"
+msgstr "Règle d’audit SPP"
+
+#. module: spp_audit
+#: model_terms:ir.ui.view,arch_db:spp_audit.spp_audit_rule_form
+msgid "Standard Actions (Automatic)"
+msgstr "Actions standard (automatiques)"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_log__user_id
+msgid "User"
+msgstr "Utilisateur"
+
+#. module: spp_audit
+#: model:ir.model.fields,field_description:spp_audit.field_spp_audit_rule__is_view_logs
+msgid "View Logs Action Menu"
+msgstr "Menu d’action « Voir les journaux »"
+
+#. module: spp_audit
+#. odoo-python
+#: code:addons/spp_audit/models/spp_audit_rule.py:0
+msgid "View logs"
+msgstr "Voir les journaux"
+
+#. module: spp_audit
+#. odoo-python
+#: code:addons/spp_audit/models/spp_audit_log.py:0
+msgid "You cannot remove audit logs!"
+msgstr "Vous ne pouvez pas supprimer les journaux d’audit !"

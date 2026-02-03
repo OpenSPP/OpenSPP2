@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Benefit Adjustments Pack: Inflation, caps, and indexation -->
+        <record id="pack_benefit_adjustments" model="spp.studio.pack">
+            <field name="name">Benefit Adjustments</field>
+            <field name="code">benefit_adjustments</field>
+            <field name="description">Logic pack for benefit adjustments including inflation indexation, benefit caps, top-ups for vulnerable groups, and periodic adjustments.</field>
+            <field name="category">other</field>
+            <field name="version">1.0</field>
+            <field name="author">OpenSPP</field>
+            <field name="state">available</field>
+        </record>
+
+        <!-- Benefit: Inflation Indexation -->
+        <record id="pack_adj_item_inflation" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_benefit_adjustments"/>
+            <field name="name">Inflation Indexation</field>
+            <field name="context_type">both</field>
+            <field name="description">Adjust benefit by cumulative inflation since baseline year.</field>
+            <field name="expression_type">formula</field>
+            <field name="logic_data">{"cel_expression": "base_benefit * (1 + cumulative_inflation_rate)"}</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <!-- Benefit: CPI-Linked Adjustment -->
+        <record id="pack_adj_item_cpi" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_benefit_adjustments"/>
+            <field name="name">CPI-Linked Adjustment</field>
+            <field name="context_type">both</field>
+            <field name="description">Benefit indexed to Consumer Price Index changes.</field>
+            <field name="expression_type">formula</field>
+            <field name="logic_data">{"cel_expression": "base_benefit * (current_cpi / baseline_cpi)"}</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <!-- Benefit: Food Price Index -->
+        <record id="pack_adj_item_food_price" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_benefit_adjustments"/>
+            <field name="name">Food Price Adjustment</field>
+            <field name="context_type">both</field>
+            <field name="description">Adjust benefit based on food price index (for food security programs).</field>
+            <field name="expression_type">formula</field>
+            <field name="logic_data">{"cel_expression": "base_benefit * (current_food_price_index / baseline_food_price_index)"}</field>
+            <field name="sequence">30</field>
+        </record>
+
+        <!-- Benefit: Minimum Floor -->
+        <record id="pack_adj_item_floor" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_benefit_adjustments"/>
+            <field name="name">Benefit Floor</field>
+            <field name="context_type">both</field>
+            <field name="description">Ensure benefit never falls below minimum amount.</field>
+            <field name="expression_type">formula</field>
+            <field name="logic_data">{"cel_expression": "calculated_benefit > minimum_benefit ? calculated_benefit : minimum_benefit"}</field>
+            <field name="sequence">40</field>
+        </record>
+
+        <!-- Benefit: Maximum Cap -->
+        <record id="pack_adj_item_cap" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_benefit_adjustments"/>
+            <field name="name">Benefit Cap</field>
+            <field name="context_type">both</field>
+            <field name="description">Cap total household benefit at maximum amount.</field>
+            <field name="expression_type">formula</field>
+            <field name="logic_data">{"cel_expression": "calculated_benefit &lt; maximum_benefit ? calculated_benefit : maximum_benefit"}</field>
+            <field name="sequence">50</field>
+        </record>
+
+        <!-- Benefit: Per-Capita Cap -->
+        <record id="pack_adj_item_per_capita_cap" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_benefit_adjustments"/>
+            <field name="name">Per-Capita Benefit Cap</field>
+            <field name="context_type">group</field>
+            <field name="description">Cap benefit based on maximum per-capita amount.</field>
+            <field name="expression_type">formula</field>
+            <field name="logic_data">{"cel_expression": "calculated_benefit &lt; (max_per_capita * hh_size) ? calculated_benefit : (max_per_capita * hh_size)"}</field>
+            <field name="sequence">60</field>
+        </record>
+
+        <!-- Benefit: Vulnerable Top-Up -->
+        <record id="pack_adj_item_vulnerable_topup" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_benefit_adjustments"/>
+            <field name="name">Vulnerable Group Top-Up</field>
+            <field name="context_type">both</field>
+            <field name="description">Additional amount for households with vulnerable members (elderly, disabled, chronically ill).</field>
+            <field name="expression_type">formula</field>
+            <field name="logic_data">{"cel_expression": "base_benefit + (has_elderly ? 200 : 0) + (has_disabled ? 300 : 0) + (has_chronically_ill ? 150 : 0)"}</field>
+            <field name="sequence">70</field>
+        </record>
+
+        <!-- Benefit: Female-Headed Supplement -->
+        <record id="pack_adj_item_female_headed" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_benefit_adjustments"/>
+            <field name="name">Female-Headed Household Supplement</field>
+            <field name="context_type">group</field>
+            <field name="description">Additional support for female-headed households.</field>
+            <field name="expression_type">formula</field>
+            <field name="logic_data">{"cel_expression": "base_benefit + (is_female_headed ? 200 : 0)"}</field>
+            <field name="sequence">80</field>
+        </record>
+
+        <!-- Benefit: Child Count Progressive -->
+        <record id="pack_adj_item_child_progressive" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_benefit_adjustments"/>
+            <field name="name">Progressive Child Benefit</field>
+            <field name="context_type">group</field>
+            <field name="description">Decreasing marginal benefit per additional child (e.g., full for first 3, half for 4th+).</field>
+            <field name="expression_type">formula</field>
+            <field name="logic_data">{"cel_expression": "(child_count &lt; 3 ? child_count : 3) * 300 + (child_count > 3 ? (child_count - 3) * 150 : 0)"}</field>
+            <field name="sequence">90</field>
+        </record>
+
+        <!-- Benefit: Seasonal Adjustment -->
+        <record id="pack_adj_item_seasonal" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_benefit_adjustments"/>
+            <field name="name">Seasonal Adjustment</field>
+            <field name="context_type">both</field>
+            <field name="description">Higher benefit during lean/hungry season.</field>
+            <field name="expression_type">formula</field>
+            <field name="logic_data">{"cel_expression": "base_benefit * (is_lean_season ? 1.25 : 1.0)"}</field>
+            <field name="sequence">100</field>
+        </record>
+
+        <!-- Benefit: Emergency Top-Up -->
+        <record id="pack_adj_item_emergency" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_benefit_adjustments"/>
+            <field name="name">Emergency Top-Up</field>
+            <field name="context_type">both</field>
+            <field name="description">Temporary benefit increase during emergencies or shocks.</field>
+            <field name="expression_type">formula</field>
+            <field name="logic_data">{"cel_expression": "base_benefit + (emergency_active ? 500 : 0)"}</field>
+            <field name="sequence">110</field>
+        </record>
+
+        <!-- Benefit: Graduation Taper -->
+        <record id="pack_adj_item_graduation" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_benefit_adjustments"/>
+            <field name="name">Graduation Taper</field>
+            <field name="context_type">both</field>
+            <field name="description">Gradually reducing benefit as household approaches graduation threshold.</field>
+            <field name="expression_type">formula</field>
+            <field name="logic_data">{"cel_expression": "full_benefit * ((1 - (income_improvement_pct / graduation_threshold_pct)) > 0 ? (1 - (income_improvement_pct / graduation_threshold_pct)) : 0)"}</field>
+            <field name="sequence">120</field>
+        </record>
+    </data>
+</odoo>

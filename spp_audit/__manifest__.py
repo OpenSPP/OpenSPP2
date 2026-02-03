@@ -1,0 +1,38 @@
+# pylint: disable=pointless-statement
+{
+    "name": "OpenSPP Audit",
+    "summary": "Comprehensively tracks all data modifications and user actions across the OpenSPP platform, recording old and new values for configured data. It enhances accountability and data integrity by maintaining an immutable history of changes, crucial for internal audits, compliance, and detecting unauthorized alterations. Supports multiple backends (database, file, syslog, HTTP) with tamper-resistant configuration.",
+    "category": "OpenSPP/Monitoring",
+    "version": "19.0.1.4.0",
+    "sequence": 1,
+    "author": "OpenSPP.org",
+    "website": "https://github.com/OpenSPP/openspp-modules",
+    "license": "LGPL-3",
+    "development_status": "Stable",
+    "maintainers": ["jeremi", "gonzalesedwin1123", "reichie020212"],
+    "depends": [
+        "base",
+        "mail",
+        "spp_registry",
+        "spp_security",
+        "spp_programs",
+        "spp_service_points",
+    ],
+    "external_dependencies": {
+        "python": ["requests"],
+    },
+    "data": [
+        "security/privileges.xml",
+        "security/audit_security.xml",
+        "security/ir.model.access.csv",
+        "views/spp_audit_rule_views.xml",
+        "views/spp_audit_log_views.xml",
+        "data/audit_rule_data.xml",
+    ],
+    "assets": {},
+    "demo": [],
+    "images": [],
+    "application": False,
+    "installable": True,
+    "auto_install": False,
+}

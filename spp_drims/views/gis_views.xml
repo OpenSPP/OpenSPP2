@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Unified DRIMS Operations Map View (base model: spp.area) -->
+    <record id="view_drims_operations_map_gis" model="ir.ui.view">
+        <field name="name">drims.operations.map.gis</field>
+        <field name="model">spp.area</field>
+        <field name="priority">16</field>
+        <field name="arch" type="xml">
+            <gis editable="0" default_zoom="7" default_center="[80.0, 7.5]">
+                <field name="id" />
+                <field name="name" select="1" />
+                <field name="area_type_id" />
+                <field name="code" />
+                <field name="geo_polygon" />
+                <!-- Fields needed for domain filtering -->
+                <field name="area_level" />
+            </gis>
+        </field>
+    </record>
+
+    <!-- Search View for Operations Map -->
+    <record id="view_drims_operations_map_search" model="ir.ui.view">
+        <field name="name">drims.operations.map.search</field>
+        <field name="model">spp.area</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="code" />
+                <field name="area_type_id" />
+                <filter
+                    name="has_polygon"
+                    string="Has Polygon"
+                    domain="[('geo_polygon', '!=', False)]"
+                />
+                <separator />
+                <group>
+                    <filter
+                        name="group_area_type"
+                        string="Area Type"
+                        context="{'group_by': 'area_type_id'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Raster Layer (OSM base map) -->
+    <record id="gis_raster_layer_operations_osm" model="spp.gis.raster.layer">
+        <field name="raster_type">osm</field>
+        <field name="name">OpenStreetMap</field>
+        <field name="view_id" ref="view_drims_operations_map_gis" />
+    </record>
+
+    <!-- Data Layer: DRIMS Warehouses (points) - attached to base GIS view -->
+    <record id="gis_data_layer_warehouses" model="spp.gis.data.layer">
+        <field name="geo_field_id" ref="spp_drims.field_stock_warehouse__gis_location" />
+        <field name="name">Warehouses</field>
+        <field name="sequence">2</field>
+        <field name="view_id" ref="spp_gis.view_spp_area_gis" />
+        <field name="geo_repr">basic</field>
+        <field name="active_on_startup" eval="True" />
+        <field name="layer_opacity">1.0</field>
+        <field name="begin_color">#2ecc71</field>
+    </record>
+
+    <!-- Data Layer: Dispatch POD Locations (points) - attached to base GIS view -->
+    <record id="gis_data_layer_dispatches" model="spp.gis.data.layer">
+        <field name="geo_field_id" ref="spp_drims.field_stock_picking__pod_gps_point" />
+        <field name="name">Dispatch Deliveries</field>
+        <field name="sequence">3</field>
+        <field name="view_id" ref="spp_gis.view_spp_area_gis" />
+        <field name="geo_repr">basic</field>
+        <field name="active_on_startup" eval="True" />
+        <field name="layer_opacity">0.9</field>
+        <field name="begin_color">#3498db</field>
+    </record>
+
+    <!-- Action for Operations Map -->
+    <record id="action_drims_operations_map" model="ir.actions.act_window">
+        <field name="name">Operations Map</field>
+        <field name="res_model">spp.area</field>
+        <field name="view_mode">gis</field>
+        <field name="domain">[('geo_polygon', '!=', False)]</field>
+        <field name="context">{}</field>
+        <field name="search_view_id" ref="view_drims_operations_map_search" />
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                DRIMS Operations Map
+            </p>
+            <p>
+                This map displays incident impact areas, warehouse locations,
+                and dispatch delivery points. Use the layers panel to toggle
+                different data layers on and off.
+            </p>
+        </field>
+    </record>
+
+    <!-- GIS view mode for the action - use base GIS view with all layers -->
+    <record id="action_drims_operations_map_view" model="ir.actions.act_window.view">
+        <field name="sequence">1</field>
+        <field name="view_mode">gis</field>
+        <field name="view_id" ref="spp_gis.view_spp_area_gis" />
+        <field name="act_window_id" ref="action_drims_operations_map" />
+    </record>
+
+    <!-- Menu entry for Operations Map -->
+    <menuitem
+        id="menu_drims_operations_map"
+        name="Operations Map"
+        parent="spp_drims.menu_drims_monitoring"
+        action="action_drims_operations_map"
+        sequence="50"
+    />
+</odoo>

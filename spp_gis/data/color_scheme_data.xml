@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="0">
+    <!--
+    Predefined GIS Color Schemes
+
+    Color-blind safe schemes are recommended for public-facing visualizations.
+    Scientific schemes (viridis, plasma, cividis) are perceptually uniform.
+    -->
+
+    <!-- ================================ -->
+    <!-- SEQUENTIAL SCHEMES               -->
+    <!-- ================================ -->
+
+    <!-- Viridis - Perceptually uniform, color-blind safe (DEFAULT) -->
+    <record id="scheme_viridis" model="spp.gis.color.scheme">
+        <field name="name">Viridis</field>
+        <field name="code">viridis</field>
+        <field name="scheme_type">sequential</field>
+        <field name="colors">["#440154", "#3b528b", "#21918c", "#5ec962", "#fde725"]</field>
+        <field name="default_steps">5</field>
+        <field name="is_colorblind_safe">True</field>
+        <field name="is_default">True</field>
+        <field name="sequence">1</field>
+    </record>
+
+    <!-- Plasma - Perceptually uniform, vibrant -->
+    <record id="scheme_plasma" model="spp.gis.color.scheme">
+        <field name="name">Plasma</field>
+        <field name="code">plasma</field>
+        <field name="scheme_type">sequential</field>
+        <field name="colors">["#0d0887", "#7e03a8", "#cc4778", "#f89540", "#f0f921"]</field>
+        <field name="default_steps">5</field>
+        <field name="is_colorblind_safe">True</field>
+        <field name="sequence">2</field>
+    </record>
+
+    <!-- Cividis - Optimized for color-blind viewers -->
+    <record id="scheme_cividis" model="spp.gis.color.scheme">
+        <field name="name">Cividis</field>
+        <field name="code">cividis</field>
+        <field name="scheme_type">sequential</field>
+        <field name="colors">["#00224e", "#456680", "#8fa3a5", "#cdc383", "#fdea45"]</field>
+        <field name="default_steps">5</field>
+        <field name="is_colorblind_safe">True</field>
+        <field name="sequence">3</field>
+    </record>
+
+    <!-- Blues - Simple blue gradient -->
+    <record id="scheme_blues" model="spp.gis.color.scheme">
+        <field name="name">Blues</field>
+        <field name="code">blues</field>
+        <field name="scheme_type">sequential</field>
+        <field name="colors">["#f7fbff", "#6baed6", "#08519c"]</field>
+        <field name="default_steps">5</field>
+        <field name="is_colorblind_safe">True</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <!-- Greens - Simple green gradient -->
+    <record id="scheme_greens" model="spp.gis.color.scheme">
+        <field name="name">Greens</field>
+        <field name="code">greens</field>
+        <field name="scheme_type">sequential</field>
+        <field name="colors">["#f7fcf5", "#74c476", "#006d2c"]</field>
+        <field name="default_steps">5</field>
+        <field name="is_colorblind_safe">False</field>
+        <field name="sequence">11</field>
+    </record>
+
+    <!-- Oranges - Simple orange gradient -->
+    <record id="scheme_oranges" model="spp.gis.color.scheme">
+        <field name="name">Oranges</field>
+        <field name="code">oranges</field>
+        <field name="scheme_type">sequential</field>
+        <field name="colors">["#fff5eb", "#fd8d3c", "#d94801"]</field>
+        <field name="default_steps">5</field>
+        <field name="is_colorblind_safe">False</field>
+        <field name="sequence">12</field>
+    </record>
+
+    <!-- Reds - Simple red gradient -->
+    <record id="scheme_reds" model="spp.gis.color.scheme">
+        <field name="name">Reds</field>
+        <field name="code">reds</field>
+        <field name="scheme_type">sequential</field>
+        <field name="colors">["#fff5f0", "#fb6a4a", "#cb181d"]</field>
+        <field name="default_steps">5</field>
+        <field name="is_colorblind_safe">False</field>
+        <field name="sequence">13</field>
+    </record>
+
+    <!-- Purples - Simple purple gradient -->
+    <record id="scheme_purples" model="spp.gis.color.scheme">
+        <field name="name">Purples</field>
+        <field name="code">purples</field>
+        <field name="scheme_type">sequential</field>
+        <field name="colors">["#fcfbfd", "#9e9ac8", "#54278f"]</field>
+        <field name="default_steps">5</field>
+        <field name="is_colorblind_safe">False</field>
+        <field name="sequence">14</field>
+    </record>
+
+    <!-- ================================ -->
+    <!-- DIVERGING SCHEMES                -->
+    <!-- ================================ -->
+
+    <!-- Red-White-Blue - Classic diverging (e.g., for z-scores) -->
+    <record id="scheme_red_white_blue" model="spp.gis.color.scheme">
+        <field name="name">Red-White-Blue</field>
+        <field name="code">red_white_blue</field>
+        <field name="scheme_type">diverging</field>
+        <field name="colors">["#d73027", "#f7f7f7", "#4575b4"]</field>
+        <field name="default_steps">5</field>
+        <field name="is_colorblind_safe">False</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <!-- Purple-White-Green - Color-blind safe diverging -->
+    <record id="scheme_purple_green" model="spp.gis.color.scheme">
+        <field name="name">Purple-Green</field>
+        <field name="code">purple_green</field>
+        <field name="scheme_type">diverging</field>
+        <field name="colors">["#7b3294", "#f7f7f7", "#008837"]</field>
+        <field name="default_steps">5</field>
+        <field name="is_colorblind_safe">True</field>
+        <field name="sequence">21</field>
+    </record>
+
+    <!-- Brown-White-Teal - Color-blind safe diverging -->
+    <record id="scheme_brown_teal" model="spp.gis.color.scheme">
+        <field name="name">Brown-Teal</field>
+        <field name="code">brown_teal</field>
+        <field name="scheme_type">diverging</field>
+        <field name="colors">["#8c510a", "#f5f5f5", "#01665e"]</field>
+        <field name="default_steps">5</field>
+        <field name="is_colorblind_safe">True</field>
+        <field name="sequence">22</field>
+    </record>
+
+    <!-- ================================ -->
+    <!-- QUALITATIVE SCHEMES              -->
+    <!-- ================================ -->
+
+    <!-- Set1 - Distinct categorical colors -->
+    <record id="scheme_set1" model="spp.gis.color.scheme">
+        <field name="name">Set 1 (Categories)</field>
+        <field name="code">set1</field>
+        <field name="scheme_type">qualitative</field>
+        <field name="colors">["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33", "#a65628", "#f781bf"]</field>
+        <field name="default_steps">8</field>
+        <field name="is_colorblind_safe">False</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <!-- Dark2 - Color-blind safe categorical -->
+    <record id="scheme_dark2" model="spp.gis.color.scheme">
+        <field name="name">Dark 2 (Categories)</field>
+        <field name="code">dark2</field>
+        <field name="scheme_type">qualitative</field>
+        <field name="colors">["#1b9e77", "#d95f02", "#7570b3", "#e7298a", "#66a61e", "#e6ab02", "#a6761d", "#666666"]</field>
+        <field name="default_steps">8</field>
+        <field name="is_colorblind_safe">True</field>
+        <field name="sequence">31</field>
+    </record>
+
+    <!-- ================================ -->
+    <!-- SPECIAL PURPOSE                  -->
+    <!-- ================================ -->
+
+    <!-- Traffic Light - Green/Yellow/Red (NOT color-blind safe, but commonly requested) -->
+    <record id="scheme_traffic_light" model="spp.gis.color.scheme">
+        <field name="name">Traffic Light (Green-Yellow-Red)</field>
+        <field name="code">traffic_light</field>
+        <field name="scheme_type">sequential</field>
+        <field name="colors">["#2ecc71", "#f1c40f", "#e74c3c"]</field>
+        <field name="default_steps">3</field>
+        <field name="is_colorblind_safe">False</field>
+        <field name="sequence">40</field>
+    </record>
+
+    <!-- Traffic Light Reversed - Red/Yellow/Green (for "low is bad") -->
+    <record id="scheme_traffic_light_reverse" model="spp.gis.color.scheme">
+        <field name="name">Traffic Light (Red-Yellow-Green)</field>
+        <field name="code">traffic_light_reverse</field>
+        <field name="scheme_type">sequential</field>
+        <field name="colors">["#e74c3c", "#f1c40f", "#2ecc71"]</field>
+        <field name="default_steps">3</field>
+        <field name="is_colorblind_safe">False</field>
+        <field name="sequence">41</field>
+    </record>
+
+</odoo>

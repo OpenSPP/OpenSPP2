@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Registry Domain Groups -->
+    <!-- Following ADR-004 three-tier architecture -->
+
+    <!-- Tier 3: Technical base groups -->
+    <record id="group_registry_read" model="res.groups">
+        <field name="name">Registry: Read</field>
+        <field name="comment">Technical group for read access to registry models.</field>
+    </record>
+
+    <record id="group_registry_write" model="res.groups">
+        <field name="name">Registry: Write</field>
+        <field name="comment">Technical group for write access to registry models.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_registry_read'))]" />
+    </record>
+
+    <record id="group_registry_create" model="res.groups">
+        <field name="name">Registry: Create</field>
+        <field name="comment">Technical group for registry create access. Grants permission to create new registry records.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_registry_read'))]" />
+    </record>
+
+    <!-- Tier 2: User-facing groups -->
+    <!-- All groups share the same privilege for unified UI presentation -->
+    <record id="group_registry_viewer" model="res.groups">
+        <field name="name">Viewer</field>
+        <field name="privilege_id" ref="privilege_registry" />
+        <field name="comment">Can view registry records. Cannot modify data.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_registry_read'))]" />
+    </record>
+
+    <record id="group_registry_officer" model="res.groups">
+        <field name="name">Officer</field>
+        <field name="privilege_id" ref="privilege_registry" />
+        <field name="comment">Can view and edit registry records. Cannot delete.</field>
+        <field
+            name="implied_ids"
+            eval="[Command.link(ref('group_registry_viewer')), Command.link(ref('group_registry_write')), Command.link(ref('group_registry_create'))]"
+        />
+    </record>
+
+    <record id="group_registry_config_admin" model="res.groups">
+        <field name="name">Registry Configuration Access</field>
+        <field name="privilege_id" ref="privilege_registry" />
+        <field name="comment">Access to configuration menus; implied by Registry Manager.</field>
+    </record>
+
+    <record id="group_registry_manager" model="res.groups">
+        <field name="name">Manager</field>
+        <field name="privilege_id" ref="privilege_registry" />
+        <field name="comment">Full registry management including delete operations.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_registry_officer')), Command.link(ref('group_registry_config_admin'))]" />
+    </record>
+
+    <!-- Special group for restricted access -->
+    <!-- Uses separate privilege so it can be combined with basic roles -->
+    <record id="group_registry_restrict_self" model="res.groups">
+        <field name="name">Restrict Access To Self</field>
+        <field name="privilege_id" ref="privilege_registry_specialized" />
+        <field
+            name="comment"
+        >SPECIALIZED ROLE: Restrict access to only see own records. This is a functional role (not part of Viewer/Officer/Manager hierarchy). Can be combined with Viewer, Officer, or Manager groups to limit scope of access.</field>
+    </record>
+
+    <!-- Link manager to admin (IMPORTANT!) -->
+    <record id="spp_security.group_spp_admin" model="res.groups">
+        <field name="implied_ids" eval="[Command.link(ref('group_registry_manager'))]" />
+    </record>
+</odoo>

@@ -1,0 +1,1465 @@
+#!/usr/bin/env python3
+"""OpenSPP Developer CLI.
+
+A unified interface for common development tasks:
+  - test: Run module tests (isolated, won't affect running dev instance)
+  - start: Start Odoo development server
+  - stop: Stop all services
+  - resetdb: Reset database with optional demo data
+  - logs: View container logs
+  - shell: Open Odoo shell or psql
+  - url: Get/open the dev server URL
+  - lint: Run linters on changed files
+
+Works in both Docker mode (local dev) and local mode (Claude Code web).
+"""
+
+import json
+import os
+import platform
+import re
+import shutil
+import subprocess
+import sys
+import time
+import tomllib
+from pathlib import Path
+
+try:
+    import argcomplete
+
+    HAS_ARGCOMPLETE = True
+except ImportError:
+    argcomplete = None
+    HAS_ARGCOMPLETE = False
+
+
+def _module_completer(**kwargs):
+    """Complete with available spp_* module names."""
+    project_root = Path(__file__).parent.resolve()
+    modules = []
+    for path in project_root.iterdir():
+        if path.is_dir() and path.name.startswith("spp_"):
+            modules.append(path.name)
+    return sorted(modules)
+
+
+def _demo_completer(**kwargs):
+    """Complete with available demo profile names."""
+    return list(DEMO_PROFILES.keys())
+
+
+# =============================================================================
+# Colored Output
+# =============================================================================
+
+# Check if output supports colors
+USE_COLOR = sys.stdout.isatty() and os.environ.get("NO_COLOR") is None
+
+
+def _color(code: str, msg: str) -> str:
+    """Wrap message in ANSI color code if supported."""
+    if USE_COLOR:
+        return f"\033[{code}m{msg}\033[0m"
+    return msg
+
+
+def success(msg: str):
+    """Print success message in green."""
+    print(_color("32", f"✓ {msg}"))
+
+
+def error(msg: str):
+    """Print error message in red."""
+    print(_color("31", f"✗ {msg}"), file=sys.stderr)
+
+
+def warn(msg: str):
+    """Print warning message in yellow."""
+    print(_color("33", f"⚠ {msg}"))
+
+
+def info(msg: str):
+    """Print info message in blue."""
+    print(_color("34", f"ℹ {msg}"))
+
+
+# =============================================================================
+# Config File Support
+# =============================================================================
+
+CONFIG_PATH = Path.home() / ".spp.toml"
+DEFAULT_CONFIG = {
+    "default_demo": None,
+    "default_profile": "dev",
+    "default_db": "openspp",
+}
+
+
+def load_config() -> dict:
+    """Load config from ~/.spp.toml, returning defaults if not found."""
+    config = DEFAULT_CONFIG.copy()
+    if CONFIG_PATH.exists():
+        try:
+            with open(CONFIG_PATH, "rb") as f:
+                user_config = tomllib.load(f)
+                config.update(user_config)
+        except (tomllib.TOMLDecodeError, OSError) as e:
+            warn(f"Could not load config from {CONFIG_PATH}: {e}")
+    return config
+
+
+CONFIG = load_config()
+
+
+# Ensure we're in the project root
+PROJECT_ROOT = Path(__file__).parent.resolve()
+os.chdir(PROJECT_ROOT)
+
+# Detect environment
+IS_REMOTE = os.environ.get("CLAUDE_CODE_REMOTE") == "true"
+
+# Global dry-run flag (set by --dry-run)
+DRY_RUN = False
+
+# Demo profiles available
+DEMO_PROFILES = {
+    "mis": "spp_mis_demo_v2",
+    "drims": "spp_drims_sl_demo",
+    "base": "spp_base",
+    "grm": "spp_grm_demo",
+}
+
+
+def run(cmd: str | list, check: bool = True, capture: bool = False, **kwargs) -> subprocess.CompletedProcess:
+    """Run a command with nice defaults."""
+    if isinstance(cmd, str):
+        kwargs.setdefault("shell", True)
+    kwargs.setdefault("cwd", PROJECT_ROOT)
+    if capture:
+        kwargs["capture_output"] = True
+        kwargs["text"] = True
+
+    # Dry-run mode: print command instead of executing
+    if DRY_RUN:
+        cmd_str = cmd if isinstance(cmd, str) else " ".join(cmd)
+        info(f"[dry-run] {cmd_str}")
+        # Return a fake successful result
+        return subprocess.CompletedProcess(cmd, 0, stdout="", stderr="")
+
+    return subprocess.run(cmd, check=check, **kwargs)
+
+
+def docker_compose(*args, profile: str = None) -> list:
+    """Build docker compose command."""
+    cmd = ["docker", "compose"]
+    if profile:
+        cmd.extend(["--profile", profile])
+    cmd.extend(args)
+    return cmd
+
+
+# ============================================================================
+# Helpers
+# ============================================================================
+
+
+def _get_build_inputs_hash() -> str:
+    """Compute hash of files that affect Docker image build."""
+    import hashlib
+
+    files_to_hash = [
+        PROJECT_ROOT / "docker" / "Dockerfile",
+        PROJECT_ROOT / "docker" / "requirements.txt",
+        PROJECT_ROOT / "requirements.txt",
+        PROJECT_ROOT / "docker" / "odoo.conf.template",
+        PROJECT_ROOT / "docker" / "entrypoint.sh",
+    ]
+
+    hasher = hashlib.md5()
+    for filepath in files_to_hash:
+        if filepath.exists():
+            hasher.update(filepath.read_bytes())
+
+    return hasher.hexdigest()[:12]
+
+
+def _check_image_freshness(profile: str = "dev", auto_rebuild: bool = False) -> bool:
+    """Check if Docker image needs rebuilding. Returns True if fresh."""
+    service = "openspp-dev" if profile == "dev" else "openspp"
+
+    # Check if image exists
+    result = run(
+        docker_compose("images", service, "--format", "json", profile=profile),
+        capture=True,
+        check=False,
+    )
+
+    if result.returncode != 0 or not result.stdout.strip():
+        # No image exists - needs build
+        info("Docker image not found, building...")
+        run(docker_compose("build", service, profile=profile))
+        return True
+
+    # Check if build inputs changed
+    current_hash = _get_build_inputs_hash()
+    marker_file = Path(f"/tmp/.openspp-build-{profile}-{current_hash}")
+
+    if marker_file.exists():
+        return True  # Image is fresh
+
+    # Image might be stale
+    warn("Docker image may be outdated (Dockerfile or requirements changed)")
+
+    if auto_rebuild:
+        info("Rebuilding Docker image...")
+        run(docker_compose("build", service, profile=profile))
+        marker_file.touch()
+        return True
+
+    if sys.stdin.isatty():
+        if _confirm("Rebuild Docker image?", default=True):
+            info("Rebuilding Docker image...")
+            run(docker_compose("build", service, profile=profile))
+            marker_file.touch()
+            return True
+        else:
+            warn("Continuing with potentially stale image")
+
+    return False
+
+
+def _confirm(prompt: str, default: bool = False) -> bool:
+    """Ask for confirmation. Returns default if not a TTY."""
+    if not sys.stdin.isatty():
+        return default
+    suffix = " [Y/n] " if default else " [y/N] "
+    response = input(prompt + suffix).strip().lower()
+    if not response:
+        return default
+    return response in ("y", "yes")
+
+
+def _validate_db_name(name: str) -> bool:
+    """Validate database name to prevent SQL injection."""
+    # PostgreSQL identifiers: alphanumeric, underscore, must start with letter/underscore
+    return bool(re.match(r"^[a-zA-Z_]\w*$", name)) and len(name) <= 63
+
+
+def _find_running_odoo() -> tuple:
+    """Find running Odoo service and profile."""
+    # Check both profiles
+    for profile, service_name in [("ui", "openspp"), ("dev", "openspp-dev")]:
+        result = run(
+            docker_compose("ps", "--format", "json", profile=profile),
+            capture=True,
+            check=False,
+        )
+        if result.returncode != 0:
+            continue
+
+        # Parse JSON output (one object per line)
+        for line in result.stdout.strip().split("\n"):
+            if not line:
+                continue
+            try:
+                container = json.loads(line)
+                if container.get("Service") == service_name and container.get("State") == "running":
+                    return service_name, profile
+            except json.JSONDecodeError:
+                continue
+
+    return None, None
+
+
+# ============================================================================
+# Commands
+# ============================================================================
+
+
+def cmd_test(args):
+    """Run tests for a module (isolated from dev instance)."""
+    if not args.module:
+        print("Usage: ./spp test <module> [--tags=...] [--local|--docker]")
+        print("\nExamples:")
+        print("  ./spp test spp_base")
+        print("  ./spp test spp_programs --tags=post_install")
+        sys.exit(1)
+
+    cmd = ["./scripts/test_single_module.sh", args.module]
+
+    if args.tags:
+        cmd.append(f"--test-tags={args.tags}")
+    if args.local:
+        cmd.append("--local")
+    elif args.docker:
+        cmd.append("--docker")
+
+    run(cmd, check=False)
+
+
+def _wait_for_odoo_ready(profile: str, timeout: int = 300):
+    """Wait for Odoo to be ready (health check passes).
+
+    Also monitors logs for CRITICAL errors that indicate initialization failure.
+    Returns True if ready, False if timeout, raises SystemExit on fatal errors.
+    """
+    service = "openspp-dev" if profile == "dev" else "openspp"
+    print("Waiting for Odoo to be ready...")
+
+    for i in range(timeout):
+        # Check for CRITICAL errors in logs (initialization failures)
+        logs_result = run(
+            docker_compose("logs", "--tail=50", service, profile=profile),
+            check=False,
+            capture=True,
+        )
+        if logs_result.returncode == 0:
+            logs = logs_result.stdout + logs_result.stderr
+            if "CRITICAL" in logs and "Failed to initialize database" in logs:
+                error("Database initialization failed!")
+                # Extract and show the error
+                for line in logs.split("\n"):
+                    if "CRITICAL" in line or "ParseError" in line or "ValueError" in line:
+                        print(f"  {line.strip()}")
+                print("\nCheck full logs with: ./spp logs")
+                sys.exit(1)
+
+        # Check health endpoint
+        result = run(
+            docker_compose("exec", "-T", service, "curl", "-sf", "http://localhost:8069/web/health", profile=profile),
+            check=False,
+            capture=True,
+        )
+        if result.returncode == 0:
+            return True
+        if i % 10 == 0 and i > 0:
+            print(f"  Still waiting... ({i}s)")
+        time.sleep(1)
+
+    return False
+
+
+def _is_fresh_database(profile: str) -> bool:
+    """Check if this is a fresh database (no installed modules beyond base)."""
+    service = "openspp-dev" if profile == "dev" else "openspp"
+    code = "print(len(env['ir.module.module'].search([('state', '=', 'installed')])))"
+    result = run(
+        docker_compose(
+            "exec",
+            "-T",
+            service,
+            "odoo",
+            "shell",
+            "-d",
+            "openspp",
+            "--no-http",
+            profile=profile,
+        ),
+        check=False,
+        capture=True,
+        input=code,
+        text=True,
+    )
+    try:
+        # Fresh DB typically has ~10-15 base modules
+        count = int(result.stdout.strip().split("\n")[-1])
+        return count < 20
+    except (ValueError, IndexError):
+        return False
+
+
+def _get_module_state(profile: str, module_name: str) -> str:
+    """Get the state of a module ('installed', 'to install', 'uninstalled', etc.)."""
+    service = "openspp-dev" if profile == "dev" else "openspp"
+    # Pass Python code via stdin (not -c which is for config file)
+    code = f"m = env['ir.module.module'].search([('name', '=', '{module_name}')], limit=1); print('STATE:' + (m.state if m else 'NOT_FOUND'))"
+    result = run(
+        docker_compose(
+            "exec",
+            "-T",
+            service,
+            "odoo",
+            "shell",
+            "-d",
+            "openspp",
+            "--no-http",
+            profile=profile,
+        ),
+        check=False,
+        capture=True,
+        input=code,
+        text=True,
+    )
+    # Look for our STATE: marker in output
+    for line in result.stdout.split("\n"):
+        if line.startswith("STATE:"):
+            return line[6:].strip()
+    return "UNKNOWN"
+
+
+def _wait_for_module_installed(profile: str, module_name: str, timeout: int = 600) -> tuple:
+    """Wait for module installation by monitoring logs.
+
+    Returns (success: bool, error_message: str or None)
+    """
+    service = "openspp-dev" if profile == "dev" else "openspp"
+    print(f"Waiting for module '{module_name}' to be installed...")
+
+    start_time = time.time()
+
+    while time.time() - start_time < timeout:
+        # Check recent logs for installation completion or errors
+        result = run(
+            docker_compose("logs", "--tail", "100", service, profile=profile),
+            check=False,
+            capture=True,
+        )
+        logs = result.stdout + result.stderr
+
+        # Check for successful completion - "Registry loaded" appears after all modules installed
+        # Note: Odoo logs "Modules loaded." (capital M) and "Registry loaded in X.XXXs"
+        logs_lower = logs.lower()
+        if "registry loaded in" in logs_lower and "modules loaded" in logs_lower:
+            # Verify the module is actually installed now
+            state = _get_module_state(profile, module_name)
+            if state == "installed":
+                return True, None
+            elif state in ("to install", "to upgrade"):
+                # Registry loaded but module not installed = installation failed
+                return False, f"Module state is '{state}' after registry load - installation failed"
+
+        # Check for fatal errors
+        if "ParseError:" in logs or "ValueError:" in logs or "odoo.tools.convert.ParseError" in logs:
+            # Extract error context
+            for line in logs.split("\n"):
+                if "ParseError:" in line or "ValueError:" in line:
+                    return False, line.strip()
+
+        elapsed = int(time.time() - start_time)
+        if elapsed > 0 and elapsed % 30 == 0:
+            print(f"  Still waiting... ({elapsed}s)")
+
+        time.sleep(5)
+
+    return False, "Timeout waiting for installation"
+
+
+def _show_recent_logs(profile: str, lines: int = 50):
+    """Show recent Odoo logs to help diagnose failures."""
+    service = "openspp-dev" if profile == "dev" else "openspp"
+    print("\n" + _color("1;31", f"=== Recent logs (last {lines} lines) ==="))
+    run(
+        docker_compose("logs", "--tail", str(lines), service, profile=profile),
+        check=False,
+    )
+    print(_color("1;31", "=== End of logs ===") + "\n")
+
+
+# Demo mode mapping for generator
+DEMO_GENERATOR_MODES = {
+    "mis": "complete",
+    "spp_mis_demo_v2": "complete",
+    "drims": "complete",
+    "spp_drims_sl_demo": "complete",
+    "grm": "complete",
+    "spp_grm_demo": "complete",
+}
+
+
+def _run_demo_generator(profile: str, demo_key: str, timeout: int = 600):
+    """Run the MIS demo generator wizard via Odoo shell.
+
+    Args:
+        profile: Docker compose profile (dev or ui)
+        demo_key: Demo profile key (e.g., 'mis', 'drims')
+        timeout: Max seconds to wait for generator to complete
+    """
+    service = "openspp-dev" if profile == "dev" else "openspp"
+    generator_mode = DEMO_GENERATOR_MODES.get(demo_key, "complete")
+
+    print("\n" + _color("1;34", "Phase 3: Generating demo data..."))
+    print(f"Running demo generator (mode: {generator_mode})...")
+
+    # Python code to run in Odoo shell (passed via stdin, not -c which is for config file)
+    generator_code = f"""
+generator = env['spp.mis.demo.generator'].create({{'name': 'CLI Demo', 'demo_mode': '{generator_mode}'}})
+generator._onchange_demo_mode()
+generator.action_generate()
+print('DEMO_GENERATION_COMPLETE')
+"""
+
+    result = run(
+        docker_compose(
+            "exec",
+            "-T",
+            service,
+            "odoo",
+            "shell",
+            "-d",
+            "openspp",
+            "--no-http",
+            profile=profile,
+        ),
+        check=False,
+        capture=True,
+        input=generator_code,
+        text=True,
+        timeout=timeout,
+    )
+
+    if "DEMO_GENERATION_COMPLETE" in result.stdout:
+        success("Demo data generated successfully!")
+        return True
+    else:
+        warn("Demo generation may have failed. Check logs with './spp logs'")
+        if result.stderr:
+            print(result.stderr[:500])  # Show first 500 chars of error
+        return False
+
+
+def cmd_start(args):
+    """Start Odoo development server."""
+    if IS_REMOTE:
+        print("Error: 'start' not supported in Claude Code web environment")
+        print("Use './spp test <module>' to run tests instead")
+        sys.exit(1)
+
+    env = os.environ.copy()
+    demo_modules = None
+
+    # Set demo modules if specified
+    if args.demo:
+        demo_key = args.demo.lower().replace("-", "").replace("_", "")
+        demo_modules = DEMO_PROFILES.get(demo_key, args.demo)
+        print(f"Starting with demo: {demo_modules}")
+
+    # Determine profile: dev (dynamic port) vs ui (fixed 8069)
+    profile = args.profile
+
+    # Check if Docker image needs rebuilding (unless --no-build)
+    if not getattr(args, "no_build", False):
+        _check_image_freshness(profile, auto_rebuild=args.yes)
+
+    # Enable auto-reload for dev profile by default (disable with --no-watch)
+    if profile == "dev" and not args.no_watch:
+        env["ODOO_EXTRA_ARGS"] = "--dev=reload,qweb,xml"
+        print("Auto-reload enabled (use --no-watch to disable)")
+
+    # Wipe volumes if requested (removes DB data, filestore, everything)
+    is_fresh_start = False
+    if args.wipe:
+        if not args.yes and not _confirm("This will DELETE all data (database, filestore). Continue?"):
+            print("Cancelled.")
+            sys.exit(0)
+        print("Wiping all data (volumes)...")
+        run(docker_compose("down", "-v", profile=profile), check=False)
+        is_fresh_start = True
+
+    # Two-phase initialization for fresh starts with demo modules
+    # Phase 1: Install queue_job first, then restart so it can listen to job events
+    if is_fresh_start and demo_modules:
+        print("\n" + _color("1;34", "Phase 1: Installing queue_job..."))
+        phase1_env = env.copy()
+        phase1_env["ODOO_INIT_MODULES"] = "queue_job"
+        run(docker_compose("up", "-d", profile=profile), env=phase1_env)
+
+        if not _wait_for_odoo_ready(profile):
+            warn("Odoo did not become ready in time, continuing anyway...")
+
+        print("Restarting Odoo so queue_job can listen to events...")
+        service = "openspp-dev" if profile == "dev" else "openspp"
+        run(docker_compose("restart", service, profile=profile))
+
+        # Brief wait for restart
+        time.sleep(3)
+
+        print("\n" + _color("1;34", f"Phase 2: Installing {demo_modules}..."))
+        env["ODOO_INIT_MODULES"] = demo_modules
+        run(docker_compose("up", "-d", profile=profile), env=env)
+
+        # Wait for Odoo to be ready first
+        if not _wait_for_odoo_ready(profile, timeout=120):
+            error("Odoo did not start")
+            _show_recent_logs(profile, lines=50)
+            sys.exit(1)
+
+        # Wait for module installation to complete (monitors logs)
+        installed, err_msg = _wait_for_module_installed(profile, demo_modules, timeout=600)
+        if not installed:
+            error(f"Module '{demo_modules}' failed to install!")
+            if err_msg:
+                error(f"Reason: {err_msg}")
+            _show_recent_logs(profile, lines=100)
+            sys.exit(1)
+
+        success(f"Module '{demo_modules}' installed successfully")
+
+        # Phase 3: Generate demo data if requested
+        if args.generate:
+            demo_key = args.demo.lower().replace("-", "").replace("_", "")
+            _run_demo_generator(profile, demo_key)
+    else:
+        # Normal start (not a fresh wipe with demo)
+        if demo_modules:
+            env["ODOO_INIT_MODULES"] = demo_modules
+
+        # Start services
+        print(f"Starting Odoo ({profile} profile)...")
+        run(docker_compose("up", "-d", profile=profile), env=env)
+
+        # Warn if --generate used without --wipe
+        if args.generate:
+            warn("--generate requires --wipe to ensure clean data generation")
+
+    # Show URL
+    if profile == "dev":
+        print("\nGetting dynamic port...")
+        _show_url()
+    else:
+        print("\nOdoo available at: http://localhost:8069")
+        print("Credentials: admin / admin")
+
+
+def cmd_stop(args):
+    """Stop all services."""
+    if IS_REMOTE:
+        print("Nothing to stop in Claude Code web environment")
+        return
+
+    # Confirm if removing volumes (destructive)
+    if args.volumes and not args.yes:
+        if not _confirm("This will DELETE all data (database, filestore). Continue?"):
+            print("Cancelled.")
+            sys.exit(0)
+
+    print("Stopping all containers...")
+    # Stop all profiles
+    for profile in ["dev", "ui", "e2e"]:
+        run(docker_compose("down", profile=profile), check=False)
+
+    # Also stop standalone db if running
+    run(docker_compose("down"), check=False)
+
+    if args.volumes:
+        print("Removing volumes...")
+        run(docker_compose("down", "-v"), check=False)
+
+    print("Done.")
+
+
+def cmd_restart(args):
+    """Restart Odoo container."""
+    if IS_REMOTE:
+        print("Error: 'restart' not supported in Claude Code web environment")
+        sys.exit(1)
+
+    # Auto-detect running profile if not specified
+    service, profile = _find_running_odoo()
+    if not service:
+        print("Error: No Odoo container running. Start with './spp start' first.")
+        sys.exit(1)
+
+    print(f"Restarting {service}...")
+    run(docker_compose("restart", service, profile=profile))
+    print("Done.")
+
+    _show_url()
+
+
+def cmd_resetdb(args):
+    """Reset database with optional demo data."""
+    if IS_REMOTE:
+        print("Error: 'resetdb' not supported in Claude Code web environment")
+        sys.exit(1)
+
+    db_name = args.db or "openspp"
+    modules = "spp_base"
+
+    # Validate database name to prevent SQL injection
+    if not _validate_db_name(db_name):
+        print(f"Error: Invalid database name '{db_name}'")
+        print("Database names must start with a letter or underscore,")
+        print("contain only alphanumeric characters and underscores,")
+        print("and be at most 63 characters.")
+        sys.exit(1)
+
+    if args.demo:
+        demo_key = args.demo.lower().replace("-", "").replace("_", "")
+        modules = DEMO_PROFILES.get(demo_key, args.demo)
+
+    # Confirm destructive operation
+    if not args.yes and not _confirm(f"This will DROP database '{db_name}'. Continue?"):
+        print("Cancelled.")
+        sys.exit(0)
+
+    print(f"Resetting database '{db_name}' with modules: {modules}")
+
+    # Ensure db is running
+    run(docker_compose("up", "-d", "db"))
+
+    # Stop Odoo but keep db
+    run(docker_compose("stop", "openspp", "openspp-dev"), check=False)
+
+    # Wait for db to be ready
+    print("Waiting for database...")
+    for _ in range(30):
+        result = run(
+            docker_compose("exec", "-T", "db", "pg_isready", "-U", "odoo"),
+            check=False,
+            capture=True,
+        )
+        if result.returncode == 0:
+            break
+        time.sleep(1)
+
+    # Drop and recreate database (db_name is validated above)
+    run(
+        docker_compose(
+            "exec", "-T", "db", "psql", "-U", "odoo", "-d", "postgres", "-c", f"DROP DATABASE IF EXISTS {db_name};"
+        ),
+        check=False,
+    )
+    run(docker_compose("exec", "-T", "db", "psql", "-U", "odoo", "-d", "postgres", "-c", f"CREATE DATABASE {db_name};"))
+
+    # Store modules for start command to pick up
+    os.environ["ODOO_INIT_MODULES"] = modules
+    os.environ["ODOO_DB_NAME"] = db_name
+
+    print(f"Database '{db_name}' reset. Run './spp start' to initialize with {modules}")
+
+
+def cmd_update(args):
+    """Update (upgrade) modules in running Odoo.
+
+    Uses click-odoo-update to auto-detect changed modules based on file checksums.
+    This is smarter than plain 'odoo -u' and handles migrations more gracefully.
+    """
+    if IS_REMOTE:
+        print("Error: 'update' not supported in Claude Code web environment")
+        sys.exit(1)
+
+    db_name = args.db or "openspp"
+
+    # Find running Odoo service
+    service, profile = _find_running_odoo()
+    if not service:
+        print("Error: No Odoo container running. Start with './spp start' first.")
+        sys.exit(1)
+
+    # Warn if modules specified (click-odoo-update auto-detects)
+    if args.modules:
+        print(f"Note: Ignoring specified modules {args.modules}")
+        print("      click-odoo-update auto-detects changed modules based on checksums")
+        print()
+
+    print("Detecting and updating changed modules...")
+    run(
+        docker_compose(
+            "exec",
+            service,
+            "click-odoo-update",
+            "-d",
+            db_name,
+            "--watcher-max-seconds",
+            "600",
+            profile=profile,
+        )
+    )
+
+    print("Update complete. Restarting Odoo...")
+    run(docker_compose("restart", service, profile=profile))
+
+    if profile == "dev":
+        _show_url()
+    else:
+        print("Odoo available at: http://localhost:8069")
+
+
+def cmd_logs(args):
+    """View container logs."""
+    if IS_REMOTE:
+        print("Error: 'logs' not supported in Claude Code web environment")
+        sys.exit(1)
+
+    # Find running Odoo to determine profile
+    service, profile = _find_running_odoo()
+    if not profile:
+        # Default to dev profile if nothing running
+        profile = "dev"
+
+    cmd = docker_compose("logs", profile=profile)
+    if args.follow:
+        cmd.append("-f")
+    if args.tail:
+        cmd.extend(["--tail", str(args.tail)])
+    if args.service:
+        cmd.append(args.service)
+    elif service:
+        # Default to showing Odoo logs if no service specified
+        cmd.append(service)
+
+    run(cmd, check=False)
+
+
+def cmd_shell(args):
+    """Open Odoo shell or database shell."""
+    if IS_REMOTE:
+        print("Error: 'shell' not supported in Claude Code web environment")
+        sys.exit(1)
+
+    db_name = args.database or "openspp"
+
+    if args.db:
+        # PostgreSQL shell
+        run(docker_compose("exec", "db", "psql", "-U", "odoo", "-d", db_name))
+    else:
+        # Find running Odoo service
+        service, profile = _find_running_odoo()
+        if not service:
+            print("Error: No Odoo container running. Start with './spp start' first.")
+            sys.exit(1)
+
+        # Odoo shell
+        run(docker_compose("exec", service, "odoo", "shell", "-d", db_name, profile=profile))
+
+
+def cmd_sql(args):
+    """Open PostgreSQL shell or run a SQL query."""
+    if IS_REMOTE:
+        print("Error: 'sql' not supported in Claude Code web environment")
+        sys.exit(1)
+
+    db_name = args.database or CONFIG.get("default_db", "openspp")
+
+    # Ensure db is running
+    run(docker_compose("up", "-d", "db"), check=False)
+
+    if args.query:
+        # Run a single SQL command
+        run(docker_compose("exec", "-T", "db", "psql", "-U", "odoo", "-d", db_name, "-c", args.query))
+    elif args.file:
+        # Run SQL from file
+        run(docker_compose("exec", "-T", "db", "psql", "-U", "odoo", "-d", db_name, "-f", args.file))
+    else:
+        # Interactive psql shell
+        run(docker_compose("exec", "db", "psql", "-U", "odoo", "-d", db_name))
+
+
+def _show_url(open_browser: bool = False) -> str | None:
+    """Get the running Odoo server URL."""
+    service, profile = _find_running_odoo()
+    if not service:
+        return None
+
+    # UI profile uses fixed port 8069
+    if profile == "ui":
+        url = "http://localhost:8069"
+        print(f"Odoo URL: {url}")
+        print("Credentials: admin / admin")
+        if open_browser:
+            _open_browser(url)
+        return url
+
+    # Dev profile uses dynamic port - need to look it up
+    result = run(
+        docker_compose("ps", "--format", "json", profile="dev"),
+        capture=True,
+        check=False,
+    )
+
+    if result.returncode != 0:
+        return None
+
+    try:
+        for line in result.stdout.strip().split("\n"):
+            if not line:
+                continue
+            container = json.loads(line)
+            if container.get("Service") == "openspp-dev":
+                for publisher in container.get("Publishers", []):
+                    if publisher.get("TargetPort") == 8069:
+                        port = publisher.get("PublishedPort")
+                        if port:
+                            url = f"http://localhost:{port}"
+                            print(f"Odoo URL: {url}")
+                            print("Credentials: admin / admin")
+                            if open_browser:
+                                _open_browser(url)
+                            return url
+    except (json.JSONDecodeError, KeyError):
+        pass
+
+    return None
+
+
+def _open_browser(url: str):
+    """Open URL in browser."""
+
+    system = platform.system()
+    if system == "Darwin":
+        run(["open", url], check=False)
+    elif system == "Linux":
+        run(["xdg-open", url], check=False)
+    elif system == "Windows":
+        run(["start", url], check=False, shell=True)
+
+
+def cmd_url(args):
+    """Show the dev server URL."""
+    if IS_REMOTE:
+        print("Error: 'url' not supported in Claude Code web environment")
+        sys.exit(1)
+
+    url = _show_url(open_browser=args.open)
+    if not url:
+        print("Dev server is not running.")
+        print("Start it with: ./spp start")
+        sys.exit(1)
+
+
+def cmd_lint(args):
+    """Run linters on files."""
+    files = args.files
+
+    if not files:
+        # Default to changed files
+        result = run(["git", "diff", "--name-only", "HEAD"], capture=True, check=False)
+        files = [f for f in result.stdout.strip().split("\n") if f]
+
+    if not files:
+        print("No files to lint")
+        return
+
+    print(f"Linting {len(files)} files...")
+
+    # Run pre-commit hooks (use list form to avoid shell injection)
+    run(["pre-commit", "run", "ruff", "--files", *files], check=False)
+    run(["pre-commit", "run", "ruff-format", "--files", *files], check=False)
+    run(["pre-commit", "run", "prettier", "--files", *files], check=False)
+
+
+def cmd_build(args):
+    """Build Docker images."""
+    if IS_REMOTE:
+        print("Error: 'build' not supported in Claude Code web environment")
+        sys.exit(1)
+
+    profile = args.profile
+    service = "openspp-dev" if profile == "dev" else "openspp"
+
+    print(f"Building Docker image ({profile} profile)...")
+
+    cmd = docker_compose("build", profile=profile)
+    if args.no_cache:
+        cmd.append("--no-cache")
+    cmd.append(service)
+
+    run(cmd)
+
+    # Update marker file
+    current_hash = _get_build_inputs_hash()
+    marker_file = Path(f"/tmp/.openspp-build-{profile}-{current_hash}")
+    marker_file.touch()
+
+    success("Build complete")
+
+
+def cmd_status(args):
+    """Show status of running services."""
+    if IS_REMOTE:
+        # Show local environment status
+        marker = Path("/tmp/.openspp_env_ready")
+        if marker.exists():
+            print("Environment: Claude Code web (ready)")
+            print("Test with: ./spp test <module>")
+        else:
+            print("Environment: Claude Code web (not set up)")
+            print("Run: ./scripts/setup_test_env.sh")
+        return
+
+    print("Docker containers:")
+    sys.stdout.flush()
+    run(docker_compose("ps", "-a"), check=False)
+
+
+def cmd_help(_args):
+    """Show help."""
+    print(__doc__)
+    print("\nCommands (with aliases):")
+    print("  test, t <module>   Run tests for a module (isolated)")
+    print("  start, s           Start Odoo dev server")
+    print("  stop               Stop all services")
+    print("  restart, r         Restart Odoo container")
+    print("  resetdb            Reset database (use with start to initialize)")
+    print("  update, u <module> Update (upgrade) modules in running Odoo")
+    print("  build, b           Build Docker images")
+    print("  logs, l            View container logs")
+    print("  shell, sh          Open Odoo shell")
+    print("  sql                Open PostgreSQL shell or run SQL")
+    print("  url                Show dev server URL")
+    print("  lint               Run linters on changed files")
+    print("  status, st         Show running services")
+    print("  doctor             Check prerequisites and environment")
+    print("  activate           Enable shell tab completion")
+    print("")
+    print("Demo profiles for start/resetdb:")
+    for key, modules in DEMO_PROFILES.items():
+        print(f"  {key:12} -> {modules}")
+    print("")
+    print("Examples:")
+    print("  ./spp t spp_base                   # Run tests (using alias)")
+    print("  ./spp s                            # Start with auto-reload")
+    print("  ./spp start --demo=mis             # Start with MIS demo")
+    print("  ./spp start --wipe                 # Wipe all data and start fresh")
+    print("  ./spp resetdb --demo=mis start     # Reset DB and start with MIS demo")
+    print("  ./spp r                            # Restart Odoo container")
+    print("  ./spp u spp_programs               # Update a module")
+    print("  ./spp l -f                         # Follow Odoo logs")
+    print("  ./spp url --open                   # Open in browser")
+    print("")
+    print("Chaining: Commands can be chained (options apply to preceding command):")
+    print("  ./spp resetdb --demo=mis start     # Reset then start")
+    print("  ./spp stop start --wipe            # Stop then wipe and start")
+    print("")
+    print(f"Config file: {CONFIG_PATH}")
+    if CONFIG_PATH.exists():
+        print("  (exists)")
+    else:
+        print("  (not found - using defaults)")
+
+
+def cmd_activate(_args):
+    """Output shell completion activation script."""
+    # Detect shell from environment
+    shell = os.environ.get("SHELL", "").rsplit("/", 1)[-1]
+    script_path = os.path.abspath(__file__)
+
+    if shell == "fish":
+        # Fish completion
+        print(f"register-python-argcomplete --shell fish {script_path} | source")
+    elif shell == "zsh":
+        # Zsh completion (needs bashcompinit)
+        print("autoload -U bashcompinit && bashcompinit")
+        print(f'eval "$(register-python-argcomplete {script_path})"')
+    else:
+        # Bash (default)
+        print(f'eval "$(register-python-argcomplete {script_path})"')
+
+    # Print hint to stderr so it doesn't break eval
+    sys.stdout.flush()
+    print(_color("34", f'ℹ Run: eval "$({script_path} activate)"'), file=sys.stderr)
+
+
+def cmd_get_build_hash(_args):
+    """Output build inputs hash (internal use by scripts)."""
+    print(_get_build_inputs_hash())
+
+
+def cmd_doctor(_args):
+    """Check prerequisites and environment health."""
+    print("Checking prerequisites...\n")
+    all_ok = True
+
+    # Check Docker
+    docker_path = shutil.which("docker")
+    if docker_path:
+        result = run(["docker", "--version"], capture=True, check=False)
+        if result.returncode == 0:
+            success(f"Docker: {result.stdout.strip()}")
+        else:
+            error("Docker: installed but not working")
+            all_ok = False
+    else:
+        error("Docker: not found")
+        all_ok = False
+
+    # Check Docker Compose
+    result = run(["docker", "compose", "version"], capture=True, check=False)
+    if result.returncode == 0:
+        success(f"Docker Compose: {result.stdout.strip()}")
+    else:
+        error("Docker Compose: not found or not working")
+        all_ok = False
+
+    # Check Docker daemon
+    result = run(["docker", "info"], capture=True, check=False)
+    if result.returncode == 0:
+        success("Docker daemon: running")
+    else:
+        error("Docker daemon: not running (start Docker Desktop?)")
+        all_ok = False
+
+    # Check Git
+    git_path = shutil.which("git")
+    if git_path:
+        result = run(["git", "--version"], capture=True, check=False)
+        success(f"Git: {result.stdout.strip()}")
+    else:
+        warn("Git: not found (optional)")
+
+    # Check pre-commit
+    precommit_path = shutil.which("pre-commit")
+    if precommit_path:
+        result = run(["pre-commit", "--version"], capture=True, check=False)
+        success(f"pre-commit: {result.stdout.strip()}")
+    else:
+        warn("pre-commit: not found (optional, for linting)")
+
+    # Check argcomplete
+    if HAS_ARGCOMPLETE:
+        success("argcomplete: installed (tab completion available)")
+    else:
+        warn("argcomplete: not installed (optional, for tab completion)")
+        info("  Install with: pip install argcomplete")
+
+    # Check config file
+    print("")
+    if CONFIG_PATH.exists():
+        success(f"Config file: {CONFIG_PATH}")
+    else:
+        info(f"Config file: {CONFIG_PATH} (not found, using defaults)")
+        info("  Create one with your preferences:")
+        info("    echo 'default_demo = \"mis\"' > ~/.spp.toml")
+
+    # Check port availability (8069)
+    print("")
+    import socket
+
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    port_available = sock.connect_ex(("localhost", 8069)) != 0
+    sock.close()
+    if port_available:
+        success("Port 8069: available")
+    else:
+        warn("Port 8069: in use (Odoo may already be running)")
+
+    # Summary
+    print("")
+    if all_ok:
+        success("All prerequisites met!")
+    else:
+        error("Some prerequisites are missing. Please install them and try again.")
+
+
+# ============================================================================
+# Main
+# ============================================================================
+
+# Command registry (includes short aliases)
+COMMANDS = {
+    "test": cmd_test,
+    "t": cmd_test,
+    "start": cmd_start,
+    "s": cmd_start,
+    "stop": cmd_stop,
+    "restart": cmd_restart,
+    "r": cmd_restart,
+    "resetdb": cmd_resetdb,
+    "update": cmd_update,
+    "u": cmd_update,
+    "build": cmd_build,
+    "b": cmd_build,
+    "logs": cmd_logs,
+    "l": cmd_logs,
+    "shell": cmd_shell,
+    "sh": cmd_shell,
+    "sql": cmd_sql,
+    "url": cmd_url,
+    "lint": cmd_lint,
+    "status": cmd_status,
+    "st": cmd_status,
+    "doctor": cmd_doctor,
+    "activate": cmd_activate,
+    # Hidden commands (internal use by scripts)
+    "_get_build_hash": cmd_get_build_hash,
+}
+
+# Command aliases (short -> full)
+ALIASES = {
+    "t": "test",
+    "s": "start",
+    "r": "restart",
+    "u": "update",
+    "b": "build",
+    "l": "logs",
+    "sh": "shell",
+    "st": "status",
+}
+
+# Main commands for interactive mode (excludes aliases)
+MAIN_COMMANDS = [
+    ("test", "Run tests for a module"),
+    ("start", "Start Odoo dev server"),
+    ("stop", "Stop all services"),
+    ("restart", "Restart Odoo container"),
+    ("resetdb", "Reset database"),
+    ("update", "Update modules"),
+    ("build", "Build Docker images"),
+    ("logs", "View container logs"),
+    ("shell", "Open shell"),
+    ("url", "Show dev URL"),
+    ("lint", "Run linters"),
+    ("status", "Show service status"),
+    ("doctor", "Check prerequisites"),
+    ("activate", "Enable shell completion"),
+    ("help", "Show help"),
+]
+
+
+def build_parser():
+    """Build argument parser."""
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="OpenSPP Developer CLI",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument("--dry-run", "-n", action="store_true", help="Show what would be executed without running")
+    subparsers = parser.add_subparsers(dest="command", help="Command to run")
+
+    # test
+    p = subparsers.add_parser("test", help="Run module tests")
+    module_arg = p.add_argument("module", nargs="?", help="Module to test")
+    if HAS_ARGCOMPLETE:
+        module_arg.completer = _module_completer
+    p.add_argument("--tags", help="Test tags (e.g., post_install)")
+    p.add_argument("--local", action="store_true", help="Force local mode")
+    p.add_argument("--docker", action="store_true", help="Force Docker mode")
+
+    # start
+    p = subparsers.add_parser("start", help="Start Odoo dev server")
+    demo_arg = p.add_argument(
+        "--demo", default=CONFIG.get("default_demo"), help="Demo profile: " + ", ".join(DEMO_PROFILES.keys())
+    )
+    if HAS_ARGCOMPLETE:
+        demo_arg.completer = _demo_completer
+    p.add_argument(
+        "--no-watch", action="store_true", help="Disable auto-reload (dev profile has it enabled by default)"
+    )
+    p.add_argument(
+        "--profile",
+        choices=["dev", "ui"],
+        default=CONFIG.get("default_profile", "dev"),
+        help="dev=dynamic port (default), ui=fixed port 8069",
+    )
+    p.add_argument("--wipe", action="store_true", help="Wipe all data (volumes) before starting")
+    p.add_argument("--no-build", action="store_true", help="Skip Docker image freshness check")
+    p.add_argument("-y", "--yes", action="store_true", help="Skip confirmation prompt (auto-rebuild if needed)")
+    p.add_argument(
+        "--generate",
+        action="store_true",
+        help="Run demo data generator after installation (requires --wipe and --demo)",
+    )
+
+    # stop
+    p = subparsers.add_parser("stop", help="Stop all services")
+    p.add_argument("--volumes", "-v", action="store_true", help="Also remove volumes")
+    p.add_argument("-y", "--yes", action="store_true", help="Skip confirmation prompt")
+
+    # restart (auto-detects running profile)
+    subparsers.add_parser("restart", help="Restart Odoo container")
+
+    # resetdb
+    p = subparsers.add_parser("resetdb", help="Reset database")
+    demo_arg = p.add_argument("--demo", help="Demo profile: " + ", ".join(DEMO_PROFILES.keys()))
+    if HAS_ARGCOMPLETE:
+        demo_arg.completer = _demo_completer
+    p.add_argument("--db", default=CONFIG.get("default_db", "openspp"), help="Database name (default: openspp)")
+    p.add_argument("-y", "--yes", action="store_true", help="Skip confirmation prompt")
+
+    # update
+    p = subparsers.add_parser("update", help="Update changed modules (auto-detects via checksums)")
+    p.add_argument("modules", nargs="*", help="(ignored) click-odoo-update auto-detects changes")
+    p.add_argument("--db", default=CONFIG.get("default_db", "openspp"), help="Database name (default: openspp)")
+
+    # build
+    p = subparsers.add_parser("build", help="Build Docker images")
+    p.add_argument(
+        "--profile",
+        choices=["dev", "ui"],
+        default=CONFIG.get("default_profile", "dev"),
+        help="Profile to build (default: dev)",
+    )
+    p.add_argument("--no-cache", action="store_true", help="Build without using cache")
+
+    # logs
+    p = subparsers.add_parser("logs", help="View logs")
+    p.add_argument("service", nargs="?", help="Service name")
+    p.add_argument("--follow", "-f", action="store_true", help="Follow logs")
+    p.add_argument("--tail", type=int, default=100, help="Number of lines")
+
+    # shell
+    p = subparsers.add_parser("shell", help="Open Odoo shell")
+    p.add_argument("--db", action="store_true", help="Open database shell instead")
+    p.add_argument("--database", "-d", help="Database name")
+
+    # sql
+    p = subparsers.add_parser("sql", help="Open PostgreSQL shell or run SQL")
+    p.add_argument("query", nargs="?", help="SQL query to run (optional)")
+    p.add_argument("--database", "-d", default=CONFIG.get("default_db", "openspp"), help="Database name")
+    p.add_argument("--file", "-f", help="SQL file to execute")
+
+    # url
+    p = subparsers.add_parser("url", help="Show dev URL")
+    p.add_argument("--open", "-o", action="store_true", help="Open in browser")
+
+    # lint
+    p = subparsers.add_parser("lint", help="Run linters")
+    p.add_argument("files", nargs="*", help="Files to lint (default: changed files)")
+
+    # status
+    subparsers.add_parser("status", help="Show service status")
+
+    # doctor
+    subparsers.add_parser("doctor", help="Check prerequisites and environment")
+
+    # activate
+    subparsers.add_parser("activate", help="Output shell completion script (use with eval)")
+
+    # help
+    subparsers.add_parser("help", help="Show help")
+
+    return parser
+
+
+def interactive_mode():
+    """Show interactive menu when no command is given."""
+    if not sys.stdin.isatty():
+        # Not interactive, show help instead
+        cmd_help(None)
+        return None
+
+    print(_color("1;34", "OpenSPP Developer CLI"))
+    print("")
+    print("Select a command:")
+    print("")
+
+    for i, (cmd, desc) in enumerate(MAIN_COMMANDS, 1):
+        print(f"  {_color('33', str(i)):>6})  {cmd:<12} {desc}")
+
+    print("")
+    try:
+        choice = input(_color("1", "Enter number or command: ")).strip()
+    except (EOFError, KeyboardInterrupt):
+        print("")
+        return None
+
+    if not choice:
+        return None
+
+    # Handle numeric choice
+    if choice.isdigit():
+        idx = int(choice) - 1
+        if 0 <= idx < len(MAIN_COMMANDS):
+            return [MAIN_COMMANDS[idx][0]]
+        else:
+            error(f"Invalid choice: {choice}")
+            return None
+
+    # Handle command name directly
+    return choice.split()
+
+
+def expand_aliases(argv: list) -> list:
+    """Expand command aliases in argv.
+
+    Example: ['t', 'spp_base'] -> ['test', 'spp_base']
+    """
+    result = []
+    for arg in argv:
+        if arg in ALIASES:
+            result.append(ALIASES[arg])
+        else:
+            result.append(arg)
+    return result
+
+
+def split_chained_commands(argv: list) -> list:
+    """Split argv into multiple command invocations.
+
+    Example: ['resetdb', '--demo=mis', 'start'] -> [['resetdb', '--demo=mis'], ['start']]
+    """
+    if not argv:
+        return [[]]
+
+    # Only the main command names (no aliases, they're already expanded)
+    command_names = {cmd for cmd, _ in MAIN_COMMANDS}
+    chunks = []
+    current = []
+    current_has_command = False
+
+    for arg in argv:
+        if arg in command_names:
+            if current_has_command:
+                # Found a new command after already having one, start new chunk
+                chunks.append(current)
+                current = [arg]
+            else:
+                # First command in this chunk
+                current.append(arg)
+            current_has_command = True
+        else:
+            current.append(arg)
+
+    if current:
+        chunks.append(current)
+
+    return chunks if chunks else [[]]
+
+
+def main():
+    # Handle hidden commands before argparse
+    if len(sys.argv) > 1 and sys.argv[1] == "_get_build_hash":
+        cmd_get_build_hash(None)
+        sys.exit(0)
+
+    parser = build_parser()
+
+    # Enable shell auto-completion if argcomplete is installed
+    if HAS_ARGCOMPLETE:
+        argcomplete.autocomplete(parser)
+
+    # If no arguments, show interactive menu
+    argv = sys.argv[1:]
+    if not argv:
+        argv = interactive_mode()
+        if not argv:
+            sys.exit(0)
+
+    # Expand aliases (t -> test, s -> start, etc.)
+    argv = expand_aliases(argv)
+
+    # Split into chained commands
+    chunks = split_chained_commands(argv)
+
+    for chunk in chunks:
+        args = parser.parse_args(chunk)
+
+        # Set global dry-run mode
+        global DRY_RUN
+        if getattr(args, "dry_run", False):
+            DRY_RUN = True
+            info("Dry-run mode enabled - commands will be printed but not executed")
+
+        if not args.command or args.command == "help":
+            cmd_help(args)
+            sys.exit(0)
+
+        cmd_func = COMMANDS.get(args.command)
+        if not cmd_func:
+            error(f"Unknown command: {args.command}")
+            cmd_help(args)
+            sys.exit(1)
+
+        try:
+            cmd_func(args)
+        except KeyboardInterrupt:
+            print("\nInterrupted")
+            sys.exit(130)
+        except subprocess.CalledProcessError as e:
+            sys.exit(e.returncode)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- DRIMS Stock On Hand Action -->
+    <record id="action_drims_stock_quant" model="ir.actions.act_window">
+        <field name="name">Stock On Hand</field>
+        <field name="res_model">stock.quant</field>
+        <field name="view_mode">list,graph,pivot,form</field>
+        <field name="path">drims-stock</field>
+        <field name="domain">[
+            ('location_id.warehouse_id.is_drims_warehouse', '=', True),
+            ('quantity', '!=', 0)
+        ]</field>
+        <field name="context">{
+            'search_default_internal_loc': 1,
+            'no_at_date': True
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No stock in DRIMS warehouses
+            </p>
+            <p>
+                Stock on hand shows current inventory levels in disaster relief warehouses.
+                Use donations to add stock, and dispatches to distribute items.
+            </p>
+        </field>
+    </record>
+
+    <!-- DRIMS Stock Quant Tree View (inherit to add useful columns) -->
+    <record id="view_stock_quant_tree_drims" model="ir.ui.view">
+        <field name="name">stock.quant.tree.drims</field>
+        <field name="model">stock.quant</field>
+        <field name="inherit_id" ref="stock.view_stock_quant_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='location_id']" position="after">
+                <field name="lot_id" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- DRIMS Stock Quant Search View Extension -->
+    <record id="view_stock_quant_search_drims" model="ir.ui.view">
+        <field name="name">stock.quant.search.drims</field>
+        <field name="model">stock.quant</field>
+        <field name="inherit_id" ref="stock.quant_search_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <separator/>
+                <filter string="DRIMS Warehouses" name="drims_warehouses"
+                        domain="[('location_id.warehouse_id.is_drims_warehouse', '=', True)]"/>
+                <separator/>
+                <group>
+                    <filter string="Warehouse" name="group_warehouse"
+                            context="{'group_by': 'warehouse_id'}"/>
+                    <filter string="Product Category" name="group_category"
+                            context="{'group_by': 'product_categ_id'}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- DRIMS Stock by Category Graph View (Bar Chart) -->
+    <record id="view_stock_quant_graph_drims" model="ir.ui.view">
+        <field name="name">stock.quant.graph.drims</field>
+        <field name="model">stock.quant</field>
+        <field name="arch" type="xml">
+            <graph string="Stock by Category" type="bar" sample="1">
+                <field name="product_categ_id"/>
+                <field name="quantity" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- DRIMS Stock by Warehouse Graph View (Pie Chart) -->
+    <record id="view_stock_quant_graph_warehouse_drims" model="ir.ui.view">
+        <field name="name">stock.quant.graph.warehouse.drims</field>
+        <field name="model">stock.quant</field>
+        <field name="arch" type="xml">
+            <graph string="Stock by Warehouse" type="pie" sample="1">
+                <field name="warehouse_id"/>
+                <field name="quantity" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- DRIMS Stock Pivot View -->
+    <record id="view_stock_quant_pivot_drims" model="ir.ui.view">
+        <field name="name">stock.quant.pivot.drims</field>
+        <field name="model">stock.quant</field>
+        <field name="arch" type="xml">
+            <pivot string="Stock Analysis" sample="1">
+                <field name="warehouse_id" type="row"/>
+                <field name="product_categ_id" type="col"/>
+                <field name="quantity" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+</odoo>

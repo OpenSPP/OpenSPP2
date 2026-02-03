@@ -1,0 +1,12 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_encryption_key_admin,Encryption Key Admin,model_spp_encryption_key,group_key_admin,1,1,1,0
+access_encryption_key_system,Encryption Key System,model_spp_encryption_key,base.group_system,1,1,1,0
+access_encryption_key_operator,Encryption Key Operator,model_spp_encryption_key,group_key_operator_officer,1,0,0,0
+access_key_purpose_admin,Key Purpose Admin,model_spp_key_purpose,group_key_admin,1,1,1,1
+access_key_purpose_system,Key Purpose System,model_spp_key_purpose,base.group_system,1,1,1,1
+access_key_purpose_user,Key Purpose User,model_spp_key_purpose,base.group_user,1,0,0,0
+access_key_provider_registry_admin,Key Provider Registry Admin,model_spp_key_provider_registry,group_key_admin,1,1,1,1
+access_key_provider_registry_system,Key Provider Registry System,model_spp_key_provider_registry,base.group_system,1,1,1,1
+access_key_provider_registry_user,Key Provider Registry User,model_spp_key_provider_registry,base.group_user,1,0,0,0
+access_asymmetric_key_admin,Asymmetric Key Admin,model_spp_asymmetric_key,group_key_admin,1,1,1,0
+access_asymmetric_key_system,Asymmetric Key System,model_spp_asymmetric_key,base.group_system,1,1,1,1

@@ -1,0 +1,233 @@
+/**
+ * CodeMirror 6 Base Styles for CEL Widget
+ *
+ * These styles are loaded alongside the CDN bundle.
+ * CodeMirror 6 uses CSS-in-JS by default, but we add some overrides for Odoo integration.
+ */
+
+/* Base editor styling */
+.cm-editor {
+    font-family: "Roboto Mono", "Monaco", "Menlo", "Ubuntu Mono", "Consolas", monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    border: 1px solid var(--o-gray-400, #ced4da);
+    border-radius: 4px;
+    background: var(--o-white, #fff);
+}
+
+.cm-editor.cm-focused {
+    outline: none;
+    border-color: var(--o-primary, #714b67);
+    box-shadow: 0 0 0 0.2rem rgba(113, 75, 103, 0.15);
+}
+
+/* Content area */
+.cm-content {
+    padding: 8px 12px;
+    min-height: 60px;
+}
+
+.cm-line {
+    padding: 0 2px;
+}
+
+/* Cursor */
+.cm-cursor {
+    border-left: 2px solid var(--o-gray-900, #212529);
+}
+
+/* Selection */
+.cm-selectionBackground {
+    background: rgba(113, 75, 103, 0.2) !important;
+}
+
+.cm-focused .cm-selectionBackground {
+    background: rgba(113, 75, 103, 0.3) !important;
+}
+
+/* Active line highlight */
+.cm-activeLine {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+/* Placeholder text */
+.cm-placeholder {
+    color: var(--o-gray-500, #6c757d);
+    font-style: italic;
+}
+
+/* Line numbers */
+.cm-gutters {
+    background: var(--o-gray-100, #f8f9fa);
+    border-right: 1px solid var(--o-gray-300, #dee2e6);
+    color: var(--o-gray-500, #6c757d);
+}
+
+.cm-lineNumbers .cm-gutterElement {
+    padding: 0 8px 0 4px;
+    min-width: 32px;
+}
+
+/* Autocomplete dropdown */
+.cm-tooltip {
+    border: 1px solid var(--o-gray-300, #dee2e6);
+    border-radius: 4px;
+    background: var(--o-white, #fff);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1060; /* Above Odoo modals */
+}
+
+.cm-tooltip-autocomplete {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.cm-tooltip-autocomplete > ul {
+    font-family: inherit;
+    padding: 4px 0;
+    margin: 0;
+    list-style: none;
+}
+
+.cm-tooltip-autocomplete > ul > li {
+    padding: 6px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cm-tooltip-autocomplete > ul > li:hover,
+.cm-tooltip-autocomplete > ul > li[aria-selected="true"] {
+    background: var(--o-gray-100, #f8f9fa);
+}
+
+.cm-completionLabel {
+    flex: 1;
+    font-weight: 500;
+}
+
+.cm-completionDetail {
+    color: var(--o-gray-500, #6c757d);
+    font-size: 0.9em;
+}
+
+.cm-completionInfo {
+    padding: 8px 12px;
+    border-left: 1px solid var(--o-gray-200, #e9ecef);
+    max-width: 300px;
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+/* Completion icons */
+.cm-completionIcon {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+.cm-completionIcon-variable::after {
+    content: "x";
+    color: #9c27b0;
+}
+
+.cm-completionIcon-function::after {
+    content: "f";
+    color: #1976d2;
+}
+
+.cm-completionIcon-property::after {
+    content: ".";
+    color: #388e3c;
+}
+
+.cm-completionIcon-keyword::after {
+    content: "k";
+    color: #f57c00;
+}
+
+/* Lint diagnostics */
+.cm-diagnostic {
+    padding: 4px 8px;
+    margin: 4px 0;
+    border-radius: 4px;
+}
+
+.cm-diagnostic-error {
+    background: #ffebee;
+    border-left: 3px solid #f44336;
+}
+
+.cm-diagnostic-warning {
+    background: #fff3e0;
+    border-left: 3px solid #ff9800;
+}
+
+.cm-diagnostic-info {
+    background: #e3f2fd;
+    border-left: 3px solid #2196f3;
+}
+
+/* Lint underlines */
+.cm-lintRange-error {
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="6" height="3"><path d="M0 3 L1.5 0 L3 3 L4.5 0 L6 3" fill="none" stroke="%23f44336" stroke-width="1"/></svg>')
+        repeat-x bottom left;
+    padding-bottom: 2px;
+}
+
+.cm-lintRange-warning {
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="6" height="3"><path d="M0 3 L1.5 0 L3 3 L4.5 0 L6 3" fill="none" stroke="%23ff9800" stroke-width="1"/></svg>')
+        repeat-x bottom left;
+    padding-bottom: 2px;
+}
+
+/* Bracket matching */
+.cm-matchingBracket {
+    background: rgba(113, 75, 103, 0.2);
+    border-radius: 2px;
+}
+
+.cm-nonmatchingBracket {
+    background: rgba(244, 67, 54, 0.2);
+    border-radius: 2px;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .o_dark .cm-editor {
+        background: var(--o-gray-800, #343a40);
+        border-color: var(--o-gray-600, #6c757d);
+    }
+
+    .o_dark .cm-content {
+        color: var(--o-gray-100, #f8f9fa);
+    }
+
+    .o_dark .cm-cursor {
+        border-left-color: var(--o-white, #fff);
+    }
+
+    .o_dark .cm-gutters {
+        background: var(--o-gray-900, #212529);
+        border-right-color: var(--o-gray-700, #495057);
+    }
+
+    .o_dark .cm-activeLine {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .o_dark .cm-tooltip {
+        background: var(--o-gray-800, #343a40);
+        border-color: var(--o-gray-600, #6c757d);
+    }
+
+    .o_dark .cm-tooltip-autocomplete > ul > li:hover,
+    .o_dark .cm-tooltip-autocomplete > ul > li[aria-selected="true"] {
+        background: var(--o-gray-700, #495057);
+    }
+}

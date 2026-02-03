@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- EVENT TYPE VIEWS -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+
+    <record id="view_spp_event_type_tree" model="ir.ui.view">
+        <field name="name">spp.event.type.tree</field>
+        <field name="model">spp.event.type</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="sequence" widget="handle" />
+                <field name="code" />
+                <field name="name" />
+                <field name="category" />
+                <field name="target_type" />
+                <field name="source_type" />
+                <field name="storage_mode" />
+                <field name="active" widget="boolean_toggle" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_spp_event_type_form" model="ir.ui.view">
+        <field name="name">spp.event.type.form</field>
+        <field name="model">spp.event.type</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="toggle_active" type="object"
+                                class="oe_stat_button" icon="fa-archive">
+                            <field name="active" widget="boolean_button"
+                                options='{"terminology": "archive"}'/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
+                            invisible="active"/>
+                    <group>
+                        <group>
+                            <field name="name" />
+                            <field name="code" />
+                            <field name="sequence" />
+                        </group>
+                        <group>
+                            <field name="category" />
+                            <field name="target_type" />
+                            <field name="storage_mode" readonly="1" />
+                        </group>
+                    </group>
+                    <field name="description" placeholder="Description..." />
+
+                    <notebook>
+                        <!-- Data Structure Tab -->
+                        <page string="Data Structure" name="data_structure">
+                            <group>
+                                <group>
+                                    <field name="data_model_id"
+                                           options="{'no_create': True}"
+                                           invisible="field_ids" />
+                                </group>
+                            </group>
+                            <field name="field_ids" invisible="data_model_id">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle" />
+                                    <field name="name" />
+                                    <field name="label" />
+                                    <field name="field_type" />
+                                    <field name="required" />
+                                    <field name="external_field" />
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- External Source Tab -->
+                        <page string="External Source" name="external_source">
+                            <group>
+                                <group>
+                                    <field name="source_type" />
+                                </group>
+                            </group>
+                            <group invisible="source_type == 'internal'">
+                                <group>
+                                    <field name="external_server_url" />
+                                    <field name="external_project_id" />
+                                    <field name="external_form_id" />
+                                </group>
+                                <group>
+                                    <field name="registrant_id_field" />
+                                    <field name="registrant_id_type_id" />
+                                </group>
+                            </group>
+                            <field name="mapping_ids"
+                                   invisible="source_type == 'internal'">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle" />
+                                    <field name="external_field" />
+                                    <field name="internal_field" />
+                                    <field name="transform" />
+                                    <field name="transform_expression"
+                                           invisible="transform != 'expression'" />
+                                    <field name="lookup_model"
+                                           invisible="transform != 'lookup'" />
+                                    <field name="lookup_field"
+                                           invisible="transform != 'lookup'" />
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- Lifecycle Rules Tab -->
+                        <page string="Lifecycle Rules" name="lifecycle">
+                            <group>
+                                <group string="Supersede Rules">
+                                    <field name="is_one_active_per_registrant" />
+                                    <field name="auto_expire_days" />
+                                </group>
+                                <group string="Approval">
+                                    <field name="is_requires_approval" />
+                                    <field name="approval_definition_id"
+                                           invisible="not is_requires_approval"
+                                           required="is_requires_approval"
+                                           options="{'no_create': True}"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <!-- Change Request Integration Tab -->
+                        <!-- Note: change_request_type_id and mapping fields
+                             are added by spp_change_request module if installed -->
+                        <page string="Change Request" name="change_request">
+                            <group>
+                                <field name="create_change_request" />
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_spp_event_type_search" model="ir.ui.view">
+        <field name="name">spp.event.type.search</field>
+        <field name="model">spp.event.type</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="code" />
+                <filter name="active" string="Active" domain="[('active', '=', True)]" />
+                <filter name="inactive" string="Archived" domain="[('active', '=', False)]" />
+                <separator />
+                <filter name="survey" string="Surveys" domain="[('category', '=', 'survey')]" />
+                <filter name="visit" string="Field Visits" domain="[('category', '=', 'visit')]" />
+                <filter name="sync" string="External Sync" domain="[('category', '=', 'sync')]" />
+                <filter name="manual" string="Manual Entry" domain="[('category', '=', 'manual')]" />
+                <separator />
+                <filter name="group_category" string="Category" context="{'group_by': 'category'}" />
+                <filter name="group_source" string="Source Type" context="{'group_by': 'source_type'}" />
+                <filter name="group_target" string="Target Type" context="{'group_by': 'target_type'}" />
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_spp_event_type" model="ir.actions.act_window">
+        <field name="name">Event Types</field>
+        <field name="res_model">spp.event.type</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first Event Type
+            </p>
+            <p>
+                Event types define the structure and behavior of events
+                captured from surveys, field visits, or external systems.
+            </p>
+        </field>
+    </record>
+
+</odoo>

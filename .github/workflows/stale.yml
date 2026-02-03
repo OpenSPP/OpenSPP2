@@ -1,0 +1,19 @@
+name: Mark stale issues and pull requests
+
+on:
+  workflow_dispatch:  # Manual trigger only
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Stale PRs and issues policy
+        uses: actions/stale@v10
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          ascending: true
+          remove-stale-when-updated: true
+          days-before-stale: 120
+          days-before-close: 30
+          stale-pr-message: "This PR has been automatically marked as stale due to inactivity."
+          stale-issue-message: "This issue has been automatically marked as stale due to inactivity."

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!--
+        International Standard Classification of Education (ISCED 2011)
+        Published by UNESCO Institute for Statistics
+
+        Reference: https://uis.unesco.org/en/topic/international-standard-classification-education-isced
+        Operational Manual: https://uis.unesco.org/sites/default/files/documents/isced-2011-operational-manual-guidelines-for-classifying-national-education-programmes-and-related-qualifications-2015-en_1.pdf
+
+        ISCED 2011 has 9 levels (0-8), providing a comprehensive framework for
+        organizing education programmes and qualifications by applying uniform
+        and internationally agreed definitions.
+    -->
+    <record id="vocab_education_level" model="spp.vocabulary">
+        <field name="name">Education Level (ISCED 2011)</field>
+        <field name="namespace_uri">urn:unesco:isced:2011</field>
+        <field name="version">2011</field>
+        <field name="description">International Standard Classification of Education (ISCED 2011). A comprehensive framework for organizing education programmes and qualifications by applying uniform and internationally agreed definitions to facilitate comparisons of education systems across countries. Adopted by the UNESCO General Conference in November 2011.</field>
+        <field name="reference_url">https://uis.unesco.org/en/topic/international-standard-classification-education-isced</field>
+        <field name="is_system">True</field>
+        <field name="is_hierarchical">False</field>
+        <field name="domain">education</field>
+    </record>
+
+    <!-- ISCED Level 0: Early Childhood Education -->
+    <record id="isced_0" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_education_level"/>
+        <field name="code">0</field>
+        <field name="display">Early Childhood Education</field>
+        <field name="definition">Education designed to support early development in preparation for participation in school and society. Programmes at this level are typically designed for children below the age of entry into primary education (ISCED level 1). Includes early childhood educational development (ages 0-2) and pre-primary education (ages 3 to start of primary).</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <!-- ISCED Level 1: Primary Education -->
+    <record id="isced_1" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_education_level"/>
+        <field name="code">1</field>
+        <field name="display">Primary Education</field>
+        <field name="definition">Programmes typically designed to provide students with fundamental skills in reading, writing and mathematics and to establish a solid foundation for learning. Entry age is typically between 5-7 years old, and duration is usually 4-7 years (most commonly 6 years).</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <!-- ISCED Level 2: Lower Secondary Education -->
+    <record id="isced_2" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_education_level"/>
+        <field name="code">2</field>
+        <field name="display">Lower Secondary Education</field>
+        <field name="definition">Programmes building on primary education, typically designed to lay the foundation for lifelong learning and human development. Often more subject-oriented than primary education, with more specialized teachers. Typically 2-5 years duration, often ending after 8-9 years of education from the start of primary.</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <!-- ISCED Level 3: Upper Secondary Education -->
+    <record id="isced_3" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_education_level"/>
+        <field name="code">3</field>
+        <field name="display">Upper Secondary Education</field>
+        <field name="definition">Programmes typically designed to complete secondary education in preparation for tertiary education or to provide skills relevant to employment, or both. More varied, specialized and in-depth instruction than lower secondary. Typically 2-5 years duration, often ending after 12-13 years of education from the start of primary.</field>
+        <field name="sequence">40</field>
+    </record>
+
+    <!-- ISCED Level 4: Post-Secondary Non-Tertiary Education -->
+    <record id="isced_4" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_education_level"/>
+        <field name="code">4</field>
+        <field name="display">Post-Secondary Non-Tertiary Education</field>
+        <field name="definition">Programmes providing learning experiences that build on secondary education and prepare for labour market entry or tertiary education. Content is not complex enough to be regarded as tertiary education although it is clearly post-secondary. Duration typically ranges from 6 months to 2-3 years.</field>
+        <field name="sequence">50</field>
+    </record>
+
+    <!-- ISCED Level 5: Short-Cycle Tertiary Education -->
+    <record id="isced_5" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_education_level"/>
+        <field name="code">5</field>
+        <field name="display">Short-Cycle Tertiary Education</field>
+        <field name="definition">Programmes designed to provide participants with professional knowledge, skills and competencies. Typically practically-based, occupationally-specific, and prepare students to enter the labour market. May also provide a pathway to other tertiary education programmes. Duration typically 2-3 years full-time equivalent.</field>
+        <field name="sequence">60</field>
+    </record>
+
+    <!-- ISCED Level 6: Bachelor's or Equivalent Level -->
+    <record id="isced_6" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_education_level"/>
+        <field name="code">6</field>
+        <field name="display">Bachelor's or Equivalent Level</field>
+        <field name="definition">Programmes designed to provide intermediate academic or professional knowledge, skills and competencies leading to a first tertiary degree or equivalent qualification. Duration typically 3-4 years full-time equivalent (may be up to 6 years for professional programmes like medicine).</field>
+        <field name="sequence">70</field>
+    </record>
+
+    <!-- ISCED Level 7: Master's or Equivalent Level -->
+    <record id="isced_7" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_education_level"/>
+        <field name="code">7</field>
+        <field name="display">Master's or Equivalent Level</field>
+        <field name="definition">Programmes designed to provide advanced academic or professional knowledge, skills and competencies leading to a second tertiary degree or equivalent qualification. May include a substantial research component. Duration typically 1-4 years full-time equivalent following a bachelor's degree.</field>
+        <field name="sequence">80</field>
+    </record>
+
+    <!-- ISCED Level 8: Doctoral or Equivalent Level -->
+    <record id="isced_8" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_education_level"/>
+        <field name="code">8</field>
+        <field name="display">Doctoral or Equivalent Level</field>
+        <field name="definition">Programmes designed primarily to lead to an advanced research qualification, usually concluding with the submission and defence of a thesis or dissertation of publishable quality. Typically requires a minimum of 3 years full-time equivalent, with total duration commonly 5-8 years.</field>
+        <field name="sequence">90</field>
+    </record>
+
+    <!-- Additional code for "No formal education" - common in social protection contexts -->
+    <record id="isced_none" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_education_level"/>
+        <field name="code">N</field>
+        <field name="display">No Formal Education</field>
+        <field name="definition">Never attended or completed any formal education programme. May include informal learning or non-formal education not classified within the ISCED framework.</field>
+        <field name="sequence">5</field>
+    </record>
+
+    <!-- Additional code for "Unknown/Not stated" - useful for data collection -->
+    <record id="isced_unknown" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_education_level"/>
+        <field name="code">9</field>
+        <field name="display">Not Stated / Unknown</field>
+        <field name="definition">Education level not stated, unknown, or not elsewhere classified.</field>
+        <field name="sequence">100</field>
+    </record>
+</odoo>

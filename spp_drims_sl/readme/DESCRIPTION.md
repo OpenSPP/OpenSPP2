@@ -1,0 +1,69 @@
+Sri Lanka configuration for the DRIMS disaster response inventory management system. Provides demo data and country-specific configuration including geographic structure, government agency network, approval workflows, warehouse network, hazard taxonomy, and relief product catalog aligned with DMC requirements. This is a data-only module with no models or views.
+
+### Key Configuration Data
+
+- **Company Setup**: Configures main company as "Disaster Management Centre - Sri Lanka" with LKR currency and Sri Lanka country
+- **Geographic Structure**: Defines 4-level administrative hierarchy (Province → District → DS Division → GN Division) via `spp.area.kind` records
+- **Agency Network**: Creates 16 `res.partner` records for government agencies, military, UN agencies, and NGOs with DRIMS organization roles
+- **Warehouse Network**: Provisions 11 `stock.warehouse` records (2 national-level, 9 provincial-level) with capacity and emergency contact metadata
+- **Hazard Taxonomy**: Hierarchical natural disaster categories (floods, landslides, drought, cyclones, monsoons) via `spp.hazard.category`
+- **Relief Products**: 30 `product.product` records across 8 categories with expiry tracking enabled via `product_expiry` module
+- **Approval Workflows**: 4 `spp.approval.definition` records with value-based routing (life-threatening fast-track, small/medium/large value tiers)
+- **Vocabulary Extensions**: 15 Sri Lanka-specific `spp.vocabulary.code` records for priority levels, transport modes, hazard types, and agency types
+- **Reference Numbers**: Overrides `ir.sequence` records with SL prefixes (DON-SL, REQ-SL, WB-SL, INC-SL)
+- **Demo Users**: 13 `res.users` spanning roles from field officers to warehouse staff to approvers
+
+### Approval Workflow Tiers
+
+| Condition                   | Approvers                                    | SLA    |
+| --------------------------- | -------------------------------------------- | ------ |
+| Priority = Life-Threatening | Single manager (fast-track)                  | 0 days |
+| Value < 100,000 LKR         | District approver                            | 1 day  |
+| Value 100,000 - 500,000 LKR | District → Provincial (2-tier)               | 2 days |
+| Value > 500,000 LKR         | District → Provincial → National DMC (3-tier)| 3 days |
+
+### Configuration
+
+After installing:
+
+1. **Import Areas**: Navigate to **Social Protection > Configuration > Areas > Import Areas** and upload `lka_adminboundaries_tabulardata.xlsx` to populate the 4-level area hierarchy
+2. **Link Warehouses**: Under **Inventory > Configuration > Warehouses**, set the `area_id` field to associate each warehouse with its geographic area
+3. **Verify Approvals**: Check **Social Protection > Configuration > Approval Definitions** to confirm the 4 approval workflows are active
+
+### Included Agencies
+
+**Government**: Ministry of Disaster Management, Ministry of Health, Ministry of Social Services, Ministry of Defence, DMC, Department of Social Services, Department of Meteorology, NBRO, Sri Lanka Army, Sri Lanka Navy, Sri Lanka Air Force, Sri Lanka Police
+
+**International**: UNICEF Sri Lanka, WFP Sri Lanka, UNDP Sri Lanka, Sri Lanka Red Cross Society, Oxfam Sri Lanka, CARE International Sri Lanka
+
+### Included Warehouses
+
+**National**: Central Warehouse Colombo (10,000 m³), National Reserve Anuradhapura (5,000 m³)
+
+**Provincial**: Western Province - Colombo, Central Province - Kandy, Southern Province - Galle, Northern Province - Jaffna, Eastern Province - Batticaloa, North Western Province - Kurunegala, North Central Province - Anuradhapura, Uva Province - Badulla, Sabaragamuwa Province - Ratnapura
+
+### Demo Users
+
+| Login                           | Role              | Password |
+| ------------------------------- | ----------------- | -------- |
+| admin.dmc@drims.gov.lk          | Super Admin       | demo     |
+| staff.colombo@drims.gov.lk      | Warehouse Staff   | demo     |
+| staff.kandy@drims.gov.lk        | Warehouse Staff   | demo     |
+| wh.colombo@drims.gov.lk         | Warehouse Manager | demo     |
+| wh.kandy@drims.gov.lk           | Warehouse Manager | demo     |
+| approver.national@drims.gov.lk  | National Approver | demo     |
+| approver.western@drims.gov.lk   | Provincial Approver | demo   |
+| approver.central@drims.gov.lk   | Provincial Approver | demo   |
+| officer.colombo@drims.gov.lk    | Field Officer     | demo     |
+| officer.gampaha@drims.gov.lk    | Field Officer     | demo     |
+| officer.kandy@drims.gov.lk      | Field Officer     | demo     |
+| officer.galle@drims.gov.lk      | Field Officer     | demo     |
+| secretary@drims.gov.lk          | Viewer (Dashboard)| demo     |
+
+### Security
+
+Inherits security groups from `spp_drims`. No additional models or access rules defined. All data records use `noupdate="1"` to prevent overwriting during module upgrades, except company configuration which uses `noupdate="0"` to allow updates.
+
+### Dependencies
+
+`spp_drims`, `spp_approval`, `product_expiry`

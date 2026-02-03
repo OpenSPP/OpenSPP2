@@ -1,0 +1,32 @@
+<!--
+   Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <!-- Top menu item -->
+    <menuitem
+        id="spp_main_menu_root"
+        name="Registry"
+        web_icon="spp_registry,static/src/img/icons/contacts.png"
+        active="True"
+        sequence="-1"
+        groups="spp_security.group_spp_admin,spp_registry.group_registry_manager,spp_registry.group_registry_officer,spp_registry.group_registry_viewer"
+    />
+
+    <menuitem
+        id="spp_configuration_menu_root"
+        name="Configuration"
+        parent="spp_main_menu_root"
+        sequence="1000"
+        groups="spp_security.group_spp_admin,spp_registry.group_registry_config_admin"
+    />
+
+    <!-- Hard-reset menu security to admin-only to avoid lingering manager visibility from previous versions -->
+    <record id="spp_configuration_menu_root" model="ir.ui.menu">
+        <field name="group_ids" eval="[Command.set([ref('spp_security.group_spp_admin'), ref('spp_registry.group_registry_config_admin')])]" />
+    </record>
+
+    <record id="contacts.res_partner_menu_contacts" model="ir.ui.menu">
+        <field name="group_ids" eval="[Command.set([ref('base.group_system')])]" />
+    </record>
+
+</odoo>

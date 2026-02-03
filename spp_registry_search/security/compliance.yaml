@@ -1,0 +1,113 @@
+# OpenSPP Access Management Compliance Specification
+# Module: spp_registry_search
+# Version: 1.0
+#
+# This file declares the expected access control configuration for this module.
+# Run: python -m scripts.compliance.checker spp_registry_search
+# Generate tests: python -m scripts.compliance.test_generator spp_registry_search
+
+module: spp_registry_search
+domain: registry
+version: "1.0"
+
+# =============================================================================
+# GROUP DEFINITIONS
+# Following ADR-004 Three-Tier Architecture
+# =============================================================================
+
+groups:
+  # --- Tier 2: Special group for audit access ---
+  - id: group_registry_search_auditor
+    tier: 2
+    privilege_id: privilege_registry_search_auditor
+    implied_ids: [spp_registry.group_registry_read]
+    comment: >
+      Special group for auditors who need to browse all registrants without search restrictions. Bypasses the
+      search-first privacy protection for legitimate audit purposes. Implied by spp_security.group_spp_admin.
+
+# Admin linkage - auditor group linked from spp_security.group_spp_admin
+admin_link_group: group_registry_search_auditor
+
+# =============================================================================
+# MODEL ACCESS (ir.model.access.csv)
+# View history is personal data managed by each user
+# =============================================================================
+
+model_access:
+  # View history - users manage their own history records
+  # Full CRUD to registry_read as record rules limit to own records
+  - model: spp.registry.view.history
+    registry_read: [read, write, create, unlink]
+
+# =============================================================================
+# RECORD RULES (ir.rule)
+# Privacy-preserving rules - users only see their own view history
+# =============================================================================
+
+record_rules:
+  - id: rule_view_history_own
+    model: spp.registry.view.history
+    global: true
+    domain_description: "Users can only access their own view history records"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: true
+
+# =============================================================================
+# MENU VISIBILITY
+# Search-first interface for all users, browse-all for auditors only
+# =============================================================================
+
+menus:
+  - id: menu_registry_search
+    name: "Search"
+    parent: spp_registry.spp_main_menu_root
+    groups: [spp_registry.group_registry_viewer]
+    comment: "Default entry point for all registry users - search-first interface"
+
+  - id: menu_browse_all
+    name: "Browse All (Audit)"
+    parent: spp_registry.spp_main_menu_root
+    groups: [group_registry_search_auditor]
+    comment: "Auditor submenu for unrestricted browse access"
+
+  - id: menu_browse_all_individuals
+    name: "All Individuals"
+    parent: menu_browse_all
+    groups: [group_registry_search_auditor]
+    comment: "Browse all individuals without search - audit only"
+
+  - id: menu_browse_all_groups
+    name: "All Groups"
+    parent: menu_browse_all
+    groups: [group_registry_search_auditor]
+    comment: "Browse all groups without search - audit only"
+
+# =============================================================================
+# FIELD RESTRICTIONS
+# No field-level restrictions in this module
+# =============================================================================
+
+field_restrictions: []
+
+# =============================================================================
+# ACTION RESTRICTIONS
+# Search portal action available to all viewers
+# =============================================================================
+
+actions:
+  - id: action_registry_search_portal
+    type: ir.actions.client
+    groups: [spp_registry.group_registry_viewer]
+    comment: "Search-first interface client action"
+
+  - id: action_browse_all_individuals
+    type: ir.actions.act_window
+    groups: [group_registry_search_auditor]
+    comment: "Browse all individuals action - auditors only"
+
+  - id: action_browse_all_groups
+    type: ir.actions.act_window
+    groups: [group_registry_search_auditor]
+    comment: "Browse all groups action - auditors only"

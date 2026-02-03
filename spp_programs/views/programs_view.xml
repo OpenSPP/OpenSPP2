@@ -1,0 +1,431 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <!-- ========================================== -->
+    <!-- PROGRAM LIST VIEW                          -->
+    <!-- ========================================== -->
+    <record id="view_program_list_tree" model="ir.ui.view">
+        <field name="name">spp.program.list</field>
+        <field name="model">spp.program</field>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+            <list sample="1" decoration-muted="state == 'ended'">
+                <field name="name" />
+                <field name="target_type" />
+                <field name="eligible_beneficiaries_count" string="Beneficiaries" />
+                <field name="cycles_count" string="Cycles" />
+                <field name="company_id" groups="base.group_multi_company" optional="hide" />
+                <field
+                    name="state"
+                    decoration-success="state == 'active'"
+                    decoration-warning="state == 'ended'"
+                    widget="badge"
+                />
+                <field name="active" column_invisible="1" />
+            </list>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- PROGRAM SEARCH VIEW                        -->
+    <!-- ========================================== -->
+    <record id="view_program_search" model="ir.ui.view">
+        <field name="name">spp.program.search</field>
+        <field name="model">spp.program</field>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+            <search string="Search Programs">
+                <field name="name" />
+                <field name="target_type" />
+                <separator />
+                <filter string="Active" name="active_programs" domain="[('state', '=', 'active')]" />
+                <filter string="Ended" name="ended_programs" domain="[('state', '=', 'ended')]" />
+                <separator />
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]" />
+                <separator />
+                <filter string="Target Type" name="group_by_target" context="{'group_by': 'target_type'}" />
+                <filter string="State" name="group_by_state" context="{'group_by': 'state'}" />
+                <filter string="Company" name="group_by_company" context="{'group_by': 'company_id'}" groups="base.group_multi_company" />
+            </search>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- PROGRAM FORM VIEW                          -->
+    <!-- ========================================== -->
+    <record id="view_program_list_form" model="ir.ui.view">
+        <field name="name">spp.program.form</field>
+        <field name="model">spp.program</field>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+            <form string="Program" duplicate="false">
+                <header>
+                    <!-- Primary Actions -->
+                    <button
+                        name="import_eligible_registrants"
+                        type="object"
+                        string="Import Eligible"
+                        icon="fa-download"
+                        class="btn-secondary"
+                        invisible="state != 'active'"
+                        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_officer,spp_programs.group_programs_validator"
+                    />
+                    <button
+                        name="enroll_eligible_registrants"
+                        type="object"
+                        string="Enroll Eligible"
+                        icon="fa-user-plus"
+                        class="btn-primary"
+                        invisible="state != 'active'"
+                        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_officer,spp_programs.group_programs_validator"
+                    />
+                    <button
+                        name="verify_eligibility"
+                        type="object"
+                        string="Verify Eligibility"
+                        icon="fa-check-circle"
+                        invisible="state != 'active'"
+                        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_officer,spp_programs.group_programs_validator"
+                    />
+                    <button
+                        name="create_new_cycle"
+                        type="object"
+                        string="New Cycle"
+                        icon="fa-plus-circle"
+                        invisible="state != 'active' or is_one_time_distribution"
+                        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_officer,spp_programs.group_programs_validator"
+                    />
+                    <button
+                        name="deduplicate_beneficiaries"
+                        type="object"
+                        string="Deduplicate"
+                        icon="fa-compress"
+                        invisible="state != 'active'"
+                        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager"
+                    />
+                    <button
+                        name="notify_eligible_beneficiaries"
+                        type="object"
+                        string="Notify"
+                        icon="fa-envelope"
+                        invisible="state != 'active'"
+                        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_officer"
+                    />
+                    <field name="state" widget="statusbar" statusbar_visible="active,ended" />
+                </header>
+
+                <!-- Alerts -->
+                <div
+                    class="alert alert-danger"
+                    role="alert"
+                    invisible="journal_id"
+                >
+                    <i class="fa fa-exclamation-triangle" title="Warning" /> A journal must be defined for this program.
+                    Configure it in the <strong>Configuration</strong> tab or
+                    <button
+                        type="object"
+                        class="btn btn-sm btn-danger"
+                        icon="fa-plus"
+                        name="create_journal"
+                        string="Create New Journal"
+                    />
+                </div>
+                <div
+                    class="alert alert-warning text-center"
+                    role="status"
+                    invisible="not is_locked"
+                >
+                    <i class="fa fa-spinner fa-spin" title="Loading" /> Operation in progress:
+                    <field name="locked_reason" class="fw-bold" />
+                    <button
+                        name="refresh_page"
+                        type="object"
+                        class="btn btn-sm btn-warning ms-2"
+                        icon="fa-refresh"
+                        string="Refresh"
+                    />
+                </div>
+
+                <sheet>
+                    <!-- Stat Buttons -->
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-users"
+                            name="open_eligible_beneficiaries_form"
+                        >
+                            <field name="eligible_beneficiaries_count" widget="statinfo" string="Beneficiaries" />
+                        </button>
+                        <button
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-refresh"
+                            name="open_cycles_form"
+                        >
+                            <field name="cycles_count" widget="statinfo" string="Cycles" />
+                        </button>
+                        <button
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-clone"
+                            name="open_duplicate_membership_form"
+                            invisible="duplicate_membership_count == 0"
+                        >
+                            <field name="duplicate_membership_count" widget="statinfo" string="Duplicates" />
+                        </button>
+                    </div>
+
+                    <!-- Ribbons -->
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" invisible="active" />
+                    <widget name="web_ribbon" title="Ended" bg_color="bg-warning" invisible="state != 'ended'" />
+
+                    <!-- Title Section - Minimal header -->
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Program Name" required="1" readonly="state == 'ended'" />
+                        </h1>
+                    </div>
+
+                    <!-- Hidden fields -->
+                    <field name="active" invisible="1" />
+                    <field name="is_locked" invisible="1" />
+                    <field name="has_members" invisible="1" />
+
+                    <!-- Main Content - 4 Tab Structure -->
+                    <notebook name="program_tabs">
+                        <!-- ==================== OVERVIEW TAB ==================== -->
+                        <page name="overview" string="Overview">
+                            <!-- Basic Info Section - 2 columns -->
+                            <group name="basic_info_section" col="2">
+                                <group name="program_info">
+                                    <field name="target_type" widget="radio" readonly="state == 'ended' or has_members" />
+                                    <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}" readonly="state == 'ended'" />
+                                </group>
+                                <group name="program_stats">
+                                    <field name="beneficiaries_count" readonly="1" />
+                                    <field name="eligible_beneficiaries_count" readonly="1" />
+                                </group>
+                            </group>
+
+                            <!-- Extension point for additional overview content -->
+                            <group name="additional_overview_section" invisible="1">
+                                <!-- Additional fields injected by extending modules -->
+                            </group>
+
+                            <!-- Recent Cycles Summary -->
+                            <separator string="Recent Cycles" />
+                            <field name="cycle_ids" nolabel="1" readonly="1" mode="list">
+                                <list create="0" delete="0" edit="0" limit="10" decoration-muted="state in ('ended', 'cancelled')">
+                                    <field name="name" />
+                                    <field name="start_date" />
+                                    <field name="end_date" />
+                                    <field
+                                        name="state"
+                                        decoration-primary="state == 'draft'"
+                                        decoration-warning="state == 'to_approve'"
+                                        decoration-success="state in ('approved', 'distributed')"
+                                        decoration-danger="state in ('ended', 'cancelled')"
+                                        widget="badge"
+                                    />
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- ==================== CONFIGURATION TAB ==================== -->
+                        <page name="configuration" string="Configuration" groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_validator">
+                            <!-- Hidden field for access control -->
+                            <field name="can_edit_configuration" invisible="1"/>
+
+                            <!-- Core Managers Section - Single instance only -->
+                            <separator string="Core Managers" />
+                            <div class="alert alert-info small mb-3 py-2" role="alert">
+                                <i class="fa fa-info-circle me-2" title="Info" />
+                                Core managers control the program lifecycle. Each type allows only one manager.
+                            </div>
+
+                            <group name="core_managers_section" col="2">
+                                <group>
+                                    <field name="program_manager_ids" readonly="state == 'ended' or not can_edit_configuration" context="{'default_program_id': id}">
+                                        <list editable="bottom" create="1" delete="1">
+                                            <field name="manager_ref_id" string="Manager" options="{'no_quick_create':True}" context="{'default_program_id': parent.id}" />
+                                            <button name="open_manager_form" type="object" class="btn-link p-0" icon="fa-cog" title="Configure manager settings" />
+                                        </list>
+                                    </field>
+                                    <field name="cycle_manager_ids" readonly="state == 'ended' or not can_edit_configuration" context="{'default_program_id': id}">
+                                        <list editable="bottom" create="1" delete="1">
+                                            <field name="manager_ref_id" string="Manager" options="{'no_quick_create':True}" context="{'default_program_id': parent.id}" />
+                                            <button name="open_manager_form" type="object" class="btn-link p-0" icon="fa-cog" title="Configure manager settings" />
+                                        </list>
+                                    </field>
+                                </group>
+                                <group>
+                                    <field name="entitlement_manager_ids" readonly="state == 'ended' or not can_edit_configuration" context="{'default_program_id': id}">
+                                        <list editable="bottom" create="1" delete="1">
+                                            <field name="manager_ref_id" string="Manager" options="{'no_quick_create':True}" context="{'default_program_id': parent.id}" />
+                                            <button name="open_manager_form" type="object" class="btn-link p-0" icon="fa-cog" title="Configure manager settings" />
+                                        </list>
+                                    </field>
+                                    <field name="payment_manager_ids" readonly="state == 'ended' or not can_edit_configuration" context="{'default_program_id': id}">
+                                        <list editable="bottom" create="1" delete="1">
+                                            <field name="manager_ref_id" string="Manager" options="{'no_quick_create':True}" context="{'default_program_id': parent.id}" />
+                                            <button name="open_manager_form" type="object" class="btn-link p-0" icon="fa-cog" title="Configure manager settings" />
+                                        </list>
+                                    </field>
+                                </group>
+                            </group>
+
+                            <!-- Eligibility Manager Section - Critical for beneficiary selection -->
+                            <separator string="Eligibility Manager" />
+                            <div class="alert alert-warning small mb-3 py-2" role="alert">
+                                <i class="fa fa-exclamation-triangle me-2" title="Warning" />
+                                Eligibility managers determine who qualifies for the program. Multiple managers can be configured and will run in sequence.
+                            </div>
+
+                            <group name="eligibility_manager_section" col="1">
+                                <field name="eligibility_manager_ids" nolabel="1" readonly="state == 'ended' or not can_edit_configuration" context="{'default_program_id': id}">
+                                    <list editable="bottom" create="1" delete="1">
+                                        <field name="manager_ref_id" string="Eligibility Manager" options="{'no_quick_create':True}" context="{'default_program_id': parent.id}" />
+                                        <button name="open_manager_form" type="object" class="btn-link p-0" icon="fa-cog" title="Configure manager settings" />
+                                    </list>
+                                </field>
+                            </group>
+
+                            <!-- Optional Managers Section -->
+                            <separator string="Optional Managers" />
+                            <div class="alert alert-info small mb-3 py-2" role="alert">
+                                <i class="fa fa-info-circle me-2" title="Info" />
+                                Optional managers for deduplication and notifications. Multiple can be configured per type.
+                            </div>
+
+                            <group name="optional_managers_section" col="1">
+                                <field name="deduplication_manager_ids" readonly="state == 'ended' or not can_edit_configuration" context="{'default_program_id': id}">
+                                    <list editable="bottom" create="1" delete="1">
+                                        <field name="manager_ref_id" string="Deduplication Manager" options="{'no_quick_create':True}" context="{'default_program_id': parent.id}" />
+                                        <button name="open_manager_form" type="object" class="btn-link p-0" icon="fa-cog" title="Configure manager settings" />
+                                    </list>
+                                </field>
+                                <field name="notification_manager_ids" readonly="state == 'ended' or not can_edit_configuration" context="{'default_program_id': id}">
+                                    <list editable="bottom" create="1" delete="1">
+                                        <field name="manager_ref_id" string="Notification Manager" options="{'no_quick_create':True}" context="{'default_program_id': parent.id}" />
+                                        <button name="open_manager_form" type="object" class="btn-link p-0" icon="fa-cog" title="Configure manager settings" />
+                                    </list>
+                                </field>
+                            </group>
+
+                            <!-- Accounting Section -->
+                            <separator string="Accounting" />
+                            <group name="accounting_section" col="2">
+                                <group>
+                                    <field
+                                        name="currency_id"
+                                        string="Currency"
+                                        options="{'no_open': True, 'no_quick_create': True, 'no_create': True}"
+                                        readonly="state == 'ended' or not can_edit_configuration"
+                                    />
+                                    <field
+                                        name="journal_id"
+                                        string="Journal"
+                                        options="{'no_open': True, 'no_quick_create': True, 'no_create': True}"
+                                        readonly="state == 'ended' or not can_edit_configuration"
+                                    />
+                                </group>
+                                <group>
+                                    <field name="is_one_time_distribution" readonly="state == 'ended' or not can_edit_configuration" />
+                                </group>
+                            </group>
+
+                            <!-- Extension point for additional configuration -->
+                            <group name="additional_config_section" invisible="1">
+                                <!-- Additional config fields injected by other modules -->
+                            </group>
+                        </page>
+
+                        <!-- ==================== HISTORY TAB ==================== -->
+                        <page name="history" string="History">
+                            <!-- Audit Section - 2 columns -->
+                            <separator string="Audit Information" />
+                            <group name="audit_section" col="2">
+                                <group>
+                                    <field name="create_date" readonly="1" />
+                                    <field name="create_uid" readonly="1" />
+                                </group>
+                                <group>
+                                    <field name="write_date" readonly="1" />
+                                    <field name="write_uid" readonly="1" />
+                                </group>
+                            </group>
+
+                            <!-- Status Section - 2 columns -->
+                            <separator string="Status Information" />
+                            <group name="status_section" col="2">
+                                <group>
+                                    <field name="state" readonly="1" />
+                                    <field name="date_ended" readonly="1" />
+                                </group>
+                                <group>
+                                    <field name="is_locked" readonly="1" />
+                                    <field name="locked_reason" readonly="1" />
+                                </group>
+                            </group>
+
+                            <!-- Extension point for audit log -->
+                            <div name="audit_log_section" invisible="1">
+                                <!-- Audit log entries injected by spp_audit -->
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- ACTIONS AND MENUS                          -->
+    <!-- ========================================== -->
+    <record id="action_program_list" model="ir.actions.act_window">
+        <field name="name">Programs</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">spp.program</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_program_search" />
+        <field name="path">programs</field>
+        <field name="context">{}</field>
+        <field name="domain">[]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first program
+            </p>
+            <p>
+                Programs define the benefits and eligibility criteria for beneficiaries.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_program_list_tree_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1" />
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_program_list_tree" />
+        <field name="act_window_id" ref="action_program_list" />
+    </record>
+
+    <record id="action_program_list_form_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2" />
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_program_list_form" />
+        <field name="act_window_id" ref="action_program_list" />
+    </record>
+
+    <menuitem
+        id="menu_program_list"
+        name="Programs"
+        action="action_program_list"
+        parent="spp_programs.spp_program_menu_root"
+        sequence="10"
+        groups="spp_programs.group_programs_viewer,spp_programs.group_programs_manager,spp_security.group_spp_admin"
+    />
+
+</odoo>

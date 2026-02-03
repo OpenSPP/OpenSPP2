@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+   Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <record model="ir.rule" id="rule_spp_group_membership_ended">
+        <field name="name">Group Membership Ended Rule</field>
+        <field name="model_id" ref="spp_registry.model_spp_group_membership" />
+        <field name="domain_force">[("ended_date", "=", None)]</field>
+        <field name='active'>False</field>
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
+</odoo>

@@ -1,0 +1,192 @@
+# OpenSPP Access Management Compliance Specification
+# Module: spp_area
+# Version: 1.0
+#
+# This file declares the expected access control configuration for this module.
+# Run: python -m scripts.compliance.checker spp_area
+# Generate tests: python -m scripts.compliance.test_generator spp_area
+
+module: spp_area
+domain: area
+version: "1.0"
+
+# =============================================================================
+# SECURITY ARCHITECTURE
+# =============================================================================
+#
+# This module defines its OWN security groups for area management.
+# Areas are configuration/reference data that should be managed separately
+# from operational registry data.
+#
+# Key Security Decision:
+# - Registry officers can READ areas (for dropdowns, searches)
+# - Registry officers CANNOT EDIT areas (configuration data)
+# - Only Area Officers/Managers can modify area data
+# - Registry managers inherit area management via group implications
+#
+# Cross-module implications (defined in groups.xml):
+# - spp_registry.group_registry_viewer implies group_area_read
+# - spp_registry.group_registry_manager implies group_area_manager
+#
+# =============================================================================
+
+# =============================================================================
+# GROUP DEFINITIONS
+# Following ADR-004 Three-Tier Architecture
+# =============================================================================
+
+groups:
+  # --- Tier 3: Technical base groups ---
+  - id: group_area_read
+    tier: 3
+    comment: "Technical group for read access to area models."
+
+  - id: group_area_write
+    tier: 3
+    implied_ids: [group_area_read]
+    comment: "Technical group for write access to area models."
+
+  - id: group_area_create
+    tier: 3
+    implied_ids: [group_area_read]
+    comment: "Technical group for area create access."
+
+  # --- Tier 2: User-facing groups ---
+  - id: group_area_viewer
+    tier: 2
+    privilege_id: privilege_area_viewer
+    implied_ids: [group_area_read]
+    comment: "Can view area configuration. Cannot modify data."
+
+  - id: group_area_officer
+    tier: 2
+    privilege_id: privilege_area_officer
+    implied_ids: [group_area_viewer, group_area_write, group_area_create]
+    comment: "Can view and edit area configuration including area types and tags. Cannot delete."
+
+  - id: group_area_manager
+    tier: 2
+    privilege_id: privilege_area_manager
+    implied_ids: [group_area_officer]
+    comment: "Full area management including delete operations and bulk imports."
+
+# Admin linkage - manager group links to spp_security.group_spp_admin
+admin_link_group: group_area_manager
+
+# =============================================================================
+# MODEL ACCESS (ir.model.access.csv)
+# Standard pattern: viewer=read, officer=read+write+create, manager=full CRUD
+# =============================================================================
+
+model_access:
+  # Core area model - geographic areas
+  - model: spp.area
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  # Area types - configuration data
+  - model: spp.area.type
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  # Area tags - classification/categorization
+  - model: spp.area.tag
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  # Area import - bulk data loading (manager only)
+  - model: spp.area.import
+    viewer: [read]
+    officer: []
+    manager: [read, write, create, unlink]
+
+  # Area import raw data - temporary staging (manager only)
+  - model: spp.area.import.raw
+    viewer: [read]
+    officer: []
+    manager: [read, write, create, unlink]
+
+  # Area import JSON batches - internal processing (manager only)
+  - model: spp.area.import.json
+    viewer: []
+    officer: []
+    manager: [read, write, create, unlink]
+
+  # Area import language wizard - configuration utility (manager only)
+  - model: spp.area.import.language.wizard
+    viewer: []
+    officer: []
+    manager: [read, write, create, unlink]
+
+# =============================================================================
+# RECORD RULES (ir.rule)
+# =============================================================================
+# Note: Record rules for area-based filtering are implemented in code
+# (area.py SPPAreaCustom._prepare_domain) rather than XML rules because
+# they require dynamic evaluation of user.center_area_ids.
+
+record_rules: []
+
+# =============================================================================
+# MENU VISIBILITY
+# =============================================================================
+
+menus:
+  - id: area_main_menu_root
+    name: "Area"
+    groups: [group_area_viewer]
+
+  - id: area_main_top_menu
+    name: "Areas"
+    parent: area_main_menu_root
+    groups: [group_area_viewer]
+
+  - id: menu_spparea
+    name: "Area"
+    parent: area_main_top_menu
+    groups: [group_area_viewer]
+
+  - id: menu_spparea_import
+    name: "Area Import"
+    parent: area_main_top_menu
+    groups: [group_area_manager]
+
+  - id: menu_spparea_type
+    name: "Area Type"
+    parent: area_main_top_menu
+    groups: [group_area_manager]
+
+  - id: menu_spp_area_tag
+    name: "Area Tags"
+    parent: area_main_top_menu
+    groups: [group_area_officer]
+
+# =============================================================================
+# ACTIONS
+# =============================================================================
+
+actions:
+  - id: action_spparea
+    name: "Area"
+    groups: [group_area_viewer]
+
+  - id: action_view_spparea_import
+    name: "Area Upload"
+    groups: [group_area_manager]
+
+  - id: action_spparea_type
+    name: "Area Type"
+    groups: [group_area_manager]
+
+  - id: action_spp_area_tag
+    name: "Area Tags"
+    groups: [group_area_officer]
+
+# =============================================================================
+# FIELD RESTRICTIONS
+# =============================================================================
+
+field_restrictions: []

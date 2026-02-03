@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Individual Registrant form - QR Credentials Integration -->
+    <record id="view_individuals_form_qr_credentials" model="ir.ui.view">
+        <field name="name">view_individuals_form_qr_credentials</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="spp_registry.view_individuals_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Stat Button in button_box -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_qr_credentials"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-qrcode"
+                        invisible="is_group"
+                        groups="spp_claim_169.group_claim169_user">
+                    <field name="qr_credential_active_count" invisible="1"/>
+                    <field name="qr_credential_count" invisible="1"/>
+                    <field name="qr_credential_count_string" widget="statinfo" string="QR Credentials"/>
+                </button>
+            </xpath>
+
+            <!-- QR Credentials Section in Identity Tab (after IDs section) -->
+            <!-- This positions after spp_idpass if installed, otherwise after ids_section -->
+            <xpath expr="//group[@name='ids_section']" position="after">
+                <separator string="QR Credentials" invisible="is_group"/>
+                <group name="qr_credentials_section" invisible="is_group"
+                       groups="spp_claim_169.group_claim169_user">
+                    <group colspan="2">
+                        <!-- Hidden fields for computation -->
+                        <field name="latest_qr_credential_id" invisible="1"/>
+                        <field name="qr_credential_count" invisible="1"/>
+
+                        <!-- Show latest active credential inline -->
+                        <div invisible="not latest_qr_credential_id" class="mb-3 w-100">
+                            <div class="d-flex align-items-start">
+                                <div class="me-4">
+                                    <field name="latest_qr_image" widget="image"
+                                           options="{'size': [150, 150]}"
+                                           class="img-fluid border rounded"/>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="mb-2">
+                                        <strong>Credential:</strong>
+                                        <field name="latest_qr_credential_name" class="ms-1"/>
+                                    </div>
+                                    <div class="mb-2">
+                                        <strong>Status:</strong>
+                                        <field name="latest_qr_status" widget="badge" class="ms-1"
+                                               decoration-success="latest_qr_status == 'active'"
+                                               decoration-warning="latest_qr_status == 'expired'"
+                                               decoration-danger="latest_qr_status == 'revoked'"/>
+                                    </div>
+                                    <div class="mb-2">
+                                        <strong>Expires:</strong>
+                                        <field name="latest_qr_expires_at" class="ms-1"/>
+                                    </div>
+                                    <div class="mt-3">
+                                        <button name="action_view_latest_qr_credential"
+                                                type="object"
+                                                string="View Details"
+                                                class="btn btn-outline-secondary btn-sm me-2"
+                                                icon="fa-external-link"/>
+                                        <button name="action_view_qr_credentials"
+                                                type="object"
+                                                string="View All"
+                                                class="btn btn-link btn-sm p-0"
+                                                invisible="qr_credential_count &lt;= 1"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- No credential message -->
+                        <div invisible="latest_qr_credential_id" class="text-muted mb-3">
+                            No active QR credential found for this registrant.
+                        </div>
+
+                        <!-- Generate button -->
+                        <div>
+                            <button name="action_generate_qr_credential"
+                                    type="object"
+                                    string="Generate QR Credential"
+                                    icon="fa-qrcode"
+                                    class="btn-primary"
+                                    invisible="disabled"
+                                    groups="spp_claim_169.group_claim169_user"/>
+                        </div>
+                    </group>
+                </group>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

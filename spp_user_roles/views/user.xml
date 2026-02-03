@@ -1,0 +1,36 @@
+<odoo>
+    <record id="view_res_users_form_inherit_spp_user_roles" model="ir.ui.view">
+        <field name="name">res.users.form.inherit.spp.user.roles</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base_user_role.view_res_users_form_inherit" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='role_line_ids']/list/field[@name='role_id']" position="after">
+                <field name="role_type" invisible="1" />
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Override list view to use stored role_ids field for proper display -->
+    <record id="view_res_users_tree_inherit_spp_user_roles" model="ir.ui.view">
+        <field name="name">res.users.list.inherit.spp.user.roles</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base_user_role.view_res_users_tree_inherit" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='role_ids']" position="replace">
+                <field name="role_ids_stored" widget="many2many_tags" optional="show" />
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Hide Role (Single) column from base user tree view -->
+    <record id="view_res_users_tree_hide_role_spp_user_roles" model="ir.ui.view">
+        <field name="name">res.users.list.hide.role</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_tree" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='role']" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

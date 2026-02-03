@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_dci_sender_registry_admin,spp.dci.sender.registry admin,model_spp_dci_sender_registry,base.group_system,1,1,1,1
+access_spp_dci_sender_registry_user,spp.dci.sender.registry user,model_spp_dci_sender_registry,base.group_user,1,0,0,0
+access_spp_dci_transaction_admin,spp.dci.transaction admin,model_spp_dci_transaction,base.group_system,1,1,1,1
+access_spp_dci_transaction_user,spp.dci.transaction user,model_spp_dci_transaction,base.group_user,1,0,0,0
+access_spp_dci_subscription_admin,spp.dci.subscription admin,model_spp_dci_subscription,base.group_system,1,1,1,1
+access_spp_dci_subscription_user,spp.dci.subscription user,model_spp_dci_subscription,base.group_user,1,0,0,0
+access_spp_dci_notification_log_admin,spp.dci.notification.log admin,model_spp_dci_notification_log,base.group_system,1,1,1,1
+access_spp_dci_notification_log_user,spp.dci.notification.log user,model_spp_dci_notification_log,base.group_user,1,0,0,0
+access_spp_dci_server_key_admin,spp.dci.server.key admin,model_spp_dci_server_key,base.group_system,1,1,1,1
+access_spp_dci_server_key_user,spp.dci.server.key user,model_spp_dci_server_key,base.group_user,1,0,0,0

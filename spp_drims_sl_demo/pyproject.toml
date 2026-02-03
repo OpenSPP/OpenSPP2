@@ -1,0 +1,9 @@
+[project]
+name = "odoo-addon-spp_drims_sl_demo"
+dynamic = ["version"]
+
+[tool.setuptools-odoo]
+
+[build-system]
+requires = ["whool"]
+build-backend = "whool.buildapi"

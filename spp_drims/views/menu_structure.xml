@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- DRIMS Menu Structure - Parent menus without actions -->
+    <!-- Load early so wizards and views can add children -->
+
+    <!-- Root menu - Opens Dashboard by default -->
+    <menuitem id="menu_drims_root"
+              name="DRIMS"
+              web_icon="spp_drims,static/description/OpenSPP-Web-Menu_DRIMS_Icon.png"
+              action="drims_dashboard_action"
+              sequence="25"/>
+
+    <!-- Receive Supplies (Inbound) - Donations, Returns -->
+    <menuitem id="menu_drims_receive"
+              name="Receive Supplies"
+              parent="menu_drims_root"
+              sequence="10"/>
+
+    <!-- Fulfill Requests (Outbound) - Requests, Dispatches -->
+    <menuitem id="menu_drims_fulfill"
+              name="Fulfill Requests"
+              parent="menu_drims_root"
+              sequence="20"/>
+
+    <!-- Inventory submenu -->
+    <menuitem id="menu_drims_inventory"
+              name="Inventory"
+              parent="menu_drims_root"
+              sequence="30"/>
+
+    <!-- Monitoring - Alerts, Top Priority, Personnel -->
+    <menuitem id="menu_drims_monitoring"
+              name="Monitoring"
+              parent="menu_drims_root"
+              sequence="40"/>
+
+    <!-- Reports submenu (needed by wizard/report_4w_wizard_views.xml) -->
+    <menuitem id="menu_drims_reports"
+              name="Reports"
+              parent="menu_drims_root"
+              sequence="80"/>
+
+    <!-- Configuration submenu -->
+    <menuitem id="menu_drims_config"
+              name="Configuration"
+              parent="menu_drims_root"
+              groups="group_drims_manager"
+              sequence="90"/>
+
+</odoo>

@@ -1,0 +1,179 @@
+# OpenSPP Access Management Compliance Specification
+# Module: spp_hazard
+# Version: 1.0
+#
+# This file declares the expected access control configuration for this module.
+# Run: python -m scripts.compliance.checker spp_hazard
+# Generate tests: python -m scripts.compliance.test_generator spp_hazard
+
+module: spp_hazard
+domain: hazard
+version: "1.0"
+
+# =============================================================================
+# GROUP DEFINITIONS
+# Following ADR-004 Three-Tier Architecture
+# =============================================================================
+
+groups:
+  # --- Tier 3: Technical base groups ---
+  - id: group_hazard_read
+    tier: 3
+    comment: "Technical group for read access to hazard management models."
+
+  - id: group_hazard_write
+    tier: 3
+    implied_ids: [group_hazard_read]
+    comment: "Technical group for write access to hazard management models."
+
+  - id: group_hazard_create
+    tier: 3
+    implied_ids: [group_hazard_write]
+    comment: "Technical group for create access to hazard management models."
+
+  # --- Tier 2: User-facing groups ---
+  - id: group_hazard_viewer
+    tier: 2
+    privilege_id: privilege_hazard_viewer
+    implied_ids: [group_hazard_read]
+    comment: "Can view hazard incidents, categories, and impacts but cannot modify."
+
+  - id: group_hazard_officer
+    tier: 2
+    privilege_id: privilege_hazard_officer
+    implied_ids: [group_hazard_create, group_hazard_viewer]
+    comment: "Can create and manage hazard incidents and impacts."
+
+  - id: group_hazard_manager
+    tier: 2
+    privilege_id: privilege_hazard_manager
+    implied_ids: [group_hazard_officer]
+    comment: "Full access to hazard management including configuration."
+
+# Admin linkage - manager group links to spp_security.group_spp_admin
+admin_link_group: group_hazard_manager
+
+# =============================================================================
+# MODEL ACCESS (ir.model.access.csv)
+# Standard pattern: viewer=read, officer=read+write+create, manager=full CRUD
+# =============================================================================
+
+model_access:
+  # Hazard Category - configuration model
+  - model: spp.hazard.category
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  # Hazard Incident - core operational model
+  - model: spp.hazard.incident
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  # Hazard Incident Area - geographic scope model
+  - model: spp.hazard.incident.area
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  # Hazard Impact Type - configuration model
+  - model: spp.hazard.impact.type
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  # Hazard Impact - impact assessment model
+  - model: spp.hazard.impact
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+
+# =============================================================================
+# RECORD RULES (ir.rule)
+# Data visibility rules based on group membership
+# =============================================================================
+
+record_rules: []
+
+# =============================================================================
+# MENU VISIBILITY
+# Which groups can see which menus
+# =============================================================================
+
+menus:
+  # Main Hazard menu - accessible to all hazard groups
+  - id: hazard_main_menu_root
+    name: "Hazard & Emergency"
+    groups: [spp_security.group_spp_admin, group_hazard_viewer, group_hazard_officer, group_hazard_manager]
+
+  # Incidents submenu
+  - id: menu_hazard_incidents_main
+    name: "Incidents"
+    parent: hazard_main_menu_root
+    groups: [] # Inherits from parent
+
+  - id: menu_hazard_incident
+    name: "All Incidents"
+    parent: menu_hazard_incidents_main
+    groups: [] # Inherits from parent
+
+  - id: menu_hazard_impact
+    name: "Impact Records"
+    parent: menu_hazard_incidents_main
+    groups: [] # Inherits from parent
+
+  # Configuration submenu - managers only
+  - id: menu_hazard_configuration
+    name: "Configuration"
+    parent: hazard_main_menu_root
+    groups: [group_hazard_manager]
+
+  - id: menu_hazard_category
+    name: "Hazard Categories"
+    parent: menu_hazard_configuration
+    groups: [] # Inherits from parent
+
+  - id: menu_hazard_impact_type
+    name: "Impact Types"
+    parent: menu_hazard_configuration
+    groups: [] # Inherits from parent
+
+# =============================================================================
+# FIELD RESTRICTIONS
+# Fields with group-based visibility in views
+# =============================================================================
+
+field_restrictions: []
+
+# =============================================================================
+# ACTION RESTRICTIONS
+# Actions that are restricted to specific groups
+# =============================================================================
+
+actions: []
+# =============================================================================
+# NOTES
+# =============================================================================
+
+# Role Hierarchy:
+# - Viewer: Read-only access to hazard incidents, categories, and impacts
+# - Officer: Can create and manage hazard incidents and impact assessments
+# - Manager: Full access including configuration (categories, impact types) and delete operations
+#
+# Security Model:
+# - No record rules defined - all users in a group can see all records of that type
+# - Configuration menus (categories, impact types) restricted to managers only
+# - Incident and impact data accessible to all roles (viewer, officer, manager)
+#
+# Module Purpose:
+# - Provides hazard classification, incident recording, and impact assessment
+# - Links registrants to disaster events with geographic scope and severity tracking
+# - Enables targeted humanitarian assistance during emergency response
+#
+# Models:
+# - spp.hazard.category: Types of hazards (flood, earthquake, drought, etc.)
+# - spp.hazard.incident: Specific disaster events with date, severity, location
+# - spp.hazard.incident.area: Geographic areas affected by incidents
+# - spp.hazard.impact.type: Types of impact (property damage, displacement, injury, etc.)
+# - spp.hazard.impact: Individual impact assessments linking registrants to incidents

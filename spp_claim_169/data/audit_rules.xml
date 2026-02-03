@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- QR Credential Audit Rule -->
+    <!-- This creates an audit rule to track all CRUD operations on credentials -->
+    <!-- Note: Lifecycle logging (download, preview) is done via explicit calls in Python -->
+    <function model="spp.audit.rule" name="create_rules">
+        <value name="rule_name">QR Credential Audit Rule</value>
+        <value name="model">spp.claim169.credential</value>
+        <value
+            name="fields_to_log"
+            eval="['name', 'partner_id', 'issuer_config_id', 'status',
+                   'issued_at', 'expires_at', 'revoked_at', 'revoked_by_id',
+                   'revocation_reason']"
+        />
+        <value name="view_logs" eval="True"/>
+        <value name="log_create" eval="True"/>
+        <value name="log_write" eval="True"/>
+        <value name="log_unlink" eval="True"/>
+    </function>
+
+    <!-- Issuer Config Audit Rule -->
+    <function model="spp.audit.rule" name="create_rules">
+        <value name="rule_name">QR Credential Issuer Config Audit Rule</value>
+        <value name="model">spp.claim169.issuer.config</value>
+        <value
+            name="fields_to_log"
+            eval="['name', 'issuer_did', 'signing_key_id', 'default_validity_days',
+                   'active', 'is_default']"
+        />
+        <value name="view_logs" eval="True"/>
+        <value name="log_create" eval="True"/>
+        <value name="log_write" eval="True"/>
+        <value name="log_unlink" eval="True"/>
+    </function>
+</odoo>

@@ -1,0 +1,820 @@
+rules:
+  # =============================================================================
+  # SQL INJECTION DETECTION
+  # =============================================================================
+  - id: odoo-sql-injection-string-format
+    patterns:
+      - pattern-either:
+          - pattern: $CR.execute($QUERY % ...)
+          - pattern: $CR.execute($QUERY.format(...))
+          - pattern: self.env.cr.execute($QUERY % ...)
+          - pattern: self.env.cr.execute($QUERY.format(...))
+          - pattern: self._cr.execute($QUERY % ...)
+          - pattern: self._cr.execute($QUERY.format(...))
+    message: |
+      SQL injection vulnerability: Using string formatting in SQL query.
+      Use parameterized queries instead:
+      Bad:  cr.execute("SELECT * FROM users WHERE id = %s" % user_id)
+      Good: cr.execute("SELECT * FROM users WHERE id = %s", (user_id,))
+    severity: ERROR
+    languages: [python]
+    metadata:
+      cwe: "CWE-89"
+      owasp: "A03:2021 Injection"
+      category: security
+
+  - id: odoo-sql-injection-fstring
+    patterns:
+      - pattern-either:
+          - pattern: $CR.execute(f"...")
+          - pattern: self.env.cr.execute(f"...")
+          - pattern: self._cr.execute(f"...")
+    message: |
+      SQL injection vulnerability: Using f-string in SQL query.
+      Use parameterized queries with tuple arguments instead.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      cwe: "CWE-89"
+      owasp: "A03:2021 Injection"
+
+  - id: odoo-sql-injection-concatenation
+    patterns:
+      - pattern-either:
+          - pattern: $CR.execute($QUERY + ...)
+          - pattern: self.env.cr.execute($QUERY + ...)
+    message: |
+      Potential SQL injection: String concatenation in SQL query.
+      Use parameterized queries instead.
+    severity: WARNING
+    languages: [python]
+    metadata:
+      cwe: "CWE-89"
+
+  # =============================================================================
+  # CODE INJECTION / DANGEROUS FUNCTIONS
+  # =============================================================================
+  - id: odoo-unsafe-eval
+    patterns:
+      - pattern: eval(...)
+    message: |
+      eval() is dangerous and can execute arbitrary code.
+      Use ast.literal_eval() for safe literal evaluation only.
+      NOTE: safe_eval() is NOT safe with user input - see odoo-unsafe-safe-eval rule.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      cwe: "CWE-95"
+      owasp: "A03:2021 Injection"
+
+  - id: odoo-unsafe-safe-eval
+    patterns:
+      - pattern-either:
+          - pattern: safe_eval(...)
+          - pattern: odoo.tools.safe_eval.safe_eval(...)
+          - pattern: odoo.tools.safe_eval.test_expr(...)
+      # Suppress in compute methods and known-safe domain evaluation
+      # contexts where the input is developer-controlled, not user-controlled.
+      - pattern-not-inside: |
+          def _compute_$METHOD(...):
+              ...
+      - pattern-not-inside: |
+          def action_domain_eval(...):
+              ...
+    message: |
+      safe_eval() is NOT safe with user input!
+      It can be bypassed to achieve code execution.
+
+      Attack vector: User sends "__import__('os').system('cat /etc/passwd')"
+
+      Safe alternatives:
+      - For literals: ast.literal_eval()
+      - For numeric: int(), float()
+      - For domain parsing: validate structure explicitly
+
+      If safe_eval is absolutely necessary, ensure input is NOT user-controlled.
+    severity: INFO
+    languages: [python]
+    metadata:
+      cwe: "CWE-95"
+      owasp: "A03:2021 Injection"
+
+  - id: odoo-exec-usage
+    pattern: exec(...)
+    message: |
+      exec() can execute arbitrary code and is a security risk.
+      Avoid using it entirely or use safe_eval() with restricted globals.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      cwe: "CWE-95"
+
+  - id: odoo-compile-usage
+    pattern: compile(..., ..., "exec")
+    message: |
+      compile() with 'exec' mode can be used for code injection.
+      Consider safer alternatives.
+    severity: WARNING
+    languages: [python]
+
+  # =============================================================================
+  # ACCESS CONTROL BYPASS
+  # =============================================================================
+  - id: odoo-sudo-without-context
+    patterns:
+      - pattern-either:
+          - pattern: self.sudo()
+          - pattern: $RECORD.sudo()
+          - pattern: self.env[$MODEL].sudo()
+    message: |
+      sudo() bypasses all access controls. Ensure this is:
+      1. Intentional and documented
+      2. Using minimal scope (e.g., .sudo().read(['field']) not .sudo())
+      3. Not exposing sensitive data to unauthorized users
+    severity: WARNING
+    languages: [python]
+    metadata:
+      category: security
+
+  - id: odoo-sudo-on-sensitive-models
+    patterns:
+      - pattern-either:
+          # Payment and financial models
+          - pattern: self.env['spp.payment'].sudo()
+          - pattern: self.env['spp.entitlement'].sudo()
+          - pattern: self.env['spp.program'].sudo()
+          - pattern: self.env['account.payment'].sudo()
+          - pattern: self.env['account.move'].sudo()
+          # User and access control models
+          - pattern: self.env['res.users'].sudo()
+          - pattern: self.env['res.groups'].sudo()
+          - pattern: self.env['ir.rule'].sudo()
+          - pattern: self.env['ir.model.access'].sudo()
+          # Partner/beneficiary data
+          - pattern: self.env['res.partner'].sudo()
+          - pattern: self.env['spp.registrant'].sudo()
+    message: |
+      CRITICAL: sudo() on sensitive model bypasses ALL access controls.
+      This could enable:
+      - Unauthorized fund disbursement (payment models)
+      - Privilege escalation (user/group models)
+      - Data exfiltration (partner/registrant models)
+
+      REQUIRED: Document WHY sudo() is needed and add explicit
+      authorization check BEFORE the sudo() call.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      cwe: "CWE-269"
+      owasp: "A01:2021 Broken Access Control"
+      category: security
+
+  - id: odoo-with-user-unvalidated
+    pattern: $OBJ.with_user($USER)
+    message: |
+      with_user() changes execution context. Verify:
+      1. The user parameter is validated
+      2. This doesn't create privilege escalation paths
+    severity: INFO
+    languages: [python]
+
+  # =============================================================================
+  # SENSITIVE DATA EXPOSURE
+  # =============================================================================
+  # NOTE: These rules target specific PII-containing models (partner, registrant,
+  # beneficiary, user) to reduce false positives from non-PII models like
+  # season.name, cron.name, etc.
+  - id: odoo-pii-in-log-name
+    patterns:
+      - pattern-either:
+          # Only flag known PII-containing models
+          - pattern: _logger.$METHOD(..., partner.name, ...)
+          - pattern: _logger.$METHOD(..., registrant.name, ...)
+          - pattern: _logger.$METHOD(..., beneficiary.name, ...)
+          - pattern: _logger.$METHOD(..., user.name, ...)
+          - pattern: _logger.$METHOD(..., employee.name, ...)
+    message: |
+      PII (person name) in log message. Use record ID instead.
+      Bad:  _logger.info("Processing %s", partner.name)
+      Good: _logger.info("Processing partner ID=%s", partner.id)
+    severity: WARNING
+    languages: [python]
+    metadata:
+      cwe: "CWE-532"
+      category: privacy
+
+  - id: odoo-pii-in-log-phone
+    patterns:
+      - pattern-either:
+          - pattern: _logger.$METHOD(..., $RECORD.phone, ...)
+          - pattern: _logger.$METHOD(..., $RECORD.mobile, ...)
+    message: "Potential PII (phone number) in log message."
+    severity: WARNING
+    languages: [python]
+    metadata:
+      cwe: "CWE-532"
+
+  - id: odoo-pii-in-log-email
+    pattern-either:
+      - pattern: _logger.$METHOD(..., $RECORD.email, ...)
+    message: "Potential PII (email) in log message."
+    severity: WARNING
+    languages: [python]
+
+  - id: odoo-pii-in-log-national-id
+    patterns:
+      - pattern-either:
+          - pattern: _logger.$METHOD(..., $RECORD.national_id, ...)
+          - pattern: _logger.$METHOD(..., $RECORD.tax_id, ...)
+          - pattern: _logger.$METHOD(..., $RECORD.vat, ...)
+    message: "Potential PII (national/tax ID) in log message - CRITICAL privacy violation."
+    severity: ERROR
+    languages: [python]
+    metadata:
+      cwe: "CWE-532"
+
+  # =============================================================================
+  # HARDCODED CREDENTIALS
+  # =============================================================================
+  - id: odoo-hardcoded-password
+    patterns:
+      - pattern-either:
+          - pattern: password = "..."
+          - pattern: passwd = "..."
+          - pattern: pwd = "..."
+          - pattern: admin_passwd = "..."
+      - pattern-not: password = ""
+      - pattern-not: password = None
+      - pattern-not: password = False
+    message: |
+      Hardcoded password detected. Use environment variables,
+      Odoo's ir.config_parameter, or a secrets manager.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      cwe: "CWE-798"
+      owasp: "A07:2021 Identification and Authentication Failures"
+
+  - id: odoo-hardcoded-api-key
+    patterns:
+      - pattern-either:
+          - pattern: api_key = "..."
+          - pattern: apikey = "..."
+          - pattern: secret_key = "..."
+          - pattern: secret = "..."
+          - pattern: token = "..."
+      - pattern-not: api_key = ""
+      - pattern-not: secret_key = ""
+      - pattern-not: token = ""
+      - pattern-not: api_key = None
+    message: "Hardcoded API key or secret detected."
+    severity: ERROR
+    languages: [python]
+    metadata:
+      cwe: "CWE-798"
+
+  # =============================================================================
+  # UNSAFE DESERIALIZATION
+  # =============================================================================
+  - id: odoo-pickle-usage
+    patterns:
+      - pattern-either:
+          - pattern: pickle.load(...)
+          - pattern: pickle.loads(...)
+          - pattern: cPickle.load(...)
+          - pattern: cPickle.loads(...)
+    message: |
+      pickle can execute arbitrary code during deserialization.
+      Use JSON or other safe serialization formats.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      cwe: "CWE-502"
+      owasp: "A08:2021 Software and Data Integrity Failures"
+
+  - id: odoo-yaml-unsafe-load
+    pattern: yaml.load(..., Loader=yaml.Loader)
+    message: |
+      yaml.load with Loader=yaml.Loader is unsafe.
+      Use yaml.safe_load() instead.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      cwe: "CWE-502"
+
+  # =============================================================================
+  # XML EXTERNAL ENTITY (XXE)
+  # =============================================================================
+  - id: odoo-xxe-vulnerable
+    patterns:
+      - pattern-either:
+          - pattern: lxml.etree.parse(...)
+          - pattern: lxml.etree.fromstring(...)
+      - pattern-not-inside: |
+          $PARSER = lxml.etree.XMLParser(resolve_entities=False, ...)
+          ...
+    message: |
+      XML parsing may be vulnerable to XXE attacks.
+      Use defusedxml or disable external entity resolution:
+      parser = etree.XMLParser(resolve_entities=False, no_network=True)
+    severity: WARNING
+    languages: [python]
+    metadata:
+      cwe: "CWE-611"
+
+  # =============================================================================
+  # PATH TRAVERSAL
+  # =============================================================================
+  - id: odoo-path-traversal
+    patterns:
+      - pattern-either:
+          - pattern: open($PATH + $USER_INPUT, ...)
+          - pattern: open(os.path.join($BASE, $USER_INPUT), ...)
+      - pattern-not-inside: |
+          if ... in ...:
+              ...
+    message: |
+      Potential path traversal vulnerability.
+      Validate and sanitize file paths, check for '..' sequences.
+    severity: WARNING
+    languages: [python]
+    metadata:
+      cwe: "CWE-22"
+      owasp: "A01:2021 Broken Access Control"
+
+  # =============================================================================
+  # TRANSACTION SAFETY
+  # =============================================================================
+  - id: odoo-commit-in-loop
+    patterns:
+      - pattern-either:
+          - pattern: |
+              for ... in ...:
+                  ...
+                  $CR.commit()
+                  ...
+          - pattern: |
+              while ...:
+                  ...
+                  $CR.commit()
+                  ...
+    message: |
+      cr.commit() inside a loop can cause partial data states on failure.
+      Use queue_job for batch operations or handle transactions properly.
+    severity: WARNING
+    languages: [python]
+    metadata:
+      category: reliability
+
+  - id: odoo-savepoint-not-released
+    pattern: |
+      $SAVEPOINT = self.env.cr.savepoint()
+      ...
+    pattern-not: |
+      $SAVEPOINT = self.env.cr.savepoint()
+      ...
+      $SAVEPOINT.close()
+    message: |
+      Savepoint may not be properly released. Use context manager:
+      with self.env.cr.savepoint():
+          ...
+    severity: INFO
+    languages: [python]
+
+  # =============================================================================
+  # COMMAND INJECTION
+  # =============================================================================
+  - id: odoo-subprocess-shell
+    patterns:
+      - pattern-either:
+          - pattern: subprocess.call(..., shell=True, ...)
+          - pattern: subprocess.run(..., shell=True, ...)
+          - pattern: subprocess.Popen(..., shell=True, ...)
+          - pattern: os.system(...)
+    message: |
+      Shell command execution with shell=True or os.system() is dangerous.
+      Use subprocess with shell=False and pass arguments as a list.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      cwe: "CWE-78"
+      owasp: "A03:2021 Injection"
+
+  # =============================================================================
+  # INSECURE DIRECT OBJECT REFERENCE (IDOR)
+  # =============================================================================
+  - id: odoo-idor-browse-from-request
+    patterns:
+      - pattern-either:
+          - pattern: self.env[$MODEL].browse($REQUEST.params.get(...))
+          - pattern: self.env[$MODEL].browse(int($REQUEST.params.get(...)))
+          - pattern: self.env[$MODEL].browse(request.params.get(...))
+          - pattern: self.env[$MODEL].browse(int(request.params.get(...)))
+          - pattern: self.env[$MODEL].browse(kw.get(...))
+          - pattern: self.env[$MODEL].browse(int(kw.get(...)))
+    message: |
+      Potential IDOR vulnerability: Accessing records directly from user input.
+      Ensure proper authorization checks before accessing records:
+      1. Verify the user has permission to access this record
+      2. Use record rules or explicit access checks
+      3. Consider using search() with domain filters instead of browse()
+    severity: WARNING
+    languages: [python]
+    metadata:
+      cwe: "CWE-639"
+      owasp: "A01:2021 Broken Access Control"
+      category: security
+
+  - id: odoo-idor-search-from-request
+    patterns:
+      - pattern-either:
+          - pattern: self.env[$MODEL].search([..., request.params.get(...), ...])
+          - pattern: self.env[$MODEL].search([..., kw.get(...), ...])
+          - pattern: self.env[$MODEL].search([..., kw[$KEY], ...])
+    message: |
+      Search with user-controlled input. Ensure:
+      1. Input is validated/sanitized
+      2. User has permission to search these records
+      3. Record rules properly filter results
+    severity: INFO
+    languages: [python]
+    metadata:
+      cwe: "CWE-639"
+
+  # =============================================================================
+  # MASS ASSIGNMENT
+  # =============================================================================
+  - id: odoo-mass-assignment-create
+    patterns:
+      - pattern-either:
+          - pattern: self.env[$MODEL].create(request.params)
+          - pattern: self.env[$MODEL].create(kw)
+          - pattern: self.env[$MODEL].create({**request.params})
+          - pattern: self.env[$MODEL].create({**kw})
+          - pattern: $RECORD.create(request.params)
+          - pattern: $RECORD.create(kw)
+    message: |
+      Mass assignment vulnerability in create(): Using request data directly.
+      An attacker could set fields they shouldn't have access to.
+
+      Fix: Explicitly whitelist allowed fields:
+        allowed = {'name', 'email', 'phone'}
+        vals = {k: v for k, v in kw.items() if k in allowed}
+        self.env['model'].create(vals)
+    severity: ERROR
+    languages: [python]
+    metadata:
+      cwe: "CWE-915"
+      owasp: "A01:2021 Broken Access Control"
+      category: security
+
+  - id: odoo-mass-assignment-write
+    patterns:
+      - pattern-either:
+          - pattern: $RECORD.write(request.params)
+          - pattern: $RECORD.write(kw)
+          - pattern: $RECORD.write({**request.params})
+          - pattern: $RECORD.write({**kw})
+    message: |
+      Mass assignment vulnerability in write(): Using request data directly.
+      An attacker could modify fields they shouldn't have access to.
+
+      Fix: Explicitly whitelist allowed fields:
+        allowed = {'name', 'email', 'phone'}
+        vals = {k: v for k, v in kw.items() if k in allowed}
+        record.write(vals)
+    severity: ERROR
+    languages: [python]
+    metadata:
+      cwe: "CWE-915"
+      owasp: "A01:2021 Broken Access Control"
+      category: security
+
+  - id: odoo-mass-assignment-update
+    patterns:
+      - pattern-either:
+          - pattern: $RECORD.update(request.params)
+          - pattern: $RECORD.update(kw)
+    message: |
+      Mass assignment vulnerability in update(): Using request data directly.
+      Whitelist allowed fields before updating.
+    severity: WARNING
+    languages: [python]
+    metadata:
+      cwe: "CWE-915"
+
+  # =============================================================================
+  # ADDITIONAL API SECURITY
+  # =============================================================================
+  - id: odoo-unvalidated-redirect
+    patterns:
+      - pattern-either:
+          - pattern: request.redirect($URL)
+          - pattern: werkzeug.utils.redirect($URL)
+      - pattern-not-inside: |
+          if $URL.startswith('/'):
+              ...
+      - pattern-not-inside: |
+          if $URL in ...:
+              ...
+    message: |
+      Potential open redirect vulnerability.
+      Validate redirect URLs to prevent phishing attacks:
+      - Only allow relative URLs (starting with '/')
+      - Whitelist allowed redirect destinations
+    severity: WARNING
+    languages: [python]
+    metadata:
+      cwe: "CWE-601"
+      owasp: "A01:2021 Broken Access Control"
+
+  # =============================================================================
+  # ENHANCED PII DETECTION (F-strings and intermediate variables)
+  # =============================================================================
+  - id: odoo-pii-fstring-name
+    patterns:
+      - pattern-either:
+          # Only flag known PII-bearing models to avoid false positives
+          # from non-PII uses like season.name, cron.name, etc.
+          - pattern: _logger.$METHOD(f"...{partner.name}...")
+          - pattern: _logger.$METHOD(f"...{registrant.name}...")
+          - pattern: _logger.$METHOD(f"...{beneficiary.name}...")
+          - pattern: _logger.$METHOD(f"...{employee.name}...")
+          - pattern: _logger.$METHOD(f"...{user.name}...")
+    message: |
+      PII (name) in f-string log message.
+      Use record ID or anonymized reference instead.
+    severity: WARNING
+    languages: [python]
+    metadata:
+      cwe: "CWE-532"
+      category: privacy
+
+  - id: odoo-pii-fstring-contact
+    patterns:
+      - pattern-either:
+          - pattern: _logger.$METHOD(f"...{$X.email}...")
+          - pattern: _logger.$METHOD(f"...{$X.phone}...")
+          - pattern: _logger.$METHOD(f"...{$X.mobile}...")
+    message: "PII (contact info) in f-string log message."
+    severity: WARNING
+    languages: [python]
+    metadata:
+      cwe: "CWE-532"
+
+  - id: odoo-pii-fstring-id-number
+    patterns:
+      - pattern-either:
+          - pattern: _logger.$METHOD(f"...{$X.national_id}...")
+          - pattern: _logger.$METHOD(f"...{$X.tax_id}...")
+          - pattern: _logger.$METHOD(f"...{$X.vat}...")
+          - pattern: _logger.$METHOD(f"...{$X.id_number}...")
+          - pattern: _logger.$METHOD(f"...{$X.bank_account}...")
+    message: |
+      CRITICAL PII (ID number/financial data) in f-string log message.
+      This is a severe privacy violation.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      cwe: "CWE-532"
+
+  # =============================================================================
+  # JSON API MASS ASSIGNMENT
+  # =============================================================================
+  - id: odoo-mass-assignment-json-create
+    patterns:
+      - pattern-either:
+          - pattern: self.env[$MODEL].create(request.get_json())
+          - pattern: self.env[$MODEL].create(request.json)
+          - pattern: $RECORD.create(request.get_json())
+          - pattern: $RECORD.create(request.json)
+          - pattern: self.env[$MODEL].create(flask.request.get_json())
+    message: |
+      Mass assignment vulnerability: Passing JSON body directly to create().
+      Attacker can set any field including:
+      - user_id, company_id, create_uid (privilege escalation)
+      - state, active (bypass workflows)
+      - amount, balance (financial fraud)
+
+      Fix: Whitelist allowed fields explicitly.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      cwe: "CWE-915"
+      owasp: "A01:2021 Broken Access Control"
+
+  - id: odoo-mass-assignment-json-write
+    patterns:
+      - pattern-either:
+          - pattern: $RECORD.write(request.get_json())
+          - pattern: $RECORD.write(request.json)
+          - pattern: $RECORD.write(flask.request.get_json())
+    message: |
+      Mass assignment vulnerability: Passing JSON body directly to write().
+      Whitelist allowed fields before updating.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      cwe: "CWE-915"
+      owasp: "A01:2021 Broken Access Control"
+
+  # =============================================================================
+  # DOMAIN INJECTION
+  # =============================================================================
+  - id: odoo-domain-injection-eval
+    patterns:
+      - pattern-either:
+          - pattern: $MODEL.search(eval($DOMAIN))
+          - pattern: $MODEL.search(safe_eval($DOMAIN))
+          - pattern: $MODEL.search(ast.literal_eval($DOMAIN))
+    message: |
+      Domain injection: Evaluating user-controlled search domain.
+      Attacker can craft domains to:
+      - Access records from other companies
+      - Bypass record rules
+      - Extract sensitive data
+
+      Fix: Validate domain structure and allowed fields.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      cwe: "CWE-639"
+      owasp: "A01:2021 Broken Access Control"
+
+  - id: odoo-domain-from-request
+    patterns:
+      - pattern-either:
+          - pattern: $MODEL.search(request.params.get('domain'))
+          - pattern: $MODEL.search(kw.get('domain'))
+          - pattern: $MODEL.search(kw['domain'])
+    message: |
+      Search domain from user input without validation.
+      Validate domain elements before use.
+    severity: WARNING
+    languages: [python]
+    metadata:
+      cwe: "CWE-639"
+
+  # =============================================================================
+  # DYNAMIC SQL (Table/Column Names)
+  # =============================================================================
+  - id: odoo-sql-dynamic-identifier
+    patterns:
+      - pattern-either:
+          - pattern: $CR.execute(f"... FROM {$TABLE} ...")
+          - pattern: $CR.execute(f"... JOIN {$TABLE} ...")
+          - pattern: $CR.execute(f"... INTO {$TABLE} ...")
+          - pattern: self.env.cr.execute(f"... FROM {$TABLE} ...")
+    message: |
+      SQL injection via dynamic table/column name.
+      Table names CANNOT be parameterized - validate against whitelist:
+
+      ALLOWED_TABLES = {'res_partner', 'spp_payment'}
+      if table not in ALLOWED_TABLES:
+          raise ValueError("Invalid table")
+    severity: ERROR
+    languages: [python]
+    metadata:
+      cwe: "CWE-89"
+      owasp: "A03:2021 Injection"
+
+  # =============================================================================
+  # ADDITIONAL COMMAND INJECTION PATTERNS
+  # =============================================================================
+  - id: odoo-command-injection-popen
+    patterns:
+      - pattern-either:
+          - pattern: os.popen(...)
+          - pattern: popen2.popen2(...)
+          - pattern: popen2.popen3(...)
+          - pattern: popen2.popen4(...)
+    message: |
+      os.popen() is deprecated and vulnerable to command injection.
+      Use subprocess.run() with shell=False instead.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      cwe: "CWE-78"
+      owasp: "A03:2021 Injection"
+
+  - id: odoo-command-injection-commands
+    patterns:
+      - pattern-either:
+          - pattern: commands.getoutput(...)
+          - pattern: commands.getstatusoutput(...)
+    message: |
+      commands module is deprecated and vulnerable.
+      Use subprocess.run() with shell=False instead.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      cwe: "CWE-78"
+
+  # =============================================================================
+  # BUSINESS LOGIC SECURITY
+  # =============================================================================
+  - id: odoo-direct-state-change
+    patterns:
+      - pattern-either:
+          - pattern: "$RECORD.write({'state': 'approved'})"
+          - pattern: "$RECORD.write({'state': 'paid'})"
+          - pattern: "$RECORD.write({'state': 'done'})"
+          - pattern: "$RECORD.write({'state': 'validated'})"
+      - pattern-not-inside: |
+          def action_approve(...):
+              ...
+      - pattern-not-inside: |
+          def action_validate(...):
+              ...
+    message: |
+      Direct state change may bypass approval workflow.
+      Use state machine actions (action_approve, action_validate) instead.
+    severity: WARNING
+    languages: [python]
+    metadata:
+      cwe: "CWE-284"
+      owasp: "A01:2021 Broken Access Control"
+
+  - id: odoo-expose-database-id
+    patterns:
+      - pattern-either:
+          - pattern: "return {..., 'id': $RECORD.id, ...}"
+          - pattern: "return {..., 'record_id': $RECORD.id, ...}"
+          - pattern: "{'id': $RECORD.id}"
+    message: |
+      Exposing database ID in API response.
+      Use external identifiers (external_id or UUID) instead.
+      See docs/principles/api-design.md
+    severity: INFO
+    languages: [python]
+    metadata:
+      category: api-design
+
+  # =============================================================================
+  # XXE - ADDITIONAL PARSERS
+  # =============================================================================
+  - id: odoo-xxe-stdlib
+    patterns:
+      - pattern-either:
+          - pattern: xml.etree.ElementTree.parse(...)
+          - pattern: xml.dom.minidom.parse(...)
+          - pattern: xml.dom.minidom.parseString(...)
+          - pattern: xml.sax.parse(...)
+          - pattern: xml.sax.parseString(...)
+    message: |
+      Standard library XML parser may be vulnerable to XXE.
+      Use defusedxml library instead:
+        import defusedxml.ElementTree as ET
+    severity: WARNING
+    languages: [python]
+    metadata:
+      cwe: "CWE-611"
+      owasp: "A05:2021 Security Misconfiguration"
+
+  # =============================================================================
+  # TIMING ATTACKS
+  # =============================================================================
+  - id: odoo-timing-attack-password
+    patterns:
+      - pattern-either:
+          - pattern: $PASSWORD == $INPUT
+          - pattern: $INPUT == $PASSWORD
+      - metavariable-regex:
+          metavariable: $PASSWORD
+          regex: ".*(password|passwd|pwd|secret|token|hash).*"
+    message: |
+      String comparison may be vulnerable to timing attacks.
+      Use hmac.compare_digest() for password/token comparison:
+        import hmac
+        if hmac.compare_digest(password, user_input):
+            ...
+    severity: WARNING
+    languages: [python]
+    metadata:
+      cwe: "CWE-208"
+
+  # =============================================================================
+  # WEAK RANDOMNESS
+  # =============================================================================
+  - id: odoo-weak-random-security
+    patterns:
+      - pattern-either:
+          - pattern: random.random()
+          - pattern: random.randint(...)
+          - pattern: random.choice(...)
+      - pattern-inside: |
+          def $FUNC(...):
+              ...
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: ".*(token|secret|key|password|auth|session|csrf).*"
+    message: |
+      Using weak randomness for security-sensitive operation.
+      Use secrets module instead:
+        import secrets
+        token = secrets.token_urlsafe(32)
+    severity: ERROR
+    languages: [python]
+    metadata:
+      cwe: "CWE-330"
+      owasp: "A02:2021 Cryptographic Failures"

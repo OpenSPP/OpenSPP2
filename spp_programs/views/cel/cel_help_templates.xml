@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Help template for group symbols -->
+    <template id="cel_help_symbols_groups">
+        <div class="cel-help-section" role="region">
+            <h5>Registrant Fields (r.)</h5>
+            <ul>
+                <li><code>r.name</code> - Registrant name</li>
+                <li><code>r.disabled</code> - Is disabled</li>
+            </ul>
+            <h5>Metrics</h5>
+            <ul>
+                <li><code>metric("household.size")</code> - Number of household members</li>
+                <li><code>metric("scoring.&lt;code&gt;")</code> - Scoring result (e.g., PMT score)</li>
+            </ul>
+            <h5>Household Members (members.)</h5>
+            <ul>
+                <li><code>members.exists(m, condition)</code> - Check if any member matches</li>
+                <li><code>members.count(m, condition)</code> - Count members matching</li>
+            </ul>
+            <h5>Member Fields (m.)</h5>
+            <ul>
+                <li><code>m.birthdate</code> - Birth date</li>
+                <li><code>m.gender</code> - Gender (male/female)</li>
+                <li><code>m.disabled</code> - Is disabled</li>
+                <li><code>head(m)</code> - Is head of household</li>
+            </ul>
+            <h5>Enrollments &amp; Entitlements</h5>
+            <ul>
+                <li><code>enrollments.exists(e, condition)</code> - Has enrollment</li>
+                <li><code>entitlements.exists(e, condition)</code> - Has entitlement</li>
+            </ul>
+        </div>
+    </template>
+
+    <!-- Help template for individual symbols -->
+    <template id="cel_help_symbols_individuals">
+        <div class="cel-help-section" role="region">
+            <h5>Registrant Fields (r.)</h5>
+            <ul>
+                <li><code>r.name</code> - Registrant name</li>
+                <li><code>r.birthdate</code> - Birth date</li>
+                <li><code>r.gender_id</code> - Gender (vocabulary code)</li>
+                <li><code>r.disabled</code> - Is disabled</li>
+                <li><code>r.phone</code> - Phone number</li>
+                <li><code>r.email</code> - Email address</li>
+            </ul>
+            <h5>Enrollments &amp; Entitlements</h5>
+            <ul>
+                <li><code>enrollments.exists(e, condition)</code> - Has enrollment</li>
+                <li><code>entitlements.exists(e, condition)</code> - Has entitlement</li>
+            </ul>
+        </div>
+    </template>
+
+    <!-- Help template for functions -->
+    <template id="cel_help_functions">
+        <div class="cel-help-section" role="region">
+            <h5>Date Functions</h5>
+            <ul>
+                <li><code>age_years(date)</code> - Calculate age in years</li>
+                <li><code>today()</code> - Current date</li>
+                <li><code>days_ago(n)</code> - Date n days ago</li>
+                <li><code>months_ago(n)</code> - Date n months ago</li>
+                <li><code>years_ago(n)</code> - Date n years ago</li>
+            </ul>
+            <h5>Logical Operators</h5>
+            <ul>
+                <li><code>and</code> - Both conditions must be true</li>
+                <li><code>or</code> - Either condition can be true</li>
+                <li><code>not</code> - Negate a condition</li>
+            </ul>
+            <h5>Comparison Operators</h5>
+            <ul>
+                <li><code>==</code> - Equal to</li>
+                <li><code>!=</code> - Not equal to</li>
+                <li><code>&gt;</code>, <code>&gt;=</code> - Greater than (or equal)</li>
+                <li><code>&lt;</code>, <code>&lt;=</code> - Less than (or equal)</li>
+                <li><code>in</code> - Value in list</li>
+            </ul>
+            <h5>Metrics (if spp_indicators installed)</h5>
+            <ul>
+                <li><code>metric("name")</code> - Get metric value</li>
+                <li><code>metric("household.size")</code> - Household size metric</li>
+            </ul>
+        </div>
+    </template>
+
+    <!-- Default examples for groups -->
+    <template id="cel_default_examples_groups">
+        <div class="cel-examples">
+            <div class="cel-example-item mb-2">
+                <strong>Households with elderly head</strong><br/>
+                <code>members.exists(m, head(m) and age_years(m.birthdate) &gt;= 60)</code>
+            </div>
+            <div class="cel-example-item mb-2">
+                <strong>Households with children under 5</strong><br/>
+                <code>members.exists(m, age_years(m.birthdate) &lt; 5)</code>
+            </div>
+            <div class="cel-example-item mb-2">
+                <strong>Female-headed households</strong><br/>
+                <code>members.exists(m, head(m) and is_female(m.gender_id))</code>
+            </div>
+            <div class="cel-example-item mb-2">
+                <strong>Households with 2+ children</strong><br/>
+                <code>members.count(m, age_years(m.birthdate) &lt; 18) &gt;= 2</code>
+            </div>
+            <div class="cel-example-item mb-2">
+                <strong>Households with disabled member</strong><br/>
+                <code>members.exists(m, m.disabled == true)</code>
+            </div>
+        </div>
+    </template>
+
+    <!-- Default examples for individuals -->
+    <template id="cel_default_examples_individuals">
+        <div class="cel-examples">
+            <div class="cel-example-item mb-2">
+                <strong>Adults (18 or older)</strong><br/>
+                <code>age_years(r.birthdate) &gt;= 18</code>
+            </div>
+            <div class="cel-example-item mb-2">
+                <strong>Senior citizens</strong><br/>
+                <code>age_years(r.birthdate) &gt;= 60</code>
+            </div>
+            <div class="cel-example-item mb-2">
+                <strong>Women of reproductive age</strong><br/>
+                <code>is_female(r.gender_id) and age_years(r.birthdate) &gt;= 15 and age_years(r.birthdate) &lt;= 49</code>
+            </div>
+            <div class="cel-example-item mb-2">
+                <strong>Children under 5</strong><br/>
+                <code>age_years(r.birthdate) &lt; 5</code>
+            </div>
+        </div>
+    </template>
+</odoo>

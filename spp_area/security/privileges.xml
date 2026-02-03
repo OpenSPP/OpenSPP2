@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Area Domain Privilege -->
+    <!-- Single consolidated privilege for all area access levels -->
+
+    <record id="privilege_area" model="res.groups.privilege">
+        <field name="name">Areas and GIS</field>
+        <field name="category_id" ref="spp_security.category_spp_area"/>
+        <field name="description">Access to area and GIS management</field>
+    </record>
+
+</odoo>

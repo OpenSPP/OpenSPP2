@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+        <!-- API V2 Endpoint Registration -->
+        <record id="fastapi_endpoint_api_v2" model="fastapi.endpoint">
+            <field name="name">OpenSPP API V2</field>
+            <field name="root_path">/api/v2/spp</field>
+            <field name="app">api_v2</field>
+            <field name="user_id" ref="base.public_user" />
+            <field name="save_http_session" eval="False" />
+            <field name="description">
+# OpenSPP API V2
+
+Standards-aligned, consent-respecting API for social protection data exchange.
+
+## Key Features
+
+- **External identifiers only** - Never exposes database IDs
+- **Namespace URIs** - Uses globally unique URIs for all identifier types and vocabularies
+- **Consent-based access control** - All data access requires explicit consent
+- **OAuth 2.0 authentication** - Client credentials flow with JWT tokens
+- **Vocabulary system** - Uses spp.vocabulary for gender, relationships, etc.
+- **Source tracking** - Tracks data provenance per ADR-008
+
+## Authentication
+
+This API uses OAuth 2.0 Client Credentials flow:
+
+1. Obtain API client credentials from administrator
+2. Request access token: `POST /oauth/token`
+3. Include token in requests: `Authorization: Bearer {token}`
+
+## Resources
+
+- **Individual** - Person registered in OpenSPP
+- **Group** - Household or other group of individuals
+- **Program** - Social protection program (read-only)
+- **ProgramMembership** - Enrollment in a program
+
+## Documentation
+
+- Full specification: `docs/specs/api-v2/SPEC.md`
+- OpenAPI schema: `GET /api/v2/spp/openapi.json`
+- Capability statement: `GET /api/v2/spp/metadata`
+            </field>
+        </record>
+
+    </data>
+</odoo>

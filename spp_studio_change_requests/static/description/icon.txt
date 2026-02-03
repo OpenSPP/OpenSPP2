@@ -1,0 +1,6 @@
+This module uses the default OpenSPP icon.
+The icon should be placed at: static/description/icon.png
+
+For OpenSPP modules, use the standard OpenSPP logo or a variant
+that includes a visual element representing change requests
+(e.g., edit pencil, document with changes, etc.)

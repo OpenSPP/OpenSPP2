@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_drims_demo_generator_manager,access.drims.demo.generator.manager,model_spp_drims_demo_generator,spp_drims.group_drims_manager,1,1,1,1

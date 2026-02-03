@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Extend approval definition form to add CEL fields -->
+    <record id="view_spp_approval_definition_form_cel" model="ir.ui.view">
+        <field name="name">spp.approval.definition.form.cel</field>
+        <field name="model">spp.approval.definition</field>
+        <field name="inherit_id" ref="spp_approval.approval_definition_view_form"/>
+        <field name="arch" type="xml">
+            <!-- Add CEL tab after the main configuration -->
+            <xpath expr="//notebook" position="inside">
+                <page string="CEL Expressions" name="cel_expressions">
+                    <group>
+                        <group string="CEL Condition">
+                            <field name="use_cel_condition"/>
+                            <field name="cel_condition"
+                                   widget="ace"
+                                   options="{'mode': 'text'}"
+                                   invisible="not use_cel_condition"
+                                   placeholder="record.amount > 10000"/>
+                            <div invisible="not use_cel_condition or not cel_condition" class="alert alert-info" role="alert">
+                                <field name="is_cel_condition_valid" invisible="1"/>
+                                <field name="cel_condition_error" invisible="1"/>
+                                <span invisible="not is_cel_condition_valid">
+                                    ✓ Expression syntax is valid
+                                </span>
+                                <span invisible="is_cel_condition_valid" class="text-danger">
+                                    ✗ <field name="cel_condition_error" nolabel="1"/>
+                                </span>
+                            </div>
+                        </group>
+                        <group string="CEL Reviewer Assignment">
+                            <field name="use_cel_reviewer"/>
+                            <field name="cel_reviewer_expression"
+                                   widget="ace"
+                                   options="{'mode': 'text'}"
+                                   invisible="not use_cel_reviewer"
+                                   placeholder="record.manager_id.user_id.id"/>
+                            <div invisible="not use_cel_reviewer or not cel_reviewer_expression" class="alert alert-info" role="alert">
+                                <field name="is_cel_reviewer_valid" invisible="1"/>
+                                <field name="cel_reviewer_error" invisible="1"/>
+                                <span invisible="not is_cel_reviewer_valid">
+                                    ✓ Expression syntax is valid
+                                </span>
+                                <span invisible="is_cel_reviewer_valid" class="text-danger">
+                                    ✗ <field name="cel_reviewer_error" nolabel="1"/>
+                                </span>
+                            </div>
+                        </group>
+                    </group>
+                    <separator string="CEL Expression Help"/>
+                    <div class="row">
+                        <div class="col-md-4 col-sm-12">
+                            <div class="alert alert-info" role="alert">
+                                <strong>Available Variables:</strong>
+                                <p>
+                                    <code>record</code> - The record being approved (all fields accessible)<br/>
+                                    <code>user</code> - Current user submitting for approval<br/>
+                                    <code>company</code> - Current company<br/>
+                                    <code>today</code> - Current date<br/>
+                                    <code>now</code> - Current datetime
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-sm-12">
+                            <div class="alert alert-info" role="alert">
+                                <strong>Condition Examples:</strong>
+                                <p>
+                                    <code>record.amount &gt; 10000</code><br/>
+                                    <code>record.state == "draft"</code><br/>
+                                    <code>record.partner_id.id != 0</code><br/>
+                                    <code>record.total &gt; 5000 || record.priority == "high"</code>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-sm-12">
+                            <div class="alert alert-info" role="alert">
+                                <strong>Reviewer Expression Examples:</strong>
+                                <p>
+                                    <code>record.manager_id.id</code> - Single user ID<br/>
+                                    <code>record.user_id.id</code> - Record owner<br/>
+                                    <code>[record.user_id.id, record.manager_id.id]</code> - Multiple users
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

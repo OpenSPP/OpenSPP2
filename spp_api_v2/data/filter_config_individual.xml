@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data noupdate="0">
+        <!-- Individual Filters -->
+
+        <!-- Name filter: partial match -->
+        <record id="filter_individual_name" model="spp.api.path.filter">
+            <field name="sequence">10</field>
+            <field name="path_id" ref="api_path_individual" />
+            <field name="name">name</field>
+            <field name="field_path">name</field>
+            <field name="filter_type">contains</field>
+            <field name="label">Name</field>
+            <field name="description">Search by individual's name (case-insensitive partial match)</field>
+            <field name="allowed_operators">ilike,like</field>
+            <field name="is_indexed">True</field>
+        </record>
+
+        <!-- Birthdate filter: range -->
+        <record id="filter_individual_birthdate" model="spp.api.path.filter">
+            <field name="sequence">20</field>
+            <field name="path_id" ref="api_path_individual" />
+            <field name="name">birthdate</field>
+            <field name="field_path">birthdate</field>
+            <field name="filter_type">range</field>
+            <field name="label">Birth Date</field>
+            <field name="description">Filter by birth date. Use operators: eq, gt, gte, lt, lte</field>
+            <field name="allowed_operators">eq,ne,gt,gte,lt,lte</field>
+            <field name="is_indexed">True</field>
+        </record>
+
+        <!-- Gender filter: exact match via ID lookup -->
+        <record id="filter_individual_gender" model="spp.api.path.filter">
+            <field name="sequence">30</field>
+            <field name="path_id" ref="api_path_individual" />
+            <field name="name">gender_id</field>
+            <field name="field_path">gender_id</field>
+            <field name="filter_type">exact</field>
+            <field name="label">Gender</field>
+            <field name="description">Filter by gender code ID</field>
+            <field name="allowed_operators">eq,ne</field>
+        </record>
+
+        <!-- City filter: contains with in-list -->
+        <record id="filter_individual_city" model="spp.api.path.filter">
+            <field name="sequence">40</field>
+            <field name="path_id" ref="api_path_individual" />
+            <field name="name">city</field>
+            <field name="field_path">city</field>
+            <field name="filter_type">contains</field>
+            <field name="label">City</field>
+            <field name="description">Search by city name (case-insensitive)</field>
+            <field name="allowed_operators">ilike,like</field>
+            <field name="is_indexed">True</field>
+        </record>
+
+        <!-- State/Province filter: in list -->
+        <record id="filter_individual_state" model="spp.api.path.filter">
+            <field name="sequence">50</field>
+            <field name="path_id" ref="api_path_individual" />
+            <field name="name">state_id</field>
+            <field name="field_path">state_id</field>
+            <field name="filter_type">in</field>
+            <field name="label">State/Province</field>
+            <field name="description">Filter by state/province IDs (comma-separated)</field>
+            <field name="allowed_operators">in</field>
+            <field name="max_values">50</field>
+        </record>
+
+        <!-- Country filter: exact match -->
+        <record id="filter_individual_country" model="spp.api.path.filter">
+            <field name="sequence">60</field>
+            <field name="path_id" ref="api_path_individual" />
+            <field name="name">country_id</field>
+            <field name="field_path">country_id</field>
+            <field name="filter_type">exact</field>
+            <field name="label">Country</field>
+            <field name="description">Filter by country ID</field>
+            <field name="allowed_operators">eq</field>
+        </record>
+
+        <!-- Phone filter: contains and null check -->
+        <record id="filter_individual_phone" model="spp.api.path.filter">
+            <field name="sequence">70</field>
+            <field name="path_id" ref="api_path_individual" />
+            <field name="name">phone</field>
+            <field name="field_path">phone</field>
+            <field name="filter_type">contains</field>
+            <field name="label">Phone</field>
+            <field name="description">Search by phone number</field>
+            <field name="allowed_operators">ilike,like</field>
+        </record>
+
+        <!-- Phone null check filter -->
+        <record id="filter_individual_phone_null" model="spp.api.path.filter">
+            <field name="sequence">71</field>
+            <field name="path_id" ref="api_path_individual" />
+            <field name="name">phone_exists</field>
+            <field name="field_path">phone</field>
+            <field name="filter_type">null</field>
+            <field name="label">Has Phone</field>
+            <field name="description">Filter by whether phone number exists (true = no phone, false = has phone)</field>
+            <field name="allowed_operators">null</field>
+        </record>
+
+        <!-- Email filter: contains -->
+        <record id="filter_individual_email" model="spp.api.path.filter">
+            <field name="sequence">80</field>
+            <field name="path_id" ref="api_path_individual" />
+            <field name="name">email</field>
+            <field name="field_path">email</field>
+            <field name="filter_type">contains</field>
+            <field name="label">Email</field>
+            <field name="description">Search by email address</field>
+            <field name="allowed_operators">ilike,like</field>
+        </record>
+
+        <!-- Active filter: boolean -->
+        <record id="filter_individual_active" model="spp.api.path.filter">
+            <field name="sequence">90</field>
+            <field name="path_id" ref="api_path_individual" />
+            <field name="name">active</field>
+            <field name="field_path">active</field>
+            <field name="filter_type">boolean</field>
+            <field name="label">Active</field>
+            <field name="description">Filter by active status</field>
+            <field name="allowed_operators">eq</field>
+        </record>
+
+        <!-- Last Updated filter: range -->
+        <record id="filter_individual_write_date" model="spp.api.path.filter">
+            <field name="sequence">100</field>
+            <field name="path_id" ref="api_path_individual" />
+            <field name="name">write_date</field>
+            <field name="field_path">write_date</field>
+            <field name="filter_type">range</field>
+            <field name="label">Last Updated</field>
+            <field name="description">Filter by last modification date</field>
+            <field name="allowed_operators">gt,gte,lt,lte</field>
+            <field name="is_indexed">True</field>
+        </record>
+
+        <!-- Create Date filter: range -->
+        <record id="filter_individual_create_date" model="spp.api.path.filter">
+            <field name="sequence">110</field>
+            <field name="path_id" ref="api_path_individual" />
+            <field name="name">create_date</field>
+            <field name="field_path">create_date</field>
+            <field name="filter_type">range</field>
+            <field name="label">Created Date</field>
+            <field name="description">Filter by creation date</field>
+            <field name="allowed_operators">gt,gte,lt,lte</field>
+            <field name="is_indexed">True</field>
+        </record>
+
+    </data>
+</odoo>

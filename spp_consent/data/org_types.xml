@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Default organization types for category-based consent.
+
+    These allow beneficiaries to consent to data sharing with categories
+    of organizations (e.g., "all NGOs" or "all government agencies")
+    rather than listing specific organizations.
+
+    Commonly used in social protection where beneficiaries trust certain
+    organization types but want to exclude others (e.g., private sector).
+-->
+<odoo>
+    <data noupdate="1">
+        <!-- Government Organizations -->
+        <record id="org_type_government" model="spp.consent.org.type">
+            <field name="name">Government Agency</field>
+            <field name="code">government</field>
+            <field name="sequence">10</field>
+            <field name="description">National or local government agencies, ministries, and public sector bodies responsible for social protection programs.</field>
+            <field name="color">4</field>
+        </record>
+
+        <!-- NGOs / Non-Profits -->
+        <record id="org_type_ngo" model="spp.consent.org.type">
+            <field name="name">NGO / Non-Profit</field>
+            <field name="code">ngo</field>
+            <field name="sequence">20</field>
+            <field name="description">National non-governmental organizations and non-profit entities working in social protection and humanitarian assistance.</field>
+            <field name="color">10</field>
+        </record>
+
+        <!-- International NGOs -->
+        <record id="org_type_ingo" model="spp.consent.org.type">
+            <field name="name">International NGO</field>
+            <field name="code">ingo</field>
+            <field name="sequence">30</field>
+            <field name="description">International non-governmental organizations operating across multiple countries (e.g., Red Cross, Save the Children, CARE).</field>
+            <field name="color">11</field>
+        </record>
+
+        <!-- UN Agencies -->
+        <record id="org_type_un" model="spp.consent.org.type">
+            <field name="name">UN Agency</field>
+            <field name="code">un</field>
+            <field name="sequence">40</field>
+            <field name="description">United Nations agencies and programs (e.g., WFP, UNHCR, UNICEF, ILO, WHO).</field>
+            <field name="color">5</field>
+        </record>
+
+        <!-- Private Sector -->
+        <record id="org_type_private" model="spp.consent.org.type">
+            <field name="name">Private Sector</field>
+            <field name="code">private</field>
+            <field name="sequence">50</field>
+            <field name="description">Private companies and commercial entities. Note: Beneficiaries often exclude this category from consent.</field>
+            <field name="color">1</field>
+        </record>
+
+        <!-- Research Institutions -->
+        <record id="org_type_research" model="spp.consent.org.type">
+            <field name="name">Research Institution</field>
+            <field name="code">research</field>
+            <field name="sequence">60</field>
+            <field name="description">Universities, research institutes, and academic organizations conducting studies on social protection.</field>
+            <field name="color">8</field>
+        </record>
+
+        <!-- Other -->
+        <record id="org_type_other" model="spp.consent.org.type">
+            <field name="name">Other</field>
+            <field name="code">other</field>
+            <field name="sequence">100</field>
+            <field name="description">Organizations that don't fit into the above categories.</field>
+            <field name="color">0</field>
+        </record>
+    </data>
+</odoo>

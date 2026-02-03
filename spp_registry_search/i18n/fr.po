@@ -1,0 +1,395 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* spp_registry_search
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/js/registry_search_portal.js:0
+msgid "%s day(s) ago"
+msgstr "il y a %s jour(s)"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/js/registry_search_portal.js:0
+msgid "%s hour(s) ago"
+msgstr "il y a %s heure(s)"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/js/registry_search_portal.js:0
+msgid "%s min ago"
+msgstr "il y a %s min"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+msgid "+ Result(s) Found"
+msgstr "+ résultat(s) trouvé(s)"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+msgid "Advanced"
+msgstr "Avancé"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+msgid "Advanced Filters"
+msgstr "Filtres avancés"
+
+#. module: spp_registry_search
+#: model:ir.ui.menu,name:spp_registry_search.menu_browse_all_groups
+msgid "All Groups"
+msgstr "Tous les groupes"
+
+#. module: spp_registry_search
+#: model:ir.ui.menu,name:spp_registry_search.menu_browse_all_individuals
+msgid "All Individuals"
+msgstr "Tous les individus"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+msgid "All Registrants"
+msgstr "Tous les inscrits"
+
+#. module: spp_registry_search
+#: model:res.groups,name:spp_registry_search.group_registry_auditor
+#: model:res.groups.privilege,name:spp_registry_search.privilege_registry_auditor
+msgid "Auditor (Browse All)"
+msgstr "Auditeur (Parcourir tout)"
+
+#. module: spp_registry_search
+#: model:ir.ui.menu,name:spp_registry_search.menu_browse_all
+msgid "Browse All (Audit)"
+msgstr "Parcourir tout (Audit)"
+
+#. module: spp_registry_search
+#: model:ir.actions.act_window,name:spp_registry_search.action_browse_all_groups
+msgid "Browse All Groups"
+msgstr "Parcourir tous les groupes"
+
+#. module: spp_registry_search
+#: model:ir.actions.act_window,name:spp_registry_search.action_browse_all_individuals
+msgid "Browse All Individuals"
+msgstr "Parcourir tous les individus"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+msgid "Clear Filters"
+msgstr "Effacer les filtres"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+msgid "Clear History"
+msgstr "Effacer l'historique"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+msgid "Clear Search"
+msgstr "Effacer la recherche"
+
+#. module: spp_registry_search
+#: model:ir.model,name:spp_registry_search.model_res_partner
+msgid "Contact"
+msgstr "Contact"
+
+#. module: spp_registry_search
+#: model:ir.model.fields,field_description:spp_registry_search.field_spp_registry_view_history__create_uid
+msgid "Created by"
+msgstr "Créé par"
+
+#. module: spp_registry_search
+#: model:ir.model.fields,field_description:spp_registry_search.field_spp_registry_view_history__create_date
+msgid "Created on"
+msgstr "Créé le"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+msgid "Disabled"
+msgstr "Handicapé"
+
+#. module: spp_registry_search
+#: model:ir.model.fields,field_description:spp_registry_search.field_res_partner__display_name
+#: model:ir.model.fields,field_description:spp_registry_search.field_spp_registry_view_history__display_name
+msgid "Display Name"
+msgstr "Nom affiché"
+
+#. module: spp_registry_search
+#: model:ir.model.constraint,message:spp_registry_search.constraint_spp_registry_view_history_unique_user_partner
+msgid "Each user-registrant combination must be unique"
+msgstr "Chaque combinaison utilisateur-inscrit doit être unique"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+msgid "Enter a name, ID number, phone number, or email to find registrants."
+msgstr ""
+"Saisissez un nom, un numéro d'identification, un numéro de téléphone ou une "
+"adresse e-mail pour trouver des inscrits."
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+msgid "Enter at least"
+msgstr "Saisissez au moins"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/js/registry_search_portal.js:0
+msgid "Failed to clear history."
+msgstr "Échec de l'effacement de l'historique."
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+msgid "Filter by registrant type"
+msgstr "Filtrer par type d'inscrit"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/js/registry_search_portal.js:0
+msgid "Group"
+msgstr "Groupe"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+msgid "Groups Only"
+msgstr "Groupes uniquement"
+
+#. module: spp_registry_search
+#: model:ir.model.fields,field_description:spp_registry_search.field_res_partner__id
+#: model:ir.model.fields,field_description:spp_registry_search.field_spp_registry_view_history__id
+msgid "ID"
+msgstr "ID"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+msgid "ID Number"
+msgstr "Numéro d'identification"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/js/registry_search_portal.js:0
+msgid "Individual"
+msgstr "Individu"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+msgid "Individuals Only"
+msgstr "Individus uniquement"
+
+#. module: spp_registry_search
+#: model:ir.model.fields,field_description:spp_registry_search.field_spp_registry_view_history__write_uid
+msgid "Last Updated by"
+msgstr "Dernière mise à jour par"
+
+#. module: spp_registry_search
+#: model:ir.model.fields,field_description:spp_registry_search.field_spp_registry_view_history__write_date
+msgid "Last Updated on"
+msgstr "Dernière mise à jour le"
+
+#. module: spp_registry_search
+#: model:ir.model.fields,field_description:spp_registry_search.field_spp_registry_view_history__view_date
+msgid "Last Viewed"
+msgstr "Dernière consultation"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+msgid "New Group"
+msgstr "Nouveau groupe"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+msgid "New Individual"
+msgstr "Nouvel individu"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+msgid "No registrants found matching your search criteria."
+msgstr "Aucun inscrit ne correspond à vos critères de recherche."
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+msgid "Phone Number"
+msgstr "Numéro de téléphone"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/js/registry_search_portal.js:0
+msgid "Please enter at least %s characters to search."
+msgstr "Veuillez saisir au moins %s caractères pour effectuer une recherche."
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+msgid "Recently Viewed"
+msgstr "Récemment consultés"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+msgid "Recently viewed registrants"
+msgstr "Inscrits récemment consultés"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+msgid "Registered From"
+msgstr "Inscrit à partir du"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+msgid "Registered To"
+msgstr "Inscrit jusqu'au"
+
+#. module: spp_registry_search
+#: model:ir.model.fields,field_description:spp_registry_search.field_spp_registry_view_history__partner_id
+msgid "Registrant"
+msgstr "Inscrit"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+#: model:ir.actions.client,name:spp_registry_search.action_registry_search_portal
+msgid "Registry"
+msgstr "Registre"
+
+#. module: spp_registry_search
+#: model:ir.model,name:spp_registry_search.model_spp_registry_view_history
+msgid "Registry View History"
+msgstr "Historique des consultations du registre"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+msgid "Result(s) Found"
+msgstr "Résultat(s) trouvé(s)"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+#: model:ir.ui.menu,name:spp_registry_search.menu_registry_search
+msgid "Search"
+msgstr "Rechercher"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+msgid "Search by ID..."
+msgstr "Rechercher par ID..."
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+msgid "Search by name, ID number, phone, or email..."
+msgstr "Rechercher par nom, numéro d'identification, téléphone ou e-mail..."
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+msgid "Search by phone..."
+msgstr "Rechercher par téléphone..."
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/js/registry_search_portal.js:0
+msgid "Search failed. Please try again."
+msgstr "La recherche a échoué. Veuillez réessayer."
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+msgid "Search for Registrants"
+msgstr "Rechercher des inscrits"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+msgid "Search registrants"
+msgstr "Rechercher des inscrits"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+msgid "Search registrants by name, ID number, phone, or email"
+msgstr ""
+"Rechercher des inscrits par nom, numéro d'identification, téléphone ou e-mail"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+msgid "Search results"
+msgstr "Résultats de recherche"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+msgid "Searching..."
+msgstr "Recherche en cours..."
+
+#. module: spp_registry_search
+#: model:res.groups,comment:spp_registry_search.group_registry_auditor
+msgid ""
+"Special group for auditors who need to browse all registrants without search "
+"restrictions. This bypasses the search-first privacy protection for audit "
+"purposes. Should only be granted to users with legitimate audit "
+"responsibilities."
+msgstr ""
+"Groupe spécial destiné aux auditeurs qui doivent parcourir tous les inscrits "
+"sans restrictions de recherche. Cela contourne la protection de "
+"confidentialité imposant une recherche préalable à des fins d'audit. Ne doit "
+"être accordé qu'aux utilisateurs ayant des responsabilités d'audit légitimes."
+
+#. module: spp_registry_search
+#: model:ir.model.fields,field_description:spp_registry_search.field_spp_registry_view_history__user_id
+msgid "User"
+msgstr "Utilisateur"
+
+#. module: spp_registry_search
+#: model:ir.model.fields,field_description:spp_registry_search.field_spp_registry_view_history__view_count
+msgid "View Count"
+msgstr "Nombre de vues"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/js/registry_search_portal.js:0
+msgid "View history cleared."
+msgstr "Historique des consultations effacé."
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/xml/registry_search_portal.xml:0
+msgid "characters to search, or press Enter"
+msgstr "caractères pour rechercher, ou appuyez sur Entrée"
+
+#. module: spp_registry_search
+#. odoo-javascript
+#: code:addons/spp_registry_search/static/src/js/registry_search_portal.js:0
+msgid "just now"
+msgstr "à l'instant"

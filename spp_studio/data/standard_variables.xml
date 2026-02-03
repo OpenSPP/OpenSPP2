@@ -1,0 +1,1789 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- VARIABLE CATEGORIES                                              -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <!-- Constants category - not in variable_categories.xml -->
+        <record id="variable_category_constants" model="spp.cel.variable.category">
+            <field name="name">Constants</field>
+            <field name="code">constants</field>
+            <field name="icon">fa-sliders</field>
+            <field name="color">#95a5a6</field>
+            <field name="sequence">90</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- COMPUTED VARIABLES - Demographics                                -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <record id="var_age" model="spp.cel.variable">
+            <field name="name">age</field>
+            <field name="label">Age (Years)</field>
+            <field name="description">Age in years calculated from birthdate</field>
+            <field name="category_id" ref="variable_category_demographics"/>
+            <field name="value_type">number</field>
+            <field name="unit">years</field>
+            <field name="source_type">computed</field>
+            <field name="cel_expression">age_years(r.birthdate)</field>
+            <field name="cel_accessor">age</field>
+            <field name="applies_to">individual</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- AGGREGATE VARIABLES - Household Composition                      -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <record id="var_hh_size" model="spp.cel.variable">
+            <field name="name">hh_size</field>
+            <field name="label">Household Size</field>
+            <field name="description">Number of active members in the household</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">number</field>
+            <field name="source_type">aggregate</field>
+            <field name="aggregate_type">count</field>
+            <field name="aggregate_target">members</field>
+            <field name="aggregate_filter">true</field>
+            <field name="cel_accessor">hh_size</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_child_count" model="spp.cel.variable">
+            <field name="name">child_count</field>
+            <field name="label">Number of Children</field>
+            <field name="description">Number of household members under 18 years old</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">number</field>
+            <field name="source_type">aggregate</field>
+            <field name="aggregate_type">count</field>
+            <field name="aggregate_target">members</field>
+            <field name="aggregate_filter">age_years(m.birthdate) &lt; 18</field>
+            <field name="cel_accessor">child_count</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_elderly_count" model="spp.cel.variable">
+            <field name="name">elderly_count</field>
+            <field name="label">Number of Elderly</field>
+            <field name="description">Number of household members 60 years or older</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">number</field>
+            <field name="source_type">aggregate</field>
+            <field name="aggregate_type">count</field>
+            <field name="aggregate_target">members</field>
+            <field name="aggregate_filter">age_years(m.birthdate) >= 60</field>
+            <field name="cel_accessor">elderly_count</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_working_age_count" model="spp.cel.variable">
+            <field name="name">working_age_count</field>
+            <field name="label">Working Age Members</field>
+            <field name="description">Number of household members between 18 and 59 years old</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">number</field>
+            <field name="source_type">aggregate</field>
+            <field name="aggregate_type">count</field>
+            <field name="aggregate_target">members</field>
+            <field name="aggregate_filter">age_years(m.birthdate) >= 18 &amp;&amp; age_years(m.birthdate) &lt; 60</field>
+            <field name="cel_accessor">working_age_count</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- COMPUTED VARIABLES - Household Characteristics                   -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <record id="var_is_female_headed" model="spp.cel.variable">
+            <field name="name">is_female_headed</field>
+            <field name="label">Female-Headed Household</field>
+            <field name="description">True if the head of household is female</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">computed</field>
+            <field name="cel_expression">members.exists(head(m) &amp;&amp; is_female(m.gender_id))</field>
+            <field name="cel_accessor">is_female_headed</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_is_elderly_headed" model="spp.cel.variable">
+            <field name="name">is_elderly_headed</field>
+            <field name="label">Elderly-Headed Household</field>
+            <field name="description">True if the head of household is 60 years or older</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">computed</field>
+            <field name="cel_expression">members.exists(head(m) &amp;&amp; age_years(m.birthdate) >= 60)</field>
+            <field name="cel_accessor">is_elderly_headed</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_has_disabled_member" model="spp.cel.variable">
+            <field name="name">has_disabled_member</field>
+            <field name="label">Has Disabled Member</field>
+            <field name="description">True if household has any member with disability</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">computed</field>
+            <field name="cel_expression">members.exists(m.is_person_with_disability)</field>
+            <field name="cel_accessor">has_disabled_member</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_has_pregnant_member" model="spp.cel.variable">
+            <field name="name">has_pregnant_member</field>
+            <field name="label">Has Pregnant Member</field>
+            <field name="description">True if household has any pregnant member</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">computed</field>
+            <field name="cel_expression">members.exists(is_pregnant(m.pregnancy_status_id))</field>
+            <field name="cel_accessor">has_pregnant_member</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_dependency_ratio" model="spp.cel.variable">
+            <field name="name">dependency_ratio</field>
+            <field name="label">Dependency Ratio</field>
+            <field name="description">Ratio of dependents (children + elderly) to working age members</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">number</field>
+            <field name="source_type">computed</field>
+            <field name="cel_expression">(child_count + elderly_count) / max(1, working_age_count)</field>
+            <field name="cel_accessor">dependency_ratio</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+            <field name="synonyms">dependents, dependency</field>
+        </record>
+
+        <record id="var_per_capita_income" model="spp.cel.variable">
+            <field name="name">per_capita_income</field>
+            <field name="label">Per Capita Income</field>
+            <field name="description">Household income divided by number of members</field>
+            <field name="category_id" ref="variable_category_economic"/>
+            <field name="value_type">money</field>
+            <field name="source_type">computed</field>
+            <field name="cel_expression">hh_total_income / max(1, hh_size)</field>
+            <field name="cel_accessor">per_capita_income</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- AGGREGATE VARIABLES - Economic Aggregations                      -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <record id="var_hh_total_income" model="spp.cel.variable">
+            <field name="name">hh_total_income</field>
+            <field name="label">Household Total Income</field>
+            <field name="description">Sum of income of all active household members</field>
+            <field name="category_id" ref="variable_category_economic"/>
+            <field name="value_type">money</field>
+            <field name="source_type">aggregate</field>
+            <field name="aggregate_type">sum</field>
+            <field name="aggregate_target">members</field>
+            <field name="aggregate_filter">true</field>
+            <field name="aggregate_field">income</field>
+            <field name="cel_accessor">hh_total_income</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_hh_avg_income" model="spp.cel.variable">
+            <field name="name">hh_avg_income</field>
+            <field name="label">Household Average Income</field>
+            <field name="description">Average income per household member</field>
+            <field name="category_id" ref="variable_category_economic"/>
+            <field name="value_type">money</field>
+            <field name="source_type">aggregate</field>
+            <field name="aggregate_type">avg</field>
+            <field name="aggregate_target">members</field>
+            <field name="aggregate_filter">true</field>
+            <field name="aggregate_field">income</field>
+            <field name="cel_accessor">hh_avg_income</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_hh_max_income" model="spp.cel.variable">
+            <field name="name">hh_max_income</field>
+            <field name="label">Highest Member Income</field>
+            <field name="description">Maximum income among household members</field>
+            <field name="category_id" ref="variable_category_economic"/>
+            <field name="value_type">money</field>
+            <field name="source_type">aggregate</field>
+            <field name="aggregate_type">max</field>
+            <field name="aggregate_target">members</field>
+            <field name="aggregate_filter">true</field>
+            <field name="aggregate_field">income</field>
+            <field name="cel_accessor">hh_max_income</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_hh_min_income" model="spp.cel.variable">
+            <field name="name">hh_min_income</field>
+            <field name="label">Lowest Member Income</field>
+            <field name="description">Minimum income among household members</field>
+            <field name="category_id" ref="variable_category_economic"/>
+            <field name="value_type">money</field>
+            <field name="source_type">aggregate</field>
+            <field name="aggregate_type">min</field>
+            <field name="aggregate_target">members</field>
+            <field name="aggregate_filter">true</field>
+            <field name="aggregate_field">income</field>
+            <field name="cel_accessor">hh_min_income</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_adult_income_sum" model="spp.cel.variable">
+            <field name="name">adult_income_sum</field>
+            <field name="label">Adult Income Sum</field>
+            <field name="description">Sum of income of all adult household members (18+)</field>
+            <field name="category_id" ref="variable_category_economic"/>
+            <field name="value_type">money</field>
+            <field name="source_type">aggregate</field>
+            <field name="aggregate_type">sum</field>
+            <field name="aggregate_target">members</field>
+            <field name="aggregate_filter">age_years(m.birthdate) >= 18</field>
+            <field name="aggregate_field">income</field>
+            <field name="cel_accessor">adult_income_sum</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- CONSTANT VARIABLES - Thresholds &amp; Parameters                     -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <record id="var_poverty_line" model="spp.cel.variable">
+            <field name="name">poverty_line</field>
+            <field name="label">Poverty Line</field>
+            <field name="description">Income threshold below which a household is considered poor</field>
+            <field name="category_id" ref="variable_category_constants"/>
+            <field name="value_type">money</field>
+            <field name="source_type">constant</field>
+            <field name="default_value">2500</field>
+            <field name="is_program_configurable">True</field>
+            <field name="cel_accessor">poverty_line</field>
+            <field name="applies_to">both</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_retirement_age" model="spp.cel.variable">
+            <field name="name">retirement_age</field>
+            <field name="label">Retirement Age</field>
+            <field name="description">Age at which a person is considered retired/elderly</field>
+            <field name="category_id" ref="variable_category_constants"/>
+            <field name="value_type">number</field>
+            <field name="unit">years</field>
+            <field name="source_type">constant</field>
+            <field name="default_value">60</field>
+            <field name="is_program_configurable">True</field>
+            <field name="cel_accessor">retirement_age</field>
+            <field name="applies_to">both</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_child_age_limit" model="spp.cel.variable">
+            <field name="name">child_age_limit</field>
+            <field name="label">Child Age Limit</field>
+            <field name="description">Maximum age to be considered a child</field>
+            <field name="category_id" ref="variable_category_constants"/>
+            <field name="value_type">number</field>
+            <field name="unit">years</field>
+            <field name="source_type">constant</field>
+            <field name="default_value">18</field>
+            <field name="is_program_configurable">True</field>
+            <field name="cel_accessor">child_age_limit</field>
+            <field name="applies_to">both</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_base_benefit" model="spp.cel.variable">
+            <field name="name">base_benefit</field>
+            <field name="label">Base Benefit Amount</field>
+            <field name="description">Standard base benefit amount for calculations</field>
+            <field name="category_id" ref="variable_category_constants"/>
+            <field name="value_type">money</field>
+            <field name="source_type">constant</field>
+            <field name="default_value">1000</field>
+            <field name="is_program_configurable">True</field>
+            <field name="cel_accessor">base_benefit</field>
+            <field name="applies_to">both</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_base_amount" model="spp.cel.variable">
+            <field name="name">base_amount</field>
+            <field name="label">Base Amount</field>
+            <field name="description">Base amount for entitlement formula calculations</field>
+            <field name="category_id" ref="variable_category_constants"/>
+            <field name="value_type">money</field>
+            <field name="source_type">constant</field>
+            <field name="default_value">1000</field>
+            <field name="is_program_configurable">True</field>
+            <field name="cel_accessor">base_amount</field>
+            <field name="applies_to">both</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_base_quantity" model="spp.cel.variable">
+            <field name="name">base_quantity</field>
+            <field name="label">Base Quantity</field>
+            <field name="description">Base quantity for in-kind entitlement calculations</field>
+            <field name="category_id" ref="variable_category_constants"/>
+            <field name="value_type">number</field>
+            <field name="source_type">constant</field>
+            <field name="default_value">1</field>
+            <field name="is_program_configurable">True</field>
+            <field name="cel_accessor">base_quantity</field>
+            <field name="applies_to">both</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_child_bonus" model="spp.cel.variable">
+            <field name="name">child_bonus</field>
+            <field name="label">Child Bonus Amount</field>
+            <field name="description">Per-child bonus amount added to base benefit</field>
+            <field name="category_id" ref="variable_category_constants"/>
+            <field name="value_type">money</field>
+            <field name="source_type">constant</field>
+            <field name="default_value">100</field>
+            <field name="is_program_configurable">True</field>
+            <field name="cel_accessor">child_bonus</field>
+            <field name="applies_to">both</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_elderly_bonus" model="spp.cel.variable">
+            <field name="name">elderly_bonus</field>
+            <field name="label">Elderly Bonus Amount</field>
+            <field name="description">Per-elderly member bonus amount added to base benefit</field>
+            <field name="category_id" ref="variable_category_constants"/>
+            <field name="value_type">money</field>
+            <field name="source_type">constant</field>
+            <field name="default_value">150</field>
+            <field name="is_program_configurable">True</field>
+            <field name="cel_accessor">elderly_bonus</field>
+            <field name="applies_to">both</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_income_threshold" model="spp.cel.variable">
+            <field name="name">income_threshold</field>
+            <field name="label">Income Threshold</field>
+            <field name="description">Maximum income for program eligibility</field>
+            <field name="category_id" ref="variable_category_constants"/>
+            <field name="value_type">money</field>
+            <field name="source_type">constant</field>
+            <field name="default_value">5000</field>
+            <field name="is_program_configurable">True</field>
+            <field name="cel_accessor">income_threshold</field>
+            <field name="applies_to">both</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_min_disability_percent" model="spp.cel.variable">
+            <field name="name">min_disability_percent</field>
+            <field name="label">Minimum Disability Percentage</field>
+            <field name="description">Minimum disability percentage for benefit eligibility</field>
+            <field name="category_id" ref="variable_category_constants"/>
+            <field name="value_type">number</field>
+            <field name="unit">%</field>
+            <field name="source_type">constant</field>
+            <field name="default_value">40</field>
+            <field name="is_program_configurable">True</field>
+            <field name="cel_accessor">min_disability_percent</field>
+            <field name="applies_to">both</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_min_residency_years" model="spp.cel.variable">
+            <field name="name">min_residency_years</field>
+            <field name="label">Minimum Residency Years</field>
+            <field name="description">Minimum years of residency required for program eligibility</field>
+            <field name="category_id" ref="variable_category_constants"/>
+            <field name="value_type">number</field>
+            <field name="unit">years</field>
+            <field name="source_type">constant</field>
+            <field name="default_value">5</field>
+            <field name="is_program_configurable">True</field>
+            <field name="cel_accessor">min_residency_years</field>
+            <field name="applies_to">both</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_per_child_benefit" model="spp.cel.variable">
+            <field name="name">per_child_benefit</field>
+            <field name="label">Per Child Benefit Amount</field>
+            <field name="description">Benefit amount per eligible child</field>
+            <field name="category_id" ref="variable_category_constants"/>
+            <field name="value_type">money</field>
+            <field name="source_type">constant</field>
+            <field name="default_value">500</field>
+            <field name="is_program_configurable">True</field>
+            <field name="cel_accessor">per_child_benefit</field>
+            <field name="applies_to">both</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- Benefit caps and limits -->
+        <record id="var_maximum_benefit" model="spp.cel.variable">
+            <field name="name">maximum_benefit</field>
+            <field name="label">Maximum Benefit Amount</field>
+            <field name="description">Upper cap on total benefit per payment or period.</field>
+            <field name="category_id" ref="variable_category_constants"/>
+            <field name="value_type">money</field>
+            <field name="source_type">constant</field>
+            <field name="default_value">5000</field>
+            <field name="is_program_configurable">True</field>
+            <field name="cel_accessor">maximum_benefit</field>
+            <field name="applies_to">both</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_max_per_capita" model="spp.cel.variable">
+            <field name="name">max_per_capita</field>
+            <field name="label">Max Per-Capita Benefit</field>
+            <field name="description">Maximum benefit amount allowed per household member.</field>
+            <field name="category_id" ref="variable_category_constants"/>
+            <field name="value_type">money</field>
+            <field name="source_type">constant</field>
+            <field name="default_value">2000</field>
+            <field name="is_program_configurable">True</field>
+            <field name="cel_accessor">max_per_capita</field>
+            <field name="applies_to">both</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- Guaranteed minimum income parameters -->
+        <record id="var_minimum_income" model="spp.cel.variable">
+            <field name="name">minimum_income</field>
+            <field name="label">Guaranteed Minimum Income</field>
+            <field name="description">Target minimum income level that the program aims to guarantee.</field>
+            <field name="category_id" ref="variable_category_constants"/>
+            <field name="value_type">money</field>
+            <field name="source_type">constant</field>
+            <field name="default_value">3000</field>
+            <field name="is_program_configurable">True</field>
+            <field name="cel_accessor">minimum_income</field>
+            <field name="applies_to">both</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_base_minimum" model="spp.cel.variable">
+            <field name="name">base_minimum</field>
+            <field name="label">Base Minimum Income</field>
+            <field name="description">Base minimum income amount before household size or equivalence adjustments.</field>
+            <field name="category_id" ref="variable_category_constants"/>
+            <field name="value_type">money</field>
+            <field name="source_type">constant</field>
+            <field name="default_value">2500</field>
+            <field name="is_program_configurable">True</field>
+            <field name="cel_accessor">base_minimum</field>
+            <field name="applies_to">both</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_per_capita_minimum" model="spp.cel.variable">
+            <field name="name">per_capita_minimum</field>
+            <field name="label">Per-Capita Minimum Income</field>
+            <field name="description">Minimum income target per equivalent adult for GMI calculations.</field>
+            <field name="category_id" ref="variable_category_constants"/>
+            <field name="value_type">money</field>
+            <field name="source_type">constant</field>
+            <field name="default_value">1000</field>
+            <field name="is_program_configurable">True</field>
+            <field name="cel_accessor">per_capita_minimum</field>
+            <field name="applies_to">both</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_equivalence_scale" model="spp.cel.variable">
+            <field name="name">equivalence_scale</field>
+            <field name="label">Equivalence Scale</field>
+            <field name="description">Equivalence scale factor used to adjust for household composition.</field>
+            <field name="category_id" ref="variable_category_constants"/>
+            <field name="value_type">number</field>
+            <field name="source_type">constant</field>
+            <field name="default_value">1.0</field>
+            <field name="is_program_configurable">True</field>
+            <field name="cel_accessor">equivalence_scale</field>
+            <field name="applies_to">both</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_per_additional_member" model="spp.cel.variable">
+            <field name="name">per_additional_member</field>
+            <field name="label">Per Additional Member Allowance</field>
+            <field name="description">Incremental benefit per additional household member above the first.</field>
+            <field name="category_id" ref="variable_category_constants"/>
+            <field name="value_type">money</field>
+            <field name="source_type">constant</field>
+            <field name="default_value">500</field>
+            <field name="is_program_configurable">True</field>
+            <field name="cel_accessor">per_additional_member</field>
+            <field name="applies_to">both</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_max_housing_allowance" model="spp.cel.variable">
+            <field name="name">max_housing_allowance</field>
+            <field name="label">Maximum Housing Allowance</field>
+            <field name="description">Maximum benefit amount that can be paid as a housing allowance.</field>
+            <field name="category_id" ref="variable_category_constants"/>
+            <field name="value_type">money</field>
+            <field name="source_type">constant</field>
+            <field name="default_value">1500</field>
+            <field name="is_program_configurable">True</field>
+            <field name="cel_accessor">max_housing_allowance</field>
+            <field name="applies_to">both</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_graduation_threshold_pct" model="spp.cel.variable">
+            <field name="name">graduation_threshold_pct</field>
+            <field name="label">Graduation Threshold (%)</field>
+            <field name="description">Percentage improvement in income at which households begin to graduate from the program.</field>
+            <field name="category_id" ref="variable_category_constants"/>
+            <field name="value_type">number</field>
+            <field name="unit">%</field>
+            <field name="source_type">constant</field>
+            <field name="default_value">50</field>
+            <field name="is_program_configurable">True</field>
+            <field name="cel_accessor">graduation_threshold_pct</field>
+            <field name="applies_to">both</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_regional_poverty_line" model="spp.cel.variable">
+            <field name="name">regional_poverty_line</field>
+            <field name="label">Regional Poverty Line</field>
+            <field name="description">Reference poverty line specific to the region (can differ from national poverty_line).</field>
+            <field name="category_id" ref="variable_category_constants"/>
+            <field name="value_type">money</field>
+            <field name="source_type">constant</field>
+            <field name="default_value">3000</field>
+            <field name="is_program_configurable">True</field>
+            <field name="cel_accessor">regional_poverty_line</field>
+            <field name="applies_to">both</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- FIELD VARIABLES - Core Data from Registrant                     -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <!-- Migration: remove legacy single-context 'income' variable
+             before creating context-aware implementations. This is safe
+             because there is no production usage yet, and prevents
+             duplicate CEL accessors during module upgrade. -->
+        <function model="spp.cel.variable" name="_cleanup_legacy_income_variable"/>
+
+        <!-- Income variables - context-specific implementations -->
+        <record id="var_income_individual" model="spp.cel.variable">
+            <field name="name">income_individual</field>
+            <field name="label">Individual Income</field>
+            <field name="description">Personal income of the registrant</field>
+            <field name="category_id" ref="variable_category_economic"/>
+            <field name="value_type">money</field>
+            <field name="source_type">field</field>
+            <field name="source_model">res.partner</field>
+            <field name="source_field">income</field>
+            <field name="cel_accessor">income</field>
+            <field name="applies_to">individual</field>
+            <field name="placement_zone_code">individual_profile_financial</field>
+            <field name="is_system">True</field>
+            <field name="synonyms">personal income, earnings</field>
+        </record>
+
+        <record id="var_income_group" model="spp.cel.variable">
+            <field name="name">income_group</field>
+            <field name="label">Household Income</field>
+            <field name="description">Total household income from all members</field>
+            <field name="category_id" ref="variable_category_economic"/>
+            <field name="value_type">money</field>
+            <field name="source_type">aggregate</field>
+            <field name="aggregate_type">sum</field>
+            <field name="aggregate_target">members</field>
+            <field name="aggregate_filter">true</field>
+            <field name="aggregate_field">income</field>
+            <field name="cel_accessor">income</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+            <field name="synonyms">household income, total income, earnings</field>
+        </record>
+
+        <record id="var_residency_years" model="spp.cel.variable">
+            <field name="name">residency_years</field>
+            <field name="label">Years of Residency</field>
+            <field name="description">Number of years the registrant has resided in the area</field>
+            <field name="category_id" ref="variable_category_demographics"/>
+            <field name="value_type">number</field>
+            <field name="unit">years</field>
+            <field name="source_type">field</field>
+            <field name="source_model">res.partner</field>
+            <field name="source_field">residency_years</field>
+            <field name="cel_accessor">residency_years</field>
+            <field name="applies_to">individual</field>
+            <field name="placement_zone_code">individual_profile_demographics</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- NOTE: var_is_registered removed.
+             Registry-level selection should use is_registrant/is_group directly,
+             and logic should not need an is_registered variable. -->
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- SCORING VARIABLES - PMT and other scoring models                -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <record id="var_pmt_score" model="spp.cel.variable">
+            <field name="name">pmt_score</field>
+            <field name="label">PMT Score</field>
+            <field name="description">Proxy Means Test score from the scoring model</field>
+            <field name="category_id" ref="variable_category_economic"/>
+            <field name="value_type">number</field>
+            <field name="source_type">scoring</field>
+            <field name="cel_accessor">pmt_score</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+            <field name="synonyms">poverty score, welfare score, means test</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- DISABILITY VARIABLES                                            -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <record id="var_has_disability" model="spp.cel.variable">
+            <field name="name">has_disability</field>
+            <field name="label">Has Disability</field>
+            <field name="description">Whether the individual has any disability</field>
+            <field name="category_id" ref="variable_category_demographics"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">field</field>
+            <field name="source_model">res.partner</field>
+            <field name="source_field">is_person_with_disability</field>
+            <field name="cel_accessor">has_disability</field>
+            <field name="applies_to">individual</field>
+            <field name="placement_zone_code">individual_profile_demographics</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_disability_certified" model="spp.cel.variable">
+            <field name="name">disability_certified</field>
+            <field name="label">Disability Certified</field>
+            <field name="description">Whether the disability has been medically certified</field>
+            <field name="category_id" ref="variable_category_demographics"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">field</field>
+            <field name="source_model">res.partner</field>
+            <field name="source_field">disability_certified</field>
+            <field name="cel_accessor">disability_certified</field>
+            <field name="applies_to">individual</field>
+            <field name="placement_zone_code">individual_profile_demographics</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_disability_percentage" model="spp.cel.variable">
+            <field name="name">disability_percentage</field>
+            <field name="label">Disability Percentage</field>
+            <field name="description">Percentage of disability (functional limitation)</field>
+            <field name="category_id" ref="variable_category_demographics"/>
+            <field name="value_type">number</field>
+            <field name="unit">%</field>
+            <field name="source_type">field</field>
+            <field name="source_model">res.partner</field>
+            <field name="source_field">disability_percentage</field>
+            <field name="cel_accessor">disability_percentage</field>
+            <field name="applies_to">individual</field>
+            <field name="placement_zone_code">individual_profile_demographics</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_requires_caregiver" model="spp.cel.variable">
+            <field name="name">requires_caregiver</field>
+            <field name="label">Requires Caregiver</field>
+            <field name="description">Whether the individual requires a full-time caregiver</field>
+            <field name="category_id" ref="variable_category_demographics"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">field</field>
+            <field name="source_model">res.partner</field>
+            <field name="source_field">requires_caregiver</field>
+            <field name="cel_accessor">requires_caregiver</field>
+            <field name="applies_to">individual</field>
+            <field name="placement_zone_code">individual_profile_demographics</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- COMPUTED ECONOMIC VARIABLES                                     -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <record id="var_income_ratio" model="spp.cel.variable">
+            <field name="name">income_ratio</field>
+            <field name="label">Income Ratio</field>
+            <field name="description">Ratio of household income to poverty line</field>
+            <field name="category_id" ref="variable_category_economic"/>
+            <field name="value_type">number</field>
+            <field name="source_type">computed</field>
+            <field name="cel_expression">income / max(1, poverty_line)</field>
+            <field name="cel_accessor">income_ratio</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- PENSION VARIABLES                                               -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <record id="var_has_formal_pension" model="spp.cel.variable">
+            <field name="name">has_formal_pension</field>
+            <field name="label">Has Formal Pension</field>
+            <field name="description">Whether the individual receives a contributory pension</field>
+            <field name="category_id" ref="variable_category_economic"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">field</field>
+            <field name="source_model">res.partner</field>
+            <field name="source_field">has_formal_pension</field>
+            <field name="cel_accessor">has_formal_pension</field>
+            <field name="applies_to">individual</field>
+            <field name="placement_zone_code">individual_profile_financial</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_formal_pension_amount" model="spp.cel.variable">
+            <field name="name">formal_pension_amount</field>
+            <field name="label">Formal Pension Amount</field>
+            <field name="description">Monthly amount received from contributory pension</field>
+            <field name="category_id" ref="variable_category_economic"/>
+            <field name="value_type">money</field>
+            <field name="source_type">field</field>
+            <field name="source_model">res.partner</field>
+            <field name="source_field">formal_pension_amount</field>
+            <field name="cel_accessor">formal_pension_amount</field>
+            <field name="applies_to">individual</field>
+            <field name="placement_zone_code">individual_profile_financial</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_has_caregiver" model="spp.cel.variable">
+            <field name="name">has_caregiver</field>
+            <field name="label">Has Caregiver</field>
+            <field name="description">Whether the individual has a caregiver available</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">computed</field>
+            <field name="cel_expression">members.exists(m, is_caregiver(m))</field>
+            <field name="cel_accessor">has_caregiver</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- OVC (Orphan and Vulnerable Children) VARIABLES                  -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <record id="var_is_orphan" model="spp.cel.variable">
+            <field name="name">is_orphan</field>
+            <field name="label">Is Orphan</field>
+            <field name="description">Whether the child has lost one or both parents</field>
+            <field name="category_id" ref="variable_category_demographics"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">field</field>
+            <field name="source_model">res.partner</field>
+            <field name="source_field">is_orphan</field>
+            <field name="cel_accessor">is_orphan</field>
+            <field name="applies_to">individual</field>
+            <field name="placement_zone_code">individual_profile_demographics</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_is_double_orphan" model="spp.cel.variable">
+            <field name="name">is_double_orphan</field>
+            <field name="label">Is Double Orphan</field>
+            <field name="description">Whether the child has lost both parents</field>
+            <field name="category_id" ref="variable_category_demographics"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">field</field>
+            <field name="source_model">res.partner</field>
+            <field name="source_field">is_double_orphan</field>
+            <field name="cel_accessor">is_double_orphan</field>
+            <field name="applies_to">individual</field>
+            <field name="placement_zone_code">individual_profile_demographics</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_has_mother" model="spp.cel.variable">
+            <field name="name">has_mother</field>
+            <field name="label">Has Mother</field>
+            <field name="description">Whether the child's mother is alive</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">computed</field>
+            <field name="cel_expression">members.exists(m, is_mother(m))</field>
+            <field name="cel_accessor">has_mother</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_has_father" model="spp.cel.variable">
+            <field name="name">has_father</field>
+            <field name="label">Has Father</field>
+            <field name="description">Whether the child's father is alive</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">computed</field>
+            <field name="cel_expression">members.exists(m, is_father(m))</field>
+            <field name="cel_accessor">has_father</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_is_child_headed" model="spp.cel.variable">
+            <field name="name">is_child_headed</field>
+            <field name="label">Child-Headed Household</field>
+            <field name="description">Whether the household is headed by a child (under 18)</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">computed</field>
+            <field name="cel_expression">members.exists(m, head(m) &amp;&amp; age_years(m.birthdate) &lt; 18)</field>
+            <field name="cel_accessor">is_child_headed</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- ADDITIONAL AGGREGATE VARIABLES - Child Age Groups               -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <record id="var_children_0_5" model="spp.cel.variable">
+            <field name="name">children_0_5</field>
+            <field name="label">Children 0-5 Years</field>
+            <field name="description">Number of children aged 0 to 5 years in the household</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">number</field>
+            <field name="source_type">aggregate</field>
+            <field name="aggregate_type">count</field>
+            <field name="aggregate_target">members</field>
+            <field name="aggregate_filter">age_years(m.birthdate) &lt;= 5</field>
+            <field name="cel_accessor">children_0_5</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_children_6_14" model="spp.cel.variable">
+            <field name="name">children_6_14</field>
+            <field name="label">Children 6-14 Years</field>
+            <field name="description">Number of children aged 6 to 14 years (primary school age)</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">number</field>
+            <field name="source_type">aggregate</field>
+            <field name="aggregate_type">count</field>
+            <field name="aggregate_target">members</field>
+            <field name="aggregate_filter">age_years(m.birthdate) >= 6 &amp;&amp; age_years(m.birthdate) &lt;= 14</field>
+            <field name="cel_accessor">children_6_14</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_children_15_18" model="spp.cel.variable">
+            <field name="name">children_15_18</field>
+            <field name="label">Children 15-18 Years</field>
+            <field name="description">Number of children aged 15 to 18 years (secondary school age)</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">number</field>
+            <field name="source_type">aggregate</field>
+            <field name="aggregate_type">count</field>
+            <field name="aggregate_target">members</field>
+            <field name="aggregate_filter">age_years(m.birthdate) >= 15 &amp;&amp; age_years(m.birthdate) &lt;= 18</field>
+            <field name="cel_accessor">children_15_18</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_school_age_children" model="spp.cel.variable">
+            <field name="name">school_age_children</field>
+            <field name="label">School Age Children</field>
+            <field name="description">Number of school-age children (6-18 years) in the household</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">number</field>
+            <field name="source_type">aggregate</field>
+            <field name="aggregate_type">count</field>
+            <field name="aggregate_target">members</field>
+            <field name="aggregate_filter">age_years(m.birthdate) >= 6 &amp;&amp; age_years(m.birthdate) &lt;= 18</field>
+            <field name="cel_accessor">school_age_children</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_children_under_5" model="spp.cel.variable">
+            <field name="name">children_under_5</field>
+            <field name="label">Children Under 5</field>
+            <field name="description">Number of children under 5 years old in the household</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">number</field>
+            <field name="source_type">aggregate</field>
+            <field name="aggregate_type">count</field>
+            <field name="aggregate_target">members</field>
+            <field name="aggregate_filter">age_years(m.birthdate) &lt; 5</field>
+            <field name="cel_accessor">children_under_5</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- GENDER VARIABLES                                                -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <record id="var_is_female" model="spp.cel.variable">
+            <field name="name">is_female</field>
+            <field name="label">Is Female</field>
+            <field name="description">Whether the individual is female</field>
+            <field name="category_id" ref="variable_category_demographics"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">vocabulary</field>
+            <field name="cel_expression">is_female(r.gender_id)</field>
+            <field name="cel_accessor">is_female</field>
+            <field name="applies_to">individual</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- EDUCATION VARIABLES                                             -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <record id="var_is_in_education" model="spp.cel.variable">
+            <field name="name">is_in_education</field>
+            <field name="label">Is In Education</field>
+            <field name="description">Whether the individual is currently enrolled in education</field>
+            <field name="category_id" ref="variable_category_demographics"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">field</field>
+            <field name="source_model">res.partner</field>
+            <field name="source_field">is_in_education</field>
+            <field name="cel_accessor">is_in_education</field>
+            <field name="applies_to">individual</field>
+            <field name="placement_zone_code">individual_profile_demographics</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- INCOME AND ECONOMIC VARIABLES                                   -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <record id="var_total_income" model="spp.cel.variable">
+            <field name="name">total_income</field>
+            <field name="label">Total Income</field>
+            <field name="description">Total household income from all sources</field>
+            <field name="category_id" ref="variable_category_economic"/>
+            <field name="value_type">money</field>
+            <field name="source_type">computed</field>
+            <field name="cel_expression">income</field>
+            <field name="cel_accessor">total_income</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_minimum_income_threshold" model="spp.cel.variable">
+            <field name="name">minimum_income_threshold</field>
+            <field name="label">Minimum Income Threshold</field>
+            <field name="description">Minimum income threshold for guaranteed income programs</field>
+            <field name="category_id" ref="variable_category_constants"/>
+            <field name="value_type">money</field>
+            <field name="source_type">constant</field>
+            <field name="default_value">3000</field>
+            <field name="is_program_configurable">True</field>
+            <field name="cel_accessor">minimum_income_threshold</field>
+            <field name="applies_to">both</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_cumulative_inflation_rate" model="spp.cel.variable">
+            <field name="name">cumulative_inflation_rate</field>
+            <field name="label">Cumulative Inflation Rate</field>
+            <field name="description">Cumulative inflation rate for benefit indexation</field>
+            <field name="category_id" ref="variable_category_constants"/>
+            <field name="value_type">number</field>
+            <field name="unit">%</field>
+            <field name="source_type">constant</field>
+            <field name="default_value">0.05</field>
+            <field name="is_program_configurable">True</field>
+            <field name="cel_accessor">cumulative_inflation_rate</field>
+            <field name="applies_to">both</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- EXCLUSION AND EMPLOYMENT VARIABLES                              -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <record id="var_has_government_employee" model="spp.cel.variable">
+            <field name="name">has_government_employee</field>
+            <field name="label">Has Government Employee</field>
+            <field name="description">Whether household has a government employee member</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">computed</field>
+            <field name="cel_expression">members.exists(m, m.is_government_employee)</field>
+            <field name="cel_accessor">has_government_employee</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- GEOGRAPHIC AND LOCATION VARIABLES                               -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <!-- Area-level flags are now managed via spp_area tags and
+             CEL helpers in cel_translator (in_area_tree, has_area_tag, has_any_area_tag).
+             The previous registry fields is_priority_region, is_urban, etc. are no longer
+             exposed as standard variables. -->
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- PMT/VULNERABILITY INDEX VARIABLES                               -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <record id="var_asset_index" model="spp.cel.variable">
+            <field name="name">asset_index</field>
+            <field name="label">Asset Index</field>
+            <field name="description">Composite asset ownership index for PMT scoring</field>
+            <field name="category_id" ref="variable_category_economic"/>
+            <field name="value_type">number</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">asset_index</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_housing_index" model="spp.cel.variable">
+            <field name="name">housing_index</field>
+            <field name="label">Housing Index</field>
+            <field name="description">Housing quality index for PMT scoring</field>
+            <field name="category_id" ref="variable_category_economic"/>
+            <field name="value_type">number</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">housing_index</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_education_index" model="spp.cel.variable">
+            <field name="name">education_index</field>
+            <field name="label">Education Index</field>
+            <field name="description">Education attainment index for PMT scoring</field>
+            <field name="category_id" ref="variable_category_economic"/>
+            <field name="value_type">number</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">education_index</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_asset_score" model="spp.cel.variable">
+            <field name="name">asset_score</field>
+            <field name="label">Asset Score</field>
+            <field name="description">Weighted asset score for extended PMT</field>
+            <field name="category_id" ref="variable_category_economic"/>
+            <field name="value_type">number</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">asset_score</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_housing_score" model="spp.cel.variable">
+            <field name="name">housing_score</field>
+            <field name="label">Housing Score</field>
+            <field name="description">Weighted housing score for extended PMT</field>
+            <field name="category_id" ref="variable_category_economic"/>
+            <field name="value_type">number</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">housing_score</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_education_years_head" model="spp.cel.variable">
+            <field name="name">education_years_head</field>
+            <field name="label">Education Years (Head)</field>
+            <field name="description">Years of education of household head</field>
+            <field name="category_id" ref="variable_category_demographics"/>
+            <field name="value_type">number</field>
+            <field name="unit">years</field>
+            <field name="source_type">field</field>
+            <field name="source_model">res.partner</field>
+            <field name="source_field">education_years</field>
+            <field name="cel_accessor">education_years_head</field>
+            <field name="applies_to">individual</field>
+            <field name="placement_zone_code">individual_profile_demographics</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- HOUSEHOLD STATUS VARIABLES                                      -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <record id="var_is_single_parent" model="spp.cel.variable">
+            <field name="name">is_single_parent</field>
+            <field name="label">Is Single Parent</field>
+            <field name="description">Whether the household is headed by a single parent</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">field</field>
+            <field name="source_model">res.partner</field>
+            <field name="source_field">is_single_parent</field>
+            <field name="cel_accessor">is_single_parent</field>
+            <field name="applies_to">group</field>
+            <field name="placement_zone_code">group_profile_contact</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_no_working_age_members" model="spp.cel.variable">
+            <field name="name">no_working_age_members</field>
+            <field name="label">No Working Age Members</field>
+            <field name="description">Whether household has no working age members</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">computed</field>
+            <field name="cel_expression">working_age_count == 0</field>
+            <field name="cel_accessor">no_working_age_members</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_has_caregiver_responsibilities" model="spp.cel.variable">
+            <field name="name">has_caregiver_responsibilities</field>
+            <field name="label">Has Caregiver Responsibilities</field>
+            <field name="description">Whether household has members with caregiver responsibilities</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">computed</field>
+            <field name="cel_expression">members.exists(m, m.has_caregiver_duties)</field>
+            <field name="cel_accessor">has_caregiver_responsibilities</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- EMPLOYMENT AND WORK VARIABLES                                   -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <record id="var_has_formal_employment" model="spp.cel.variable">
+            <field name="name">has_formal_employment</field>
+            <field name="label">Has Formal Employment</field>
+            <field name="description">Whether household has member with formal sector employment</field>
+            <field name="category_id" ref="variable_category_economic"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">computed</field>
+            <field name="cel_expression">members.exists(m, m.has_formal_job)</field>
+            <field name="cel_accessor">has_formal_employment</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_formal_income" model="spp.cel.variable">
+            <field name="name">formal_income</field>
+            <field name="label">Formal Sector Income</field>
+            <field name="description">Total income from formal sector employment</field>
+            <field name="category_id" ref="variable_category_economic"/>
+            <field name="value_type">money</field>
+            <field name="source_type">field</field>
+            <field name="source_model">res.partner</field>
+            <field name="source_field">formal_income</field>
+            <field name="cel_accessor">formal_income</field>
+            <field name="applies_to">group</field>
+            <field name="placement_zone_code">group_profile_financial</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_can_perform_manual_labor" model="spp.cel.variable">
+            <field name="name">can_perform_manual_labor</field>
+            <field name="label">Can Perform Manual Labor</field>
+            <field name="description">Whether the individual can perform manual labor</field>
+            <field name="category_id" ref="variable_category_demographics"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">field</field>
+            <field name="source_model">res.partner</field>
+            <field name="source_field">can_perform_manual_labor</field>
+            <field name="cel_accessor">can_perform_manual_labor</field>
+            <field name="applies_to">individual</field>
+            <field name="placement_zone_code">individual_profile_demographics</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_eligible_for_light_duty" model="spp.cel.variable">
+            <field name="name">eligible_for_light_duty</field>
+            <field name="label">Eligible for Light Duty</field>
+            <field name="description">Whether the individual is eligible for light duty work</field>
+            <field name="category_id" ref="variable_category_demographics"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">field</field>
+            <field name="source_model">res.partner</field>
+            <field name="source_field">eligible_for_light_duty</field>
+            <field name="cel_accessor">eligible_for_light_duty</field>
+            <field name="applies_to">individual</field>
+            <field name="placement_zone_code">individual_profile_demographics</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- CPI AND INFLATION CONSTANTS                                     -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <record id="var_current_cpi" model="spp.cel.variable">
+            <field name="name">current_cpi</field>
+            <field name="label">Current CPI</field>
+            <field name="description">Current Consumer Price Index value</field>
+            <field name="category_id" ref="variable_category_constants"/>
+            <field name="value_type">number</field>
+            <field name="source_type">constant</field>
+            <field name="default_value">105</field>
+            <field name="is_program_configurable">True</field>
+            <field name="cel_accessor">current_cpi</field>
+            <field name="applies_to">both</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_baseline_cpi" model="spp.cel.variable">
+            <field name="name">baseline_cpi</field>
+            <field name="label">Baseline CPI</field>
+            <field name="description">Baseline Consumer Price Index for comparison</field>
+            <field name="category_id" ref="variable_category_constants"/>
+            <field name="value_type">number</field>
+            <field name="source_type">constant</field>
+            <field name="default_value">100</field>
+            <field name="is_program_configurable">True</field>
+            <field name="cel_accessor">baseline_cpi</field>
+            <field name="applies_to">both</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- CCT AND CONDITIONALITY VARIABLES                                -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <record id="var_avg_school_attendance" model="spp.cel.variable">
+            <field name="name">avg_school_attendance</field>
+            <field name="label">Average School Attendance</field>
+            <field name="description">Average school attendance rate for eligible children (%)</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">number</field>
+            <field name="unit">%</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">avg_school_attendance</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_health_checkups_completed" model="spp.cel.variable">
+            <field name="name">health_checkups_completed</field>
+            <field name="label">Health Checkups Completed</field>
+            <field name="description">Whether required health checkups have been completed</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">health_checkups_completed</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_vaccinations_current" model="spp.cel.variable">
+            <field name="name">vaccinations_current</field>
+            <field name="label">Vaccinations Current</field>
+            <field name="description">Whether all required vaccinations are up to date</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">vaccinations_current</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_is_enrolled_in_school" model="spp.cel.variable">
+            <field name="name">is_enrolled_in_school</field>
+            <field name="label">Is Enrolled In School</field>
+            <field name="description">Whether the child is enrolled in school</field>
+            <field name="category_id" ref="variable_category_demographics"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">field</field>
+            <field name="source_model">res.partner</field>
+            <field name="source_field">is_enrolled_in_school</field>
+            <field name="cel_accessor">is_enrolled_in_school</field>
+            <field name="applies_to">individual</field>
+            <field name="placement_zone_code">individual_profile_demographics</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_has_enrollment_exemption" model="spp.cel.variable">
+            <field name="name">has_enrollment_exemption</field>
+            <field name="label">Has Enrollment Exemption</field>
+            <field name="description">Whether the child has an exemption from school enrollment requirement</field>
+            <field name="category_id" ref="variable_category_demographics"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">field</field>
+            <field name="source_model">res.partner</field>
+            <field name="source_field">has_enrollment_exemption</field>
+            <field name="cel_accessor">has_enrollment_exemption</field>
+            <field name="applies_to">individual</field>
+            <field name="placement_zone_code">individual_profile_demographics</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- GEOGRAPHIC AND POVERTY RATE VARIABLES                           -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <!-- area_poverty_rate is now expected to be represented via
+             area tags and CEL helpers (e.g. has_area_tag('HIGH_POVERTY')). -->
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- ASSET VARIABLES                                                 -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <record id="var_liquid_assets" model="spp.cel.variable">
+            <field name="name">liquid_assets</field>
+            <field name="label">Liquid Assets</field>
+            <field name="description">Total value of liquid assets (cash, savings, etc.)</field>
+            <field name="category_id" ref="variable_category_economic"/>
+            <field name="value_type">money</field>
+            <field name="source_type">field</field>
+            <field name="source_model">res.partner</field>
+            <field name="source_field">liquid_assets</field>
+            <field name="cel_accessor">liquid_assets</field>
+            <field name="applies_to">group</field>
+            <field name="placement_zone_code">group_profile_financial</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_non_housing_assets" model="spp.cel.variable">
+            <field name="name">non_housing_assets</field>
+            <field name="label">Non-Housing Assets</field>
+            <field name="description">Total value of non-housing assets</field>
+            <field name="category_id" ref="variable_category_economic"/>
+            <field name="value_type">money</field>
+            <field name="source_type">field</field>
+            <field name="source_model">res.partner</field>
+            <field name="source_field">non_housing_assets</field>
+            <field name="cel_accessor">non_housing_assets</field>
+            <field name="applies_to">group</field>
+            <field name="placement_zone_code">group_profile_financial</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_owns_car" model="spp.cel.variable">
+            <field name="name">owns_car</field>
+            <field name="label">Owns Car</field>
+            <field name="description">Whether the household owns a car</field>
+            <field name="category_id" ref="variable_category_economic"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">field</field>
+            <field name="source_model">res.partner</field>
+            <field name="source_field">owns_car</field>
+            <field name="cel_accessor">owns_car</field>
+            <field name="applies_to">group</field>
+            <field name="placement_zone_code">group_profile_financial</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_motorcycle_count" model="spp.cel.variable">
+            <field name="name">motorcycle_count</field>
+            <field name="label">Motorcycle Count</field>
+            <field name="description">Number of motorcycles owned by household</field>
+            <field name="category_id" ref="variable_category_economic"/>
+            <field name="value_type">number</field>
+            <field name="source_type">field</field>
+            <field name="source_model">res.partner</field>
+            <field name="source_field">motorcycle_count</field>
+            <field name="cel_accessor">motorcycle_count</field>
+            <field name="applies_to">group</field>
+            <field name="placement_zone_code">group_profile_financial</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- PUBLIC WORKS VARIABLES                                          -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <record id="var_current_pw_participants" model="spp.cel.variable">
+            <field name="name">current_pw_participants</field>
+            <field name="label">Current PW Participants</field>
+            <field name="description">Number of household members currently in public works program</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">number</field>
+            <field name="source_type">field</field>
+            <field name="source_model">res.partner</field>
+            <field name="source_field">pw_participants_count</field>
+            <field name="cel_accessor">current_pw_participants</field>
+            <field name="applies_to">group</field>
+            <field name="placement_zone_code">group_profile_contact</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- FOOD PRICE INDEX VARIABLES                                      -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <record id="var_current_food_price_index" model="spp.cel.variable">
+            <field name="name">current_food_price_index</field>
+            <field name="label">Current Food Price Index</field>
+            <field name="description">Current food price index for benefit adjustments</field>
+            <field name="category_id" ref="variable_category_constants"/>
+            <field name="value_type">number</field>
+            <field name="source_type">constant</field>
+            <field name="default_value">110</field>
+            <field name="is_program_configurable">True</field>
+            <field name="cel_accessor">current_food_price_index</field>
+            <field name="applies_to">both</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_baseline_food_price_index" model="spp.cel.variable">
+            <field name="name">baseline_food_price_index</field>
+            <field name="label">Baseline Food Price Index</field>
+            <field name="description">Baseline food price index for comparison</field>
+            <field name="category_id" ref="variable_category_constants"/>
+            <field name="value_type">number</field>
+            <field name="source_type">constant</field>
+            <field name="default_value">100</field>
+            <field name="is_program_configurable">True</field>
+            <field name="cel_accessor">baseline_food_price_index</field>
+            <field name="applies_to">both</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- OVC HOUSEHOLD VARIABLES                                         -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <record id="var_is_skipped_generation" model="spp.cel.variable">
+            <field name="name">is_skipped_generation</field>
+            <field name="label">Skipped Generation Household</field>
+            <field name="description">Grandparents raising grandchildren without parents present</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">field</field>
+            <field name="source_model">res.partner</field>
+            <field name="source_field">is_skipped_generation</field>
+            <field name="cel_accessor">is_skipped_generation</field>
+            <field name="applies_to">group</field>
+            <field name="placement_zone_code">group_profile_contact</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_has_chronically_ill_head" model="spp.cel.variable">
+            <field name="name">has_chronically_ill_head</field>
+            <field name="label">Has Chronically Ill Head</field>
+            <field name="description">Whether household head has chronic illness</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">computed</field>
+            <field name="cel_expression">members.exists(m, head(m) &amp;&amp; m.has_chronic_illness)</field>
+            <field name="cel_accessor">has_chronically_ill_head</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- MPI DEPRIVATION INDICATORS (Multidimensional Poverty Index)     -->
+        <!-- Note: These require survey data to populate                     -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <record id="var_nutrition_deprived" model="spp.cel.variable">
+            <field name="name">nutrition_deprived</field>
+            <field name="label">Nutrition Deprived</field>
+            <field name="description">MPI indicator: household is nutrition deprived</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">nutrition_deprived</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_child_mortality" model="spp.cel.variable">
+            <field name="name">child_mortality</field>
+            <field name="label">Child Mortality</field>
+            <field name="description">MPI indicator: household experienced child mortality</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">child_mortality</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_no_schooling" model="spp.cel.variable">
+            <field name="name">no_schooling</field>
+            <field name="label">No Schooling</field>
+            <field name="description">MPI indicator: no household member has completed 6 years of schooling</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">no_schooling</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_not_attending_school" model="spp.cel.variable">
+            <field name="name">not_attending_school</field>
+            <field name="label">Not Attending School</field>
+            <field name="description">MPI indicator: school-age child not attending school</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">not_attending_school</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_no_electricity" model="spp.cel.variable">
+            <field name="name">no_electricity</field>
+            <field name="label">No Electricity</field>
+            <field name="description">MPI indicator: household has no electricity</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">no_electricity</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_unsafe_water" model="spp.cel.variable">
+            <field name="name">unsafe_water</field>
+            <field name="label">Unsafe Water</field>
+            <field name="description">MPI indicator: household lacks safe drinking water</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">unsafe_water</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_poor_sanitation" model="spp.cel.variable">
+            <field name="name">poor_sanitation</field>
+            <field name="label">Poor Sanitation</field>
+            <field name="description">MPI indicator: household lacks improved sanitation</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">poor_sanitation</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_dirty_cooking_fuel" model="spp.cel.variable">
+            <field name="name">dirty_cooking_fuel</field>
+            <field name="label">Dirty Cooking Fuel</field>
+            <field name="description">MPI indicator: household uses dirty cooking fuel</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">dirty_cooking_fuel</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_inadequate_housing" model="spp.cel.variable">
+            <field name="name">inadequate_housing</field>
+            <field name="label">Inadequate Housing</field>
+            <field name="description">MPI indicator: household has inadequate housing</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">inadequate_housing</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_few_assets" model="spp.cel.variable">
+            <field name="name">few_assets</field>
+            <field name="label">Few Assets</field>
+            <field name="description">MPI indicator: household owns fewer than 2 of specified assets</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">few_assets</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- MPI DEPRIVATION COUNTS                                          -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <record id="var_health_deprived_count" model="spp.cel.variable">
+            <field name="name">health_deprived_count</field>
+            <field name="label">Health Deprivation Count</field>
+            <field name="description">MPI: Number of health deprivations (nutrition + child mortality)</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">number</field>
+            <field name="source_type">computed</field>
+            <field name="cel_expression">(nutrition_deprived ? 1 : 0) + (child_mortality ? 1 : 0)</field>
+            <field name="cel_accessor">health_deprived_count</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_education_deprived_count" model="spp.cel.variable">
+            <field name="name">education_deprived_count</field>
+            <field name="label">Education Deprivation Count</field>
+            <field name="description">MPI: Number of education deprivations</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">number</field>
+            <field name="source_type">computed</field>
+            <field name="cel_expression">(no_schooling ? 1 : 0) + (not_attending_school ? 1 : 0)</field>
+            <field name="cel_accessor">education_deprived_count</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_living_standards_deprived_count" model="spp.cel.variable">
+            <field name="name">living_standards_deprived_count</field>
+            <field name="label">Living Standards Deprivation Count</field>
+            <field name="description">MPI: Number of living standards deprivations</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">number</field>
+            <field name="source_type">computed</field>
+            <field name="cel_expression">(no_electricity ? 1 : 0) + (unsafe_water ? 1 : 0) + (poor_sanitation ? 1 : 0) + (dirty_cooking_fuel ? 1 : 0) + (inadequate_housing ? 1 : 0) + (few_assets ? 1 : 0)</field>
+            <field name="cel_accessor">living_standards_deprived_count</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- EMERGENCY AND DISASTER VARIABLES                                -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <!-- is_disaster_declared / emergency_level are also now represented via area tags
+             and CEL helpers instead of registry-level fields. -->
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- RESIDENCY VARIABLES                                             -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <record id="var_is_legal_resident" model="spp.cel.variable">
+            <field name="name">is_legal_resident</field>
+            <field name="label">Is Legal Resident</field>
+            <field name="description">Whether the individual is a legal resident</field>
+            <field name="category_id" ref="variable_category_demographics"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">field</field>
+            <field name="source_model">res.partner</field>
+            <field name="source_field">is_legal_resident</field>
+            <field name="cel_accessor">is_legal_resident</field>
+            <field name="applies_to">individual</field>
+            <field name="placement_zone_code">individual_profile_demographics</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_residency_months" model="spp.cel.variable">
+            <field name="name">residency_months</field>
+            <field name="label">Residency Months</field>
+            <field name="description">Number of months of residency in the area</field>
+            <field name="category_id" ref="variable_category_demographics"/>
+            <field name="value_type">number</field>
+            <field name="unit">months</field>
+            <field name="source_type">computed</field>
+            <field name="cel_expression">residency_years * 12</field>
+            <field name="cel_accessor">residency_months</field>
+            <field name="applies_to">individual</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- FOOD SECURITY VARIABLES                                         -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <record id="var_is_food_insecure" model="spp.cel.variable">
+            <field name="name">is_food_insecure</field>
+            <field name="label">Is Food Insecure</field>
+            <field name="description">Whether the household is food insecure</field>
+            <field name="category_id" ref="variable_category_household"/>
+            <field name="value_type">boolean</field>
+            <field name="source_type">external</field>
+            <field name="cel_accessor">is_food_insecure</field>
+            <field name="applies_to">group</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_poverty_threshold" model="spp.cel.variable">
+            <field name="name">poverty_threshold</field>
+            <field name="label">Poverty Threshold</field>
+            <field name="description">Per capita poverty threshold (alias for poverty_line)</field>
+            <field name="category_id" ref="variable_category_constants"/>
+            <field name="value_type">money</field>
+            <field name="source_type">computed</field>
+            <field name="cel_expression">poverty_line</field>
+            <field name="cel_accessor">poverty_threshold</field>
+            <field name="applies_to">both</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- BENEFIT CALCULATION VARIABLES                                   -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <record id="var_calculated_benefit" model="spp.cel.variable">
+            <field name="name">calculated_benefit</field>
+            <field name="label">Calculated Benefit</field>
+            <field name="description">The calculated benefit amount before floor/ceiling adjustments</field>
+            <field name="category_id" ref="variable_category_economic"/>
+            <field name="value_type">money</field>
+            <field name="source_type">computed</field>
+            <field name="cel_expression">base_benefit</field>
+            <field name="cel_accessor">calculated_benefit</field>
+            <field name="applies_to">both</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <record id="var_minimum_benefit" model="spp.cel.variable">
+            <field name="name">minimum_benefit</field>
+            <field name="label">Minimum Benefit</field>
+            <field name="description">Minimum benefit amount (benefit floor)</field>
+            <field name="category_id" ref="variable_category_constants"/>
+            <field name="value_type">money</field>
+            <field name="source_type">constant</field>
+            <field name="default_value">500</field>
+            <field name="is_program_configurable">True</field>
+            <field name="cel_accessor">minimum_benefit</field>
+            <field name="applies_to">both</field>
+            <field name="is_system">True</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- LAND AND PROPERTY VARIABLES                                     -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <record id="var_land_hectares" model="spp.cel.variable">
+            <field name="name">land_hectares</field>
+            <field name="label">Land (Hectares)</field>
+            <field name="description">Total land owned in hectares</field>
+            <field name="category_id" ref="variable_category_economic"/>
+            <field name="value_type">number</field>
+            <field name="unit">ha</field>
+            <field name="source_type">field</field>
+            <field name="source_model">res.partner</field>
+            <field name="source_field">land_hectares</field>
+            <field name="cel_accessor">land_hectares</field>
+            <field name="applies_to">group</field>
+            <field name="placement_zone_code">group_profile_financial</field>
+            <field name="is_system">True</field>
+        </record>
+
+    </data>
+</odoo>

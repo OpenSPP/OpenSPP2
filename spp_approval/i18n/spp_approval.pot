@@ -1,0 +1,1885 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* spp_approval
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_mixin.py:0
+msgid ""
+"\n"
+"\n"
+"Reason: %s"
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_mixin.py:0
+msgid " (auto)"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.view_spp_approval_definition_form_cel
+msgid ""
+"<code>[record.user_id.id, record.manager_id.id]</code> - Multiple users"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.view_spp_approval_definition_form_cel
+msgid "<code>company</code> - Current company"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.view_spp_approval_definition_form_cel
+msgid "<code>now</code> - Current datetime"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.view_spp_approval_definition_form_cel
+msgid "<code>record.amount &gt; 10000</code>"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.view_spp_approval_definition_form_cel
+msgid "<code>record.manager_id.id</code> - Single user ID"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.view_spp_approval_definition_form_cel
+msgid "<code>record.partner_id.id != 0</code>"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.view_spp_approval_definition_form_cel
+msgid "<code>record.state == \"draft\"</code>"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.view_spp_approval_definition_form_cel
+msgid "<code>record.total &gt; 5000 || record.priority == \"high\"</code>"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.view_spp_approval_definition_form_cel
+msgid "<code>record.user_id.id</code> - Record owner"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.view_spp_approval_definition_form_cel
+msgid ""
+"<code>record</code> - The record being approved (all fields accessible)"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.view_spp_approval_definition_form_cel
+msgid "<code>today</code> - Current date"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.view_spp_approval_definition_form_cel
+msgid "<code>user</code> - Current user submitting for approval"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_definition_view_form
+msgid "<span class=\"o_stat_text text-danger\">Deactivate</span>"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_definition_view_form
+msgid "<span class=\"o_stat_text text-success\">Activate</span>"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.view_spp_approval_definition_form_cel
+msgid ""
+"<span invisible=\"not is_cel_condition_valid\">\n"
+"                                    ✓ Expression syntax is valid\n"
+"                                </span>"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.view_spp_approval_definition_form_cel
+msgid ""
+"<span invisible=\"not is_cel_reviewer_valid\">\n"
+"                                    ✓ Expression syntax is valid\n"
+"                                </span>"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_freeze_view_form
+msgid "Activate Now"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_config__active
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__active
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier__active
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_approval_freeze__state__active
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_definition_view_search
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_freeze_view_search
+msgid "Active"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_freeze__model_ids
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_freeze_view_form
+msgid "Affected Models"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.ui.menu,name:spp_approval.menu_all_reviews
+msgid "All Reviews"
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_review_multitier.py:0
+msgid "All required tiers approved"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_tier__can_self_approve
+msgid ""
+"Allow the submitter to approve at this tier if they are a designated "
+"approver"
+msgstr ""
+
+#. module: spp_approval
+#: model:res.groups,name:spp_approval.group_approval_admin
+msgid "Approval Administrator (Deprecated)"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model,name:spp_approval.model_spp_approval_config
+msgid "Approval Configuration"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_review__definition_id
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier__definition_id
+msgid "Approval Definition"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.actions.act_window,name:spp_approval.approval_definition_action
+#: model:ir.ui.menu,name:spp_approval.menu_approval_definitions
+msgid "Approval Definitions"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__approval_field_id
+msgid "Approval Field"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model,name:spp_approval.model_spp_approval_freeze
+msgid "Approval Freeze Period"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__approval_group_id
+msgid "Approval Group"
+msgstr ""
+
+#. module: spp_approval
+#: model:mail.activity.type,name:spp_approval.mail_activity_approval_pending
+msgid "Approval Pending"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_mixin__approval_tier_progress
+msgid "Approval Progress (%)"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model,name:spp_approval.model_spp_approval_rejection_wizard
+msgid "Approval Rejection Wizard"
+msgstr ""
+
+#. module: spp_approval
+#: model:mail.activity.type,name:spp_approval.mail_activity_approval_required
+#: model:mail.activity.type,summary:spp_approval.mail_activity_approval_required
+msgid "Approval Required"
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_tier_review.py:0
+msgid "Approval Required (Tier: %s): %s"
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_mixin.py:0
+msgid "Approval Required: %s"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.spp_approval_tier_view_form
+msgid "Approval Requirements"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier_review__review_id
+msgid "Approval Review"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model,name:spp_approval.model_spp_approval_review
+msgid "Approval Review Record"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.actions.act_window,name:spp_approval.approval_review_action
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_mixin__approval_review_ids
+msgid "Approval Reviews"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model,name:spp_approval.model_spp_approval_revision_wizard
+msgid "Approval Revision Request Wizard"
+msgstr ""
+
+#. module: spp_approval
+#: model:mail.activity.type,summary:spp_approval.mail_activity_sla_exceeded
+msgid "Approval SLA Exceeded"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_definition_view_form
+msgid "Approval Settings"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_mixin__approval_state
+msgid "Approval Status"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model,name:spp_approval.model_spp_approval_tier
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier_review__tier_id
+#: model_terms:ir.ui.view,arch_db:spp_approval.spp_approval_tier_view_form
+msgid "Approval Tier"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model,name:spp_approval.model_spp_approval_tier_review
+msgid "Approval Tier Review"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__tier_ids
+#: model_terms:ir.ui.view,arch_db:spp_approval.spp_approval_tier_view_list
+#: model_terms:ir.ui.view,arch_db:spp_approval.view_spp_approval_definition_form_multitier
+msgid "Approval Tiers"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__approval_type
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_definition_view_search
+msgid "Approval Type"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__approval_user_ids
+msgid "Approval Users"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_mixin__approval_version
+msgid "Approval Version"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model,name:spp_approval.model_spp_approval_definition
+msgid "Approval Workflow Definition"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model,name:spp_approval.model_spp_approval_mixin
+msgid "Approval Workflow Mixin"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.actions.act_window,help:spp_approval.approval_review_action
+msgid "Approval reviews are created when records are submitted for approval."
+msgstr ""
+
+#. module: spp_approval
+#: model:res.groups,name:spp_approval.group_approval_read
+msgid "Approval: Read"
+msgstr ""
+
+#. module: spp_approval
+#: model:res.groups,name:spp_approval.group_approval_write
+msgid "Approval: Write"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.ui.menu,name:spp_approval.menu_approval_root
+msgid "Approvals"
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_mixin.py:0
+msgid "Approvals are currently frozen: %s"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_approval_mixin__approval_state__approved
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_approval_review__status__approved
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_approval_tier_review__status__approved
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_cel_expression__approval_state__approved
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_change_request__approval_state__approved
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_cycle__approval_state__approved
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_entitlement__approval_state__approved
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_review_view_search
+msgid "Approved"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_mixin__approved_by_id
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier_review__approved_by_ids
+msgid "Approved By"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_mixin__approved_date
+msgid "Approved Date"
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_mixin.py:0
+msgid "Approved%s"
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_mixin.py:0
+msgid "Approved: %s"
+msgstr ""
+
+#. module: spp_approval
+#: model:res.groups,name:spp_approval.group_approval_approver
+#: model:res.groups.privilege,name:spp_approval.privilege_approval_approver
+msgid "Approver"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier_review__approver_count
+msgid "Approver Count"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier__approval_field
+msgid "Approver Field"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier__approval_group_id
+msgid "Approver Group"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier__approval_type
+msgid "Approver Type"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier__approval_user_ids
+msgid "Approvers"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_definition_view_search
+msgid "Archived"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_freeze_view_form
+msgid "Are you sure you want to cancel this freeze period?"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_config__async_threshold
+msgid "Async Threshold"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_approval_freeze__reason__audit
+msgid "Audit Period"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__auto_approve_same_user
+msgid "Auto Approve Same User"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_definition__auto_approve_same_user
+msgid "Auto-approve if submitter is also an approver"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.view_spp_approval_definition_form_cel
+msgid "Available Variables"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_config__batch_size
+msgid "Batch Size"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_definition_view_form
+msgid "Behavior"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_definition__is_respect_system_freeze
+msgid "Block approvals during system-wide freeze periods"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier__is_blocking
+msgid "Blocking"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__cel_condition
+#: model_terms:ir.ui.view,arch_db:spp_approval.view_spp_approval_definition_form_cel
+msgid "CEL Condition"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model,name:spp_approval.model_spp_cel_evaluator
+msgid "CEL Expression Evaluator"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.view_spp_approval_definition_form_cel
+msgid "CEL Expression Help"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.view_spp_approval_definition_form_cel
+msgid "CEL Expressions"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.view_spp_approval_definition_form_cel
+msgid "CEL Reviewer Assignment"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__cel_reviewer_expression
+msgid "CEL Reviewer Expression"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_definition__cel_condition
+msgid ""
+"CEL expression that determines when this approval applies.\n"
+"\n"
+"Available variables:\n"
+"- record: The record being approved (with all fields)\n"
+"- user: Current user submitting for approval\n"
+"- company: Current company\n"
+"- today: Current date\n"
+"- now: Current datetime\n"
+"\n"
+"Examples:\n"
+"- record.amount > 10000\n"
+"- record.state == \"draft\" && record.partner_id.id != 0\n"
+"- record.total_amount > 5000 || record.category == \"high_risk\"\n"
+"- size(record.line_ids.ids) > 10\n"
+"        "
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_definition__cel_reviewer_expression
+msgid ""
+"CEL expression that returns user ID(s) for dynamic reviewer assignment.\n"
+"\n"
+"Available variables: Same as CEL Condition\n"
+"\n"
+"Examples:\n"
+"- record.manager_id.id\n"
+"- record.department_id.manager_id.user_id.id\n"
+"- [record.user_id.id, record.manager_id.id]\n"
+"\n"
+"The expression should return:\n"
+"- A single user ID (integer)\n"
+"- A list of user IDs\n"
+"        "
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_mixin__can_approve
+msgid "Can Approve"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_mixin__can_reject
+msgid "Can Reject"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier__can_self_approve
+msgid "Can Self-Approve"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_mixin__can_submit
+msgid "Can Submit"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_definition__is_emergency_bypass_allowed
+msgid "Can be bypassed during declared emergencies"
+msgstr ""
+
+#. module: spp_approval
+#: model:res.groups,comment:spp_approval.group_approval_officer
+msgid "Can view and edit approval records. Cannot delete."
+msgstr ""
+
+#. module: spp_approval
+#: model:res.groups,comment:spp_approval.group_approval_viewer
+msgid "Can view approval records. Cannot modify data."
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_freeze_view_form
+#: model_terms:ir.ui.view,arch_db:spp_approval.rejection_wizard_view_form
+#: model_terms:ir.ui.view,arch_db:spp_approval.revision_wizard_view_form
+msgid "Cancel"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_approval_freeze__state__cancelled
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_freeze_view_search
+msgid "Cancelled"
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_freeze.py:0
+msgid "Cannot activate a cancelled freeze period."
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__cel_condition_error
+msgid "Cel Condition Error"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__cel_reviewer_error
+msgid "Cel Reviewer Error"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_review__comment
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_review_view_form
+msgid "Comment"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier_review__comment
+msgid "Comments"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_config__company_id
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__company_id
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_freeze__company_id
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_definition_view_search
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_freeze_view_search
+msgid "Company"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier_review__completed_date
+msgid "Completed Date"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_review__completed_tiers
+msgid "Completed Tiers"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.view_spp_approval_definition_form_cel
+msgid "Condition Examples"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_definition_view_form
+msgid "Conditions"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.ui.menu,name:spp_approval.menu_approval_config
+msgid "Configuration"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.actions.act_window,help:spp_approval.approval_freeze_action
+msgid "Create a freeze period"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.actions.act_window,help:spp_approval.approval_definition_action
+msgid "Create an approval workflow definition"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_freeze__created_by_id
+msgid "Created By"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_config__create_uid
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__create_uid
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_freeze__create_uid
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_rejection_wizard__create_uid
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_review__create_uid
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_revision_wizard__create_uid
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier__create_uid
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier_review__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_config__create_date
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__create_date
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_freeze__create_date
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_rejection_wizard__create_date
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_review__create_date
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_revision_wizard__create_date
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier__create_date
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier_review__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_freeze_view_search
+msgid "Current & Upcoming"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_mixin__current_approval_tier_id
+msgid "Current Approval Tier"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_mixin__current_tier_name
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_review__current_tier_id
+#: model_terms:ir.ui.view,arch_db:spp_approval.view_spp_approval_review_tree_multitier
+msgid "Current Tier"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_review__current_tier_name
+msgid "Current Tier Name"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_freeze__date_end
+msgid "Date End"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_freeze__date_start
+msgid "Date Start"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_definition_view_form
+msgid "Deactivated"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.actions.act_window,help:spp_approval.approval_definition_action
+msgid "Define who can approve records and under what conditions."
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_review_view_search
+msgid "Definition"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_definition__escalation_definition_id
+msgid "Definition to escalate to if SLA is exceeded"
+msgstr ""
+
+#. module: spp_approval
+#: model:res.groups,comment:spp_approval.group_approval_admin
+msgid ""
+"Deprecated: Use group_approval_manager instead. This group is kept for "
+"backward compatibility."
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_freeze__description
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_freeze_view_form
+msgid "Description"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_freeze__description
+msgid "Detailed description of the freeze reason"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_freeze_view_form
+msgid "Detailed description of the freeze reason..."
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_config__digest_time
+msgid "Digest Time"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_config__display_name
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__display_name
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_freeze__display_name
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_mixin__display_name
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_rejection_wizard__display_name
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_review__display_name
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_revision_wizard__display_name
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier__display_name
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier_review__display_name
+#: model:ir.model.fields,field_description:spp_approval.field_spp_cel_evaluator__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_review__current_tier_name
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_tier__name
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_tier_review__tier_name
+msgid "Display name for this tier (e.g., 'Validator', 'Manager')"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__domain
+msgid "Domain"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_definition__domain
+msgid ""
+"Domain to filter which records need this approval. Leave empty to apply to "
+"all records."
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_approval_freeze__state__draft
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_approval_mixin__approval_state__draft
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_cel_expression__approval_state__draft
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_change_request__approval_state__draft
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_cycle__approval_state__draft
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_entitlement__approval_state__draft
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_freeze_view_search
+msgid "Draft"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_approval_definition__approval_type__field
+msgid "Dynamic Field"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_approval_freeze__reason__election
+msgid "Election Ban Period"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__is_emergency_bypass_allowed
+msgid "Emergency Bypass Allowed"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_definition__use_multitier
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_review__is_multitier
+msgid "Enable sequential multi-tier approval workflow"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_freeze_view_form
+msgid "End Now"
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_freeze.py:0
+msgid "End date must be after start date."
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_approval_freeze__state__ended
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_freeze_view_search
+msgid "Ended"
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/cel_evaluator.py:0
+msgid "Error evaluating expression '%(expr)s': %(error)s"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__escalation_definition_id
+msgid "Escalate To"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_definition__sla_days
+msgid "Expected days to complete approval. 0 = no SLA."
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_tier__sla_hours
+msgid "Expected hours to complete this tier (0 = no SLA)"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_tier__approval_field
+msgid "Field name on the record containing the approver (e.g., 'manager_id')"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_approval_tier__approval_type__field
+msgid "Field on Record"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_definition__approval_field_id
+msgid "Field on the model that contains the user who can approve"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier_review__approved_date
+msgid "First Approval Date"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_freeze_view_form
+msgid "Freeze Period Name"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.actions.act_window,name:spp_approval.approval_freeze_action
+#: model:ir.ui.menu,name:spp_approval.menu_approval_freeze
+msgid "Freeze Periods"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.actions.act_window,help:spp_approval.approval_freeze_action
+msgid ""
+"Freeze periods suspend approval workflows during regulatory periods\n"
+"                such as election bans, audits, or system maintenance."
+msgstr ""
+
+#. module: spp_approval
+#: model:res.groups,comment:spp_approval.group_approval_manager
+msgid "Full approval management including delete operations."
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_config__id
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__id
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_freeze__id
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_mixin__id
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_rejection_wizard__id
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_review__id
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_revision_wizard__id
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier__id
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier_review__id
+#: model:ir.model.fields,field_description:spp_approval.field_spp_cel_evaluator__id
+msgid "ID"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_tier__is_require_all
+msgid ""
+"If checked, ALL designated approvers must approve. Otherwise, ANY one "
+"approver is sufficient."
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_tier__is_blocking
+msgid ""
+"If unchecked, workflow continues to next tier without waiting for this "
+"tier's approval. Useful for informational/FYI tiers."
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_definition_cel.py:0
+msgid "Invalid CEL condition: %(error)s"
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_definition_cel.py:0
+msgid "Invalid CEL reviewer expression: %(error)s"
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_definition.py:0
+msgid "Invalid domain syntax: %s"
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/cel_evaluator.py:0
+msgid "Invalid expression syntax '%(expr)s': %(error)s"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__is_cel_condition_valid
+msgid "Is Cel Condition Valid"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__is_cel_reviewer_valid
+msgid "Is Cel Reviewer Valid"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__is_require_comment
+msgid "Is Require Comment"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier_review__is_sla_breached
+msgid "Is Sla Breached"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_review__is_sla_exceeded
+msgid "Is Sla Exceeded"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_config__write_uid
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__write_uid
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_freeze__write_uid
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_rejection_wizard__write_uid
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_review__write_uid
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_revision_wizard__write_uid
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier__write_uid
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier_review__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_config__write_date
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__write_date
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_freeze__write_date
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_rejection_wizard__write_date
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_review__write_date
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_revision_wizard__write_date
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier__write_date
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier_review__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_freeze__model_ids
+msgid "Leave empty to affect all approval-enabled models"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_freeze_view_form
+msgid "Leave empty to affect all approval-enabled models."
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_freeze__company_id
+msgid "Leave empty to apply to all companies"
+msgstr ""
+
+#. module: spp_approval
+#: model:res.groups,name:spp_approval.group_approval_manager
+#: model:res.groups.privilege,name:spp_approval.privilege_approval_manager
+msgid "Manager"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_approval_definition__approval_type__manager
+msgid "Manager of Submitter"
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_definition.py:0
+msgid ""
+"Managers cannot delete approval definitions. Only administrators can delete "
+"them."
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_freeze.py:0
+msgid ""
+"Managers cannot delete freeze periods. Only administrators can delete them."
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier__min_approvers
+msgid "Minimum Approvers"
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_tier.py:0
+msgid "Minimum approvers must be at least 1."
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_tier__min_approvers
+msgid "Minimum number of approvers required (when is_require_all is False)"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__model_id
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_review__model
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_definition_view_search
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_review_view_search
+msgid "Model"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__model
+msgid "Model Name"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.view_spp_approval_definition_tree_multitier
+#: model_terms:ir.ui.view,arch_db:spp_approval.view_spp_approval_review_search_multitier
+msgid "Multi-Tier"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__use_multitier
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_mixin__is_multitier_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_review__is_multitier
+msgid "Multi-Tier Approval"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.view_spp_approval_review_form_multitier
+msgid "Multi-Tier Progress"
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_definition_multitier.py:0
+msgid "Multi-tier approval requires at least one approval tier."
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.ui.menu,name:spp_approval.menu_my_approvals
+msgid "My Approvals"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.actions.act_window,name:spp_approval.approval_review_my_pending_action
+msgid "My Pending Approvals"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_review_view_search
+msgid "My Requests"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_review_view_search
+msgid "My Reviews"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_config__name
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__name
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_freeze__name
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier__name
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier_review__tier_name
+msgid "Name"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.actions.act_window,help:spp_approval.approval_review_action
+msgid "No approval reviews found"
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_mixin.py:0
+msgid "No approval workflow configured for this record type."
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.actions.act_window,help:spp_approval.approval_review_my_pending_action
+msgid "No pending approvals!"
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_review_multitier.py:0
+msgid "No pending tier to approve."
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_review_multitier.py:0
+msgid "No pending tier to reject."
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_mixin__revision_notes
+msgid "Notes explaining what needs to be revised"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_definition_view_form
+msgid "Notifications"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__notify_on_approve
+msgid "Notify On Approve"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__notify_on_reject
+msgid "Notify On Reject"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__notify_on_submit
+msgid "Notify On Submit"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier__notify_on_pending
+msgid "Notify When Pending"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_definition__notify_on_submit
+msgid "Notify approvers when a record is submitted"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_definition__notify_on_approve
+msgid "Notify submitter when approved"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_definition__notify_on_reject
+msgid "Notify submitter when rejected"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.view_spp_approval_definition_form_multitier
+msgid "Number of Tiers"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_config__async_threshold
+msgid "Number of records above which batch operations run asynchronously"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_config__batch_size
+msgid "Number of records to process in each batch for bulk operations"
+msgstr ""
+
+#. module: spp_approval
+#: model:res.groups,name:spp_approval.group_approval_officer
+#: model:res.groups.privilege,name:spp_approval.privilege_approval_officer
+msgid "Officer"
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_mixin.py:0
+msgid "Only draft records can be submitted for approval."
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_mixin.py:0
+msgid "Only pending records can be approved."
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_mixin.py:0
+msgid "Only pending records can be rejected."
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_tier_review.py:0
+msgid "Only pending tiers can be approved."
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_tier_review.py:0
+msgid "Only pending tiers can be rejected."
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_mixin.py:0
+msgid "Only rejected or revision-requested records can be reset to draft."
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_tier_review.py:0
+msgid "Only waiting tiers can be activated."
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_tier__sequence
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_tier_review__sequence
+msgid "Order in which tiers are processed"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_approval_freeze__reason__other
+msgid "Other"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_approval_review__status__pending
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_approval_tier_review__status__pending
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_review_view_search
+msgid "Pending"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_approval_mixin__approval_state__pending
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_cel_expression__approval_state__pending
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_change_request__approval_state__pending
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_cycle__approval_state__pending
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_entitlement__approval_state__pending
+msgid "Pending Approval"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.ui.menu,name:spp_approval.menu_my_pending_approvals
+msgid "Pending Approvals"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_mixin__pending_since
+msgid "Pending Since"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_revision_wizard__notes
+msgid "Please describe what changes are needed"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.revision_wizard_view_form
+msgid "Please describe what changes are needed..."
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_rejection_wizard__reason
+msgid "Please provide a reason for rejection"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.rejection_wizard_view_form
+msgid "Please provide a reason for rejection..."
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/wizards/rejection_wizard.py:0
+msgid "Please provide a rejection reason."
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/wizards/revision_wizard.py:0
+msgid "Please provide revision notes describing what needs to be changed."
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_definition.py:0
+#: code:addons/spp_approval/models/approval_definition_multitier.py:0
+msgid "Please select an approval field."
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_definition.py:0
+#: code:addons/spp_approval/models/approval_definition_multitier.py:0
+msgid "Please select an approval group."
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_definition.py:0
+#: code:addons/spp_approval/models/approval_definition_multitier.py:0
+msgid "Please select at least one approval user."
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_review__tier_progress
+msgid "Progress (%)"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_freeze__reason
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_freeze_view_search
+msgid "Reason"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_review__res_id
+msgid "Record ID"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_review_view_form
+msgid "Record Information"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_approval_freeze__reason__regulatory
+msgid "Regulatory Hold"
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_mixin.py:0
+#: code:addons/spp_approval/models/approval_mixin_multitier.py:0
+#: model_terms:ir.ui.view,arch_db:spp_approval.rejection_wizard_view_form
+msgid "Reject"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.rejection_wizard_view_form
+msgid "Reject Record"
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_mixin.py:0
+#: code:addons/spp_approval/models/approval_mixin_multitier.py:0
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_approval_mixin__approval_state__rejected
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_approval_review__status__rejected
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_approval_tier_review__status__rejected
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_cel_expression__approval_state__rejected
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_change_request__approval_state__rejected
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_cycle__approval_state__rejected
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_entitlement__approval_state__rejected
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_review_view_search
+msgid "Rejected"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_mixin__rejected_by_id
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier_review__rejected_by_id
+msgid "Rejected By"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_mixin__rejected_date
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier_review__rejected_date
+msgid "Rejected Date"
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_mixin.py:0
+msgid "Rejected: %s"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.spp_approval_tier_review_view_form
+msgid "Rejection"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_mixin__rejection_reason
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_rejection_wizard__reason
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier_review__rejection_reason
+msgid "Rejection Reason"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_review_view_search
+msgid "Request Date"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_review_view_form
+msgid "Request Information"
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_mixin.py:0
+#: model_terms:ir.ui.view,arch_db:spp_approval.revision_wizard_view_form
+msgid "Request Revision"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_review__requested_by_id
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_review_view_search
+msgid "Requested By"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_review__requested_date
+msgid "Requested Date"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier__is_require_all
+msgid "Require All Approvers"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_definition__is_require_comment
+msgid "Require a comment when approving or rejecting"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier_review__required_approvals
+msgid "Required Approvals"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_rejection_wizard__res_id
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_revision_wizard__res_id
+msgid "Res"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_rejection_wizard__res_model
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_revision_wizard__res_model
+msgid "Res Model"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__is_respect_system_freeze
+msgid "Respect System Freeze"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_review__review_date
+msgid "Review Date"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_review_view_form
+msgid "Review Information"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_review__reviewer_id
+msgid "Reviewed By"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_review_view_search
+msgid "Reviewer"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.view_spp_approval_definition_form_cel
+msgid "Reviewer Expression Examples"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_mixin__revision_notes
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_revision_wizard__notes
+msgid "Revision Notes"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_approval_mixin__approval_state__revision
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_cel_expression__approval_state__revision
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_change_request__approval_state__revision
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_cycle__approval_state__revision
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_entitlement__approval_state__revision
+msgid "Revision Requested"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_mixin__revision_requested_by_id
+msgid "Revision Requested By"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_mixin__revision_requested_date
+msgid "Revision Requested Date"
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_mixin.py:0
+msgid "Revision requested: %s"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.spp_approval_tier_review_view_form
+msgid "SLA"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_definition_view_form
+msgid "SLA & Escalation"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__sla_days
+msgid "SLA (Days)"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier__sla_hours
+msgid "SLA (Hours)"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.view_spp_approval_definition_form_multitier
+msgid "SLA (hrs)"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_review__sla_deadline
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier_review__sla_deadline
+msgid "SLA Deadline"
+msgstr ""
+
+#. module: spp_approval
+#: model:mail.activity.type,name:spp_approval.mail_activity_sla_exceeded
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_review_view_search
+msgid "SLA Exceeded"
+msgstr ""
+
+#. module: spp_approval
+#: model:res.groups,comment:spp_approval.group_approval_approver
+msgid ""
+"SPECIALIZED ROLE: Can approve or reject records assigned to them. This is a "
+"functional role (not part of Viewer/Officer/Manager hierarchy). Inherits "
+"Viewer permissions. Assign alongside or instead of Officer based on workflow"
+" needs."
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_approval_definition__approval_type__group
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_approval_tier__approval_type__group
+msgid "Security Group"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_tier__approval_group_id
+msgid "Security group whose members can approve at this tier"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_config__send_digest
+msgid "Send Daily Digest"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_config__send_digest
+msgid ""
+"Send daily digest of pending approvals instead of individual notifications"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_tier__notify_on_pending
+msgid "Send notification to approvers when this tier becomes pending"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__sequence
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier__sequence
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier_review__sequence
+msgid "Sequence"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.view_spp_approval_review_search_multitier
+msgid "Single-Tier"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_approval_tier_review__status__skipped
+msgid "Skipped"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_approval_definition__approval_type__user
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_approval_tier__approval_type__user
+msgid "Specific Users"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_tier__approval_user_ids
+msgid "Specific users who can approve at this tier"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_freeze__state
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_freeze_view_search
+msgid "State"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_review__status
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_tier_review__status
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_review_view_search
+msgid "Status"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_mixin__submitted_by_id
+msgid "Submitted By"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_mixin__submitted_date
+msgid "Submitted Date"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_approval_tier__approval_type__manager
+msgid "Submitter's Manager"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_approval_freeze__reason__maintenance
+msgid "System Maintenance"
+msgstr ""
+
+#. module: spp_approval
+#: model:res.groups,comment:spp_approval.group_approval_read
+msgid "Technical group for read access to approval models."
+msgstr ""
+
+#. module: spp_approval
+#: model:res.groups,comment:spp_approval.group_approval_write
+msgid "Technical group for write access to approval models."
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_definition_cel.py:0
+msgid "Test CEL Condition"
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_definition_cel.py:0
+msgid "Test CEL Reviewer Expression"
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/wizards/rejection_wizard.py:0
+#: code:addons/spp_approval/wizards/revision_wizard.py:0
+msgid "The record no longer exists."
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_mixin.py:0
+msgid ""
+"This record has inconsistent approval data.\n"
+"\n"
+"Details:\n"
+"- Record: %(model)s #%(id)s (%(name)s)\n"
+"- State: %(state)s\n"
+"- Reviews found: %(review_count)d\n"
+"- Review details: %(review_info)s\n"
+"\n"
+"Please reset to draft and re-submit for approval, or contact your administrator."
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_mixin.py:0
+msgid ""
+"This record was modified by another user. Please refresh and try again."
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_tier.py:0
+msgid "Tier '%s': Please select an approver group."
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_tier.py:0
+msgid "Tier '%s': Please select at least one approver."
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_tier.py:0
+msgid "Tier '%s': Please specify the approver field."
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__tier_count
+msgid "Tier Count"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.spp_approval_tier_review_view_form
+msgid "Tier Review"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_review__tier_review_ids
+#: model_terms:ir.ui.view,arch_db:spp_approval.spp_approval_tier_review_view_list
+#: model_terms:ir.ui.view,arch_db:spp_approval.view_spp_approval_review_form_multitier
+msgid "Tier Reviews"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.view_spp_approval_definition_tree_multitier
+msgid "Tiers"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_config__digest_time
+msgid "Time of day to send digest (in server timezone, 24h format)"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_review__total_tiers
+msgid "Total Tiers"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__use_cel_condition
+msgid "Use CEL Condition"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_definition__use_cel_reviewer
+msgid "Use CEL expression for dynamic reviewer assignment"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,help:spp_approval.field_spp_approval_definition__use_cel_condition
+msgid "Use CEL expression instead of domain for condition evaluation"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields,field_description:spp_approval.field_spp_approval_definition__use_cel_reviewer
+msgid "Use CEL for Reviewers"
+msgstr ""
+
+#. module: spp_approval
+#: model:res.groups,name:spp_approval.group_approval_viewer
+#: model:res.groups.privilege,name:spp_approval.privilege_approval_viewer
+msgid "Viewer"
+msgstr ""
+
+#. module: spp_approval
+#: model:ir.model.fields.selection,name:spp_approval.selection__spp_approval_tier_review__status__waiting
+msgid "Waiting"
+msgstr ""
+
+#. module: spp_approval
+#: model:mail.activity.type,summary:spp_approval.mail_activity_approval_pending
+msgid "Waiting for Approval"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.approval_definition_view_search
+msgid "With SLA"
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_tier_review.py:0
+msgid "You are not authorized to approve at this tier."
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_mixin.py:0
+msgid "You are not authorized to approve this record."
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_tier_review.py:0
+msgid "You are not authorized to reject at this tier."
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_mixin.py:0
+msgid "You are not authorized to reject this record."
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_tier_review.py:0
+msgid "You have already approved at this tier."
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.actions.act_window,help:spp_approval.approval_review_my_pending_action
+msgid "You have no records waiting for your approval."
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_mixin.py:0
+msgid "Your request has been approved by %s."
+msgstr ""
+
+#. module: spp_approval
+#. odoo-python
+#: code:addons/spp_approval/models/approval_mixin.py:0
+msgid "Your request has been rejected by %s."
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.view_spp_approval_definition_form_cel
+msgid "record.amount > 10000"
+msgstr ""
+
+#. module: spp_approval
+#: model_terms:ir.ui.view,arch_db:spp_approval.view_spp_approval_definition_form_cel
+msgid "record.manager_id.user_id.id"
+msgstr ""

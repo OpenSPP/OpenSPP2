@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_dci_duplication_check_viewer,DCI Duplication Check Viewer Access,model_spp_dci_duplication_check,spp_registry.group_registry_viewer,1,0,0,0
+access_spp_dci_duplication_check_officer,DCI Duplication Check Officer Access,model_spp_dci_duplication_check,spp_registry.group_registry_officer,1,1,1,0
+access_spp_dci_duplication_check_manager,DCI Duplication Check Manager Access,model_spp_dci_duplication_check,spp_registry.group_registry_manager,1,1,1,1
+access_spp_dci_ibr_sender_admin,spp.dci.ibr.sender admin,model_spp_dci_ibr_sender,base.group_system,1,1,1,1
+access_spp_dci_ibr_sender_user,spp.dci.ibr.sender user,model_spp_dci_ibr_sender,base.group_user,1,0,0,0

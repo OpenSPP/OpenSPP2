@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- ========================================
+         Menu Structure for QR Credentials
+         Configuration only - credentials accessed from registrant page
+         ======================================== -->
+
+    <!-- Configuration Parent Menu under Registry Configuration -->
+    <menuitem id="menu_qr_credentials_config"
+              name="QR Credentials"
+              parent="spp_registry.spp_configuration_menu_root"
+              sequence="50"
+              groups="spp_claim_169.group_claim169_manager"/>
+
+    <!-- Issuer Configurations sub-menu -->
+    <menuitem id="menu_qr_issuer_config"
+              name="Issuer Configurations"
+              parent="menu_qr_credentials_config"
+              action="action_claim169_issuer_config"
+              sequence="10"/>
+
+    <!-- Attribute Mappings sub-menu -->
+    <menuitem id="menu_qr_attribute_mapping"
+              name="Attribute Mappings"
+              parent="menu_qr_credentials_config"
+              action="action_claim169_attribute_mapping"
+              sequence="20"/>
+</odoo>

@@ -1,0 +1,418 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* spp_source_tracking
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#. module: spp_source_tracking
+#. odoo-python
+#: code:addons/spp_source_tracking/models/res_partner.py:0
+msgid "A partner cannot be merged into itself"
+msgstr "Un partenaire ne peut pas être fusionné avec lui-même"
+
+#. module: spp_source_tracking
+#. odoo-python
+#: code:addons/spp_source_tracking/models/res_partner.py:0
+msgid "Cannot merge a record into itself"
+msgstr "Impossible de fusionner un enregistrement avec lui-même"
+
+#. module: spp_source_tracking
+#. odoo-python
+#: code:addons/spp_source_tracking/models/res_partner.py:0
+msgid "Cannot merge an inactive record"
+msgstr "Impossible de fusionner un enregistrement inactif"
+
+#. module: spp_source_tracking
+#. odoo-python
+#: code:addons/spp_source_tracking/models/res_partner.py:0
+msgid ""
+"Cannot merge into a record that has already been merged into another record"
+msgstr ""
+"Impossible de fusionner dans un enregistrement qui a déjà été fusionné dans "
+"un autre enregistrement"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,field_description:spp_source_tracking.field_res_partner__collection_date
+#: model:ir.model.fields,field_description:spp_source_tracking.field_res_users__collection_date
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_mixin_source_tracking__collection_date
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_program_membership__collection_date
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_registry_id__collection_date
+msgid "Collection Date"
+msgstr "Date de collecte"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,field_description:spp_source_tracking.field_res_partner__collection_method
+#: model:ir.model.fields,field_description:spp_source_tracking.field_res_users__collection_method
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_mixin_source_tracking__collection_method
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_program_membership__collection_method
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_registry_id__collection_method
+#: model_terms:ir.ui.view,arch_db:spp_source_tracking.view_merge_provenance_search
+#: model_terms:ir.ui.view,arch_db:spp_source_tracking.view_partner_source_tracking_search
+msgid "Collection Method"
+msgstr "Méthode de collecte"
+
+#. module: spp_source_tracking
+#: model:ir.model,name:spp_source_tracking.model_res_partner
+msgid "Contact"
+msgstr "Contact"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_merge_provenance__create_uid
+msgid "Created by"
+msgstr "Créé par"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_merge_provenance__create_date
+msgid "Created on"
+msgstr "Créé le"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_merge_provenance__merged_data_snapshot
+#: model_terms:ir.ui.view,arch_db:spp_source_tracking.view_merge_provenance_form
+msgid "Data Snapshot"
+msgstr "Instantané des données"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,field_description:spp_source_tracking.field_res_partner__display_name
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_merge_provenance__display_name
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_mixin_source_tracking__display_name
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_program_membership__display_name
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_registry_id__display_name
+msgid "Display Name"
+msgstr "Nom affiché"
+
+#. module: spp_source_tracking
+#: model_terms:ir.ui.view,arch_db:spp_source_tracking.view_partner_source_tracking_search
+msgid "Has Merged Records"
+msgstr "A des enregistrements fusionnés"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,field_description:spp_source_tracking.field_res_partner__id
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_merge_provenance__id
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_mixin_source_tracking__id
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_program_membership__id
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_registry_id__id
+msgid "ID"
+msgstr "ID"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,help:spp_source_tracking.field_res_partner__merged_into_id
+#: model:ir.model.fields,help:spp_source_tracking.field_res_users__merged_into_id
+#: model:ir.model.fields,help:spp_source_tracking.field_spp_program_membership__merged_into_id
+msgid "If set, this record was merged into another and is inactive"
+msgstr ""
+"Si défini, cet enregistrement a été fusionné dans un autre et est inactif"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,help:spp_source_tracking.field_spp_merge_provenance__merged_data_snapshot
+msgid "Key fields from merged record preserved for audit"
+msgstr "Champs clés de l'enregistrement fusionné conservés à des fins d'audit"
+
+#. module: spp_source_tracking
+#: model_terms:ir.ui.view,arch_db:spp_source_tracking.view_partner_source_tracking_form
+msgid "Last Update"
+msgstr "Dernière mise à jour"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,field_description:spp_source_tracking.field_res_partner__last_update_reference
+#: model:ir.model.fields,field_description:spp_source_tracking.field_res_users__last_update_reference
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_mixin_source_tracking__last_update_reference
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_program_membership__last_update_reference
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_registry_id__last_update_reference
+msgid "Last Update Reference"
+msgstr "Référence de la dernière mise à jour"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,field_description:spp_source_tracking.field_res_partner__last_update_system
+#: model:ir.model.fields,field_description:spp_source_tracking.field_res_users__last_update_system
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_mixin_source_tracking__last_update_system
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_program_membership__last_update_system
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_registry_id__last_update_system
+msgid "Last Updated By System"
+msgstr "Système de la dernière mise à jour"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_merge_provenance__write_uid
+msgid "Last Updated by"
+msgstr "Dernière mise à jour par"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_merge_provenance__write_date
+msgid "Last Updated on"
+msgstr "Dernière mise à jour le"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_merge_provenance__merge_date
+#: model_terms:ir.ui.view,arch_db:spp_source_tracking.view_merge_provenance_search
+msgid "Merge Date"
+msgstr "Date de fusion"
+
+#. module: spp_source_tracking
+#: model:ir.actions.act_window,name:spp_source_tracking.action_merge_provenance
+#: model:ir.model.fields,field_description:spp_source_tracking.field_res_partner__merge_provenance_ids
+#: model:ir.model.fields,field_description:spp_source_tracking.field_res_users__merge_provenance_ids
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_program_membership__merge_provenance_ids
+#: model:ir.ui.menu,name:spp_source_tracking.menu_merge_provenance
+#: model_terms:ir.ui.view,arch_db:spp_source_tracking.view_merge_provenance_tree
+#: model_terms:ir.ui.view,arch_db:spp_source_tracking.view_partner_source_tracking_form
+msgid "Merge History"
+msgstr "Historique des fusions"
+
+#. module: spp_source_tracking
+#: model_terms:ir.ui.view,arch_db:spp_source_tracking.view_merge_provenance_form
+#: model_terms:ir.ui.view,arch_db:spp_source_tracking.view_partner_source_tracking_form
+msgid "Merge Information"
+msgstr "Informations de fusion"
+
+#. module: spp_source_tracking
+#: model:ir.model,name:spp_source_tracking.model_spp_merge_provenance
+#: model_terms:ir.ui.view,arch_db:spp_source_tracking.view_merge_provenance_form
+msgid "Merge Provenance"
+msgstr "Provenance de la fusion"
+
+#. module: spp_source_tracking
+#: model_terms:ir.ui.view,arch_db:spp_source_tracking.view_merge_provenance_search
+msgid "Merge Provenance Search"
+msgstr "Recherche de provenance de fusion"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_merge_provenance__merge_reason
+#: model_terms:ir.ui.view,arch_db:spp_source_tracking.view_merge_provenance_form
+msgid "Merge Reason"
+msgstr "Motif de la fusion"
+
+#. module: spp_source_tracking
+#: model_terms:ir.actions.act_window,help:spp_source_tracking.action_merge_provenance
+msgid ""
+"Merge provenance records are created automatically when registrants are merged.\n"
+"                This provides an audit trail of all merge operations."
+msgstr ""
+"Les enregistrements de provenance de fusion sont créés automatiquement lorsque des inscrits sont fusionnés.\n"
+"                Cela fournit une piste d'audit de toutes les opérations de fusion."
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_merge_provenance__merged_by_id
+#: model_terms:ir.ui.view,arch_db:spp_source_tracking.view_merge_provenance_search
+msgid "Merged By"
+msgstr "Fusionné par"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_merge_provenance__merged_collection_method
+msgid "Merged Collection Method"
+msgstr "Méthode de collecte de l'enregistrement fusionné"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,field_description:spp_source_tracking.field_res_partner__merged_into_id
+#: model:ir.model.fields,field_description:spp_source_tracking.field_res_users__merged_into_id
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_program_membership__merged_into_id
+msgid "Merged Into"
+msgstr "Fusionné dans"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_merge_provenance__merged_collection_date
+msgid "Merged Record Collection Date"
+msgstr "Date de collecte de l'enregistrement fusionné"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_merge_provenance__merged_id
+msgid "Merged Record ID"
+msgstr "ID de l'enregistrement fusionné"
+
+#. module: spp_source_tracking
+#: model_terms:ir.ui.view,arch_db:spp_source_tracking.view_merge_provenance_form
+msgid "Merged Record Provenance"
+msgstr "Provenance de l'enregistrement fusionné"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_merge_provenance__merged_source_reference
+msgid "Merged Record Reference"
+msgstr "Référence de l'enregistrement fusionné"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_merge_provenance__merged_source_system
+msgid "Merged Record Source"
+msgstr "Source de l'enregistrement fusionné"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,field_description:spp_source_tracking.field_res_partner__merge_count
+#: model:ir.model.fields,field_description:spp_source_tracking.field_res_users__merge_count
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_program_membership__merge_count
+#: model_terms:ir.ui.view,arch_db:spp_source_tracking.view_partner_source_tracking_form
+#: model_terms:ir.ui.view,arch_db:spp_source_tracking.view_partner_source_tracking_search
+msgid "Merged Records"
+msgstr "Enregistrements fusionnés"
+
+#. module: spp_source_tracking
+#: model_terms:ir.actions.act_window,help:spp_source_tracking.action_merge_provenance
+msgid "No merge records found"
+msgstr "Aucun enregistrement de fusion trouvé"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,help:spp_source_tracking.field_res_partner__source_reference
+#: model:ir.model.fields,help:spp_source_tracking.field_res_users__source_reference
+#: model:ir.model.fields,help:spp_source_tracking.field_spp_mixin_source_tracking__source_reference
+#: model:ir.model.fields,help:spp_source_tracking.field_spp_program_membership__source_reference
+#: model:ir.model.fields,help:spp_source_tracking.field_spp_registry_id__source_reference
+msgid "Original ID or reference in source system"
+msgstr "ID ou référence d'origine dans le système source"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,field_description:spp_source_tracking.field_res_partner__source_system
+#: model:ir.model.fields,field_description:spp_source_tracking.field_res_users__source_system
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_mixin_source_tracking__source_system
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_program_membership__source_system
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_registry_id__source_system
+#: model_terms:ir.ui.view,arch_db:spp_source_tracking.view_partner_source_tracking_form
+msgid "Original Source"
+msgstr "Source d'origine"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,help:spp_source_tracking.field_spp_merge_provenance__merged_id
+msgid ""
+"Original database ID of merged record (preserved even if record is deleted)"
+msgstr ""
+"ID de base de données d'origine de l'enregistrement fusionné (conservé même "
+"si l'enregistrement est supprimé)"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,help:spp_source_tracking.field_spp_merge_provenance__merged_source_reference
+msgid "Original reference ID in the source system"
+msgstr "ID de référence d'origine dans le système source"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,help:spp_source_tracking.field_spp_merge_provenance__merged_source_system
+msgid "Original source system of the merged record"
+msgstr "Système source d'origine de l'enregistrement fusionné"
+
+#. module: spp_source_tracking
+#: model:ir.model,name:spp_source_tracking.model_spp_program_membership
+msgid "Program Membership"
+msgstr "Adhésion au programme"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,help:spp_source_tracking.field_spp_merge_provenance__merge_reason
+msgid "Reason for the merge (e.g., duplicate detected by MPI, user request)"
+msgstr ""
+"Motif de la fusion (p. ex. doublon détecté par MPI, demande de "
+"l'utilisateur)"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,help:spp_source_tracking.field_res_partner__last_update_reference
+#: model:ir.model.fields,help:spp_source_tracking.field_res_users__last_update_reference
+#: model:ir.model.fields,help:spp_source_tracking.field_spp_mixin_source_tracking__last_update_reference
+#: model:ir.model.fields,help:spp_source_tracking.field_spp_program_membership__last_update_reference
+#: model:ir.model.fields,help:spp_source_tracking.field_spp_registry_id__last_update_reference
+msgid "Reference ID for the update (API request ID, import batch, etc.)"
+msgstr ""
+"ID de référence de la mise à jour (ID de requête API, lot d'importation, "
+"etc.)"
+
+#. module: spp_source_tracking
+#: model:ir.model,name:spp_source_tracking.model_spp_registry_id
+msgid "Registrant ID"
+msgstr "ID de l'inscrit"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,field_description:spp_source_tracking.field_res_partner__source_reference
+#: model:ir.model.fields,field_description:spp_source_tracking.field_res_users__source_reference
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_mixin_source_tracking__source_reference
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_program_membership__source_reference
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_registry_id__source_reference
+msgid "Source Reference"
+msgstr "Référence source"
+
+#. module: spp_source_tracking
+#: model_terms:ir.ui.view,arch_db:spp_source_tracking.view_merge_provenance_search
+#: model_terms:ir.ui.view,arch_db:spp_source_tracking.view_partner_source_tracking_search
+msgid "Source System"
+msgstr "Système source"
+
+#. module: spp_source_tracking
+#: model_terms:ir.ui.view,arch_db:spp_source_tracking.view_partner_source_tracking_form
+msgid "Source Tracking"
+msgstr "Traçabilité des sources"
+
+#. module: spp_source_tracking
+#: model:ir.model,name:spp_source_tracking.model_spp_mixin_source_tracking
+msgid "Source Tracking Mixin"
+msgstr "Mixin de traçabilité des sources"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,field_description:spp_source_tracking.field_spp_merge_provenance__survivor_id
+msgid "Surviving Record"
+msgstr "Enregistrement survivant"
+
+#. module: spp_source_tracking
+#: model_terms:ir.ui.view,arch_db:spp_source_tracking.view_merge_provenance_search
+msgid "Survivor"
+msgstr "Survivant"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,help:spp_source_tracking.field_res_partner__last_update_system
+#: model:ir.model.fields,help:spp_source_tracking.field_res_users__last_update_system
+#: model:ir.model.fields,help:spp_source_tracking.field_spp_mixin_source_tracking__last_update_system
+#: model:ir.model.fields,help:spp_source_tracking.field_spp_program_membership__last_update_system
+#: model:ir.model.fields,help:spp_source_tracking.field_spp_registry_id__last_update_system
+msgid "System that made the most recent update"
+msgstr "Système ayant effectué la mise à jour la plus récente"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,help:spp_source_tracking.field_res_partner__source_system
+#: model:ir.model.fields,help:spp_source_tracking.field_res_users__source_system
+#: model:ir.model.fields,help:spp_source_tracking.field_spp_mixin_source_tracking__source_system
+#: model:ir.model.fields,help:spp_source_tracking.field_spp_program_membership__source_system
+#: model:ir.model.fields,help:spp_source_tracking.field_spp_registry_id__source_system
+msgid "System that originally created this record"
+msgstr "Système ayant créé initialement cet enregistrement"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,help:spp_source_tracking.field_spp_merge_provenance__survivor_id
+msgid "The record that absorbed the merged record"
+msgstr "L'enregistrement qui a absorbé l'enregistrement fusionné"
+
+#. module: spp_source_tracking
+#: model_terms:ir.ui.view,arch_db:spp_source_tracking.view_merge_provenance_search
+msgid "This Week"
+msgstr "Cette semaine"
+
+#. module: spp_source_tracking
+#. odoo-python
+#: code:addons/spp_source_tracking/models/res_partner.py:0
+msgid "This record was already merged"
+msgstr "Cet enregistrement a déjà été fusionné"
+
+#. module: spp_source_tracking
+#: model_terms:ir.ui.view,arch_db:spp_source_tracking.view_merge_provenance_search
+msgid "Today"
+msgstr "Aujourd'hui"
+
+#. module: spp_source_tracking
+#: model:ir.model.fields,help:spp_source_tracking.field_res_partner__collection_date
+#: model:ir.model.fields,help:spp_source_tracking.field_res_users__collection_date
+#: model:ir.model.fields,help:spp_source_tracking.field_spp_mixin_source_tracking__collection_date
+#: model:ir.model.fields,help:spp_source_tracking.field_spp_program_membership__collection_date
+#: model:ir.model.fields,help:spp_source_tracking.field_spp_registry_id__collection_date
+msgid "When data was originally collected (may differ from create_date)"
+msgstr ""
+"Date à laquelle les données ont été initialement collectées (peut différer "
+"de create_date)"
+
+#. module: spp_source_tracking
+#. odoo-python
+#: code:addons/spp_source_tracking/models/res_partner.py:0
+msgid ""
+"You do not have permission to merge registrants. This operation requires "
+"Manager or Administrator access."
+msgstr ""
+"Vous n'êtes pas autorisé à fusionner des inscrits. Cette opération nécessite"
+" un accès de Responsable ou d'Administrateur."

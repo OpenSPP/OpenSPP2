@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- API V2 Domain Groups -->
+    <!-- Following ADR-004 three-tier architecture -->
+
+    <!-- Tier 3: Technical base groups -->
+    <record id="group_api_v2_read" model="res.groups">
+        <field name="name">API V2: Read</field>
+        <field name="comment">Technical group for read access to API V2 models.</field>
+    </record>
+
+    <record id="group_api_v2_write" model="res.groups">
+        <field name="name">API V2: Write</field>
+        <field name="comment">Technical group for write access to API V2 models.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_api_v2_read'))]" />
+    </record>
+
+    <record id="group_api_v2_create" model="res.groups">
+        <field name="name">API V2: Create</field>
+        <field name="comment">Technical group for API V2 create access. Grants permission to create new API clients and scopes.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_api_v2_read'))]" />
+    </record>
+
+    <!-- Tier 2: User-facing groups -->
+    <!-- All groups share the same privilege for unified UI presentation -->
+    <record id="group_api_v2_viewer" model="res.groups">
+        <field name="name">Viewer</field>
+        <field name="privilege_id" ref="privilege_api_v2" />
+        <field name="comment">Can view API V2 clients, scopes, and consent records. Cannot modify data.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_api_v2_read'))]" />
+    </record>
+
+    <record id="group_api_v2_officer" model="res.groups">
+        <field name="name">Officer</field>
+        <field name="privilege_id" ref="privilege_api_v2" />
+        <field name="comment">Can view and manage consent records. Can grant/revoke consent but cannot modify API clients.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_api_v2_viewer')), Command.link(ref('group_api_v2_write'))]" />
+    </record>
+
+    <record id="group_api_v2_manager" model="res.groups">
+        <field name="name">Manager</field>
+        <field name="privilege_id" ref="privilege_api_v2" />
+        <field name="comment">Full control over API V2 configuration including create/modify API clients and manage scopes.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_api_v2_officer')), Command.link(ref('group_api_v2_create'))]" />
+    </record>
+
+    <!-- Link manager to admin -->
+    <record id="spp_security.group_spp_admin" model="res.groups">
+        <field name="implied_ids" eval="[Command.link(ref('group_api_v2_manager'))]" />
+    </record>
+
+</odoo>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Preview Changes Wizard Form View -->
+    <record id="spp_cr_preview_wizard_form" model="ir.ui.view">
+        <field name="name">spp.cr.preview.wizard.form</field>
+        <field name="model">spp.cr.preview.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Preview Changes">
+                <group>
+                    <group>
+                        <field name="change_request_id" invisible="1"/>
+                        <field name="registrant_name" string="Beneficiary"/>
+                        <field name="request_type" string="Type of Change"/>
+                    </group>
+                </group>
+                <notebook>
+                    <page string="What Will Change" name="preview">
+                        <div class="text-muted mb-3">
+                            <i class="fa fa-info-circle me-1"/>
+                            This preview shows the changes that will be made when this request is finalized.
+                        </div>
+                        <field name="preview_html" nolabel="1"/>
+                    </page>
+                    <!-- Technical JSON view - managers only -->
+                    <page string="Technical Data (JSON)" name="json"
+                          groups="spp_change_request_v2.group_cr_manager">
+                        <div class="text-muted mb-3">
+                            <i class="fa fa-code me-1"/>
+                            Raw data format for technical review and debugging.
+                        </div>
+                        <field name="preview_json" nolabel="1" readonly="1"
+                               widget="ace" options="{'mode': 'javascript'}"/>
+                    </page>
+                </notebook>
+                <footer>
+                    <button string="Close" class="btn-primary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

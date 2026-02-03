@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vocabulary Selection List View -->
+    <record id="view_vocabulary_selection_list" model="ir.ui.view">
+        <field name="name">spp.vocabulary.selection.list</field>
+        <field name="model">spp.vocabulary.selection</field>
+        <field name="arch" type="xml">
+            <list string="Vocabulary Selections" default_order="deployment_profile_id, vocabulary_id">
+                <field name="deployment_profile_id"/>
+                <field name="vocabulary_id"/>
+                <field name="vocabulary_namespace" optional="show"/>
+                <field name="parent_selection_id" optional="hide"/>
+                <field name="effective_code_count" string="Effective Codes"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vocabulary Selection Form View -->
+    <record id="view_vocabulary_selection_form" model="ir.ui.view">
+        <field name="name">spp.vocabulary.selection.form</field>
+        <field name="model">spp.vocabulary.selection</field>
+        <field name="arch" type="xml">
+            <form string="Vocabulary Selection">
+                <header>
+                    <button name="action_add_all_codes"
+                            type="object"
+                            string="Add All Codes"
+                            class="oe_highlight"/>
+                    <button name="action_clear_codes"
+                            type="object"
+                            string="Clear Active Codes"
+                            class="btn-secondary"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="vocabulary_id" placeholder="Select Vocabulary" required="1"/>
+                        </h1>
+                        <h2>
+                            <field name="deployment_profile_id"
+                                   placeholder="Select Deployment Profile"
+                                   required="1"/>
+                        </h2>
+                    </div>
+
+                    <notebook>
+                        <page string="Configuration" name="configuration">
+                            <group name="config_section">
+                                <group name="basic_config" string="Basic Configuration">
+                                    <field name="vocabulary_namespace"/>
+                                    <field name="parent_selection_id"
+                                           domain="[('vocabulary_id', '=', vocabulary_id)]"/>
+                                    <field name="active"/>
+                                </group>
+                                <group name="statistics" string="Statistics">
+                                    <field name="effective_code_count"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Active Codes" name="active_codes">
+                            <group name="active_codes_info" string="Explicitly Included Codes">
+                                <p>
+                                    Select codes that are explicitly included in this selection.
+                                    If a parent selection is specified, these codes are added to
+                                    the parent's codes.
+                                </p>
+                            </group>
+                            <field name="active_code_ids"
+                                   nolabel="1"
+                                   domain="[('vocabulary_id', '=', vocabulary_id)]">
+                                <list>
+                                    <field name="code"/>
+                                    <field name="display"/>
+                                    <field name="uri" optional="show"/>
+                                    <field name="definition" optional="hide"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <page string="Excluded Codes"
+                              name="excluded_codes"
+                              invisible="not parent_selection_id">
+                            <group name="excluded_codes_info" string="Excluded from Parent">
+                                <p>
+                                    Select codes from the parent selection that should be excluded
+                                    in this selection. This is only relevant when a parent selection
+                                    is specified.
+                                </p>
+                            </group>
+                            <field name="excluded_code_ids"
+                                   nolabel="1"
+                                   domain="[('vocabulary_id', '=', vocabulary_id)]">
+                                <list>
+                                    <field name="code"/>
+                                    <field name="display"/>
+                                    <field name="uri" optional="show"/>
+                                    <field name="definition" optional="hide"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <page string="Effective Codes" name="effective_codes">
+                            <group name="effective_codes_info" string="All Effective Codes">
+                                <p>
+                                    These are all codes that are effective in this selection,
+                                    including codes from the parent selection (if any), minus
+                                    any excluded codes, plus explicitly included codes.
+                                </p>
+                            </group>
+                            <field name="effective_code_ids"
+                                   nolabel="1">
+                                <list>
+                                    <field name="code"/>
+                                    <field name="display"/>
+                                    <field name="uri" optional="show"/>
+                                    <field name="definition" optional="hide"/>
+                                    <field name="deprecated" optional="hide"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <page string="Technical" name="technical" groups="base.group_no_one">
+                            <group name="technical_section" col="4">
+                                <group>
+                                    <field name="create_uid" readonly="1"/>
+                                    <field name="create_date" readonly="1"/>
+                                </group>
+                                <group>
+                                    <field name="write_uid" readonly="1"/>
+                                    <field name="write_date" readonly="1"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vocabulary Selection Search View -->
+    <record id="view_vocabulary_selection_search" model="ir.ui.view">
+        <field name="name">spp.vocabulary.selection.search</field>
+        <field name="model">spp.vocabulary.selection</field>
+        <field name="arch" type="xml">
+            <search string="Search Vocabulary Selections">
+                <field name="deployment_profile_id"/>
+                <field name="vocabulary_id"/>
+                <field name="vocabulary_namespace"/>
+                <separator/>
+                <filter string="With Parent" name="filter_with_parent" domain="[('parent_selection_id', '!=', False)]"/>
+                <filter string="Without Parent" name="filter_without_parent" domain="[('parent_selection_id', '=', False)]"/>
+                <separator/>
+                <filter string="Archived" name="filter_archived" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter string="Deployment Profile" name="group_profile" context="{'group_by': 'deployment_profile_id'}"/>
+                    <filter string="Vocabulary" name="group_vocabulary" context="{'group_by': 'vocabulary_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Vocabulary Selection Action -->
+    <record id="action_vocabulary_selection" model="ir.actions.act_window">
+        <field name="name">Vocabulary Selections</field>
+        <field name="res_model">spp.vocabulary.selection</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_group_profile': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new vocabulary selection
+            </p>
+            <p>
+                Vocabulary selections define which codes from a specific vocabulary
+                are active in a deployment profile. You can inherit from parent
+                selections to reduce duplication, and exclude specific codes as needed.
+            </p>
+        </field>
+    </record>
+    <!-- Menu item is in views/menu.xml to ensure proper loading order -->
+</odoo>

@@ -1,0 +1,157 @@
+/* OpenSPP Registry UI Styles */
+
+/* ========================================
+   FORM LAYOUT IMPROVEMENTS
+   ======================================== */
+
+/* Separator styling - more compact */
+.o_form_view .o_horizontal_separator {
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.9rem;
+    margin-top: 0.75rem;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.o_form_view .o_notebook_content .o_horizontal_separator:first-child {
+    margin-top: 0;
+}
+
+/* Compact field labels */
+.o_form_view .o_inner_group .o_form_label {
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: #495057;
+}
+
+/* Tighter vertical spacing in groups */
+.o_form_view .o_inner_group .o_wrap_field {
+    margin-bottom: 0.25rem;
+}
+
+/* Better inline list appearance */
+.o_form_view .o_field_one2many .o_list_table {
+    font-size: 0.875rem;
+}
+
+.o_form_view .o_field_one2many .o_list_table thead th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+/* Section headers within tabs (custom class) */
+.o_form_view .spp_section_header {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    margin-top: 1.5rem;
+}
+
+.o_form_view .spp_section_header:first-child {
+    margin-top: 0;
+}
+
+/* Card-like grouping for related fields */
+.o_form_view .spp_info_card {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+/* List view avatar styling */
+.o_list_view .spp_avatar_cell img {
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Status badge improvements */
+.o_list_view .badge.spp_status_active {
+    background-color: #28a745;
+}
+
+.o_list_view .badge.spp_status_draft {
+    background-color: #6c757d;
+}
+
+.o_list_view .badge.spp_status_disabled {
+    background-color: #dc3545;
+}
+
+/* Tab badge styling */
+.o_notebook .nav-link .badge {
+    font-size: 0.75rem;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+}
+
+/* Improved form header with registrant info */
+.o_form_view .spp_registrant_header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+}
+
+.o_form_view .spp_registrant_header .spp_avatar {
+    flex-shrink: 0;
+}
+
+.o_form_view .spp_registrant_header .spp_registrant_info {
+    flex-grow: 1;
+}
+
+/* Quick info summary row */
+.o_form_view .spp_quick_info {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #dee2e6;
+    margin-bottom: 1rem;
+}
+
+.o_form_view .spp_quick_info_item {
+    display: flex;
+    flex-direction: column;
+}
+
+.o_form_view .spp_quick_info_item .spp_label {
+    font-size: 0.75rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.o_form_view .spp_quick_info_item .spp_value {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+/* Relationship direction indicators */
+.o_form_view .spp_relationship_direction {
+    font-size: 0.85rem;
+    color: #6c757d;
+    font-style: italic;
+    margin-bottom: 0.5rem;
+}
+
+/* Empty state styling */
+.o_form_view .spp_empty_state {
+    text-align: center;
+    padding: 2rem;
+    color: #6c757d;
+}
+
+.o_form_view .spp_empty_state i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}

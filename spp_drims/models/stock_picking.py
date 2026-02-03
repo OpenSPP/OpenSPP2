@@ -1,0 +1,322 @@
+# Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+import json
+import logging
+
+from odoo import _, api, fields, models
+from odoo.exceptions import UserError
+
+_logger = logging.getLogger(__name__)
+
+
+class StockPicking(models.Model):
+    _inherit = "stock.picking"
+
+    # DRIMS Type
+    drims_type_id = fields.Many2one(
+        "spp.vocabulary.code",
+        string="DRIMS Type",
+        domain="[('vocabulary_id.namespace_uri', '=', 'urn:openspp:vocab:drims:drims-types')]",
+        index=True,
+    )
+    drims_type = fields.Char(
+        related="drims_type_id.code",
+        store=True,
+    )
+
+    # Link to DRIMS records
+    drims_donation_id = fields.Many2one(
+        "spp.drims.donation",
+        string="DRIMS Donation",
+        index=True,
+    )
+    drims_request_id = fields.Many2one(
+        "spp.drims.request",
+        string="DRIMS Request",
+        index=True,
+    )
+    drims_return_id = fields.Many2one(
+        "spp.drims.return",
+        string="DRIMS Return",
+        index=True,
+    )
+    incident_id = fields.Many2one(
+        "spp.hazard.incident",
+        string="Incident",
+        index=True,
+    )
+
+    # Beneficiary tracking
+    beneficiary_area_id = fields.Many2one(
+        "spp.area",
+        string="Distribution Area",
+        help="Geographic area where items were distributed",
+    )
+    beneficiary_count = fields.Integer(
+        string="Estimated Beneficiaries Reached",
+        help="Estimated number of beneficiaries who received items (exact counts often unknown in emergencies)",
+    )
+    distribution_type_id = fields.Many2one(
+        "spp.vocabulary.code",
+        string="Distribution Type",
+        domain="[('vocabulary_id.namespace_uri', '=', 'urn:openspp:vocab:drims:distribution-types')]",
+        help="Individual, household, or group distribution",
+    )
+
+    # Return tracking
+    return_reason_id = fields.Many2one(
+        "spp.vocabulary.code",
+        string="Return Reason",
+        domain="[('vocabulary_id.namespace_uri', '=', 'urn:openspp:vocab:drims:return-reasons')]",
+        help="Why items were returned to stock",
+    )
+    return_condition_id = fields.Many2one(
+        "spp.vocabulary.code",
+        string="Return Condition",
+        domain="[('vocabulary_id.namespace_uri', '=', 'urn:openspp:vocab:drims:return-conditions')]",
+        help="Condition of returned items",
+    )
+
+    # Waybill
+    waybill_number = fields.Char(
+        string="Waybill Number",
+        copy=False,
+        index=True,
+    )
+
+    # Transport
+    transport_mode_id = fields.Many2one(
+        "spp.vocabulary.code",
+        string="Transport Mode",
+        domain="[('vocabulary_id.namespace_uri', '=', 'urn:openspp:vocab:drims:transport-modes')]",
+    )
+    vehicle_registration = fields.Char(string="Vehicle Registration")
+    driver_name = fields.Char(string="Driver Name")
+    driver_phone = fields.Char(string="Driver Phone")
+
+    # Proof of Delivery (POD)
+    pod_status_id = fields.Many2one(
+        "spp.vocabulary.code",
+        string="POD Status",
+        domain="[('vocabulary_id.namespace_uri', '=', 'urn:openspp:vocab:drims:pod-statuses')]",
+    )
+    is_pod_confirmed = fields.Boolean(
+        string="POD Confirmed",
+        default=False,
+    )
+    pod_received_by = fields.Char(string="Received By")
+    pod_receiver_title = fields.Char(string="Receiver Title")
+    pod_receiver_id_number = fields.Char(string="Receiver ID Number")
+    pod_signature = fields.Binary(string="Signature")
+    pod_photo_ids = fields.Many2many(
+        "ir.attachment",
+        string="Delivery Photos",
+    )
+    pod_gps_latitude = fields.Float(string="GPS Latitude", digits=(10, 6))
+    pod_gps_longitude = fields.Float(string="GPS Longitude", digits=(10, 6))
+    pod_gps_point = fields.GeoPointField(
+        string="POD GPS Point",
+        compute="_compute_pod_gps_point",
+        store=True,
+        help="Computed geographic point from POD GPS coordinates for GIS mapping",
+    )
+    pod_notes = fields.Text(string="POD Notes")
+
+    # Dates
+    date_departed = fields.Datetime(string="Departed At")
+    date_arrived = fields.Datetime(string="Arrived At")
+
+    # Discrepancy
+    discrepancy_notes = fields.Text(string="Discrepancy Notes")
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get("drims_type_id") and not vals.get("waybill_number"):
+                vals["waybill_number"] = self.env["ir.sequence"].next_by_code("spp.drims.waybill")
+        return super().create(vals_list)
+
+    @api.depends("pod_gps_latitude", "pod_gps_longitude")
+    def _compute_pod_gps_point(self):
+        """Compute the GeoPointField from POD GPS coordinates."""
+        for rec in self:
+            if rec.pod_gps_latitude and rec.pod_gps_longitude:
+                if -90 <= rec.pod_gps_latitude <= 90 and -180 <= rec.pod_gps_longitude <= 180:
+                    rec.pod_gps_point = json.dumps(
+                        {
+                            "type": "Point",
+                            "coordinates": [rec.pod_gps_longitude, rec.pod_gps_latitude],
+                        }
+                    )
+                else:
+                    _logger.warning(
+                        "Invalid GPS coordinates for picking %s: lat=%s, lon=%s",
+                        rec.name,
+                        rec.pod_gps_latitude,
+                        rec.pod_gps_longitude,
+                    )
+                    rec.pod_gps_point = False
+            else:
+                rec.pod_gps_point = False
+
+    def action_open_gis_map(self):
+        """Open the unified DRIMS Operations Map."""
+        return self.env.ref("spp_drims.action_drims_operations_map").read()[0]
+
+    def action_confirm_departure(self):
+        """Confirm dispatch departure."""
+        for rec in self:
+            rec.date_departed = fields.Datetime.now()
+
+    def action_confirm_pod(self):
+        """Confirm proof of delivery."""
+        for rec in self:
+            if not rec.pod_received_by:
+                raise UserError(_("Please enter the receiver's name."))
+            rec.is_pod_confirmed = True
+            rec.date_arrived = fields.Datetime.now()
+
+    def action_create_drims_return(self):
+        """Open wizard to create a DRIMS return from a completed dispatch (GAP-RET-001)."""
+        self.ensure_one()
+        if self.drims_type != "request_dispatch":
+            raise UserError(_("Returns can only be created from dispatch pickings."))
+        if self.state != "done":
+            raise UserError(_("Returns can only be created from completed dispatches."))
+        if self.drims_return_id:
+            raise UserError(_("A return already exists for this dispatch."))
+
+        # Create wizard with pre-populated lines
+        wizard = self.env["spp.drims.create.return.wizard"].create(
+            {
+                "picking_id": self.id,
+                "warehouse_id": self.picking_type_id.warehouse_id.id,
+            }
+        )
+        wizard._onchange_picking_id()
+
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Create Return"),
+            "res_model": "spp.drims.create.return.wizard",
+            "res_id": wizard.id,
+            "view_mode": "form",
+            "target": "new",
+        }
+
+    def action_create_drims_return_direct(self):
+        """Create a DRIMS return directly without wizard (for programmatic use)."""
+        self.ensure_one()
+        if self.drims_type != "request_dispatch":
+            raise UserError(_("Returns can only be created from dispatch pickings."))
+        if self.state != "done":
+            raise UserError(_("Returns can only be created from completed dispatches."))
+        if self.drims_return_id:
+            raise UserError(_("A return already exists for this dispatch."))
+
+        Return = self.env["spp.drims.return"]
+
+        # Get source warehouse from picking type
+        warehouse = self.picking_type_id.warehouse_id
+
+        # Create return record
+        return_vals = {
+            "incident_id": self.incident_id.id,
+            "original_picking_id": self.id,
+            "warehouse_id": warehouse.id,
+        }
+        drims_return = Return.create(return_vals)
+
+        # Create return lines from dispatch moves
+        ReturnLine = self.env["spp.drims.return.line"]
+        for move in self.move_ids.filtered(lambda m: m.state == "done"):
+            ReturnLine.create(
+                {
+                    "return_id": drims_return.id,
+                    "product_id": move.product_id.id,
+                    "quantity_dispatched": move.quantity,
+                    "quantity_returned": 0.0,
+                }
+            )
+
+        # Link return to picking
+        self.drims_return_id = drims_return.id
+
+        # Open the return form
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Return"),
+            "res_model": "spp.drims.return",
+            "view_mode": "form",
+            "res_id": drims_return.id,
+        }
+
+    def action_view_drims_return(self):
+        """View the linked DRIMS return."""
+        self.ensure_one()
+        if not self.drims_return_id:
+            raise UserError(_("No return linked to this picking."))
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Return"),
+            "res_model": "spp.drims.return",
+            "view_mode": "form",
+            "res_id": self.drims_return_id.id,
+        }
+
+    def button_validate(self):
+        """Override button_validate to enforce beneficiary validation and invalidate cache.
+
+        When a request_dispatch picking is validated, this:
+        1. Validates that beneficiary tracking fields are filled (beneficiary_count, beneficiary_area_id)
+        2. Invalidates the cached KPI values to ensure dashboard shows current data
+        """
+        # Validate beneficiary tracking for DRIMS dispatches
+        for picking in self:
+            if picking.drims_type == "request_dispatch":
+                if not picking.beneficiary_count or picking.beneficiary_count <= 0:
+                    raise UserError(
+                        _(
+                            "Please enter the number of beneficiaries served for dispatch %s. "
+                            "This is required for DRIMS distribution tracking."
+                        )
+                        % picking.name
+                    )
+                if not picking.beneficiary_area_id:
+                    raise UserError(
+                        _(
+                            "Please select the distribution area for dispatch %s. "
+                            "This is required for DRIMS geographic reporting."
+                        )
+                        % picking.name
+                    )
+
+        # Get incidents before validation changes state
+        incident_ids = list(set(p.incident_id.id for p in self if p.incident_id and p.drims_type == "request_dispatch"))
+
+        result = super().button_validate()
+
+        # Invalidate affected caches
+        if incident_ids:
+            self._invalidate_drims_kpi_cache(incident_ids)
+
+        return result
+
+    def _invalidate_drims_kpi_cache(self, incident_ids):
+        """Invalidate DRIMS KPI cache for distributed and stock values.
+
+        This method is called after validating a dispatch picking to ensure
+        that cached KPI values are refreshed to reflect the latest stock
+        movements.
+
+        Args:
+            incident_ids: List of incident IDs to invalidate cache for.
+        """
+        DataValue = self.env["spp.data.value"]
+        for var in ["drims_distributed_value", "drims_stock_value"]:
+            DataValue.search(
+                [
+                    ("variable_name", "=", var),
+                    ("subject_model", "=", "spp.hazard.incident"),
+                    ("subject_id", "in", incident_ids),
+                ]
+            ).unlink()

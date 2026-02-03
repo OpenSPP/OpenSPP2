@@ -1,0 +1,225 @@
+# OpenSPP Docker Compose
+#
+# Unified compose file for development, E2E testing, and unit testing.
+#
+# Services:
+#   db          - PostgreSQL database (shared by all)
+#   openspp     - Web server for UI/E2E (fixed port 8069)
+#   openspp-dev - Dev server (dynamic port)
+#   test        - Unit test runner
+#   e2e-runner  - Playwright E2E runner
+#
+# All openspp services share the same image (openspp-dev).
+# Building any of them updates the shared image.
+#
+# Profiles:
+#   dev   - Development with dynamic port (avoids port conflicts)
+#   ui    - Launch web interface on fixed port 8069
+#   e2e   - Full E2E testing environment with Playwright
+#
+# Usage:
+#   # Launch for development (dynamic port - check output for assigned port)
+#   docker compose --profile dev up -d
+#   docker compose --profile dev ps  # Shows assigned port
+#
+#   # Launch UI on fixed port 8069
+#   docker compose --profile ui up -d
+#   # Access: http://localhost:8069 (admin/admin)
+#
+#   # Run E2E tests
+#   docker compose --profile e2e up -d
+#   docker compose --profile e2e run --rm e2e-runner
+#
+#   # Run unit tests for a module
+#   docker compose up -d db
+#   ./scripts/test_single_module.sh <module_name>
+#
+#   # Stop everything (must specify same profile used to start)
+#   docker compose --profile dev down
+#
+#   # Clean up (removes volumes)
+#   docker compose --profile dev down -v
+
+services:
+  # PostgreSQL Database - shared by all profiles
+  db:
+    image: postgis/postgis:18-3.6-alpine
+    platform: linux/amd64 # Use Rosetta 2 on Apple Silicon
+    environment:
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+      POSTGRES_DB: openspp
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odoo -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - openspp
+
+  # OpenSPP Web Server - for UI development and E2E tests
+  openspp:
+    image: openspp-dev
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: dev
+    profiles:
+      - ui
+      - e2e
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Database configuration
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_USER: odoo
+      DB_PASSWORD: odoo
+      DB_NAME: ${ODOO_DB_NAME:-openspp}
+      DB_FILTER: "^${ODOO_DB_NAME:-openspp}$$"
+      LIST_DB: "False"
+
+      # Admin password
+      ODOO_ADMIN_PASSWD: admin
+
+      # Performance settings (minimal for local dev/testing)
+      ODOO_WORKERS: "0"
+      ODOO_CRON_THREADS: "0"
+
+      # Job queue configuration (defaults to "root:2")
+      # ODOO_QUEUE_JOB_CHANNELS: "root:4"
+
+      # Modules to initialize (configurable via env)
+      # For E2E: ODOO_INIT_MODULES=spp_mis_demo_v2
+      # For UI dev: ODOO_INIT_MODULES=spp_base (or your module)
+      ODOO_INIT_MODULES: "${ODOO_INIT_MODULES:-spp_base}"
+      ODOO_UPDATE_MODULES: "${ODOO_UPDATE_MODULES:-}"
+
+      # Logging
+      LOG_LEVEL: info
+
+      # Disable proxy mode for local
+      PROXY_MODE: "False"
+    ports:
+      - "8069:8069" # Fixed host port for consistent access
+    volumes:
+      - .:/mnt/extra-addons/openspp:ro,z
+      - odoo_data:/var/lib/odoo
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8069/web/health"]
+      interval: 10s
+      timeout: 10s
+      start_period: 90s
+      retries: 10
+    networks:
+      - openspp
+
+  # OpenSPP Dev Server - dynamic port to avoid conflicts
+  openspp-dev:
+    image: openspp-dev
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: dev
+    profiles:
+      - dev
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Database configuration
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_USER: odoo
+      DB_PASSWORD: odoo
+      DB_NAME: ${ODOO_DB_NAME:-openspp}
+      DB_FILTER: "^${ODOO_DB_NAME:-openspp}$$"
+      LIST_DB: "False"
+
+      # Admin password
+      ODOO_ADMIN_PASSWD: admin
+
+      # Performance settings (minimal for local dev/testing)
+      ODOO_WORKERS: "0"
+      ODOO_CRON_THREADS: "0"
+
+      # Modules to initialize (configurable via env)
+      ODOO_INIT_MODULES: "${ODOO_INIT_MODULES:-spp_base}"
+      ODOO_UPDATE_MODULES: "${ODOO_UPDATE_MODULES:-}"
+
+      # Logging
+      LOG_LEVEL: info
+
+      # Disable proxy mode for local
+      PROXY_MODE: "False"
+    ports:
+      - "8069" # Dynamic host port - check with `docker compose ps`
+    volumes:
+      - .:/mnt/extra-addons/openspp:ro,z
+      - odoo_data:/var/lib/odoo
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8069/web/health"]
+      interval: 10s
+      timeout: 10s
+      start_period: 90s
+      retries: 10
+    networks:
+      - openspp
+
+  # Unit Test Runner - one-off container for running module tests
+  # Usage: docker compose run --rm test <module_name> [options]
+  # Note: Uses same image as odoo/odoo-dev - build any of them to update
+  test:
+    image: openspp-dev
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_USER: odoo
+      DB_PASSWORD: odoo
+      # DB_NAME is set dynamically by test_single_module.sh
+    volumes:
+      - .:/mnt/extra-addons/openspp:ro,z
+    networks:
+      - openspp
+    # Entrypoint will be overridden by test_single_module.sh
+    entrypoint: ["echo", "Use ./scripts/test_single_module.sh to run tests"]
+
+  # E2E Test Runner - Playwright + ffmpeg + psql
+  # Used for e2e tests and screenshot generation
+  e2e-runner:
+    build:
+      context: ./e2e
+      dockerfile: Dockerfile
+    profiles:
+      - e2e
+    depends_on:
+      openspp:
+        condition: service_healthy
+    environment:
+      ODOO_URL: http://openspp:8069
+      ODOO_DB_NAME: ${ODOO_DB_NAME:-openspp}
+      PGHOST: db
+      PGUSER: odoo
+      PGPASSWORD: odoo
+      CI: "${CI:-true}"
+    volumes:
+      - ./e2e:/app:ro,z
+      - ./e2e/reports:/app/reports
+      - e2e_snapshots:/snapshots
+    networks:
+      - openspp
+
+volumes:
+  postgres_data:
+  odoo_data:
+  e2e_snapshots:
+
+networks:
+  openspp:
+    driver: bridge

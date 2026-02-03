@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- GRM Demo Wizard Form View -->
+    <record id="view_spp_grm_demo_wizard_form" model="ir.ui.view">
+        <field name="name">spp.grm.demo.wizard.form</field>
+        <field name="model">spp.grm.demo.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Generate GRM Demo Data">
+                <sheet>
+                    <group>
+                        <group string="General">
+                            <field name="name" />
+                            <field name="locale_origin" />
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Story Tickets">
+                            <field name="enroll_demo_stories" />
+                        </group>
+                        <group string="Volume Data">
+                            <field name="generate_volume" />
+                            <field
+                                name="number_of_tickets"
+                                invisible="not generate_volume"
+                            />
+                            <field name="tickets_days_back" />
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Resolution Settings">
+                            <field name="include_resolved" />
+                            <field
+                                name="resolved_percentage"
+                                invisible="not include_resolved"
+                            />
+                            <field
+                                name="escalated_percentage"
+                                help="Percentage of unresolved tickets to escalate"
+                            />
+                            <field name="include_severity_distribution" />
+                        </group>
+                        <group string="Integration Options">
+                            <field name="link_to_beneficiaries" />
+                            <field name="link_to_programs" />
+                            <field name="assign_teams" />
+                            <field
+                                name="team_ids"
+                                widget="many2many_tags"
+                                invisible="not assign_teams"
+                                options="{'no_create': True}"
+                            />
+                        </group>
+                    </group>
+                    <separator />
+                    <div class="alert alert-info" role="alert">
+                        <p><strong>Story Tickets:</strong> Juan Dela Cruz (payment issue), Ibrahim Hassan (resettlement inquiry), Fatima Al-Rahman (program inquiry), Ahmed Said (multiple tickets)</p>
+                        <p><strong>Volume Data:</strong> Random tickets distributed over the specified time period</p>
+                        <p><strong>Note:</strong> Run "Generate Stories" in spp_demo first to create the demo registrants.</p>
+                    </div>
+                </sheet>
+                <footer>
+                    <button
+                        name="generate_tickets"
+                        string="Generate Tickets"
+                        type="object"
+                        class="btn-primary"
+                    />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action to open the wizard -->
+    <record id="action_spp_grm_demo_wizard" model="ir.actions.act_window">
+        <field name="name">Generate GRM Demo Data</field>
+        <field name="res_model">spp.grm.demo.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Menu item under GRM Configuration -->
+    <menuitem
+        id="menu_spp_grm_demo"
+        name="Generate Demo Data"
+        parent="spp_grm.spp_grm_ticket_config_main_menu"
+        action="action_spp_grm_demo_wizard"
+        sequence="100"
+        groups="spp_security.group_spp_admin"
+    />
+</odoo>

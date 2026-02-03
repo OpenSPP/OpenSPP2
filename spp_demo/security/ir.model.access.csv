@@ -1,0 +1,26 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+access_spp_demo_data_generator_admin,Demo Data Generator Admin Access,spp_demo.model_spp_demo_data_generator,base.group_system,1,1,1,1
+access_spp_demo_data_generator_read,Demo Data Generator Read Access,spp_demo.model_spp_demo_data_generator,spp_registry.group_registry_read,1,0,0,0
+access_spp_demo_data_generation_log_read,Demo Data Generation Log Read Access,spp_demo.model_spp_demo_data_generation_log,spp_registry.group_registry_read,1,0,0,0
+access_spp_demo_data_id_types_read,Demo ID Types Read Access,spp_demo.model_spp_demo_data_id_types,spp_registry.group_registry_read,1,0,0,0
+access_spp_demo_data_bank_types_read,Demo Bank Types Read Access,spp_demo.model_spp_demo_data_bank_types,spp_registry.group_registry_read,1,0,0,0
+access_spp_apps_wizard_read,Apps Wizard Read Access,spp_demo.model_spp_apps_wizard,spp_registry.group_registry_read,1,0,0,0
+access_spp_missing_module_read,Apps Missing Modules Read Access,spp_demo.model_spp_missing_module,spp_registry.group_registry_read,1,0,0,0
+
+access_spp_demo_data_generator_write,Demo Data Generator Write Access,spp_demo.model_spp_demo_data_generator,spp_registry.group_registry_write,1,1,0,0
+access_spp_demo_data_generation_log_admin,Demo Data Generation Log Admin Access,spp_demo.model_spp_demo_data_generation_log,base.group_system,1,1,1,1
+access_spp_demo_data_generation_log_write,Demo Data Generation Log Write Access,spp_demo.model_spp_demo_data_generation_log,spp_registry.group_registry_write,1,1,0,0
+access_spp_demo_data_id_types_write,Demo ID Types Write Access,spp_demo.model_spp_demo_data_id_types,spp_registry.group_registry_write,1,1,0,1
+access_spp_demo_data_bank_types_write,Demo Bank Types Write Access,spp_demo.model_spp_demo_data_bank_types,spp_registry.group_registry_write,1,1,0,1
+access_spp_apps_wizard_write,Apps Wizard Write Access,spp_demo.model_spp_apps_wizard,spp_registry.group_registry_write,1,1,0,0
+access_spp_missing_module_write,Apps Missing Modules Write Access,spp_demo.model_spp_missing_module,spp_registry.group_registry_write,1,1,0,0
+
+access_spp_demo_data_generator_create,Demo Data Generator Create Access,spp_demo.model_spp_demo_data_generator,spp_registry.group_registry_create,1,0,1,0
+access_spp_demo_data_id_types_admin,Demo ID Types Admin Access,spp_demo.model_spp_demo_data_id_types,base.group_system,1,1,1,1
+access_spp_demo_data_bank_types_admin,Demo Bank Types Admin Access,spp_demo.model_spp_demo_data_bank_types,base.group_system,1,1,1,1
+access_spp_demo_data_generation_log_create,Demo Data Generation Log Create Access,spp_demo.model_spp_demo_data_generation_log,spp_registry.group_registry_create,1,0,1,0
+access_spp_demo_data_id_types_create,Demo ID Types Create Access,spp_demo.model_spp_demo_data_id_types,spp_registry.group_registry_create,1,0,1,1
+access_spp_demo_data_bank_types_create,Demo Bank Types Create Access,spp_demo.model_spp_demo_data_bank_types,spp_registry.group_registry_create,1,0,1,1
+access_spp_apps_wizard_create,Apps Wizard Create Access,spp_demo.model_spp_apps_wizard,spp_registry.group_registry_create,1,0,1,0
+access_spp_missing_module_create,Apps Missing Modules Create Access,spp_demo.model_spp_missing_module,spp_registry.group_registry_create,1,0,1,0

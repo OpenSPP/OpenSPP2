@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo noupdate="1">
+
+    <!-- ================================================== -->
+    <!-- CEL AMOUNT FORMULA EXAMPLES                        -->
+    <!-- ================================================== -->
+    <!-- These formulas calculate entitlement amounts dynamically based on beneficiary data -->
+
+    <!-- Basic Amount Formulas -->
+    <record id="cel_amount_fixed" model="spp.cel.example">
+        <field name="name">Fixed Amount</field>
+        <field name="expression">500</field>
+        <field name="description">Simple fixed amount of 500</field>
+        <field name="category">amount</field>
+        <field name="target_type">both</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="cel_amount_per_member" model="spp.cel.example">
+        <field name="name">Amount Per Household Member</field>
+        <field name="expression">hh_size * 100</field>
+        <field name="description">100 currency units per household member</field>
+        <field name="category">amount</field>
+        <field name="target_type">group</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="cel_amount_base_plus_dependents" model="spp.cel.example">
+        <field name="name">Base + 10% Per Dependent</field>
+        <field name="expression">base_amount * (1 + r.dependents_count * 0.1)</field>
+        <field name="description">Base amount increased by 10% for each dependent</field>
+        <field name="category">amount</field>
+        <field name="target_type">both</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <!-- Child-Related Formulas -->
+    <record id="cel_amount_per_child" model="spp.cel.example">
+        <field name="name">Per Child Amount</field>
+        <field name="expression">r.children_count * 50</field>
+        <field name="description">50 currency units per child in household</field>
+        <field name="category">amount</field>
+        <field name="target_type">group</field>
+        <field name="sequence">40</field>
+    </record>
+
+    <record id="cel_amount_per_child_capped" model="spp.cel.example">
+        <field name="name">Per Child with Maximum Cap</field>
+        <field name="expression">min(r.children_count * 50, 500)</field>
+        <field name="description">50 per child, maximum 500 total</field>
+        <field name="category">amount</field>
+        <field name="target_type">group</field>
+        <field name="sequence">50</field>
+    </record>
+
+    <!-- Conditional Formulas -->
+    <!-- <record id="cel_amount_female_headed_bonus" model="spp.cel.example">
+        <field name="name">Female-Headed Household Bonus</field>
+        <field name="expression">base_amount * 1.2 if r.is_woman_headed else base_amount</field>
+        <field name="description">20% bonus for female-headed households</field>
+        <field name="category">amount</field>
+        <field name="target_type">group</field>
+        <field name="sequence">60</field>
+    </record> -->
+
+    <!-- <record id="cel_amount_disability_supplement" model="spp.cel.example">
+        <field name="name">Disability Supplement</field>
+        <field name="expression">base_amount + (200 if r.disabled else 0)</field>
+        <field name="description">Additional 200 for beneficiaries with disabilities</field>
+        <field name="category">amount</field>
+        <field name="target_type">individual</field>
+        <field name="sequence">70</field>
+    </record> -->
+
+    <record id="cel_amount_elderly_bonus" model="spp.cel.example">
+        <field name="name">Senior Citizen Bonus</field>
+        <field name="expression">base_amount * 1.15 if r.age >= 60 else base_amount</field>
+        <field name="description">15% bonus for beneficiaries aged 60+</field>
+        <field name="category">amount</field>
+        <field name="target_type">individual</field>
+        <field name="sequence">80</field>
+    </record>
+
+    <!-- Household Size Tiers -->
+    <record id="cel_amount_household_tier" model="spp.cel.example">
+        <field name="name">Tiered by Household Size</field>
+        <field name="expression">300 if hh_size &lt;= 3 else (500 if hh_size &lt;= 6 else 700)</field>
+        <field name="description">300 for 1-3 members, 500 for 4-6, 700 for 7+</field>
+        <field name="category">amount</field>
+        <field name="target_type">group</field>
+        <field name="sequence">90</field>
+    </record>
+
+    <!-- Combined Formulas -->
+    <!-- <record id="cel_amount_complex" model="spp.cel.example">
+        <field name="name">Complex Formula (Base + Children + Bonus)</field>
+        <field name="expression">base_amount + (r.children_count * 30) + (100 if r.disabled else 0)</field>
+        <field name="description">Base amount + 30 per child + 100 disability bonus</field>
+        <field name="category">amount</field>
+        <field name="target_type">both</field>
+        <field name="sequence">100</field>
+    </record> -->
+
+    <record id="cel_amount_minimum_guarantee" model="spp.cel.example">
+        <field name="name">Minimum Guarantee</field>
+        <field name="expression">max(hh_size * 80, 200)</field>
+        <field name="description">80 per member, minimum 200 guaranteed</field>
+        <field name="category">amount</field>
+        <field name="target_type">group</field>
+        <field name="sequence">110</field>
+    </record>
+
+    <!-- ================================================== -->
+    <!-- CEL ENTITLEMENT CONDITION FORMULA EXAMPLES         -->
+    <!-- ================================================== -->
+    <!-- These formulas determine which beneficiaries qualify for specific entitlement items -->
+
+    <!-- Age-Based Conditions -->
+    <record id="cel_condition_seniors" model="spp.cel.example">
+        <field name="name">Senior Citizens Only</field>
+        <field name="expression">age_years(r.birthdate) >= 60</field>
+        <field name="description">Only beneficiaries aged 60 and above</field>
+        <field name="category">condition</field>
+        <field name="target_type">individual</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="cel_condition_children_under_5" model="spp.cel.example">
+        <field name="name">Households with Children Under 5</field>
+        <field name="expression">members.exists(m, age_years(m.birthdate) &lt; 5)</field>
+        <field name="description">Households with at least one child under 5 years old</field>
+        <field name="category">condition</field>
+        <field name="target_type">group</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="cel_condition_school_age" model="spp.cel.example">
+        <field name="name">Households with School-Age Children</field>
+        <field name="expression">members.count(m, age_years(m.birthdate) >= 6 and age_years(m.birthdate) &lt;= 18) >= 1</field>
+        <field name="description">Households with children between 6 and 18 years old</field>
+        <field name="category">condition</field>
+        <field name="target_type">group</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <!-- Gender-Based Conditions -->
+    <record id="cel_condition_female" model="spp.cel.example">
+        <field name="name">Female Beneficiaries</field>
+        <field name="expression">is_female(r.gender_id)</field>
+        <field name="description">Only female beneficiaries</field>
+        <field name="category">condition</field>
+        <field name="target_type">individual</field>
+        <field name="sequence">40</field>
+    </record>
+
+    <record id="cel_condition_female_headed" model="spp.cel.example">
+        <field name="name">Female-Headed Households</field>
+        <field name="expression">members.exists(m, head(m) and is_female(m.gender_id))</field>
+        <field name="description">Households headed by a woman</field>
+        <field name="category">condition</field>
+        <field name="target_type">group</field>
+        <field name="sequence">50</field>
+    </record>
+
+    <!-- Vulnerability Conditions -->
+    <!-- <record id="cel_condition_disabled_member" model="spp.cel.example">
+        <field name="name">Households with Disabled Members</field>
+        <field name="expression">members.exists(m, m.disabled != false)</field>
+        <field name="description">Households with at least one disabled member</field>
+        <field name="category">condition</field>
+        <field name="target_type">group</field>
+        <field name="sequence">60</field>
+    </record> -->
+
+    <!-- <record id="cel_condition_multiple_vulnerable" model="spp.cel.example">
+        <field name="name">Multiple Vulnerabilities</field>
+        <field name="expression">members.exists(m, m.disabled != false) and members.exists(m, age_years(m.birthdate) &lt; 5)</field>
+        <field name="description">Households with both disabled members and young children</field>
+        <field name="category">condition</field>
+        <field name="target_type">group</field>
+        <field name="sequence">70</field>
+    </record> -->
+
+    <!-- Household Size Conditions -->
+    <record id="cel_condition_large_household" model="spp.cel.example">
+        <field name="name">Large Households (5+ members)</field>
+        <field name="expression">hh_size >= 5</field>
+        <field name="description">Households with 5 or more members</field>
+        <field name="category">condition</field>
+        <field name="target_type">group</field>
+        <field name="sequence">80</field>
+    </record>
+
+    <record id="cel_condition_many_dependents" model="spp.cel.example">
+        <field name="name">High Dependency Ratio</field>
+        <field name="expression">members.count(m, age_years(m.birthdate) &lt; 18 or age_years(m.birthdate) >= 60) >= 3</field>
+        <field name="description">Households with 3+ dependents (children or elderly)</field>
+        <field name="category">condition</field>
+        <field name="target_type">group</field>
+        <field name="sequence">90</field>
+    </record>
+
+    <!-- Combined Criteria -->
+    <record id="cel_condition_pregnant_lactating" model="spp.cel.example">
+        <field name="name">Women of Reproductive Age</field>
+        <field name="expression">is_female(r.gender_id) and age_years(r.birthdate) >= 15 and age_years(r.birthdate) &lt;= 49</field>
+        <field name="description">Women aged 15-49 (reproductive age)</field>
+        <field name="category">condition</field>
+        <field name="target_type">individual</field>
+        <field name="sequence">100</field>
+    </record>
+
+    <record id="cel_condition_elderly_head" model="spp.cel.example">
+        <field name="name">Elderly-Headed Households</field>
+        <field name="expression">members.exists(m, head(m) and age_years(m.birthdate) >= 60)</field>
+        <field name="description">Households headed by someone 60 or older</field>
+        <field name="category">condition</field>
+        <field name="target_type">group</field>
+        <field name="sequence">110</field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- CEL IN-KIND QUANTITY FORMULA EXAMPLES                        -->
+    <!-- ============================================================ -->
+    <!-- These formulas calculate in-kind item quantities based on beneficiary data -->
+
+    <!-- Basic Quantity Formulas -->
+    <record id="cel_inkind_fixed" model="spp.cel.example">
+        <field name="name">Fixed Quantity</field>
+        <field name="expression">10</field>
+        <field name="description">Simple fixed quantity of 10 units</field>
+        <field name="category">inkind_qty</field>
+        <field name="target_type">both</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="cel_inkind_per_member" model="spp.cel.example">
+        <field name="name">Quantity Per Household Member</field>
+        <field name="expression">hh_size * 2</field>
+        <field name="description">2 units per household member</field>
+        <field name="category">inkind_qty</field>
+        <field name="target_type">group</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="cel_inkind_base_plus_members" model="spp.cel.example">
+        <field name="name">Base + Per Member</field>
+        <field name="expression">base_quantity + hh_size</field>
+        <field name="description">Base quantity plus 1 per household member</field>
+        <field name="category">inkind_qty</field>
+        <field name="target_type">group</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <!-- Child-Related Formulas -->
+    <record id="cel_inkind_per_child" model="spp.cel.example">
+        <field name="name">Quantity Per Child</field>
+        <field name="expression">r.children_count * 3</field>
+        <field name="description">3 units per child in household</field>
+        <field name="category">inkind_qty</field>
+        <field name="target_type">group</field>
+        <field name="sequence">40</field>
+    </record>
+
+    <record id="cel_inkind_per_child_capped" model="spp.cel.example">
+        <field name="name">Per Child with Maximum Cap</field>
+        <field name="expression">min(r.children_count * 5, 25)</field>
+        <field name="description">5 units per child, maximum 25 units</field>
+        <field name="category">inkind_qty</field>
+        <field name="target_type">group</field>
+        <field name="sequence">50</field>
+    </record>
+
+    <!-- Conditional Formulas -->
+    <!-- <record id="cel_inkind_female_headed_extra" model="spp.cel.example">
+        <field name="name">Extra for Female-Headed Households</field>
+        <field name="expression">base_quantity + (5 if r.is_woman_headed else 0)</field>
+        <field name="description">Base quantity + 5 extra for female-headed households</field>
+        <field name="category">inkind_qty</field>
+        <field name="target_type">group</field>
+        <field name="sequence">60</field>
+    </record> -->
+
+    <!-- <record id="cel_inkind_disabled_extra" model="spp.cel.example">
+        <field name="name">Extra for Disabled Beneficiaries</field>
+        <field name="expression">base_quantity * 2 if r.disabled else base_quantity</field>
+        <field name="description">Double quantity for beneficiaries with disabilities</field>
+        <field name="category">inkind_qty</field>
+        <field name="target_type">individual</field>
+        <field name="sequence">70</field>
+    </record> -->
+
+    <!-- Household Size Tiers -->
+    <record id="cel_inkind_household_tier" model="spp.cel.example">
+        <field name="name">Tiered by Household Size</field>
+        <field name="expression">10 if hh_size &lt;= 3 else (20 if hh_size &lt;= 6 else 30)</field>
+        <field name="description">10 units for 1-3 members, 20 for 4-6, 30 for 7+</field>
+        <field name="category">inkind_qty</field>
+        <field name="target_type">group</field>
+        <field name="sequence">80</field>
+    </record>
+
+    <!-- Food Ration Examples -->
+    <record id="cel_inkind_rice_ration" model="spp.cel.example">
+        <field name="name">Rice Ration (kg per person)</field>
+        <field name="expression">hh_size * 5</field>
+        <field name="description">5 kg of rice per household member</field>
+        <field name="category">inkind_qty</field>
+        <field name="target_type">group</field>
+        <field name="sequence">90</field>
+    </record>
+
+    <record id="cel_inkind_cooking_oil" model="spp.cel.example">
+        <field name="name">Cooking Oil (liters per household)</field>
+        <field name="expression">max(2, hh_size)</field>
+        <field name="description">1 liter per member, minimum 2 liters</field>
+        <field name="category">inkind_qty</field>
+        <field name="target_type">group</field>
+        <field name="sequence">100</field>
+    </record>
+
+    <!-- Combined Formulas -->
+    <!-- <record id="cel_inkind_complex" model="spp.cel.example">
+        <field name="name">Complex Formula (Base + Members + Bonus)</field>
+        <field name="expression">base_quantity + (hh_size * 2) + (5 if r.disabled else 0)</field>
+        <field name="description">Base + 2 per member + 5 disability bonus</field>
+        <field name="category">inkind_qty</field>
+        <field name="target_type">both</field>
+        <field name="sequence">110</field>
+    </record> -->
+
+    <record id="cel_inkind_minimum_guarantee" model="spp.cel.example">
+        <field name="name">Minimum Guarantee</field>
+        <field name="expression">max(hh_size * 3, 10)</field>
+        <field name="description">3 per member, minimum 10 guaranteed</field>
+        <field name="category">inkind_qty</field>
+        <field name="target_type">group</field>
+        <field name="sequence">120</field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- CEL COMPLIANCE CRITERIA EXAMPLES                             -->
+    <!-- ============================================================ -->
+    <!-- These expressions define ongoing compliance requirements for beneficiaries -->
+
+    <!-- School Attendance Compliance -->
+    <record id="cel_compliance_school_attendance" model="spp.cel.example">
+        <field name="name">School-Age Children Enrolled</field>
+        <field name="expression">members.count(m, age_years(m.birthdate) >= 6 and age_years(m.birthdate) &lt;= 18 and m.is_enrolled_school == false) == 0</field>
+        <field name="description">All school-age children (6-18) must be enrolled in school</field>
+        <field name="category">compliance</field>
+        <field name="target_type">group</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="cel_compliance_attendance_rate" model="spp.cel.example">
+        <field name="name">Minimum School Attendance Rate</field>
+        <field name="expression">r.school_attendance_rate >= 80</field>
+        <field name="description">Individual must maintain at least 80% school attendance</field>
+        <field name="category">compliance</field>
+        <field name="target_type">individual</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <!-- Health-Related Compliance -->
+    <record id="cel_compliance_health_checkup" model="spp.cel.example">
+        <field name="name">Regular Health Checkups</field>
+        <field name="expression">days_ago(r.last_health_checkup) &lt;= 180</field>
+        <field name="description">Health checkup within last 6 months (180 days)</field>
+        <field name="category">compliance</field>
+        <field name="target_type">individual</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <record id="cel_compliance_children_vaccinated" model="spp.cel.example">
+        <field name="name">Children Under 5 Vaccinated</field>
+        <field name="expression">members.count(m, age_years(m.birthdate) &lt; 5 and m.vaccinations_complete == false) == 0</field>
+        <field name="description">All children under 5 must have complete vaccinations</field>
+        <field name="category">compliance</field>
+        <field name="target_type">group</field>
+        <field name="sequence">40</field>
+    </record>
+
+    <record id="cel_compliance_prenatal_care" model="spp.cel.example">
+        <field name="name">Pregnant Women Prenatal Care</field>
+        <field name="expression">members.count(m, m.is_pregnant and m.prenatal_visits &lt; 4) == 0</field>
+        <field name="description">Pregnant household members must have at least 4 prenatal visits</field>
+        <field name="category">compliance</field>
+        <field name="target_type">group</field>
+        <field name="sequence">50</field>
+    </record>
+
+    <!-- Documentation Compliance -->
+    <record id="cel_compliance_id_valid" model="spp.cel.example">
+        <field name="name">Valid Identification</field>
+        <field name="expression">r.id_expiry_date >= today()</field>
+        <field name="description">Beneficiary ID must not be expired</field>
+        <field name="category">compliance</field>
+        <field name="target_type">individual</field>
+        <field name="sequence">60</field>
+    </record>
+
+    <record id="cel_compliance_address_verified" model="spp.cel.example">
+        <field name="name">Address Verified Recently</field>
+        <field name="expression">days_ago(r.address_verification_date) &lt;= 365</field>
+        <field name="description">Address must be verified within the last year</field>
+        <field name="category">compliance</field>
+        <field name="target_type">both</field>
+        <field name="sequence">70</field>
+    </record>
+
+    <!-- Training/Program Participation -->
+    <record id="cel_compliance_training_complete" model="spp.cel.example">
+        <field name="name">Training Program Completed</field>
+        <field name="expression">r.training_hours >= 40</field>
+        <field name="description">Beneficiary completed at least 40 hours of training</field>
+        <field name="category">compliance</field>
+        <field name="target_type">individual</field>
+        <field name="sequence">80</field>
+    </record>
+
+    <!-- <record id="cel_compliance_work_requirement" model="spp.cel.example">
+        <field name="name">Work/Community Service Hours</field>
+        <field name="expression">r.work_hours_month >= 20 or r.age >= 60 or r.disabled</field>
+        <field name="description">20 work hours/month (exemptions: seniors 60+ and disabled)</field>
+        <field name="category">compliance</field>
+        <field name="target_type">individual</field>
+        <field name="sequence">90</field>
+    </record> -->
+
+    <!-- Financial Compliance -->
+    <record id="cel_compliance_bank_account" model="spp.cel.example">
+        <field name="name">Active Bank Account</field>
+        <field name="expression">r.has_bank_account == true</field>
+        <field name="description">Beneficiary must have an active bank account</field>
+        <field name="category">compliance</field>
+        <field name="target_type">individual</field>
+        <field name="sequence">100</field>
+    </record>
+
+    <record id="cel_compliance_income_threshold" model="spp.cel.example">
+        <field name="name">Income Below Threshold</field>
+        <field name="expression">r.monthly_income &lt;= 5000</field>
+        <field name="description">Monthly income must remain below 5000 threshold</field>
+        <field name="category">compliance</field>
+        <field name="target_type">both</field>
+        <field name="sequence">110</field>
+    </record>
+
+</odoo>

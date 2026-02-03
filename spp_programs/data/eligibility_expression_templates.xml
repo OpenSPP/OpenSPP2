@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo noupdate="1">
+
+    <!-- ================================================== -->
+    <!-- ELIGIBILITY EXPRESSION TEMPLATES                   -->
+    <!-- ================================================== -->
+    <!-- Pre-defined eligibility expressions for program creation wizard.
+         These are available in the "Start from Template" dropdown. -->
+
+    <!-- Age-Based Templates -->
+    <!-- <record id="eligibility_template_seniors" model="spp.cel.expression">
+        <field name="name">Senior Citizens (60+)</field>
+        <field name="code">eligibility_seniors_60</field>
+        <field name="expression_type">filter</field>
+        <field name="context_type">individual</field>
+        <field name="cel_expression">age_years(r.birthdate) >= 60</field>
+        <field name="output_type">boolean</field>
+        <field name="state">active</field>
+        <field name="is_template">True</field>
+        <field name="is_locked">False</field>
+        <field name="sequence">10</field>
+    </record> -->
+
+    <record id="eligibility_template_seniors_65" model="spp.cel.expression">
+        <field name="name">Senior Citizens (65+)</field>
+        <field name="code">eligibility_seniors_65</field>
+        <field name="expression_type">filter</field>
+        <field name="context_type">individual</field>
+        <field name="cel_expression">age_years(r.birthdate) >= 65</field>
+        <field name="output_type">boolean</field>
+        <field name="state">active</field>
+        <field name="is_template">True</field>
+        <field name="is_locked">False</field>
+        <field name="sequence">11</field>
+    </record>
+
+    <record id="eligibility_template_adults" model="spp.cel.expression">
+        <field name="name">Adults (18+)</field>
+        <field name="code">eligibility_adults_18</field>
+        <field name="expression_type">filter</field>
+        <field name="context_type">individual</field>
+        <field name="cel_expression">age_years(r.birthdate) >= 18</field>
+        <field name="output_type">boolean</field>
+        <field name="state">active</field>
+        <field name="is_template">True</field>
+        <field name="is_locked">False</field>
+        <field name="sequence">12</field>
+    </record>
+
+    <!-- Gender-Based Templates -->
+    <record id="eligibility_template_women" model="spp.cel.expression">
+        <field name="name">Adult Women (18+)</field>
+        <field name="code">eligibility_adult_women</field>
+        <field name="expression_type">filter</field>
+        <field name="context_type">individual</field>
+        <field name="cel_expression">is_female(r.gender_id) and age_years(r.birthdate) >= 18</field>
+        <field name="output_type">boolean</field>
+        <field name="state">active</field>
+        <field name="is_template">True</field>
+        <field name="is_locked">False</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="eligibility_template_reproductive_age" model="spp.cel.expression">
+        <field name="name">Women of Reproductive Age (15-49)</field>
+        <field name="code">eligibility_reproductive_age</field>
+        <field name="expression_type">filter</field>
+        <field name="context_type">individual</field>
+        <field name="cel_expression">is_female(r.gender_id) and age_years(r.birthdate) >= 15 and age_years(r.birthdate) &lt;= 49</field>
+        <field name="output_type">boolean</field>
+        <field name="state">active</field>
+        <field name="is_template">True</field>
+        <field name="is_locked">False</field>
+        <field name="sequence">21</field>
+    </record>
+
+    <!-- Household Composition Templates -->
+    <record id="eligibility_template_large_household" model="spp.cel.expression">
+        <field name="name">Large Households (4+ members)</field>
+        <field name="code">eligibility_large_household</field>
+        <field name="expression_type">filter</field>
+        <field name="context_type">group</field>
+        <field name="cel_expression">hh_size >= 4</field>
+        <field name="output_type">boolean</field>
+        <field name="state">active</field>
+        <field name="is_template">True</field>
+        <field name="is_locked">False</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <record id="eligibility_template_children_under_5" model="spp.cel.expression">
+        <field name="name">Households with Children Under 5</field>
+        <field name="code">eligibility_children_under_5</field>
+        <field name="expression_type">filter</field>
+        <field name="context_type">group</field>
+        <field name="cel_expression">members.count(m, age_years(m.birthdate) &lt; 5) >= 1</field>
+        <field name="output_type">boolean</field>
+        <field name="state">active</field>
+        <field name="is_template">True</field>
+        <field name="is_locked">False</field>
+        <field name="sequence">31</field>
+    </record>
+
+    <record id="eligibility_template_school_age" model="spp.cel.expression">
+        <field name="name">Households with School-Age Children (6-18)</field>
+        <field name="code">eligibility_school_age</field>
+        <field name="expression_type">filter</field>
+        <field name="context_type">group</field>
+        <field name="cel_expression">members.count(m, age_years(m.birthdate) >= 6 and age_years(m.birthdate) &lt;= 18) >= 1</field>
+        <field name="output_type">boolean</field>
+        <field name="state">active</field>
+        <field name="is_template">True</field>
+        <field name="is_locked">False</field>
+        <field name="sequence">32</field>
+    </record>
+
+    <record id="eligibility_template_female_headed" model="spp.cel.expression">
+        <field name="name">Female-Headed Households</field>
+        <field name="code">eligibility_female_headed</field>
+        <field name="expression_type">filter</field>
+        <field name="context_type">group</field>
+        <field name="cel_expression">members.exists(m, head(m) and is_female(m.gender_id))</field>
+        <field name="output_type">boolean</field>
+        <field name="state">active</field>
+        <field name="is_template">True</field>
+        <field name="is_locked">False</field>
+        <field name="sequence">33</field>
+    </record>
+
+    <!-- Vulnerability Templates -->
+    <!-- <record id="eligibility_template_disabled" model="spp.cel.expression">
+        <field name="name">Persons with Disabilities</field>
+        <field name="code">eligibility_disabled</field>
+        <field name="expression_type">filter</field>
+        <field name="context_type">individual</field>
+        <field name="cel_expression">r.disabled != false</field>
+        <field name="output_type">boolean</field>
+        <field name="state">active</field>
+        <field name="is_template">True</field>
+        <field name="is_locked">False</field>
+        <field name="sequence">40</field>
+    </record> -->
+
+    <!-- <record id="eligibility_template_household_disabled" model="spp.cel.expression">
+        <field name="name">Households with Disabled Members</field>
+        <field name="code">eligibility_household_disabled</field>
+        <field name="expression_type">filter</field>
+        <field name="context_type">group</field>
+        <field name="cel_expression">members.exists(m, m.disabled != false)</field>
+        <field name="output_type">boolean</field>
+        <field name="state">active</field>
+        <field name="is_template">True</field>
+        <field name="is_locked">False</field>
+        <field name="sequence">41</field>
+    </record> -->
+
+    <record id="eligibility_template_elderly_headed" model="spp.cel.expression">
+        <field name="name">Elderly-Headed Households (60+)</field>
+        <field name="code">eligibility_elderly_headed</field>
+        <field name="expression_type">filter</field>
+        <field name="context_type">group</field>
+        <field name="cel_expression">members.exists(m, head(m) and age_years(m.birthdate) >= 60)</field>
+        <field name="output_type">boolean</field>
+        <field name="state">active</field>
+        <field name="is_template">True</field>
+        <field name="is_locked">False</field>
+        <field name="sequence">42</field>
+    </record>
+
+    <!-- Combined Vulnerability Templates -->
+    <!-- <record id="eligibility_template_orphans_vulnerable" model="spp.cel.expression">
+        <field name="name">Households with Orphans or Vulnerable Children</field>
+        <field name="code">eligibility_ovc</field>
+        <field name="expression_type">filter</field>
+        <field name="context_type">group</field>
+        <field name="cel_expression">members.exists(m, age_years(m.birthdate) &lt; 18 and m.is_orphan == true)</field>
+        <field name="output_type">boolean</field>
+        <field name="state">active</field>
+        <field name="is_template">True</field>
+        <field name="is_locked">False</field>
+        <field name="sequence">50</field>
+    </record> -->
+
+    <record id="eligibility_template_high_dependency" model="spp.cel.expression">
+        <field name="name">High Dependency Ratio (3+ dependents)</field>
+        <field name="code">eligibility_high_dependency</field>
+        <field name="expression_type">filter</field>
+        <field name="context_type">group</field>
+        <field name="cel_expression">members.count(m, age_years(m.birthdate) &lt; 18 or age_years(m.birthdate) >= 60) >= 3</field>
+        <field name="output_type">boolean</field>
+        <field name="state">active</field>
+        <field name="is_template">True</field>
+        <field name="is_locked">False</field>
+        <field name="sequence">51</field>
+    </record>
+
+    <!-- Example of a Locked Template (for governance/standardization) -->
+    <!-- <record id="eligibility_template_standard_poverty" model="spp.cel.expression">
+        <field name="name">Standard Poverty Criteria (Locked)</field>
+        <field name="code">eligibility_standard_poverty</field>
+        <field name="expression_type">filter</field>
+        <field name="context_type">group</field>
+        <field name="cel_expression">r.pmt_score &lt;= 25 and r.registered == true</field>
+        <field name="output_type">boolean</field>
+        <field name="state">active</field>
+        <field name="is_template">True</field>
+        <field name="is_locked">True</field>
+        <field name="sequence">60</field>
+    </record> -->
+
+</odoo>

@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_claim169_attribute_mapping_user,Claim 169 Attribute Mapping User,model_spp_claim169_attribute_mapping,group_claim169_user,1,0,0,0
+access_claim169_attribute_mapping_manager,Claim 169 Attribute Mapping Manager,model_spp_claim169_attribute_mapping,group_claim169_manager,1,1,1,1
+access_claim169_issuer_config_user,Claim 169 Issuer Config User,model_spp_claim169_issuer_config,group_claim169_user,1,0,0,0
+access_claim169_issuer_config_manager,Claim 169 Issuer Config Manager,model_spp_claim169_issuer_config,group_claim169_manager,1,1,1,1
+access_claim169_credential_user,Claim 169 Credential User,model_spp_claim169_credential,group_claim169_user,1,0,1,0
+access_claim169_credential_manager,Claim 169 Credential Manager,model_spp_claim169_credential,group_claim169_manager,1,1,1,1
+access_claim169_generate_qr_wizard_user,Claim 169 Generate QR Wizard User,model_spp_claim169_generate_qr_wizard,group_claim169_user,1,1,1,1
+access_claim169_generate_qr_wizard_manager,Claim 169 Generate QR Wizard Manager,model_spp_claim169_generate_qr_wizard,group_claim169_manager,1,1,1,1
+access_claim169_verify_qr_wizard_user,Claim 169 Verify QR Wizard User,model_spp_claim169_verify_qr_wizard,group_claim169_user,1,1,1,1
+access_claim169_verify_qr_wizard_manager,Claim 169 Verify QR Wizard Manager,model_spp_claim169_verify_qr_wizard,group_claim169_manager,1,1,1,1

@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Return List View -->
+    <record id="spp_drims_return_view_list" model="ir.ui.view">
+        <field name="name">spp.drims.return.list</field>
+        <field name="model">spp.drims.return</field>
+        <field name="arch" type="xml">
+            <list decoration-info="state == 'draft'"
+                  decoration-warning="state in ('confirmed', 'received')"
+                  decoration-success="state == 'restocked'"
+                  decoration-muted="state == 'cancelled'">
+                <field name="reference"/>
+                <field name="incident_id"/>
+                <field name="original_request_id" optional="hide"/>
+                <field name="warehouse_id"/>
+                <field name="return_date"/>
+                <field name="returned_by" optional="hide"/>
+                <field name="line_count" string="Items" optional="hide"/>
+                <field name="total_quantity"/>
+                <field name="total_value" sum="Total Value"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state in ('confirmed', 'received')"
+                       decoration-primary="state == 'inspected'"
+                       decoration-success="state == 'restocked'"
+                       decoration-muted="state == 'cancelled'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Return Form View -->
+    <record id="spp_drims_return_view_form" model="ir.ui.view">
+        <field name="name">spp.drims.return.form</field>
+        <field name="model">spp.drims.return</field>
+        <field name="arch" type="xml">
+            <form string="Item Return">
+                <header>
+                    <button name="action_confirm"
+                            string="Confirm Return"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_receive"
+                            string="Mark Received"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'confirmed'"/>
+                    <button name="action_inspect"
+                            string="Mark Inspected"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'received'"/>
+                    <button name="action_restock"
+                            string="Restock Items"
+                            type="object"
+                            class="btn-success"
+                            invisible="state != 'inspected'"
+                            confirm="This will add returned items back to warehouse inventory. Continue?"/>
+                    <button name="action_cancel"
+                            string="Cancel"
+                            type="object"
+                            class="btn-secondary"
+                            invisible="state in ('restocked', 'cancelled')"/>
+                    <button name="action_reset_to_draft"
+                            string="Reset to Draft"
+                            type="object"
+                            class="btn-secondary"
+                            invisible="state != 'cancelled'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,confirmed,received,inspected,restocked"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_pickings"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-truck"
+                                invisible="picking_count == 0">
+                            <field name="picking_count" widget="statinfo" string="Receipts"/>
+                        </button>
+                    </div>
+
+                    <!-- Ribbons -->
+                    <widget name="web_ribbon" title="Restocked" bg_color="text-bg-success"
+                            invisible="state != 'restocked'"/>
+                    <widget name="web_ribbon" title="Cancelled" bg_color="text-bg-secondary"
+                            invisible="state != 'cancelled'"/>
+
+                    <div class="oe_title">
+                        <h1>
+                            <field name="reference" readonly="1"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group string="Return Details">
+                            <field name="incident_id"
+                                   readonly="state != 'draft'"
+                                   options="{'no_create': True}"
+                                   help="The disaster incident this return is associated with"/>
+                            <field name="original_picking_id"
+                                   readonly="state != 'draft'"
+                                   options="{'no_create': True}"
+                                   help="The original dispatch from which items are being returned"/>
+                            <field name="original_request_id" readonly="1"
+                                   help="The relief request that initiated the original dispatch"/>
+                            <field name="warehouse_id"
+                                   readonly="state != 'draft'"
+                                   options="{'no_create': True}"
+                                   help="The warehouse where returned items will be restocked"/>
+                        </group>
+                        <group string="Return Information">
+                            <field name="return_date" readonly="state != 'draft'"/>
+                            <field name="returned_by" readonly="state != 'draft'"
+                                   help="Name of the person physically returning the items"/>
+                            <field name="returned_by_phone" readonly="state != 'draft'"/>
+                        </group>
+                    </group>
+
+                    <group string="Return Reason">
+                        <field name="return_reason" nolabel="1"
+                               placeholder="Explain why items are being returned..."
+                               readonly="state != 'draft'"/>
+                    </group>
+
+                    <notebook>
+                        <page string="Return Items" name="items">
+                            <field name="line_ids" readonly="state != 'draft'">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="product_id" options="{'no_create_edit': True}"/>
+                                    <field name="quantity_dispatched" readonly="1"/>
+                                    <field name="quantity_returned"/>
+                                    <field name="uom_id" readonly="1"/>
+                                    <field name="condition_id" optional="show"
+                                           options="{'no_create': True}"/>
+                                    <field name="disposition" widget="badge"
+                                           help="Restock: Return to inventory. Repair: Send for fixing. Dispose: Write off damaged items."
+                                           decoration-success="disposition == 'restock'"
+                                           decoration-warning="disposition == 'repair'"
+                                           decoration-danger="disposition == 'dispose'"/>
+                                    <field name="unit_value" readonly="1" optional="show"/>
+                                    <field name="value" sum="Total Value"/>
+                                    <field name="disposition_notes" optional="hide"/>
+                                    <field name="notes" optional="hide"/>
+                                </list>
+                            </field>
+                            <group class="oe_subtotal_footer oe_right" colspan="2">
+                                <field name="total_quantity" string="Total Quantity"/>
+                                <field name="total_value" string="Total Value"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Return Search View -->
+    <record id="spp_drims_return_view_search" model="ir.ui.view">
+        <field name="name">spp.drims.return.search</field>
+        <field name="model">spp.drims.return</field>
+        <field name="arch" type="xml">
+            <search string="Search Returns">
+                <!-- Searchpanel -->
+                <searchpanel>
+                    <field name="incident_id" icon="fa-exclamation-triangle" enable_counters="1"/>
+                    <field name="state" select="multi" icon="fa-tasks" enable_counters="1"/>
+                    <field name="warehouse_id" select="multi" icon="fa-warehouse" enable_counters="1"/>
+                </searchpanel>
+
+                <field name="reference"/>
+                <field name="incident_id"/>
+                <field name="original_request_id"/>
+                <field name="warehouse_id"/>
+                <field name="returned_by"/>
+                <separator/>
+
+                <!-- State Filters -->
+                <filter name="filter_draft" string="Draft"
+                        domain="[('state', '=', 'draft')]"/>
+                <filter name="filter_confirmed" string="Confirmed"
+                        domain="[('state', '=', 'confirmed')]"/>
+                <filter name="filter_received" string="Received"
+                        domain="[('state', '=', 'received')]"/>
+                <filter name="filter_inspected" string="Inspected"
+                        domain="[('state', '=', 'inspected')]"/>
+                <filter name="filter_restocked" string="Restocked"
+                        domain="[('state', '=', 'restocked')]"/>
+                <filter name="filter_cancelled" string="Cancelled"
+                        domain="[('state', '=', 'cancelled')]"/>
+                <separator/>
+
+                <!-- Pending Filter -->
+                <filter name="filter_pending" string="Pending Processing"
+                        domain="[('state', 'in', ('draft', 'confirmed', 'received', 'inspected'))]"/>
+                <separator/>
+
+                <!-- Group By -->
+                <group>
+                    <filter name="groupby_incident" string="Incident"
+                            context="{'group_by': 'incident_id'}"/>
+                    <filter name="groupby_warehouse" string="Warehouse"
+                            context="{'group_by': 'warehouse_id'}"/>
+                    <filter name="groupby_state" string="State"
+                            context="{'group_by': 'state'}"/>
+                    <filter name="groupby_date" string="Return Date"
+                            context="{'group_by': 'return_date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Return Kanban View -->
+    <record id="spp_drims_return_view_kanban" model="ir.ui.view">
+        <field name="name">spp.drims.return.kanban</field>
+        <field name="model">spp.drims.return</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_mobile">
+                <field name="reference"/>
+                <field name="state"/>
+                <field name="incident_id"/>
+                <field name="warehouse_id"/>
+                <field name="total_quantity"/>
+                <field name="total_value"/>
+                <templates>
+                    <t t-name="card">
+                        <field name="reference" class="fw-bold"/>
+                        <field name="incident_id"/>
+                        <field name="warehouse_id"/>
+                        <div class="mt-2">
+                            <span class="badge rounded-pill text-bg-secondary">
+                                <field name="total_quantity"/> items
+                            </span>
+                            <span class="badge rounded-pill text-bg-primary ms-1">
+                                <field name="total_value" widget="monetary"/>
+                            </span>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Return Graph View -->
+    <record id="spp_drims_return_view_graph" model="ir.ui.view">
+        <field name="name">spp.drims.return.graph</field>
+        <field name="model">spp.drims.return</field>
+        <field name="arch" type="xml">
+            <graph string="Returns by State" type="pie">
+                <field name="state"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Return Pivot View -->
+    <record id="spp_drims_return_view_pivot" model="ir.ui.view">
+        <field name="name">spp.drims.return.pivot</field>
+        <field name="model">spp.drims.return</field>
+        <field name="arch" type="xml">
+            <pivot string="Return Analysis">
+                <field name="incident_id" type="row"/>
+                <field name="warehouse_id" type="row"/>
+                <field name="state" type="col"/>
+                <field name="total_quantity" type="measure"/>
+                <field name="total_value" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Return Action -->
+    <record id="action_spp_drims_return" model="ir.actions.act_window">
+        <field name="name">Returns</field>
+        <field name="res_model">spp.drims.return</field>
+        <field name="view_mode">list,kanban,form,graph,pivot</field>
+        <field name="path">drims-returns</field>
+        <field name="context">{'search_default_filter_pending': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No returns recorded
+            </p>
+            <p>
+                Track returns of relief items from distribution points back to warehouses.
+                Returns can be created from completed dispatches.
+            </p>
+        </field>
+    </record>
+
+    <!-- Return Line List View (standalone) -->
+    <record id="spp_drims_return_line_view_list" model="ir.ui.view">
+        <field name="name">spp.drims.return.line.list</field>
+        <field name="model">spp.drims.return.line</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="return_id" readonly="1"/>
+                <field name="sequence" widget="handle"/>
+                <field name="product_id"/>
+                <field name="quantity_dispatched" readonly="1"/>
+                <field name="quantity_returned"/>
+                <field name="uom_id" readonly="1"/>
+                <field name="condition_id" optional="show"/>
+                <field name="value" sum="Total Value"/>
+                <field name="notes" optional="hide"/>
+            </list>
+        </field>
+    </record>
+</odoo>

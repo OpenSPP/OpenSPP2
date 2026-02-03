@@ -1,0 +1,13 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_service_point_admin,Service Point Admin Access,spp_service_points.model_spp_service_point,spp_security.group_spp_admin,1,1,1,1
+
+access_spp_service_point_viewer,spp.service.point viewer,spp_service_points.model_spp_service_point,spp_service_points.group_service_points_viewer,1,0,0,0
+
+access_spp_service_point_officer,spp.service.point officer,spp_service_points.model_spp_service_point,spp_service_points.group_service_points_officer,1,1,1,0
+
+access_spp_service_point_manager,spp.service.point manager,spp_service_points.model_spp_service_point,spp_service_points.group_service_points_manager,1,1,1,1
+
+access_spp_service_point_user,Service Point User Access (Deprecated),spp_service_points.model_spp_service_point,spp_service_points.group_service_points_user,1,1,1,0
+
+access_spp_service_point_registry_read,Service Point Registry Read Access,spp_service_points.model_spp_service_point,spp_registry.group_registry_read,1,0,0,0
+access_spp_service_point_registry_write,Service Point Registry Write Access,spp_service_points.model_spp_service_point,spp_registry.group_registry_write,1,1,1,0

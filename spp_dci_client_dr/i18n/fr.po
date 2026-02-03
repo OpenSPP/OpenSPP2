@@ -1,0 +1,583 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* spp_dci_client_dr
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_spp_dci_disability_status__active
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_spp_dci_dr_sender__active
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_dr.view_spp_dci_dr_sender_search
+msgid "Active"
+msgstr "Actif"
+
+#. module: spp_dci_client_dr
+#: model_terms:ir.actions.act_window,help:spp_dci_client_dr.action_spp_dci_dr_sender
+msgid "Add a trusted Disability Registry sender"
+msgstr "Ajouter un émetteur de registre DR de confiance"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,help:spp_dci_client_dr.field_spp_dci_dr_sender__notes
+msgid "Additional notes about this Disability Registry"
+msgstr "Notes supplémentaires concernant ce registre du handicap"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,help:spp_dci_client_dr.field_spp_dci_disability_status__notes
+msgid "Additional notes about this disability status"
+msgstr "Notes supplémentaires concernant ce statut de handicap"
+
+#. module: spp_dci_client_dr
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_dr.view_disability_status_form
+msgid "Additional notes..."
+msgstr "Notes supplémentaires..."
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_spp_dci_dr_sender__algorithm
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_dr.view_spp_dci_dr_sender_search
+msgid "Algorithm"
+msgstr "Algorithme"
+
+#. module: spp_dci_client_dr
+#. odoo-python
+#: code:addons/spp_dci_client_dr/models/dr_sender.py:0
+msgid "Algorithm not set for DR sender %s"
+msgstr "Algorithme non défini pour l’émetteur DR %s"
+
+#. module: spp_dci_client_dr
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_dr.view_disability_status_search
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_dr.view_spp_dci_dr_sender_search
+msgid "Archived"
+msgstr "Archivé"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_spp_dci_disability_status__assessment_date
+msgid "Assessment Date"
+msgstr "Date d’évaluation"
+
+#. module: spp_dci_client_dr
+#. odoo-python
+#: code:addons/spp_dci_client_dr/models/disability_status.py:0
+msgid "Assessment date cannot be in the future."
+msgstr "La date d’évaluation ne peut pas être dans le futur."
+
+#. module: spp_dci_client_dr
+#. odoo-python
+#: code:addons/spp_dci_client_dr/models/disability_status.py:0
+msgid "Cannot refresh disability status: no partner associated"
+msgstr ""
+"Impossible d’actualiser le statut de handicap : aucun partenaire associé"
+
+#. module: spp_dci_client_dr
+#: model_terms:ir.actions.act_window,help:spp_dci_client_dr.action_spp_dci_dr_sender
+msgid ""
+"Configure trusted DR registries that can send callback notifications.\n"
+"                Each sender must have a registered public key for signature "
+"verification."
+msgstr ""
+"Configurer les registres DR de confiance pouvant envoyer des notifications "
+"de rappel (callback).\n"
+"                Chaque émetteur doit disposer d’une clé publique enregistrée "
+"pour la vérification de la signature."
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_spp_dci_disability_status__create_uid
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_spp_dci_dr_sender__create_uid
+msgid "Created by"
+msgstr "Créé par"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_spp_dci_disability_status__create_date
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_spp_dci_dr_sender__create_date
+msgid "Created on"
+msgstr "Créé le"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,help:spp_dci_client_dr.field_spp_dci_dr_sender__algorithm
+msgid "Cryptographic signature algorithm"
+msgstr "Algorithme de signature cryptographique"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,help:spp_dci_client_dr.field_spp_dci_dr_sender__sender_id
+msgid "DCI sender identifier for the DR registry (e.g., 'dr.national.gov')"
+msgstr ""
+"Identifiant d’émetteur DCI pour le registre DR (p. ex., 'dr.national.gov')"
+
+#. module: spp_dci_client_dr
+#. odoo-python
+#: code:addons/spp_dci_client_dr/models/dr_sender.py:0
+msgid ""
+"DCI verification service not available. Please ensure spp_dci module is "
+"installed."
+msgstr ""
+"Service de vérification DCI indisponible. Veuillez vous assurer que le "
+"module spp_dci est installé."
+
+#. module: spp_dci_client_dr
+#: model:ir.actions.act_window,name:spp_dci_client_dr.action_spp_dci_dr_sender
+#: model:ir.model,name:spp_dci_client_dr.model_spp_dci_dr_sender
+msgid "DR Sender Registry"
+msgstr "Registre des émetteurs DR"
+
+#. module: spp_dci_client_dr
+#: model:ir.ui.menu,name:spp_dci_client_dr.menu_spp_dci_dr_sender
+msgid "DR Senders"
+msgstr "Émetteurs DR"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,help:spp_dci_client_dr.field_spp_dci_disability_status__last_sync_date
+msgid "Date and time when status was last synced from DR"
+msgstr "Date et heure de la dernière synchronisation du statut depuis le DR"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,help:spp_dci_client_dr.field_spp_dci_disability_status__assessment_date
+msgid "Date when functional assessment was performed"
+msgstr "Date à laquelle l’évaluation fonctionnelle a été réalisée"
+
+#. module: spp_dci_client_dr
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_dr.view_disability_status_form
+msgid "Disability Information"
+msgstr "Informations sur le handicap"
+
+#. module: spp_dci_client_dr
+#: model:ir.actions.act_window,name:spp_dci_client_dr.action_disability_status
+#: model:ir.model,name:spp_dci_client_dr.model_spp_dci_disability_status
+#: model:ir.ui.menu,name:spp_dci_client_dr.menu_disability_status
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_dr.view_disability_status_form
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_dr.view_disability_status_search
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_dr.view_disability_status_tree
+msgid "Disability Status"
+msgstr "Statut de handicap"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_spp_dci_disability_status__disability_types
+msgid "Disability Types (JSON)"
+msgstr "Types de handicap (JSON)"
+
+#. module: spp_dci_client_dr
+#: model_terms:ir.actions.act_window,help:spp_dci_client_dr.action_disability_status
+msgid ""
+"Disability status records are created when syncing data from\n"
+"                Disability Registry (DR) systems via DCI API."
+msgstr ""
+"Les enregistrements de statut de handicap sont créés lors de la "
+"synchronisation des données depuis\n"
+"                les systèmes de Registre du handicap (DR) via l’API DCI."
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_fastapi_endpoint__display_name
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_spp_dci_disability_status__display_name
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_spp_dci_dr_sender__display_name
+msgid "Display Name"
+msgstr "Nom affiché"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields.selection,name:spp_dci_client_dr.selection__spp_dci_dr_sender__algorithm__ed25519
+msgid "Ed25519"
+msgstr "Ed25519"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields.selection,name:spp_dci_client_dr.selection__spp_dci_disability_status__state__error
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_dr.view_disability_status_search
+msgid "Error"
+msgstr "Erreur"
+
+#. module: spp_dci_client_dr
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_dr.view_disability_status_form
+msgid "Error Details"
+msgstr "Détails de l’erreur"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_spp_dci_disability_status__error_message
+msgid "Error Message"
+msgstr "Message d’erreur"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,help:spp_dci_client_dr.field_spp_dci_disability_status__error_message
+msgid "Error details if sync failed"
+msgstr "Détails de l’erreur si la synchronisation a échoué"
+
+#. module: spp_dci_client_dr
+#. odoo-python
+#: code:addons/spp_dci_client_dr/models/dr_sender.py:0
+msgid "Failed to convert JWK to PEM: %s"
+msgstr "Échec de la conversion de JWK en PEM : %s"
+
+#. module: spp_dci_client_dr
+#. odoo-python
+#: code:addons/spp_dci_client_dr/models/dr_sender.py:0
+msgid "Failed to fetch JWKS from %s: %s"
+msgstr "Échec de la récupération du JWKS depuis %s : %s"
+
+#. module: spp_dci_client_dr
+#. odoo-python
+#: code:addons/spp_dci_client_dr/models/dr_sender.py:0
+msgid "Failed to fetch public key: %s"
+msgstr "Échec de la récupération de la clé publique : %s"
+
+#. module: spp_dci_client_dr
+#. odoo-python
+#: code:addons/spp_dci_client_dr/models/disability_status.py:0
+msgid "Failed to retrieve disability data from DR"
+msgstr "Échec de la récupération des données de handicap depuis le DR"
+
+#. module: spp_dci_client_dr
+#: model:ir.model,name:spp_dci_client_dr.model_fastapi_endpoint
+msgid "FastAPI Endpoint"
+msgstr "Point de terminaison FastAPI"
+
+#. module: spp_dci_client_dr
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_dr.view_spp_dci_dr_sender_form
+msgid "Fetch Public Key"
+msgstr "Récupérer la clé publique"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,help:spp_dci_client_dr.field_spp_dci_dr_sender__name
+msgid "Friendly name for this Disability Registry"
+msgstr "Nom convivial pour ce registre du handicap"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_spp_dci_disability_status__functional_scores
+msgid "Functional Assessment Scores (JSON)"
+msgstr "Scores d’évaluation fonctionnelle (JSON)"
+
+#. module: spp_dci_client_dr
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_dr.view_disability_status_search
+msgid "Has Disability"
+msgstr "A un handicap"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_spp_dci_disability_status__has_disability
+msgid "Has Disability (PWD)"
+msgstr "A un handicap (PWD)"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_fastapi_endpoint__id
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_spp_dci_disability_status__id
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_spp_dci_dr_sender__id
+msgid "ID"
+msgstr "ID"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,help:spp_dci_client_dr.field_spp_dci_dr_sender__active
+msgid "Inactive senders will not be used for signature verification"
+msgstr ""
+"Les émetteurs inactifs ne seront pas utilisés pour la vérification de la "
+"signature"
+
+#. module: spp_dci_client_dr
+#. odoo-python
+#: code:addons/spp_dci_client_dr/models/dr_sender.py:0
+msgid "Invalid JWKS response: 'keys' field not found"
+msgstr "Réponse JWKS invalide : champ 'keys' introuvable"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,help:spp_dci_client_dr.field_spp_dci_disability_status__functional_scores
+msgid ""
+"JSON dict with functional scores by domain. Severity: 1=No difficulty, "
+"2=Some difficulty, 3=A lot of difficulty, 4=Cannot do"
+msgstr ""
+"Dictionnaire JSON des scores fonctionnels par domaine. Gravité : 1=Aucune "
+"difficulté, 2=Quelques difficultés, 3=Beaucoup de difficultés, 4=Impossible "
+"à réaliser"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,help:spp_dci_client_dr.field_spp_dci_disability_status__disability_types
+msgid ""
+"JSON list of disability types: Vision, Hearing, Mobility, Cognition, "
+"SelfCare, Communication"
+msgstr ""
+"Liste JSON des types de handicap : Vision, Hearing, Mobility, Cognition, "
+"SelfCare, Communication"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_spp_dci_dr_sender__jwks_url
+msgid "JWKS URL"
+msgstr "URL JWKS"
+
+#. module: spp_dci_client_dr
+#. odoo-python
+#: code:addons/spp_dci_client_dr/models/dr_sender.py:0
+msgid "JWKS URL must start with http:// or https://"
+msgstr "L’URL JWKS doit commencer par http:// ou https://"
+
+#. module: spp_dci_client_dr
+#. odoo-python
+#: code:addons/spp_dci_client_dr/models/dr_sender.py:0
+msgid "JWKS URL not configured for DR sender %s"
+msgstr "URL JWKS non configurée pour l’émetteur DR %s"
+
+#. module: spp_dci_client_dr
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_dr.view_spp_dci_dr_sender_form
+msgid "Key Management"
+msgstr "Gestion des clés"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_spp_dci_dr_sender__last_key_fetch
+msgid "Last Key Fetch"
+msgstr "Dernière récupération de clé"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_spp_dci_disability_status__last_sync_date
+msgid "Last Sync Date"
+msgstr "Date de dernière synchronisation"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_spp_dci_disability_status__write_uid
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_spp_dci_dr_sender__write_uid
+msgid "Last Updated by"
+msgstr "Dernière mise à jour par"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_spp_dci_disability_status__write_date
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_spp_dci_dr_sender__write_date
+msgid "Last Updated on"
+msgstr "Dernière mise à jour le"
+
+#. module: spp_dci_client_dr
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_dr.view_disability_status_form
+msgid "Mark as Stale"
+msgstr "Marquer comme obsolète"
+
+#. module: spp_dci_client_dr
+#. odoo-python
+#: code:addons/spp_dci_client_dr/models/dr_sender.py:0
+msgid "Missing 'n' or 'e' parameter in RSA JWK"
+msgstr "Paramètre 'n' ou 'e' manquant dans la JWK RSA"
+
+#. module: spp_dci_client_dr
+#. odoo-python
+#: code:addons/spp_dci_client_dr/models/dr_sender.py:0
+msgid "Missing 'x' parameter in Ed25519 JWK"
+msgstr "Paramètre 'x' manquant dans la JWK Ed25519"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_spp_dci_dr_sender__name
+msgid "Name"
+msgstr "Nom"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,help:spp_dci_client_dr.field_spp_dci_disability_status__source_registry
+msgid "Name or identifier of the source Disability Registry"
+msgstr "Nom ou identifiant du registre du handicap source"
+
+#. module: spp_dci_client_dr
+#: model_terms:ir.actions.act_window,help:spp_dci_client_dr.action_disability_status
+msgid "No disability status records found"
+msgstr "Aucun enregistrement de statut de handicap trouvé"
+
+#. module: spp_dci_client_dr
+#. odoo-python
+#: code:addons/spp_dci_client_dr/models/dr_sender.py:0
+msgid ""
+"No matching key found in JWKS for DR sender %s. Expected kid to start with "
+"'%s|'"
+msgstr ""
+"Aucune clé correspondante trouvée dans le JWKS pour l’émetteur DR %s. Le kid "
+"devait commencer par '%s|'"
+
+#. module: spp_dci_client_dr
+#. odoo-python
+#: code:addons/spp_dci_client_dr/models/dr_sender.py:0
+msgid ""
+"No public key available for DR sender %s. Please fetch the public key first."
+msgstr ""
+"Aucune clé publique disponible pour l’émetteur DR %s. Veuillez d’abord "
+"récupérer la clé publique."
+
+#. module: spp_dci_client_dr
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_dr.view_disability_status_search
+msgid "Non-PWD"
+msgstr "Non-PWD"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_spp_dci_disability_status__notes
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_spp_dci_dr_sender__notes
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_dr.view_disability_status_form
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_dr.view_spp_dci_dr_sender_form
+msgid "Notes"
+msgstr "Notes"
+
+#. module: spp_dci_client_dr
+#. odoo-python
+#: code:addons/spp_dci_client_dr/models/disability_status.py:0
+msgid "Only one active disability status record per person is allowed."
+msgstr ""
+"Un seul enregistrement de statut de handicap actif par personne est autorisé."
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,help:spp_dci_client_dr.field_spp_dci_disability_status__raw_data
+msgid "Original JSON data received from DR system"
+msgstr "Données JSON d’origine reçues du système DR"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,help:spp_dci_client_dr.field_spp_dci_dr_sender__public_key
+msgid "PEM-encoded public key for signature verification"
+msgstr "Clé publique encodée en PEM pour la vérification de la signature"
+
+#. module: spp_dci_client_dr
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_dr.view_disability_status_search
+msgid "PWD"
+msgstr "PWD"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_spp_dci_disability_status__partner_id
+msgid "Person"
+msgstr "Personne"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,help:spp_dci_client_dr.field_spp_dci_disability_status__partner_id
+msgid "Person associated with this disability status"
+msgstr "Personne associée à ce statut de handicap"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_spp_dci_dr_sender__public_key
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_dr.view_spp_dci_dr_sender_form
+msgid "Public Key"
+msgstr "Clé publique"
+
+#. module: spp_dci_client_dr
+#. odoo-python
+#: code:addons/spp_dci_client_dr/models/dr_sender.py:0
+msgid "Public key fetched successfully from %s"
+msgstr "Clé publique récupérée avec succès depuis %s"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields.selection,name:spp_dci_client_dr.selection__spp_dci_dr_sender__algorithm__rs256
+msgid "RSA-256"
+msgstr "RSA-256"
+
+#. module: spp_dci_client_dr
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_dr.view_disability_status_form
+msgid "Raw Data"
+msgstr "Données brutes"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_spp_dci_disability_status__raw_data
+msgid "Raw Data (JSON)"
+msgstr "Données brutes (JSON)"
+
+#. module: spp_dci_client_dr
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_dr.view_disability_status_form
+msgid "Refresh from DR"
+msgstr "Actualiser depuis le DR"
+
+#. module: spp_dci_client_dr
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_dr.view_disability_status_form
+msgid "Retry Sync"
+msgstr "Réessayer la synchronisation"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_spp_dci_dr_sender__sender_id
+msgid "Sender ID"
+msgstr "Identifiant de l’émetteur"
+
+#. module: spp_dci_client_dr
+#. odoo-python
+#: code:addons/spp_dci_client_dr/models/dr_sender.py:0
+msgid "Sender ID must be unique. A DR sender already exists with this ID."
+msgstr ""
+"L’identifiant de l’émetteur doit être unique. Un émetteur DR existe déjà "
+"avec cet identifiant."
+
+#. module: spp_dci_client_dr
+#. odoo-python
+#: code:addons/spp_dci_client_dr/models/dr_sender.py:0
+msgid ""
+"Sender ID must contain only alphanumeric characters, dots, hyphens, and "
+"underscores."
+msgstr ""
+"L’identifiant de l’émetteur doit contenir uniquement des caractères "
+"alphanumériques, des points, des tirets et des traits de soulignement."
+
+#. module: spp_dci_client_dr
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_dr.view_spp_dci_dr_sender_form
+msgid "Sender Information"
+msgstr "Informations sur l’émetteur"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,help:spp_dci_client_dr.field_spp_dci_disability_status__active
+msgid "Set to false to archive this record"
+msgstr "Définir à faux pour archiver cet enregistrement"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_spp_dci_disability_status__source_registry
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_dr.view_disability_status_search
+msgid "Source Registry"
+msgstr "Registre source"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields.selection,name:spp_dci_client_dr.selection__spp_dci_disability_status__state__stale
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_dr.view_disability_status_search
+msgid "Stale"
+msgstr "Obsolète"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_spp_dci_disability_status__state
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_dr.view_disability_status_search
+msgid "Status"
+msgstr "Statut"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,help:spp_dci_client_dr.field_spp_dci_disability_status__state
+msgid "Status of this disability record"
+msgstr "Statut de cet enregistrement de handicap"
+
+#. module: spp_dci_client_dr
+#. odoo-python
+#: code:addons/spp_dci_client_dr/models/dr_sender.py:0
+msgid "Success"
+msgstr "Succès"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields.selection,name:spp_dci_client_dr.selection__spp_dci_disability_status__state__synced
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_dr.view_disability_status_search
+msgid "Synced"
+msgstr "Synchronisé"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,field_description:spp_dci_client_dr.field_spp_dci_disability_status__synced_by
+msgid "Synced By"
+msgstr "Synchronisé par"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,help:spp_dci_client_dr.field_spp_dci_disability_status__has_disability
+msgid "True if person is registered as PWD in Disability Registry"
+msgstr ""
+"Vrai si la personne est enregistrée comme PWD dans le Registre du handicap"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,help:spp_dci_client_dr.field_spp_dci_dr_sender__jwks_url
+msgid "URL to DR registry's JWKS endpoint (/.well-known/jwks.json)"
+msgstr ""
+"URL du point de terminaison JWKS du registre DR (/.well-known/jwks.json)"
+
+#. module: spp_dci_client_dr
+#. odoo-python
+#: code:addons/spp_dci_client_dr/models/dr_sender.py:0
+msgid "Unsupported JWK key type: %s (curve: %s)"
+msgstr "Type de clé JWK non pris en charge : %s (courbe : %s)"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,help:spp_dci_client_dr.field_spp_dci_disability_status__synced_by
+msgid "User who performed the sync"
+msgstr "Utilisateur ayant effectué la synchronisation"
+
+#. module: spp_dci_client_dr
+#: model:ir.model.fields,help:spp_dci_client_dr.field_spp_dci_dr_sender__last_key_fetch
+msgid "When we last fetched their JWKS"
+msgstr "Date de la dernière récupération de son JWKS"
+
+#. module: spp_dci_client_dr
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_dr.view_spp_dci_dr_sender_form
+msgid "e.g., National Disability Registry"
+msgstr "p. ex., Registre national du handicap"

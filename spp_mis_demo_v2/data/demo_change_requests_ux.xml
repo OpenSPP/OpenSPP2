@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <!--
+    Demo Change Requests for UX Improvement Features
+
+    This file creates demo scenarios showcasing:
+    1. Batch approval queue (multiple similar CRs ready for batch processing)
+    2. SLA warning scenarios (requests approaching/exceeding deadlines)
+    3. Conflict scenarios (conflicting address updates)
+    4. Multi-tier approval in progress
+    -->
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- DEMO PERSONAS (referenced for registrants) -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Note: Uses personas from demo_personas.xml -->
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- SCENARIO 1: BATCH APPROVAL QUEUE -->
+    <!-- 5 "Add Member" requests ready for batch approval -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- These will be created by the demo generator with pending status -->
+    <!-- The demo generator creates sample CRs that can be batch approved -->
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- CONFLICT DETECTION RULES -->
+    <!-- Set up rules to detect conflicting address updates -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Conflict Rule: Same registrant, same field update -->
+    <record id="conflict_rule_address_update" model="spp.cr.conflict.rule">
+        <field name="name">Duplicate Address Update</field>
+        <field name="cr_type_id" ref="spp_cr_types_base.cr_type_edit_individual"/>
+        <field name="conflict_type_ids" eval="[(4, ref('spp_cr_types_base.cr_type_edit_individual'))]"/>
+        <field name="scope">field</field>
+        <field name="conflict_fields">address_line1</field>
+        <field name="action">warn</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- Blocking conflict: Exit while other pending CRs -->
+    <record id="conflict_rule_exit_blocking" model="spp.cr.conflict.rule">
+        <field name="name">Exit Blocks Other Changes</field>
+        <field name="cr_type_id" ref="spp_cr_types_advanced.cr_type_exit_registrant"/>
+        <field name="conflict_type_ids" eval="[(4, ref('spp_cr_types_advanced.cr_type_add_member'))]"/>
+        <field name="scope">registrant</field>
+        <field name="action">block</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- SCENARIO: FREEZE PERIOD DEMO -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Note: A freeze period can be manually created to demonstrate the
+         freeze warning in the creation wizard. Uncomment below for testing.
+
+    <record id="demo_freeze_period" model="spp.approval.freeze">
+        <field name="name">Demo Audit Freeze</field>
+        <field name="model_name">spp.change.request</field>
+        <field name="start_date" eval="datetime.date.today()"/>
+        <field name="end_date" eval="datetime.date.today() + datetime.timedelta(days=7)"/>
+        <field name="reason">Annual audit - all submissions paused</field>
+        <field name="is_active" eval="False"/>
+    </record>
+    -->
+
+</odoo>

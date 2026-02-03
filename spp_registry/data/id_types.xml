@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+   Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo noupdate="1">
+    <!-- Generic ID types with OpenSPP namespace per ADR-007 -->
+    <record id="id_type_national_id" model="spp.id.type">
+        <field name="name">National ID</field>
+        <field name="namespace_uri">urn:openspp:id:national-id</field>
+        <field name="id_validation">^[A-Za-z0-9-]+$</field>
+    </record>
+
+    <record id="id_type_passport" model="spp.id.type">
+        <field name="name">Passport</field>
+        <field name="namespace_uri">urn:openspp:id:passport</field>
+        <field name="id_validation">^[A-Za-z0-9]+$</field>
+    </record>
+
+    <record id="id_type_tax_id" model="spp.id.type">
+        <field name="name">Tax ID</field>
+        <field name="namespace_uri">urn:openspp:id:tax-id</field>
+        <field name="id_validation">^[A-Za-z0-9-]+$</field>
+    </record>
+
+    <record id="id_type_birth_certificate" model="spp.id.type">
+        <field name="name">Birth Certificate</field>
+        <field name="namespace_uri">urn:openspp:id:birth-certificate</field>
+        <field name="id_validation">^[A-Za-z0-9-]+$</field>
+    </record>
+</odoo>

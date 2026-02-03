@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="prepare_entitlement_confirm_wizard_view" model="ir.ui.view">
+        <field name="name">spp.prepare.entitlement.confirm.wizard.form</field>
+        <field name="model">spp.prepare.entitlement.confirm.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Prepare Entitlements">
+                <sheet>
+                    <div class="alert alert-warning" role="alert">
+                        <i class="fa fa-exclamation-triangle" title="Warning" />
+                        <strong>Compliance criteria are available but have not been applied.</strong>
+                    </div>
+                    <p class="mt-3">
+                        Are you sure you want to proceed with preparing entitlements without applying compliance criteria?
+                    </p>
+                    <field name="cycle_id" invisible="1" />
+                </sheet>
+                <footer>
+                    <button
+                        name="action_apply_and_prepare"
+                        string="Apply and Prepare"
+                        type="object"
+                        class="btn-primary"
+                    />
+                    <button
+                        name="action_confirm"
+                        string="Proceed Anyway"
+                        type="object"
+                        class="btn-warning"
+                    />
+                    <button
+                        name="action_cancel"
+                        string="Cancel"
+                        type="object"
+                        class="btn-secondary"
+                    />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_prepare_entitlement_confirm_wizard" model="ir.actions.act_window">
+        <field name="name">Prepare Entitlements Confirmation</field>
+        <field name="res_model">spp.prepare.entitlement.confirm.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="prepare_entitlement_confirm_wizard_view" />
+        <field name="target">new</field>
+    </record>
+</odoo>

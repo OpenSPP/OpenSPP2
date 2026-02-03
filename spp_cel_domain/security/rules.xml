@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+
+    <!-- Company isolation for Data Provider -->
+    <record id="rule_data_provider_company" model="ir.rule">
+        <field name="name">Data Provider: Company Access</field>
+        <field name="model_id" ref="model_spp_data_provider"/>
+        <field name="domain_force">[
+            '|',
+            ('company_id', '=', False),
+            ('company_id', 'in', company_ids)
+        ]</field>
+        <field name="global">True</field>
+    </record>
+
+    <!-- Company isolation for Data Value (cached variable values) -->
+    <record id="rule_data_value_company" model="ir.rule">
+        <field name="name">Data Value: Company Access</field>
+        <field name="model_id" ref="model_spp_data_value"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="global">True</field>
+    </record>
+
+    <!-- Company isolation for Data Credential (inherits from provider) -->
+    <record id="rule_data_credential_company" model="ir.rule">
+        <field name="name">Data Credential: Company Access</field>
+        <field name="model_id" ref="model_spp_data_credential"/>
+        <field name="domain_force">[
+            '|',
+            ('company_id', '=', False),
+            ('company_id', 'in', company_ids)
+        ]</field>
+        <field name="global">True</field>
+    </record>
+
+</odoo>

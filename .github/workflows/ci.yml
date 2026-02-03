@@ -1,0 +1,276 @@
+name: CI
+
+on:
+  push:
+    branches: ['19.0']
+  pull_request:
+    branches: ['19.0']
+  workflow_dispatch:
+    inputs:
+      modules:
+        description: 'Comma-separated list of modules to test (empty = auto-detect)'
+        required: false
+        default: ''
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  ODOO_ADDONS_PATH: /opt/odoo/odoo/addons,/opt/odoo/odoo/odoo/addons,/mnt/extra-addons/openspp,/mnt/extra-addons/server-ux,/mnt/extra-addons/server-tools,/mnt/extra-addons/queue,/mnt/extra-addons/server-backend,/mnt/extra-addons/rest-framework,/mnt/extra-addons/muk-it
+
+jobs:
+  # ============================================================================
+  # Detect which modules need testing
+  # ============================================================================
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      modules: ${{ steps.detect.outputs.modules }}
+      has_modules: ${{ steps.detect.outputs.has_modules }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Detect changed modules
+        id: detect
+        run: |
+          set -e
+
+          # Manual input takes priority
+          if [ -n "${{ github.event.inputs.modules }}" ]; then
+            modules=$(echo '${{ github.event.inputs.modules }}' | tr ',' '\n' | jq -R . | jq -sc .)
+            echo "modules=$modules" >> $GITHUB_OUTPUT
+            echo "has_modules=true" >> $GITHUB_OUTPUT
+            echo "Using manually specified modules: $modules"
+            exit 0
+          fi
+
+          # Determine base ref for comparison
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE_REF="origin/${{ github.base_ref }}"
+            git fetch origin ${{ github.base_ref }} --depth=1
+          else
+            BASE_REF="${{ github.event.before }}"
+            if [ "$BASE_REF" = "0000000000000000000000000000000000000000" ]; then
+              BASE_REF="origin/${{ github.ref_name }}"
+            fi
+          fi
+
+          echo "Comparing against: $BASE_REF"
+
+          changed_files=$(git diff --name-only "$BASE_REF"...HEAD 2>/dev/null || git diff --name-only HEAD~1 2>/dev/null || echo "")
+
+          if [ -z "$changed_files" ]; then
+            echo "No changed files detected"
+            echo "modules=[]" >> $GITHUB_OUTPUT
+            echo "has_modules=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "Changed files:"
+          echo "$changed_files"
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            modules=$(echo "$changed_files" | python scripts/detect_modules.py --include-critical --max-modules=15)
+          else
+            modules=$(echo "$changed_files" | python scripts/detect_modules.py --max-modules=10)
+          fi
+
+          echo "Modules to test: $modules"
+
+          if [ "$modules" = "[]" ]; then
+            echo "has_modules=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_modules=true" >> $GITHUB_OUTPUT
+          fi
+
+          echo "modules=$modules" >> $GITHUB_OUTPUT
+
+  # ============================================================================
+  # Build Docker image (warms the GHA layer cache for test jobs)
+  # ============================================================================
+  build:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.has_modules == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+
+      - name: Build and cache image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/Dockerfile
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ============================================================================
+  # Run tests for each changed module
+  # ============================================================================
+  test:
+    needs: [detect-changes, build]
+    if: needs.detect-changes.outputs.has_modules == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        module: ${{ fromJson(needs.detect-changes.outputs.modules) }}
+
+    services:
+      db:
+        image: postgis/postgis:18-3.6-alpine
+        env:
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: odoo
+          POSTGRES_DB: postgres
+        ports:
+          - 5432
+        options: >-
+          --health-cmd "pg_isready -U odoo -d postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+
+      - name: Build test image (from cache)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/Dockerfile
+          load: true
+          tags: openspp-test:${{ github.sha }}
+          cache-from: type=gha
+
+      - name: Discover service network
+        id: net
+        env:
+          DB_PORT: ${{ job.services.db.ports[5432] }}
+        run: |
+          # Find the GitHub Actions network for this job's service containers
+          DB_CONTAINER=$(docker ps --filter "publish=$DB_PORT" --format '{{.ID}}' | head -1)
+          JOB_NETWORK=$(docker inspect "$DB_CONTAINER" --format '{{range $net, $_ := .NetworkSettings.Networks}}{{$net}} {{end}}' | tr ' ' '\n' | grep github_network | head -1)
+          echo "name=$JOB_NETWORK" >> "$GITHUB_OUTPUT"
+          echo "Using network: $JOB_NETWORK"
+
+      - name: Create test database
+        env:
+          DB_PORT: ${{ job.services.db.ports[5432] }}
+        run: |
+          PGPASSWORD=odoo psql -h localhost -p "$DB_PORT" -U odoo -d postgres -c "CREATE DATABASE test_${{ matrix.module }};"
+
+      - name: Run tests with coverage
+        id: test
+        run: |
+          # Run tests and capture output - don't fail on exit code
+          # (shutdown race conditions can cause exit code 1 even when tests pass)
+          set +e
+          docker run --rm \
+            --network ${{ steps.net.outputs.name }} \
+            -e DB_HOST=db \
+            -e DB_PORT=5432 \
+            -e DB_USER=odoo \
+            -e DB_PASSWORD=odoo \
+            -v ${{ github.workspace }}:/mnt/extra-addons/openspp:rw \
+            --user $(id -u):$(id -g) \
+            --entrypoint "" \
+            openspp-test:${{ github.sha }} \
+            bash -c "
+              export COVERAGE_FILE=/tmp/.coverage
+              coverage run --source=/mnt/extra-addons/openspp/${{ matrix.module }} \
+                /opt/odoo/odoo/odoo-bin \
+                --addons-path=${ODOO_ADDONS_PATH} \
+                -d test_${{ matrix.module }} \
+                --db_host=db \
+                --db_port=5432 \
+                --db_user=odoo \
+                --db_password=odoo \
+                --stop-after-init \
+                --no-http \
+                --data-dir /tmp/odoo-data \
+                -i ${{ matrix.module }} \
+                --test-tags=/${{ matrix.module }} \
+                --log-level=test 2>&1 | tee /tmp/test_output.log
+              TEST_EXIT=\${PIPESTATUS[0]}
+              # Always try to generate coverage (even if tests had shutdown issues)
+              coverage xml -o /mnt/extra-addons/openspp/coverage-${{ matrix.module }}.xml 2>/dev/null || true
+              exit \$TEST_EXIT
+            " 2>&1 | tee test_output_${{ matrix.module }}.log
+          DOCKER_EXIT=${PIPESTATUS[0]}
+          set -e
+
+          # Parse test results from output
+          RESULT_LINE=$(grep "failed.*error(s).*tests" test_output_${{ matrix.module }}.log | tail -1 || true)
+          echo "Test result: $RESULT_LINE"
+
+          if [ -z "$RESULT_LINE" ]; then
+            echo "test_passed=false" >> $GITHUB_OUTPUT
+            echo "::error::Could not find test results in output for ${{ matrix.module }}"
+          else
+            # Extract failed and error counts
+            FAILED=$(echo "$RESULT_LINE" | sed -E 's/.*([0-9]+) failed.*/\1/')
+            ERRORS=$(echo "$RESULT_LINE" | sed -E 's/.*([0-9]+) error.*/\1/')
+            echo "Failed: $FAILED, Errors: $ERRORS"
+
+            if [ "$FAILED" -gt 0 ] || [ "$ERRORS" -gt 0 ]; then
+              echo "test_passed=false" >> $GITHUB_OUTPUT
+              echo "::error::Tests failed for ${{ matrix.module }}: $FAILED failed, $ERRORS errors"
+            else
+              echo "test_passed=true" >> $GITHUB_OUTPUT
+              echo "Tests passed (exit code $DOCKER_EXIT may be non-zero due to shutdown race conditions)"
+            fi
+          fi
+
+      - name: Upload coverage
+        if: always()
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage-${{ matrix.module }}.xml
+          flags: ${{ matrix.module }}
+          fail_ci_if_error: false
+
+      - name: Check test result
+        if: steps.test.outputs.test_passed != 'true'
+        run: |
+          echo "Tests failed for ${{ matrix.module }}"
+          exit 1
+
+  # ============================================================================
+  # Summary
+  # ============================================================================
+  test-summary:
+    needs: [detect-changes, test]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check test results
+        run: |
+          if [ "${{ needs.detect-changes.outputs.has_modules }}" != "true" ]; then
+            echo "No modules needed testing"
+            exit 0
+          fi
+
+          if [ "${{ needs.test.result }}" = "failure" ]; then
+            echo "Some tests failed"
+            exit 1
+          fi
+
+          echo "All tests passed!"

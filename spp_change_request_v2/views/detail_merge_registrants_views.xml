@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Merge Registrants Detail Form View -->
+    <record id="spp_cr_detail_merge_registrants_form" model="ir.ui.view">
+        <field name="name">spp.cr.detail.merge_registrants.form</field>
+        <field name="model">spp.cr.detail.merge_registrants</field>
+        <field name="arch" type="xml">
+            <form string="Merge Registrants Details">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" icon="fa-users">
+                            <field name="duplicate_count" widget="statinfo" string="Duplicates" />
+                        </button>
+                    </div>
+
+                    <group>
+                        <group string="Primary Registrant (Keep)">
+                            <field name="primary_registrant_id" required="1"/>
+                            <field name="primary_name" invisible="1" />
+                            <field name="is_group_merge" invisible="1" />
+                            <field name="available_duplicate_ids" invisible="1"/>
+                        </group>
+                        <group string="Merge Details">
+                            <field name="reason" />
+                            <field name="merge_strategy" />
+                        </group>
+                    </group>
+
+                    <separator string="Duplicates to Merge" />
+                    <p class="text-muted">
+                        Select duplicate registrants to merge into the primary.
+                        Only <span invisible="not is_group_merge">groups</span><span invisible="is_group_merge">individuals</span> can be selected.
+                    </p>
+                    <field name="duplicate_registrant_ids"
+                           widget="many2many_tags"
+                           domain="[('id', 'in', available_duplicate_ids)]"
+                           options="{'no_create': True}"
+                           required="1"/>
+
+                    <separator string="Merge Options" />
+                    <group>
+                        <group>
+                            <field name="is_merge_memberships" />
+                            <field name="is_merge_ids" />
+                        </group>
+                        <group>
+                            <field name="is_deactivate_duplicates" />
+                        </group>
+                    </group>
+
+                    <group string="Additional Information">
+                        <field name="remarks" placeholder="Enter any additional notes..." />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

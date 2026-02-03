@@ -1,0 +1,2161 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* spp_cel_domain
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_provider_form
+msgid ""
+"<strong>ID Mapping:</strong>\n"
+"                                Configure how external IDs are matched to registrants in the system.\n"
+"                                The system will try each field in order until a match is found."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_provider_form
+msgid ""
+"<strong>Security Note:</strong>\n"
+"                                Credentials are stored securely and only visible to administrators."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_credential__api_key
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_provider__api_key
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_data_credential__credential_type__api_key
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_data_provider__auth_type__api_key
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_provider_form
+msgid "API Key"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_credential__api_key_header
+msgid "API Key Header Name"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_data_value__source_type__push
+msgid "API Push"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_provider__api_key
+msgid "API key for authentication (stored encrypted)"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/data_credential.py:0
+msgid "API key is not configured."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_credential__api_key
+msgid "API key value (stored encrypted)"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_credential__oauth_access_token
+msgid "Access Token"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_expression__active
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable__active
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable_category__active
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_credential__active
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_provider__active
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_expression__state__active
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__state__active
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_provider_search
+msgid "Active"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:res.groups.privilege,name:spp_cel_domain.privilege_cel_domain_admin
+msgid "Admin"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_data_value__source_type__aggregate
+msgid "Aggregate"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable__aggregate_field
+msgid "Aggregate Field"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable__aggregate_filter
+msgid "Aggregate Filter"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable__aggregate_target
+msgid "Aggregate Target"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable__aggregate_type
+msgid "Aggregate Type"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_value_search
+msgid "Aggregates"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable__applies_to
+msgid "Applies To"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_provider_form
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_provider_search
+msgid "Archived"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_value__as_of
+msgid "As Of"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_value_form
+msgid "Audit"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_provider_search
+msgid "Auth Type"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_provider_form
+msgid "Authentication"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_provider__auth_type
+msgid "Authentication Type"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_credential__name
+msgid "Auto-generated credential name"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__aggregate_type__avg
+msgid "Average"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_provider__base_url
+msgid "Base URL"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_provider__base_url
+msgid "Base URL for the provider's API (e.g., 'https://api.edu.gov/v1')"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_data_credential__credential_type__basic_auth
+msgid "Basic Authentication"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/data_credential.py:0
+msgid "Basic auth credentials are not configured."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_provider_form
+msgid "Behavior"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_expression__expression_type__benefit
+msgid "Benefit Amount"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__applies_to__both
+msgid "Both"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model,name:spp_cel_domain.model_spp_cel_expression
+msgid "Business Logic"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable__cel_accessor
+msgid "CEL Accessor"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.ui.menu,name:spp_cel_domain.menu_cel_domain_root
+msgid "CEL Domain"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:res.groups,name:spp_cel_domain.group_cel_domain_admin
+msgid "CEL Domain Admin"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:res.groups,name:spp_cel_domain.group_cel_domain_manager
+msgid "CEL Domain Manager"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:res.groups,name:spp_cel_domain.group_cel_domain_viewer
+msgid "CEL Domain Viewer"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:res.groups,name:spp_cel_domain.group_cel_domain_read
+msgid "CEL Domain: Read"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model,name:spp_cel_domain.model_spp_cel_executor
+msgid "CEL Executor"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_expression__cel_expression
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_rule_wizard__cel_expression
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable__cel_expression
+msgid "CEL Expression"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model,name:spp_cel_domain.model_spp_cel_service
+msgid "CEL Expression Service"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model,name:spp_cel_domain.model_spp_cel_function_registry
+msgid "CEL Function Registry"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model,name:spp_cel_domain.model_spp_cel_rule_wizard_metric
+msgid "CEL Preview Metric Explain Line"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model,name:spp_cel_domain.model_spp_cel_rule_wizard
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_cel_rule_wizard_form
+msgid "CEL Rule Preview"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model,name:spp_cel_domain.model_spp_cel_registry
+msgid "CEL Symbol Registry"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model,name:spp_cel_domain.model_spp_cel_translator
+msgid "CEL Translator"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model,name:spp_cel_domain.model_spp_cel_variable_resolver
+msgid "CEL Variable Resolver Service"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/cel_variable.py:0
+msgid "CEL accessor '%(accessor)s' already exists for context '%(ctx)s'."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.constraint,message:spp_cel_domain.constraint_spp_cel_variable_unique_accessor_context
+msgid "CEL accessor must be unique per context (applies_to)."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_variable__cel_expression
+msgid "CEL expression for this variable. Auto-computed for aggregates."
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/cel_expression.py:0
+msgid "CEL expression is required"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/cel_expression.py:0
+msgid "CEL expression is required for active expressions."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_variable__aggregate_filter
+msgid ""
+"CEL filter expression for aggregation (e.g., 'age_years(m.birthdate) < 18')."
+" Use 'm.' prefix for member fields."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_rule_wizard_metric__cache_hits
+msgid "Cache Hits"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_value_form
+msgid "Cache Status"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable__cache_strategy
+msgid "Cache Strategy"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable__cache_ttl_seconds
+msgid "Cache TTL (seconds)"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/cel_variable.py:0
+msgid "Cache TTL must be positive when using TTL-based caching."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_credential__oauth_access_token
+msgid "Cached OAuth access token (auto-refreshed)"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_value_form
+msgid "Cached Value"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_value_tree
+msgid "Cached Values"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model,name:spp_cel_domain.model_spp_data_value
+msgid "Cached Variable Value"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_provider_form
+msgid "Caching"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:res.groups,comment:spp_cel_domain.group_cel_domain_manager
+msgid "Can manage CEL domain query builder configurations."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:res.groups,comment:spp_cel_domain.group_cel_domain_admin
+msgid ""
+"Can manage credentials and sensitive configurations. Includes Manager "
+"permissions."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:res.groups,comment:spp_cel_domain.group_cel_domain_viewer
+msgid ""
+"Can view CEL domain query builder configurations including variables, "
+"expressions, and data cache."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable__category_id
+msgid "Category"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/cel_variable_category.py:0
+msgid "Category code '%s' already exists."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_cel_rule_wizard_form
+msgid "Close"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_expression__code
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable_category__code
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_provider__code
+msgid "Code"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_variable__invalidate_on_field_change
+msgid ""
+"Comma-separated field names that trigger cache invalidation when changed."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_provider__id_mapping_fields
+msgid ""
+"Comma-separated field names to try for external ID matching (e.g., "
+"'school_student_id,external_id,national_id')"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_credential__company_id
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_provider__company_id
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_value__company_id
+msgid "Company"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_data_value__value_type__json
+msgid "Complex JSON"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_expression__expression_type__compliance
+msgid "Compliance Check"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_data_value__source_type__computed
+msgid "Computed"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__source_type__computed
+msgid "Computed (CEL)"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_provider_form
+msgid "Connection"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/data_provider.py:0
+msgid "Connection Error"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/data_provider.py:0
+msgid "Connection Failed"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/data_provider.py:0
+msgid "Connection Successful"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__source_type__constant
+msgid "Constant/Parameter"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model,name:spp_cel_domain.model_res_partner
+msgid "Contact"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_expression__context_type
+msgid "Context"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_variable__applies_to
+msgid "Context where this variable can be used."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__aggregate_type__count
+msgid "Count"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_rule_wizard_metric__coverage
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_value__coverage
+msgid "Coverage"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.actions.act_window,help:spp_cel_domain.action_data_provider_list
+msgid "Create your first Data Provider"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_value__created_by_id
+msgid "Created By"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_expression__create_uid
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_rule_wizard__create_uid
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_rule_wizard_metric__create_uid
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable__create_uid
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable_category__create_uid
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_credential__create_uid
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_provider__create_uid
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_value__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_expression__create_date
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_rule_wizard__create_date
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_rule_wizard_metric__create_date
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable__create_date
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable_category__create_date
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_credential__create_date
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_provider__create_date
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_value__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/data_credential.py:0
+msgid "Credential '%s' is marked as invalid. Please update credentials."
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/data_credential.py:0
+msgid "Credential Invalid"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_credential__credential_type
+msgid "Credential Type"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/data_credential.py:0
+msgid "Credential Valid"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_value_search
+msgid "Current Period"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__period_granularity__current
+msgid "Current Value Only"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_expression__state
+msgid "Current lifecycle state of the logic (Studio governance workflow)"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_data_credential__credential_type__custom_header
+msgid "Custom Header"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/data_credential.py:0
+msgid "Custom header is not configured."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_credential__custom_header_name
+msgid "Custom header name"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__period_granularity__daily
+msgid "Daily"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.actions.act_window,name:spp_cel_domain.action_data_value_list
+#: model:ir.ui.menu,name:spp_cel_domain.menu_data_cache
+msgid "Data Cache"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model,name:spp_cel_domain.model_spp_data_cache_invalidation_mixin
+msgid "Data Cache Invalidation Mixin"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.ui.menu,name:spp_cel_domain.menu_data_management
+msgid "Data Management"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_credential__provider_id
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_provider_form
+msgid "Data Provider"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model,name:spp_cel_domain.model_spp_data_credential
+msgid "Data Provider Credential"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.actions.act_window,name:spp_cel_domain.action_data_provider_list
+#: model:ir.ui.menu,name:spp_cel_domain.menu_data_providers
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_provider_tree
+msgid "Data Providers"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_expression__expression_type__validation
+msgid "Data Validation"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_value__coverage
+msgid "Data completeness indicator (0.0 to 1.0)"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.actions.act_window,help:spp_cel_domain.action_data_provider_list
+msgid ""
+"Data providers represent external systems that can push data into the cache.<br>\n"
+"                Configure API endpoints, authentication, and ID mapping for each provider."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_value__subject_id
+msgid "Database ID of the subject record"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__value_type__date
+msgid "Date"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_provider__default_ttl_seconds
+msgid "Default TTL (seconds)"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/data_provider.py:0
+msgid "Default TTL must be positive."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable__default_value
+msgid "Default Value"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_provider__default_ttl_seconds
+msgid "Default cache TTL for values from this provider (24 hours default)"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_variable__default_value
+msgid "Default value for constants. Can be overridden at program level."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_res_partner__display_name
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_executor__display_name
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_expression__display_name
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_function_registry__display_name
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_registry__display_name
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_rule_wizard__display_name
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_rule_wizard_metric__display_name
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_service__display_name
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_translator__display_name
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable__display_name
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable_category__display_name
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable_resolver__display_name
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_cache_invalidation_mixin__display_name
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_cache_manager__display_name
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_credential__display_name
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_provider__display_name
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_value__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_variable_category__name
+msgid "Display name (e.g., 'Demographics')"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_variable_category__sequence
+msgid "Display order"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_variable__sequence
+msgid "Display order within category"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_expression__state__draft
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__state__draft
+msgid "Draft"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_expression__expression_type__eligibility
+msgid "Eligibility"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_rule_wizard__profile__entitlements
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__aggregate_target__entitlements
+msgid "Entitlements"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_value_form
+msgid "Error"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_value__error_code
+msgid "Error Code"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_value__error_message
+msgid "Error Message"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_value__error_code
+msgid "Error code if value fetch/compute failed"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_value__error_message
+msgid "Error details if value fetch/compute failed"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_credential__last_error
+msgid "Error message from last failed authentication attempt"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__aggregate_type__exists
+msgid "Exists (any match)"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_value__expires_at
+msgid "Expires At"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_rule_wizard__explain_text
+msgid "Explain Text"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/cel_expression.py:0
+msgid "Expression code '%s' already exists."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_data_value__source_type__external
+msgid "External API"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_value_search
+msgid "External Data"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model,name:spp_cel_domain.model_spp_data_provider
+msgid "External Data Provider"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable__external_provider_id
+msgid "External Provider"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__source_type__external
+msgid "External Source"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_provider__id_mapping_namespace
+msgid "External identifier namespace label (e.g., 'EDU_MINISTRY')"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.actions.act_window,help:spp_cel_domain.action_data_value_list
+msgid "External systems push data via API"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/data_credential.py:0
+msgid "Failed to fetch OAuth token: %s"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_variable__aggregate_field
+msgid ""
+"Field to aggregate for sum/avg/min/max (e.g., 'income'). Not needed for "
+"count/exists."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_variable__invalidate_on_member_change
+msgid "For aggregates: invalidate cache when group membership changes."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_variable__external_provider_id
+msgid "For external type: the data provider configuration"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_variable__source_field
+msgid "For field type: field name (e.g., 'income')"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_variable__source_model
+msgid "For field type: model name (e.g., 'res.partner')"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_rule_wizard_metric__fresh_fetches
+msgid "Fresh Fetches"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_expression__context_type__group
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__applies_to__group
+msgid "Group/Household"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_data_provider__auth_type__hmac
+msgid "HMAC Signature"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_credential__custom_header_name
+msgid "Header Name"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_credential__custom_header_value
+msgid "Header Value"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_credential__api_key_header
+msgid "Header name to send API key in (e.g., X-API-Key, Authorization)"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_value_search
+msgid "Historical"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__aggregate_target__members
+msgid "Household Members"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_value__source_type
+msgid "How this value was obtained"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_variable__period_granularity
+msgid ""
+"How this variable handles time-based data:\n"
+"- Current: Always latest value, no history\n"
+"- Daily/Monthly/Quarterly/Yearly: Values stored per period\n"
+"- Snapshot: Point-in-time freeze (e.g., at enrollment)"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_variable__cache_strategy
+msgid ""
+"How this variable's values should be cached:\n"
+"- No Caching: Always compute/fetch fresh\n"
+"- Session: Cache per request/batch operation\n"
+"- TTL: Cache in database with expiration time\n"
+"- Manual: Only refresh on explicit trigger"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_variable__cel_accessor
+msgid "How to reference in CEL expressions: 'income', 'hh_size', 'is_female'"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_provider__name
+msgid "Human-readable name (e.g., 'Education Ministry API')"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_value__subject_ref
+msgid "Human-readable subject reference"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_res_partner__id
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_executor__id
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_expression__id
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_function_registry__id
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_registry__id
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_rule_wizard__id
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_rule_wizard_metric__id
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_service__id
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_translator__id
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable__id
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable_category__id
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable_resolver__id
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_cache_invalidation_mixin__id
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_cache_manager__id
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_credential__id
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_provider__id
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_value__id
+msgid "ID"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_provider_form
+msgid "ID Mapping"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_provider__id_mapping_fields
+msgid "ID Mapping Fields"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_provider__is_id_mapping_required
+msgid "ID Mapping Required"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_provider__id_mapping_namespace
+msgid "ID Namespace"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_provider_form
+msgid "Identification"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_variable__is_program_configurable
+msgid "If true, programs can override this constant's value."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_provider__is_id_mapping_required
+msgid "If true, reject values where subject cannot be mapped"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_expression__state__inactive
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__state__inactive
+msgid "Inactive"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_variable_category__active
+msgid "Inactive categories are hidden"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_expression__active
+msgid "Inactive expressions are hidden"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_variable__active
+msgid "Inactive variables are hidden from the variable picker"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_expression__context_type__individual
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__applies_to__individual
+msgid "Individual"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/cel_variable_resolver.py:0
+msgid "Invalid JSON in pack item"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/cel_variable.py:0
+msgid ""
+"Invalid period key '%(key)s' for variable '%(var)s'. Expected format for "
+"%(gran)s granularity."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable__invalidate_on_field_change
+msgid "Invalidate on Field Change"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable__invalidate_on_member_change
+msgid "Invalidate on Member Change"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_value_form
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_value_search
+msgid "Invalidated"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_value__invalidated_at
+msgid "Invalidated At"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_value__invalidated_by_id
+msgid "Invalidated By"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_value__is_stale
+msgid "Is Stale"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_credential__is_valid
+msgid "Is Valid"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_credential__last_error
+msgid "Last Error"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_expression__write_uid
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_rule_wizard__write_uid
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_rule_wizard_metric__write_uid
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable__write_uid
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable_category__write_uid
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_credential__write_uid
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_provider__write_uid
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_value__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_expression__write_date
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_rule_wizard__write_date
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_rule_wizard_metric__write_date
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable__write_date
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable_category__write_date
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_credential__write_date
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_provider__write_date
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_value__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_credential__last_used
+msgid "Last Used"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_value__variable_id
+msgid "Link to variable definition (computed from variable_name)"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__value_type__list
+msgid "List"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model,name:spp_cel_domain.model_spp_cel_variable
+msgid "Logic Variable"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:res.groups.privilege,name:spp_cel_domain.privilege_cel_domain_manager
+msgid "Manager"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__cache_strategy__manual
+msgid "Manual Refresh Only"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_data_value__source_type__snapshot
+msgid "Manual Snapshot"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/data_credential.py:0
+msgid "Manual token refresh is only available for OAuth client credentials."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_provider__max_batch_size
+msgid "Max Batch Size"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_provider__retry_max
+msgid "Max Retries"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/data_provider.py:0
+msgid "Max batch size cannot exceed 10000."
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/data_provider.py:0
+msgid "Max batch size must be positive."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__aggregate_type__max
+msgid "Maximum"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/cel_variable_resolver.py:0
+msgid "Maximum expansion depth reached. Possible circular reference."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_provider__max_batch_size
+msgid "Maximum number of subjects per API request"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_provider__retry_max
+msgid "Maximum retry attempts on failure"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__source_type__aggregate
+msgid "Member Aggregate"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_rule_wizard_metric__metric
+msgid "Metric"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_rule_wizard__metric_line_ids
+msgid "Metrics"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_cel_rule_wizard_form
+msgid "Metrics Explain"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_rule_wizard__metrics_explain_text
+msgid "Metrics Explain Text"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__aggregate_type__min
+msgid "Minimum"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_rule_wizard_metric__misses
+msgid "Misses"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/cel_expression.py:0
+msgid "Missing variables: %s"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__source_type__field
+msgid "Model Field"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_value__subject_model
+msgid "Model of the subject (typically 'res.partner')"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__value_type__money
+msgid "Money"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_expression__output_type__money
+msgid "Money Amount"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__period_granularity__monthly
+msgid "Monthly"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_expression__name
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable__name
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable_category__name
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_credential__name
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_provider__name
+msgid "Name"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_expression__name
+msgid "Name of the expression definition"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_value__variable_name
+msgid "Name of the variable this value belongs to"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/data_credential.py:0
+msgid "New Credential"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_provider_search
+msgid "No Auth"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_data_provider__auth_type__none
+msgid "No Authentication"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__cache_strategy__none
+msgid "No Caching"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/data_provider.py:0
+msgid "No URL Configured"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/data_credential.py:0
+msgid "No access token in OAuth response."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.actions.act_window,help:spp_cel_domain.action_data_value_list
+msgid "No cached values found"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_expression__output_type__number
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__value_type__number
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_data_value__value_type__number
+msgid "Number"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_variable_category__variable_count
+msgid "Number of variables in this category"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_data_provider__auth_type__oauth2
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_provider_form
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_provider_search
+msgid "OAuth 2.0"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_data_credential__credential_type__oauth_token
+msgid "OAuth Bearer Token"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_data_credential__credential_type__oauth_client
+msgid "OAuth Client Credentials"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_credential__oauth_client_id
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_provider__oauth_client_id
+msgid "OAuth Client ID"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_credential__oauth_client_secret
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_provider__oauth_client_secret
+msgid "OAuth Client Secret"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_credential__oauth_scope
+msgid "OAuth Scope"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_credential__oauth_token_url
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_provider__oauth_token_url
+msgid "OAuth Token URL"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/data_credential.py:0
+msgid "OAuth access token is not configured."
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/data_credential.py:0
+msgid "OAuth client credentials are not configured."
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/data_credential.py:0
+msgid "OAuth token URL is not configured."
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/data_credential.py:0
+msgid "OAuth token has been refreshed."
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/data_credential.py:0
+msgid "OAuth token has expired. Please refresh or update the token."
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/data_credential.py:0
+msgid "Only CEL Domain administrators can access credentials."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.constraint,message:spp_cel_domain.constraint_spp_data_credential_unique_provider_type
+msgid "Only one credential of each type per provider."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_expression__sequence
+msgid "Order for display in lists"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_expression__expression_type__other
+msgid "Other"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_expression__output_type
+msgid "Output Type"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_value__params_hash
+msgid "Parameters Hash"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_credential__basic_password
+msgid "Password"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_value_search
+msgid "Period"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable__period_granularity
+msgid "Period Granularity"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_rule_wizard_metric__period_key
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_value__period_key
+msgid "Period Key"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_value__period_key
+msgid ""
+"Period identifier based on variable's granularity:\n"
+"- 'current' for current-only variables\n"
+"- '2024-12' for monthly\n"
+"- '2024-Q4' for quarterly\n"
+"- '2024' for yearly\n"
+"- ISO datetime for snapshots"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/cel_variable.py:0
+msgid "Period key is required for variable '%(var)s' (granularity: %(gran)s)."
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/data_provider.py:0
+msgid "Please configure a base URL first."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__period_granularity__snapshot
+msgid "Point-in-time Snapshot"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_value__as_of
+msgid "Point-in-time this value represents (for snapshots)"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_rule_wizard__preview_count
+msgid "Preview Count"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_expression__context_type
+msgid "Primary evaluation context for this expression"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_expression__expression_type
+msgid "Primary purpose of this expression"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_rule_wizard__profile
+msgid "Profile"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable__is_program_configurable
+msgid "Program Configurable"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__aggregate_target__enrollments
+msgid "Program Enrollments"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_rule_wizard__profile__program_memberships
+msgid "Program Memberships"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_value__provider
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_value_search
+msgid "Provider"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_provider_form
+msgid "Provider Name"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_value__provider
+msgid "Provider code for external values (e.g., 'edu_ministry')"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/data_provider.py:0
+msgid ""
+"Provider code must be lowercase alphanumeric with underscores, starting with"
+" a letter."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.constraint,message:spp_cel_domain.constraint_spp_data_provider_unique_code_company
+msgid "Provider code must be unique per company."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.actions.server,name:spp_cel_domain.cron_purge_expired_data_values_ir_actions_server
+msgid "Purge Expired Variable Values"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__period_granularity__quarterly
+msgid "Quarterly"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_provider__recommended_concurrency
+msgid "Recommended Concurrency"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_provider__recommended_concurrency
+msgid "Recommended number of parallel requests"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_value_search
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_value_tree
+msgid "Recorded"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_value__recorded_at
+msgid "Recorded At"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.actions.server,name:spp_cel_domain.cron_refresh_stale_cached_variables_ir_actions_server
+msgid "Refresh Stale Cached Variables"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_credential__oauth_refresh_token
+msgid "Refresh Token"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_rule_wizard__profile__registry_groups
+msgid "Registry / Groups"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_rule_wizard__profile__registry_individuals
+msgid "Registry / Individuals"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_provider_form
+msgid "Request Settings"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_provider__timeout_ms
+msgid "Request timeout in milliseconds"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_rule_wizard_metric__requested
+msgid "Requested"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_rule_wizard__result_domain_text
+msgid "Result Domain Text"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.actions.act_window,name:spp_cel_domain.action_cel_rule_wizard
+#: model:ir.ui.menu,name:spp_cel_domain.menu_cel_rule_wizard
+msgid "Rule Preview"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_value__params_hash
+msgid ""
+"SHA256 hash (truncated to 16 chars) of additional parameters used in value computation. Used to distinguish cached values computed with different parameter sets.\n"
+"\n"
+"Example use cases:\n"
+"- Scoring model computed with threshold=100 vs threshold=200\n"
+"- External API query with filter={'status': 'active'}\n"
+"- Aggregate computed over different member subsets\n"
+"\n"
+"Empty string when no parameters were used (most common case)."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_rule_wizard__sample_ids
+msgid "Sample IDs"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_expression__expression_type__scoring
+msgid "Scoring"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_data_value__source_type__scoring
+msgid "Scoring Model"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__source_type__scoring
+msgid "Scoring Result"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_value_search
+msgid "Scoring Results"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.actions.act_window,help:spp_cel_domain.action_data_value_list
+msgid "Scoring calculations are performed"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_value_search
+msgid "Search Cached Values"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_provider_search
+msgid "Search Data Providers"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_expression__sequence
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable__sequence
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable_category__sequence
+msgid "Sequence"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/data_provider.py:0
+msgid "Server returned status %s"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__cache_strategy__session
+msgid "Session/Request Cache"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_expression__context_type__both
+msgid "Shared"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable__source_field
+msgid "Source Field"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable__source_model
+msgid "Source Model"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable__source_type
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_value__source_type
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_value_search
+msgid "Source Type"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_credential__oauth_scope
+msgid "Space-separated list of OAuth scopes"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_value_form
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_value_search
+msgid "Stale"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_expression__state
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable__state
+msgid "Status"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_value_form
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_value_tree
+msgid "Subject"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_value__subject_id
+msgid "Subject ID"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_value__subject_model
+msgid "Subject Model"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_value__subject_ref
+msgid "Subject Reference"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/data_provider.py:0
+msgid "Successfully connected to %s"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/data_credential.py:0
+msgid "Successfully retrieved authentication headers."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__aggregate_type__sum
+msgid "Sum"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_cel_rule_wizard_form
+msgid "Summary"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable__supports_historical
+msgid "Supports Historical Queries"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable__is_system
+msgid "System Variable"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_variable__is_system
+msgid "System variables are auto-discovered, not user-created"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__cache_strategy__ttl
+msgid "TTL-based Cache"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_rule_wizard__model_id
+msgid "Target Model"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_variable__name
+msgid "Technical name (e.g., 'income', 'hh_size', 'is_female')"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:res.groups,comment:spp_cel_domain.group_cel_domain_read
+msgid "Technical read access to CEL domain configurations."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_expression__code
+msgid "Technical reference for API access (auto-generated if empty)"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_provider_form
+msgid "Test Connection"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_expression__output_type__string
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__value_type__string
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_data_value__value_type__string
+msgid "Text"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_expression__cel_expression
+msgid "The CEL expression defining this business rule"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_value__value_json
+msgid "The cached value stored as JSON"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_credential__provider_id
+msgid "The data provider this credential belongs to"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/data_credential.py:0
+msgid "This credential type does not use OAuth tokens."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.actions.act_window,help:spp_cel_domain.action_data_value_list
+msgid ""
+"This view shows all cached variable values from the unified data cache.<br>\n"
+"                Values are automatically stored here when:"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_variable__cache_ttl_seconds
+msgid ""
+"Time-to-live for cached values. Only used when cache_strategy is 'ttl'."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_provider__timeout_ms
+msgid "Timeout (ms)"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_credential__oauth_token_expires
+msgid "Token Expires"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/data_credential.py:0
+msgid "Token Refreshed"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.ui.menu,name:spp_cel_domain.menu_cel_tools
+msgid "Tools"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_expression__expression_type
+msgid "Type"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_variable__aggregate_type
+msgid "Type of aggregation to perform over members."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_credential__credential_type
+msgid "Type of credential"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_expression__output_type
+msgid "Type of value this expression returns"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_variable__value_type
+msgid "Type of value this variable contains"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_credential__oauth_token_url
+msgid "URL to obtain access tokens"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/cel_variable_resolver.py:0
+msgid "Undefined variables: %s"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_provider__code
+msgid "Unique identifier for this provider (e.g., 'edu_ministry')"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_variable_category__code
+msgid "Unique technical identifier (e.g., 'demographics')"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_credential__basic_username
+msgid "Username"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_value_search
+msgid "Valid"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_cel_rule_wizard_form
+msgid "Validate & Preview"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_value_form
+msgid "Value"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_value__value_json
+msgid "Value (JSON)"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable__value_type
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_value__value_type
+msgid "Value Type"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_value__variable_id
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_value_form
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_value_search
+msgid "Variable"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/cel_variable.py:0
+msgid ""
+"Variable '%(var)s' does not support period keys (granularity is 'current')."
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/cel_variable_resolver.py:0
+msgid "Variable '%s' is for groups but used in individual context"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model,name:spp_cel_domain.model_spp_data_cache_manager
+msgid "Variable Cache Manager"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model,name:spp_cel_domain.model_spp_cel_variable_category
+msgid "Variable Category"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable_category__variable_count
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_provider__variable_count
+msgid "Variable Count"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_value__variable_name
+msgid "Variable Name"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_variable__category_id
+msgid "Variable category for organization"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_variable__state
+msgid "Variable lifecycle state"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/cel_variable.py:0
+msgid "Variable name '%s' already exists."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.constraint,message:spp_cel_domain.constraint_spp_cel_variable_unique_name
+msgid "Variable name must be unique."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.constraint,message:spp_cel_domain.constraint_spp_data_value_unique_cache_key
+msgid "Variable value already exists for this subject and period."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_variable_category__variable_ids
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_data_provider__variable_ids
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_provider_form
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_provider_tree
+msgid "Variables"
+msgstr ""
+
+#. module: spp_cel_domain
+#. odoo-python
+#: code:addons/spp_cel_domain/models/data_provider.py:0
+msgid "Variables - %s"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_expression__variable_ids
+msgid "Variables Used"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_expression__variable_ids
+msgid "Variables referenced in this expression"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_provider__variable_ids
+msgid "Variables that use this provider"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.actions.act_window,help:spp_cel_domain.action_data_value_list
+msgid "Variables with TTL caching are evaluated"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:res.groups.privilege,name:spp_cel_domain.privilege_cel_domain_viewer
+msgid "Viewer"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__source_type__vocabulary
+msgid "Vocabulary Concept"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_variable__aggregate_target
+msgid "What to aggregate over."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_credential__oauth_token_expires
+msgid "When the cached token expires"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_value__expires_at
+msgid "When this cached value expires (for TTL-based caching)"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_credential__last_used
+msgid "When this credential was last used for an API call"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_value__recorded_at
+msgid "When this value was stored/updated"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_variable__source_type
+msgid "Where this variable's data comes from"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_credential__is_valid
+msgid "Whether the credential is currently valid (not expired/revoked)"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_data_value__is_stale
+msgid "Whether this value has expired but not yet been refreshed"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,help:spp_cel_domain.field_spp_cel_variable__supports_historical
+msgid "Whether this variable can be queried for historical periods."
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_provider_search
+msgid "With API Key"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields,field_description:spp_cel_domain.field_spp_cel_rule_wizard_metric__wizard_id
+msgid "Wizard"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__period_granularity__yearly
+msgid "Yearly"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_variable__value_type__boolean
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_data_value__value_type__boolean
+msgid "Yes/No"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model:ir.model.fields.selection,name:spp_cel_domain.selection__spp_cel_expression__output_type__boolean
+msgid "Yes/No (Boolean)"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_provider_form
+msgid "e.g., EDU_MINISTRY"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_provider_form
+msgid "e.g., Education Ministry API"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_cel_rule_wizard_form
+msgid "e.g., count(members, m, head(m)) == 1"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_provider_form
+msgid "e.g., education_ministry"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_provider_form
+msgid "e.g., spp_id, ref, x_external_id"
+msgstr ""
+
+#. module: spp_cel_domain
+#: model_terms:ir.ui.view,arch_db:spp_cel_domain.view_data_provider_form
+msgid "https://api.example.gov/v1"
+msgstr ""

@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        OpenSPP Studio Menu Structure
+        =============================
+        User-friendly menu organization inspired by KoboToolbox simplicity.
+
+        Top-level structure (7 items):
+        1. Home (seq 5) - Your Studio overview
+        2. Rules (seq 10) - Define eligibility and calculate benefits
+        3. Forms & Fields (seq 20) - Customize what data you collect
+        4. Privacy (seq 30) - Manage consent and data sensitivity
+        5. Connections (seq 40) - Import data from other systems
+        6. Settings (seq 80) - Configuration options
+        7. History (seq 90) - See who changed what
+    -->
+
+    <!-- Root Menu: Studio -->
+    <menuitem
+        id="menu_studio_root"
+        name="Studio"
+        sequence="90"
+        web_icon="spp_studio,static/description/OpenSPP-Web-Menu_Studio_Icon.png"
+        groups="group_studio_viewer"
+    />
+
+    <!-- ================ -->
+    <!-- 1. HOME (seq 5) -->
+    <!-- "Your Studio overview" -->
+    <!-- ================ -->
+    <menuitem
+        id="menu_studio_dashboard"
+        name="Home"
+        parent="menu_studio_root"
+        action="spp_studio.action_studio_dashboard"
+        sequence="5"
+        groups="group_studio_viewer"
+    />
+
+    <!-- ================= -->
+    <!-- 2. RULES (seq 10) -->
+    <!-- "Define eligibility and calculate benefits" -->
+    <!-- Contains: Expressions, Variables, Packages, Test Personas -->
+    <!-- ================= -->
+    <menuitem
+        id="menu_studio_logic_design"
+        name="Rules"
+        parent="menu_studio_root"
+        sequence="10"
+        groups="group_studio_viewer"
+    />
+
+    <!-- Expressions - Build calculation rules -->
+    <menuitem
+        id="menu_logic_list"
+        name="Expressions"
+        parent="menu_studio_logic_design"
+        action="action_logic_list"
+        sequence="10"
+        groups="group_studio_viewer"/>
+
+    <!-- Variables - Define data to use in rules -->
+    <menuitem
+        id="menu_logic_variables"
+        name="Variables"
+        parent="menu_studio_logic_design"
+        sequence="20"
+        groups="group_studio_editor_officer"/>
+
+    <menuitem
+        id="menu_logic_variable_list"
+        name="All Variables"
+        parent="menu_logic_variables"
+        action="action_logic_variable_list"
+        sequence="10"/>
+
+    <menuitem
+        id="menu_logic_variable_category"
+        name="Categories"
+        parent="menu_logic_variables"
+        action="action_logic_variable_category_list"
+        sequence="20"
+        groups="group_studio_manager"/>
+
+    <!-- Packages - Ready-made rule templates -->
+    <menuitem
+        id="menu_logic_packs"
+        name="Packages"
+        parent="menu_studio_logic_design"
+        action="action_logic_pack_list"
+        sequence="30"
+        groups="group_studio_editor_officer"/>
+
+    <!-- Test Personas - Test your rules with sample people -->
+    <menuitem
+        id="menu_logic_test_personas"
+        name="Test Personas"
+        parent="menu_studio_logic_design"
+        action="action_logic_test_persona_list"
+        sequence="40"
+        groups="group_studio_editor_officer"/>
+
+    <!-- ========================== -->
+    <!-- 3. FORMS & FIELDS (seq 20) -->
+    <!-- "Customize what data you collect" -->
+    <!-- Contains: Custom Fields, Event Types, Change Requests, Verifiable Credentials -->
+    <!-- Event Types, Change Requests, Verifiable Credentials added by extension modules -->
+    <!-- ========================== -->
+    <menuitem
+        id="menu_studio_type_builders"
+        name="Forms &amp; Fields"
+        parent="menu_studio_root"
+        sequence="20"
+        groups="group_studio_viewer"
+    />
+
+    <!-- Custom Fields - Add fields to registries -->
+    <menuitem
+        id="menu_studio_fields"
+        name="Custom Fields"
+        parent="menu_studio_type_builders"
+        action="action_studio_field"
+        sequence="10"
+        groups="group_studio_viewer" />
+
+    <!-- =================== -->
+    <!-- 4. PRIVACY (seq 30) -->
+    <!-- "Manage consent and data sensitivity" -->
+    <!-- Contains: Consent, Data Sensitivity -->
+    <!-- Items added by extension modules -->
+    <!-- =================== -->
+    <menuitem
+        id="menu_studio_data_governance"
+        name="Privacy"
+        parent="menu_studio_root"
+        sequence="30"
+        groups="group_studio_viewer"
+    />
+
+    <!-- ======================= -->
+    <!-- 5. CONNECTIONS (seq 40) -->
+    <!-- "Import data from other systems" -->
+    <!-- ======================= -->
+    <menuitem
+        id="menu_studio_external_sources"
+        name="Connections"
+        parent="menu_studio_root"
+        sequence="40"
+        groups="group_studio_viewer"
+    />
+
+    <!-- ===================== -->
+    <!-- 6. SETTINGS (seq 80) -->
+    <!-- "Configuration options" -->
+    <!-- ===================== -->
+    <menuitem
+        id="menu_studio_config"
+        name="Settings"
+        parent="menu_studio_root"
+        sequence="80"
+        groups="group_studio_manager"
+    />
+
+    <!-- Expressions - under Settings -->
+    <menuitem
+        id="menu_settings_expression"
+        name="Expressions"
+        parent="menu_studio_config"
+        sequence="10"
+        groups="group_studio_manager"
+    />
+
+    <!-- Expression Tags - under Rules Settings -->
+    <menuitem
+        id="menu_logic_tags"
+        name="Expression Tags"
+        parent="menu_settings_expression"
+        action="action_logic_tag_list"
+        sequence="10"
+        groups="group_studio_manager"/>
+
+    <!-- Registry Settings - under Settings -->
+    <menuitem
+        id="menu_settings_registry"
+        name="Registry"
+        parent="menu_studio_config"
+        sequence="20"
+        groups="group_studio_manager"
+    />
+
+    <!-- Field Placement Zones - under Registry Settings -->
+    <menuitem
+        id="menu_placement_zones"
+        name="Field Zones"
+        parent="menu_settings_registry"
+        action="action_placement_zone"
+        sequence="10"
+        groups="group_studio_manager" />
+
+    <!-- ID Types - under Registry Settings -->
+    <menuitem
+        id="menu_id_types"
+        name="ID Types"
+        parent="menu_settings_registry"
+        action="spp_registry.action_id_type"
+        sequence="20"
+        groups="group_studio_manager" />
+
+    <!-- Registrant Tags - under Registry Settings -->
+    <menuitem
+        id="menu_registrant_tags"
+        name="Registrant Tags"
+        parent="menu_settings_registry"
+        action="spp_registry.action_registrant_tags"
+        sequence="30"
+        groups="group_studio_manager" />
+
+    <!-- General Settings - under Settings -->
+    <menuitem
+        id="menu_settings_general"
+        name="General"
+        parent="menu_studio_config"
+        sequence="30"
+        groups="group_studio_manager"
+    />
+
+    <!-- Banks - under General Settings -->
+    <menuitem
+        id="menu_banks"
+        name="Banks"
+        parent="menu_settings_general"
+        action="base.action_res_bank_form"
+        sequence="10"
+        groups="group_studio_manager" />
+
+    <!-- Phone Validation - under General Settings -->
+    <menuitem
+        id="menu_phone_validation"
+        name="Phone Validation"
+        parent="menu_settings_general"
+        action="spp_base_common.action_phone_validation"
+        sequence="20"
+        groups="group_studio_manager" />
+
+    <!-- Versioning - under Settings -->
+    <menuitem
+        id="menu_settings_versioning"
+        name="Versioning"
+        parent="menu_studio_config"
+        sequence="40"
+        groups="group_studio_manager"
+    />
+
+    <!-- Scheduled Changes - under Versioning -->
+    <menuitem
+        id="menu_scheduled_changes"
+        name="Scheduled Changes"
+        parent="menu_settings_versioning"
+        action="spp_versioning.action_scheduled_versions"
+        sequence="10"
+        groups="group_studio_manager"/>
+
+    <!-- Version History - under Versioning -->
+    <menuitem
+        id="menu_version_history"
+        name="Version History"
+        parent="menu_settings_versioning"
+        action="spp_versioning.action_spp_artifact_version"
+        sequence="20"
+        groups="group_studio_manager"/>
+
+    <!-- Artifact Usages - under Versioning -->
+    <menuitem
+        id="menu_artifact_usages"
+        name="Artifact Usages"
+        parent="menu_settings_versioning"
+        action="spp_versioning.action_spp_artifact_usage"
+        sequence="30"
+        groups="group_studio_manager"/>
+
+    <!-- ==================== -->
+    <!-- 7. HISTORY (seq 90) -->
+    <!-- "See who changed what" -->
+    <!-- ==================== -->
+    <menuitem
+        id="menu_studio_audit_log"
+        name="History"
+        parent="menu_studio_root"
+        action="spp_audit.spp_audit_log_action_window"
+        sequence="90"
+        groups="group_studio_viewer"
+    />
+</odoo>

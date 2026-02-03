@@ -1,0 +1,22 @@
+[tool.pytest.ini_options]
+markers = [
+    "slow: marks tests that run external tools (deselect with '-m \"not slow\"')",
+]
+
+[tool.bandit]
+exclude_dirs = ["tests", "scripts/tests", ".git", "__pycache__", "node_modules"]
+# NOTE: Don't skip B101 globally - assert statements are removed with -O flag
+# and should never be used for security checks. Skip only in test files via
+# the assert_used section below.
+
+[tool.bandit.assert_used]
+# Only skip assert warnings in test files where they're expected
+skips = ["*/test_*.py", "*_test.py", "*/tests/*"]
+
+# Explicitly check for hardcoded credentials
+[tool.bandit.hardcoded_password_string]
+# Default word list is sufficient
+
+# Check for shell injection
+[tool.bandit.shell_injection]
+# Subprocess with shell=True is dangerous

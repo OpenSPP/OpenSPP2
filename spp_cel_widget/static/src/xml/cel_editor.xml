@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="spp_cel_widget.CelEditor">
+        <div class="o_cel_editor" role="group" aria-label="CEL Expression Editor">
+            <!-- Error state -->
+            <t t-if="state.error">
+                <div class="alert alert-danger mb-2" role="alert">
+                    <i class="fa fa-exclamation-triangle me-1" aria-hidden="true"/>
+                    Failed to initialize editor: <t t-esc="state.error"/>
+                </div>
+                <!-- Fallback to textarea -->
+                <textarea
+                    class="o_input o_cel_fallback_textarea form-control"
+                    t-att-value="props.value"
+                    t-att-readonly="isReadonly"
+                    t-on-change="(ev) => props.onChange &amp;&amp; props.onChange(ev.target.value)"
+                    style="width: 100%; min-height: 80px; font-family: monospace;"
+                    aria-label="CEL Expression (fallback editor)"
+                />
+            </t>
+
+            <!-- Normal editor -->
+            <t t-else="">
+                <!-- Toolbar -->
+                <div t-if="props.showToolbar !== false" class="o_cel_toolbar d-flex align-items-center gap-2 mb-1" role="toolbar" aria-label="Editor toolbar">
+                    <button
+                        t-if="props.showSymbolBrowser !== false"
+                        type="button"
+                        class="btn btn-sm btn-outline-secondary"
+                        t-on-click="toggleSymbolBrowser"
+                        title="Browse available symbols (Ctrl+.)"
+                        aria-label="Open symbol browser"
+                        t-att-aria-expanded="state.showBrowser"
+                        aria-controls="celSymbolBrowser"
+                    >
+                        <i class="fa fa-list-ul me-1" aria-hidden="true"/>
+                        Symbols
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-outline-secondary"
+                        t-on-click="triggerAutocomplete"
+                        title="Show suggestions (Ctrl+Space)"
+                        aria-label="Show autocomplete suggestions"
+                    >
+                        <i class="fa fa-magic" aria-hidden="true"/>
+                    </button>
+
+                    <div class="flex-grow-1"/>
+
+                    <!-- Validation status -->
+                    <span
+                        t-att-class="'o_cel_validation_status ' + validationStatusClass"
+                        role="status"
+                        aria-live="polite"
+                        aria-atomic="true"
+                    >
+                        <i t-if="validationIcon" t-att-class="'fa ' + validationIcon + ' me-1'" aria-hidden="true"/>
+                        <span t-esc="validationMessage"/>
+                    </span>
+                </div>
+
+                <!-- Editor container -->
+                <div
+                    t-ref="editorContainer"
+                    class="o_cel_editor_container"
+                    t-att-class="{ 'o_cel_editor_readonly': isReadonly }"
+                    role="textbox"
+                    aria-multiline="true"
+                    aria-label="CEL expression input"
+                    t-att-aria-readonly="isReadonly"
+                />
+
+                <!-- Symbol Browser Panel -->
+                <t t-if="state.showBrowser and state.symbols">
+                    <CelSymbolBrowser
+                        symbols="state.symbols"
+                        onInsert.bind="insertSymbol"
+                        onClose.bind="closeSymbolBrowser"
+                    />
+                </t>
+
+                <!-- Help text for empty state -->
+                <t t-if="props.showHelpText !== false and !hasValue and !state.showBrowser">
+                    <div class="o_cel_help_text text-muted small mt-1" aria-live="polite">
+                        <i class="fa fa-lightbulb-o me-1" aria-hidden="true"/>
+                        Tip: Press <kbd>Ctrl</kbd>+<kbd>Space</kbd> for suggestions,
+                        or click <strong>Symbols</strong> to browse available fields.
+                    </div>
+                </t>
+            </t>
+        </div>
+    </t>
+
+</templates>

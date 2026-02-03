@@ -1,0 +1,312 @@
+# OpenSPP Access Management Compliance Specification
+# Module: spp_dms
+# Version: 1.0
+#
+# This file declares the expected access control configuration for this module.
+# Run: python -m scripts.compliance.checker spp_dms
+# Generate tests: python -m scripts.compliance.test_generator spp_dms
+
+module: spp_dms
+domain: dms
+version: "1.0"
+
+# =============================================================================
+# SECURITY NOTES
+# =============================================================================
+# Documents in DMS may contain HIGHLY SENSITIVE information including:
+# - Personal Identifiable Information (PII)
+# - Program beneficiary data
+# - Scanned identity documents
+# - Medical records
+# - Financial information
+#
+# Access control MUST be strict with proper separation of duties.
+# Document versioning creates audit trail and should be restricted appropriately.
+# File categories can enforce type/size restrictions for compliance.
+
+# =============================================================================
+# GROUP DEFINITIONS
+# Following ADR-004 Three-Tier Architecture
+# =============================================================================
+
+groups:
+  # --- Tier 3: Technical base groups ---
+  - id: group_dms_read
+    tier: 3
+    comment: "Technical group for read access to DMS models."
+
+  - id: group_dms_write
+    tier: 3
+    implied_ids: [group_dms_read]
+    comment: "Technical group for write access to DMS models."
+
+  - id: group_dms_create
+    tier: 3
+    implied_ids: [group_dms_read]
+    comment: "Technical group for DMS create access."
+
+  - id: group_dms_delete
+    tier: 3
+    implied_ids: [group_dms_read]
+    comment: "Technical group for DMS delete access."
+
+  # --- Tier 2: User-facing groups ---
+  - id: group_dms_viewer
+    tier: 2
+    privilege_id: privilege_dms_viewer
+    implied_ids: [group_dms_read]
+    comment: "Can view documents and directories. Cannot modify data."
+
+  - id: group_dms_officer
+    tier: 2
+    privilege_id: privilege_dms_officer
+    implied_ids: [group_dms_viewer, group_dms_write, group_dms_create]
+    comment: "Can create and edit documents/directories. Cannot delete or configure categories."
+
+  - id: group_dms_user
+    tier: 2
+    privilege_id: privilege_dms_user
+    implied_ids: [group_dms_officer]
+    comment: "DEPRECATED: Legacy group maintained for backwards compatibility. Use group_dms_officer instead."
+    status: deprecated
+    replacement: group_dms_officer
+
+  - id: group_dms_manager
+    tier: 2
+    privilege_id: privilege_dms_manager
+    implied_ids: [group_dms_officer, group_dms_delete, group_dms_config_admin]
+    comment: "Full DMS management including delete operations and configuration."
+
+  # --- Special groups ---
+  - id: group_dms_config_admin
+    tier: 2
+    privilege_id: privilege_dms_config_admin
+    comment: "Access to DMS configuration menus (categories). Implied by DMS Manager."
+
+  - id: group_dms_restrict_self
+    tier: 2
+    privilege_id: privilege_dms_restrict_self_officer
+    comment: "Restrict document access to only own uploads. Can be combined with viewer/officer roles."
+
+# Admin linkage - manager group links to spp_security.group_spp_admin
+admin_link_group: group_dms_manager
+
+# =============================================================================
+# MODEL ACCESS (ir.model.access.csv)
+# Standard pattern: viewer=read, officer=read+write+create, manager=full CRUD
+# =============================================================================
+
+model_access:
+  # Directories - hierarchical structure for organizing files
+  - model: spp.dms.directory
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+    comment: "Directories organize files in tree structure. Officers can create/edit, managers can delete."
+
+  # Files - core document storage with versioning
+  - model: spp.dms.file
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+    comment: "Core file storage. Contains sensitive attachments. Officers can upload/edit, managers can delete."
+
+  # File versions - immutable history of file changes
+  - model: spp.dms.file.version
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+    comment: "Version history for audit trail. Officers can create versions, managers can prune old versions."
+
+  # Categories - configuration for file type/size validation
+  - model: spp.dms.category
+    viewer: [read]
+    officer: [read]
+    manager: [read, write, create, unlink]
+    comment: "Configuration model. Only managers can modify categories as they enforce compliance rules."
+
+  # Restore wizard - transient model for version restoration
+  - model: spp.dms.restore.version.wizard
+    viewer: [read]
+    officer: [read, write, create, unlink]
+    manager: [read, write, create, unlink]
+    comment: "Transient wizard for restoring file versions. Officers can restore, managers have full access."
+
+# =============================================================================
+# RECORD RULES (ir.rule)
+# =============================================================================
+# NOTE: Record rules are NOT currently implemented. Access is controlled via
+# model ACLs only. The rules below are PLANNED for future implementation.
+#
+# FUTURE ENHANCEMENTS (not yet implemented):
+# - Self-restriction rules (group_dms_restrict_self) to limit users to own uploads
+# - Directory-based access control using allowed_group_ids field
+# - Global read rules for non-restricted users
+#
+# For now, all users with DMS access can see all documents. Fine-grained
+# access control is on the roadmap.
+
+record_rules: []
+
+# =============================================================================
+# MENU VISIBILITY
+# Which groups can see which menus
+# =============================================================================
+
+menus:
+  - id: main_menu_spp_dms
+    name: "DMS"
+    groups: [spp_security.group_spp_admin, group_dms_viewer, group_dms_officer, group_dms_manager]
+    comment: "Main DMS menu visible to all DMS users"
+
+  - id: menu_spp_dms_directory
+    name: "Directories"
+    parent: main_menu_spp_dms
+    groups: [spp_security.group_spp_admin, group_dms_viewer, group_dms_officer, group_dms_manager]
+    comment: "Directory management menu"
+
+  - id: menu_spp_dms_config
+    name: "Configuration"
+    parent: main_menu_spp_dms
+    groups: [spp_security.group_spp_admin, group_dms_config_admin, group_dms_manager]
+    comment: "Configuration menu restricted to managers and admin"
+
+  - id: menu_spp_dms_category
+    name: "Categories"
+    parent: menu_spp_dms_config
+    groups: [spp_security.group_spp_admin, group_dms_config_admin, group_dms_manager]
+    comment: "Category configuration for file type/size restrictions"
+
+# =============================================================================
+# FIELD RESTRICTIONS
+# Fields with group-based visibility in views
+# =============================================================================
+
+field_restrictions:
+  - view_id: view_spp_dms_directory_form
+    field_name: is_root_directory
+    groups: [group_dms_manager, spp_security.group_spp_admin]
+    reason: "Root directory flag should only be visible/editable by managers to prevent structure corruption"
+
+  - view_id: view_spp_dms_directory_manager_form
+    field_name: is_root_directory
+    groups: [group_dms_manager, spp_security.group_spp_admin]
+    reason: "Manager-specific form view for directory administration"
+
+  - view_id: view_spp_dms_file_form
+    field_name: is_versioned
+    groups: [group_dms_officer, group_dms_manager, spp_security.group_spp_admin]
+    reason: "Versioning toggle should be restricted to officers and above to prevent data loss"
+
+  - view_id: view_spp_dms_category_form
+    field_name: blocked_extensions
+    groups: [group_dms_manager, spp_security.group_spp_admin]
+    reason: "Security-critical field controlling blocked file types"
+
+  - view_id: view_spp_dms_category_form
+    field_name: max_file_size_mb
+    groups: [group_dms_manager, spp_security.group_spp_admin]
+    reason: "Resource management setting should be manager-only"
+
+# =============================================================================
+# ACTION RESTRICTIONS
+# Actions that are restricted to specific groups
+# =============================================================================
+
+actions:
+  - id: action_spp_dms_directory
+    name: "Directories"
+    groups: [group_dms_viewer, group_dms_officer, group_dms_manager, spp_security.group_spp_admin]
+
+  - id: action_spp_dms_category
+    name: "Categories"
+    groups: [group_dms_manager, group_dms_config_admin, spp_security.group_spp_admin]
+
+  - id: action_spp_dms_directory_new
+    name: "New Root Directory"
+    groups: [group_dms_manager, spp_security.group_spp_admin]
+    comment: "Creating root directories is administrative operation"
+
+# =============================================================================
+# SECURITY RECOMMENDATIONS
+# =============================================================================
+
+recommendations:
+  - priority: high
+    category: access_control
+    title: "Implement directory-level access control"
+    description: |
+      Current implementation allows all DMS users to see all documents.
+      Consider adding many2many field 'allowed_group_ids' to spp.dms.directory
+      to enable fine-grained access control at directory level.
+      This would allow organizing sensitive documents in restricted directories.
+
+  - priority: high
+    category: encryption
+    title: "Integrate with spp_pii_encryption for sensitive documents"
+    description: |
+      Documents may contain PII (scanned IDs, medical records, etc).
+      Consider integrating with spp_pii_encryption module to automatically
+      encrypt file content at rest for categories marked as containing PII.
+
+  - priority: medium
+    category: audit
+    title: "Enhanced audit logging for file access"
+    description: |
+      Current audit trail only covers create/write operations.
+      Consider adding explicit read access logging for sensitive file categories
+      to track who viewed documents and when.
+
+  - priority: medium
+    category: data_retention
+    title: "Implement data retention policies"
+    description: |
+      Add retention policy fields to spp.dms.category (e.g., retain_years).
+      Create scheduled job to archive or delete files exceeding retention period.
+      Critical for GDPR/data protection compliance.
+
+  - priority: low
+    category: usability
+    title: "Add bulk file operations"
+    description: |
+      Add server actions for bulk operations (move files, change category)
+      restricted to officer/manager roles for efficiency.
+
+  - priority: low
+    category: integration
+    title: "Link documents to registrants"
+    description: |
+      Consider adding optional many2one relationship from spp.dms.file
+      to res.partner (registrants) to associate documents with beneficiaries.
+      Would enable filtering "all documents for this person".
+
+# =============================================================================
+# MIGRATION NOTES
+# =============================================================================
+
+migration:
+  deprecated_groups:
+    - id: group_dms_user
+      replacement: group_dms_officer
+      migration_strategy: |
+        The legacy 'group_dms_user' should be mapped to 'group_dms_officer'
+        during migration. All existing users in group_dms_user should be
+        added to group_dms_officer to maintain their current access level.
+
+        Migration script should:
+        1. Find all users in group_dms_user
+        2. Add them to group_dms_officer
+        3. Add deprecation notice in log
+        4. Consider future removal after grace period
+
+  new_groups:
+    - group_dms_viewer
+    - group_dms_officer (replaces group_dms_user)
+    - group_dms_config_admin
+    - group_dms_restrict_self
+    - group_dms_read (tier 3)
+    - group_dms_write (tier 3)
+    - group_dms_create (tier 3)
+    - group_dms_delete (tier 3)
+
+  breaking_changes: []

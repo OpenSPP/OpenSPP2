@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <!-- ========================================== -->
+    <!-- DATA LAYER FORM VIEW EXTENSION             -->
+    <!-- ========================================== -->
+    <record id="view_gis_data_layer_form_report_ext" model="ir.ui.view">
+        <field name="name">spp.gis.data.layer.form.report.ext</field>
+        <field name="model">spp.gis.data.layer</field>
+        <field name="inherit_id" ref="spp_gis.spp_gis_data_layer_form" />
+        <field name="arch" type="xml">
+            <!-- Add source type at the top -->
+            <xpath expr="//sheet/group[1]" position="before">
+                <group string="Data Source" name="data_source">
+                    <field name="source_type" widget="radio" />
+                    <field name="report_id"
+                           invisible="source_type != 'report'"
+                           required="source_type == 'report'"
+                           options="{'no_create': True}" />
+                </group>
+            </xpath>
+
+            <!-- Make geo_field_id optional for report layers -->
+            <xpath expr="//field[@name='geo_field_id']" position="attributes">
+                <attribute name="invisible">source_type == 'report'</attribute>
+                <attribute name="required">source_type == 'model'</attribute>
+            </xpath>
+
+            <!-- Add geometry type -->
+            <xpath expr="//sheet/group[1]" position="after">
+                <group string="Geometry" name="geometry" invisible="source_type != 'report'">
+                    <field name="geometry_type" widget="radio" />
+                </group>
+            </xpath>
+
+            <!-- Replace basic color with advanced styling for report layers -->
+            <xpath expr="//sheet/group[2]" position="replace">
+                <group string="Styling" name="styling" col="4" colspan="4">
+                    <!-- Basic color for model layers -->
+                    <field name="begin_color" widget="color"
+                           invisible="source_type != 'model'" />
+
+                    <!-- Advanced styling for report layers -->
+                    <field name="color_scheme_id"
+                           invisible="source_type != 'report'"
+                           options="{'no_create': True}" />
+                    <field name="fill_opacity"
+                           invisible="source_type != 'report'" />
+                    <field name="stroke_color" widget="color"
+                           invisible="source_type != 'report'" />
+                    <field name="stroke_width"
+                           invisible="source_type != 'report'" />
+                </group>
+
+                <!-- Point settings -->
+                <group string="Point Settings" name="point_settings"
+                       invisible="source_type != 'report' or geometry_type not in ('point', 'cluster')">
+                    <field name="point_radius" />
+                    <field name="cluster_radius"
+                           invisible="geometry_type != 'cluster'" />
+                </group>
+
+                <!-- Heatmap settings -->
+                <group string="Heatmap Settings" name="heatmap_settings"
+                       invisible="source_type != 'report' or geometry_type != 'heatmap'">
+                    <field name="heatmap_radius" />
+                    <field name="heatmap_blur" />
+                    <field name="heatmap_max_intensity" />
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- DATA LAYER LIST VIEW EXTENSION             -->
+    <!-- ========================================== -->
+    <record id="view_gis_data_layer_list_report_ext" model="ir.ui.view">
+        <field name="name">spp.gis.data.layer.list.report.ext</field>
+        <field name="model">spp.gis.data.layer</field>
+        <field name="inherit_id" ref="spp_gis.spp_gis_data_layer_view_tree" />
+        <field name="arch" type="xml">
+            <!-- Add source type and report columns -->
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="source_type" />
+                <field name="report_id" optional="show" />
+                <field name="geometry_type" optional="show" />
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- DATA LAYER SEARCH VIEW                     -->
+    <!-- ========================================== -->
+    <record id="view_gis_data_layer_search" model="ir.ui.view">
+        <field name="name">spp.gis.data.layer.search</field>
+        <field name="model">spp.gis.data.layer</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="report_id" />
+
+                <separator />
+
+                <filter name="model_layers" string="Model Layers"
+                        domain="[('source_type', '=', 'model')]" />
+                <filter name="report_layers" string="Report Layers"
+                        domain="[('source_type', '=', 'report')]" />
+
+                <separator />
+
+                <filter name="polygon" string="Polygon"
+                        domain="[('geometry_type', '=', 'polygon')]" />
+                <filter name="point" string="Point"
+                        domain="[('geometry_type', '=', 'point')]" />
+                <filter name="cluster" string="Cluster"
+                        domain="[('geometry_type', '=', 'cluster')]" />
+                <filter name="heatmap" string="Heatmap"
+                        domain="[('geometry_type', '=', 'heatmap')]" />
+
+                <separator />
+
+                <filter name="group_source" string="Source Type"
+                        context="{'group_by': 'source_type'}" />
+                <filter name="group_geometry" string="Geometry Type"
+                        context="{'group_by': 'geometry_type'}" />
+                <filter name="group_report" string="Report"
+                        context="{'group_by': 'report_id'}" />
+            </search>
+        </field>
+    </record>
+</odoo>

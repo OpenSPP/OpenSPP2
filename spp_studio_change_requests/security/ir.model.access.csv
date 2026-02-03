@@ -1,0 +1,14 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_studio_cr_type_viewer,spp.studio.change.request.type.viewer,model_spp_studio_change_request_type,spp_studio.group_studio_viewer,1,0,0,0
+access_studio_cr_type_editor,spp.studio.change.request.type.editor,model_spp_studio_change_request_type,spp_studio.group_studio_editor_officer,1,1,1,0
+access_studio_cr_type_manager,spp.studio.change.request.type.manager,model_spp_studio_change_request_type,spp_studio.group_studio_manager,1,1,1,1
+access_studio_cr_field_mapping_viewer,spp.studio.cr.field.mapping.viewer,model_spp_studio_cr_field_mapping,spp_studio.group_studio_viewer,1,0,0,0
+access_studio_cr_field_mapping_editor,spp.studio.cr.field.mapping.editor,model_spp_studio_cr_field_mapping,spp_studio.group_studio_editor_officer,1,1,1,1
+access_studio_cr_field_mapping_manager,spp.studio.cr.field.mapping.manager,model_spp_studio_cr_field_mapping,spp_studio.group_studio_manager,1,1,1,1
+access_generic_cr_detail_viewer,spp.cr.detail.generic.viewer,model_spp_cr_detail_generic,spp_studio.group_studio_viewer,1,0,0,0
+access_generic_cr_detail_editor,spp.cr.detail.generic.editor,model_spp_cr_detail_generic,spp_studio.group_studio_editor_officer,1,1,1,0
+access_generic_cr_detail_manager,spp.cr.detail.generic.manager,model_spp_cr_detail_generic,spp_studio.group_studio_manager,1,1,1,1
+access_cr_type_wizard_editor,spp.studio.cr.type.wizard.editor,model_spp_studio_cr_type_wizard,spp_studio.group_studio_editor_officer,1,1,1,1
+access_cr_type_wizard_manager,spp.studio.cr.type.wizard.manager,model_spp_studio_cr_type_wizard,spp_studio.group_studio_manager,1,1,1,1
+access_clone_cr_type_wizard_editor,spp.studio.clone.cr.type.wizard.editor,model_spp_studio_clone_cr_type_wizard,spp_studio.group_studio_editor_officer,1,1,1,1
+access_clone_cr_type_wizard_manager,spp.studio.clone.cr.type.wizard.manager,model_spp_studio_clone_cr_type_wizard,spp_studio.group_studio_manager,1,1,1,1

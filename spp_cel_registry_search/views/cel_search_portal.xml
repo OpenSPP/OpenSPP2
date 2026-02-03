@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Client Action for CEL Search Portal -->
+    <record id="action_cel_search_portal" model="ir.actions.client">
+        <field name="name">Advanced Search</field>
+        <field name="tag">spp_cel_registry_search.cel_search_portal</field>
+        <field name="target">main</field>
+        <field name="path">registry-cel</field>
+    </record>
+
+    <!-- CEL Search Portal Menu -->
+    <menuitem
+        id="menu_cel_search_portal"
+        name="Advanced Search"
+        parent="spp_registry.spp_main_menu_root"
+        action="action_cel_search_portal"
+        sequence="85"
+        groups="group_cel_search_user"
+    />
+</odoo>

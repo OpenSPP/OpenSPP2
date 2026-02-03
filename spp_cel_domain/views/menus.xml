@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+  <!-- Root Menu -->
+  <menuitem
+        id="menu_cel_domain_root"
+        name="CEL Domain"
+        parent="base.menu_custom"
+        groups="spp_cel_domain.group_cel_domain_manager"
+        sequence="50"
+    />
+
+  <!-- Rule Preview Action -->
+  <record id="action_cel_rule_wizard" model="ir.actions.act_window">
+    <field name="name">Rule Preview</field>
+    <field name="res_model">spp.cel.rule.wizard</field>
+    <field name="view_mode">form</field>
+    <field name="target">new</field>
+    <field name="context">{}</field>
+  </record>
+
+  <!-- Data Management Submenu -->
+  <menuitem
+        id="menu_data_management"
+        name="Data Management"
+        parent="menu_cel_domain_root"
+        sequence="10"
+    />
+
+  <!-- Data Providers Menu -->
+  <menuitem
+        id="menu_data_providers"
+        name="Data Providers"
+        parent="menu_data_management"
+        action="action_data_provider_list"
+        sequence="10"
+    />
+
+  <!-- Data Cache Menu -->
+  <menuitem
+        id="menu_data_cache"
+        name="Data Cache"
+        parent="menu_data_management"
+        action="action_data_value_list"
+        sequence="20"
+    />
+
+  <!-- Tools Submenu -->
+  <menuitem
+        id="menu_cel_tools"
+        name="Tools"
+        parent="menu_cel_domain_root"
+        sequence="20"
+    />
+
+  <!-- Rule Preview Menu -->
+  <menuitem
+        id="menu_cel_rule_wizard"
+        name="Rule Preview"
+        parent="menu_cel_tools"
+        action="action_cel_rule_wizard"
+        groups="spp_cel_domain.group_cel_domain_manager"
+        sequence="10"
+    />
+</odoo>

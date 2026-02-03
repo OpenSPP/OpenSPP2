@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="1">
+        <!--
+            Audit Rules for Studio Change Request Models
+            =============================================
+            These rules enable automatic audit logging via spp_audit
+            for create/write/unlink operations on Studio CR type models.
+        -->
+
+        <!-- Studio CR Type Audit Rule -->
+        <record id="audit_rule_studio_cr_type" model="spp.audit.rule">
+            <field name="name">Studio CR Type Audit</field>
+            <field name="model_id" ref="model_spp_studio_change_request_type"/>
+            <field name="is_log_create">True</field>
+            <field name="is_log_write">True</field>
+            <field name="is_log_unlink">True</field>
+            <field name="is_log_activate">True</field>
+            <field name="is_log_deactivate">True</field>
+            <field name="is_log_state_change">True</field>
+            <field name="is_view_logs">True</field>
+        </record>
+
+        <!-- Studio CR Field Mapping Audit Rule -->
+        <record id="audit_rule_studio_cr_field_mapping" model="spp.audit.rule">
+            <field name="name">Studio CR Field Mapping Audit</field>
+            <field name="model_id" ref="model_spp_studio_cr_field_mapping"/>
+            <field name="is_log_create">True</field>
+            <field name="is_log_write">True</field>
+            <field name="is_log_unlink">True</field>
+            <field name="is_view_logs">True</field>
+            <!-- Link field mappings to their parent CR type for related logging -->
+            <field name="parent_id" ref="audit_rule_studio_cr_type"/>
+            <field name="field_id" search="[('model', '=', 'spp.studio.cr.field.mapping'), ('name', '=', 'cr_type_id')]"/>
+        </record>
+
+    </data>
+</odoo>

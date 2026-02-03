@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Pack Install Wizard Form -->
+    <record id="view_pack_install_wizard_form" model="ir.ui.view">
+        <field name="name">spp.studio.pack.install.wizard.form</field>
+        <field name="model">spp.studio.pack.install.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Install Logic Pack">
+                <!-- Initial Selection State -->
+                <group invisible="result_message">
+                    <group>
+                        <field name="pack_id" options="{'no_create': True}"/>
+                    </group>
+                </group>
+
+                <!-- Pack Details -->
+                <group invisible="not pack_id or result_message" string="Pack Details">
+                    <field name="pack_name" readonly="1"/>
+                    <field name="pack_description" readonly="1"/>
+                </group>
+
+                <!-- Items to Install -->
+                <separator string="Items to Install" invisible="not pack_id or result_message"/>
+                <field name="item_ids" nolabel="1" invisible="not pack_id or result_message">
+                    <list create="false" delete="true">
+                        <field name="name"/>
+                        <field name="expression_type" widget="badge"
+                               decoration-primary="expression_type == 'filter'"
+                               decoration-success="expression_type == 'formula'"
+                               decoration-warning="expression_type == 'scoring'"/>
+                        <field name="description"/>
+                    </list>
+                </field>
+
+                <!-- Variable Check -->
+                <group invisible="not pack_id or result_message" string="Variable Requirements">
+                    <field name="missing_variables" nolabel="1" readonly="1"/>
+                    <field name="has_missing_variables" invisible="1"/>
+                </group>
+
+                <!-- Installation Options -->
+                <group invisible="not pack_id or result_message" string="Installation Options">
+                    <field name="install_as_draft"/>
+                    <field name="install_personas"/>
+                </group>
+
+                <!-- Warning for missing variables -->
+                <div invisible="not has_missing_variables or result_message" class="alert alert-warning" role="alert">
+                    <strong>Warning:</strong> Some required variables are missing.
+                    The pack will install but some logic may not work correctly until variables are available.
+                </div>
+
+                <!-- Results -->
+                <group invisible="not result_message">
+                    <field name="result_message" nolabel="1" readonly="1"/>
+                </group>
+
+                <footer invisible="result_message">
+                    <button name="action_install" string="Install Pack" type="object" class="btn-primary"
+                            invisible="not pack_id"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+                <footer invisible="not result_message">
+                    <button name="action_view_installed" string="View Installed Logic" type="object" class="btn-primary"/>
+                    <button string="Close" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

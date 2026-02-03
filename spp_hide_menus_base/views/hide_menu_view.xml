@@ -1,0 +1,70 @@
+<odoo>
+    <record id="view_spp_hide_menu_tree" model="ir.ui.view">
+        <field name="name">view_spp_hide_menu_tree</field>
+        <field name="model">spp.hide.menu</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <list edit="false" create="true" delete="false">
+                <button
+                    name="hide_menu"
+                    type="object"
+                    icon="fa-eye-slash"
+                    string="Hide Menu"
+                    class="btn-danger"
+                    invisible="state == 'hide'"
+                    groups="base.group_system"
+                />
+                <button
+                    name="show_menu"
+                    type="object"
+                    icon="fa-eye"
+                    string="Show Menu"
+                    class="btn-primary"
+                    invisible="state == 'show'"
+                    groups="base.group_system"
+                />
+                <field name="menu_id" />
+                <field name="xml_id" />
+                <field
+                    name="state"
+                    decoration-primary="state=='show'"
+                    decoration-danger="state=='hide'"
+                    widget="badge"
+                />
+            </list>
+        </field>
+    </record>
+
+    <record id="action_spp_hide_menu" model="ir.actions.act_window">
+        <field name="name">Hide Menu Configuration</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">spp.hide.menu</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{}</field>
+        <field name="domain">[]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new Hide Menu Configuration!
+            </p><p>
+                Click the create button to enter the information of the Menu to be hidden.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_spp_hide_menu_tree_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1" />
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_spp_hide_menu_tree" />
+        <field name="act_window_id" ref="action_spp_hide_menu" />
+    </record>
+
+    <menuitem
+        id="menu_spp_hide_menu"
+        name="Hidden Menus"
+        action="action_spp_hide_menu"
+        parent="base.menu_users"
+        sequence="1000"
+        groups="base.group_no_one"
+    />
+
+</odoo>

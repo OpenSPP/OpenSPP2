@@ -1,0 +1,594 @@
+# CEL Event Data Profile Extensions
+# Module: spp_cel_event
+#
+# This file extends the registry_individuals and registry_groups profiles
+# with event data access capabilities, enabling CEL expressions to query
+# data collected through surveys, field visits, and other event-based
+# data collection mechanisms.
+#
+# Specification: docs/specs/CEL_EVENT_DATA_INTEGRATION_SPEC.md
+
+presets:
+  registry_individuals:
+    symbols:
+      # Events relation: Access registrant's event data records
+      events:
+        relation: rel
+        through: spp.event.data
+        parent: partner_id
+        link_field: id
+        child_model: spp.event.data
+        default_domain:
+          - ["state", "=", "active"]
+
+    functions:
+      # ========================================================================
+      # Event Value Access
+      # ========================================================================
+
+      - name: event
+        signature:
+          "event(type, field?, select?, after?, before?, within_days?, within_months?, period?, states?, default?)"
+        description: "Access field value from registrant's event with optional selection and filtering"
+        returns: any
+        parameters:
+          - name: type
+            type: str
+            required: true
+            description: "Event type code (e.g., 'household_survey', 'assessment')"
+          - name: field
+            type: str
+            required: false
+            description: "Field to extract from event data (omit to return entire event)"
+          - name: select
+            type: str
+            required: false
+            description:
+              "Selection mode: 'active', 'latest', 'latest_active', 'first', 'any' (default: auto-determined by event
+              type)"
+          - name: after
+            type: date|str
+            required: false
+            description: "Filter events with collection_date >= after"
+          - name: before
+            type: date|str
+            required: false
+            description: "Filter events with collection_date <= before"
+          - name: within_days
+            type: int
+            required: false
+            description: "Filter events within last N days"
+          - name: within_months
+            type: int
+            required: false
+            description: "Filter events within last N months"
+          - name: period
+            type: str
+            required: false
+            description: "Named period filter (e.g., '2024', '2024-Q1', '2024-03')"
+          - name: states
+            type: list[str]
+            required: false
+            description: "Event states to include (default: derived from select mode)"
+          - name: default
+            type: any
+            required: false
+            description: "Default value if no matching event found"
+        examples:
+          - expression: "event('household_survey').income > 500"
+            description: "Check if survey income exceeds threshold"
+          - expression: "event('survey', 'income', default=0) > 500"
+            description: "With default value for null safety"
+          - expression: "event('survey', select='latest', within_days=365).income"
+            description: "Most recent survey in last year"
+          - expression: "event('survey', period='2024-Q1').income"
+            description: "Survey from Q1 2024"
+
+      # ========================================================================
+      # Event Existence Checks
+      # ========================================================================
+
+      - name: has_event
+        signature: "has_event(type, after?, before?, within_days?, within_months?, period?, states?)"
+        description: "Check if registrant has an event matching the criteria"
+        returns: boolean
+        parameters:
+          - name: type
+            type: str
+            required: true
+            description: "Event type code"
+          - name: after
+            type: date|str
+            required: false
+            description: "Filter events with collection_date >= after"
+          - name: before
+            type: date|str
+            required: false
+            description: "Filter events with collection_date <= before"
+          - name: within_days
+            type: int
+            required: false
+            description: "Filter events within last N days"
+          - name: within_months
+            type: int
+            required: false
+            description: "Filter events within last N months"
+          - name: period
+            type: str
+            required: false
+            description: "Named period filter"
+          - name: states
+            type: list[str]
+            required: false
+            description: "Event states to include (default: ['active'])"
+        examples:
+          - expression: "has_event('disability_assessment')"
+            description: "Check if registrant has any active disability assessment"
+          - expression: "has_event('survey', within_days=365)"
+            description: "Has survey in last year"
+          - expression: "has_event('visit', period='2024-Q1')"
+            description: "Has visit in Q1 2024"
+
+      # ========================================================================
+      # Event Counting
+      # ========================================================================
+
+      - name: events_count
+        signature: "events_count(type, after?, before?, within_days?, within_months?, period?, states?, where?)"
+        description: "Count events matching the criteria"
+        returns: integer
+        parameters:
+          - name: type
+            type: str
+            required: true
+            description: "Event type code"
+          - name: after
+            type: date|str
+            required: false
+            description: "Filter events with collection_date >= after"
+          - name: before
+            type: date|str
+            required: false
+            description: "Filter events with collection_date <= before"
+          - name: within_days
+            type: int
+            required: false
+            description: "Filter events within last N days"
+          - name: within_months
+            type: int
+            required: false
+            description: "Filter events within last N months"
+          - name: period
+            type: str
+            required: false
+            description: "Named period filter"
+          - name: states
+            type: list[str]
+            required: false
+            description: "Event states to include (default: ['active'])"
+          - name: where
+            type: str
+            required: false
+            description: "CEL predicate to filter events by field values"
+        examples:
+          - expression: "events_count('attendance') >= 180"
+            description: "Count all active attendance events"
+          - expression: "events_count('attendance', period='2024') >= 180"
+            description: "Count attendance in 2024"
+          - expression: "events_count('attendance', where='attended == true') >= 150"
+            description: "Count events where attended is true"
+          - expression: "events_count('visit', within_days=365) >= 4"
+            description: "At least 4 visits in last year"
+
+      # ========================================================================
+      # Event Aggregation Functions
+      # ========================================================================
+
+      - name: events_sum
+        signature: "events_sum(type, field, after?, before?, within_days?, within_months?, period?, states?, where?)"
+        description: "Sum numeric field values across matching events"
+        returns: number
+        parameters:
+          - name: type
+            type: str
+            required: true
+            description: "Event type code"
+          - name: field
+            type: str
+            required: true
+            description: "Numeric field to sum"
+          - name: after
+            type: date|str
+            required: false
+            description: "Filter events with collection_date >= after"
+          - name: before
+            type: date|str
+            required: false
+            description: "Filter events with collection_date <= before"
+          - name: within_days
+            type: int
+            required: false
+            description: "Filter events within last N days"
+          - name: within_months
+            type: int
+            required: false
+            description: "Filter events within last N months"
+          - name: period
+            type: str
+            required: false
+            description: "Named period filter"
+          - name: states
+            type: list[str]
+            required: false
+            description: "Event states to include (default: ['active'])"
+          - name: where
+            type: str
+            required: false
+            description: "CEL predicate to filter events"
+        examples:
+          - expression: "events_sum('attendance', 'days_present', period='2024') >= 180"
+            description: "Sum attendance days in 2024"
+          - expression: "events_sum('payment', 'amount', within_months=12) > 1000"
+            description: "Sum payment amounts in last year"
+
+      - name: events_avg
+        signature: "events_avg(type, field, after?, before?, within_days?, within_months?, period?, states?, where?)"
+        description: "Calculate average of numeric field values across matching events"
+        returns: number
+        parameters:
+          - name: type
+            type: str
+            required: true
+            description: "Event type code"
+          - name: field
+            type: str
+            required: true
+            description: "Numeric field to average"
+          - name: after
+            type: date|str
+            required: false
+            description: "Filter events with collection_date >= after"
+          - name: before
+            type: date|str
+            required: false
+            description: "Filter events with collection_date <= before"
+          - name: within_days
+            type: int
+            required: false
+            description: "Filter events within last N days"
+          - name: within_months
+            type: int
+            required: false
+            description: "Filter events within last N months"
+          - name: period
+            type: str
+            required: false
+            description: "Named period filter"
+          - name: states
+            type: list[str]
+            required: false
+            description: "Event states to include (default: ['active'])"
+          - name: where
+            type: str
+            required: false
+            description: "CEL predicate to filter events"
+        examples:
+          - expression: "events_avg('survey', 'income', within_days=365) < 500"
+            description: "Average income from surveys in last year"
+          - expression: "events_avg('assessment', 'score', period='2024') >= 70"
+            description: "Average assessment score in 2024"
+
+      - name: events_min
+        signature: "events_min(type, field, after?, before?, within_days?, within_months?, period?, states?, where?)"
+        description: "Find minimum value of numeric field across matching events"
+        returns: number
+        parameters:
+          - name: type
+            type: str
+            required: true
+            description: "Event type code"
+          - name: field
+            type: str
+            required: true
+            description: "Numeric field to find minimum"
+          - name: after
+            type: date|str
+            required: false
+            description: "Filter events with collection_date >= after"
+          - name: before
+            type: date|str
+            required: false
+            description: "Filter events with collection_date <= before"
+          - name: within_days
+            type: int
+            required: false
+            description: "Filter events within last N days"
+          - name: within_months
+            type: int
+            required: false
+            description: "Filter events within last N months"
+          - name: period
+            type: str
+            required: false
+            description: "Named period filter"
+          - name: states
+            type: list[str]
+            required: false
+            description: "Event states to include (default: ['active'])"
+          - name: where
+            type: str
+            required: false
+            description: "CEL predicate to filter events"
+        examples:
+          - expression: "events_min('assessment', 'score', period='2024') >= 60"
+            description: "Minimum assessment score in 2024"
+          - expression: "events_min('survey', 'household_size') > 2"
+            description: "Minimum household size across surveys"
+
+      - name: events_max
+        signature: "events_max(type, field, after?, before?, within_days?, within_months?, period?, states?, where?)"
+        description: "Find maximum value of numeric field across matching events"
+        returns: number
+        parameters:
+          - name: type
+            type: str
+            required: true
+            description: "Event type code"
+          - name: field
+            type: str
+            required: true
+            description: "Numeric field to find maximum"
+          - name: after
+            type: date|str
+            required: false
+            description: "Filter events with collection_date >= after"
+          - name: before
+            type: date|str
+            required: false
+            description: "Filter events with collection_date <= before"
+          - name: within_days
+            type: int
+            required: false
+            description: "Filter events within last N days"
+          - name: within_months
+            type: int
+            required: false
+            description: "Filter events within last N months"
+          - name: period
+            type: str
+            required: false
+            description: "Named period filter"
+          - name: states
+            type: list[str]
+            required: false
+            description: "Event states to include (default: ['active'])"
+          - name: where
+            type: str
+            required: false
+            description: "CEL predicate to filter events"
+        examples:
+          - expression: "events_max('assessment', 'score', period='2024') >= 70"
+            description: "Maximum assessment score in 2024"
+          - expression: "events_max('survey', 'income') < 1000"
+            description: "Maximum income across surveys"
+
+      # ========================================================================
+      # Period Helper Functions
+      # ========================================================================
+
+      - name: this_year
+        signature: "this_year()"
+        description: "Returns current calendar year as period string"
+        returns: string
+        examples:
+          - expression: "this_year()"
+            description: "Returns '2024' (current year)"
+          - expression: "event('survey', period=this_year()).income"
+            description: "Get survey from current year"
+
+      - name: last_year
+        signature: "last_year()"
+        description: "Returns previous calendar year as period string"
+        returns: string
+        examples:
+          - expression: "last_year()"
+            description: "Returns '2023' (if current year is 2024)"
+          - expression: "has_event('survey', period=last_year())"
+            description: "Check for survey from previous year"
+
+      - name: this_quarter
+        signature: "this_quarter()"
+        description: "Returns current quarter as period string (format: YYYY-QN)"
+        returns: string
+        examples:
+          - expression: "this_quarter()"
+            description: "Returns '2024-Q4' (current quarter)"
+          - expression: "events_count('attendance', period=this_quarter())"
+            description: "Count attendance in current quarter"
+
+      - name: last_quarter
+        signature: "last_quarter()"
+        description: "Returns previous quarter as period string (format: YYYY-QN)"
+        returns: string
+        examples:
+          - expression: "last_quarter()"
+            description: "Returns '2024-Q3' (if current quarter is Q4 2024)"
+          - expression: "event('survey', period=last_quarter()).income"
+            description: "Get survey from previous quarter"
+
+      - name: this_month
+        signature: "this_month()"
+        description: "Returns current month as period string (format: YYYY-MM)"
+        returns: string
+        examples:
+          - expression: "this_month()"
+            description: "Returns '2024-12' (current month)"
+          - expression: "events_count('visit', period=this_month())"
+            description: "Count visits in current month"
+
+      - name: last_month
+        signature: "last_month()"
+        description: "Returns previous month as period string (format: YYYY-MM)"
+        returns: string
+        examples:
+          - expression: "last_month()"
+            description: "Returns '2024-11' (if current month is December 2024)"
+          - expression: "has_event('assessment', period=last_month())"
+            description: "Check for assessment from previous month"
+
+      - name: quarters_ago
+        signature: "quarters_ago(n)"
+        description: "Returns quarter N quarters back from current as period string"
+        returns: string
+        parameters:
+          - name: n
+            type: int
+            required: true
+            description: "Number of quarters back (1 = last quarter, 2 = two quarters ago, etc.)"
+        examples:
+          - expression: "quarters_ago(2)"
+            description: "Returns '2024-Q2' (if current quarter is Q4 2024)"
+          - expression: "event('survey', period=quarters_ago(3)).income"
+            description: "Get survey from 3 quarters ago"
+
+      - name: months_ago
+        signature: "months_ago(n)"
+        description: "Returns month N months back from current as period string"
+        returns: string
+        parameters:
+          - name: n
+            type: int
+            required: true
+            description: "Number of months back (1 = last month, 6 = six months ago, etc.)"
+        examples:
+          - expression: "months_ago(6)"
+            description: "Returns '2024-06' (if current month is December 2024)"
+          - expression: "has_event('visit', period=months_ago(3))"
+            description: "Check for visit from 3 months ago"
+
+      - name: year_start
+        signature: "year_start()"
+        description: "Returns start date of current calendar year"
+        returns: date
+        examples:
+          - expression: "year_start()"
+            description: "Returns date('2024-01-01') (start of current year)"
+          - expression: "event('survey', after=year_start()).income"
+            description: "Get survey from start of year onwards"
+
+      - name: quarter_start
+        signature: "quarter_start()"
+        description: "Returns start date of current quarter"
+        returns: date
+        examples:
+          - expression: "quarter_start()"
+            description: "Returns date('2024-10-01') (start of Q4 2024)"
+          - expression: "events_count('attendance', after=quarter_start())"
+            description: "Count attendance from start of quarter"
+
+  # ==========================================================================
+  # Registry Groups Profile Extension
+  # ==========================================================================
+
+  registry_groups:
+    symbols:
+      # Events relation: Access group registrant's event data records
+      events:
+        relation: rel
+        through: spp.event.data
+        parent: partner_id
+        link_field: id
+        child_model: spp.event.data
+        default_domain:
+          - ["state", "=", "active"]
+
+    functions:
+      # All event functions are available for groups as well
+      # (same definitions as registry_individuals)
+
+      - name: event
+        signature:
+          "event(type, field?, select?, after?, before?, within_days?, within_months?, period?, states?, default?)"
+        description: "Access field value from group registrant's event"
+        returns: any
+
+      - name: has_event
+        signature: "has_event(type, after?, before?, within_days?, within_months?, period?, states?)"
+        description: "Check if group registrant has matching event"
+        returns: boolean
+
+      - name: events_count
+        signature: "events_count(type, after?, before?, within_days?, within_months?, period?, states?, where?)"
+        description: "Count events matching criteria for group registrant"
+        returns: integer
+
+      - name: events_sum
+        signature: "events_sum(type, field, after?, before?, within_days?, within_months?, period?, states?, where?)"
+        description: "Sum numeric field across group registrant's events"
+        returns: number
+
+      - name: events_avg
+        signature: "events_avg(type, field, after?, before?, within_days?, within_months?, period?, states?, where?)"
+        description: "Average numeric field across group registrant's events"
+        returns: number
+
+      - name: events_min
+        signature: "events_min(type, field, after?, before?, within_days?, within_months?, period?, states?, where?)"
+        description: "Minimum value across group registrant's events"
+        returns: number
+
+      - name: events_max
+        signature: "events_max(type, field, after?, before?, within_days?, within_months?, period?, states?, where?)"
+        description: "Maximum value across group registrant's events"
+        returns: number
+
+      # Period helpers (same as individuals)
+      - name: this_year
+        signature: "this_year()"
+        description: "Current calendar year as period string"
+        returns: string
+
+      - name: last_year
+        signature: "last_year()"
+        description: "Previous calendar year as period string"
+        returns: string
+
+      - name: this_quarter
+        signature: "this_quarter()"
+        description: "Current quarter as period string"
+        returns: string
+
+      - name: last_quarter
+        signature: "last_quarter()"
+        description: "Previous quarter as period string"
+        returns: string
+
+      - name: this_month
+        signature: "this_month()"
+        description: "Current month as period string"
+        returns: string
+
+      - name: last_month
+        signature: "last_month()"
+        description: "Previous month as period string"
+        returns: string
+
+      - name: quarters_ago
+        signature: "quarters_ago(n)"
+        description: "Quarter N quarters back from current"
+        returns: string
+
+      - name: months_ago
+        signature: "months_ago(n)"
+        description: "Month N months back from current"
+        returns: string
+
+      - name: year_start
+        signature: "year_start()"
+        description: "Start date of current calendar year"
+        returns: date
+
+      - name: quarter_start
+        signature: "quarter_start()"
+        description: "Start date of current quarter"
+        returns: date

@@ -1,0 +1,412 @@
+/**
+ * CEL Expression Widget Styles
+ */
+
+// Variables
+$cel-primary: #714b67;
+$cel-success: #28a745;
+$cel-danger: #dc3545;
+$cel-border: #ced4da;
+$cel-bg-light: #f8f9fa;
+
+// Main container - applies to both the standalone editor and the field wrapper
+.o_cel_editor,
+.o_cel_editor_field {
+    position: relative;
+}
+
+// Toolbar
+.o_cel_toolbar {
+    .btn {
+        font-size: 0.8rem;
+        padding: 0.25rem 0.5rem;
+    }
+
+    kbd {
+        font-size: 0.7rem;
+        padding: 0.1rem 0.3rem;
+        background: #e9ecef;
+        border-radius: 3px;
+        font-weight: normal;
+    }
+}
+
+// Validation status
+.o_cel_validation_status {
+    font-size: 0.85rem;
+
+    &.text-success {
+        color: $cel-success !important;
+    }
+
+    &.text-danger {
+        color: $cel-danger !important;
+    }
+}
+
+// Editor container
+.o_cel_editor_container {
+    position: relative;
+
+    // CodeMirror overrides
+    .cm-editor {
+        border: 1px solid $cel-border;
+        border-radius: 4px;
+        min-height: 80px;
+
+        &.cm-focused {
+            border-color: $cel-primary;
+            box-shadow: 0 0 0 0.2rem rgba($cel-primary, 0.15);
+        }
+    }
+
+    &.o_cel_editor_readonly {
+        .cm-editor {
+            background: $cel-bg-light;
+        }
+
+        .cm-content {
+            cursor: default;
+        }
+    }
+
+    // Lint gutter styling
+    .cm-gutter-lint {
+        width: 1.2em;
+    }
+
+    .cm-lint-marker {
+        width: 1em;
+        height: 1em;
+    }
+
+    .cm-lint-marker-error {
+        content: "\26a0"; // Warning triangle
+        color: $cel-danger;
+    }
+
+    .cm-lint-marker-warning {
+        content: "\26a0";
+        color: #ffc107;
+    }
+
+    // Lint tooltip styling
+    .cm-tooltip-lint {
+        background: white;
+        border: 1px solid $cel-border;
+        border-radius: 4px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        max-width: 400px;
+        font-size: 0.85rem;
+        padding: 0;
+
+        .cm-diagnostic {
+            padding: 8px 12px;
+            border-bottom: 1px solid #eee;
+
+            &:last-child {
+                border-bottom: none;
+            }
+
+            &-error {
+                border-left: 3px solid $cel-danger;
+            }
+
+            &-warning {
+                border-left: 3px solid #ffc107;
+            }
+
+            &-info {
+                border-left: 3px solid #17a2b8;
+            }
+        }
+
+        .cm-diagnosticAction {
+            display: inline-block;
+            margin-top: 4px;
+            padding: 2px 8px;
+            background: $cel-bg-light;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            color: $cel-primary;
+            cursor: pointer;
+
+            &:hover {
+                background: darken($cel-bg-light, 5%);
+            }
+        }
+    }
+}
+
+// Fallback textarea (when CodeMirror fails to load)
+.o_cel_fallback_textarea {
+    font-family: "Roboto Mono", monospace;
+    font-size: 13px;
+    border: 1px solid $cel-border;
+    border-radius: 4px;
+    padding: 8px 12px;
+
+    &:focus {
+        border-color: $cel-primary;
+        box-shadow: 0 0 0 0.2rem rgba($cel-primary, 0.15);
+        outline: none;
+    }
+}
+
+// Help text
+.o_cel_help_text {
+    font-size: 0.8rem;
+
+    kbd {
+        font-size: 0.7rem;
+        padding: 0.1rem 0.3rem;
+        background: #e9ecef;
+        border-radius: 3px;
+        font-weight: normal;
+    }
+}
+
+// Symbol Browser
+.o_cel_symbol_browser {
+    position: relative;
+    z-index: 1;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    .o_cel_browser_header {
+        .input-group-text {
+            background: white;
+            border-right: none;
+        }
+
+        input {
+            border-left: none;
+
+            &:focus {
+                box-shadow: none;
+                border-color: $cel-border;
+            }
+        }
+    }
+
+    .o_cel_browser_tabs {
+        .btn {
+            border-radius: 0;
+            border: none;
+
+            &:focus {
+                box-shadow: none;
+            }
+        }
+    }
+
+    .o_cel_browser_content {
+        max-height: 300px;
+        overflow-y: auto;
+
+        // Variable list
+        .o_cel_variable_header {
+            transition: background-color 0.15s;
+
+            &:hover {
+                background-color: darken($cel-bg-light, 3%) !important;
+            }
+        }
+
+        // Field list
+        .o_cel_field_item {
+            transition: background-color 0.15s;
+
+            &:hover {
+                background-color: $cel-bg-light;
+            }
+        }
+
+        // Function list
+        .o_cel_function_item {
+            transition: background-color 0.15s;
+
+            &:hover {
+                background-color: $cel-bg-light;
+            }
+
+            code {
+                font-size: 0.85em;
+                color: #495057;
+            }
+        }
+
+        // CEL Variable list (Variables tab)
+        .o_cel_variable_list {
+            .o_cel_variable_item {
+                transition: background-color 0.15s;
+
+                &:hover {
+                    background-color: $cel-bg-light;
+                }
+
+                .badge {
+                    font-weight: normal;
+                    font-size: 0.7em;
+                }
+            }
+        }
+
+        // Library list
+        .o_cel_library_list {
+            .o_cel_library_item {
+                transition: background-color 0.15s;
+
+                &:hover {
+                    background-color: $cel-bg-light;
+                }
+
+                .badge {
+                    font-weight: normal;
+                    font-size: 0.7em;
+                }
+            }
+        }
+    }
+
+    // Filter bar
+    .o_cel_filter_bar {
+        .form-select {
+            max-width: 150px;
+            font-size: 0.8rem;
+        }
+    }
+
+    .o_cel_browser_footer {
+        kbd {
+            font-size: 0.7rem;
+            padding: 0.1rem 0.3rem;
+            background: #dee2e6;
+            border-radius: 3px;
+            font-weight: normal;
+        }
+    }
+}
+
+// Cursor pointer utility
+.cursor-pointer {
+    cursor: pointer;
+}
+
+// Hover background utility
+.hover-bg-light {
+    &:hover {
+        background-color: $cel-bg-light;
+    }
+}
+
+// Dark mode support
+.o_dark {
+    .o_cel_editor_container {
+        .cm-editor {
+            background: #343a40;
+            border-color: #6c757d;
+        }
+
+        // Dark mode lint tooltip
+        .cm-tooltip-lint {
+            background: #343a40;
+            border-color: #6c757d;
+            color: #f8f9fa;
+
+            .cm-diagnostic {
+                border-bottom-color: #495057;
+            }
+
+            .cm-diagnosticAction {
+                background: #495057;
+                color: #f8f9fa;
+
+                &:hover {
+                    background: #5a6268;
+                }
+            }
+        }
+    }
+
+    .o_cel_fallback_textarea {
+        background: #343a40;
+        color: #f8f9fa;
+        border-color: #6c757d;
+    }
+
+    .o_cel_symbol_browser {
+        background: #343a40;
+        color: #f8f9fa;
+
+        .o_cel_browser_header {
+            background: #2d3238 !important;
+
+            .input-group-text,
+            input {
+                background: #343a40;
+                color: #f8f9fa;
+                border-color: #6c757d;
+            }
+        }
+
+        .o_cel_browser_tabs .btn-light {
+            background: #495057;
+            color: #f8f9fa;
+        }
+
+        .o_cel_variable_header {
+            background: #495057 !important;
+
+            &:hover {
+                background: #5a6268 !important;
+            }
+        }
+
+        .o_cel_field_item,
+        .o_cel_function_item,
+        .o_cel_variable_list .o_cel_variable_item,
+        .o_cel_library_list .o_cel_library_item {
+            &:hover {
+                background: #495057;
+            }
+        }
+
+        .o_cel_filter_bar {
+            background: #2d3238 !important;
+
+            .form-select {
+                background: #343a40;
+                color: #f8f9fa;
+                border-color: #6c757d;
+            }
+        }
+
+        .o_cel_browser_footer {
+            background: #2d3238 !important;
+        }
+    }
+}
+
+// Responsive adjustments
+@media (max-width: 576px) {
+    .o_cel_toolbar {
+        flex-wrap: wrap;
+
+        .btn {
+            flex: 1 1 auto;
+        }
+
+        .o_cel_validation_status {
+            width: 100%;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+    }
+
+    .o_cel_symbol_browser {
+        .o_cel_browser_content {
+            max-height: 200px;
+        }
+    }
+}

@@ -1,0 +1,59 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_api_client_read,spp.api.client read,model_spp_api_client,group_api_v2_read,1,0,0,0
+access_spp_api_client_write,spp.api.client write,model_spp_api_client,group_api_v2_write,1,1,0,0
+access_spp_api_client_create,spp.api.client create,model_spp_api_client,group_api_v2_create,1,1,1,1
+access_spp_api_client_viewer,spp.api.client viewer,model_spp_api_client,group_api_v2_viewer,1,0,0,0
+access_spp_api_client_officer,spp.api.client officer,model_spp_api_client,group_api_v2_officer,1,1,0,0
+access_spp_api_client_manager,spp.api.client manager,model_spp_api_client,group_api_v2_manager,1,1,1,1
+access_spp_api_client_scope_read,spp.api.client.scope read,model_spp_api_client_scope,group_api_v2_read,1,0,0,0
+access_spp_api_client_scope_write,spp.api.client.scope write,model_spp_api_client_scope,group_api_v2_write,1,1,0,0
+access_spp_api_client_scope_create,spp.api.client.scope create,model_spp_api_client_scope,group_api_v2_create,1,1,1,1
+access_spp_api_client_scope_viewer,spp.api.client.scope viewer,model_spp_api_client_scope,group_api_v2_viewer,1,0,0,0
+access_spp_api_client_scope_officer,spp.api.client.scope officer,model_spp_api_client_scope,group_api_v2_officer,1,1,0,0
+access_spp_api_client_scope_manager,spp.api.client.scope manager,model_spp_api_client_scope,group_api_v2_manager,1,1,1,1
+access_spp_api_extension_read,spp.api.extension read,model_spp_api_extension,group_api_v2_read,1,0,0,0
+access_spp_api_extension_write,spp.api.extension write,model_spp_api_extension,group_api_v2_write,1,1,0,0
+access_spp_api_extension_create,spp.api.extension create,model_spp_api_extension,group_api_v2_create,1,1,1,1
+access_spp_api_extension_viewer,spp.api.extension viewer,model_spp_api_extension,group_api_v2_viewer,1,0,0,0
+access_spp_api_extension_officer,spp.api.extension officer,model_spp_api_extension,group_api_v2_officer,1,1,0,0
+access_spp_api_extension_manager,spp.api.extension manager,model_spp_api_extension,group_api_v2_manager,1,1,1,1
+access_spp_api_path_read,spp.api.path read,model_spp_api_path,group_api_v2_read,1,0,0,0
+access_spp_api_path_write,spp.api.path write,model_spp_api_path,group_api_v2_write,1,1,0,0
+access_spp_api_path_create,spp.api.path create,model_spp_api_path,group_api_v2_create,1,1,1,1
+access_spp_api_path_viewer,spp.api.path viewer,model_spp_api_path,group_api_v2_viewer,1,0,0,0
+access_spp_api_path_officer,spp.api.path officer,model_spp_api_path,group_api_v2_officer,1,1,0,0
+access_spp_api_path_manager,spp.api.path manager,model_spp_api_path,group_api_v2_manager,1,1,1,1
+access_spp_api_path_filter_read,spp.api.path.filter read,model_spp_api_path_filter,group_api_v2_read,1,0,0,0
+access_spp_api_path_filter_write,spp.api.path.filter write,model_spp_api_path_filter,group_api_v2_write,1,1,0,0
+access_spp_api_path_filter_create,spp.api.path.filter create,model_spp_api_path_filter,group_api_v2_create,1,1,1,1
+access_spp_api_path_filter_viewer,spp.api.path.filter viewer,model_spp_api_path_filter,group_api_v2_viewer,1,0,0,0
+access_spp_api_path_filter_officer,spp.api.path.filter officer,model_spp_api_path_filter,group_api_v2_officer,1,1,0,0
+access_spp_api_path_filter_manager,spp.api.path.filter manager,model_spp_api_path_filter,group_api_v2_manager,1,1,1,1
+access_spp_api_filter_preset_read,spp.api.filter.preset read,model_spp_api_filter_preset,group_api_v2_read,1,0,0,0
+access_spp_api_filter_preset_write,spp.api.filter.preset write,model_spp_api_filter_preset,group_api_v2_write,1,1,0,0
+access_spp_api_filter_preset_create,spp.api.filter.preset create,model_spp_api_filter_preset,group_api_v2_create,1,1,1,1
+access_spp_api_filter_preset_viewer,spp.api.filter.preset viewer,model_spp_api_filter_preset,group_api_v2_viewer,1,0,0,0
+access_spp_api_filter_preset_officer,spp.api.filter.preset officer,model_spp_api_filter_preset,group_api_v2_officer,1,1,0,0
+access_spp_api_filter_preset_manager,spp.api.filter.preset manager,model_spp_api_filter_preset,group_api_v2_manager,1,1,1,1
+access_spp_consent_scope_read,spp.consent.scope read,model_spp_consent_scope,group_api_v2_read,1,0,0,0
+access_spp_consent_scope_write,spp.consent.scope write,model_spp_consent_scope,group_api_v2_write,1,1,1,1
+access_spp_consent_scope_viewer,spp.consent.scope viewer,model_spp_consent_scope,group_api_v2_viewer,1,0,0,0
+access_spp_consent_scope_officer,spp.consent.scope officer,model_spp_consent_scope,group_api_v2_officer,1,1,1,1
+access_spp_consent_scope_manager,spp.consent.scope manager,model_spp_consent_scope,group_api_v2_manager,1,1,1,1
+access_spp_consent_read,spp.consent read (API V2),model_spp_consent,group_api_v2_read,1,0,0,0
+access_spp_consent_write,spp.consent write (API V2),model_spp_consent,group_api_v2_write,1,1,0,0
+access_spp_consent_create,spp.consent create (API V2),model_spp_consent,group_api_v2_create,1,1,1,0
+access_spp_consent_viewer,spp.consent viewer (API V2),model_spp_consent,group_api_v2_viewer,1,0,0,0
+access_spp_consent_officer,spp.consent officer (API V2),model_spp_consent,group_api_v2_officer,1,1,0,0
+access_spp_consent_manager,spp.consent manager (API V2),model_spp_consent,group_api_v2_manager,1,1,1,0
+access_spp_consent_history_read,spp.consent.history read,spp_consent.model_spp_consent_history,group_api_v2_read,1,0,0,0
+access_spp_consent_history_write,spp.consent.history write,spp_consent.model_spp_consent_history,group_api_v2_write,1,0,1,0
+access_spp_consent_history_create,spp.consent.history create,spp_consent.model_spp_consent_history,group_api_v2_create,1,0,1,0
+access_spp_consent_history_viewer,spp.consent.history viewer,spp_consent.model_spp_consent_history,group_api_v2_viewer,1,0,0,0
+access_spp_consent_history_officer,spp.consent.history officer,spp_consent.model_spp_consent_history,group_api_v2_officer,0,0,1,0
+access_spp_consent_history_manager,spp.consent.history manager,spp_consent.model_spp_consent_history,group_api_v2_manager,0,0,1,0
+access_spp_api_client_show_secret_wizard_manager,spp.api.client.show.secret.wizard manager,model_spp_api_client_show_secret_wizard,group_api_v2_manager,1,1,1,1
+access_spp_api_client_show_secret_wizard_admin,spp.api.client.show.secret.wizard admin,model_spp_api_client_show_secret_wizard,base.group_system,1,1,1,1
+access_spp_api_audit_log_viewer,spp.api.audit.log viewer,model_spp_api_audit_log,group_api_v2_viewer,1,0,0,0
+access_spp_api_audit_log_officer,spp.api.audit.log officer,model_spp_api_audit_log,group_api_v2_officer,1,0,1,0
+access_spp_api_audit_log_manager,spp.api.audit.log manager,model_spp_api_audit_log,group_api_v2_manager,1,0,1,0

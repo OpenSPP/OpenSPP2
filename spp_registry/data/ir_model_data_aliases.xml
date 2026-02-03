@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo noupdate="1">
+    <!--
+        Backward-compatibility alias.
+        Many modules still reference spp_security.group_spp_admin, but
+        the group is defined in spp_security. Create an XMLID alias that
+        points to the real group so those references keep working.
+    -->
+    <record id="group_spp_admin" model="ir.model.data">
+        <field name="name">group_spp_admin</field>
+        <field name="module">spp_registry_base</field>
+        <field name="model">res.groups</field>
+        <field name="res_id" eval="ref('spp_security.group_spp_admin')" />
+        <field name="noupdate" eval="1" />
+    </record>
+
+</odoo>

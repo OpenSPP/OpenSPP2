@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Inherit res.partner form to add DRIMS organization fields -->
+    <record id="view_res_partner_form_inherit_drims" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit.drims</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <!-- Add Personnel smart button for DRIMS organizations -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_drims_personnel"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-users"
+                        invisible="not is_drims_organization or drims_personnel_count == 0">
+                    <field name="drims_personnel_count" widget="statinfo" string="Personnel"/>
+                </button>
+            </xpath>
+            <!-- Add DRIMS Organization fields in a dedicated page -->
+            <xpath expr="//notebook" position="inside">
+                <page string="DRIMS" name="drims_organization" invisible="not is_company">
+                    <group>
+                        <group string="Disaster Response Coordination">
+                            <field name="is_drims_organization"/>
+                            <field name="drims_organization_role_id"
+                                   invisible="not is_drims_organization"
+                                   options="{'no_create': True, 'no_open': True}"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Standalone form view for DRIMS Organizations (bypasses registry) -->
+    <record id="view_drims_organization_form" model="ir.ui.view">
+        <field name="name">res.partner.form.drims.organization</field>
+        <field name="model">res.partner</field>
+        <field name="priority">5</field>
+        <field name="arch" type="xml">
+            <form string="DRIMS Organization">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_drims_personnel"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-users"
+                                invisible="drims_personnel_count == 0">
+                            <field name="drims_personnel_count" widget="statinfo" string="Personnel"/>
+                        </button>
+                    </div>
+                    <field name="image_1920" widget="image" class="oe_avatar"
+                           options="{'preview_image': 'avatar_128'}"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Organization Name" required="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Organization Details">
+                            <field name="is_company" invisible="1"/>
+                            <field name="is_drims_organization" invisible="1"/>
+                            <field name="is_registrant" invisible="1"/>
+                            <field name="drims_organization_role_id" string="Role"
+                                   options="{'no_create': True}"/>
+                            <field name="phone"/>
+                            <field name="email"/>
+                            <field name="website"/>
+                        </group>
+                        <group string="Address">
+                            <field name="street" placeholder="Street..."/>
+                            <field name="street2" placeholder="Street 2..."/>
+                            <field name="city" placeholder="City"/>
+                            <field name="state_id" placeholder="State"
+                                   options="{'no_create': True}"/>
+                            <field name="zip" placeholder="ZIP"/>
+                            <field name="country_id" placeholder="Country"
+                                   options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Contacts" name="contacts">
+                            <field name="child_ids">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="function"/>
+                                    <field name="phone"/>
+                                    <field name="email"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="comment" placeholder="Internal notes..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+    <!-- DRIMS Organizations List View -->
+    <record id="view_drims_organization_list" model="ir.ui.view">
+        <field name="name">res.partner.list.drims.organization</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="drims_organization_role_id" string="Role"/>
+                <field name="phone" optional="show"/>
+                <field name="email" optional="show"/>
+                <field name="city" optional="hide"/>
+                <field name="country_id" optional="hide"/>
+                <field name="drims_personnel_count" string="Personnel" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- DRIMS Organizations Search View -->
+    <record id="view_drims_organization_search" model="ir.ui.view">
+        <field name="name">res.partner.search.drims.organization</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <search>
+                <searchpanel>
+                    <field name="drims_organization_role_id" string="Role" select="multi"
+                           icon="fa-briefcase" enable_counters="1"/>
+                    <field name="country_id" select="multi"
+                           icon="fa-globe" enable_counters="1"/>
+                </searchpanel>
+                <field name="name"/>
+                <field name="drims_organization_role_id"/>
+                <field name="city"/>
+                <field name="country_id"/>
+                <separator/>
+                <filter name="with_personnel" string="With Personnel"
+                        domain="[('drims_personnel_count', '>', 0)]"/>
+                <separator/>
+                <group>
+                    <filter name="grp_role" string="Role"
+                            context="{'group_by': 'drims_organization_role_id'}"/>
+                    <filter name="grp_country" string="Country"
+                            context="{'group_by': 'country_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- DRIMS Organizations Action -->
+    <record id="action_drims_organization" model="ir.actions.act_window">
+        <field name="name">Organizations</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('is_drims_organization', '=', True)]</field>
+        <field name="context">{
+            'default_is_company': True,
+            'default_is_drims_organization': True,
+            'default_is_registrant': False,
+        }</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_drims_organization_list')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_drims_organization_form')})]"/>
+        <field name="search_view_id" ref="view_drims_organization_search"/>
+        <field name="path">drims-organizations</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Register your first organization
+            </p>
+            <p>
+                Track organizations participating in disaster response:
+                government agencies, NGOs, international organizations, and donors.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu item under Configuration -->
+    <menuitem id="menu_drims_organization"
+              name="Organizations"
+              parent="menu_drims_config"
+              action="action_drims_organization"
+              sequence="10"/>
+</odoo>

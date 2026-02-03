@@ -1,0 +1,972 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* spp_event_data
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: spp_event_data
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_data_form
+msgid ""
+"<i class=\"fa fa-info-circle me-2\"/>\n"
+"                                <span>\n"
+"                                    Event data is stored in a dedicated model.\n"
+"                                    Click \"View Data\" to see the details.\n"
+"                                </span>"
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_groups_event_data_form
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_individual_event_data_form
+msgid ""
+"<span class=\"o_stat_text\">Event</span>\n"
+"                        <span class=\"o_stat_text\">Data</span>"
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_data_form
+msgid "Activate"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type__active
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_data__state__active
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_data_search
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_type_search
+msgid "Active"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_res_partner__active_event_ids_cache
+#: model:ir.model.fields,field_description:spp_event_data.field_res_users__active_event_ids_cache
+msgid "Active Event IDs Cache"
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_type_form
+msgid "Approval"
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_type_form
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_type_search
+msgid "Archived"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type__auto_expire_days
+msgid "Auto Expire Days"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,help:spp_event_data.field_spp_event_type__auto_expire_days
+msgid "Auto-expire events after N days (0 = never)"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,help:spp_event_data.field_spp_event_type__create_change_request
+msgid ""
+"Automatically create change request when event data differs from registrant"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,help:spp_event_data.field_spp_event_type__is_one_active_per_registrant
+msgid "Automatically supersede previous active event when new one arrives"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_type__target_type__both
+msgid "Both"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_type_mapping__transform__expression
+msgid "CEL Expression"
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_create_event_wizard_form
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_data_form
+msgid "Cancel"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_data__state__cancelled
+msgid "Cancelled"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type__category
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_type_search
+msgid "Category"
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_type_form
+msgid "Change Request"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_data__event_type_code
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type__code
+msgid "Code"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_data__collector_id
+msgid "Collected By"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_create_event_wizard__collection_date
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_data__collection_date
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_data_search
+msgid "Collection Date"
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_data_form
+msgid "Collection Details"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_data__collector_name
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_create_event_wizard_form
+msgid "Collector Name"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model,name:spp_event_data.model_res_partner
+msgid "Contact"
+msgstr ""
+
+#. module: spp_event_data
+#. odoo-python
+#: code:addons/spp_event_data/wizard/create_event_wizard.py:0
+msgid "Create %s"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type__create_change_request
+msgid "Create Change Request"
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_create_event_wizard_form
+msgid "Create Event"
+msgstr ""
+
+#. module: spp_event_data
+#. odoo-python
+#: code:addons/spp_event_data/models/registrant.py:0
+msgid "Create Event Data"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model,name:spp_event_data.model_spp_create_event_wizard
+msgid "Create Event Wizard"
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.actions.act_window,help:spp_event_data.action_spp_event_type
+msgid "Create your first Event Type"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_create_event_wizard__create_uid
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_data__create_uid
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_field__create_uid
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type__create_uid
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type_mapping__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_create_event_wizard__create_date
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_data__create_date
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_field__create_date
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type__create_date
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type_mapping__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_type__storage_mode__fields
+msgid "Custom Fields"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_data__data_html
+msgid "Data Html"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type__data_model_id
+msgid "Data Model"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_data__data_record_id
+msgid "Data Record"
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_type_form
+msgid "Data Structure"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_data__data_values
+msgid "Data Values"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_field__field_type__date
+msgid "Date"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_field__field_type__datetime
+msgid "Date & Time"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_field__field_type__float
+msgid "Decimal"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_type__storage_mode__model
+msgid "Dedicated Model"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,help:spp_event_data.field_spp_event_data__res_id
+msgid "Deprecated"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,help:spp_event_data.field_spp_event_data__registrar
+msgid "Deprecated: Use collector_name instead"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,help:spp_event_data.field_spp_event_data__model
+msgid "Deprecated: Use event_type_id instead"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type__description
+msgid "Description"
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_type_form
+msgid "Description..."
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_type_mapping__transform__direct
+msgid "Direct Copy"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_res_partner__display_name
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_create_event_wizard__display_name
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_data__display_name
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_field__display_name
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type__display_name
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type_mapping__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_data__state__draft
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_data_search
+msgid "Draft"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.actions.act_window,name:spp_event_data.action_spp_event_data
+#: model:ir.model,name:spp_event_data.model_spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_res_partner__event_data_ids
+#: model:ir.model.fields,field_description:spp_event_data.field_res_users__event_data_ids
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_create_event_wizard__event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_data__data_json
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_data_form
+msgid "Event Data"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.actions.server,name:spp_event_data.ir_cron_expire_events_ir_actions_server
+msgid "Event Data: Expire Events"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model,name:spp_event_data.model_spp_event_field
+msgid "Event Field"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type__field_ids
+msgid "Event Fields"
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_data_form
+msgid "Event Information"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model,name:spp_event_data.model_spp_event_type
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_create_event_wizard__event_type_id
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_data__event_type_id
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_field__event_type_id
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type_mapping__event_type_id
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_data_search
+msgid "Event Type"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model,name:spp_event_data.model_spp_event_type_mapping
+msgid "Event Type Field Mapping"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.actions.act_window,name:spp_event_data.action_spp_event_type
+msgid "Event Types"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.constraint,message:spp_event_data.constraint_spp_event_type_code_uniq
+msgid "Event type code must be unique!"
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.actions.act_window,help:spp_event_data.action_spp_event_type
+msgid ""
+"Event types define the structure and behavior of events\n"
+"                captured from surveys, field visits, or external systems."
+msgstr ""
+
+#. module: spp_event_data
+#. odoo-python
+#: code:addons/spp_event_data/models/registrant.py:0
+#: model:ir.model.fields,field_description:spp_event_data.field_res_partner__event_data_count
+#: model:ir.model.fields,field_description:spp_event_data.field_res_users__event_data_count
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_groups_event_data_form
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_individual_event_data_form
+msgid "Events"
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.actions.act_window,help:spp_event_data.action_spp_event_data
+msgid ""
+"Events are created from surveys, field visits, or external system syncs.\n"
+"                Configure Event Types first to define the structure."
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_data__state__expired
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_data_search
+msgid "Expired"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_create_event_wizard__expiry_date
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_data__expiry_date
+msgid "Expiry Date"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,help:spp_event_data.field_spp_event_type_mapping__transform_expression
+msgid "Expression for transform"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_type__source_type__api
+msgid "External API"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_field__external_field
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type_mapping__external_field
+msgid "External Field"
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_type_form
+msgid "External Source"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_type__category__sync
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_type_search
+msgid "External Sync"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,help:spp_event_data.field_spp_event_data__source_reference
+msgid "External submission ID (ODK instance ID, etc.)"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type__mapping_ids
+msgid "Field Mappings"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_field__field_type
+msgid "Field Type"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_type__category__visit
+msgid "Field Visit"
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_type_search
+msgid "Field Visits"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,help:spp_event_data.field_spp_event_type_mapping__internal_field
+msgid "Field in event data"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,help:spp_event_data.field_spp_event_type__registrant_id_field
+msgid "Field in external data containing registrant identifier"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,help:spp_event_data.field_spp_event_field__external_field
+msgid "Field name in external source (ODK/Kobo)"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.constraint,message:spp_event_data.constraint_spp_event_field_name_type_uniq
+msgid "Field name must be unique per event type!"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,help:spp_event_data.field_spp_event_type_mapping__external_field
+msgid "Field path in external data"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,help:spp_event_data.field_spp_event_type_mapping__lookup_field
+msgid "Field to match in lookup model"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,help:spp_event_data.field_spp_event_data__collector_name
+msgid "For external collectors not in system"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type__external_form_id
+msgid "Form ID"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_type__target_type__group
+msgid "Group/Household"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_field__help_text
+msgid "Help Text"
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_data_form
+msgid "History"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_res_partner__id
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_create_event_wizard__id
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_data__id
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_field__id
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type__id
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type_mapping__id
+msgid "ID"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type__registrant_id_type_id
+msgid "ID Type"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_data__state__inactive
+msgid "Inactive"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_type__target_type__individual
+msgid "Individual"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_field__field_type__integer
+msgid "Integer"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_type__source_type__internal
+msgid "Internal (Manual/Wizard)"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type_mapping__internal_field
+msgid "Internal Field"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_data__is_expired
+msgid "Is Expired"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type__is_one_active_per_registrant
+msgid "Is One Active Per Registrant"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type__is_requires_approval
+msgid "Is Requires Approval"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_type__storage_mode__json
+msgid "JSON Storage"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,help:spp_event_data.field_spp_event_field__selection_options
+msgid "JSON array of [value, label] pairs"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,help:spp_event_data.field_res_partner__active_event_ids_cache
+#: model:ir.model.fields,help:spp_event_data.field_res_users__active_event_ids_cache
+msgid "JSON cache of active event IDs by type for O(1) lookup"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_type__source_type__kobo
+msgid "KoBoToolbox"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_field__label
+msgid "Label"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_create_event_wizard__write_uid
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_data__write_uid
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_field__write_uid
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type__write_uid
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type_mapping__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_create_event_wizard__write_date
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_data__write_date
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_field__write_date
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type__write_date
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type_mapping__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_data_form
+msgid "Legacy Data"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_create_event_wizard__event_data_model
+msgid "Legacy Event Type"
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_create_event_wizard_form
+msgid "Legacy Type (optional)"
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_type_form
+msgid "Lifecycle Rules"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_field__field_type__many2one
+msgid "Link"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_field__field_type__text
+msgid "Long Text"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type_mapping__lookup_field
+msgid "Lookup Field"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type_mapping__lookup_model
+msgid "Lookup Model"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_type_mapping__transform__lookup
+msgid "Lookup Reference"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_type__category__manual
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_type_search
+msgid "Manual Entry"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_data__data_model
+msgid "Model"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,help:spp_event_data.field_spp_event_type_mapping__lookup_model
+msgid "Model for lookup transform"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,help:spp_event_data.field_spp_event_field__relation_model
+msgid "Model name for many2one fields"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_data__name
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_field__name
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type__name
+msgid "Name"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,help:spp_event_data.field_spp_event_type__is_requires_approval
+msgid "New events require approval before becoming active"
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_create_event_wizard_form
+msgid "Next"
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.actions.act_window,help:spp_event_data.action_spp_event_data
+msgid "No events found"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_create_event_wizard__event_data_model__default
+msgid "None"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_type__source_type__odk
+msgid "ODK Central"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,help:spp_event_data.field_spp_event_type__external_form_id
+msgid "ODK/Kobo form identifier"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,help:spp_event_data.field_spp_event_type__data_model_id
+msgid "Odoo model to store event data. Leave empty for JSON storage."
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_data_tree
+msgid "Open Form"
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_create_event_wizard_form
+msgid "Optional: Enter event data as JSON"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,help:spp_event_data.field_spp_event_data__source_raw_data
+msgid "Original data from external source (for debugging)"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_type_mapping__transform__boolean
+msgid "Parse Boolean"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_type_mapping__transform__date
+msgid "Parse Date"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_type_mapping__transform__datetime
+msgid "Parse Datetime"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_type_mapping__transform__float
+msgid "Parse Float"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_type_mapping__transform__integer
+msgid "Parse Integer"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_create_event_wizard__partner_id
+msgid "Partner"
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_data_search
+msgid "Pending"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_data__state__pending
+msgid "Pending Approval"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type__external_project_id
+msgid "Project ID"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_data__source_raw_data
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_data_form
+msgid "Raw Source Data"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_data__source_received_date
+msgid "Received Date"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_data__partner_id
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_data_search
+msgid "Registrant"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type__registrant_id_field
+msgid "Registrant ID Field"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_create_event_wizard__registrar
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_data__registrar
+msgid "Registrar"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_data__res_id
+msgid "Related Data"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_data__model
+msgid "Related Document Model"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_field__relation_model
+msgid "Relation Model"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_field__required
+msgid "Required"
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_data_form
+msgid "Reset to Draft"
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_create_event_wizard_form
+msgid "Select Event Type..."
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_field__field_type__selection
+msgid "Selection"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_field__selection_options
+msgid "Selection Options"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_field__sequence
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type__sequence
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type_mapping__sequence
+msgid "Sequence"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type__external_server_url
+msgid "Server URL"
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_data_form
+msgid "Source"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_data__source_reference
+msgid "Source Reference"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_data__source_type
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type__source_type
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_data_search
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_type_search
+msgid "Source Type"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_data__source_url
+msgid "Source URL"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_data__state
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_data_search
+msgid "State"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type__storage_mode
+msgid "Storage Mode"
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_type_form
+msgid "Supersede Rules"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_data__state__superseded
+msgid "Superseded"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_data__superseded_by_id
+msgid "Superseded By"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_data__supersedes_id
+msgid "Supersedes"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_type__category__survey
+msgid "Survey/Assessment"
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_type_search
+msgid "Surveys"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type__target_type
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_type_search
+msgid "Target Type"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,help:spp_event_data.field_spp_event_field__name
+msgid "Technical name"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_field__field_type__char
+msgid "Text"
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_data_search
+msgid "This Month"
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_data_search
+msgid "This Week"
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_data_search
+msgid "Today"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type_mapping__transform
+msgid "Transform"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,field_description:spp_event_data.field_spp_event_type_mapping__transform_expression
+msgid "Transform Expression"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,help:spp_event_data.field_spp_event_type__registrant_id_type_id
+msgid "Type of ID used to match registrant"
+msgstr ""
+
+#. module: spp_event_data
+#: model_terms:ir.ui.view,arch_db:spp_event_data.view_spp_event_data_form
+msgid "View Data"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields,help:spp_event_data.field_spp_event_data__source_received_date
+msgid "When data was received from external source"
+msgstr ""
+
+#. module: spp_event_data
+#: model:ir.model.fields.selection,name:spp_event_data.selection__spp_event_field__field_type__boolean
+msgid "Yes/No"
+msgstr ""
+
+#. module: spp_event_data
+#. odoo-python
+#: code:addons/spp_event_data/models/registrant.py:0
+msgid "partner_id"
+msgstr ""

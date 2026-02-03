@@ -1,0 +1,255 @@
+# OpenSPP Access Management Compliance Specification
+# Module: spp_api_v2
+# Version: 1.0
+#
+# This file declares the expected access control configuration for this module.
+# Run: python -m scripts.compliance.checker spp_api_v2
+# Generate tests: python -m scripts.compliance.test_generator spp_api_v2
+
+module: spp_api_v2
+domain: api_v2
+version: "1.0"
+
+# =============================================================================
+# GROUP DEFINITIONS
+# Following ADR-004 Three-Tier Architecture
+# =============================================================================
+
+groups:
+  # --- Tier 3: Technical base groups ---
+  - id: group_api_v2_read
+    tier: 3
+    comment:
+      "Technical group for read access to API V2 models. Users can read API clients, scopes, paths, filters, and consent
+      records."
+
+  - id: group_api_v2_write
+    tier: 3
+    implied_ids: [group_api_v2_read]
+    comment:
+      "Technical group for write access to API V2 models. Users can modify API clients, scopes, paths, filters, and
+      consent records."
+
+  - id: group_api_v2_create
+    tier: 3
+    implied_ids: [group_api_v2_write]
+    comment:
+      "Technical group for create access to API V2 models. Users can create new API clients, scopes, paths, filters, and
+      consent records."
+
+  # --- Tier 2: User-facing groups ---
+  - id: group_api_v2_viewer
+    tier: 2
+    privilege_id: privilege_api_v2_viewer
+    implied_ids: [group_api_v2_read]
+    comment:
+      "Can view API V2 clients, scopes, and consent records. This is a read-only role for monitoring and auditing API
+      access."
+
+  - id: group_api_v2_officer
+    tier: 2
+    privilege_id: privilege_api_v2_officer
+    implied_ids: [group_api_v2_viewer, group_api_v2_write]
+    comment:
+      "Can view and manage consent records. Officers can grant/revoke consent but cannot modify API clients or
+      configuration."
+
+  - id: group_api_v2_manager
+    tier: 2
+    privilege_id: privilege_api_v2_manager
+    implied_ids: [group_api_v2_officer, group_api_v2_create]
+    comment:
+      "Full control over API V2 configuration. Managers can create/modify API clients, manage scopes, configure paths
+      and filters, and manage all consent records."
+
+# Admin linkage - manager group links to spp_security.group_spp_admin
+admin_link_group: group_api_v2_manager
+
+# =============================================================================
+# MODEL ACCESS (ir.model.access.csv)
+# Standard pattern: viewer=read, officer=read+write, manager=full CRUD
+#
+# Security Model for API V2:
+# - API Clients: External systems accessing the API (manager-only for create)
+# - Scopes: OAuth scopes defining access permissions (manager-only for create)
+# - Extensions: Module-specific field extensions (manager-only for create)
+# - Paths: API endpoint definitions (manager-only for create)
+# - Path Filters: Query filters for API paths (manager-only for create)
+# - Filter Presets: Reusable filter configurations (manager-only for create)
+# - Consents: User consent for data access (officer can manage)
+# - Consent Scopes: Scope definitions for consent (officer can manage)
+# - Consent History: Audit trail for consent changes (officer can create)
+# =============================================================================
+
+model_access:
+  # API Client - OAuth clients for external systems
+  # Officers cannot create/delete clients, only managers
+  - model: spp.api.client
+    viewer: [read]
+    officer: [read, write]
+    manager: [read, write, create, unlink]
+
+  # API Client Scope - OAuth scopes for clients
+  # Officers cannot create/delete scopes, only managers
+  - model: spp.api.client.scope
+    viewer: [read]
+    officer: [read, write]
+    manager: [read, write, create, unlink]
+
+  # API Extension - Module-specific field extensions
+  # Configuration model, manager-only for create/delete
+  - model: spp.api.extension
+    viewer: [read]
+    officer: [read, write]
+    manager: [read, write, create, unlink]
+
+  # API Path - Endpoint definitions
+  # Configuration model, manager-only for create/delete
+  - model: spp.api.path
+    viewer: [read]
+    officer: [read, write]
+    manager: [read, write, create, unlink]
+
+  # API Path Filter - Query filters for paths
+  # Configuration model, manager-only for create/delete
+  - model: spp.api.path.filter
+    viewer: [read]
+    officer: [read, write]
+    manager: [read, write, create, unlink]
+
+  # API Filter Preset - Reusable filter configurations
+  # Configuration model, manager-only for create/delete
+  - model: spp.api.filter.preset
+    viewer: [read]
+    officer: [read, write]
+    manager: [read, write, create, unlink]
+
+  # Consent Scope - Scope definitions for consent
+  # Officers can manage consent scopes (create/write)
+  - model: spp.consent.scope
+    viewer: [read]
+    officer: [read, write, create, unlink]
+    manager: [read, write, create, unlink]
+
+  # Consent - User consent for data access
+  # Officers can create/modify consent (no delete to preserve audit trail)
+  - model: spp.consent
+    viewer: [read]
+    officer: [read, write]
+    manager: [read, write, create]
+
+  # Consent History - Audit trail for consent changes
+  # Officers can create history entries (write-only audit trail)
+  # Note: No read permission to prevent tampering, no unlink for audit integrity
+  - model: spp.consent.history
+    viewer: [read]
+    officer: [create]
+    manager: [create]
+
+# =============================================================================
+# RECORD RULES (ir.rule)
+# Data visibility rules based on group membership
+# =============================================================================
+
+record_rules: []
+# No record rules currently defined for spp_api_v2
+# All users with group access can see all records within their permissions
+
+# =============================================================================
+# MENU VISIBILITY
+# Which groups can see which menus
+# =============================================================================
+
+menus:
+  # Root menu - visible to all API V2 users
+  # Located under Registry > Configuration
+  - id: menu_api_v2_root
+    name: "API V2"
+    parent: spp_registry.spp_configuration_menu_root
+    groups: [group_api_v2_viewer]
+
+  # API Clients submenu
+  - id: menu_api_clients
+    name: "API Clients"
+    parent: menu_api_v2_root
+    groups: [group_api_v2_viewer]
+
+  # API Extensions submenu
+  - id: menu_api_extensions
+    name: "API Extensions"
+    parent: menu_api_v2_root
+    groups: [group_api_v2_viewer]
+
+  # API Paths submenu
+  - id: menu_api_paths
+    name: "API Paths"
+    parent: menu_api_v2_root
+    groups: [group_api_v2_viewer]
+
+  # API Filters submenu
+  - id: menu_api_filters
+    name: "API Filters"
+    parent: menu_api_v2_root
+    groups: [group_api_v2_viewer]
+
+  # Filter Presets submenu
+  - id: menu_filter_presets
+    name: "Filter Presets"
+    parent: menu_api_v2_root
+    groups: [group_api_v2_viewer]
+
+# =============================================================================
+# FIELD RESTRICTIONS
+# Fields with group-based visibility in views
+# =============================================================================
+
+field_restrictions: []
+# No field-level restrictions currently defined for spp_api_v2
+
+# =============================================================================
+# ACTION RESTRICTIONS
+# Actions that are restricted to specific groups
+# =============================================================================
+
+actions: []
+# No action-level restrictions currently defined for spp_api_v2
+# Menu items reference actions directly
+
+# =============================================================================
+# NOTES
+# =============================================================================
+
+# Architecture Notes:
+# 1. External API Module - spp_api_v2 provides OAuth 2.0 authenticated API access
+#    - API Clients represent external systems
+#    - Scopes define granular permissions
+#    - Consent records track user authorization
+#
+# 2. Access Patterns:
+#    - Viewers: Read-only monitoring of API configuration and consent
+#    - Officers: Can manage consent but cannot modify API clients or configuration
+#    - Managers: Full control over API configuration, clients, and consent
+#
+# 3. Consent Management:
+#    - Officers can grant/revoke consent (operational task)
+#    - Managers have full access including client configuration (administrative task)
+#    - Consent history is write-only audit trail (officers can create, not read/modify)
+#
+# 4. Configuration vs Operational Data:
+#    - Configuration: API clients, scopes, paths, filters, extensions (manager-only create)
+#    - Operational: Consent records and consent scopes (officer can manage)
+#
+# 5. Security Model:
+#    - No record rules (all users see all records within their permission level)
+#    - All menus visible to viewers+ (read-only for viewers, write for officers/managers)
+#    - Create/delete restricted to managers except for consent operations
+#
+# 6. Integration Points:
+#    - Extends spp_consent module (consent.scope, consent, consent.history models)
+#    - Lives under Registry > Configuration menu structure
+#    - 12 dependent modules extend this API (spp_api_v2_*)
+#
+# 7. Audit Trail:
+#    - Consent history tracks all consent changes
+#    - Write-only for officers/managers to prevent tampering
+#    - No unlink permission to preserve audit integrity

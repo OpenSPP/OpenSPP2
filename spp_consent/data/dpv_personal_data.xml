@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+DPV-Aligned Personal Data Categories for Consent Management.
+
+Based on W3C Data Privacy Vocabulary (DPV) v2.
+See: https://w3id.org/dpv#PersonalData
+
+Includes social protection-specific categories.
+-->
+<odoo noupdate="1">
+
+    <!-- ================================================================== -->
+    <!-- BASIC PERSONAL DATA CATEGORIES (DPV) -->
+    <!-- ================================================================== -->
+
+    <record id="pd_identifying" model="spp.consent.personal.data">
+        <field name="code">Identifying</field>
+        <field name="name">Identifying Data</field>
+        <field name="dpv_uri">https://w3id.org/dpv#Identifying</field>
+        <field name="dpv_concept">dpv:Identifying</field>
+        <field name="description">Data used to identify an individual</field>
+        <field name="example_fields">Name, ID number, photo</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="pd_demographic" model="spp.consent.personal.data">
+        <field name="code">Demographic</field>
+        <field name="name">Demographic Data</field>
+        <field name="dpv_uri">https://w3id.org/dpv#Demographic</field>
+        <field name="dpv_concept">dpv:Demographic</field>
+        <field name="description">Demographic information about an individual</field>
+        <field name="example_fields">Age, gender, marital status, nationality</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="pd_contact" model="spp.consent.personal.data">
+        <field name="code">Contact</field>
+        <field name="name">Contact Data</field>
+        <field name="dpv_uri">https://w3id.org/dpv#Contact</field>
+        <field name="dpv_concept">dpv:Contact</field>
+        <field name="description">Contact information</field>
+        <field name="example_fields">Address, phone, email</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <record id="pd_location" model="spp.consent.personal.data">
+        <field name="code">Location</field>
+        <field name="name">Location Data</field>
+        <field name="dpv_uri">https://w3id.org/dpv#Location</field>
+        <field name="dpv_concept">dpv:Location</field>
+        <field name="description">Geographic or location information</field>
+        <field name="example_fields">GPS coordinates, region, district</field>
+        <field name="sequence">40</field>
+    </record>
+
+    <record id="pd_financial" model="spp.consent.personal.data">
+        <field name="code">Financial</field>
+        <field name="name">Financial Data</field>
+        <field name="dpv_uri">https://w3id.org/dpv#Financial</field>
+        <field name="dpv_concept">dpv:Financial</field>
+        <field name="description">Financial and economic information</field>
+        <field name="example_fields">Income, bank account, payment history</field>
+        <field name="sequence">50</field>
+    </record>
+
+    <record id="pd_family" model="spp.consent.personal.data">
+        <field name="code">Family</field>
+        <field name="name">Family Data</field>
+        <field name="dpv_uri">https://w3id.org/dpv#Family</field>
+        <field name="dpv_concept">dpv:Family</field>
+        <field name="description">Information about family relationships</field>
+        <field name="example_fields">Household members, dependents, relationships</field>
+        <field name="sequence">60</field>
+    </record>
+
+    <!-- ================================================================== -->
+    <!-- SENSITIVE / SPECIAL CATEGORY DATA (GDPR Article 9) -->
+    <!-- ================================================================== -->
+
+    <record id="pd_health" model="spp.consent.personal.data">
+        <field name="code">Health</field>
+        <field name="name">Health Data</field>
+        <field name="dpv_uri">https://w3id.org/dpv#HealthData</field>
+        <field name="dpv_concept">dpv:HealthData</field>
+        <field name="description">Health and medical information</field>
+        <field name="example_fields">Medical conditions, disabilities, treatments</field>
+        <field name="is_sensitive">True</field>
+        <field name="sensitivity_reason">health</field>
+        <field name="sequence">100</field>
+    </record>
+
+    <record id="pd_biometric" model="spp.consent.personal.data">
+        <field name="code">Biometric</field>
+        <field name="name">Biometric Data</field>
+        <field name="dpv_uri">https://w3id.org/dpv#Biometric</field>
+        <field name="dpv_concept">dpv:Biometric</field>
+        <field name="description">Biometric identifiers</field>
+        <field name="example_fields">Fingerprints, facial features, iris scan</field>
+        <field name="is_sensitive">True</field>
+        <field name="sensitivity_reason">biometric</field>
+        <field name="sequence">110</field>
+    </record>
+
+    <record id="pd_genetic" model="spp.consent.personal.data">
+        <field name="code">Genetic</field>
+        <field name="name">Genetic Data</field>
+        <field name="dpv_uri">https://w3id.org/dpv#Genetic</field>
+        <field name="dpv_concept">dpv:Genetic</field>
+        <field name="description">Genetic information</field>
+        <field name="is_sensitive">True</field>
+        <field name="sensitivity_reason">genetic</field>
+        <field name="sequence">120</field>
+    </record>
+
+    <record id="pd_racial_ethnic" model="spp.consent.personal.data">
+        <field name="code">RacialEthnic</field>
+        <field name="name">Racial/Ethnic Origin</field>
+        <field name="dpv_uri">https://w3id.org/dpv#EthnicOrigin</field>
+        <field name="dpv_concept">dpv:EthnicOrigin</field>
+        <field name="description">Racial or ethnic origin information</field>
+        <field name="is_sensitive">True</field>
+        <field name="sensitivity_reason">racial_ethnic</field>
+        <field name="sequence">130</field>
+    </record>
+
+    <record id="pd_religious" model="spp.consent.personal.data">
+        <field name="code">Religious</field>
+        <field name="name">Religious Beliefs</field>
+        <field name="dpv_uri">https://w3id.org/dpv#ReligiousBelief</field>
+        <field name="dpv_concept">dpv:ReligiousBelief</field>
+        <field name="description">Religious or philosophical beliefs</field>
+        <field name="is_sensitive">True</field>
+        <field name="sensitivity_reason">religious</field>
+        <field name="sequence">140</field>
+    </record>
+
+    <!-- ================================================================== -->
+    <!-- SOCIAL PROTECTION-SPECIFIC CATEGORIES -->
+    <!-- ================================================================== -->
+
+    <record id="pd_sp_vulnerability" model="spp.consent.personal.data">
+        <field name="code">SPVulnerability</field>
+        <field name="name">Vulnerability Assessment Data</field>
+        <field name="description">Information from vulnerability assessments</field>
+        <field name="example_fields">Vulnerability score, risk factors, needs assessment</field>
+        <field name="is_social_protection">True</field>
+        <field name="sequence">200</field>
+    </record>
+
+    <record id="pd_sp_enrollment" model="spp.consent.personal.data">
+        <field name="code">SPEnrollment</field>
+        <field name="name">Program Enrollment Data</field>
+        <field name="description">Information about program enrollments</field>
+        <field name="example_fields">Programs enrolled, enrollment dates, benefit types</field>
+        <field name="is_social_protection">True</field>
+        <field name="sequence">210</field>
+    </record>
+
+    <record id="pd_sp_benefit" model="spp.consent.personal.data">
+        <field name="code">SPBenefit</field>
+        <field name="name">Benefit History Data</field>
+        <field name="description">Information about benefits received</field>
+        <field name="example_fields">Payment amounts, payment dates, delivery method</field>
+        <field name="is_social_protection">True</field>
+        <field name="sequence">220</field>
+    </record>
+
+    <record id="pd_sp_livelihood" model="spp.consent.personal.data">
+        <field name="code">SPLivelihood</field>
+        <field name="name">Livelihood Data</field>
+        <field name="description">Information about livelihoods and occupation</field>
+        <field name="example_fields">Occupation, employment status, assets, land ownership</field>
+        <field name="is_social_protection">True</field>
+        <field name="sequence">230</field>
+    </record>
+
+</odoo>

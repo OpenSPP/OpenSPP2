@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Exit Registrant Detail Form View -->
+    <record id="spp_cr_detail_exit_registrant_form" model="ir.ui.view">
+        <field name="name">spp.cr.detail.exit_registrant.form</field>
+        <field name="model">spp.cr.detail.exit_registrant</field>
+        <field name="arch" type="xml">
+            <form string="Exit Registrant Details">
+                <sheet>
+                    <group>
+                        <group string="Registrant">
+                            <field name="registrant_name" />
+                            <field name="is_group" invisible="1"/>
+                            <field name="active_membership_count" invisible="is_group" />
+                        </group>
+                        <group string="Exit Details">
+                            <field name="exit_reason" />
+                            <field name="exit_date" />
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Additional Details" invisible="exit_reason not in ['deceased', 'emigrated']">
+                            <field name="death_date" invisible="exit_reason != 'deceased'" required="exit_reason == 'deceased'" />
+                            <field name="destination_country_id" invisible="exit_reason != 'emigrated'" />
+                        </group>
+                        <group string="Options">
+                            <field name="is_end_active_memberships" />
+                        </group>
+                    </group>
+                    <group string="Additional Information">
+                        <field name="remarks" placeholder="Enter any additional notes..." />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

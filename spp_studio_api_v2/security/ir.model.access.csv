@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_studio_api_group_mixin_read,spp.studio.api.group.mixin read,model_spp_studio_api_group_mixin,spp_api_v2.group_api_v2_read,1,0,0,0
+access_spp_studio_api_group_mixin_write,spp.studio.api.group.mixin write,model_spp_studio_api_group_mixin,spp_api_v2.group_api_v2_write,1,1,0,0
+access_spp_studio_api_group_mixin_create,spp.studio.api.group.mixin create,model_spp_studio_api_group_mixin,spp_api_v2.group_api_v2_create,1,1,1,0
+access_spp_studio_api_individual_mixin_read,spp.studio.api.individual.mixin read,model_spp_studio_api_individual_mixin,spp_api_v2.group_api_v2_read,1,0,0,0
+access_spp_studio_api_individual_mixin_write,spp.studio.api.individual.mixin write,model_spp_studio_api_individual_mixin,spp_api_v2.group_api_v2_write,1,1,0,0
+access_spp_studio_api_individual_mixin_create,spp.studio.api.individual.mixin create,model_spp_studio_api_individual_mixin,spp_api_v2.group_api_v2_create,1,1,1,0

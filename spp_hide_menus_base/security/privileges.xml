@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Menu Visibility Privilege -->
+    <record id="privilege_hide_menus_user" model="res.groups.privilege">
+        <field name="name">Menu Visibility</field>
+        <field name="category_id" ref="spp_security.category_spp_admin"/>
+        <field name="sequence">110</field>
+    </record>
+</odoo>

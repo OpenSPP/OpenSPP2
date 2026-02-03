@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        OpenSPP Module Categories
+        =========================
+        These categories organize security groups in the user settings UI.
+        Categories are defined centrally here, but groups are defined in their
+        respective domain modules (only when those modules are installed).
+
+        IMPORTANT: Empty categories are automatically hidden by Odoo UI.
+        Groups only appear when their domain module is installed.
+    -->
+
+    <!-- Main OpenSPP Category (parent for all) -->
+    <record id="category_spp" model="ir.module.category">
+        <field name="name">OpenSPP</field>
+        <field name="description">OpenSPP Social Protection Platform modules</field>
+        <field name="sequence">1</field>
+    </record>
+
+    <!-- Administration Category -->
+    <record id="category_spp_admin" model="ir.module.category">
+        <field name="name">Administration</field>
+        <field name="description">System administration and configuration</field>
+        <field name="parent_id" ref="category_spp"/>
+        <field name="sequence">1</field>
+    </record>
+
+    <!-- Registry Domain Category -->
+    <record id="category_spp_registry" model="ir.module.category">
+        <field name="name">Registry</field>
+        <field name="description">Beneficiary and group registry management</field>
+        <field name="parent_id" ref="category_spp"/>
+        <field name="sequence">10</field>
+    </record>
+
+    <!-- Programs Domain Category -->
+    <record id="category_spp_programs" model="ir.module.category">
+        <field name="name">Programs</field>
+        <field name="description">Program and cycle management</field>
+        <field name="parent_id" ref="category_spp"/>
+        <field name="sequence">20</field>
+    </record>
+
+    <!-- Scoring Domain Category -->
+    <record id="category_spp_scoring" model="ir.module.category">
+        <field name="name">Scoring</field>
+        <field name="description">Scoring and assessment framework for beneficiary targeting</field>
+        <field name="parent_id" ref="category_spp"/>
+        <field name="sequence">25</field>
+    </record>
+
+    <!-- Entitlements Domain Category -->
+    <record id="category_spp_entitlements" model="ir.module.category">
+        <field name="name">Entitlements</field>
+        <field name="description">Entitlement management and processing</field>
+        <field name="parent_id" ref="category_spp"/>
+        <field name="sequence">30</field>
+    </record>
+
+    <!-- Change Requests Domain Category -->
+    <record id="category_spp_change_request" model="ir.module.category">
+        <field name="name">Change Requests</field>
+        <field name="description">Change request workflow management</field>
+        <field name="parent_id" ref="category_spp"/>
+        <field name="sequence">40</field>
+    </record>
+
+    <!-- Approvals Domain Category -->
+    <record id="category_spp_approvals" model="ir.module.category">
+        <field name="name">Approvals</field>
+        <field name="description">Approval workflow management</field>
+        <field name="parent_id" ref="category_spp"/>
+        <field name="sequence">50</field>
+    </record>
+
+    <!-- Payments Domain Category -->
+    <record id="category_spp_payments" model="ir.module.category">
+        <field name="name">Payments</field>
+        <field name="description">Payment processing and disbursement</field>
+        <field name="parent_id" ref="category_spp"/>
+        <field name="sequence">60</field>
+    </record>
+
+    <!-- GRM Domain Category -->
+    <record id="category_spp_grm" model="ir.module.category">
+        <field name="name">Grievance Management</field>
+        <field name="description">Grievance/ticket management</field>
+        <field name="parent_id" ref="category_spp"/>
+        <field name="sequence">70</field>
+    </record>
+
+    <!-- Case Management Domain Category -->
+    <record id="category_spp_case" model="ir.module.category">
+        <field name="name">Case Management</field>
+        <field name="description">Social work case management and intervention planning</field>
+        <field name="parent_id" ref="category_spp"/>
+        <field name="sequence">75</field>
+    </record>
+
+    <!-- Health Monitoring Domain Category -->
+    <record id="category_spp_health_monitoring" model="ir.module.category">
+        <field name="name">Health Monitoring</field>
+        <field name="description">Health event tracking and compliance monitoring</field>
+        <field name="parent_id" ref="category_spp"/>
+        <field name="sequence">77</field>
+    </record>
+
+    <!-- Hazard & Emergency Domain Category -->
+    <record id="category_spp_hazard" model="ir.module.category">
+        <field name="name">Hazard &amp; Emergency</field>
+        <field name="description">Hazard classification, incident tracking, and impact assessment</field>
+        <field name="parent_id" ref="category_spp"/>
+        <field name="sequence">78</field>
+    </record>
+
+    <!-- DRIMS Domain Category -->
+    <record id="category_spp_drims" model="ir.module.category">
+        <field name="name">DRIMS</field>
+        <field name="description">Disaster Response Inventory Management System</field>
+        <field name="parent_id" ref="category_spp"/>
+        <field name="sequence">79</field>
+    </record>
+
+    <!-- Farmer Registry Domain Category -->
+    <record id="category_spp_farmer" model="ir.module.category">
+        <field name="name">Farmer Registry</field>
+        <field name="description">Farmer-specific registry and land management</field>
+        <field name="parent_id" ref="category_spp"/>
+        <field name="sequence">80</field>
+    </record>
+
+    <!-- Service Points Domain Category -->
+    <record id="category_spp_service_points" model="ir.module.category">
+        <field name="name">Service Points</field>
+        <field name="description">Service point and device management</field>
+        <field name="parent_id" ref="category_spp"/>
+        <field name="sequence">90</field>
+    </record>
+
+    <!-- Area/GIS Domain Category -->
+    <record id="category_spp_area" model="ir.module.category">
+        <field name="name">Areas and GIS</field>
+        <field name="description">Geographic area and GIS management</field>
+        <field name="parent_id" ref="category_spp"/>
+        <field name="sequence">100</field>
+    </record>
+
+    <!-- Identity/Credentials Domain Category -->
+    <record id="category_spp_identity" model="ir.module.category">
+        <field name="name">Identity and Credentials</field>
+        <field name="description">Digital identity and credential management</field>
+        <field name="parent_id" ref="category_spp"/>
+        <field name="sequence">110</field>
+    </record>
+
+    <!-- API Domain Category -->
+    <record id="category_spp_api" model="ir.module.category">
+        <field name="name">API Access</field>
+        <field name="description">API and external integration access</field>
+        <field name="parent_id" ref="category_spp"/>
+        <field name="sequence">120</field>
+    </record>
+
+    <!-- Audit Domain Category -->
+    <record id="category_spp_audit" model="ir.module.category">
+        <field name="name">Audit and Compliance</field>
+        <field name="description">Audit logging and compliance management</field>
+        <field name="parent_id" ref="category_spp"/>
+        <field name="sequence">130</field>
+    </record>
+
+    <!-- Graduation Domain Category -->
+    <record id="category_spp_graduation" model="ir.module.category">
+        <field name="name">Graduation</field>
+        <field name="description">Graduation pathways and assessments</field>
+        <field name="parent_id" ref="category_spp"/>
+        <field name="sequence">140</field>
+    </record>
+
+    <!-- Service Directory Domain Category -->
+    <record id="category_spp_services" model="ir.module.category">
+        <field name="name">Service Directory</field>
+        <field name="description">Service provider and referral directory</field>
+        <field name="parent_id" ref="category_spp"/>
+        <field name="sequence">150</field>
+    </record>
+
+    <!-- Session Tracking Domain Category -->
+    <record id="category_spp_sessions" model="ir.module.category">
+        <field name="name">Sessions</field>
+        <field name="description">Session and attendance tracking</field>
+        <field name="parent_id" ref="category_spp"/>
+        <field name="sequence">160</field>
+    </record>
+
+</odoo>

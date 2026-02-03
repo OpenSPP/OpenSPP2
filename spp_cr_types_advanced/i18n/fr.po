@@ -1,0 +1,169 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* spp_cr_types_advanced
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#. module: spp_cr_types_advanced
+#: model:spp.change.request.type,name:spp_cr_types_advanced.cr_type_add_member
+msgid "Add Group Member"
+msgstr "Ajouter un membre au groupe"
+
+#. module: spp_cr_types_advanced
+#: model:spp.change.request.type,description:spp_cr_types_advanced.cr_type_add_member
+msgid "Add a new member to an existing group/household"
+msgstr "Ajouter un nouveau membre à un groupe/ménage existant"
+
+#. module: spp_cr_types_advanced
+#: model:spp.change.request.type,name:spp_cr_types_advanced.cr_type_change_hoh
+msgid "Change Head of Household"
+msgstr "Changer le Chef de Ménage"
+
+#. module: spp_cr_types_advanced
+#: model:spp.change.request.type,description:spp_cr_types_advanced.cr_type_change_hoh
+msgid "Change the head of household for a group"
+msgstr "Changer le Chef de Ménage pour un groupe"
+
+#. module: spp_cr_types_advanced
+#: model:spp.change.request.type,name:spp_cr_types_advanced.cr_type_create_group
+msgid "Create New Group"
+msgstr "Créer un nouveau groupe"
+
+#. module: spp_cr_types_advanced
+#: model:spp.change.request.type,description:spp_cr_types_advanced.cr_type_create_group
+msgid "Create a new group/household"
+msgstr "Créer un nouveau groupe/ménage"
+
+#. module: spp_cr_types_advanced
+#: model:spp.change.request.type,description:spp_cr_types_advanced.cr_type_exit_registrant
+msgid "Deactivate or exit a registrant from the system"
+msgstr "Désactiver ou retirer un inscrit du système"
+
+#. module: spp_cr_types_advanced
+#: model:spp.change.request.type,name:spp_cr_types_advanced.cr_type_exit_registrant
+msgid "Exit Registrant"
+msgstr "Retirer un inscrit"
+
+#. module: spp_cr_types_advanced
+#: model:spp.change.request.type,name:spp_cr_types_advanced.cr_type_merge_registrants
+msgid "Merge Registrants"
+msgstr "Fusionner des inscrits"
+
+#. module: spp_cr_types_advanced
+#: model:spp.change.request.type,description:spp_cr_types_advanced.cr_type_merge_registrants
+msgid "Merge duplicate registrant records"
+msgstr "Fusionner les enregistrements d’inscrits en double"
+
+#. module: spp_cr_types_advanced
+#: model:spp.change.request.type,name:spp_cr_types_advanced.cr_type_remove_member
+msgid "Remove Group Member"
+msgstr "Retirer un membre du groupe"
+
+#. module: spp_cr_types_advanced
+#: model:spp.change.request.type,description:spp_cr_types_advanced.cr_type_remove_member
+msgid "Remove a member from an existing group/household"
+msgstr "Retirer un membre d’un groupe/ménage existant"
+
+#. module: spp_cr_types_advanced
+#: model:spp.change.request.type,name:spp_cr_types_advanced.cr_type_split_household
+msgid "Split Household"
+msgstr "Scinder le ménage"
+
+#. module: spp_cr_types_advanced
+#: model:spp.change.request.type,description:spp_cr_types_advanced.cr_type_split_household
+msgid "Split a household into two separate groups"
+msgstr "Scinder un ménage en deux groupes distincts"
+
+#. module: spp_cr_types_advanced
+#: model:spp.change.request.type,locked_reason:spp_cr_types_advanced.cr_type_merge_registrants
+msgid ""
+"This type requires complex Python logic to merge data, memberships, and IDs "
+"across registrants. Cannot be edited via Studio."
+msgstr ""
+"Ce type nécessite une logique Python complexe pour fusionner les données, "
+"les appartenances et les identifiants entre les inscrits. Ne peut pas être "
+"modifié via Studio."
+
+#. module: spp_cr_types_advanced
+#: model:spp.change.request.type,locked_reason:spp_cr_types_advanced.cr_type_create_group
+msgid ""
+"This type requires custom Python logic to create groups with optional head "
+"of household. Cannot be edited via Studio."
+msgstr ""
+"Ce type nécessite une logique Python personnalisée pour créer des groupes "
+"avec un Chef de Ménage facultatif. Ne peut pas être modifié via Studio."
+
+#. module: spp_cr_types_advanced
+#: model:spp.change.request.type,locked_reason:spp_cr_types_advanced.cr_type_add_member
+msgid ""
+"This type requires custom Python logic to create individuals and group "
+"memberships. Cannot be edited via Studio."
+msgstr ""
+"Ce type nécessite une logique Python personnalisée pour créer des individus "
+"et des appartenances à des groupes. Ne peut pas être modifié via Studio."
+
+#. module: spp_cr_types_advanced
+#: model:spp.change.request.type,locked_reason:spp_cr_types_advanced.cr_type_exit_registrant
+msgid ""
+"This type requires custom Python logic to deactivate registrants and cascade "
+"membership updates. Cannot be edited via Studio."
+msgstr ""
+"Ce type nécessite une logique Python personnalisée pour désactiver les "
+"inscrits et répercuter les mises à jour des appartenances. Ne peut pas être "
+"modifié via Studio."
+
+#. module: spp_cr_types_advanced
+#: model:spp.change.request.type,locked_reason:spp_cr_types_advanced.cr_type_remove_member
+msgid ""
+"This type requires custom Python logic to end memberships. Cannot be edited "
+"via Studio."
+msgstr ""
+"Ce type nécessite une logique Python personnalisée pour mettre fin aux "
+"appartenances. Ne peut pas être modifié via Studio."
+
+#. module: spp_cr_types_advanced
+#: model:spp.change.request.type,locked_reason:spp_cr_types_advanced.cr_type_change_hoh
+msgid ""
+"This type requires custom Python logic to reassign membership roles. Cannot "
+"be edited via Studio."
+msgstr ""
+"Ce type nécessite une logique Python personnalisée pour réattribuer les "
+"rôles d’appartenance. Ne peut pas être modifié via Studio."
+
+#. module: spp_cr_types_advanced
+#: model:spp.change.request.type,locked_reason:spp_cr_types_advanced.cr_type_split_household
+msgid ""
+"This type requires custom Python logic to split groups and transfer "
+"memberships. Cannot be edited via Studio."
+msgstr ""
+"Ce type nécessite une logique Python personnalisée pour scinder des groupes "
+"et transférer des appartenances. Ne peut pas être modifié via Studio."
+
+#. module: spp_cr_types_advanced
+#: model:spp.change.request.type,locked_reason:spp_cr_types_advanced.cr_type_transfer_member
+msgid ""
+"This type requires custom Python logic to transfer memberships between "
+"groups. Cannot be edited via Studio."
+msgstr ""
+"Ce type nécessite une logique Python personnalisée pour transférer des "
+"appartenances entre des groupes. Ne peut pas être modifié via Studio."
+
+#. module: spp_cr_types_advanced
+#: model:spp.change.request.type,name:spp_cr_types_advanced.cr_type_transfer_member
+msgid "Transfer Member"
+msgstr "Transférer un membre"
+
+#. module: spp_cr_types_advanced
+#: model:spp.change.request.type,description:spp_cr_types_advanced.cr_type_transfer_member
+msgid "Transfer a member from one group to another"
+msgstr "Transférer un membre d’un groupe à un autre"

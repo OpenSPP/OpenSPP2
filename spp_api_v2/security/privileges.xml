@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- API V2 Domain Privilege -->
+    <!-- Single consolidated privilege for all API V2 access levels -->
+
+    <record id="privilege_api_v2" model="res.groups.privilege">
+        <field name="name">API V2</field>
+        <field name="category_id" ref="spp_security.category_spp_api" />
+        <field name="description">Access to API V2 management system</field>
+    </record>
+
+</odoo>

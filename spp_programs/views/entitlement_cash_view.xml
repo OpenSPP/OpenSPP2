@@ -1,0 +1,465 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <!-- ========================================== -->
+    <!-- CASH ENTITLEMENT LIST VIEW                 -->
+    <!-- ========================================== -->
+    <record id="view_entitlement_tree" model="ir.ui.view">
+        <field name="name">spp.entitlement.list</field>
+        <field name="model">spp.entitlement</field>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+            <list create="0" delete="0" sample="1" decoration-muted="state in ('cancelled', 'expired')">
+                <field name="code" />
+                <field name="ern" string="ERN" optional="show" />
+                <field name="partner_id" />
+                <field name="program_id" optional="show" />
+                <field name="cycle_id" />
+                <field name="currency_id" column_invisible="1" />
+                <field name="initial_amount" sum="Total Amount" />
+                <field name="valid_from" />
+                <field name="valid_until" />
+                <field
+                    name="state"
+                    decoration-primary="state == 'draft'"
+                    decoration-warning="state == 'pending_validation'"
+                    decoration-success="state == 'approved'"
+                    decoration-info="state in ('trans2FSP', 'rdpd2ben')"
+                    decoration-danger="state in ('cancelled', 'expired', 'rejected1', 'rejected2', 'rejected3')"
+                    widget="badge"
+                />
+                <field name="payment_status" optional="show" />
+                <field name="company_id" groups="base.group_multi_company" optional="hide" />
+            </list>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- CASH ENTITLEMENT SEARCH VIEW               -->
+    <!-- ========================================== -->
+    <record id="view_entitlement_search" model="ir.ui.view">
+        <field name="name">spp.entitlement.search</field>
+        <field name="model">spp.entitlement</field>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+            <search string="Search Entitlements">
+                <field name="code" />
+                <field name="ern" />
+                <field name="partner_id" />
+                <field name="program_id" />
+                <field name="cycle_id" />
+                <separator />
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]" />
+                <filter string="Pending Approval" name="pending" domain="[('state', '=', 'pending_validation')]" />
+                <filter string="Approved" name="approved" domain="[('state', '=', 'approved')]" />
+                <filter string="Cancelled" name="cancelled" domain="[('state', '=', 'cancelled')]" />
+                <filter string="Expired" name="expired" domain="[('state', '=', 'expired')]" />
+                <separator />
+                <filter string="Valid From" name="filter_valid_from" date="valid_from" />
+                <filter string="Valid Until" name="filter_valid_until" date="valid_until" />
+                <separator />
+                <filter string="Cycle" name="group_by_cycle" context="{'group_by': 'cycle_id'}" />
+                <filter string="Program" name="group_by_program" context="{'group_by': 'program_id'}" />
+                <filter string="State" name="group_by_state" context="{'group_by': 'state'}" />
+            </search>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- CASH ENTITLEMENT FORM VIEW - 4-Tab         -->
+    <!-- ========================================== -->
+    <record id="view_entitlement_form" model="ir.ui.view">
+        <field name="name">spp.entitlement.form</field>
+        <field name="model">spp.entitlement</field>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+            <form string="Entitlement" create="0" edit="0">
+                <header>
+                    <!-- Workflow Buttons -->
+                    <button
+                        name="action_submit_for_approval"
+                        type="object"
+                        string="Submit for Approval"
+                        icon="fa-paper-plane"
+                        class="btn-success"
+                        invisible="state != 'draft' or not can_submit"
+                        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_validator,spp_programs.group_programs_cycle_approver,spp_programs.group_programs_officer"
+                    />
+                    <button
+                        name="action_approve"
+                        type="object"
+                        string="Approve"
+                        icon="fa-thumbs-up"
+                        class="btn-success"
+                        invisible="state != 'pending_validation' or not can_approve or has_insufficient_funds"
+                        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_validator,spp_programs.group_programs_cycle_approver"
+                    />
+                    <button
+                        name="action_reject"
+                        type="object"
+                        string="Reject"
+                        icon="fa-thumbs-down"
+                        class="btn-danger"
+                        invisible="state != 'pending_validation' or not can_reject"
+                        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_validator,spp_programs.group_programs_cycle_approver,spp_programs.group_programs_rejector"
+                    />
+                    <button
+                        name="action_reset_to_draft"
+                        type="object"
+                        string="Reset to Draft"
+                        icon="fa-undo"
+                        invisible="state not in ('pending_validation', 'rejected1', 'rejected2', 'rejected3', 'cancelled') or (state == 'pending_validation' and not can_approve and not can_reject)"
+                        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_validator,spp_programs.group_programs_cycle_approver"
+                    />
+                    <field name="state" widget="statusbar" statusbar_visible="draft,pending_validation,approved,expired" />
+                </header>
+
+                <!-- Approval Waiting Message -->
+                <div
+                    class="alert alert-info text-center"
+                    role="alert"
+                    invisible="not show_approval_waiting_message"
+                    style="margin: 0;"
+                >
+                    <field name="show_approval_waiting_message" invisible="1"/>
+                    <field name="approval_waiting_message" readonly="1" nolabel="1"/>
+                </div>
+
+                <!-- Fund Availability Message - Insufficient Funds Warning -->
+                <div
+                    class="alert alert-warning text-center"
+                    role="alert"
+                    invisible="not show_fund_availability_message or not has_insufficient_funds"
+                    style="margin: 0;"
+                >
+                    <field name="show_fund_availability_message" invisible="1"/>
+                    <field name="has_insufficient_funds" invisible="1"/>
+                    <field name="fund_availability_message" readonly="1" nolabel="1"/>
+                </div>
+
+                <!-- Fund Availability Message - Sufficient Funds Success -->
+                <div
+                    class="alert alert-success text-center"
+                    role="alert"
+                    invisible="not show_fund_availability_message or has_insufficient_funds"
+                    style="margin: 0;"
+                >
+                    <field name="fund_availability_message" readonly="1" nolabel="1"/>
+                </div>
+
+                <sheet>
+                    <!-- Stat Buttons -->
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="open_disb_form"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-money"
+                            invisible="state != 'approved'"
+                        >
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Disbursement</span>
+                            </div>
+                        </button>
+                    </div>
+
+                    <!-- Ribbons -->
+                    <widget name="web_ribbon" title="Approved" bg_color="bg-success" invisible="state != 'approved'" />
+                    <widget name="web_ribbon" title="Cancelled" bg_color="bg-danger" invisible="state != 'cancelled'" />
+                    <widget name="web_ribbon" title="Expired" bg_color="bg-secondary" invisible="state != 'expired'" />
+
+                    <!-- Title Section -->
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1" />
+                        </h1>
+                        <h3>
+                            <span>Code: </span><field name="code" readonly="1" class="oe_inline" />
+                        </h3>
+                    </div>
+
+                    <!-- Hidden fields -->
+                    <field name="is_cash_entitlement" invisible="1" />
+                    <field name="approval_state" invisible="1" />
+                    <field name="can_submit" invisible="1" />
+                    <field name="can_approve" invisible="1" />
+                    <field name="can_reject" invisible="1" />
+
+                    <!-- Main Content - 4 Tab Structure -->
+                    <notebook name="entitlement_tabs">
+                        <!-- ==================== DETAILS TAB ==================== -->
+                        <page name="details" string="Details">
+                            <!-- Beneficiary Section -->
+                            <group name="beneficiary_section" col="2">
+                                <group name="beneficiary_info">
+                                    <field
+                                        name="partner_id"
+                                        readonly="state != 'draft'"
+                                        options="{'no_open': True, 'no_quick_create': True, 'no_create': True}"
+                                    />
+                                    <field
+                                        name="program_id"
+                                        readonly="1"
+                                        options="{'no_open': True}"
+                                    />
+                                    <field
+                                        name="cycle_id"
+                                        readonly="state != 'draft'"
+                                        options="{'no_open': True, 'no_quick_create': True, 'no_create': True}"
+                                    />
+                                </group>
+                                <group name="company_info">
+                                    <field
+                                        name="company_id"
+                                        groups="base.group_multi_company"
+                                        options="{'no_create': True}"
+                                        readonly="state != 'draft'"
+                                    />
+                                </group>
+                            </group>
+
+                            <!-- Amount Section -->
+                            <separator string="Entitlement Amount" />
+                            <group name="amount_section" col="2">
+                                <group>
+                                    <field name="initial_amount" readonly="state != 'draft'" />
+                                    <field name="transfer_fee" readonly="state != 'draft'" />
+                                    <field name="balance" readonly="1" />
+                                </group>
+                                <group>
+                                    <field name="currency_id" options="{'no_open': True}" readonly="1" />
+                                    <field name="journal_id" string="Journal" options="{'no_open': True}" readonly="1" />
+                                </group>
+                            </group>
+
+                            <!-- Validity Section -->
+                            <separator string="Validity Period" />
+                            <group name="validity_section" col="2">
+                                <group>
+                                    <field name="valid_from" readonly="state != 'draft'" />
+                                </group>
+                                <group>
+                                    <field name="valid_until" readonly="state != 'draft'" />
+                                </group>
+                            </group>
+
+                            <!-- Extension point for additional details -->
+                            <group name="additional_details_section" invisible="1">
+                                <!-- Additional fields injected by extending modules -->
+                            </group>
+                        </page>
+
+                        <!-- ==================== DISBURSEMENT TAB ==================== -->
+                        <page name="disbursement" string="Disbursement">
+                            <group name="disbursement_section" col="2">
+                                <group>
+                                    <field name="ern" readonly="1" />
+                                    <field name="date_approved" readonly="1" />
+                                </group>
+                                <group>
+                                    <field name="payment_status" readonly="1" />
+                                    <field name="payment_date" readonly="1" />
+                                </group>
+                            </group>
+
+                            <!-- Journal Entries -->
+                            <separator string="Journal Entries" />
+                            <group name="journal_entries_section" col="2">
+                                <group>
+                                    <field
+                                        name="disbursement_id"
+                                        string="Disbursement Entry"
+                                        options="{'no_open': True}"
+                                        readonly="1"
+                                    />
+                                </group>
+                                <group>
+                                    <field
+                                        name="service_fee_disbursement_id"
+                                        string="Service Fee Entry"
+                                        options="{'no_open': True}"
+                                        readonly="1"
+                                    />
+                                </group>
+                            </group>
+
+                            <!-- Payments -->
+                            <separator string="Payments" />
+                            <field name="payment_ids" nolabel="1" mode="list" readonly="1">
+                                <list create="0" delete="0">
+                                    <field name="name" />
+                                    <field name="amount_issued" />
+                                    <field name="payment_datetime" />
+                                    <field name="status" widget="badge" />
+                                </list>
+                            </field>
+
+                            <!-- Extension point for additional disbursement info -->
+                            <group name="additional_disbursement_section" invisible="1">
+                                <!-- Additional fields injected by extending modules -->
+                            </group>
+                        </page>
+
+                        <!-- ==================== APPROVAL TAB ==================== -->
+                        <page name="approval_tracking" string="Approval">
+                            <group string="Approval Status">
+                                <group>
+                                    <field name="entitlement_approval_definition_id" readonly="1" string="Approval Definition" />
+                                    <field name="approval_state" readonly="1" widget="badge" string="Approval Status"
+                                           decoration-info="approval_state == 'draft'"
+                                           decoration-warning="approval_state == 'pending'"
+                                           decoration-success="approval_state == 'approved'"
+                                           decoration-danger="approval_state == 'rejected'" />
+                                </group>
+                                <group>
+                                    <field name="submitted_by_id" readonly="1" string="Submitted By" />
+                                    <field name="submitted_date" readonly="1" string="Submitted On" />
+                                </group>
+                            </group>
+                            <group string="Approval Decision" invisible="not date_approved and not rejected_date">
+                                <group>
+                                    <field name="date_approved" readonly="1" />
+                                    <field name="approved_by_id" readonly="1" string="Approved By" />
+                                </group>
+                                <group>
+                                    <field name="rejected_by_id" readonly="1" string="Rejected By" />
+                                    <field name="rejected_date" readonly="1" string="Rejected On" />
+                                </group>
+                            </group>
+                            <group string="Rejection Reason" invisible="not rejection_reason">
+                                <field name="rejection_reason" readonly="1" nolabel="1" colspan="2" />
+                            </group>
+                            <group string="Approval History">
+                                <field name="approval_review_ids" nolabel="1" readonly="1" colspan="2">
+                                    <list>
+                                        <field name="requested_date" />
+                                        <field name="reviewer_id" />
+                                        <field name="status" widget="badge"
+                                               decoration-info="status == 'pending'"
+                                               decoration-success="status == 'approved'"
+                                               decoration-danger="status == 'rejected'" />
+                                        <field name="review_date" />
+                                        <field name="comment" />
+                                    </list>
+                                </field>
+                            </group>
+                        </page>
+
+                        <!-- ==================== HISTORY TAB ==================== -->
+                        <page name="history" string="History">
+                            <!-- Audit Section -->
+                            <separator string="Audit Information" />
+                            <group name="audit_section" col="2">
+                                <group>
+                                    <field name="create_date" readonly="1" />
+                                    <field name="create_uid" readonly="1" />
+                                </group>
+                                <group>
+                                    <field name="write_date" readonly="1" />
+                                    <field name="write_uid" readonly="1" />
+                                </group>
+                            </group>
+
+                            <!-- Extension point for audit log -->
+                            <div name="audit_log_section" invisible="1">
+                                <!-- Audit log entries injected by spp_audit -->
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- ACTIONS AND MENUS                          -->
+    <!-- ========================================== -->
+    <record id="action_entitlement" model="ir.actions.act_window">
+        <field name="name">Cash Entitlements</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">spp.entitlement</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_entitlement_search" />
+        <field name="path">entitlements</field>
+        <field name="context">{'default_is_cash_entitlement': True, 'create': False}</field>
+        <field name="domain">[('is_cash_entitlement', '=', True)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No entitlements found
+            </p>
+            <p>
+                Entitlements are created from a cycle. Go to Cycles and prepare entitlements.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_entitlement_tree_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1" />
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_entitlement_tree" />
+        <field name="act_window_id" ref="action_entitlement" />
+    </record>
+
+    <record id="action_entitlement_form_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2" />
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_entitlement_form" />
+        <field name="act_window_id" ref="action_entitlement" />
+    </record>
+
+    <!-- Server action for multi-approval -->
+    <record model="ir.actions.server" id="multiple_entitlement_approval">
+        <field name="name">Approve</field>
+        <field name="model_id" ref="spp_programs.model_spp_multi_entitlement_approval_wizard" />
+        <field name="binding_model_id" ref="spp_programs.model_spp_entitlement" />
+        <field name="binding_view_types">list,form</field>
+        <field name="state">code</field>
+        <field name="code">action = model.open_wizard()</field>
+        <field name="group_ids" eval="[(4, ref('spp_security.group_spp_admin')), (4, ref('spp_programs.group_programs_manager')), (4, ref('spp_programs.group_programs_validator')), (4, ref('spp_programs.group_programs_cycle_approver'))]"/>
+    </record>
+
+    <!-- Reset to draft action for cash entitlements -->
+    <record id="action_reset_to_draft_entitlement_multi" model="ir.actions.server">
+        <field name="name">Reset to Draft</field>
+        <field name="model_id" ref="model_spp_entitlement" />
+        <field name="binding_model_id" ref="model_spp_entitlement" />
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    # Filter only records that can be reset to draft
+    valid_states = ("pending_validation", "reject", "rejected1", "rejected2", "rejected3", "cancelled")
+    eligible_records = records.filtered(lambda r: r.state in valid_states)
+    if eligible_records:
+        eligible_records.action_reset_to_draft()
+    else:
+        raise UserError("No eligible entitlements selected. Only entitlements in pending validation, rejected, or cancelled state can be reset to draft.")
+        </field>
+        <field name="group_ids" eval="[(4, ref('spp_security.group_spp_admin')), (4, ref('spp_programs.group_programs_manager')), (4, ref('spp_programs.group_programs_validator')), (4, ref('spp_programs.group_programs_cycle_approver'))]"/>
+    </record>
+
+    <!-- Submit for approval action for cash entitlements -->
+    <record id="action_submit_for_approval_entitlement_multi" model="ir.actions.server">
+        <field name="name">Submit for Approval</field>
+        <field name="model_id" ref="model_spp_entitlement" />
+        <field name="binding_model_id" ref="model_spp_entitlement" />
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    # Filter only draft records
+    draft_records = records.filtered(lambda r: r.state == "draft")
+    if draft_records:
+        draft_records.action_submit_for_approval()
+    else:
+        raise UserError("No eligible entitlements selected. Only draft entitlements can be submitted for approval.")
+        </field>
+        <field name="group_ids" eval="[(4, ref('spp_security.group_spp_admin')), (4, ref('spp_programs.group_programs_manager')), (4, ref('spp_programs.group_programs_validator')), (4, ref('spp_programs.group_programs_cycle_approver'))]"/>
+    </record>
+
+    <!-- Entitlements menu removed - accessible from Cycles and Registry -->
+
+</odoo>

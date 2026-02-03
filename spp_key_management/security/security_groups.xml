@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Key Management Security Groups -->
+
+    <!-- Privileges -->
+    <record id="privilege_key_admin" model="res.groups.privilege">
+        <field name="name">Administrator</field>
+        <field name="category_id" ref="spp_security.category_spp"/>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="privilege_key_operator_officer" model="res.groups.privilege">
+        <field name="name">Operator (Officer)</field>
+        <field name="category_id" ref="spp_security.category_spp"/>
+        <field name="sequence">20</field>
+    </record>
+
+    <!-- Key Admin - Full control over key management -->
+    <record id="group_key_admin" model="res.groups">
+        <field name="name">Key Management Admin</field>
+        <field name="privilege_id" ref="privilege_key_admin"/>
+        <field name="comment">Full access to key management. Can configure providers, rotate keys, and view all key operations.</field>
+        <field name="implied_ids" eval="[Command.link(ref('base.group_system'))]"/>
+    </record>
+
+    <!-- Key Operator - Can use keys but not manage -->
+    <record id="group_key_operator_officer" model="res.groups">
+        <field name="name">Key Operator</field>
+        <field name="privilege_id" ref="privilege_key_operator_officer"/>
+        <field name="comment">Can use encryption keys for operations but cannot manage providers or rotate keys.</field>
+        <field name="implied_ids" eval="[Command.link(ref('base.group_user'))]"/>
+    </record>
+
+</odoo>

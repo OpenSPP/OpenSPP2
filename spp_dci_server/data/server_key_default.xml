@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data noupdate="1">
+        <!-- Default Server Signing Key (only created on initial install) -->
+        <record id="server_key_default" model="spp.dci.server.key">
+            <field name="name">Default Server Key</field>
+            <field name="key_id">server-default</field>
+            <field name="algorithm">ed25519</field>
+            <field name="state">draft</field>
+            <field name="active" eval="False" />
+        </record>
+
+        <!-- Function calls to generate and activate the default key -->
+        <function model="spp.dci.server.key" name="action_generate_key" eval="[ref('server_key_default')]" />
+        <function model="spp.dci.server.key" name="action_activate" eval="[ref('server_key_default')]" />
+    </data>
+</odoo>

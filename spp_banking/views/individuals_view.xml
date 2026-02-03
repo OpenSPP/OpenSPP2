@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+   Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <record id="view_individuals_form_bank_details" model="ir.ui.view">
+        <field name="name">view_individuals_form_bank_details</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="spp_registry.view_individuals_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='financial_section']" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </xpath>
+            <xpath expr="//group[@name='financial_section']" position="inside">
+                <field name="bank_ids" readonly="disabled" nolabel="1" colspan="2">
+                    <list editable="top">
+                        <field name="bank_id" options="{'no_quick_create':True}" />
+                        <field name="acc_number" />
+                        <field name="acc_type" column_invisible="1" />
+                        <field name="iban" />
+                    </list>
+                </field>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

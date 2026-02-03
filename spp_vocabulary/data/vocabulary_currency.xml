@@ -1,0 +1,1447 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!--
+        Currency Vocabulary - ISO 4217 (Active Currencies)
+
+        Reference: https://www.iso.org/iso-4217-currency-codes.html
+        Data source: https://github.com/datasets/currency-codes
+
+        ISO 4217 defines three-letter codes for currencies.
+        This vocabulary includes only active currencies (not withdrawn).
+
+        Note: OpenSPP also uses Odoo res.currency for financial operations.
+        This vocabulary is for standardized code references in APIs and data exchange.
+
+        Generated: 2025-01
+    -->
+    <record id="vocab_currency" model="spp.vocabulary">
+        <field name="name">Currency (ISO 4217)</field>
+        <field name="namespace_uri">urn:iso:std:iso:4217</field>
+        <field name="version">2024</field>
+        <field name="description">ISO 4217 currency codes. Three-letter alphabetic codes for currencies. Includes active currencies; historical/withdrawn codes available on request.</field>
+        <field name="reference_url">https://www.iso.org/iso-4217-currency-codes.html</field>
+        <field name="is_system">True</field>
+        <field name="is_hierarchical">False</field>
+        <field name="domain">core</field>
+    </record>
+
+    <record id="currency_aed" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">AED</field>
+        <field name="display">UAE Dirham</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="currency_afn" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">AFN</field>
+        <field name="display">Afghani</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="currency_all" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">ALL</field>
+        <field name="display">Lek</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <record id="currency_amd" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">AMD</field>
+        <field name="display">Armenian Dram</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">40</field>
+    </record>
+
+    <record id="currency_aoa" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">AOA</field>
+        <field name="display">Kwanza</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">50</field>
+    </record>
+
+    <record id="currency_ars" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">ARS</field>
+        <field name="display">Argentine Peso</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">60</field>
+    </record>
+
+    <record id="currency_aud" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">AUD</field>
+        <field name="display">Australian Dollar</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">70</field>
+    </record>
+
+    <record id="currency_awg" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">AWG</field>
+        <field name="display">Aruban Florin</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">80</field>
+    </record>
+
+    <record id="currency_azn" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">AZN</field>
+        <field name="display">Azerbaijan Manat</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">90</field>
+    </record>
+
+    <record id="currency_bam" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">BAM</field>
+        <field name="display">Convertible Mark</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">100</field>
+    </record>
+
+    <record id="currency_bbd" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">BBD</field>
+        <field name="display">Barbados Dollar</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">110</field>
+    </record>
+
+    <record id="currency_bdt" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">BDT</field>
+        <field name="display">Taka</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">120</field>
+    </record>
+
+    <record id="currency_bhd" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">BHD</field>
+        <field name="display">Bahraini Dinar</field>
+        <field name="definition">Minor unit: 3 decimal places</field>
+        <field name="sequence">130</field>
+    </record>
+
+    <record id="currency_bif" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">BIF</field>
+        <field name="display">Burundi Franc</field>
+        <field name="definition">Minor unit: 0 decimal places</field>
+        <field name="sequence">140</field>
+    </record>
+
+    <record id="currency_bmd" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">BMD</field>
+        <field name="display">Bermudian Dollar</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">150</field>
+    </record>
+
+    <record id="currency_bnd" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">BND</field>
+        <field name="display">Brunei Dollar</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">160</field>
+    </record>
+
+    <record id="currency_bob" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">BOB</field>
+        <field name="display">Boliviano</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">170</field>
+    </record>
+
+    <record id="currency_bov" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">BOV</field>
+        <field name="display">Mvdol</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">180</field>
+    </record>
+
+    <record id="currency_brl" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">BRL</field>
+        <field name="display">Brazilian Real</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">190</field>
+    </record>
+
+    <record id="currency_bsd" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">BSD</field>
+        <field name="display">Bahamian Dollar</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">200</field>
+    </record>
+
+    <record id="currency_btn" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">BTN</field>
+        <field name="display">Ngultrum</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">210</field>
+    </record>
+
+    <record id="currency_bwp" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">BWP</field>
+        <field name="display">Pula</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">220</field>
+    </record>
+
+    <record id="currency_byn" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">BYN</field>
+        <field name="display">Belarusian Ruble</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">230</field>
+    </record>
+
+    <record id="currency_bzd" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">BZD</field>
+        <field name="display">Belize Dollar</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">240</field>
+    </record>
+
+    <record id="currency_cad" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">CAD</field>
+        <field name="display">Canadian Dollar</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">250</field>
+    </record>
+
+    <record id="currency_cdf" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">CDF</field>
+        <field name="display">Congolese Franc</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">260</field>
+    </record>
+
+    <record id="currency_che" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">CHE</field>
+        <field name="display">WIR Euro</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">270</field>
+    </record>
+
+    <record id="currency_chf" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">CHF</field>
+        <field name="display">Swiss Franc</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">280</field>
+    </record>
+
+    <record id="currency_chw" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">CHW</field>
+        <field name="display">WIR Franc</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">290</field>
+    </record>
+
+    <record id="currency_clf" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">CLF</field>
+        <field name="display">Unidad de Fomento</field>
+        <field name="definition">Minor unit: 4 decimal places</field>
+        <field name="sequence">300</field>
+    </record>
+
+    <record id="currency_clp" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">CLP</field>
+        <field name="display">Chilean Peso</field>
+        <field name="definition">Minor unit: 0 decimal places</field>
+        <field name="sequence">310</field>
+    </record>
+
+    <record id="currency_cny" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">CNY</field>
+        <field name="display">Yuan Renminbi</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">320</field>
+    </record>
+
+    <record id="currency_cop" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">COP</field>
+        <field name="display">Colombian Peso</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">330</field>
+    </record>
+
+    <record id="currency_cou" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">COU</field>
+        <field name="display">Unidad de Valor Real</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">340</field>
+    </record>
+
+    <record id="currency_crc" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">CRC</field>
+        <field name="display">Costa Rican Colon</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">350</field>
+    </record>
+
+    <record id="currency_cup" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">CUP</field>
+        <field name="display">Cuban Peso</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">360</field>
+    </record>
+
+    <record id="currency_cve" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">CVE</field>
+        <field name="display">Cabo Verde Escudo</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">370</field>
+    </record>
+
+    <record id="currency_czk" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">CZK</field>
+        <field name="display">Czech Koruna</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">380</field>
+    </record>
+
+    <record id="currency_djf" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">DJF</field>
+        <field name="display">Djibouti Franc</field>
+        <field name="definition">Minor unit: 0 decimal places</field>
+        <field name="sequence">390</field>
+    </record>
+
+    <record id="currency_dkk" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">DKK</field>
+        <field name="display">Danish Krone</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">400</field>
+    </record>
+
+    <record id="currency_dop" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">DOP</field>
+        <field name="display">Dominican Peso</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">410</field>
+    </record>
+
+    <record id="currency_dzd" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">DZD</field>
+        <field name="display">Algerian Dinar</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">420</field>
+    </record>
+
+    <record id="currency_egp" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">EGP</field>
+        <field name="display">Egyptian Pound</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">430</field>
+    </record>
+
+    <record id="currency_ern" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">ERN</field>
+        <field name="display">Nakfa</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">440</field>
+    </record>
+
+    <record id="currency_etb" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">ETB</field>
+        <field name="display">Ethiopian Birr</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">450</field>
+    </record>
+
+    <record id="currency_eur" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">EUR</field>
+        <field name="display">Euro</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">460</field>
+    </record>
+
+    <record id="currency_fjd" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">FJD</field>
+        <field name="display">Fiji Dollar</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">470</field>
+    </record>
+
+    <record id="currency_fkp" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">FKP</field>
+        <field name="display">Falkland Islands Pound</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">480</field>
+    </record>
+
+    <record id="currency_gbp" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">GBP</field>
+        <field name="display">Pound Sterling</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">490</field>
+    </record>
+
+    <record id="currency_gel" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">GEL</field>
+        <field name="display">Lari</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">500</field>
+    </record>
+
+    <record id="currency_ghs" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">GHS</field>
+        <field name="display">Ghana Cedi</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">510</field>
+    </record>
+
+    <record id="currency_gip" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">GIP</field>
+        <field name="display">Gibraltar Pound</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">520</field>
+    </record>
+
+    <record id="currency_gmd" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">GMD</field>
+        <field name="display">Dalasi</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">530</field>
+    </record>
+
+    <record id="currency_gnf" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">GNF</field>
+        <field name="display">Guinean Franc</field>
+        <field name="definition">Minor unit: 0 decimal places</field>
+        <field name="sequence">540</field>
+    </record>
+
+    <record id="currency_gtq" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">GTQ</field>
+        <field name="display">Quetzal</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">550</field>
+    </record>
+
+    <record id="currency_gyd" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">GYD</field>
+        <field name="display">Guyana Dollar</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">560</field>
+    </record>
+
+    <record id="currency_hkd" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">HKD</field>
+        <field name="display">Hong Kong Dollar</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">570</field>
+    </record>
+
+    <record id="currency_hnl" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">HNL</field>
+        <field name="display">Lempira</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">580</field>
+    </record>
+
+    <record id="currency_htg" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">HTG</field>
+        <field name="display">Gourde</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">590</field>
+    </record>
+
+    <record id="currency_huf" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">HUF</field>
+        <field name="display">Forint</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">600</field>
+    </record>
+
+    <record id="currency_idr" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">IDR</field>
+        <field name="display">Rupiah</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">610</field>
+    </record>
+
+    <record id="currency_ils" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">ILS</field>
+        <field name="display">New Israeli Sheqel</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">620</field>
+    </record>
+
+    <record id="currency_inr" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">INR</field>
+        <field name="display">Indian Rupee</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">630</field>
+    </record>
+
+    <record id="currency_iqd" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">IQD</field>
+        <field name="display">Iraqi Dinar</field>
+        <field name="definition">Minor unit: 3 decimal places</field>
+        <field name="sequence">640</field>
+    </record>
+
+    <record id="currency_irr" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">IRR</field>
+        <field name="display">Iranian Rial</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">650</field>
+    </record>
+
+    <record id="currency_isk" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">ISK</field>
+        <field name="display">Iceland Krona</field>
+        <field name="definition">Minor unit: 0 decimal places</field>
+        <field name="sequence">660</field>
+    </record>
+
+    <record id="currency_jmd" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">JMD</field>
+        <field name="display">Jamaican Dollar</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">670</field>
+    </record>
+
+    <record id="currency_jod" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">JOD</field>
+        <field name="display">Jordanian Dinar</field>
+        <field name="definition">Minor unit: 3 decimal places</field>
+        <field name="sequence">680</field>
+    </record>
+
+    <record id="currency_jpy" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">JPY</field>
+        <field name="display">Yen</field>
+        <field name="definition">Minor unit: 0 decimal places</field>
+        <field name="sequence">690</field>
+    </record>
+
+    <record id="currency_kes" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">KES</field>
+        <field name="display">Kenyan Shilling</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">700</field>
+    </record>
+
+    <record id="currency_kgs" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">KGS</field>
+        <field name="display">Som</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">710</field>
+    </record>
+
+    <record id="currency_khr" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">KHR</field>
+        <field name="display">Riel</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">720</field>
+    </record>
+
+    <record id="currency_kmf" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">KMF</field>
+        <field name="display">Comorian Franc</field>
+        <field name="definition">Minor unit: 0 decimal places</field>
+        <field name="sequence">730</field>
+    </record>
+
+    <record id="currency_kpw" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">KPW</field>
+        <field name="display">North Korean Won</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">740</field>
+    </record>
+
+    <record id="currency_krw" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">KRW</field>
+        <field name="display">Won</field>
+        <field name="definition">Minor unit: 0 decimal places</field>
+        <field name="sequence">750</field>
+    </record>
+
+    <record id="currency_kwd" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">KWD</field>
+        <field name="display">Kuwaiti Dinar</field>
+        <field name="definition">Minor unit: 3 decimal places</field>
+        <field name="sequence">760</field>
+    </record>
+
+    <record id="currency_kyd" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">KYD</field>
+        <field name="display">Cayman Islands Dollar</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">770</field>
+    </record>
+
+    <record id="currency_kzt" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">KZT</field>
+        <field name="display">Tenge</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">780</field>
+    </record>
+
+    <record id="currency_lak" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">LAK</field>
+        <field name="display">Lao Kip</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">790</field>
+    </record>
+
+    <record id="currency_lbp" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">LBP</field>
+        <field name="display">Lebanese Pound</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">800</field>
+    </record>
+
+    <record id="currency_lkr" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">LKR</field>
+        <field name="display">Sri Lanka Rupee</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">810</field>
+    </record>
+
+    <record id="currency_lrd" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">LRD</field>
+        <field name="display">Liberian Dollar</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">820</field>
+    </record>
+
+    <record id="currency_lsl" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">LSL</field>
+        <field name="display">Loti</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">830</field>
+    </record>
+
+    <record id="currency_lyd" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">LYD</field>
+        <field name="display">Libyan Dinar</field>
+        <field name="definition">Minor unit: 3 decimal places</field>
+        <field name="sequence">840</field>
+    </record>
+
+    <record id="currency_mad" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">MAD</field>
+        <field name="display">Moroccan Dirham</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">850</field>
+    </record>
+
+    <record id="currency_mdl" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">MDL</field>
+        <field name="display">Moldovan Leu</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">860</field>
+    </record>
+
+    <record id="currency_mga" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">MGA</field>
+        <field name="display">Malagasy Ariary</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">870</field>
+    </record>
+
+    <record id="currency_mkd" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">MKD</field>
+        <field name="display">Denar</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">880</field>
+    </record>
+
+    <record id="currency_mmk" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">MMK</field>
+        <field name="display">Kyat</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">890</field>
+    </record>
+
+    <record id="currency_mnt" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">MNT</field>
+        <field name="display">Tugrik</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">900</field>
+    </record>
+
+    <record id="currency_mop" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">MOP</field>
+        <field name="display">Pataca</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">910</field>
+    </record>
+
+    <record id="currency_mru" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">MRU</field>
+        <field name="display">Ouguiya</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">920</field>
+    </record>
+
+    <record id="currency_mur" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">MUR</field>
+        <field name="display">Mauritius Rupee</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">930</field>
+    </record>
+
+    <record id="currency_mvr" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">MVR</field>
+        <field name="display">Rufiyaa</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">940</field>
+    </record>
+
+    <record id="currency_mwk" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">MWK</field>
+        <field name="display">Malawi Kwacha</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">950</field>
+    </record>
+
+    <record id="currency_mxn" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">MXN</field>
+        <field name="display">Mexican Peso</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">960</field>
+    </record>
+
+    <record id="currency_mxv" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">MXV</field>
+        <field name="display">Mexican Unidad de Inversion (UDI)</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">970</field>
+    </record>
+
+    <record id="currency_myr" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">MYR</field>
+        <field name="display">Malaysian Ringgit</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">980</field>
+    </record>
+
+    <record id="currency_mzn" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">MZN</field>
+        <field name="display">Mozambique Metical</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">990</field>
+    </record>
+
+    <record id="currency_nad" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">NAD</field>
+        <field name="display">Namibia Dollar</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1000</field>
+    </record>
+
+    <record id="currency_ngn" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">NGN</field>
+        <field name="display">Naira</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1010</field>
+    </record>
+
+    <record id="currency_nio" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">NIO</field>
+        <field name="display">Cordoba Oro</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1020</field>
+    </record>
+
+    <record id="currency_nok" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">NOK</field>
+        <field name="display">Norwegian Krone</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1030</field>
+    </record>
+
+    <record id="currency_npr" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">NPR</field>
+        <field name="display">Nepalese Rupee</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1040</field>
+    </record>
+
+    <record id="currency_nzd" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">NZD</field>
+        <field name="display">New Zealand Dollar</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1050</field>
+    </record>
+
+    <record id="currency_omr" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">OMR</field>
+        <field name="display">Rial Omani</field>
+        <field name="definition">Minor unit: 3 decimal places</field>
+        <field name="sequence">1060</field>
+    </record>
+
+    <record id="currency_pab" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">PAB</field>
+        <field name="display">Balboa</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1070</field>
+    </record>
+
+    <record id="currency_pen" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">PEN</field>
+        <field name="display">Sol</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1080</field>
+    </record>
+
+    <record id="currency_pgk" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">PGK</field>
+        <field name="display">Kina</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1090</field>
+    </record>
+
+    <record id="currency_php" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">PHP</field>
+        <field name="display">Philippine Peso</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1100</field>
+    </record>
+
+    <record id="currency_pkr" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">PKR</field>
+        <field name="display">Pakistan Rupee</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1110</field>
+    </record>
+
+    <record id="currency_pln" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">PLN</field>
+        <field name="display">Zloty</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1120</field>
+    </record>
+
+    <record id="currency_pyg" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">PYG</field>
+        <field name="display">Guarani</field>
+        <field name="definition">Minor unit: 0 decimal places</field>
+        <field name="sequence">1130</field>
+    </record>
+
+    <record id="currency_qar" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">QAR</field>
+        <field name="display">Qatari Rial</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1140</field>
+    </record>
+
+    <record id="currency_ron" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">RON</field>
+        <field name="display">Romanian Leu</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1150</field>
+    </record>
+
+    <record id="currency_rsd" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">RSD</field>
+        <field name="display">Serbian Dinar</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1160</field>
+    </record>
+
+    <record id="currency_rub" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">RUB</field>
+        <field name="display">Russian Ruble</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1170</field>
+    </record>
+
+    <record id="currency_rwf" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">RWF</field>
+        <field name="display">Rwanda Franc</field>
+        <field name="definition">Minor unit: 0 decimal places</field>
+        <field name="sequence">1180</field>
+    </record>
+
+    <record id="currency_sar" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">SAR</field>
+        <field name="display">Saudi Riyal</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1190</field>
+    </record>
+
+    <record id="currency_sbd" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">SBD</field>
+        <field name="display">Solomon Islands Dollar</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1200</field>
+    </record>
+
+    <record id="currency_scr" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">SCR</field>
+        <field name="display">Seychelles Rupee</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1210</field>
+    </record>
+
+    <record id="currency_sdg" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">SDG</field>
+        <field name="display">Sudanese Pound</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1220</field>
+    </record>
+
+    <record id="currency_sek" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">SEK</field>
+        <field name="display">Swedish Krona</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1230</field>
+    </record>
+
+    <record id="currency_sgd" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">SGD</field>
+        <field name="display">Singapore Dollar</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1240</field>
+    </record>
+
+    <record id="currency_shp" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">SHP</field>
+        <field name="display">Saint Helena Pound</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1250</field>
+    </record>
+
+    <record id="currency_sle" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">SLE</field>
+        <field name="display">Leone</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1260</field>
+    </record>
+
+    <record id="currency_sos" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">SOS</field>
+        <field name="display">Somali Shilling</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1270</field>
+    </record>
+
+    <record id="currency_srd" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">SRD</field>
+        <field name="display">Surinam Dollar</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1280</field>
+    </record>
+
+    <record id="currency_ssp" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">SSP</field>
+        <field name="display">South Sudanese Pound</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1290</field>
+    </record>
+
+    <record id="currency_stn" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">STN</field>
+        <field name="display">Dobra</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1300</field>
+    </record>
+
+    <record id="currency_svc" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">SVC</field>
+        <field name="display">El Salvador Colon</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1310</field>
+    </record>
+
+    <record id="currency_syp" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">SYP</field>
+        <field name="display">Syrian Pound</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1320</field>
+    </record>
+
+    <record id="currency_szl" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">SZL</field>
+        <field name="display">Lilangeni</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1330</field>
+    </record>
+
+    <record id="currency_thb" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">THB</field>
+        <field name="display">Baht</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1340</field>
+    </record>
+
+    <record id="currency_tjs" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">TJS</field>
+        <field name="display">Somoni</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1350</field>
+    </record>
+
+    <record id="currency_tmt" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">TMT</field>
+        <field name="display">Turkmenistan New Manat</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1360</field>
+    </record>
+
+    <record id="currency_tnd" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">TND</field>
+        <field name="display">Tunisian Dinar</field>
+        <field name="definition">Minor unit: 3 decimal places</field>
+        <field name="sequence">1370</field>
+    </record>
+
+    <record id="currency_top" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">TOP</field>
+        <field name="display">Pa’anga</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1380</field>
+    </record>
+
+    <record id="currency_try" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">TRY</field>
+        <field name="display">Turkish Lira</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1390</field>
+    </record>
+
+    <record id="currency_ttd" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">TTD</field>
+        <field name="display">Trinidad and Tobago Dollar</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1400</field>
+    </record>
+
+    <record id="currency_twd" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">TWD</field>
+        <field name="display">New Taiwan Dollar</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1410</field>
+    </record>
+
+    <record id="currency_tzs" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">TZS</field>
+        <field name="display">Tanzanian Shilling</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1420</field>
+    </record>
+
+    <record id="currency_uah" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">UAH</field>
+        <field name="display">Hryvnia</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1430</field>
+    </record>
+
+    <record id="currency_ugx" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">UGX</field>
+        <field name="display">Uganda Shilling</field>
+        <field name="definition">Minor unit: 0 decimal places</field>
+        <field name="sequence">1440</field>
+    </record>
+
+    <record id="currency_usd" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">USD</field>
+        <field name="display">US Dollar</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1450</field>
+    </record>
+
+    <record id="currency_usn" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">USN</field>
+        <field name="display">US Dollar (Next day)</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1460</field>
+    </record>
+
+    <record id="currency_uyi" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">UYI</field>
+        <field name="display">Uruguay Peso en Unidades Indexadas (UI)</field>
+        <field name="definition">Minor unit: 0 decimal places</field>
+        <field name="sequence">1470</field>
+    </record>
+
+    <record id="currency_uyu" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">UYU</field>
+        <field name="display">Peso Uruguayo</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1480</field>
+    </record>
+
+    <record id="currency_uyw" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">UYW</field>
+        <field name="display">Unidad Previsional</field>
+        <field name="definition">Minor unit: 4 decimal places</field>
+        <field name="sequence">1490</field>
+    </record>
+
+    <record id="currency_uzs" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">UZS</field>
+        <field name="display">Uzbekistan Sum</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1500</field>
+    </record>
+
+    <record id="currency_ved" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">VED</field>
+        <field name="display">Bolívar Soberano</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1510</field>
+    </record>
+
+    <record id="currency_ves" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">VES</field>
+        <field name="display">Bolívar Soberano</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1520</field>
+    </record>
+
+    <record id="currency_vnd" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">VND</field>
+        <field name="display">Dong</field>
+        <field name="definition">Minor unit: 0 decimal places</field>
+        <field name="sequence">1530</field>
+    </record>
+
+    <record id="currency_vuv" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">VUV</field>
+        <field name="display">Vatu</field>
+        <field name="definition">Minor unit: 0 decimal places</field>
+        <field name="sequence">1540</field>
+    </record>
+
+    <record id="currency_wst" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">WST</field>
+        <field name="display">Tala</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1550</field>
+    </record>
+
+    <record id="currency_xad" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">XAD</field>
+        <field name="display">Arab Accounting Dinar</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1560</field>
+    </record>
+
+    <record id="currency_xaf" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">XAF</field>
+        <field name="display">CFA Franc BEAC</field>
+        <field name="definition">Minor unit: 0 decimal places</field>
+        <field name="sequence">1570</field>
+    </record>
+
+    <record id="currency_xag" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">XAG</field>
+        <field name="display">Silver</field>
+        <field name="sequence">1580</field>
+    </record>
+
+    <record id="currency_xau" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">XAU</field>
+        <field name="display">Gold</field>
+        <field name="sequence">1590</field>
+    </record>
+
+    <record id="currency_xba" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">XBA</field>
+        <field name="display">Bond Markets Unit European Composite Unit (EURCO)</field>
+        <field name="sequence">1600</field>
+    </record>
+
+    <record id="currency_xbb" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">XBB</field>
+        <field name="display">Bond Markets Unit European Monetary Unit (E.M.U.-6)</field>
+        <field name="sequence">1610</field>
+    </record>
+
+    <record id="currency_xbc" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">XBC</field>
+        <field name="display">Bond Markets Unit European Unit of Account 9 (E.U.A.-9)</field>
+        <field name="sequence">1620</field>
+    </record>
+
+    <record id="currency_xbd" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">XBD</field>
+        <field name="display">Bond Markets Unit European Unit of Account 17 (E.U.A.-17)</field>
+        <field name="sequence">1630</field>
+    </record>
+
+    <record id="currency_xcd" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">XCD</field>
+        <field name="display">East Caribbean Dollar</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1640</field>
+    </record>
+
+    <record id="currency_xcg" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">XCG</field>
+        <field name="display">Caribbean Guilder</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1650</field>
+    </record>
+
+    <record id="currency_xdr" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">XDR</field>
+        <field name="display">SDR (Special Drawing Right)</field>
+        <field name="sequence">1660</field>
+    </record>
+
+    <record id="currency_xof" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">XOF</field>
+        <field name="display">CFA Franc BCEAO</field>
+        <field name="definition">Minor unit: 0 decimal places</field>
+        <field name="sequence">1670</field>
+    </record>
+
+    <record id="currency_xpd" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">XPD</field>
+        <field name="display">Palladium</field>
+        <field name="sequence">1680</field>
+    </record>
+
+    <record id="currency_xpf" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">XPF</field>
+        <field name="display">CFP Franc</field>
+        <field name="definition">Minor unit: 0 decimal places</field>
+        <field name="sequence">1690</field>
+    </record>
+
+    <record id="currency_xpt" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">XPT</field>
+        <field name="display">Platinum</field>
+        <field name="sequence">1700</field>
+    </record>
+
+    <record id="currency_xsu" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">XSU</field>
+        <field name="display">Sucre</field>
+        <field name="sequence">1710</field>
+    </record>
+
+    <record id="currency_xts" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">XTS</field>
+        <field name="display">Codes specifically reserved for testing purposes</field>
+        <field name="sequence">1720</field>
+    </record>
+
+    <record id="currency_xua" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">XUA</field>
+        <field name="display">ADB Unit of Account</field>
+        <field name="sequence">1730</field>
+    </record>
+
+    <record id="currency_xxx" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">XXX</field>
+        <field name="display">The codes assigned for transactions where no currency is involved</field>
+        <field name="sequence">1740</field>
+    </record>
+
+    <record id="currency_yer" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">YER</field>
+        <field name="display">Yemeni Rial</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1750</field>
+    </record>
+
+    <record id="currency_zar" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">ZAR</field>
+        <field name="display">Rand</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1760</field>
+    </record>
+
+    <record id="currency_zmw" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">ZMW</field>
+        <field name="display">Zambian Kwacha</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1770</field>
+    </record>
+
+    <record id="currency_zwg" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">ZWG</field>
+        <field name="display">Zimbabwe Gold</field>
+        <field name="definition">Minor unit: 2 decimal places</field>
+        <field name="sequence">1780</field>
+    </record>
+
+    <!-- SPECIAL CODE -->
+    <record id="currency_xxx" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_currency"/>
+        <field name="code">XXX</field>
+        <field name="display">No Currency</field>
+        <field name="definition">No currency. Used for transactions that are not currency-denominated.</field>
+        <field name="sequence">1790</field>
+    </record>
+</odoo>

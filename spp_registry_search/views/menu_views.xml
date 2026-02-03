@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Search Portal Menu - Default for all registry users -->
+    <!-- Using viewer as base; officer/manager/admin all imply viewer -->
+    <menuitem
+        id="menu_registry_search"
+        name="Search"
+        action="action_registry_search_portal"
+        parent="spp_registry.spp_main_menu_root"
+        sequence="1"
+        groups="spp_registry.group_registry_viewer"
+    />
+
+    <!-- Auditor submenu for browse-all access -->
+    <menuitem
+        id="menu_browse_all"
+        name="Browse All (Audit)"
+        parent="spp_registry.spp_main_menu_root"
+        sequence="90"
+        groups="group_registry_search_auditor"
+    />
+
+    <menuitem
+        id="menu_browse_all_individuals"
+        name="All Individuals"
+        action="action_browse_all_individuals"
+        parent="menu_browse_all"
+        sequence="10"
+        groups="group_registry_search_auditor"
+    />
+
+    <menuitem
+        id="menu_browse_all_groups"
+        name="All Groups"
+        action="action_browse_all_groups"
+        parent="menu_browse_all"
+        sequence="20"
+        groups="group_registry_search_auditor"
+    />
+</odoo>

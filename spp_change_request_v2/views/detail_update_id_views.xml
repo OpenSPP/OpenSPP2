@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Update ID Document Detail Form View -->
+    <record id="spp_cr_detail_update_id_form" model="ir.ui.view">
+        <field name="name">spp.cr.detail.update_id.form</field>
+        <field name="model">spp.cr.detail.update_id</field>
+        <field name="arch" type="xml">
+            <form string="Update ID Document Details">
+                <sheet>
+                    <group>
+                        <group string="Registrant">
+                            <field name="registrant_name" />
+                        </group>
+                        <group string="Operation">
+                            <field name="operation" widget="radio" />
+                        </group>
+                    </group>
+                    <group invisible="operation == 'add'">
+                        <group string="Existing ID">
+                            <field name="existing_id_record_id" options="{'no_create': True}"
+                                   required="operation in ['update', 'remove']" />
+                            <field name="current_id_value" invisible="not existing_id_record_id" />
+                        </group>
+                    </group>
+                    <group invisible="operation == 'remove'">
+                        <group string="ID Information">
+                            <field name="id_type_id" options="{'no_create': True}" />
+                            <field name="id_value" required="operation == 'add'" />
+                            <field name="expiry_date" />
+                        </group>
+                        <separator string="Description"/>
+                        <field name="description" nolabel="1" class="oe_inline"/>
+                    </group>
+                    <group string="Supporting Documents">
+                        <field name="document_attachment_ids" widget="many2many_binary" />
+                    </group>
+                    <group string="Additional Information">
+                        <field name="remarks" placeholder="Enter any additional notes..." />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

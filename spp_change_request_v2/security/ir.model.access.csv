@@ -1,0 +1,121 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_change_request_type_user,spp.change.request.type user,model_spp_change_request_type,group_cr_user,1,0,0,0
+access_spp_change_request_type_validator,spp.change.request.type validator,model_spp_change_request_type,group_cr_validator,1,0,0,0
+access_spp_change_request_type_validator_hq,spp.change.request.type validator hq,model_spp_change_request_type,group_cr_validator_hq,1,0,0,0
+access_spp_change_request_type_manager,spp.change.request.type manager,model_spp_change_request_type,group_cr_manager,1,1,1,1
+access_spp_change_request_type_mapping_user,spp.change.request.type.mapping user,model_spp_change_request_type_mapping,group_cr_user,1,0,0,0
+access_spp_change_request_type_mapping_validator,spp.change.request.type.mapping validator,model_spp_change_request_type_mapping,group_cr_validator,1,0,0,0
+access_spp_change_request_type_mapping_validator_hq,spp.change.request.type.mapping validator hq,model_spp_change_request_type_mapping,group_cr_validator_hq,1,0,0,0
+access_spp_change_request_type_mapping_manager,spp.change.request.type.mapping manager,model_spp_change_request_type_mapping,group_cr_manager,1,1,1,1
+access_spp_change_request_user,spp.change.request user,model_spp_change_request,group_cr_user,1,1,1,0
+access_spp_change_request_validator,spp.change.request validator,model_spp_change_request,group_cr_validator,1,1,1,0
+access_spp_change_request_validator_hq,spp.change.request validator hq,model_spp_change_request,group_cr_validator_hq,1,1,1,0
+access_spp_change_request_manager,spp.change.request manager,model_spp_change_request,group_cr_manager,1,1,1,1
+access_spp_cr_detail_add_member_user,spp.cr.detail.add_member user,model_spp_cr_detail_add_member,group_cr_user,1,1,1,0
+access_spp_cr_detail_add_member_validator,spp.cr.detail.add_member validator,model_spp_cr_detail_add_member,group_cr_validator,1,1,1,0
+access_spp_cr_detail_add_member_validator_hq,spp.cr.detail.add_member validator hq,model_spp_cr_detail_add_member,group_cr_validator_hq,1,1,1,0
+access_spp_cr_detail_add_member_manager,spp.cr.detail.add_member manager,model_spp_cr_detail_add_member,group_cr_manager,1,1,1,1
+access_spp_cr_detail_edit_individual_user,spp.cr.detail.edit_individual user,model_spp_cr_detail_edit_individual,group_cr_user,1,1,1,0
+access_spp_cr_detail_edit_individual_validator,spp.cr.detail.edit_individual validator,model_spp_cr_detail_edit_individual,group_cr_validator,1,1,1,0
+access_spp_cr_detail_edit_individual_validator_hq,spp.cr.detail.edit_individual validator hq,model_spp_cr_detail_edit_individual,group_cr_validator_hq,1,1,1,0
+access_spp_cr_detail_edit_individual_manager,spp.cr.detail.edit_individual manager,model_spp_cr_detail_edit_individual,group_cr_manager,1,1,1,1
+access_spp_cr_detail_edit_group_user,spp.cr.detail.edit_group user,model_spp_cr_detail_edit_group,group_cr_user,1,1,1,0
+access_spp_cr_detail_edit_group_validator,spp.cr.detail.edit_group validator,model_spp_cr_detail_edit_group,group_cr_validator,1,1,1,0
+access_spp_cr_detail_edit_group_validator_hq,spp.cr.detail.edit_group validator hq,model_spp_cr_detail_edit_group,group_cr_validator_hq,1,1,1,0
+access_spp_cr_detail_edit_group_manager,spp.cr.detail.edit_group manager,model_spp_cr_detail_edit_group,group_cr_manager,1,1,1,1
+access_spp_cr_detail_remove_member_user,spp.cr.detail.remove_member user,model_spp_cr_detail_remove_member,group_cr_user,1,1,1,0
+access_spp_cr_detail_remove_member_validator,spp.cr.detail.remove_member validator,model_spp_cr_detail_remove_member,group_cr_validator,1,1,1,0
+access_spp_cr_detail_remove_member_validator_hq,spp.cr.detail.remove_member validator hq,model_spp_cr_detail_remove_member,group_cr_validator_hq,1,1,1,0
+access_spp_cr_detail_remove_member_manager,spp.cr.detail.remove_member manager,model_spp_cr_detail_remove_member,group_cr_manager,1,1,1,1
+access_spp_cr_detail_change_hoh_user,spp.cr.detail.change_hoh user,model_spp_cr_detail_change_hoh,group_cr_user,1,1,1,0
+access_spp_cr_detail_change_hoh_validator,spp.cr.detail.change_hoh validator,model_spp_cr_detail_change_hoh,group_cr_validator,1,1,1,0
+access_spp_cr_detail_change_hoh_validator_hq,spp.cr.detail.change_hoh validator hq,model_spp_cr_detail_change_hoh,group_cr_validator_hq,1,1,1,0
+access_spp_cr_detail_change_hoh_manager,spp.cr.detail.change_hoh manager,model_spp_cr_detail_change_hoh,group_cr_manager,1,1,1,1
+access_spp_cr_detail_exit_registrant_user,spp.cr.detail.exit_registrant user,model_spp_cr_detail_exit_registrant,group_cr_user,1,1,1,0
+access_spp_cr_detail_exit_registrant_validator,spp.cr.detail.exit_registrant validator,model_spp_cr_detail_exit_registrant,group_cr_validator,1,1,1,0
+access_spp_cr_detail_exit_registrant_validator_hq,spp.cr.detail.exit_registrant validator hq,model_spp_cr_detail_exit_registrant,group_cr_validator_hq,1,1,1,0
+access_spp_cr_detail_exit_registrant_manager,spp.cr.detail.exit_registrant manager,model_spp_cr_detail_exit_registrant,group_cr_manager,1,1,1,1
+access_spp_cr_detail_transfer_member_user,spp.cr.detail.transfer_member user,model_spp_cr_detail_transfer_member,group_cr_user,1,1,1,0
+access_spp_cr_detail_transfer_member_validator,spp.cr.detail.transfer_member validator,model_spp_cr_detail_transfer_member,group_cr_validator,1,1,1,0
+access_spp_cr_detail_transfer_member_validator_hq,spp.cr.detail.transfer_member validator hq,model_spp_cr_detail_transfer_member,group_cr_validator_hq,1,1,1,0
+access_spp_cr_detail_transfer_member_manager,spp.cr.detail.transfer_member manager,model_spp_cr_detail_transfer_member,group_cr_manager,1,1,1,1
+access_spp_cr_detail_update_id_user,spp.cr.detail.update_id user,model_spp_cr_detail_update_id,group_cr_user,1,1,1,0
+access_spp_cr_detail_update_id_validator,spp.cr.detail.update_id validator,model_spp_cr_detail_update_id,group_cr_validator,1,1,1,0
+access_spp_cr_detail_update_id_validator_hq,spp.cr.detail.update_id validator hq,model_spp_cr_detail_update_id,group_cr_validator_hq,1,1,1,0
+access_spp_cr_detail_update_id_manager,spp.cr.detail.update_id manager,model_spp_cr_detail_update_id,group_cr_manager,1,1,1,1
+access_spp_cr_detail_create_group_user,spp.cr.detail.create_group user,model_spp_cr_detail_create_group,group_cr_user,1,1,1,0
+access_spp_cr_detail_create_group_validator,spp.cr.detail.create_group validator,model_spp_cr_detail_create_group,group_cr_validator,1,1,1,0
+access_spp_cr_detail_create_group_validator_hq,spp.cr.detail.create_group validator hq,model_spp_cr_detail_create_group,group_cr_validator_hq,1,1,1,0
+access_spp_cr_detail_create_group_manager,spp.cr.detail.create_group manager,model_spp_cr_detail_create_group,group_cr_manager,1,1,1,1
+access_spp_cr_detail_merge_registrants_user,spp.cr.detail.merge_registrants user,model_spp_cr_detail_merge_registrants,group_cr_user,1,1,1,0
+access_spp_cr_detail_merge_registrants_validator,spp.cr.detail.merge_registrants validator,model_spp_cr_detail_merge_registrants,group_cr_validator,1,1,1,0
+access_spp_cr_detail_merge_registrants_validator_hq,spp.cr.detail.merge_registrants validator hq,model_spp_cr_detail_merge_registrants,group_cr_validator_hq,1,1,1,0
+access_spp_cr_detail_merge_registrants_manager,spp.cr.detail.merge_registrants manager,model_spp_cr_detail_merge_registrants,group_cr_manager,1,1,1,1
+access_spp_cr_detail_split_household_user,spp.cr.detail.split_household user,model_spp_cr_detail_split_household,group_cr_user,1,1,1,0
+access_spp_cr_detail_split_household_validator,spp.cr.detail.split_household validator,model_spp_cr_detail_split_household,group_cr_validator,1,1,1,0
+access_spp_cr_detail_split_household_validator_hq,spp.cr.detail.split_household validator hq,model_spp_cr_detail_split_household,group_cr_validator_hq,1,1,1,0
+access_spp_cr_detail_split_household_manager,spp.cr.detail.split_household manager,model_spp_cr_detail_split_household,group_cr_manager,1,1,1,1
+access_spp_cr_preview_wizard_user,spp.cr.preview.wizard user,model_spp_cr_preview_wizard,group_cr_user,1,1,1,1
+access_spp_cr_preview_wizard_validator,spp.cr.preview.wizard validator,model_spp_cr_preview_wizard,group_cr_validator,1,1,1,1
+access_spp_cr_preview_wizard_validator_hq,spp.cr.preview.wizard validator hq,model_spp_cr_preview_wizard,group_cr_validator_hq,1,1,1,1
+access_spp_cr_preview_wizard_manager,spp.cr.preview.wizard manager,model_spp_cr_preview_wizard,group_cr_manager,1,1,1,1
+access_spp_cr_conflict_rule_user,spp.cr.conflict.rule user,model_spp_cr_conflict_rule,group_cr_user,1,0,0,0
+access_spp_cr_conflict_rule_validator,spp.cr.conflict.rule validator,model_spp_cr_conflict_rule,group_cr_validator,1,0,0,0
+access_spp_cr_conflict_rule_validator_hq,spp.cr.conflict.rule validator hq,model_spp_cr_conflict_rule,group_cr_validator_hq,1,0,0,0
+access_spp_cr_conflict_rule_manager,spp.cr.conflict.rule manager,model_spp_cr_conflict_rule,group_cr_manager,1,1,1,1
+access_spp_cr_duplicate_config_user,spp.cr.duplicate.config user,model_spp_cr_duplicate_config,group_cr_user,1,0,0,0
+access_spp_cr_duplicate_config_validator,spp.cr.duplicate.config validator,model_spp_cr_duplicate_config,group_cr_validator,1,0,0,0
+access_spp_cr_duplicate_config_validator_hq,spp.cr.duplicate.config validator hq,model_spp_cr_duplicate_config,group_cr_validator_hq,1,0,0,0
+access_spp_cr_duplicate_config_manager,spp.cr.duplicate.config manager,model_spp_cr_duplicate_config,group_cr_manager,1,1,1,1
+access_spp_cr_conflict_wizard_user,spp.cr.conflict.wizard user,model_spp_cr_conflict_wizard,group_cr_user,1,1,1,1
+access_spp_cr_conflict_wizard_validator,spp.cr.conflict.wizard validator,model_spp_cr_conflict_wizard,group_cr_validator,1,1,1,1
+access_spp_cr_conflict_wizard_validator_hq,spp.cr.conflict.wizard validator hq,model_spp_cr_conflict_wizard,group_cr_validator_hq,1,1,1,1
+access_spp_cr_conflict_wizard_manager,spp.cr.conflict.wizard manager,model_spp_cr_conflict_wizard,group_cr_manager,1,1,1,1
+access_spp_cr_document_upload_wizard_user,spp.cr.document.upload.wizard user,model_spp_cr_document_upload_wizard,group_cr_user,1,1,1,1
+access_spp_cr_document_upload_wizard_validator,spp.cr.document.upload.wizard validator,model_spp_cr_document_upload_wizard,group_cr_validator,1,1,1,1
+access_spp_cr_document_upload_wizard_validator_hq,spp.cr.document.upload.wizard validator hq,model_spp_cr_document_upload_wizard,group_cr_validator_hq,1,1,1,1
+access_spp_cr_document_upload_wizard_manager,spp.cr.document.upload.wizard manager,model_spp_cr_document_upload_wizard,group_cr_manager,1,1,1,1
+access_spp_dms_directory_cr_user,spp.dms.directory cr user,spp_dms.model_spp_dms_directory,group_cr_user,1,1,1,0
+access_spp_dms_directory_cr_validator,spp.dms.directory cr validator,spp_dms.model_spp_dms_directory,group_cr_validator,1,1,1,0
+access_spp_dms_directory_cr_validator_hq,spp.dms.directory cr validator hq,spp_dms.model_spp_dms_directory,group_cr_validator_hq,1,1,1,0
+access_spp_dms_directory_cr_manager,spp.dms.directory cr manager,spp_dms.model_spp_dms_directory,group_cr_manager,1,1,1,1
+access_spp_dms_file_cr_user,spp.dms.file cr user,spp_dms.model_spp_dms_file,group_cr_user,1,1,1,0
+access_spp_dms_file_cr_validator,spp.dms.file cr validator,spp_dms.model_spp_dms_file,group_cr_validator,1,1,1,0
+access_spp_dms_file_cr_validator_hq,spp.dms.file cr validator hq,spp_dms.model_spp_dms_file,group_cr_validator_hq,1,1,1,0
+access_spp_dms_file_cr_manager,spp.dms.file cr manager,spp_dms.model_spp_dms_file,group_cr_manager,1,1,1,1
+access_spp_dms_category_cr_user,spp.dms.category cr user,spp_dms.model_spp_dms_category,group_cr_user,1,0,0,0
+access_spp_dms_category_cr_validator,spp.dms.category cr validator,spp_dms.model_spp_dms_category,group_cr_validator,1,0,0,0
+access_spp_dms_category_cr_validator_hq,spp.dms.category cr validator hq,spp_dms.model_spp_dms_category,group_cr_validator_hq,1,0,0,0
+access_spp_dms_category_cr_manager,spp.dms.category cr manager,spp_dms.model_spp_dms_category,group_cr_manager,1,1,1,1
+access_spp_vocabulary_code_cr_user,spp.vocabulary.code cr user,spp_vocabulary.model_spp_vocabulary_code,group_cr_user,1,0,0,0
+access_spp_vocabulary_code_cr_validator,spp.vocabulary.code cr validator,spp_vocabulary.model_spp_vocabulary_code,group_cr_validator,1,0,0,0
+access_spp_vocabulary_code_cr_validator_hq,spp.vocabulary.code cr validator hq,spp_vocabulary.model_spp_vocabulary_code,group_cr_validator_hq,1,0,0,0
+access_spp_vocabulary_code_cr_manager,spp.vocabulary.code cr manager,spp_vocabulary.model_spp_vocabulary_code,group_cr_manager,1,1,1,1
+access_spp_cr_create_wizard_user,spp.cr.create.wizard user,model_spp_cr_create_wizard,group_cr_user,1,1,1,1
+access_spp_cr_create_wizard_validator,spp.cr.create.wizard validator,model_spp_cr_create_wizard,group_cr_validator,1,1,1,1
+access_spp_cr_create_wizard_validator_hq,spp.cr.create.wizard validator hq,model_spp_cr_create_wizard,group_cr_validator_hq,1,1,1,1
+access_spp_cr_create_wizard_manager,spp.cr.create.wizard manager,model_spp_cr_create_wizard,group_cr_manager,1,1,1,1
+access_spp_cr_batch_approval_wizard_validator,spp.cr.batch.approval.wizard validator,model_spp_cr_batch_approval_wizard,group_cr_validator,1,1,1,1
+access_spp_cr_batch_approval_wizard_validator_hq,spp.cr.batch.approval.wizard validator hq,model_spp_cr_batch_approval_wizard,group_cr_validator_hq,1,1,1,1
+access_spp_cr_batch_approval_wizard_manager,spp.cr.batch.approval.wizard manager,model_spp_cr_batch_approval_wizard,group_cr_manager,1,1,1,1
+access_spp_cr_batch_approval_line_validator,spp.cr.batch.approval.line validator,model_spp_cr_batch_approval_line,group_cr_validator,1,1,1,1
+access_spp_cr_batch_approval_line_validator_hq,spp.cr.batch.approval.line validator hq,model_spp_cr_batch_approval_line,group_cr_validator_hq,1,1,1,1
+access_spp_cr_batch_approval_line_manager,spp.cr.batch.approval.line manager,model_spp_cr_batch_approval_line,group_cr_manager,1,1,1,1
+access_spp_cr_conflict_comparison_wizard_validator,spp.cr.conflict.comparison.wizard validator,model_spp_cr_conflict_comparison_wizard,group_cr_validator,1,1,1,1
+access_spp_cr_conflict_comparison_wizard_validator_hq,spp.cr.conflict.comparison.wizard validator hq,model_spp_cr_conflict_comparison_wizard,group_cr_validator_hq,1,1,1,1
+access_spp_cr_conflict_comparison_wizard_manager,spp.cr.conflict.comparison.wizard manager,model_spp_cr_conflict_comparison_wizard,group_cr_manager,1,1,1,1
+access_spp_cr_conflict_comparison_line_validator,spp.cr.conflict.comparison.line validator,model_spp_cr_conflict_comparison_line,group_cr_validator,1,1,1,1
+access_spp_cr_conflict_comparison_line_validator_hq,spp.cr.conflict.comparison.line validator hq,model_spp_cr_conflict_comparison_line,group_cr_validator_hq,1,1,1,1
+access_spp_cr_conflict_comparison_line_manager,spp.cr.conflict.comparison.line manager,model_spp_cr_conflict_comparison_line,group_cr_manager,1,1,1,1
+access_spp_group_membership_cr_user,spp.group.membership cr user,spp_registry.model_spp_group_membership,group_cr_user,1,0,0,0
+access_spp_group_membership_cr_validator,spp.group.membership cr validator,spp_registry.model_spp_group_membership,group_cr_validator,1,0,0,0
+access_spp_group_membership_cr_validator_hq,spp.group.membership cr validator hq,spp_registry.model_spp_group_membership,group_cr_validator_hq,1,0,0,0
+access_spp_group_membership_cr_manager,spp.group.membership cr manager,spp_registry.model_spp_group_membership,group_cr_manager,1,0,0,0
+access_res_partner_cr_user,res.partner cr user,base.model_res_partner,group_cr_user,1,1,1,0
+access_res_partner_cr_validator,res.partner cr validator,base.model_res_partner,group_cr_validator,1,1,1,0
+access_res_partner_cr_validator_hq,res.partner cr validator hq,base.model_res_partner,group_cr_validator_hq,1,1,1,0
+access_res_partner_cr_manager,res.partner cr manager,base.model_res_partner,group_cr_manager,1,1,1,0
+access_ir_model_fields_cr_user,ir.model.fields cr user,base.model_ir_model_fields,group_cr_user,1,0,0,0
+access_ir_model_fields_cr_validator,ir.model.fields cr validator,base.model_ir_model_fields,group_cr_validator,1,0,0,0
+access_ir_model_fields_cr_validator_hq,ir.model.fields cr validator hq,base.model_ir_model_fields,group_cr_validator_hq,1,0,0,0
+access_ir_model_fields_cr_manager,ir.model.fields cr manager,base.model_ir_model_fields,group_cr_manager,1,0,0,0

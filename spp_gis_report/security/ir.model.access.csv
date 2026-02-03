@@ -1,0 +1,39 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_gis_report_user,GIS Report User Access,model_spp_gis_report,base.group_user,1,0,0,0
+access_spp_gis_report_data_user,GIS Report Data User Access,model_spp_gis_report_data,base.group_user,1,0,0,0
+access_spp_gis_report_threshold_user,GIS Report Threshold User Access,model_spp_gis_report_threshold,base.group_user,1,0,0,0
+access_spp_gis_report_template_user,GIS Report Template User Access,model_spp_gis_report_template,base.group_user,1,0,0,0
+access_spp_gis_report_category_user,GIS Report Category User Access,model_spp_gis_report_category,base.group_user,1,0,0,0
+access_spp_gis_report_admin,GIS Report Admin Access,model_spp_gis_report,spp_security.group_spp_admin,1,1,1,1
+access_spp_gis_report_data_admin,GIS Report Data Admin Access,model_spp_gis_report_data,spp_security.group_spp_admin,1,1,1,1
+access_spp_gis_report_threshold_admin,GIS Report Threshold Admin Access,model_spp_gis_report_threshold,spp_security.group_spp_admin,1,1,1,1
+access_spp_gis_report_template_admin,GIS Report Template Admin Access,model_spp_gis_report_template,spp_security.group_spp_admin,1,1,1,1
+access_spp_gis_report_category_admin,GIS Report Category Admin Access,model_spp_gis_report_category,spp_security.group_spp_admin,1,1,1,1
+access_spp_gis_report_sysadmin,GIS Report System Admin Access,model_spp_gis_report,base.group_system,1,1,1,1
+access_spp_gis_report_data_sysadmin,GIS Report Data System Admin Access,model_spp_gis_report_data,base.group_system,1,1,1,1
+access_spp_gis_report_threshold_sysadmin,GIS Report Threshold System Admin Access,model_spp_gis_report_threshold,base.group_system,1,1,1,1
+access_spp_gis_report_template_sysadmin,GIS Report Template System Admin Access,model_spp_gis_report_template,base.group_system,1,1,1,1
+access_spp_gis_report_category_sysadmin,GIS Report Category System Admin Access,model_spp_gis_report_category,base.group_system,1,1,1,1
+access_spp_gis_report_gis_user,GIS Report GIS User Access,model_spp_gis_report,group_gis_report_user,1,0,0,0
+access_spp_gis_report_data_gis_user,GIS Report Data GIS User Access,model_spp_gis_report_data,group_gis_report_user,1,1,0,0
+access_spp_gis_report_threshold_gis_user,GIS Report Threshold GIS User Access,model_spp_gis_report_threshold,group_gis_report_user,1,0,0,0
+access_spp_gis_report_template_gis_user,GIS Report Template GIS User Access,model_spp_gis_report_template,group_gis_report_user,1,0,0,0
+access_spp_gis_report_category_gis_user,GIS Report Category GIS User Access,model_spp_gis_report_category,group_gis_report_user,1,0,0,0
+access_spp_gis_report_officer,GIS Report Officer Access,model_spp_gis_report,group_gis_report_officer,1,1,1,0
+access_spp_gis_report_data_officer,GIS Report Data Officer Access,model_spp_gis_report_data,group_gis_report_officer,1,1,1,0
+access_spp_gis_report_threshold_officer,GIS Report Threshold Officer Access,model_spp_gis_report_threshold,group_gis_report_officer,1,1,1,0
+access_spp_gis_report_template_officer,GIS Report Template Officer Access,model_spp_gis_report_template,group_gis_report_officer,1,1,1,0
+access_spp_gis_report_category_officer,GIS Report Category Officer Access,model_spp_gis_report_category,group_gis_report_officer,1,1,1,0
+access_spp_gis_report_manager,GIS Report Manager Access,model_spp_gis_report,group_gis_report_manager,1,1,1,1
+access_spp_gis_report_data_manager,GIS Report Data Manager Access,model_spp_gis_report_data,group_gis_report_manager,1,1,1,1
+access_spp_gis_report_threshold_manager,GIS Report Threshold Manager Access,model_spp_gis_report_threshold,group_gis_report_manager,1,1,1,1
+access_spp_gis_report_template_manager,GIS Report Template Manager Access,model_spp_gis_report_template,group_gis_report_manager,1,1,1,1
+access_spp_gis_report_category_manager,GIS Report Category Manager Access,model_spp_gis_report_category,group_gis_report_manager,1,1,1,1
+access_spp_gis_report_registry_officer,GIS Report Registry Officer Access,model_spp_gis_report,spp_registry.group_registry_officer,1,0,0,0
+access_spp_gis_report_data_registry_officer,GIS Report Data Registry Officer Access,model_spp_gis_report_data,spp_registry.group_registry_officer,1,0,0,0
+access_spp_gis_report_threshold_registry_officer,GIS Report Threshold Registry Officer Access,model_spp_gis_report_threshold,spp_registry.group_registry_officer,1,0,0,0
+access_spp_gis_report_template_registry_officer,GIS Report Template Registry Officer Access,model_spp_gis_report_template,spp_registry.group_registry_officer,1,0,0,0
+access_spp_gis_report_category_registry_officer,GIS Report Category Registry Officer Access,model_spp_gis_report_category,spp_registry.group_registry_officer,1,0,0,0
+access_spp_gis_report_wizard_user,GIS Report Wizard User Access,model_spp_gis_report_wizard,base.group_user,1,1,1,1
+access_spp_gis_report_wizard_officer,GIS Report Wizard Officer Access,model_spp_gis_report_wizard,group_gis_report_officer,1,1,1,1
+access_spp_gis_report_wizard_manager,GIS Report Wizard Manager Access,model_spp_gis_report_wizard,group_gis_report_manager,1,1,1,1

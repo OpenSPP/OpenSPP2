@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- OVC Support Pack: Orphans and Vulnerable Children programs -->
+        <record id="pack_ovc_support" model="spp.studio.pack">
+            <field name="name">OVC Support</field>
+            <field name="code">ovc_support</field>
+            <field name="description">Logic pack for Orphans and Vulnerable Children (OVC) programs. Covers orphan verification, vulnerability assessment, and child-focused benefits.</field>
+            <field name="category">child_benefit</field>
+            <field name="version">1.0</field>
+            <field name="author">OpenSPP</field>
+            <field name="state">available</field>
+        </record>
+
+        <!-- Eligibility: Orphan Status -->
+        <record id="pack_ovc_item_orphan_status" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_ovc_support"/>
+            <field name="name">Orphan Status Check</field>
+            <field name="context_type">individual</field>
+            <field name="description">Child has lost one or both parents (single or double orphan).</field>
+            <field name="expression_type">filter</field>
+            <field name="logic_data">{"cel_expression": "is_orphan || (!has_mother &amp;&amp; !has_father)"}</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <!-- Eligibility: Child Age Range -->
+        <record id="pack_ovc_item_child_age" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_ovc_support"/>
+            <field name="name">Child Age Eligibility</field>
+            <field name="context_type">individual</field>
+            <field name="description">Child must be under child_age_limit, or under 25 if in full-time education.</field>
+            <field name="expression_type">filter</field>
+            <field name="logic_data">{"cel_expression": "age &lt; child_age_limit || (age &lt; 25 &amp;&amp; is_in_education)"}</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <!-- Eligibility: Vulnerable Household -->
+        <record id="pack_ovc_item_vulnerable_hh" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_ovc_support"/>
+            <field name="name">Vulnerable Household Check</field>
+            <field name="context_type">group</field>
+            <field name="description">Household meets vulnerability criteria (elderly-headed, child-headed, or skipped-generation).</field>
+            <field name="expression_type">filter</field>
+            <field name="logic_data">{"cel_expression": "is_elderly_headed || is_child_headed || is_skipped_generation || has_chronically_ill_head"}</field>
+            <field name="sequence">30</field>
+        </record>
+
+        <!-- Eligibility: School Enrollment -->
+        <record id="pack_ovc_item_school_enrollment" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_ovc_support"/>
+            <field name="name">School Enrollment Requirement</field>
+            <field name="context_type">individual</field>
+            <field name="description">School-age children must be enrolled in education (soft conditionality).</field>
+            <field name="expression_type">filter</field>
+            <field name="logic_data">{"cel_expression": "age &lt; 6 || is_enrolled_in_school || has_enrollment_exemption"}</field>
+            <field name="sequence">40</field>
+        </record>
+
+        <!-- Scoring: OVC Vulnerability Score -->
+        <record id="pack_ovc_item_vulnerability_score" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_ovc_support"/>
+            <field name="name">OVC Vulnerability Score</field>
+            <field name="context_type">both</field>
+            <field name="description">Composite vulnerability score for OVC prioritization. Higher for double orphans, younger children, and poorer households.</field>
+            <field name="expression_type">scoring</field>
+            <field name="logic_data">{"cel_expression": "(is_double_orphan ? 40 : 20) + (child_age_limit - age) * 2 + (1 - income_ratio) * 30 + (is_child_headed ? 20 : 0)"}</field>
+            <field name="sequence">50</field>
+        </record>
+
+        <!-- Scoring: Educational Need Score -->
+        <record id="pack_ovc_item_education_score" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_ovc_support"/>
+            <field name="name">Educational Need Score</field>
+            <field name="context_type">both</field>
+            <field name="description">Score prioritizing children at risk of dropping out or with educational gaps.</field>
+            <field name="expression_type">scoring</field>
+            <field name="logic_data">{"cel_expression": "(grade_level_gap * 10) + (missed_school_days * 0.5) + (at_dropout_risk ? 30 : 0)"}</field>
+            <field name="sequence">60</field>
+        </record>
+
+        <!-- Benefit: Per-Child OVC Grant -->
+        <record id="pack_ovc_item_per_child_grant" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_ovc_support"/>
+            <field name="name">Per-Child OVC Grant</field>
+            <field name="context_type">both</field>
+            <field name="description">Monthly grant per eligible OVC in household.</field>
+            <field name="expression_type">formula</field>
+            <field name="logic_data">{"cel_expression": "ovc_count * 500"}</field>
+            <field name="sequence">70</field>
+        </record>
+
+        <!-- Benefit: Double Orphan Supplement -->
+        <record id="pack_ovc_item_double_orphan_supplement" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_ovc_support"/>
+            <field name="name">Double Orphan Supplement</field>
+            <field name="context_type">individual</field>
+            <field name="description">Additional support for children who have lost both parents.</field>
+            <field name="expression_type">formula</field>
+            <field name="logic_data">{"cel_expression": "500 + (is_double_orphan ? 250 : 0)"}</field>
+            <field name="sequence">80</field>
+        </record>
+
+        <!-- Benefit: Education Support Grant -->
+        <record id="pack_ovc_item_education_grant" model="spp.studio.pack.item">
+            <field name="pack_id" ref="pack_ovc_support"/>
+            <field name="name">Education Support Grant</field>
+            <field name="context_type">both</field>
+            <field name="description">Additional grant for school fees, uniforms, and supplies. Higher amounts for secondary education.</field>
+            <field name="expression_type">formula</field>
+            <field name="logic_data">{"cel_expression": "is_in_secondary ? 800 : 400"}</field>
+            <field name="sequence">90</field>
+        </record>
+    </data>
+</odoo>

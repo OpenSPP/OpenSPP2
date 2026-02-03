@@ -1,0 +1,171 @@
+# Trivy ignore file for OpenSPP
+#
+# Policy: Only suppress CVEs with NO available fix in the target platform.
+# CVEs with available fixes should be patched (Dockerfile or image rebuild).
+# Review all suppressions on expiry date.
+#
+# Last reviewed: 2026-01-29
+
+vulnerabilities:
+  # --- Base OS packages (Debian 12 Bookworm in Odoo Docker image) ---
+  # No fix available in Debian 12. Cannot patch without changing base distro.
+
+  - id: CVE-2023-2953
+    statement:
+      "libldap-2.5-0 2.5.13: OpenLDAP null pointer dereference in ber_memalloc_x. No fix available in Debian 12. OpenSPP
+      uses PostgreSQL, not LDAP directly."
+    expiry_date: 2026-04-29
+
+  - id: CVE-2023-45853
+    statement:
+      "zlib1g 1.2.13: integer overflow in zipOpenNewFileInZip4_6 causing heap buffer overflow. No fix available in
+      Debian 12. Zip creation not exposed to untrusted input."
+    expiry_date: 2026-04-29
+
+  - id: CVE-2023-52355
+    statement:
+      "libtiff6 4.5.0: TIFFRasterScanlineSize64 can produce oversized allocation causing OOM. No fix available. OpenSPP
+      does not process TIFF images from untrusted sources."
+    expiry_date: 2026-04-29
+
+  # CVE-2025-15467 and CVE-2025-69419 (OpenSSL RCE): REMOVED.
+  # Fix applied in docker/Dockerfile (apt-get upgrade libssl3 openssl).
+
+  - id: CVE-2025-7458
+    statement:
+      "libsqlite3-0 3.40.1: integer overflow in SQLite. No fix available in Debian 12. SQLite is not the primary
+      database (PostgreSQL is used)."
+    expiry_date: 2026-04-29
+
+  - id: CVE-2025-7425
+    statement:
+      "libxslt1.1 1.1.35: heap use-after-free via atype corruption in xmlAttrPtr. No fix available in Debian 12. XSLT
+      processing limited to trusted report templates."
+    expiry_date: 2026-04-29
+
+  - id: CVE-2026-0861
+    statement:
+      "libc-bin 2.36-9: glibc integer overflow in memalign leads to heap corruption. No fix available in Debian 12.
+      Affects all binaries but requires specific allocation patterns."
+    expiry_date: 2026-04-29
+
+  - id: CVE-2026-22695
+    statement:
+      "libpng16-16 1.6.39: heap buffer over-read in png_image_finish_read causing DoS/info disclosure. No fix available
+      in Debian 12. PNG processing limited to trusted assets."
+    expiry_date: 2026-04-29
+
+  - id: CVE-2026-22801
+    statement:
+      "libpng16-16 1.6.39: integer truncation in simplified write API causing info disclosure/DoS. No fix available in
+      Debian 12. PNG writing not exposed to untrusted input."
+    expiry_date: 2026-04-29
+
+  - id: CVE-2026-24882
+    statement:
+      "dirmngr/gnupg 2.2.40: stack-based buffer overflow in tpm2daemon allows arbitrary code execution. No fix available
+      in Debian 12. TPM2 daemon not used in OpenSPP."
+    expiry_date: 2026-04-29
+
+  # --- Go stdlib v1.20.5 (geoipupdate binary bundled in Odoo image) ---
+  # The geoipupdate binary is a MaxMind GeoIP database updater compiled with Go 1.20.5.
+  # It runs as a scheduled task, not as a network service. Not directly exposed to attackers.
+
+  - id: CVE-2023-39325
+    statement:
+      "Go 1.20.5 net/http: HTTP/2 rapid stream resets cause excessive CPU (CVE-2023-44487). geoipupdate is a client
+      binary, not a server. Fixed in Go 1.20.10."
+    expiry_date: 2026-04-29
+
+  - id: CVE-2023-45283
+    statement:
+      "Go 1.20.5 filepath: path traversal on Windows via \\??\\. Not applicable — container runs Linux. Fixed in Go
+      1.20.11."
+    expiry_date: 2026-04-29
+
+  - id: CVE-2023-45288
+    statement:
+      "Go 1.20.5 net/http: unlimited CONTINUATION frames cause DoS. geoipupdate is a client binary, not a server. Fixed
+      in Go 1.21.9."
+    expiry_date: 2026-04-29
+
+  - id: CVE-2024-24790
+    statement:
+      "Go 1.20.5 net/netip: unexpected behavior from Is methods for IPv4-mapped IPv6 addresses. geoipupdate only
+      connects to MaxMind servers. Fixed in Go 1.21.11."
+    expiry_date: 2026-04-29
+
+  - id: CVE-2024-34156
+    statement:
+      "Go 1.20.5 encoding/gob: stack exhaustion via deeply nested structures. geoipupdate does not decode gob data.
+      Fixed in Go 1.22.7."
+    expiry_date: 2026-04-29
+
+  - id: CVE-2025-47907
+    statement:
+      "Go 1.20.5 database/sql: Postgres Scan race condition. geoipupdate does not use database/sql. Fixed in Go 1.23.12."
+    expiry_date: 2026-04-29
+
+  - id: CVE-2025-58183
+    statement:
+      "Go 1.20.5 archive/tar: unbounded allocation when parsing GNU sparse map. geoipupdate does not process tar
+      archives from untrusted sources. Fixed in Go 1.24.8."
+    expiry_date: 2026-04-29
+
+  - id: CVE-2025-61729
+    statement:
+      "Go 1.20.5 crypto/x509: DoS via crafted certificate. geoipupdate only connects to MaxMind TLS endpoints. Fixed in
+      Go 1.24.11."
+    expiry_date: 2026-04-29
+
+  # --- Python packages (installed in Odoo Docker image venv) ---
+  # These are vendored in the Odoo Docker image's Python virtual environment.
+  # Upgrading requires rebuilding the Odoo Docker image with updated dependencies.
+  # 30-day expiry to maintain pressure for image rebuild.
+
+  - id: CVE-2024-23342
+    statement:
+      "ecdsa 0.19.1: vulnerable to Minerva timing attack on ECDSA signatures. Vendored in Odoo image venv. No fix
+      version available. Used by python-jose for JWT."
+    expiry_date: 2026-04-29
+
+  - id: CVE-2024-34069
+    statement:
+      "Werkzeug 3.0.1: code execution on developer machine via debugger. Odoo does not run Werkzeug debugger in
+      production. Fix available: 3.0.3."
+    expiry_date: 2026-02-28
+
+  - id: CVE-2024-47874
+    statement:
+      "starlette 0.38.6: DoS via multipart/form-data. Vendored in Odoo image but Odoo uses Werkzeug, not Starlette, for
+      request handling. Fix available: 0.40.0."
+    expiry_date: 2026-02-28
+
+  - id: CVE-2025-66418
+    statement:
+      "urllib3 2.0.7: unbounded decompression chain leads to resource exhaustion. Vendored in Odoo image venv. Fix
+      available: 2.6.0."
+    expiry_date: 2026-02-28
+
+  - id: CVE-2025-66471
+    statement:
+      "urllib3 2.0.7: streaming API improperly handles highly compressed data. Vendored in Odoo image venv. Fix
+      available: 2.6.0."
+    expiry_date: 2026-02-28
+
+  - id: CVE-2026-21441
+    statement:
+      "urllib3 2.0.7: decompression-bomb safeguard bypass when following HTTP redirects in streaming API. Vendored in
+      Odoo image venv. Fix available: 2.6.3."
+    expiry_date: 2026-02-28
+
+misconfigurations:
+  # --- Dockerfile best practices ---
+
+  - id: AVD-DS-0002
+    paths:
+      - "e2e/Dockerfile"
+    statement:
+      "E2E test container runs as root intentionally. It needs elevated privileges for Playwright browser automation and
+      system-level test setup."
+    expiry_date: 2026-04-29

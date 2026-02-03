@@ -1,0 +1,34 @@
+# =============================================================================
+# OpenSPP Development Dependencies (NOT for production)
+# Install with: pip install -r docker/requirements-dev.txt
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Debugging Tools
+# -----------------------------------------------------------------------------
+debugpy              # Remote debugging (VS Code)
+pydevd-odoo          # Odoo-aware debugger
+wdb                  # Web-based debugger
+pudb                 # Console debugger with UI
+
+# -----------------------------------------------------------------------------
+# Development Utilities
+# -----------------------------------------------------------------------------
+inotify              # File system watching (Linux)
+watchdog             # Cross-platform file watching
+plumbum              # Shell command utilities
+astor                # AST manipulation
+
+# -----------------------------------------------------------------------------
+# Database Tools
+# -----------------------------------------------------------------------------
+pg_activity          # PostgreSQL activity monitor
+
+# -----------------------------------------------------------------------------
+# Additional Tools (if needed in dev)
+# -----------------------------------------------------------------------------
+# Uncomment if you need these for development:
+# scipy              # Scientific computing
+# matplotlib         # Visualization/plotting
+# geopandas          # Advanced GIS operations
+# pandas             # Data analysis

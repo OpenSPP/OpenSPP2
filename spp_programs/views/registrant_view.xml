@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <!-- Inherit the unified registrant form from spp_registry -->
+    <record id="view_res_partner_form_programs" model="ir.ui.view">
+        <field name="name">spp_programs.view_registrant_programs_integration</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="spp_registry.view_individuals_form" />
+        <field name="arch" type="xml">
+            <!-- Smart Buttons -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button
+                    name="action_view_program_memberships"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-list-alt"
+                    invisible="not is_registrant"
+                    groups="spp_programs.group_programs_viewer"
+                >
+                    <field name="program_membership_count" widget="statinfo" string="Programs" />
+                </button>
+                <button
+                    name="action_view_all_entitlements"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-gift"
+                    invisible="not is_registrant or total_entitlements_count == 0"
+                    groups="spp_programs.group_programs_viewer"
+                >
+                    <field name="total_entitlements_count" widget="statinfo" string="Entitlements" />
+                </button>
+            </xpath>
+
+            <!-- Programs Section in Individual Participation Tab -->
+            <xpath expr="//div[@name='programs_section']" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </xpath>
+            <xpath expr="//div[@name='programs_section']" position="inside">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h4>Program Enrollments</h4>
+                    <button
+                        name="action_enroll_in_program"
+                        type="object"
+                        class="btn btn-primary btn-sm"
+                        groups="spp_programs.group_programs_officer"
+                    >
+                        <i class="fa fa-plus me-1" />Enroll in Program
+                    </button>
+                </div>
+                <field
+                    name="program_membership_ids"
+                    nolabel="1"
+                    readonly="1"
+                    invisible="program_membership_count == 0"
+                >
+                    <list
+                        decoration-info="state == 'draft'"
+                        decoration-muted="state in ('exited', 'not_eligible')"
+                        decoration-warning="state == 'paused'"
+                        decoration-success="state == 'enrolled'"
+                    >
+                        <field name="program_id" />
+                        <field name="state" widget="badge" />
+                        <field name="enrollment_date" />
+                        <button
+                            name="action_pause"
+                            type="object"
+                            string="Pause"
+                            invisible="state != 'enrolled'"
+                            groups="spp_programs.group_programs_officer"
+                        />
+                        <button
+                            name="action_resume"
+                            type="object"
+                            string="Resume"
+                            invisible="state != 'paused'"
+                            groups="spp_programs.group_programs_officer"
+                        />
+                        <button
+                            name="action_exit"
+                            type="object"
+                            string="Exit"
+                            invisible="state not in ('enrolled', 'paused')"
+                            groups="spp_programs.group_programs_officer"
+                            confirm="Are you sure you want to exit this registrant from the program?"
+                        />
+                    </list>
+                </field>
+                <div invisible="program_membership_count != 0" class="text-muted small">
+                    Not enrolled in any programs. Click "+ Enroll in Program" to add.
+                </div>
+            </xpath>
+
+            <!-- Entitlements Section (Combined Cash + In-Kind) -->
+            <xpath expr="//div[@name='entitlements_section']" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </xpath>
+            <xpath expr="//div[@name='entitlements_section']" position="inside">
+                <h4>Entitlements</h4>
+
+                <!-- Cash Entitlements -->
+                <field name="entitlement_ids" nolabel="1" readonly="1" invisible="entitlements_count == 0">
+                    <list
+                        decoration-muted="state in ('cancelled', 'expired')"
+                        decoration-success="state == 'rdpd2ben'"
+                    >
+                        <field name="cycle_id" />
+                        <field name="initial_amount" groups="spp_programs.group_programs_manager" />
+                        <field name="currency_id" groups="spp_programs.group_programs_manager" optional="show" />
+                        <field name="state" widget="badge" />
+                        <field name="valid_from" optional="show" />
+                        <field name="valid_until" optional="hide" />
+                    </list>
+                </field>
+
+                <!-- In-Kind Entitlements -->
+                <field
+                    name="inkind_entitlement_ids"
+                    nolabel="1"
+                    readonly="1"
+                    invisible="inkind_entitlements_count == 0"
+                >
+                    <list decoration-muted="state in ('cancelled', 'expired')">
+                        <field name="cycle_id" />
+                        <field name="product_id" optional="show" />
+                        <field name="quantity" optional="show" />
+                        <field name="state" widget="badge" />
+                        <field name="valid_from" optional="show" />
+                    </list>
+                </field>
+
+                <div invisible="total_entitlements_count != 0" class="text-muted small">
+                    <span invisible="program_membership_count == 0">
+                        No entitlements yet. Entitlements are generated when program cycles run.
+                    </span>
+                    <span invisible="program_membership_count != 0">
+                        No entitlements yet. Enroll in a program to receive entitlements.
+                    </span>
+                </div>
+            </xpath>
+
+            <!-- Programs Section in Group Participation Tab -->
+            <xpath expr="//div[@name='group_programs_section']" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </xpath>
+            <xpath expr="//div[@name='group_programs_section']" position="inside">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h4>Program Enrollments</h4>
+                    <button
+                        name="action_enroll_in_program"
+                        type="object"
+                        class="btn btn-primary btn-sm"
+                        groups="spp_programs.group_programs_officer"
+                    >
+                        <i class="fa fa-plus me-1" />Enroll in Program
+                    </button>
+                </div>
+                <field
+                    name="program_membership_ids"
+                    nolabel="1"
+                    readonly="1"
+                    invisible="program_membership_count == 0"
+                >
+                    <list
+                        decoration-info="state == 'draft'"
+                        decoration-muted="state in ('exited', 'not_eligible')"
+                        decoration-warning="state == 'paused'"
+                        decoration-success="state == 'enrolled'"
+                    >
+                        <field name="program_id" />
+                        <field name="state" widget="badge" />
+                        <field name="enrollment_date" />
+                        <button
+                            name="action_pause"
+                            type="object"
+                            string="Pause"
+                            invisible="state != 'enrolled'"
+                            groups="spp_programs.group_programs_officer"
+                        />
+                        <button
+                            name="action_resume"
+                            type="object"
+                            string="Resume"
+                            invisible="state != 'paused'"
+                            groups="spp_programs.group_programs_officer"
+                        />
+                        <button
+                            name="action_exit"
+                            type="object"
+                            string="Exit"
+                            invisible="state not in ('enrolled', 'paused')"
+                            groups="spp_programs.group_programs_officer"
+                            confirm="Are you sure you want to exit this registrant from the program?"
+                        />
+                    </list>
+                </field>
+                <div invisible="program_membership_count != 0" class="text-muted small">
+                    Not enrolled in any programs. Click "+ Enroll in Program" to add.
+                </div>
+            </xpath>
+
+            <!-- Entitlements Section for Groups -->
+            <xpath expr="//div[@name='group_entitlements_section']" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </xpath>
+            <xpath expr="//div[@name='group_entitlements_section']" position="inside">
+                <h4>Entitlements</h4>
+
+                <!-- Cash Entitlements -->
+                <field name="entitlement_ids" nolabel="1" readonly="1" invisible="entitlements_count == 0">
+                    <list
+                        decoration-muted="state in ('cancelled', 'expired')"
+                        decoration-success="state == 'rdpd2ben'"
+                    >
+                        <field name="cycle_id" />
+                        <field name="initial_amount" groups="spp_programs.group_programs_manager" />
+                        <field name="currency_id" groups="spp_programs.group_programs_manager" optional="show" />
+                        <field name="state" widget="badge" />
+                        <field name="valid_from" optional="show" />
+                        <field name="valid_until" optional="hide" />
+                    </list>
+                </field>
+
+                <!-- In-Kind Entitlements -->
+                <field
+                    name="inkind_entitlement_ids"
+                    nolabel="1"
+                    readonly="1"
+                    invisible="inkind_entitlements_count == 0"
+                >
+                    <list decoration-muted="state in ('cancelled', 'expired')">
+                        <field name="cycle_id" />
+                        <field name="product_id" optional="show" />
+                        <field name="quantity" optional="show" />
+                        <field name="state" widget="badge" />
+                        <field name="valid_from" optional="show" />
+                    </list>
+                </field>
+
+                <div invisible="total_entitlements_count != 0" class="text-muted small">
+                    <span invisible="program_membership_count == 0">
+                        No entitlements yet. Entitlements are generated when program cycles run.
+                    </span>
+                    <span invisible="program_membership_count != 0">
+                        No entitlements yet. Enroll in a program to receive entitlements.
+                    </span>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

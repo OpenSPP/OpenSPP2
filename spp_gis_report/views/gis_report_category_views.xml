@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <!-- ========================================== -->
+    <!-- GIS REPORT CATEGORY LIST VIEW              -->
+    <!-- ========================================== -->
+    <record id="view_gis_report_category_list" model="ir.ui.view">
+        <field name="name">spp.gis.report.category.list</field>
+        <field name="model">spp.gis.report.category</field>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+            <list sample="1" default_order="sequence, name">
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="code" />
+                <field name="icon" />
+                <field name="report_count" />
+            </list>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- GIS REPORT CATEGORY FORM VIEW              -->
+    <!-- ========================================== -->
+    <record id="view_gis_report_category_form" model="ir.ui.view">
+        <field name="name">spp.gis.report.category.form</field>
+        <field name="model">spp.gis.report.category</field>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-map"
+                            name="action_view_reports"
+                        >
+                            <field name="report_count" widget="statinfo" string="Reports" />
+                        </button>
+                    </div>
+
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Category Name" required="1" />
+                        </h1>
+                    </div>
+
+                    <group col="2">
+                        <group name="main_info">
+                            <field name="code" />
+                            <field name="sequence" />
+                        </group>
+                        <group name="appearance">
+                            <field name="icon" />
+                            <field name="color" widget="color" />
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page name="reports" string="Reports">
+                            <field name="report_ids" nolabel="1" readonly="1">
+                                <list>
+                                    <field name="name" />
+                                    <field name="code" />
+                                    <field name="source_model_id" />
+                                    <field name="last_refresh" widget="timeago" />
+                                </list>
+                            </field>
+                        </page>
+                        <page name="templates" string="Templates">
+                            <field name="template_ids" nolabel="1" readonly="1">
+                                <list>
+                                    <field name="name" />
+                                    <field name="code" />
+                                    <field name="description" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- GIS REPORT CATEGORY ACTION                 -->
+    <!-- ========================================== -->
+    <record id="action_gis_report_category" model="ir.actions.act_window">
+        <field name="name">Report Categories</field>
+        <field name="res_model">spp.gis.report.category</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <div class="text-center text-muted py-5">
+                <i class="fa fa-folder fa-3x mb-3 opacity-50" />
+                <h5>No Categories Defined</h5>
+                <p>Categories help organize your GIS reports.</p>
+            </div>
+        </field>
+    </record>
+</odoo>

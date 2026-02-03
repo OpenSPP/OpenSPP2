@@ -1,0 +1,1518 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* spp_dci_server
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_transaction__action
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_transaction_search
+msgid "Action"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/server_key.py:0
+msgid "Activated"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_server_key__activated_date
+msgid "Activated Date"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__active
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_server_key__active
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_subscription__active
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_server_key__state__active
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_subscription__state__active
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_search
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_subscription_search
+msgid "Active"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_search
+msgid "Active Status"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_sender_registry__notes
+msgid "Additional notes about this sender"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_form
+msgid "Additional notes about this sender..."
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_subscription__event_type__adoption
+msgid "Adoption"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__algorithm
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_server_key__algorithm
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_search
+msgid "Algorithm"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/sender_registry.py:0
+msgid "Algorithm not set for sender %s"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_fastapi_endpoint__app
+msgid "App"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_subscription_form
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_subscription_search
+msgid "Archived"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__auth_type
+msgid "Authentication Type"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_sender_registry__auth_type
+msgid ""
+"Authentication method used by this client. OAuth 2.0 for standard REST "
+"clients, HTTP Signature for DCI protocol."
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__auto_approve
+msgid "Auto-Approve Subscriptions"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_form
+msgid "Automatically confirm subscriptions from this sender"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_sender_registry__auto_approve
+msgid ""
+"Automatically confirm subscriptions from this sender without manual review"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_subscription__event_type__birth
+msgid "Birth"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_transaction__state__callback_failed
+msgid "Callback Failed"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_transaction__state__callback_sent
+msgid "Callback Sent"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_transaction__callback_sent_at
+msgid "Callback Sent At"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_subscription__callback_uri
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_transaction__callback_uri
+msgid "Callback URI"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_subscription_form
+msgid "Cancel"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_subscription__state__cancelled
+msgid "Cancelled"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/server_key.py:0
+msgid "Cannot activate a revoked key. Please create a new key."
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/server_key.py:0
+msgid ""
+"Cannot activate key without generating key pair. Please generate keys first."
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/server_key.py:0
+msgid ""
+"Cannot activate key without generating keypair. Please generate keys first."
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/server_key.py:0
+msgid "Cannot use key in %s state for signing. Please activate it first."
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_form
+msgid "Classification for category-based consent matching"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_sender_registry__organization_type
+msgid ""
+"Classification of the organization for consent matching. Beneficiaries can "
+"consent to share data with specific organization types."
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__client_id
+msgid "Client"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__client_secret
+msgid "Client Secret"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__client_secret_hash
+msgid "Client Secret Hash"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_sender_registry__name
+msgid "Client name for identification"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.actions.act_window,help:spp_dci_server.action_spp_dci_sender_registry
+msgid ""
+"Configure external DCI senders and their public keys for signature verification.\n"
+"                Public keys can be fetched automatically from sender JWKS endpoints."
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_subscription_form
+msgid "Confirm"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_subscription__event_type__correction
+msgid "Correction"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_transaction__correlation_id
+msgid "Correlation ID"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.actions.act_window,help:spp_dci_server.action_spp_dci_sender_registry
+msgid "Create a new Sender Registry Entry"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_server_key__created_date
+msgid "Created Date"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_notification_log__create_uid
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__create_uid
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_server_key__create_uid
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_subscription__create_uid
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_transaction__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_notification_log__create_date
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__create_date
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_server_key__create_date
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_subscription__create_date
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_transaction__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_sender_registry__algorithm
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_form
+msgid "Cryptographic signature algorithm"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_server_key__algorithm
+msgid "Cryptographic signing algorithm (Ed25519 only for server keys)"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_transaction__job_state
+msgid "Current queue_job state"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_form
+msgid "Current requests in this minute"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model,name:spp_dci_server.model_spp_dci_transaction
+msgid "DCI Async Transaction"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model,name:spp_dci_server.model_spp_dci_subscription
+msgid "DCI Event Subscription"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model,name:spp_dci_server.model_spp_dci_notification_log
+msgid "DCI Notification Log"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_form
+msgid "DCI Protocol Settings"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model,name:spp_dci_server.model_spp_dci_sender_registry
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_search
+msgid "DCI Sender Registry"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model,name:spp_dci_server.model_spp_dci_server_key
+msgid "DCI Server Signing Key"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_transaction__dci_status
+msgid "DCI Status"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.actions.act_window,name:spp_dci_server.action_spp_dci_subscription
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_subscription_search
+msgid "DCI Subscriptions"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.actions.act_window,name:spp_dci_server.action_spp_dci_transaction
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_transaction_search
+msgid "DCI Transactions"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_transaction__action
+msgid "DCI action type"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_transaction__message_id
+msgid "DCI message_id from request header"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_subscription__original_message_id
+msgid "DCI message_id from subscribe request"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_sender_registry__sender_id
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_form
+msgid "DCI sender identifier (e.g., 'crvs.national.gov')"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_subscription__sender_id
+msgid "DCI sender who created the subscription"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_transaction__sender_id
+msgid "DCI sender who initiated the request"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_transaction__dci_status
+msgid "DCI standard status code"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_transaction__state
+msgid "DCI status codes: rcvd, pdng, succ, rjct"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_transaction__error_code
+msgid "DCI status_reason_code"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_transaction__error_message
+msgid "DCI status_reason_message"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_transaction__transaction_id
+msgid "DCI transaction_id from request message"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_subscription__original_transaction_id
+msgid "DCI transaction_id from subscribe request"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/sender_registry.py:0
+msgid ""
+"DCI verification service not available. Please ensure spp_dci module is "
+"installed."
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.actions.server,name:spp_dci_server.ir_cron_check_expired_subscriptions_ir_actions_server
+msgid "DCI: Check Expired Subscriptions"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.actions.server,name:spp_dci_server.ir_cron_reset_daily_rate_limits_ir_actions_server
+msgid "DCI: Reset Daily Rate Limit Counters"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_transaction_search
+msgid "Date"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_sender_registry__last_request_reset
+msgid "Date when daily counter was last reset"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_subscription__event_type__death
+msgid "Death"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_subscription_search
+msgid "Delete Events"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__description
+msgid "Description"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_server_key__name
+msgid "Descriptive name for this signing key"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_subscription__reg_type__dr
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_transaction__reg_type__dr
+msgid "Disability Registry"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_fastapi_endpoint__display_name
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_notification_log__display_name
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__display_name
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_server_key__display_name
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_subscription__display_name
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_transaction__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_subscription__event_type__divorce
+msgid "Divorce"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_server_key__state__draft
+msgid "Draft"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_sender_registry__algorithm__ed25519
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_server_key__algorithm__ed25519
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_search
+msgid "Ed25519"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_subscription__state__error
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_subscription_search
+msgid "Error"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_transaction__error_code
+msgid "Error Code"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_transaction_form
+msgid "Error Information"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_notification_log__error_message
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_transaction__error_message
+msgid "Error Message"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_subscription_form
+msgid "Event Configuration"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_notification_log__event_type
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_subscription__event_type
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_subscription_search
+msgid "Event Type"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_server_key__expires_at
+msgid "Expiration Date"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/server_key.py:0
+msgid "Expiration date must be in the future."
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_subscription__state__expired
+msgid "Expired"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_subscription__expires
+msgid "Expires"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_notification_log__status__failed
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_transaction_search
+msgid "Failed"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_subscription__failed_count
+msgid "Failed Notifications"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/sender_registry.py:0
+msgid "Failed to convert JWK to PEM: %s"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/sender_registry.py:0
+msgid "Failed to fetch JWKS from %s: %s"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/sender_registry.py:0
+msgid "Failed to fetch public key: %s"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/server_key.py:0
+msgid "Failed to generate keypair: %s"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_subscription__reg_type__fr
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_transaction__reg_type__fr
+msgid "Farmer Registry"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model,name:spp_dci_server.model_fastapi_endpoint
+msgid "FastAPI Endpoint"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_form
+msgid "Fetch Public Key"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_form
+msgid "Fetch public key from JWKS endpoint"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_subscription__filter_expression
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_subscription_form
+msgid "Filter Expression"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_transaction__response_payload
+msgid "Generated DCI response as JSON"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_transaction__correlation_id
+msgid "Generated correlation_id for response tracking"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_search
+msgid "Government"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_fastapi_endpoint__id
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_notification_log__id
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__id
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_server_key__id
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_subscription__id
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_transaction__id
+msgid "ID"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_search
+msgid "Inactive"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_subscription__reg_type__ibr
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_transaction__reg_type__ibr
+msgid "Integrated Beneficiary Registry"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/sender_registry.py:0
+msgid "Invalid JWKS response: 'keys' field not found"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__jwks_url
+msgid "JWKS URL"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/sender_registry.py:0
+msgid "JWKS URL must start with http:// or https://"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/sender_registry.py:0
+msgid "JWKS URL not configured for sender %s"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_transaction_form
+msgid "Job Information"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_transaction__job_state
+msgid "Job State"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_transaction__job_uuid
+msgid "Job UUID"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/transaction.py:0
+msgid "Job not found"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/server_key.py:0
+msgid ""
+"Key ID must contain only alphanumeric characters, hyphens, and underscores."
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_server_key__key_id
+msgid "Key Identifier"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_server_key__name
+msgid "Key Name"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/server_key.py:0
+msgid "Key is already active."
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/server_key.py:0
+msgid "Key is already revoked."
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_server_key__state
+msgid "Key lifecycle state"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/server_key.py:0
+msgid ""
+"Keys already exist for this record. Please create a new key record to "
+"generate a new keypair."
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/server_key.py:0
+msgid "Keys can only be generated in Draft state. Current state: %s"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__last_request_reset
+msgid "Last Daily Reset"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__last_key_fetch
+msgid "Last Key Fetch"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_subscription__last_notification
+msgid "Last Notification"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__last_request_minute
+msgid "Last Request Time"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_notification_log__write_uid
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__write_uid
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_server_key__write_uid
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_subscription__write_uid
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_transaction__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_notification_log__write_date
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__write_date
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_server_key__write_date
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_subscription__write_date
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_transaction__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__last_used_date
+msgid "Last Used Date"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_form
+msgid "Last daily counter reset"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__legal_basis
+msgid "Legal Basis"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__legal_basis_reference
+msgid "Legal Reference"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_form
+msgid "Legal basis for data processing per GDPR Article 6"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_sender_registry__legal_basis
+msgid ""
+"Legal basis for data processing per GDPR Article 6. For interagency data "
+"exchange, use 'Legal Obligation' or 'Public Interest' with a reference to "
+"the authorizing law."
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_subscription__event_type__marriage
+msgid "Marriage"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_transaction__max_retries
+msgid "Max Retries"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_form
+msgid "Maximum requests allowed per day"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_form
+msgid "Maximum requests allowed per minute"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_sender_registry__rate_limit_per_day
+msgid "Maximum requests per day"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_sender_registry__rate_limit_per_minute
+msgid "Maximum requests per minute"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_transaction__message_id
+msgid "Message ID"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/sender_registry.py:0
+msgid "Missing 'n' or 'e' parameter in RSA JWK"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/sender_registry.py:0
+msgid "Missing 'x' parameter in Ed25519 JWK"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_search
+msgid "NGO"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__name
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_subscription__name
+msgid "Name"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/server_key.py:0
+msgid ""
+"No active server signing key found. Please generate and activate a server "
+"key in Settings > DCI > Server Keys"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/transaction.py:0
+msgid "No job associated with this transaction"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/sender_registry.py:0
+msgid ""
+"No matching key found in JWKS for sender %s. Expected kid to start with "
+"'%s|'"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/server_key.py:0
+msgid "No private key available for signing."
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/sender_registry.py:0
+msgid ""
+"No public key available for sender %s. Please fetch the public key first."
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__notes
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_form
+msgid "Notes"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/subscription.py:0
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_subscription_form
+msgid "Notifications"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_subscription__notification_count
+msgid "Notifications Sent"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_transaction__action__notify
+msgid "Notify"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_sender_registry__request_count_minute
+msgid "Number of API requests in the current minute window"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_sender_registry__request_count_today
+msgid "Number of API requests made today (reset daily at midnight)"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_sender_registry__client_id
+msgid "OAuth client_id used for authentication (required for OAuth clients)"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_sender_registry__client_secret
+msgid "OAuth client_secret - shown only once on creation/regeneration"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_server_key__active
+msgid "Only one key can be active at a time"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/server_key.py:0
+msgid ""
+"Only one server key can be active at a time. Please deactivate key '%s' "
+"first."
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__fastapi_endpoint__app__dci_api
+msgid "OpenSPP DCI API"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_subscription__filter_expression
+msgid "Optional DCI expression to filter which events trigger notifications"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_server_key__expires_at
+msgid "Optional expiration date for key rotation"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__partner_id
+msgid "Organization"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_form
+msgid "Organization & Consent"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__organization_type
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_search
+msgid "Organization Type"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__organization_type_verified
+msgid "Organization Type Verified"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_sender_registry__partner_id
+msgid "Organization this API client represents"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_form
+msgid "Organization this DCI sender represents"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_transaction__request_payload
+msgid "Original DCI request as JSON"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_subscription__original_message_id
+msgid "Original Message ID"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_subscription_form
+msgid "Original Request"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_subscription__original_transaction_id
+msgid "Original Transaction ID"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_transaction__sender_uri
+msgid "Original sender_id string from request"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_server_key__private_key
+msgid "PEM-encoded private key (access restricted)"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_server_key__public_key
+msgid "PEM-encoded public key"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_sender_registry__public_key
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_form
+msgid "PEM-encoded public key for signature verification"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_transaction__dci_status__pdng
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_transaction__state__pending
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_subscription_search
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_transaction_search
+msgid "Pending"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_subscription__state__pending
+msgid "Pending Confirmation"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_server_key__private_key
+msgid "Private Key"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_transaction__processed_at
+msgid "Processed At"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_transaction__state__processing
+msgid "Processing"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__public_key
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_server_key__public_key
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_form
+msgid "Public Key"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/sender_registry.py:0
+msgid "Public key fetched successfully from %s"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_sender_registry__algorithm__rs256
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_search
+msgid "RSA-256"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__rate_limit_per_day
+msgid "Rate Limit Per Day"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__rate_limit_per_minute
+msgid "Rate Limit Per Minute"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_form
+msgid "Rate Limiting & API Usage"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_subscription_form
+msgid "Reactivate"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_transaction__dci_status__rcvd
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_transaction__state__received
+msgid "Received"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_transaction__received_at
+msgid "Received At"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_notification_log__record_count
+msgid "Record Count"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_subscription__event_type__delete
+msgid "Record Deletion"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_subscription__event_type__update
+msgid "Record Update"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_form
+msgid "Reference to authorizing law or MOU"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_sender_registry__legal_basis_reference
+msgid ""
+"Reference to law, regulation, MOU, or contract authorizing access. E.g., "
+"'Data Protection Act 2019, Section 45' or 'MOU-2024-001'"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_subscription__event_type__registration
+msgid "Registration"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_subscription_search
+msgid "Registration Events"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_subscription__reg_type
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_transaction__reg_type
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_subscription_search
+msgid "Registry Type"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_transaction__dci_status__rjct
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_transaction__state__rejected
+msgid "Rejected"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__request_count
+msgid "Request Count"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_transaction__request_payload
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_transaction_form
+msgid "Request Payload"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__request_count_minute
+msgid "Requests This Minute"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__request_count_today
+msgid "Requests Today"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_form
+msgid "Requests made today"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__require_consent
+msgid "Require Consent"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_transaction__response_payload
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_transaction_form
+msgid "Response Payload"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_transaction_form
+msgid "Retry Callback"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_transaction__retry_count
+msgid "Retry Count"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/server_key.py:0
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_server_key__state__revoked
+msgid "Revoked"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_server_key__revoked_date
+msgid "Revoked Date"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__scope_count
+msgid "Scope Count"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__scope_ids
+msgid "Scopes"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_sender_registry__client_secret_hash
+msgid "Scrypt hash of client_secret (never exposed via API)"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_transaction__action__search
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_transaction_search
+msgid "Search"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_transaction__sender_id
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_subscription_search
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_transaction_search
+msgid "Sender"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__sender_id
+msgid "Sender ID"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/sender_registry.py:0
+msgid ""
+"Sender ID must be unique. A registry entry already exists for this sender."
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/sender_registry.py:0
+msgid ""
+"Sender ID must contain only alphanumeric characters, dots, hyphens, and "
+"underscores."
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_form
+msgid "Sender Name"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.actions.act_window,name:spp_dci_server.action_spp_dci_sender_registry
+#: model:ir.ui.menu,name:spp_dci_server.menu_spp_dci_sender_registry
+msgid "Sender Registry"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_transaction__sender_uri
+msgid "Sender URI"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_notification_log__status__sent
+msgid "Sent"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_notification_log__sent_at
+msgid "Sent At"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/server_key.py:0
+msgid "Server keypair generated successfully for %s"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/server_key.py:0
+msgid "Server signing key '%s' has been revoked"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/server_key.py:0
+msgid "Server signing key '%s' is now active"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_subscription__reg_type__social_registry
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_transaction__reg_type__social_registry
+msgid "Social Registry"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_server_key__state
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_subscription__state
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_transaction__state
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_subscription_search
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_transaction_search
+msgid "State"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_notification_log__status
+msgid "Status"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_transaction__action__subscribe
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_transaction_search
+msgid "Subscribe"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_subscription__sender_id
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_subscription_form
+msgid "Subscriber"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_notification_log__subscription_id
+msgid "Subscription"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_subscription__subscription_code
+msgid "Subscription Code"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/subscription.py:0
+msgid ""
+"Subscription limit reached. Maximum %d active subscriptions per sender."
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.ui.menu,name:spp_dci_server.menu_spp_dci_subscription
+msgid "Subscriptions"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/sender_registry.py:0
+#: code:addons/spp_dci_server/models/server_key.py:0
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_transaction__dci_status__succ
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_transaction__state__success
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_transaction_search
+msgid "Success"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_form
+msgid "Timestamp of last request"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_sender_registry__last_request_minute
+msgid "Timestamp of the last API request (used for per-minute rate limiting)"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_transaction_form
+msgid "Timing"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_transaction_search
+msgid "Today"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_transaction_form
+msgid "Transaction Details"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_transaction__transaction_id
+msgid "Transaction ID"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.constraint,message:spp_dci_server.constraint_spp_dci_transaction_transaction_sender_uniq
+msgid "Transaction ID must be unique per sender"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_transaction__action__txn_status
+msgid "Transaction Status"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.ui.menu,name:spp_dci_server.menu_spp_dci_transaction
+msgid "Transactions"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_subscription__event_type
+msgid ""
+"Type of events to receive notifications for (per SPDCI RegistryEventType)"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_subscription__callback_uri
+msgid ""
+"URL for notification delivery. If not provided, no callbacks will be sent."
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_transaction__callback_uri
+msgid "URL to send async response/callback"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_sender_registry__jwks_url
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_form
+msgid "URL to sender's JWKS endpoint (/.well-known/jwks.json)"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_server_key__key_id
+msgid "Unique identifier for this key (e.g., 'server-2024-01')"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_subscription__subscription_code
+msgid "Unique identifier for this subscription"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields.selection,name:spp_dci_server.selection__spp_dci_transaction__action__unsubscribe
+msgid "Unsubscribe"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/sender_registry.py:0
+msgid "Unsupported JWK key type: %s (curve: %s)"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/transaction.py:0
+msgid "Unsupported registry type: %s"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_subscription_search
+msgid "Update Events"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__organization_type_verified_by
+msgid "Verified By"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,field_description:spp_dci_server.field_spp_dci_sender_registry__organization_type_verified_date
+msgid "Verified Date"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_transaction_form
+msgid "View Job"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_subscription__expires
+msgid "When this subscription expires (empty = no expiry)"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_sender_registry__last_key_fetch
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_form
+msgid "When we last fetched their JWKS"
+msgstr ""
+
+#. module: spp_dci_server
+#: model_terms:ir.ui.view,arch_db:spp_dci_server.view_spp_dci_sender_registry_form
+msgid "Whether explicit individual consent is required"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_sender_registry__require_consent
+msgid ""
+"Whether explicit individual consent is required for data access. Set to "
+"False for legal_obligation, public_interest, or vital_interest bases."
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_sender_registry__organization_type_verified
+msgid "Whether organization type has been verified by administrator"
+msgstr ""
+
+#. module: spp_dci_server
+#: model:ir.model.fields,help:spp_dci_server.field_spp_dci_transaction__job_uuid
+msgid "queue_job UUID for tracking"
+msgstr ""
+
+#. module: spp_dci_server
+#. odoo-python
+#: code:addons/spp_dci_server/models/subscription.py:0
+msgid "subscription_id"
+msgstr ""

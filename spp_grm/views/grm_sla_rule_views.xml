@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_spp_grm_sla_rule_form" model="ir.ui.view">
+        <field name="name">spp.grm.sla.rule.form</field>
+        <field name="model">spp.grm.sla.rule</field>
+        <field name="arch" type="xml">
+            <form string="SLA Rule">
+                <header>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" invisible="active" />
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only" />
+                        <h1>
+                            <field name="name" required="1" />
+                        </h1>
+                    </div>
+                    <group name="main">
+                        <group name="main_left">
+                            <field name="sequence" />
+                            <field name="active" invisible="1" />
+                            <field name="company_id" groups="base.group_multi_company" />
+                        </group>
+                        <group name="main_right">
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Conditions" name="conditions">
+                            <group>
+                                <field name="condition_domain" widget="domain" options="{'model': 'spp.grm.ticket'}" />
+                            </group>
+                        </page>
+                        <page string="SLA Hours" name="sla_hours">
+                            <group>
+                                <group name="response">
+                                    <label for="response_hours" string="Response Time" />
+                                    <div class="o_row">
+                                        <field name="response_hours" /> hours
+                                    </div>
+                                </group>
+                                <group name="resolution">
+                                    <label for="resolution_hours" string="Resolution Time" />
+                                    <div class="o_row">
+                                        <field name="resolution_hours" /> hours
+                                    </div>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Escalation" name="escalation">
+                            <group>
+                                <group name="escalation_left">
+                                    <field name="escalate_after_hours" />
+                                    <field name="escalate_to_user_id" />
+                                </group>
+                                <group name="escalation_right">
+                                    <field name="escalate_to_team_id" />
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_spp_grm_sla_rule_tree" model="ir.ui.view">
+        <field name="name">spp.grm.sla.rule.tree</field>
+        <field name="model">spp.grm.sla.rule</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="response_hours" />
+                <field name="resolution_hours" />
+                <field name="escalate_after_hours" optional="show" />
+                <field name="active" />
+                <field name="company_id" optional="hide" groups="base.group_multi_company" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_spp_grm_sla_rule_search" model="ir.ui.view">
+        <field name="name">spp.grm.sla.rule.search</field>
+        <field name="model">spp.grm.sla.rule</field>
+        <field name="arch" type="xml">
+            <search string="SLA Rule Search">
+                <filter string="Active" name="active" domain="[('active','=',True)]" />
+                <filter string="Archived" name="inactive" domain="[('active','=',False)]" />
+                <separator />
+                <field name="name" filter_domain="[('name', 'ilike', self)]" />
+                <field name="company_id" groups="base.group_multi_company" />
+                <group>
+                    <filter
+                        string="Company"
+                        name="company"
+                        context="{'group_by': 'company_id'}"
+                        groups="base.group_multi_company"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="spp_grm_sla_rule_action" model="ir.actions.act_window">
+        <field name="name">SLA Rules</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">spp.grm.sla.rule</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem
+        id="spp_grm_sla_rule_menu"
+        name="SLA Rules"
+        parent="spp_grm_ticket_config_main_menu"
+        action="spp_grm_sla_rule_action"
+        sequence="35"
+    />
+
+</odoo>

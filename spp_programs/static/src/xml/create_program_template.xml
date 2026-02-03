@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+    <!-- Extend the ListView control panel to add custom "Create Program" button
+         for the spp.program model while keeping default behavior for other models. -->
+    <t t-inherit="web.ListView" t-inherit-mode="extension">
+        <xpath expr="//Layout/t[@t-set-slot='control-panel-create-button']" position="replace">
+            <t t-set-slot="control-panel-create-button">
+                <!-- Custom Create Program button for spp.program model -->
+                <t t-if="model.root.resModel == 'spp.program'">
+                    <button
+                        t-if="!editedRecord and activeActions.create and props.showButtons and canCreateProgram"
+                        type="button"
+                        class="btn btn-primary o_list_button_add_program"
+                        accesskey="c"
+                        title="Create a New Program"
+                        t-on-click="load_wizard"
+                    >Create Program</button>
+                </t>
+                <!-- Default "New" button for all other models -->
+                <t t-else="">
+                    <button
+                        t-if="!editedRecord and activeActions.create and props.showButtons"
+                        type="button"
+                        class="btn btn-primary o_list_button_add"
+                        data-hotkey="c"
+                        t-on-click="onClickCreate"
+                        data-bounce-button=""
+                    >New</button>
+                    <t t-if="props.showButtons and !env.inDialog" t-call="web.ListView.EditableButtons" />
+                </t>
+            </t>
+        </xpath>
+    </t>
+
+    <!-- Hide the default Create button in Form view for spp.program -->
+    <t t-inherit="web.FormView" t-inherit-mode="extension">
+        <xpath expr="//button[hasclass('o_form_button_create')]" position="attributes">
+            <attribute name="t-if">model.root.resModel != 'spp.program'</attribute>
+        </xpath>
+    </t>
+
+</templates>

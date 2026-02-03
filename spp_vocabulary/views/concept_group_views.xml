@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Concept Group List View -->
+    <record id="view_concept_group_list" model="ir.ui.view">
+        <field name="name">spp.vocabulary.concept.group.list</field>
+        <field name="model">spp.vocabulary.concept.group</field>
+        <field name="arch" type="xml">
+            <list string="Concept Groups" default_order="name">
+                <field name="name"/>
+                <field name="label"/>
+                <field name="cel_function" optional="show"/>
+                <field name="target_field" optional="hide"/>
+                <field name="description" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Concept Group Form View -->
+    <record id="view_concept_group_form" model="ir.ui.view">
+        <field name="name">spp.vocabulary.concept.group.form</field>
+        <field name="model">spp.vocabulary.concept.group</field>
+        <field name="arch" type="xml">
+            <form string="Concept Group">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="label" placeholder="Label (e.g., Feminine Gender)"/>
+                        </h1>
+                        <h2>
+                            <field name="name" placeholder="Machine Name (e.g., feminine_gender)" required="1"/>
+                        </h2>
+                    </div>
+
+                    <group name="main_section">
+                        <group name="details">
+                            <field name="cel_function" placeholder="e.g., is_female"/>
+                            <field name="target_field" placeholder="e.g., gender_id"
+                                   invisible="not cel_function"/>
+                        </group>
+                        <group name="stats">
+                            <!-- Extension point for statistics -->
+                        </group>
+                    </group>
+
+                    <separator string="Description"/>
+                    <field name="description" nolabel="1" placeholder="Describe what this concept group represents and when it should be used..." class="oe_inline"/>
+
+                    <notebook>
+                        <page string="Codes" name="codes">
+                            <field name="code_ids" nolabel="1">
+                                <list editable="bottom">
+                                    <field name="vocabulary_id"/>
+                                    <field name="code"/>
+                                    <field name="display"/>
+                                    <field name="uri" optional="hide"/>
+                                    <field name="is_local" optional="show" widget="boolean_toggle"/>
+                                    <field name="reference_uri" optional="hide"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <page string="Technical" name="technical" groups="base.group_no_one">
+                            <group name="technical_section" col="4">
+                                <group>
+                                    <field name="code_uris" readonly="1"/>
+                                </group>
+                                <group>
+                                    <!-- Extension point -->
+                                </group>
+                                <group>
+                                    <field name="create_uid" readonly="1"/>
+                                    <field name="create_date" readonly="1"/>
+                                </group>
+                                <group>
+                                    <field name="write_uid" readonly="1"/>
+                                    <field name="write_date" readonly="1"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Concept Group Search View -->
+    <record id="view_concept_group_search" model="ir.ui.view">
+        <field name="name">spp.vocabulary.concept.group.search</field>
+        <field name="model">spp.vocabulary.concept.group</field>
+        <field name="arch" type="xml">
+            <search string="Search Concept Groups">
+                <field name="name"/>
+                <field name="label"/>
+                <field name="cel_function"/>
+                <field name="description" filter_domain="[('description', 'ilike', self)]"/>
+                <field name="code_ids" string="Codes" filter_domain="[('code_ids.code', 'ilike', self)]"/>
+                <separator/>
+                <filter string="Has CEL Function" name="filter_has_cel" domain="[('cel_function', '!=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Concept Group Action -->
+    <record id="action_concept_group" model="ir.actions.act_window">
+        <field name="name">Concept Groups</field>
+        <field name="res_model">spp.vocabulary.concept.group</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new concept group
+            </p>
+            <p>
+                Concept groups are semantic groupings of vocabulary codes for business logic abstraction.
+                They allow business logic to check semantic concepts rather than specific code values,
+                making the logic robust across deployments with different vocabularies.
+            </p>
+        </field>
+    </record>
+    <!-- Menu item is in views/menu.xml to ensure proper loading order -->
+</odoo>

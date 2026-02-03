@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <record id="view_entitlement_inkind_tree" model="ir.ui.view">
+        <field name="name">view_entitlement_inkind_tree</field>
+        <field name="model">spp.entitlement.inkind</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <list create="0" delete="0" sample="1" decoration-muted="state in ('cancelled', 'expired')">
+                <field name="code" />
+                <field name="partner_id" />
+                <field name="program_id" optional="show" />
+                <field name="cycle_id" />
+                <field name="product_id" />
+                <field name="quantity" />
+                <field name="uom_id" optional="show" />
+                <field name="valid_from" />
+                <field name="valid_until" />
+                <field
+                    name="state"
+                    decoration-primary="state == 'draft'"
+                    decoration-warning="state == 'pending_validation'"
+                    decoration-success="state == 'approved'"
+                    decoration-info="state in ('trans2FSP', 'rdpd2ben')"
+                    decoration-danger="state in ('cancelled', 'expired', 'rejected1', 'rejected2', 'rejected3')"
+                    widget="badge"
+                />
+                <field name="company_id" groups="base.group_multi_company" optional="hide" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_entitlement_inkind_form" model="ir.ui.view">
+        <field name="name">view_entitlement_inkind_form</field>
+        <field name="model">spp.entitlement.inkind</field>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <form string="In-Kind Entitlement" create="0" edit="0">
+                <header>
+                    <!-- Workflow Buttons -->
+                    <button
+                        name="action_submit_for_approval"
+                        type="object"
+                        string="Submit for Approval"
+                        icon="fa-paper-plane"
+                        class="btn-success"
+                        invisible="state != 'draft' or not can_submit"
+                        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_validator,spp_programs.group_programs_cycle_approver,spp_programs.group_programs_officer"
+                    />
+                    <button
+                        name="action_approve"
+                        type="object"
+                        string="Approve"
+                        icon="fa-thumbs-up"
+                        class="btn-success"
+                        invisible="state != 'pending_validation' or not can_approve"
+                        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_validator,spp_programs.group_programs_cycle_approver"
+                    />
+                    <button
+                        name="action_reject"
+                        type="object"
+                        string="Reject"
+                        icon="fa-thumbs-down"
+                        class="btn-danger"
+                        invisible="state != 'pending_validation' or not can_reject"
+                        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_validator,spp_programs.group_programs_cycle_approver,spp_programs.group_programs_rejector"
+                    />
+                    <button
+                        name="action_reset_to_draft"
+                        type="object"
+                        string="Reset to Draft"
+                        icon="fa-undo"
+                        invisible="state not in ('pending_validation', 'reject', 'rejected1', 'rejected2', 'rejected3', 'cancelled') or (state == 'pending_validation' and not can_approve and not can_reject)"
+                        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_validator,spp_programs.group_programs_cycle_approver"
+                    />
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="draft,pending_validation,approved,expired"
+                    />
+                </header>
+
+                <!-- Approval Waiting Message -->
+                <div
+                    class="alert alert-info text-center"
+                    role="alert"
+                    invisible="not show_approval_waiting_message"
+                    style="margin: 0;"
+                >
+                    <field name="show_approval_waiting_message" invisible="1"/>
+                    <field name="approval_waiting_message" readonly="1" nolabel="1"/>
+                </div>
+
+                <sheet>
+                    <!-- Stat Buttons -->
+                    <div class="oe_button_box" name="button_box">
+                    </div>
+
+                    <!-- Ribbons -->
+                    <widget name="web_ribbon" title="Approved" bg_color="bg-success" invisible="state != 'approved'" />
+                    <widget name="web_ribbon" title="Cancelled" bg_color="bg-danger" invisible="state != 'cancelled'" />
+                    <widget name="web_ribbon" title="Expired" bg_color="bg-secondary" invisible="state != 'expired'" />
+
+                    <!-- Title Section -->
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1" />
+                        </h1>
+                        <h3>
+                            <span>Code: </span><field name="code" readonly="1" class="oe_inline" />
+                        </h3>
+                    </div>
+
+                    <!-- Hidden fields -->
+                    <field name="approval_state" invisible="1" />
+                    <field name="can_submit" invisible="1" />
+                    <field name="can_approve" invisible="1" />
+                    <field name="can_reject" invisible="1" />
+
+                    <!-- Main Content - 4 Tab Structure -->
+                    <notebook name="entitlement_tabs">
+                        <!-- ==================== DETAILS TAB ==================== -->
+                        <page name="details" string="Details">
+                            <!-- Beneficiary Section -->
+                            <group name="beneficiary_section" col="2">
+                                <group name="beneficiary_info">
+                            <field
+                                name="partner_id"
+                                        readonly="state != 'draft'"
+                                        options="{'no_open': True, 'no_quick_create': True, 'no_create': True}"
+                            />
+                            <field
+                                name="program_id"
+                                        readonly="1"
+                                        options="{'no_open': True}"
+                            />
+                            <field
+                                name="cycle_id"
+                                        readonly="state != 'draft'"
+                                        options="{'no_open': True, 'no_quick_create': True, 'no_create': True}"
+                            />
+                            <field
+                                name="service_point_id"
+                                        readonly="state != 'draft'"
+                                        options="{'no_open': True, 'no_quick_create': True, 'no_create': True}"
+                            />
+                                </group>
+                                <group name="company_info">
+                            <field
+                                name="company_id"
+                                groups="base.group_multi_company"
+                                options="{'no_create': True}"
+                                        readonly="state != 'draft'"
+                            />
+                        </group>
+                        </group>
+
+                            <separator string="In-Kind Item Details" />
+
+                            <!-- In-Kind Item Section -->
+                            <group name="inkind_item_section" col="2">
+                                <group name="product_info">
+                                <field
+                                    name="product_id"
+                                        readonly="state != 'draft'"
+                                        options="{'no_open': True, 'no_quick_create': True, 'no_create': True}"
+                                />
+                                <field name="quantity" readonly="state != 'draft'" />
+                                <field
+                                    name="uom_id"
+                                    readonly="1"
+                                        options="{'no_open': True, 'no_quick_create': True, 'no_create': True}"
+                                />
+                                </group>
+                                <group name="value_info">
+                                <field name="unit_price" readonly="1" />
+                                <field name="total_amount" readonly="1" />
+                                    <field name="currency_id" readonly="1" options="{'no_open': True}" />
+                                </group>
+                            </group>
+
+                            <separator string="Validity Period" />
+
+                            <!-- Validity Period Section -->
+                            <group name="validity_section" col="2">
+                                <group>
+                                    <field name="valid_from" readonly="state != 'draft'" />
+                                    <field name="valid_until" readonly="state != 'draft'" />
+                                </group>
+                                <group>
+                                    <field name="date_approved" readonly="1" />
+                                </group>
+                            </group>
+                        </page>
+
+                        <!-- ==================== INVENTORY TAB ==================== -->
+                        <page name="inventory" string="Inventory" invisible="not manage_inventory">
+                            <group name="inventory_section" col="2">
+                                <group>
+                                    <field name="warehouse_id" readonly="1" options="{'no_open': True}" />
+                                    <field name="route_id" readonly="1" options="{'no_open': True}" />
+                                </group>
+                            </group>
+                            <separator string="Stock Moves" />
+                            <field name="move_ids" readonly="1" nolabel="1">
+                                <list create="0" delete="0">
+                                    <field name="reference" optional="show" />
+                                    <field name="product_id" />
+                                    <field name="product_uom_qty" string="Quantity" />
+                                    <field name="product_uom" string="UoM" />
+                                    <field name="location_id" optional="show" />
+                                    <field name="location_dest_id" optional="show" />
+                                    <field name="state" widget="badge" />
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- ==================== APPROVAL TAB ==================== -->
+                        <page name="approval" string="Approval">
+                            <group string="Approval Status">
+                                <group>
+                                    <field name="entitlement_approval_definition_id" readonly="1" string="Approval Definition" />
+                                    <field name="approval_state" readonly="1" widget="badge" string="Approval Status"
+                                           decoration-info="approval_state == 'draft'"
+                                           decoration-warning="approval_state == 'pending'"
+                                           decoration-success="approval_state == 'approved'"
+                                           decoration-danger="approval_state == 'rejected'" />
+                                </group>
+                                <group>
+                                    <field name="submitted_by_id" readonly="1" string="Submitted By" />
+                                    <field name="submitted_date" readonly="1" string="Submitted On" />
+                                </group>
+                            </group>
+                            <group string="Approval Decision" invisible="not date_approved and not rejected_date">
+                                <group>
+                                    <field name="date_approved" readonly="1" />
+                                    <field name="approved_by_id" readonly="1" string="Approved By" />
+                                </group>
+                                <group>
+                                    <field name="rejected_by_id" readonly="1" string="Rejected By" />
+                                    <field name="rejected_date" readonly="1" string="Rejected On" />
+                                </group>
+                            </group>
+                            <group string="Rejection Reason" invisible="not rejection_reason">
+                                <field name="rejection_reason" readonly="1" nolabel="1" colspan="2" />
+                            </group>
+                            <group string="Approval History">
+                                <field name="approval_review_ids" nolabel="1" readonly="1" colspan="2">
+                                    <list>
+                                        <field name="requested_date" />
+                                        <field name="reviewer_id" />
+                                        <field name="status" widget="badge"
+                                               decoration-info="status == 'pending'"
+                                               decoration-success="status == 'approved'"
+                                               decoration-danger="status == 'rejected'" />
+                                        <field name="review_date" />
+                                        <field name="comment" />
+                                    </list>
+                                </field>
+                            </group>
+                        </page>
+
+                        <!-- ==================== NOTES TAB ==================== -->
+                        <page name="notes" string="Notes">
+                            <field name="message_ids" widget="mail_thread" />
+                        </page>
+                    </notebook>
+
+                    <!-- Hidden fields -->
+                    <field name="journal_id" invisible="1" />
+                    <field name="manage_inventory" invisible="1" />
+                    <field name="id_number" invisible="1" />
+                </sheet>
+
+                <!-- Chatter -->
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <record id="entitlement_inkind_filter" model="ir.ui.view">
+        <field name="name">entitlement_inkind_filter</field>
+        <field name="model">spp.entitlement.inkind</field>
+        <field name="priority" eval="1" />
+        <field name="arch" type="xml">
+            <search string="Search In-kind Entitlements">
+                <field name="partner_id" />
+                <field name="code" />
+                <field name="cycle_id" />
+                <separator />
+                <filter name="filter_valid_from" date="valid_from" />
+                <filter name="filter_valid_until" date="valid_until" />
+                <separator />
+                <filter name="draft_state" string="Draft" domain="[('state','=','draft')]" />
+                <filter
+                    name="pending_validation_state"
+                    string="Pending Validation"
+                    domain="[('state','=','pending_validation')]"
+                />
+                <filter name="approved_state" string="Approved" domain="[('state','=','approved')]" />
+                <filter name="cancelled_state" string="Cancelled" domain="[('state','=','cancelled')]" />
+                <filter name="expired_state" string="Exited" domain="[('state','=','expired')]" />
+                <group>
+                    <filter string="Valid From" name="valid_from" context="{'group_by':'valid_from'}" />
+                    <filter string="Valid Until" name="valid_until" context="{'group_by':'valid_until'}" />
+                    <separator orientation="vertical" />
+                    <filter string="State" name="grp_state" context="{'group_by': 'state'}" />
+                    <filter string="Company" name="grp_company_id" context="{'group_by': 'company_id'}" />
+                </group>
+                <!-- <searchpanel>
+                    <field name="group" icon="fa-users"/>
+                </searchpanel> -->
+            </search>
+        </field>
+    </record>
+
+    <record id="action_entitlement_inkind" model="ir.actions.act_window">
+        <field name="name">In-kind Entitlements</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">spp.entitlement.inkind</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="entitlement_inkind_filter" />
+        <field name="context">{'create': False}</field>
+        <field name="domain">[]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No entitlements found
+            </p>
+            <p>
+                Entitlements are created from a cycle. Go to Cycles and prepare entitlements.
+            </p>
+        </field>
+    </record>
+
+    <!-- Multi-rejection action for in-kind entitlements -->
+    <record id="action_reject_inkind_entitlement_multi" model="ir.actions.server">
+        <field name="name">Reject</field>
+        <field name="model_id" ref="model_spp_entitlement_inkind" />
+        <field name="binding_model_id" ref="model_spp_entitlement_inkind" />
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    action = records.reject_entitlement()
+        </field>
+        <field name="group_ids" eval="[(4, ref('spp_security.group_spp_admin')), (4, ref('spp_programs.group_programs_manager')), (4, ref('spp_programs.group_programs_validator')), (4, ref('spp_programs.group_programs_cycle_approver'))]"/>
+    </record>
+
+    <!-- Reset to draft action for in-kind entitlements -->
+    <record id="action_reset_to_draft_inkind_entitlement_multi" model="ir.actions.server">
+        <field name="name">Reset to Draft</field>
+        <field name="model_id" ref="model_spp_entitlement_inkind" />
+        <field name="binding_model_id" ref="model_spp_entitlement_inkind" />
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    # Filter only records that can be reset to draft
+    valid_states = ("pending_validation", "reject", "rejected1", "rejected2", "rejected3", "cancelled")
+    eligible_records = records.filtered(lambda r: r.state in valid_states)
+    if eligible_records:
+        eligible_records.action_reset_to_draft()
+    else:
+        raise UserError("No eligible entitlements selected. Only entitlements in pending validation, rejected, or cancelled state can be reset to draft.")
+        </field>
+        <field name="group_ids" eval="[(4, ref('spp_security.group_spp_admin')), (4, ref('spp_programs.group_programs_manager')), (4, ref('spp_programs.group_programs_validator')), (4, ref('spp_programs.group_programs_cycle_approver'))]"/>
+    </record>
+
+    <!-- Submit for approval action for in-kind entitlements -->
+    <record id="action_submit_for_approval_inkind_entitlement_multi" model="ir.actions.server">
+        <field name="name">Submit for Approval</field>
+        <field name="model_id" ref="model_spp_entitlement_inkind" />
+        <field name="binding_model_id" ref="model_spp_entitlement_inkind" />
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    # Filter only draft records
+    draft_records = records.filtered(lambda r: r.state == "draft")
+    if draft_records:
+        draft_records.action_submit_for_approval()
+    else:
+        raise UserError("No eligible entitlements selected. Only draft entitlements can be submitted for approval.")
+        </field>
+        <field name="group_ids" eval="[(4, ref('spp_security.group_spp_admin')), (4, ref('spp_programs.group_programs_manager')), (4, ref('spp_programs.group_programs_validator')), (4, ref('spp_programs.group_programs_cycle_approver'))]"/>
+    </record>
+
+    <record id="action_entitlement_inkind_tree_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1" />
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_entitlement_inkind_tree" />
+        <field name="act_window_id" ref="action_entitlement_inkind" />
+    </record>
+
+    <record id="action_entitlement_inkind_form_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1" />
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_entitlement_inkind_form" />
+        <field name="act_window_id" ref="action_entitlement_inkind" />
+    </record>
+
+    <record model="ir.actions.server" id="multiple_inkind_entitlement_approval">
+        <field name="name">Approve</field>
+        <field name="model_id" ref="spp_programs.model_spp_multi_inkind_entitlement_approval_wizard" />
+        <field name="binding_model_id" ref="spp_programs.model_spp_entitlement_inkind" />
+        <field name="binding_view_types">list,form</field>
+        <field name="state">code</field>
+        <field name="code">action = model.open_wizard()</field>
+        <field name="group_ids" eval="[(4, ref('spp_security.group_spp_admin')), (4, ref('spp_programs.group_programs_manager')), (4, ref('spp_programs.group_programs_validator')), (4, ref('spp_programs.group_programs_cycle_approver'))]"/>
+    </record>
+
+    <menuitem
+        id="menu_entitlement_inkind"
+        name="Entitlements"
+        action="action_entitlement_inkind"
+        parent="spp_programs_root"
+        sequence="10"
+        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_validator"
+    />
+
+    <!-- Products Menu under In-Kind - Server action to check user groups -->
+    <record id="action_inkind_products_server" model="ir.actions.server">
+        <field name="name">Products</field>
+        <field name="model_id" ref="product.model_product_product"/>
+        <field name="state">code</field>
+        <field name="code">
+is_stock_manager = env.user.has_group('stock.group_stock_manager')
+ctx = {'default_detailed_type': 'product'}
+if not is_stock_manager:
+    ctx['create'] = False
+    ctx['edit'] = False
+tree_view_id = env.ref('product.product_template_tree_view').id
+action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Products',
+    'res_model': 'product.product',
+    'view_mode': 'list,form',
+    'views': [(tree_view_id, 'list'), (False, 'form')],
+    'context': ctx,
+}
+        </field>
+    </record>
+
+    <menuitem
+        id="menu_inkind_products"
+        name="Products"
+        action="action_inkind_products_server"
+        parent="spp_programs_root"
+        sequence="20"
+        groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_validator,stock.group_stock_manager"
+    />
+
+</odoo>

@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="spp_change_request_v2.CRReviewPanel">
+        <div class="cr-review-panel h-100 d-flex flex-column" t-ref="panel">
+            <!-- Loading state -->
+            <div t-if="state.loading" class="d-flex justify-content-center align-items-center h-100">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+
+            <!-- No CR selected -->
+            <div t-elif="!state.crData" class="d-flex justify-content-center align-items-center h-100 text-muted">
+                <div class="text-center">
+                    <i class="fa fa-inbox fa-3x mb-3"/>
+                    <p>Select a change request to review</p>
+                </div>
+            </div>
+
+            <!-- Review content -->
+            <t t-else="">
+                <!-- Header -->
+                <div class="cr-review-header p-3 border-bottom bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-1">
+                                <t t-esc="state.crData.name"/>
+                                <span t-attf-class="badge ms-2 #{stateBadgeClass}">
+                                    <t t-esc="stateLabel"/>
+                                </span>
+                            </h4>
+                            <div class="text-muted">
+                                <t t-esc="state.crData.request_type_id[1]"/>
+                            </div>
+                        </div>
+                        <button class="btn btn-outline-secondary btn-sm" t-on-click="onClose">
+                            <i class="fa fa-times"/> Close
+                        </button>
+                    </div>
+
+                    <!-- Tier progress -->
+                    <div t-if="state.tierInfo and state.tierInfo.totalTiers > 1" class="mt-2">
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-success"
+                                 t-attf-style="width: #{(state.tierInfo.currentTier - 1) / state.tierInfo.totalTiers * 100}%"/>
+                            <div class="progress-bar bg-primary"
+                                 t-attf-style="width: #{100 / state.tierInfo.totalTiers}%"/>
+                        </div>
+                        <small class="text-muted">
+                            Tier <t t-esc="state.tierInfo.currentTier"/> of <t t-esc="state.tierInfo.totalTiers"/>
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Split pane content -->
+                <div class="cr-review-content flex-grow-1 overflow-auto">
+                    <div class="row g-0 h-100">
+                        <!-- Left pane: Current registrant -->
+                        <div class="col-6 border-end p-3 overflow-auto">
+                            <h5 class="mb-3">
+                                <i class="fa fa-user me-2"/>
+                                Current Data
+                            </h5>
+                            <div t-if="state.registrantData" class="card">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <t t-esc="state.registrantData.name"/>
+                                    </h6>
+                                    <div t-if="state.registrantData.spp_id" class="text-muted small mb-2">
+                                        ID: <t t-esc="state.registrantData.spp_id"/>
+                                    </div>
+                                    <div t-if="state.registrantData.street" class="text-muted small">
+                                        <i class="fa fa-map-marker me-1"/>
+                                        <t t-esc="state.registrantData.street"/>
+                                        <t t-if="state.registrantData.city">, <t t-esc="state.registrantData.city"/></t>
+                                    </div>
+                                    <div t-if="state.registrantData.is_group" class="mt-2">
+                                        <span class="badge bg-info">
+                                            <i class="fa fa-users me-1"/>
+                                            <t t-esc="state.registrantData.group_membership_ids?.length || 0"/> members
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right pane: Proposed changes -->
+                        <div class="col-6 p-3 overflow-auto">
+                            <h5 class="mb-3">
+                                <i class="fa fa-edit me-2"/>
+                                Proposed Changes
+                            </h5>
+                            <div t-if="state.previewData and state.previewData.changes">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Field</th>
+                                            <th>Current</th>
+                                            <th>New</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="state.previewData.changes" t-as="change" t-key="change.field">
+                                            <tr>
+                                                <td><strong><t t-esc="change.field"/></strong></td>
+                                                <td class="text-muted"><t t-esc="change.old_value || '(empty)'"/></td>
+                                                <td><t t-esc="change.new_value"/></td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div t-else="" class="text-muted">
+                                <p>No field changes to preview</p>
+                            </div>
+
+                            <!-- Documents -->
+                            <div t-if="state.crData.document_ids?.length" class="mt-3">
+                                <h6>
+                                    <i class="fa fa-paperclip me-2"/>
+                                    Documents (<t t-esc="state.crData.document_ids.length"/>)
+                                </h6>
+                            </div>
+
+                            <!-- Notes -->
+                            <div t-if="state.crData.notes" class="mt-3">
+                                <h6><i class="fa fa-sticky-note me-2"/>Notes</h6>
+                                <p class="text-muted small"><t t-esc="state.crData.notes"/></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action bar -->
+                <div class="cr-review-actions p-3 border-top bg-light">
+                    <!-- Comment inputs -->
+                    <div t-if="state.showApproveComment" class="mb-3">
+                        <label class="form-label">Comment (optional)</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control"
+                                   placeholder="Add a comment..."
+                                   t-model="state.approveComment"/>
+                            <button class="btn btn-success" t-on-click="onApprove">
+                                <i class="fa fa-check me-1"/> Confirm Approve
+                            </button>
+                            <button class="btn btn-outline-secondary" t-on-click="cancelComment">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+
+                    <div t-if="state.showRevisionNotes" class="mb-3">
+                        <label class="form-label">What changes are needed? *</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control"
+                                   placeholder="Describe the required changes..."
+                                   t-model="state.revisionNotes"/>
+                            <button class="btn btn-warning" t-on-click="onRequestChanges"
+                                    t-att-disabled="!state.revisionNotes">
+                                <i class="fa fa-pencil me-1"/> Send Back
+                            </button>
+                            <button class="btn btn-outline-secondary" t-on-click="cancelComment">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+
+                    <div t-if="state.showRejectReason" class="mb-3">
+                        <label class="form-label">Reason for declining *</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control"
+                                   placeholder="Provide a reason..."
+                                   t-model="state.rejectReason"/>
+                            <button class="btn btn-danger" t-on-click="onDecline"
+                                    t-att-disabled="!state.rejectReason">
+                                <i class="fa fa-times me-1"/> Confirm Decline
+                            </button>
+                            <button class="btn btn-outline-secondary" t-on-click="cancelComment">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Main action buttons -->
+                    <div t-if="!state.showApproveComment and !state.showRevisionNotes and !state.showRejectReason"
+                         class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <button class="btn btn-outline-secondary btn-sm me-2" t-on-click="onPrevious">
+                                <i class="fa fa-chevron-left"/> Previous (P)
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm" t-on-click="onNext">
+                                Next (N) <i class="fa fa-chevron-right"/>
+                            </button>
+                        </div>
+                        <div t-if="state.crData.display_state === 'pending'">
+                            <button class="btn btn-success me-2" t-on-click="onApprove"
+                                    t-att-disabled="!state.canApprove">
+                                <i class="fa fa-check me-1"/>
+                                <t t-esc="approveButtonLabel"/> (A)
+                            </button>
+                            <button class="btn btn-warning me-2" t-on-click="onRequestChanges"
+                                    t-att-disabled="!state.canReject">
+                                <i class="fa fa-pencil me-1"/> Request Changes (R)
+                            </button>
+                            <button class="btn btn-outline-danger" t-on-click="onDecline"
+                                    t-att-disabled="!state.canReject">
+                                <i class="fa fa-times me-1"/> Decline (D)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Keyboard hints -->
+                    <div class="mt-2 text-muted small text-center">
+                        <span class="me-3"><kbd>A</kbd> Approve</span>
+                        <span class="me-3"><kbd>R</kbd> Request Changes</span>
+                        <span class="me-3"><kbd>D</kbd> Decline</span>
+                        <span class="me-3"><kbd>N</kbd> Next</span>
+                        <span class="me-3"><kbd>P</kbd> Previous</span>
+                        <span><kbd>Esc</kbd> Close</span>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </t>
+
+</templates>

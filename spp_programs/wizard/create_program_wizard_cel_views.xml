@@ -1,0 +1,646 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+CEL Support Views for Create Program Wizard
+-->
+<odoo>
+
+    <!-- ========================================== -->
+    <!-- CEL ELIGIBILITY EXTENSION                  -->
+    <!-- ========================================== -->
+    <record id="create_program_wizard_form_view_cel_eligibility" model="ir.ui.view">
+        <field name="name">Create Program Wizard - CEL Eligibility</field>
+        <field name="model">spp.program.create.wizard</field>
+        <field name="priority">20</field>
+        <field name="inherit_id" ref="spp_programs.create_program_wizard_form_view_spp" />
+        <field name="arch" type="xml">
+
+            <!-- Hide eligibility type radio - only one option exists -->
+            <xpath expr="//field[@name='eligibility_type']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- Hide Geographic Targeting - can be done via CEL expression -->
+            <xpath expr="//group[@name='default_eligibility']//field[@name='admin_area_ids']/.." position="replace">
+                <!-- Removed: Geographic targeting is now part of CEL expression -->
+            </xpath>
+
+            <!-- Replace domain field with CEL expression -->
+            <xpath expr="//group[@name='default_eligibility']//field[@name='eligibility_domain']/.." position="replace">
+                <group colspan="4" name="eligibility_cel_section">
+                    <!-- Hidden fields for widget context -->
+                    <field name="eligibility_cel_profile" invisible="1" />
+                    <field name="eligibility_is_locked" invisible="1" />
+
+                    <!-- Primary UX: Eligibility Criteria Dropdown -->
+                    <group colspan="4" col="4" name="eligibility_criteria_section">
+                        <field
+                            name="eligibility_criteria_id"
+                            string="Eligibility Criteria"
+                            colspan="3"
+                            options="{'no_create': True, 'no_create_edit': True}"
+                            placeholder="Manual selection (no automatic filter)"
+                        />
+                        <!-- Lock indicator badge -->
+                        <div colspan="1" invisible="not eligibility_is_locked" class="text-warning">
+                            <i class="fa fa-lock" title="Locked" />
+                            <span class="ms-1">Locked</span>
+                        </div>
+                    </group>
+
+                    <!-- Hidden fields for preview -->
+                    <field name="eligibility_preview_partner_ids" invisible="1" />
+                    <field name="is_previewing" invisible="1" />
+
+                    <!-- Preview count when criteria selected -->
+                    <div
+                        class="alert alert-info mb-2"
+                        role="status"
+                        colspan="4"
+                        invisible="not eligibility_criteria_id or not eligibility_cel_is_valid"
+                    >
+                        <i class="fa fa-check-circle me-1" title="Success" />
+                        <strong><field name="eligibility_cel_preview_count" class="oe_inline" /></strong>
+                        beneficiaries match this criteria.
+                    </div>
+
+                    <!-- Manual selection info -->
+                    <div
+                        class="text-muted small mb-2"
+                        colspan="4"
+                        invisible="eligibility_criteria_id"
+                    >
+                        <i class="fa fa-info-circle me-1" title="Info" />
+                        Beneficiaries will be added manually by officers.
+                    </div>
+
+                    <!-- Lock warning message -->
+                    <div
+                        class="alert alert-warning mb-2"
+                        role="alert"
+                        colspan="4"
+                        invisible="not eligibility_is_locked"
+                    >
+                        <i class="fa fa-lock me-1" title="Locked" />
+                        This eligibility criteria is <strong>locked</strong> and cannot be modified.
+                        The expression is standardized for compliance purposes.
+                    </div>
+
+                    <!-- Collapsible Advanced Section (hidden when locked) -->
+                    <div class="o_horizontal_separator mt-3" colspan="4" invisible="eligibility_is_locked">
+                        <a
+                            class="o_horizontal_separator_label text-muted small"
+                            data-bs-toggle="collapse"
+                            href="#eligibility_advanced_section"
+                            role="button"
+                            aria-expanded="false"
+                            aria-controls="eligibility_advanced_section"
+                        >
+                            <i class="fa fa-caret-right me-1" title="Expand" /> Advanced
+                        </a>
+                    </div>
+                    <div class="collapse" id="eligibility_advanced_section" colspan="4" invisible="eligibility_is_locked">
+                        <group colspan="4">
+                            <!-- CEL Expression Editor -->
+                            <field
+                                name="eligibility_cel_expression"
+                                colspan="4"
+                                widget="cel_expression"
+                                options="{'profile_field': 'eligibility_cel_profile'}"
+                                placeholder="e.g.: age_years(r.birthdate) >= 60 and is_female(r.gender_id)"
+                                nolabel="1"
+                            />
+
+                            <!-- Validation feedback -->
+                            <div
+                                class="alert alert-danger mb-0"
+                                role="alert"
+                                colspan="4"
+                                invisible="eligibility_cel_is_valid or not eligibility_cel_expression"
+                            >
+                                <i class="fa fa-exclamation-triangle me-1" title="Warning" />
+                                <field name="eligibility_cel_error" nolabel="1" class="oe_inline" />
+                            </div>
+
+                            <div class="text-muted small mt-2" colspan="4">
+                                <strong>Tip:</strong> Use expressions like <code>age_years(r.birthdate) >= 18</code>,
+                                <code>is_female(r.gender_id)</code>,
+                                or <code>r.area_id.id in [1, 2, 3]</code> for geographic targeting.
+                            </div>
+                        </group>
+                    </div>
+                </group>
+            </xpath>
+
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- CEL COMPLIANCE EXTENSION (New Tab)         -->
+    <!-- ========================================== -->
+    <record id="create_program_wizard_form_view_cel_compliance" model="ir.ui.view">
+        <field name="name">Create Program Wizard - CEL Compliance Tab</field>
+        <field name="model">spp.program.create.wizard</field>
+        <field name="priority">25</field>
+        <field name="inherit_id" ref="spp_programs.create_program_wizard_form_view" />
+        <field name="arch" type="xml">
+
+            <!-- Add compliance toggle to Step 1 Options row -->
+            <xpath expr="//group[@name='compliance_toggle_placeholder']" position="inside">
+                <field
+                    name="enable_compliance_cel"
+                    widget="boolean_toggle"
+                    string="Ongoing compliance"
+                    help="Enable ongoing compliance checks. Configure criteria in Step 2."
+                />
+            </xpath>
+
+            <!-- Add Compliance tab (only shown if enabled in Step 1) -->
+            <xpath expr="//page[@name='cycle']" position="after">
+                <page
+                    string="Compliance"
+                    name="compliance_cel"
+                    invisible="not enable_compliance_cel"
+                >
+                    <group>
+                        <group colspan="4" name="compliance_criteria_section">
+                            <!-- Hidden fields for widget context -->
+                            <field name="eligibility_cel_profile" invisible="1" />
+                            <field name="compliance_is_locked" invisible="1" />
+
+                            <!-- Primary UX: Compliance Criteria Dropdown -->
+                            <group colspan="4" col="4">
+                                <field
+                                    name="compliance_criteria_id"
+                                    string="Compliance Criteria"
+                                    colspan="3"
+                                    options="{'no_create': True, 'no_create_edit': True}"
+                                    placeholder="Select ongoing compliance criteria"
+                                />
+                                <!-- Lock indicator badge -->
+                                <div colspan="1" invisible="not compliance_is_locked" class="text-warning">
+                                    <i class="fa fa-lock" title="Locked" />
+                                    <span class="ms-1">Locked</span>
+                                </div>
+                            </group>
+
+                            <!-- Preview count when criteria selected -->
+                            <div
+                                class="alert alert-info mb-2"
+                                role="status"
+                                colspan="4"
+                                invisible="not compliance_criteria_id or not compliance_cel_is_valid"
+                            >
+                                <i class="fa fa-check-circle me-1" title="Success" />
+                                <strong><field name="compliance_cel_preview_count" class="oe_inline" /></strong>
+                                beneficiaries currently comply.
+                            </div>
+
+                            <!-- Lock warning message -->
+                            <div
+                                class="alert alert-warning mb-2"
+                                role="alert"
+                                colspan="4"
+                                invisible="not compliance_is_locked"
+                            >
+                                <i class="fa fa-lock me-1" title="Locked" />
+                                This compliance criteria is <strong>locked</strong> and cannot be modified.
+                            </div>
+
+                            <!-- Collapsible Advanced Section (hidden when locked) -->
+                            <div class="o_horizontal_separator mt-3" colspan="4" invisible="compliance_is_locked">
+                                <a
+                                    class="o_horizontal_separator_label text-muted small"
+                                    data-bs-toggle="collapse"
+                                    href="#compliance_advanced_section"
+                                    role="button"
+                                    aria-expanded="false"
+                                    aria-controls="compliance_advanced_section"
+                                >
+                                    <i class="fa fa-caret-right me-1" title="Expand" /> Advanced
+                                </a>
+                            </div>
+                            <div class="collapse" id="compliance_advanced_section" colspan="4" invisible="compliance_is_locked">
+                                <group colspan="4">
+                                    <!-- CEL Expression Editor -->
+                                    <field
+                                        name="compliance_cel_expression"
+                                        colspan="4"
+                                        widget="cel_expression"
+                                        options="{'profile_field': 'eligibility_cel_profile'}"
+                                        placeholder="e.g.: r.last_health_checkup_date > today() - duration('90d')"
+                                        nolabel="1"
+                                    />
+
+                                    <!-- Validation feedback -->
+                                    <div
+                                        class="alert alert-danger mb-0"
+                                        role="alert"
+                                        colspan="4"
+                                        invisible="compliance_cel_is_valid or not compliance_cel_expression"
+                                    >
+                                        <i class="fa fa-exclamation-triangle me-1" title="Warning" />
+                                        <field name="compliance_cel_error" nolabel="1" class="oe_inline" />
+                                    </div>
+                                </group>
+                            </div>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- CEL CASH ENTITLEMENT ITEMS EXTENSION       -->
+    <!-- ========================================== -->
+    <record id="create_program_wizard_form_view_cel_cash" model="ir.ui.view">
+        <field name="name">Create Program Wizard - CEL Cash Items</field>
+        <field name="model">spp.program.create.wizard</field>
+        <field name="priority">30</field>
+        <field name="inherit_id" ref="spp_programs.create_program_wizard_form_view" />
+        <field name="arch" type="xml">
+
+            <!-- Add Cash Items section before approval settings -->
+            <xpath expr="//group[@name='approval_settings']" position="before">
+                <group
+                    name="cash_items"
+                    colspan="4"
+                    invisible="entitlement_type != 'cash'"
+                >
+                    <group name="cash_items_header">
+                        <group>
+                            <field name="is_evaluate_one_item" widget="boolean_toggle" string="Single item" />
+                        </group>
+                    </group>
+                    <field name="entitlement_cash_item_ids" nolabel="1" colspan="4">
+                        <list>
+                            <field name="sequence" widget="handle" />
+                            <field name="amount" string="Base Amount" />
+                            <field name="amount_mode" />
+                            <field name="has_condition" string="Has Condition" />
+                        </list>
+                        <form string="Cash Entitlement Item">
+                            <!-- Hidden fields -->
+                            <field name="amount_is_locked" invisible="1" />
+                            <field name="condition_is_locked" invisible="1" />
+
+                            <!-- ROW 1: Amount Formula + Base Amount + Currency (side-by-side) -->
+                            <group col="6">
+                                <field
+                                    name="amount_template_id"
+                                    string="Amount Formula"
+                                    colspan="3"
+                                    options="{'no_create': True, 'no_create_edit': True}"
+                                    placeholder="Fixed amount (no formula)"
+                                />
+                                <field name="amount" string="Base Amount" colspan="2" />
+                                <field name="currency_id" readonly="1" colspan="1" />
+                            </group>
+
+                            <!-- ROW 2: Lock indicator (only when locked) -->
+                            <div invisible="not amount_is_locked" class="text-warning small mb-2">
+                                <i class="fa fa-lock me-1" title="Locked" />
+                                Amount formula is locked
+                            </div>
+
+                            <!-- ROW 3: Mode selection (only when no template selected) -->
+                            <group invisible="amount_template_id" class="mb-0">
+                                <field
+                                    name="amount_mode"
+                                    widget="radio"
+                                    options="{'horizontal': true}"
+                                />
+                            </group>
+
+                            <!-- ROW 4: CEL Formula (conditionally visible) -->
+                            <group colspan="4" invisible="amount_mode != 'cel'" class="mt-0">
+                                <field
+                                    name="amount_cel_expression"
+                                    colspan="4"
+                                    placeholder="e.g.: hh_size * 100 or base_amount * 1.5"
+                                    nolabel="1"
+                                    readonly="amount_is_locked"
+                                />
+                                <!-- Compact inline validation -->
+                                <div class="small" colspan="4" invisible="not amount_cel_expression">
+                                    <span
+                                        class="text-success"
+                                        invisible="not amount_cel_is_valid"
+                                    >
+                                        <i class="fa fa-check-circle me-1" title="Success" />
+                                        <field name="amount_cel_preview" nolabel="1" class="oe_inline" />
+                                    </span>
+                                    <span
+                                        class="text-danger"
+                                        invisible="amount_cel_is_valid"
+                                    >
+                                        <i class="fa fa-times-circle me-1" title="Error" />
+                                        <field name="amount_cel_error" nolabel="1" class="oe_inline" />
+                                    </span>
+                                </div>
+                            </group>
+
+                            <!-- ROW 5: Multiplier fields (side-by-side, Fixed mode only) -->
+                            <group col="2" invisible="amount_mode != 'fixed'" class="mt-0">
+                                <field
+                                    name="multiplier_field"
+                                    string="Multiplier Field"
+                                    options="{'no_open':True,'no_create':True,'no_create_edit':True}"
+                                />
+                                <field name="max_multiplier" />
+                            </group>
+
+                            <!-- SEPARATOR: Condition section -->
+                            <separator string="Condition (Optional)" class="mt-3" />
+
+                            <!-- ROW 6: Condition template + toggle (side-by-side) -->
+                            <group col="4">
+                                <field
+                                    name="condition_template_id"
+                                    string="Condition"
+                                    colspan="2"
+                                    options="{'no_create': True, 'no_create_edit': True}"
+                                    placeholder="All eligible beneficiaries"
+                                />
+                                <field
+                                    name="has_condition"
+                                    widget="boolean_toggle"
+                                    string="Custom condition"
+                                    colspan="2"
+                                />
+                            </group>
+
+                            <!-- Lock indicator for condition -->
+                            <div invisible="not condition_is_locked" class="text-warning small mb-2">
+                                <i class="fa fa-lock me-1" title="Locked" />
+                                Condition is locked
+                            </div>
+
+                            <!-- Condition details (only when custom condition enabled) -->
+                            <group col="2" invisible="not has_condition" class="mt-0">
+                                <field
+                                    name="condition_mode"
+                                    widget="radio"
+                                    options="{'horizontal': true}"
+                                    colspan="2"
+                                />
+                            </group>
+
+                            <!-- CEL Condition expression -->
+                            <group
+                                colspan="4"
+                                invisible="not has_condition or condition_mode != 'cel'"
+                                class="mt-0"
+                            >
+                                <field
+                                    name="cel_condition"
+                                    colspan="4"
+                                    placeholder="e.g.: r.has_disability == true"
+                                    readonly="condition_is_locked"
+                                    nolabel="1"
+                                />
+                                <!-- Compact inline validation -->
+                                <div class="small" colspan="4" invisible="not cel_condition">
+                                    <span
+                                        class="text-success"
+                                        invisible="not cel_is_valid"
+                                    >
+                                        <i class="fa fa-check-circle me-1" title="Success" />
+                                        <strong><field name="cel_preview_count" class="oe_inline" /></strong>
+                                        beneficiaries match
+                                    </span>
+                                    <span
+                                        class="text-danger"
+                                        invisible="cel_is_valid"
+                                    >
+                                        <i class="fa fa-times-circle me-1" title="Error" />
+                                        <field name="cel_error" nolabel="1" class="oe_inline" />
+                                    </span>
+                                </div>
+                            </group>
+
+                            <!-- Domain Condition -->
+                            <group
+                                colspan="4"
+                                invisible="not has_condition or condition_mode != 'domain'"
+                                class="mt-0"
+                            >
+                                <field
+                                    name="condition"
+                                    colspan="4"
+                                    widget="domain"
+                                    options="{'model': 'res.partner'}"
+                                    nolabel="1"
+                                />
+                            </group>
+                        </form>
+                    </field>
+
+                    <group colspan="4">
+                        <field name="max_amount" string="Maximum Total Amount (0 = no limit)" />
+                    </group>
+                </group>
+            </xpath>
+
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- CEL IN-KIND ENTITLEMENT ITEMS EXTENSION    -->
+    <!-- ========================================== -->
+    <record id="create_program_wizard_form_view_cel_inkind" model="ir.ui.view">
+        <field name="name">Create Program Wizard - CEL In-Kind Items</field>
+        <field name="model">spp.program.create.wizard</field>
+        <field name="priority">35</field>
+        <field name="inherit_id" ref="spp_programs.create_program_wizard_form_view_inkind" />
+        <field name="arch" type="xml">
+
+            <!-- Update in-kind item form to include CEL fields -->
+            <xpath expr="//field[@name='entitlement_item_ids']//form" position="replace">
+                <form string="In-Kind Entitlement Item">
+                    <!-- Hidden fields -->
+                    <field name="quantity_is_locked" invisible="1" />
+                    <field name="condition_is_locked" invisible="1" />
+
+                    <!-- ROW 1: Product (full width - primary choice) -->
+                    <group>
+                        <field
+                            name="product_id"
+                            options="{'no_open':True,'no_create':True,'no_create_edit':True}"
+                        />
+                    </group>
+
+                    <!-- ROW 2: Quantity Formula + Base Qty + UOM (side-by-side) -->
+                    <group col="6">
+                        <field
+                            name="quantity_template_id"
+                            string="Quantity Formula"
+                            colspan="3"
+                            options="{'no_create': True, 'no_create_edit': True}"
+                            placeholder="Fixed quantity (no formula)"
+                        />
+                        <field name="quantity" string="Base Qty" colspan="2" />
+                        <field
+                            name="uom_id"
+                            colspan="1"
+                            options="{'no_open':True,'no_create':True,'no_create_edit':True}"
+                        />
+                    </group>
+
+                    <!-- Lock indicator (only when locked) -->
+                    <div invisible="not quantity_is_locked" class="text-warning small mb-2">
+                        <i class="fa fa-lock me-1" title="Locked" />
+                        Quantity formula is locked
+                    </div>
+
+                    <!-- ROW 3: Mode selection (only when no template selected) -->
+                    <group invisible="quantity_template_id" class="mb-0">
+                        <field
+                            name="quantity_mode"
+                            widget="radio"
+                            options="{'horizontal': true}"
+                        />
+                    </group>
+
+                    <!-- ROW 4: CEL Formula (conditionally visible) -->
+                    <group colspan="4" invisible="quantity_mode != 'cel'" class="mt-0">
+                        <field
+                            name="quantity_cel_expression"
+                            colspan="4"
+                            placeholder="e.g.: hh_size * 2"
+                            nolabel="1"
+                            readonly="quantity_is_locked"
+                        />
+                        <!-- Compact inline validation -->
+                        <div class="small" colspan="4" invisible="not quantity_cel_expression">
+                            <span
+                                class="text-success"
+                                invisible="not quantity_cel_is_valid"
+                            >
+                                <i class="fa fa-check-circle me-1" title="Success" />
+                                <field name="quantity_cel_preview" nolabel="1" class="oe_inline" />
+                            </span>
+                            <span
+                                class="text-danger"
+                                invisible="quantity_cel_is_valid"
+                            >
+                                <i class="fa fa-times-circle me-1" title="Error" />
+                                <field name="quantity_cel_error" nolabel="1" class="oe_inline" />
+                            </span>
+                        </div>
+                    </group>
+
+                    <!-- ROW 5: Multiplier fields (side-by-side, Fixed mode only) -->
+                    <group col="2" invisible="quantity_mode != 'fixed'" class="mt-0">
+                        <field
+                            name="multiplier_field"
+                            string="Multiplier Field"
+                            options="{'no_open':True,'no_create':True,'no_create_edit':True}"
+                        />
+                        <field name="max_multiplier" />
+                    </group>
+
+                    <!-- SEPARATOR: Condition section -->
+                    <separator string="Condition (Optional)" class="mt-3" />
+
+                    <!-- ROW 6: Condition template + toggle (side-by-side) -->
+                    <group col="4">
+                        <field
+                            name="condition_template_id"
+                            string="Condition"
+                            colspan="2"
+                            options="{'no_create': True, 'no_create_edit': True}"
+                            placeholder="All eligible beneficiaries"
+                        />
+                        <field
+                            name="has_condition"
+                            widget="boolean_toggle"
+                            string="Custom condition"
+                            colspan="2"
+                        />
+                    </group>
+
+                    <!-- Lock indicator for condition -->
+                    <div invisible="not condition_is_locked" class="text-warning small mb-2">
+                        <i class="fa fa-lock me-1" title="Locked" />
+                        Condition is locked
+                    </div>
+
+                    <!-- Condition details (only when custom condition enabled) -->
+                    <group col="2" invisible="not has_condition" class="mt-0">
+                        <field
+                            name="condition_mode"
+                            widget="radio"
+                            options="{'horizontal': true}"
+                            colspan="2"
+                        />
+                    </group>
+
+                    <!-- CEL Condition expression -->
+                    <group
+                        colspan="4"
+                        invisible="not has_condition or condition_mode != 'cel'"
+                        class="mt-0"
+                    >
+                        <field
+                            name="condition_cel_expression"
+                            colspan="4"
+                            placeholder="e.g.: hh_size >= 4"
+                            readonly="condition_is_locked"
+                            nolabel="1"
+                        />
+                        <!-- Compact inline validation -->
+                        <div class="small" colspan="4" invisible="not condition_cel_expression">
+                            <span
+                                class="text-success"
+                                invisible="not condition_cel_is_valid"
+                            >
+                                <i class="fa fa-check-circle me-1" title="Success" />
+                                <strong><field name="condition_cel_preview_count" class="oe_inline" /></strong>
+                                beneficiaries match
+                            </span>
+                            <span
+                                class="text-danger"
+                                invisible="condition_cel_is_valid"
+                            >
+                                <i class="fa fa-times-circle me-1" title="Error" />
+                                <field name="condition_cel_error" nolabel="1" class="oe_inline" />
+                            </span>
+                        </div>
+                    </group>
+
+                    <!-- Domain Condition -->
+                    <group
+                        colspan="4"
+                        invisible="not has_condition or condition_mode != 'domain'"
+                        class="mt-0"
+                    >
+                        <field
+                            name="condition"
+                            colspan="4"
+                            widget="domain"
+                            options="{'model': 'res.partner'}"
+                            nolabel="1"
+                        />
+                    </group>
+                </form>
+            </xpath>
+
+            <!-- Update list view to show CEL-related columns -->
+            <xpath expr="//field[@name='entitlement_item_ids']//list" position="replace">
+                <list>
+                    <field name="sequence" widget="handle" />
+                    <field name="product_id" />
+                    <field name="quantity" string="Base Qty" />
+                    <field name="quantity_mode" />
+                    <field name="uom_id" />
+                    <field name="has_condition" string="Has Condition" />
+                </list>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

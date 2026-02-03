@@ -1,0 +1,1280 @@
+// Logic Studio Styles
+// ==================
+
+// ============================================
+// Fix Odoo 19 Radio Button Styling
+// ============================================
+// Override the blocky card-style radio buttons with a cleaner look
+.o_field_widget.o_field_radio {
+    &.o_horizontal {
+        .o_radio_input {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+
+            .form-check {
+                // Remove the card-style box
+                border: none !important;
+                background: transparent !important;
+                padding: 0.25rem 0.75rem !important;
+                margin: 0 !important;
+                border-radius: 1rem !important;
+                min-width: auto !important;
+                flex: 0 0 auto !important;
+
+                // Selected state - subtle pill style
+                &:has(input:checked) {
+                    background-color: rgba(0, 86, 179, 0.1) !important;
+                    border: 1px solid rgba(0, 86, 179, 0.3) !important;
+                }
+
+                // Hover state
+                &:hover:not(:has(input:checked)) {
+                    background-color: rgba(0, 0, 0, 0.05) !important;
+                }
+
+                // Hide the actual radio circle since we're using pill style
+                input[type="radio"] {
+                    display: none !important;
+                }
+
+                label {
+                    font-weight: 500;
+                    font-size: 0.875rem;
+                    cursor: pointer;
+                    margin: 0;
+                    padding: 0;
+                }
+            }
+        }
+    }
+}
+
+// Variables
+$logic-primary: #3498db;
+$logic-success: #2ecc71;
+$logic-warning: #f39c12;
+$logic-danger: #e74c3c;
+$logic-info: #9b59b6;
+
+// Logic Type Colors
+$type-eligibility: #3498db;
+$type-benefit: #2ecc71;
+$type-compliance: #e67e22;
+$type-scoring: #9b59b6;
+$type-validation: #1abc9c;
+
+// Spacing
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+
+// Border radius
+$radius-sm: 4px;
+$radius-md: 6px;
+$radius-lg: 8px;
+
+// Shadows
+$shadow-sm:
+    0 1px 3px rgba(0, 0, 0, 0.12),
+    0 1px 2px rgba(0, 0, 0, 0.24);
+$shadow-md:
+    0 3px 6px rgba(0, 0, 0, 0.16),
+    0 3px 6px rgba(0, 0, 0, 0.23);
+$shadow-lg:
+    0 10px 20px rgba(0, 0, 0, 0.19),
+    0 6px 6px rgba(0, 0, 0, 0.23);
+
+// ============================================
+// Variable Picker
+// ============================================
+.variable-picker {
+    position: relative;
+    width: 100%;
+
+    // Dropdown container
+    .vp-container {
+        position: relative;
+    }
+
+    // Search input styling
+    .vp-search-input {
+        width: 100%;
+        padding: $spacing-sm $spacing-md;
+        padding-right: 36px;
+        border: 1px solid #ced4da;
+        border-radius: $radius-sm;
+        font-size: 14px;
+        transition: all 0.2s;
+
+        &:focus {
+            outline: none;
+            border-color: $logic-primary;
+            box-shadow: 0 0 0 3px rgba($logic-primary, 0.1);
+        }
+
+        &::placeholder {
+            color: #adb5bd;
+        }
+    }
+
+    .vp-search-icon {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #adb5bd;
+        pointer-events: none;
+    }
+
+    // Dropdown panel
+    .vp-dropdown {
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        right: 0;
+        max-height: 400px;
+        overflow-y: auto;
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: $radius-md;
+        box-shadow: $shadow-md;
+        z-index: 1000;
+
+        // Custom scrollbar
+        &::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+
+            &:hover {
+                background: #555;
+            }
+        }
+    }
+
+    // Section headers
+    .vp-section {
+        &:not(:first-child) {
+            border-top: 1px solid #f0f0f0;
+        }
+    }
+
+    .vp-section-header {
+        padding: $spacing-sm $spacing-md;
+        background: #f8f9fa;
+        font-weight: 600;
+        font-size: 12px;
+        text-transform: uppercase;
+        color: #546e7a;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background 0.2s;
+
+        &:hover {
+            background: #f0f1f3;
+        }
+
+        .vp-section-icon {
+            transition: transform 0.2s;
+
+            &.expanded {
+                transform: rotate(90deg);
+            }
+        }
+    }
+
+    // Items with hover
+    .vp-items {
+        display: none;
+
+        &.expanded {
+            display: block;
+        }
+    }
+
+    .vp-item {
+        padding: $spacing-sm $spacing-md;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.2s;
+
+        &:hover {
+            background: #f0f7ff;
+        }
+
+        &.selected {
+            background: rgba($logic-primary, 0.1);
+            color: $logic-primary;
+            font-weight: 500;
+        }
+
+        .vp-item-main {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .vp-item-name {
+            font-weight: 500;
+            color: #2c3e50;
+            margin-bottom: 2px;
+        }
+
+        .vp-item-path {
+            font-size: 11px;
+            color: #78909c;
+            font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+        }
+
+        .vp-item-type {
+            font-size: 11px;
+            padding: 2px 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            color: #546e7a;
+            margin-left: $spacing-sm;
+        }
+    }
+
+    // Category expansion
+    .vp-category-toggle {
+        width: 100%;
+        padding: $spacing-sm $spacing-md;
+        background: #f8f9fa;
+        border: none;
+        border-bottom: 1px solid #e0e0e0;
+        text-align: left;
+        font-weight: 600;
+        font-size: 12px;
+        color: #546e7a;
+        cursor: pointer;
+        transition: all 0.2s;
+
+        &:hover {
+            background: #f0f1f3;
+        }
+
+        i {
+            margin-right: $spacing-xs;
+            transition: transform 0.2s;
+
+            &.expanded {
+                transform: rotate(90deg);
+            }
+        }
+    }
+
+    // Availability indicators
+    .vp-availability {
+        display: inline-flex;
+        align-items: center;
+        gap: $spacing-xs;
+        font-size: 11px;
+        padding: 2px 6px;
+        border-radius: 3px;
+
+        &.available {
+            background: rgba($logic-success, 0.1);
+            color: $logic-success;
+        }
+
+        &.unavailable {
+            background: rgba($logic-danger, 0.1);
+            color: $logic-danger;
+        }
+
+        &.conditional {
+            background: rgba($logic-warning, 0.1);
+            color: $logic-warning;
+        }
+    }
+
+    // Empty state
+    .vp-empty {
+        padding: $spacing-lg;
+        text-align: center;
+        color: #78909c;
+
+        i {
+            font-size: 48px;
+            color: #e0e0e0;
+            margin-bottom: $spacing-md;
+        }
+
+        p {
+            margin: 0;
+            font-size: 14px;
+        }
+    }
+}
+
+// ============================================
+// Logic Form Enhancements
+// ============================================
+.o_form_view .o_logic_form {
+    // Mode toggle styling
+    .logic-mode-toggle {
+        display: flex;
+        gap: $spacing-sm;
+        margin-bottom: $spacing-md;
+        padding: $spacing-md;
+        background: #f8f9fa;
+        border-radius: $radius-md;
+
+        .btn-mode {
+            flex: 1;
+            padding: $spacing-sm $spacing-md;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: $radius-sm;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+
+            &:hover {
+                background: #f8f9fa;
+            }
+
+            &.active {
+                background: $logic-primary;
+                color: white;
+                border-color: $logic-primary;
+                box-shadow: $shadow-sm;
+            }
+
+            i {
+                margin-right: $spacing-xs;
+            }
+        }
+    }
+
+    // Two-column layout
+    .logic-two-column {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: $spacing-lg;
+        margin-top: $spacing-md;
+
+        @media (max-width: 992px) {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    // Condition tree embedded in form
+    .logic-condition-tree {
+        background: #f8f9fa;
+        border: 1px solid #e0e0e0;
+        border-radius: $radius-md;
+        padding: $spacing-md;
+        min-height: 200px;
+
+        .tree-empty {
+            text-align: center;
+            color: #78909c;
+            padding: $spacing-xl;
+
+            i {
+                font-size: 48px;
+                color: #e0e0e0;
+                margin-bottom: $spacing-md;
+            }
+        }
+    }
+
+    // Variables used badges
+    .logic-variables-used {
+        display: flex;
+        flex-wrap: wrap;
+        gap: $spacing-xs;
+        margin-top: $spacing-sm;
+
+        .variable-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: $spacing-xs $spacing-sm;
+            background: rgba($logic-info, 0.1);
+            border: 1px solid rgba($logic-info, 0.3);
+            border-radius: $radius-sm;
+            font-size: 12px;
+            color: $logic-info;
+            font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+
+            i {
+                margin-right: $spacing-xs;
+                font-size: 10px;
+            }
+        }
+    }
+
+    // Missing variables warning
+    .logic-missing-variables {
+        margin-top: $spacing-md;
+        padding: $spacing-md;
+        background: rgba($logic-warning, 0.1);
+        border-left: 4px solid $logic-warning;
+        border-radius: $radius-sm;
+
+        .missing-title {
+            font-weight: 600;
+            color: $logic-warning;
+            margin-bottom: $spacing-xs;
+            display: flex;
+            align-items: center;
+
+            i {
+                margin-right: $spacing-xs;
+            }
+        }
+
+        .missing-list {
+            margin: $spacing-xs 0 0 $spacing-lg;
+            color: #856404;
+            font-size: 13px;
+        }
+    }
+}
+
+// ============================================
+// Logic Kanban Cards
+// ============================================
+.o_kanban_view .o_logic_kanban {
+    .o_kanban_record {
+        border-radius: $radius-md;
+        box-shadow: $shadow-sm;
+        transition: all 0.2s;
+
+        &:hover {
+            box-shadow: $shadow-md;
+            transform: translateY(-2px);
+        }
+    }
+
+    // Card styling
+    .logic-kanban-card {
+        padding: $spacing-md;
+    }
+
+    // Type-based colors
+    .logic-type-indicator {
+        display: inline-block;
+        width: 4px;
+        height: 100%;
+        position: absolute;
+        left: 0;
+        top: 0;
+        border-radius: $radius-md 0 0 $radius-md;
+
+        &.type-eligibility {
+            background: $type-eligibility;
+        }
+
+        &.type-benefit {
+            background: $type-benefit;
+        }
+
+        &.type-compliance {
+            background: $type-compliance;
+        }
+
+        &.type-scoring {
+            background: $type-scoring;
+        }
+
+        &.type-validation {
+            background: $type-validation;
+        }
+    }
+
+    .logic-type-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: $radius-sm;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+
+        &.type-eligibility {
+            background: rgba($type-eligibility, 0.1);
+            color: $type-eligibility;
+        }
+
+        &.type-benefit {
+            background: rgba($type-benefit, 0.1);
+            color: $type-benefit;
+        }
+
+        &.type-compliance {
+            background: rgba($type-compliance, 0.1);
+            color: $type-compliance;
+        }
+
+        &.type-scoring {
+            background: rgba($type-scoring, 0.1);
+            color: $type-scoring;
+        }
+
+        &.type-validation {
+            background: rgba($type-validation, 0.1);
+            color: $type-validation;
+        }
+    }
+
+    // State badges
+    .logic-state-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: $spacing-xs $spacing-sm;
+        border-radius: $radius-sm;
+        font-size: 11px;
+        font-weight: 600;
+        gap: $spacing-xs;
+
+        &.state-draft {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        &.state-active {
+            background: rgba($logic-success, 0.1);
+            color: $logic-success;
+        }
+
+        &.state-archived {
+            background: rgba($logic-danger, 0.1);
+            color: $logic-danger;
+        }
+    }
+
+    // Test result indicators
+    .logic-test-results {
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
+        margin-top: $spacing-sm;
+        padding-top: $spacing-sm;
+        border-top: 1px solid #f0f0f0;
+
+        .test-count {
+            font-size: 12px;
+            color: #78909c;
+
+            &.has-failures {
+                color: $logic-danger;
+                font-weight: 600;
+            }
+
+            &.all-passed {
+                color: $logic-success;
+                font-weight: 600;
+            }
+
+            i {
+                margin-right: $spacing-xs;
+            }
+        }
+    }
+}
+
+// ============================================
+// Pack Browser (App Store style)
+// ============================================
+.o_kanban_view .o_logic_pack_kanban {
+    // Large cards
+    .o_kanban_record {
+        min-height: 250px;
+        border-radius: $radius-lg;
+        box-shadow: $shadow-sm;
+        transition: all 0.3s;
+        overflow: hidden;
+
+        &:hover {
+            box-shadow: $shadow-lg;
+            transform: translateY(-4px);
+        }
+    }
+
+    .pack-card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .pack-header {
+        padding: $spacing-lg;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+
+        .pack-icon {
+            width: 64px;
+            height: 64px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: $radius-md;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: $spacing-md;
+
+            i {
+                font-size: 32px;
+            }
+        }
+
+        .pack-name {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: $spacing-xs;
+        }
+
+        .pack-category {
+            font-size: 12px;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+    }
+
+    .pack-body {
+        padding: $spacing-lg;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+
+        .pack-description {
+            flex: 1;
+            color: #546e7a;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: $spacing-md;
+        }
+
+        .pack-stats {
+            display: flex;
+            gap: $spacing-md;
+            margin-bottom: $spacing-md;
+
+            .pack-stat {
+                font-size: 12px;
+                color: #78909c;
+
+                strong {
+                    color: #2c3e50;
+                    font-weight: 600;
+                }
+            }
+        }
+    }
+
+    // Category colors
+    &.category-eligibility .pack-header {
+        background: linear-gradient(135deg, $type-eligibility 0%, darken($type-eligibility, 15%) 100%);
+    }
+
+    &.category-benefit .pack-header {
+        background: linear-gradient(135deg, $type-benefit 0%, darken($type-benefit, 15%) 100%);
+    }
+
+    &.category-compliance .pack-header {
+        background: linear-gradient(135deg, $type-compliance 0%, darken($type-compliance, 15%) 100%);
+    }
+
+    // Install button prominence
+    .pack-install-btn {
+        width: 100%;
+        padding: $spacing-md;
+        background: $logic-primary;
+        color: white;
+        border: none;
+        border-radius: $radius-md;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s;
+
+        &:hover {
+            background: darken($logic-primary, 10%);
+            transform: translateY(-1px);
+            box-shadow: $shadow-sm;
+        }
+
+        &:active {
+            transform: translateY(0);
+        }
+
+        &:disabled {
+            background: #e0e0e0;
+            color: #999;
+            cursor: not-allowed;
+
+            &:hover {
+                transform: none;
+                box-shadow: none;
+            }
+        }
+
+        i {
+            margin-right: $spacing-xs;
+        }
+    }
+
+    // Installed badge
+    .pack-installed-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: $spacing-sm $spacing-md;
+        background: rgba($logic-success, 0.1);
+        border: 1px solid rgba($logic-success, 0.3);
+        border-radius: $radius-md;
+        color: $logic-success;
+        font-weight: 600;
+        font-size: 14px;
+        justify-content: center;
+
+        i {
+            margin-right: $spacing-xs;
+        }
+    }
+}
+
+// ============================================
+// Test Results Panel
+// ============================================
+.logic-test-panel {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: $radius-md;
+    overflow: hidden;
+
+    .ltp-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: $spacing-md $spacing-lg;
+        background: #f8f9fa;
+        border-bottom: 1px solid #e0e0e0;
+
+        h5 {
+            margin: 0;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: $spacing-xs;
+        }
+    }
+
+    // Summary section
+    .ltp-summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: $spacing-md;
+        padding: $spacing-md $spacing-lg;
+        background: #f8f9fa;
+        border-bottom: 1px solid #e0e0e0;
+
+        .ltp-summary-item {
+            text-align: center;
+
+            .ltp-summary-value {
+                font-size: 24px;
+                font-weight: 700;
+                margin-bottom: $spacing-xs;
+
+                &.passed {
+                    color: $logic-success;
+                }
+
+                &.failed {
+                    color: $logic-danger;
+                }
+
+                &.total {
+                    color: $logic-info;
+                }
+            }
+
+            .ltp-summary-label {
+                font-size: 12px;
+                text-transform: uppercase;
+                color: #78909c;
+            }
+        }
+    }
+
+    // Test rows
+    .ltp-tests {
+        max-height: 500px;
+        overflow-y: auto;
+
+        &::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+
+            &:hover {
+                background: #555;
+            }
+        }
+    }
+
+    .ltp-test-row {
+        padding: $spacing-md $spacing-lg;
+        border-bottom: 1px solid #f0f0f0;
+        transition: all 0.2s;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: $spacing-md;
+        align-items: start;
+
+        &:hover {
+            background: #f8f9fa;
+        }
+
+        &.passed {
+            border-left: 4px solid $logic-success;
+        }
+
+        &.failed {
+            border-left: 4px solid $logic-danger;
+        }
+
+        &.running {
+            background: rgba($logic-info, 0.05);
+            animation: pulse 1.5s infinite;
+        }
+
+        > i {
+            font-size: 18px;
+            margin-top: 2px;
+
+            &.fa-check-circle {
+                color: $logic-success;
+            }
+
+            &.fa-times-circle {
+                color: $logic-danger;
+            }
+
+            &.fa-exclamation-circle {
+                color: $logic-warning;
+            }
+
+            &.fa-circle-o {
+                color: #bbb;
+            }
+        }
+
+        .ltp-test-content {
+            display: flex;
+            flex-direction: column;
+            gap: $spacing-xs;
+
+            .ltp-test-name {
+                font-weight: 600;
+                color: #2c3e50;
+                font-size: 14px;
+            }
+
+            .ltp-expected,
+            .ltp-actual {
+                font-size: 13px;
+                color: #546e7a;
+                font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+            }
+
+            .ltp-expected {
+                color: #78909c;
+            }
+
+            .ltp-actual {
+                font-weight: 500;
+            }
+
+            .ltp-error {
+                padding: $spacing-sm;
+                background: rgba($logic-danger, 0.05);
+                border-left: 3px solid $logic-danger;
+                color: $logic-danger;
+                font-size: 12px;
+                border-radius: $radius-sm;
+                font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+            }
+        }
+
+        .ltp-test-actions {
+            display: flex;
+            gap: $spacing-xs;
+        }
+    }
+
+    // Empty state
+    .ltp-empty {
+        padding: $spacing-xl;
+        text-align: center;
+        color: #78909c;
+
+        i {
+            font-size: 48px;
+            color: #e0e0e0;
+            margin-bottom: $spacing-md;
+            display: block;
+        }
+
+        p {
+            margin: $spacing-xs 0;
+            font-size: 14px;
+
+            a {
+                color: $logic-primary;
+                text-decoration: none;
+                font-weight: 600;
+
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+        }
+    }
+
+    // Execution log
+    .ltp-execution-log {
+        padding: $spacing-md;
+        background: #f8f9fa;
+        border-top: 1px solid #e0e0e0;
+        font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+        font-size: 12px;
+        color: #37474f;
+        max-height: 200px;
+        overflow-y: auto;
+
+        .log-entry {
+            padding: $spacing-xs 0;
+            border-bottom: 1px solid #e0e0e0;
+
+            &:last-child {
+                border-bottom: none;
+            }
+
+            .log-timestamp {
+                color: #78909c;
+                margin-right: $spacing-sm;
+            }
+
+            .log-level {
+                display: inline-block;
+                padding: 2px 6px;
+                border-radius: 3px;
+                font-weight: 600;
+                margin-right: $spacing-sm;
+
+                &.info {
+                    background: rgba($logic-info, 0.1);
+                    color: $logic-info;
+                }
+
+                &.error {
+                    background: rgba($logic-danger, 0.1);
+                    color: $logic-danger;
+                }
+
+                &.success {
+                    background: rgba($logic-success, 0.1);
+                    color: $logic-success;
+                }
+            }
+        }
+    }
+}
+
+// ============================================
+// CEL Preview Box
+// ============================================
+.cel-preview {
+    background: #282c34;
+    color: #abb2bf;
+    padding: $spacing-md;
+    border-radius: $radius-md;
+    font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+    font-size: 13px;
+    position: relative;
+    overflow-x: auto;
+
+    .cel-preview-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        color: #5c6370;
+        margin-bottom: $spacing-sm;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .cel-preview-code {
+        white-space: pre;
+        line-height: 1.6;
+        color: #e06c75;
+
+        // Syntax highlighting
+        .cel-keyword {
+            color: #c678dd;
+            font-weight: 600;
+        }
+
+        .cel-string {
+            color: #98c379;
+        }
+
+        .cel-number {
+            color: #d19a66;
+        }
+
+        .cel-operator {
+            color: #56b6c2;
+        }
+
+        .cel-variable {
+            color: #61afef;
+        }
+
+        .cel-function {
+            color: #e5c07b;
+        }
+
+        .cel-comment {
+            color: #5c6370;
+            font-style: italic;
+        }
+    }
+
+    // Copy button
+    .cel-preview-copy {
+        position: absolute;
+        top: $spacing-sm;
+        right: $spacing-sm;
+        padding: $spacing-xs $spacing-sm;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: $radius-sm;
+        color: #abb2bf;
+        cursor: pointer;
+        font-size: 11px;
+        font-family:
+            system-ui,
+            -apple-system,
+            sans-serif;
+        transition: all 0.2s;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        i {
+            margin-right: $spacing-xs;
+        }
+    }
+
+    // Light theme variant
+    &.light {
+        background: #f5f5f5;
+        color: #37474f;
+
+        .cel-preview-label {
+            color: #78909c;
+        }
+
+        .cel-preview-code {
+            color: #c62828;
+
+            .cel-keyword {
+                color: #6a1b9a;
+            }
+
+            .cel-string {
+                color: #2e7d32;
+            }
+
+            .cel-number {
+                color: #ef6c00;
+            }
+
+            .cel-operator {
+                color: #0277bd;
+            }
+
+            .cel-variable {
+                color: #1565c0;
+            }
+
+            .cel-function {
+                color: #f57f17;
+            }
+
+            .cel-comment {
+                color: #757575;
+            }
+        }
+
+        .cel-preview-copy {
+            background: white;
+            border-color: #ddd;
+            color: #546e7a;
+
+            &:hover {
+                background: #f0f0f0;
+            }
+        }
+    }
+}
+
+// ============================================
+// Animation keyframes
+// ============================================
+@keyframes pulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+// ============================================
+// Responsive adjustments
+// ============================================
+@media (max-width: 768px) {
+    // Mobile-friendly adjustments
+    .variable-picker {
+        .vp-dropdown {
+            max-height: 300px;
+        }
+    }
+
+    .o_form_view .o_logic_form {
+        .logic-two-column {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .o_kanban_view .o_logic_pack_kanban {
+        .o_kanban_record {
+            min-height: auto;
+        }
+
+        .pack-header {
+            padding: $spacing-md;
+
+            .pack-icon {
+                width: 48px;
+                height: 48px;
+
+                i {
+                    font-size: 24px;
+                }
+            }
+
+            .pack-name {
+                font-size: 16px;
+            }
+        }
+
+        .pack-body {
+            padding: $spacing-md;
+        }
+    }
+
+    .logic-test-panel {
+        .ltp-summary {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .ltp-test-row {
+            grid-template-columns: auto 1fr;
+            gap: $spacing-sm;
+
+            .ltp-test-actions {
+                grid-column: 2;
+                justify-self: end;
+            }
+        }
+    }
+}
+
+@media (max-width: 576px) {
+    // Extra small screens
+    .logic-test-panel {
+        .ltp-header {
+            flex-direction: column;
+            gap: $spacing-sm;
+            align-items: stretch;
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        .ltp-summary {
+            grid-template-columns: 1fr;
+        }
+    }
+}
+
+// ============================================
+// Print styles
+// ============================================
+@media print {
+    .logic-test-panel {
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+    .ltp-test-actions,
+    .cel-preview-copy,
+    .pack-install-btn {
+        display: none;
+    }
+}

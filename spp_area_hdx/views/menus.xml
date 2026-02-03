@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- HDX Menu - nested under Areas menu -->
+    <menuitem
+        id="menu_hdx_root"
+        name="HDX Integration"
+        parent="spp_area.area_main_top_menu"
+        sequence="100"
+        groups="spp_area_hdx.group_hdx_user"
+    />
+
+    <menuitem
+        id="menu_hdx_cod_source"
+        name="COD Sources"
+        parent="menu_hdx_root"
+        action="action_hdx_cod_source"
+        sequence="10"
+    />
+
+    <menuitem
+        id="menu_hdx_import_wizard"
+        name="Import COD"
+        parent="menu_hdx_root"
+        action="action_hdx_cod_import_wizard"
+        sequence="20"
+        groups="spp_area_hdx.group_hdx_manager"
+    />
+</odoo>

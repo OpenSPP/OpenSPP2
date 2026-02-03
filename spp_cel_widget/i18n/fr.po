@@ -1,0 +1,650 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* spp_cel_widget
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid ""
+"<i class=\"fa fa-info-circle me-2\"/>\n"
+"                                The expression above should be displayed but "
+"not editable.\n"
+"                                The editor should have a disabled/readonly "
+"appearance."
+msgstr ""
+"<i class=\"fa fa-info-circle me-2\"/>\\n                                "
+"L’expression ci-dessus doit être affichée mais non modifiable."
+"\\n                                L’éditeur doit avoir une apparence "
+"désactivée/en lecture seule."
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "<kbd>Ctrl</kbd>+<kbd>Space</kbd>"
+msgstr "<kbd>Ctrl</kbd>+<kbd>Espace</kbd>"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "<kbd>Ctrl</kbd>+<kbd>Y</kbd>"
+msgstr "<kbd>Ctrl</kbd>+<kbd>Y</kbd>"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "<kbd>Ctrl</kbd>+<kbd>Z</kbd>"
+msgstr "<kbd>Ctrl</kbd>+<kbd>Z</kbd>"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "<kbd>Esc</kbd>"
+msgstr "<kbd>Échap</kbd>"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "<kbd>Tab</kbd>"
+msgstr "<kbd>Tab</kbd>"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "Accept suggestion"
+msgstr "Accepter la suggestion"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "Actions"
+msgstr "Actions"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_symbol_browser.xml:0
+msgid "All Categories"
+msgstr "Toutes les catégories"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "Autocomplete (type <code>r.</code> to see fields)"
+msgstr "Saisie semi-automatique (tapez <code>r.</code> pour voir les champs)"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_symbol_browser.xml:0
+msgid "Available CEL variables"
+msgstr "Variables CEL disponibles"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_symbol_browser.xml:0
+msgid "Available fields"
+msgstr "Champs disponibles"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_symbol_browser.xml:0
+msgid "Available functions"
+msgstr "Fonctions disponibles"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_editor.xml:0
+msgid "Browse available symbols (Ctrl+.)"
+msgstr "Parcourir les symboles disponibles (Ctrl+.)"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "By Profile"
+msgstr "Par profil"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_editor.xml:0
+msgid "CEL Expression (fallback editor)"
+msgstr "Expression CEL (éditeur de remplacement)"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_editor.xml:0
+msgid "CEL Expression Editor"
+msgstr "Éditeur d’expressions CEL"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "CEL Expression Widget - Test Page"
+msgstr "Widget d’expression CEL - page de test"
+
+#. module: spp_cel_widget
+#: model:ir.model,name:spp_cel_widget.model_spp_cel_symbol_provider
+msgid "CEL Symbol Provider for Editor Widget"
+msgstr "Fournisseur de symboles CEL pour le widget d’édition"
+
+#. module: spp_cel_widget
+#: model:ir.actions.act_window,name:spp_cel_widget.action_cel_widget_demo
+#: model:ir.model,name:spp_cel_widget.model_spp_cel_widget_demo
+#: model:ir.ui.menu,name:spp_cel_widget.menu_cel_widget_demo
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "CEL Widget Demo"
+msgstr "Démonstration du widget CEL"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_editor.xml:0
+msgid "CEL expression input"
+msgstr "Saisie de l’expression CEL"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_symbol_browser.xml:0
+msgid "Close"
+msgstr "Fermer"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "Close autocomplete/browser"
+msgstr "Fermer la saisie semi-automatique/le navigateur"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_symbol_browser.xml:0
+msgid "Close symbol browser"
+msgstr "Fermer le navigateur de symboles"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "Configuration"
+msgstr "Configuration"
+
+#. module: spp_cel_widget
+#: model:ir.model.fields,field_description:spp_cel_widget.field_spp_cel_widget_demo__create_uid
+msgid "Created by"
+msgstr "Créé par"
+
+#. module: spp_cel_widget
+#: model:ir.model.fields,field_description:spp_cel_widget.field_spp_cel_widget_demo__create_date
+msgid "Created on"
+msgstr "Créé le"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_editor.xml:0
+msgid "Ctrl"
+msgstr "Ctrl"
+
+#. module: spp_cel_widget
+#: model:ir.model.fields,field_description:spp_cel_widget.field_spp_cel_symbol_provider__display_name
+#: model:ir.model.fields,field_description:spp_cel_widget.field_spp_cel_widget_demo__display_name
+msgid "Display Name"
+msgstr "Nom affiché"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "Dynamic Testing"
+msgstr "Test dynamique"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_editor.xml:0
+msgid "Editor toolbar"
+msgstr "Barre d’outils de l’éditeur"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_symbol_browser.xml:0
+msgid "Enter"
+msgstr "Entrée"
+
+#. module: spp_cel_widget
+#: model:ir.model.fields,field_description:spp_cel_widget.field_spp_cel_widget_demo__expression_entitlements
+msgid "Entitlement Expression"
+msgstr "Expression de droit"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "Entitlements Profile"
+msgstr "Profil des droits"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_symbol_browser.xml:0
+msgid "Esc"
+msgstr "Échap"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "Example Expressions"
+msgstr "Exemples d’expressions"
+
+#. module: spp_cel_widget
+#: model:ir.model.fields,field_description:spp_cel_widget.field_spp_cel_widget_demo__dynamic_expression
+msgid "Expression"
+msgstr "Expression"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "Expression Editor"
+msgstr "Éditeur d’expressions"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_editor.xml:0
+msgid "Failed to initialize editor:"
+msgstr "Échec de l’initialisation de l’éditeur :"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "Features to Test"
+msgstr "Fonctionnalités à tester"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_symbol_browser.xml:0
+msgid "Fields"
+msgstr "Champs"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_symbol_browser.xml:0
+msgid "Filter by category"
+msgstr "Filtrer par catégorie"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_symbol_browser.xml:0
+msgid "Filter by value type"
+msgstr "Filtrer par type de valeur"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_symbol_browser.xml:0
+msgid "Functions"
+msgstr "Fonctions"
+
+#. module: spp_cel_widget
+#: model:ir.model.fields,field_description:spp_cel_widget.field_spp_cel_widget_demo__expression_groups
+msgid "Group Expression"
+msgstr "Expression de groupe"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "Groups/Households"
+msgstr "Groupes/Ménages"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "Groups/Households Profile"
+msgstr "Profil des groupes/ménages"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "Help"
+msgstr "Aide"
+
+#. module: spp_cel_widget
+#: model:ir.model.fields,field_description:spp_cel_widget.field_spp_cel_symbol_provider__id
+#: model:ir.model.fields,field_description:spp_cel_widget.field_spp_cel_widget_demo__id
+msgid "ID"
+msgstr "ID"
+
+#. module: spp_cel_widget
+#: model:ir.model.fields,field_description:spp_cel_widget.field_spp_cel_widget_demo__expression_individuals
+msgid "Individual Expression"
+msgstr "Expression individuelle"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "Individual Registrants"
+msgstr "Inscrits individuels"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "Individual Registrants Profile"
+msgstr "Profil des inscrits individuels"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "Inline error highlighting (wavy underlines)"
+msgstr "Mise en évidence des erreurs en ligne (soulignements ondulés)"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "Insert Example"
+msgstr "Insérer un exemple"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_symbol_browser.xml:0
+msgid "Insert expression"
+msgstr "Insérer une expression"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_symbol_browser.xml:0
+msgid "Insert function"
+msgstr "Insérer une fonction"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_symbol_browser.xml:0
+msgid "Insert variable"
+msgstr "Insérer une variable"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "Keyboard Shortcuts"
+msgstr "Raccourcis clavier"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_symbol_browser.xml:0
+msgid "Keyboard shortcuts"
+msgstr "Raccourcis clavier"
+
+#. module: spp_cel_widget
+#: model:ir.model.fields,field_description:spp_cel_widget.field_spp_cel_widget_demo__write_uid
+msgid "Last Updated by"
+msgstr "Dernière mise à jour par"
+
+#. module: spp_cel_widget
+#: model:ir.model.fields,field_description:spp_cel_widget.field_spp_cel_widget_demo__write_date
+msgid "Last Updated on"
+msgstr "Dernière mise à jour le"
+
+#. module: spp_cel_widget
+#: model:ir.model.fields,field_description:spp_cel_widget.field_spp_cel_widget_demo__validation_result
+msgid "Last Validation Result"
+msgstr "Dernier résultat de validation"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_symbol_browser.xml:0
+msgid "Library"
+msgstr "Bibliothèque"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_symbol_browser.xml:0
+msgid "Library expressions"
+msgstr "Expressions de la bibliothèque"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "Live validation (shows valid/invalid status)"
+msgstr "Validation en direct (affiche l’état valide/invalide)"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "Match count (shows number of matching records)"
+msgstr ""
+"Nombre de correspondances (affiche le nombre d’enregistrements "
+"correspondants)"
+
+#. module: spp_cel_widget
+#: model:ir.model.fields,field_description:spp_cel_widget.field_spp_cel_widget_demo__name
+msgid "Name"
+msgstr "Nom"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_symbol_browser.xml:0
+msgid "No fields found"
+msgstr "Aucun champ trouvé"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_symbol_browser.xml:0
+msgid "No fields match filter"
+msgstr "Aucun champ ne correspond au filtre"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_symbol_browser.xml:0
+msgid "No functions found"
+msgstr "Aucune fonction trouvée"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_symbol_browser.xml:0
+msgid "No library expressions found"
+msgstr "Aucune expression de bibliothèque trouvée"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_symbol_browser.xml:0
+msgid "No variables found"
+msgstr "Aucune variable trouvée"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_editor.xml:0
+msgid "Open symbol browser"
+msgstr "Ouvrir le navigateur de symboles"
+
+#. module: spp_cel_widget
+#: model:ir.model.fields,field_description:spp_cel_widget.field_spp_cel_widget_demo__selected_profile
+msgid "Profile"
+msgstr "Profil"
+
+#. module: spp_cel_widget
+#: model:ir.model.fields,field_description:spp_cel_widget.field_spp_cel_widget_demo__readonly_expression
+msgid "Read-only Expression"
+msgstr "Expression en lecture seule"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "Read-only Expression (should not be editable)"
+msgstr "Expression en lecture seule (ne doit pas être modifiable)"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "Read-only Mode"
+msgstr "Mode lecture seule"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "Redo"
+msgstr "Rétablir"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "Result"
+msgstr "Résultat"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_symbol_browser.xml:0
+msgid "Search symbols"
+msgstr "Rechercher des symboles"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_symbol_browser.xml:0
+msgid "Search..."
+msgstr "Rechercher..."
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "Show Symbols"
+msgstr "Afficher les symboles"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_editor.xml:0
+msgid "Show autocomplete suggestions"
+msgstr "Afficher les suggestions de saisie semi-automatique"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_editor.xml:0
+msgid "Show suggestions (Ctrl+Space)"
+msgstr "Afficher les suggestions (Ctrl+Espace)"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_editor.xml:0
+msgid "Space"
+msgstr "Espace"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_symbol_browser.xml:0
+msgid "Symbol browser"
+msgstr "Navigateur de symboles"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "Symbol browser (click \"Symbols\" button)"
+msgstr "Navigateur de symboles (cliquez sur le bouton « Symboles »)"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_symbol_browser.xml:0
+msgid "Symbol categories"
+msgstr "Catégories de symboles"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_editor.xml:0
+msgid "Symbols"
+msgstr "Symboles"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "Syntax highlighting (keywords, operators, strings)"
+msgstr "Coloration syntaxique (mots-clés, opérateurs, chaînes de caractères)"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_symbol_browser.xml:0
+msgid "Tab"
+msgstr "Tab"
+
+#. module: spp_cel_widget
+#: model:ir.model.fields,help:spp_cel_widget.field_spp_cel_widget_demo__expression_entitlements
+msgid "Test CEL expression for entitlements"
+msgstr "Tester l’expression CEL pour les droits"
+
+#. module: spp_cel_widget
+#: model:ir.model.fields,help:spp_cel_widget.field_spp_cel_widget_demo__expression_groups
+msgid "Test CEL expression for groups/households"
+msgstr "Tester l’expression CEL pour les groupes/ménages"
+
+#. module: spp_cel_widget
+#: model:ir.model.fields,help:spp_cel_widget.field_spp_cel_widget_demo__expression_individuals
+msgid "Test CEL expression for individual registrants"
+msgstr "Tester l’expression CEL pour les inscrits individuels"
+
+#. module: spp_cel_widget
+#: model:ir.model.fields,help:spp_cel_widget.field_spp_cel_widget_demo__dynamic_expression
+msgid "Test expression with the selected profile"
+msgstr "Tester l’expression avec le profil sélectionné"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid ""
+"This page is for testing the CEL expression editor widget.\n"
+"                            Only visible to administrators in debug mode."
+msgstr ""
+"Cette page sert à tester le widget d’édition d’expressions CEL."
+"\\n                            Visible uniquement pour les administrateurs "
+"en mode débogage."
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_editor.xml:0
+msgid "Tip: Press"
+msgstr "Astuce : appuyez sur"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "Trigger autocomplete"
+msgstr "Déclencher la saisie semi-automatique"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "Undo"
+msgstr "Annuler"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "Validate"
+msgstr "Valider"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_symbol_browser.xml:0
+msgid "Variables"
+msgstr "Variables"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid ""
+"age_years(r.birthdate) &gt;= 18\n"
+"r.gender == 'female'\n"
+"r.active == true and age_years(r.birthdate) &gt;= 60"
+msgstr ""
+"age_years(r.birthdate) &gt;= 18\\nr.gender == 'female'\\nr.active == true "
+"and age_years(r.birthdate) &gt;= 60"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "e.g., age_years(r.birthdate) >= 18"
+msgstr "p. ex., age_years(r.birthdate) >= 18"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "e.g., members.count(m, age_years(m.birthdate) < 5) >= 2"
+msgstr "p. ex., members.count(m, age_years(m.birthdate) < 5) >= 2"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid "e.g., r.amount >= 1000"
+msgstr "p. ex., r.amount >= 1000"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_editor.xml:0
+msgid ""
+"for suggestions,\n"
+"                        or click"
+msgstr "pour les suggestions,\\n                        ou cliquez"
+
+#. module: spp_cel_widget
+#: model_terms:ir.ui.view,arch_db:spp_cel_widget.view_cel_widget_demo_form
+msgid ""
+"members.count(m, age_years(m.birthdate) &lt; 5) &gt;= 2\n"
+"members.exists(m, m.disabled == true)\n"
+"members.count(m, m.gender == 'female') &gt; 0"
+msgstr ""
+"members.count(m, age_years(m.birthdate) &lt; 5) &gt;= 2\\nmembers.exists(m, "
+"m.disabled == true)\\nmembers.count(m, m.gender == 'female') &gt; 0"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_symbol_browser.xml:0
+msgid "to accept suggestion |"
+msgstr "pour accepter la suggestion |"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_editor.xml:0
+msgid "to browse available fields."
+msgstr "pour parcourir les champs disponibles."
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_symbol_browser.xml:0
+msgid "to close |"
+msgstr "pour fermer |"
+
+#. module: spp_cel_widget
+#. odoo-javascript
+#: code:addons/spp_cel_widget/static/src/xml/cel_symbol_browser.xml:0
+msgid "to insert"
+msgstr "pour insérer"

@@ -1,0 +1,691 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* spp_demo
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generator__percentage_with_bank_account
+msgid "% with Banks"
+msgstr "% avec des banques"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generator__percentage_with_gps
+msgid "% with GPS Coordinates"
+msgstr "% avec des coordonnées GPS"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generator__percentage_with_ids
+msgid "% with IDs"
+msgstr "% avec des identifiants"
+
+#. module: spp_demo
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_demo_data_generator_form
+msgid ""
+"<span class=\"o_stat_text\">Cleanup</span>\n"
+"                                <span class=\"o_stat_text\">Demo Data</span>"
+msgstr ""
+"<span class=\"o_stat_text\">Nettoyage</span>\n"
+"                                <span class=\"o_stat_text\">Données de "
+"démonstration</span>"
+
+#. module: spp_demo
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_demo_data_generator_form
+msgid ""
+"<span class=\"o_stat_text\">Generate</span>\n"
+"                                <span class=\"o_stat_text\">Demo Data</span>"
+msgstr ""
+"<span class=\"o_stat_text\">Générer</span>\n"
+"                                <span class=\"o_stat_text\">Données de "
+"démonstration</span>"
+
+#. module: spp_demo
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_demo_data_generator_form
+msgid ""
+"<span>\n"
+"                    Warning: There's no generation locale available for this "
+"country.\n"
+"                    Defaulting to 'en_US' locale.\n"
+"                    </span>"
+msgstr ""
+"<span>\n"
+"                    Avertissement : aucune locale de génération n’est "
+"disponible pour ce pays.\n"
+"                    Utilisation par défaut de la locale 'en_US'.\n"
+"                    </span>"
+
+#. module: spp_demo
+#: model_terms:ir.ui.view,arch_db:spp_demo.spp_apps_wizard_view_form
+msgid ""
+"<span>One or more modules are missing. To proceed, please add the missing "
+"modules first.</span>"
+msgstr ""
+"<span>Un ou plusieurs modules sont manquants. Pour continuer, veuillez "
+"d’abord ajouter les modules manquants.</span>"
+
+#. module: spp_demo
+#: model_terms:ir.ui.view,arch_db:spp_demo.spp_apps_wizard_view_form
+msgid ""
+"<span>One or more modules are not yet installed. To proceed, please install "
+"the modules first.</span>"
+msgstr ""
+"<span>Un ou plusieurs modules ne sont pas encore installés. Pour continuer, "
+"veuillez d’abord installer les modules.</span>"
+
+#. module: spp_demo
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_demo_data_generator_form
+msgid "<span>Warning: Operation in progress: </span>"
+msgstr "<span>Avertissement : opération en cours : </span>"
+
+#. module: spp_demo
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_demo_data_generator_form
+msgid "<strong>Generation Failures:</strong>"
+msgstr "<strong>Échecs de génération :</strong>"
+
+#. module: spp_demo
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_demo_data_generator_form
+msgid ""
+"Are you sure you want to delete all demo-generated data? This will delete "
+"all groups, individuals, and their memberships."
+msgstr ""
+"Êtes-vous sûr de vouloir supprimer toutes les données de démonstration "
+"générées ? Cela supprimera tous les groupes, les individus et leurs "
+"appartenances."
+
+#. module: spp_demo
+#: model:ir.model.fields.selection,name:spp_demo.selection__spp_demo_data_generation_log__operation_type__bank_account
+msgid "Bank Account"
+msgstr "Compte bancaire"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_bank_types__bank_id
+msgid "Bank Type"
+msgstr "Type de banque"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generator__bank_type_ids
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_demo_data_generator_form
+msgid "Bank Types"
+msgstr "Types de banque"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_res_config_settings__batch_size
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generator__batch_size
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_res_config_settings_form_inherit_spp_demo
+msgid "Batch Size"
+msgstr "Taille du lot"
+
+#. module: spp_demo
+#: model_terms:ir.ui.view,arch_db:spp_demo.spp_apps_wizard_view_form
+msgid "Cancel"
+msgstr "Annuler"
+
+#. module: spp_demo
+#: model:ir.model.fields.selection,name:spp_demo.selection__spp_demo_data_generator__state__cancelled
+msgid "Cancelled"
+msgstr "Annulé"
+
+#. module: spp_demo
+#: model_terms:ir.actions.act_window,help:spp_demo.action_demo_data_generator
+msgid "Click the create button to enter the new record."
+msgstr "Cliquez sur le bouton Créer pour saisir le nouvel enregistrement."
+
+#. module: spp_demo
+#: model:ir.model.fields.selection,name:spp_demo.selection__spp_demo_data_generator__state__completed
+msgid "Completed"
+msgstr "Terminé"
+
+#. module: spp_demo
+#: model:ir.model,name:spp_demo.model_res_config_settings
+msgid "Config Settings"
+msgstr "Paramètres de configuration"
+
+#. module: spp_demo
+#: model:ir.model,name:spp_demo.model_res_partner
+msgid "Contact"
+msgstr "Contact"
+
+#. module: spp_demo
+#: model:ir.model,name:spp_demo.model_res_country
+msgid "Country"
+msgstr "Pays"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_apps_wizard__create_uid
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_bank_types__create_uid
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generation_log__create_uid
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generator__create_uid
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_id_types__create_uid
+#: model:ir.model.fields,field_description:spp_demo.field_spp_missing_module__create_uid
+msgid "Created by"
+msgstr "Créé par"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_apps_wizard__create_date
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_bank_types__create_date
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generator__create_date
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_id_types__create_date
+#: model:ir.model.fields,field_description:spp_demo.field_spp_missing_module__create_date
+msgid "Created on"
+msgstr "Créé le"
+
+#. module: spp_demo
+#: model:ir.actions.act_window,name:spp_demo.spp_apps_wizard_action
+msgid "Data Import: Module Installation"
+msgstr "Importation de données : installation de modules"
+
+#. module: spp_demo
+#: model:ir.model.fields.selection,name:spp_demo.selection__spp_demo_data_generation_log__failure_reason__data_validation_failed
+msgid "Data Validation Failed"
+msgstr "Échec de la validation des données"
+
+#. module: spp_demo
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_demo_data_generator_form
+msgid "Date"
+msgstr "Date"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generation_log__create_date
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_demo_data_generator_form
+msgid "Date Created"
+msgstr "Date de création"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generator__days_back
+msgid "Days Back"
+msgstr "Nombre de jours en arrière"
+
+#. module: spp_demo
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_res_config_settings_form_inherit_spp_demo
+msgid "Default Settings for Demo Data Generator"
+msgstr "Paramètres par défaut du générateur de données de démonstration"
+
+#. module: spp_demo
+#: model:ir.model,name:spp_demo.model_spp_demo_data_generation_log
+msgid "Demo Data Generation Log"
+msgstr "Journal de génération des données de démonstration"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_res_partner__demo_data_group_generator_id
+#: model:ir.model.fields,field_description:spp_demo.field_res_partner__demo_data_individual_generator_id
+#: model:ir.model.fields,field_description:spp_demo.field_res_users__demo_data_group_generator_id
+#: model:ir.model.fields,field_description:spp_demo.field_res_users__demo_data_individual_generator_id
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_bank_types__demo_data_generator_id
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generation_log__demo_data_generator_id
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_id_types__demo_data_generator_id
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_demo_data_generator_form
+msgid "Demo Data Generator"
+msgstr "Générateur de données de démonstration"
+
+#. module: spp_demo
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_demo_data_generator_form
+msgid "Description"
+msgstr "Description"
+
+#. module: spp_demo
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_demo_data_generator_form
+msgid "Details"
+msgstr "Détails"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:spp_demo.field_res_country__display_name
+#: model:ir.model.fields,field_description:spp_demo.field_res_partner__display_name
+#: model:ir.model.fields,field_description:spp_demo.field_spp_apps_wizard__display_name
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_bank_types__display_name
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generation_log__display_name
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generator__display_name
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_id_types__display_name
+#: model:ir.model.fields,field_description:spp_demo.field_spp_missing_module__display_name
+msgid "Display Name"
+msgstr "Nom affiché"
+
+#. module: spp_demo
+#: model:ir.model.fields.selection,name:spp_demo.selection__spp_demo_data_generator__state__draft
+msgid "Draft"
+msgstr "Brouillon"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generation_log__error_message
+msgid "Error Message"
+msgstr "Message d’erreur"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generation_log__exception_details
+msgid "Exception Details"
+msgstr "Détails de l’exception"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generator__generation_log_count
+msgid "Failed Generations"
+msgstr "Générations échouées"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generation_log__failure_reason
+msgid "Failure Reason"
+msgstr "Motif de l’échec"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_res_country__faker_locale
+msgid "Faker Locale"
+msgstr "Locale Faker"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_res_country__is_faker_locale_available
+msgid "Faker Locale Available"
+msgstr "Locale Faker disponible"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_res_partner__gps_coordinates
+#: model:ir.model.fields,field_description:spp_demo.field_res_users__gps_coordinates
+#: model:ir.model.fields.selection,name:spp_demo.selection__spp_demo_data_generation_log__operation_type__gps_coordinates
+msgid "GPS Coordinates"
+msgstr "Coordonnées GPS"
+
+#. module: spp_demo
+#: model:ir.actions.act_window,name:spp_demo.action_demo_data_generator
+#: model_terms:ir.actions.act_window,help:spp_demo.action_demo_data_generator
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_demo_data_generator_form
+msgid "Generate Demo Data"
+msgstr "Générer des données de démonstration"
+
+#. module: spp_demo
+#: model:ir.model.fields,help:spp_demo.field_spp_demo_data_generator__days_back
+msgid ""
+"Generate data within the last N days. Used for time-based demo data "
+"generation."
+msgstr ""
+"Génère des données sur les N derniers jours. Utilisé pour une génération de "
+"données de démonstration basée sur le temps."
+
+#. module: spp_demo
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_demo_data_generator_form
+msgid "Generated Groups"
+msgstr "Groupes générés"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generator__generated_individual_ids
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_demo_data_generator_form
+msgid "Generated Individuals"
+msgstr "Individus générés"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generator__generated_group_ids
+msgid "Generated Registrants"
+msgstr "Inscrits générés"
+
+#. module: spp_demo
+#: model:ir.model.fields.selection,name:spp_demo.selection__spp_demo_data_generation_log__failure_reason__generation_error
+msgid "Generation Error"
+msgstr "Erreur de génération"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generator__generation_log_ids
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_demo_data_generator_form
+msgid "Generation Logs"
+msgstr "Journaux de génération"
+
+#. module: spp_demo
+#: model:ir.model.fields.selection,name:spp_demo.selection__spp_demo_data_bank_types__target_type__group
+#: model:ir.model.fields.selection,name:spp_demo.selection__spp_demo_data_generation_log__registrant_type__group
+#: model:ir.model.fields.selection,name:spp_demo.selection__spp_demo_data_id_types__target_type__group
+msgid "Group"
+msgstr "Groupe"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generator__group_type_id
+msgid "Group Type"
+msgstr "Type de groupe"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_res_config_settings__id
+#: model:ir.model.fields,field_description:spp_demo.field_res_country__id
+#: model:ir.model.fields,field_description:spp_demo.field_res_partner__id
+#: model:ir.model.fields,field_description:spp_demo.field_spp_apps_wizard__id
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_bank_types__id
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generation_log__id
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generator__id
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_id_types__id
+#: model:ir.model.fields,field_description:spp_demo.field_spp_missing_module__id
+msgid "ID"
+msgstr "ID"
+
+#. module: spp_demo
+#: model:ir.model.fields.selection,name:spp_demo.selection__spp_demo_data_generation_log__operation_type__id_generation
+msgid "ID Generation"
+msgstr "Génération d’identifiants"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_id_types__id_type_id
+msgid "ID Type"
+msgstr "Type d’identifiant"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generator__id_type_ids
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_demo_data_generator_form
+msgid "ID Types"
+msgstr "Types d’identifiant"
+
+#. module: spp_demo
+#: model:ir.model.fields.selection,name:spp_demo.selection__spp_demo_data_generator__state__in_progress
+msgid "In Progress"
+msgstr "En cours"
+
+#. module: spp_demo
+#: model:ir.model.fields.selection,name:spp_demo.selection__spp_demo_data_bank_types__target_type__individual
+#: model:ir.model.fields.selection,name:spp_demo.selection__spp_demo_data_generation_log__registrant_type__individual
+#: model:ir.model.fields.selection,name:spp_demo.selection__spp_demo_data_id_types__target_type__individual
+msgid "Individual"
+msgstr "Individu"
+
+#. module: spp_demo
+#: model_terms:ir.ui.view,arch_db:spp_demo.spp_apps_wizard_view_form
+msgid "Install Modules"
+msgstr "Installer les modules"
+
+#. module: spp_demo
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_res_config_settings_form_inherit_spp_demo
+msgid "Job Queue Settings"
+msgstr "Paramètres de la file de tâches"
+
+#. module: spp_demo
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_demo_data_generator_form
+msgid "Job Queue will be used in this Generation"
+msgstr "La file de tâches sera utilisée pour cette génération"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generation_log__generated_value
+msgid "Last Generated Value"
+msgstr "Dernière valeur générée"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_apps_wizard__write_uid
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_bank_types__write_uid
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generation_log__write_uid
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generator__write_uid
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_id_types__write_uid
+#: model:ir.model.fields,field_description:spp_demo.field_spp_missing_module__write_uid
+msgid "Last Updated by"
+msgstr "Dernière mise à jour par"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_apps_wizard__write_date
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_bank_types__write_date
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generation_log__write_date
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generator__write_date
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_id_types__write_date
+#: model:ir.model.fields,field_description:spp_demo.field_spp_missing_module__write_date
+msgid "Last Updated on"
+msgstr "Dernière mise à jour le"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_res_country__lat_max
+msgid "Latitude Max"
+msgstr "Latitude max."
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_res_country__lat_min
+msgid "Latitude Min"
+msgstr "Latitude min."
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generator__locale_origin
+msgid "Locale Origin"
+msgstr "Origine de la locale"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generator__locale_origin_faker_locale
+msgid "Locale Origin Faker Locale"
+msgstr "Origine de la locale de Faker"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generator__is_locked
+msgid "Locked"
+msgstr "Verrouillé"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generator__locked_reason
+msgid "Locked Reason"
+msgstr "Motif du verrouillage"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_res_country__lon_max
+msgid "Longitude Max"
+msgstr "Longitude max."
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_res_country__lon_min
+msgid "Longitude Min"
+msgstr "Longitude min."
+
+#. module: spp_demo
+#: model:ir.model.fields.selection,name:spp_demo.selection__spp_demo_data_generation_log__failure_reason__max_attempts_reached
+msgid "Maximum Attempts Reached"
+msgstr "Nombre maximal de tentatives atteint"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_res_config_settings__members_range_from
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generator__members_range_from
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_res_config_settings_form_inherit_spp_demo
+msgid "Members per Group (From)"
+msgstr "Membres par groupe (de)"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_res_config_settings__members_range_to
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generator__members_range_to
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_res_config_settings_form_inherit_spp_demo
+msgid "Members per Group (To)"
+msgstr "Membres par groupe (à)"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_apps_wizard__missing_module_ids
+#: model_terms:ir.ui.view,arch_db:spp_demo.spp_apps_wizard_view_form
+msgid "Missing Modules"
+msgstr "Modules manquants"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_missing_module__name
+msgid "Module Name"
+msgstr "Nom du module"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generator__name
+msgid "Name"
+msgstr "Nom"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_apps_wizard__not_installed_module_ids
+#: model_terms:ir.ui.view,arch_db:spp_demo.spp_apps_wizard_view_form
+msgid "Not Installed Modules"
+msgstr "Modules non installés"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generation_log__attempts
+msgid "Number of Attempts"
+msgstr "Nombre de tentatives"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_res_config_settings__number_of_groups
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generator__number_of_groups
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_demo_data_generator_form
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_res_config_settings_form_inherit_spp_demo
+msgid "Number of Groups"
+msgstr "Nombre de groupes"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generation_log__operation_type
+msgid "Operation Type"
+msgstr "Type d’opération"
+
+#. module: spp_demo
+#: model:ir.model.fields.selection,name:spp_demo.selection__spp_demo_data_generation_log__failure_reason__other
+#: model:ir.model.fields.selection,name:spp_demo.selection__spp_demo_data_generation_log__operation_type__other
+msgid "Other"
+msgstr "Autre"
+
+#. module: spp_demo
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_demo_data_generator_form
+msgid "Other Details"
+msgstr "Autres détails"
+
+#. module: spp_demo
+#: model:ir.model.fields.selection,name:spp_demo.selection__spp_demo_data_generation_log__operation_type__phone_generation
+msgid "Phone Number Generation"
+msgstr "Génération de numéros de téléphone"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_res_config_settings__queue_job_minimum_size
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generator__queue_job_minimum_size
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_res_config_settings_form_inherit_spp_demo
+msgid "Queue Job Minimum Size"
+msgstr "Taille minimale des tâches en file"
+
+#. module: spp_demo
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_demo_data_generator_form
+msgid "Refresh"
+msgstr "Actualiser"
+
+#. module: spp_demo
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_demo_data_generator_form
+msgid "Refresh Page"
+msgstr "Actualiser la page"
+
+#. module: spp_demo
+#: model:ir.model.fields.selection,name:spp_demo.selection__spp_demo_data_generation_log__failure_reason__regex_validation_failed
+msgid "Regex Validation Failed"
+msgstr "Échec de la validation par expression régulière"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generation_log__registrant_id
+msgid "Registrant"
+msgstr "Inscrit"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generation_log__registrant_type
+msgid "Registrant Type"
+msgstr "Type d’inscrit"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generator__is_remember_settings
+msgid "Remember Settings"
+msgstr "Mémoriser les paramètres"
+
+#. module: spp_demo
+#: model:ir.model,name:spp_demo.model_spp_apps_wizard
+msgid "SPP Apps Wizard"
+msgstr "Assistant des applications SPP"
+
+#. module: spp_demo
+#: model:ir.model,name:spp_demo.model_spp_demo_data_bank_types
+msgid "SPP Demo Data Bank Types"
+msgstr "Types de banque des données de démonstration SPP"
+
+#. module: spp_demo
+#: model:ir.model,name:spp_demo.model_spp_demo_data_generator
+msgid "SPP Demo Data Generator"
+msgstr "Générateur de données de démonstration SPP"
+
+#. module: spp_demo
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_res_config_settings_form_inherit_spp_demo
+msgid "SPP Demo Data Generator Settings"
+msgstr "Paramètres du générateur de données de démonstration SPP"
+
+#. module: spp_demo
+#: model:ir.model,name:spp_demo.model_spp_demo_data_id_types
+msgid "SPP Demo Data ID Types"
+msgstr "Types d’identifiant des données de démonstration SPP"
+
+#. module: spp_demo
+#: model:ir.model,name:spp_demo.model_spp_missing_module
+msgid "SPP Missing Module"
+msgstr "Module SPP manquant"
+
+#. module: spp_demo
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_res_config_settings_form_inherit_spp_demo
+msgid ""
+"Specifies the default batch size when generating demo data with Job Queue."
+msgstr ""
+"Spécifie la taille de lot par défaut lors de la génération de données de "
+"démonstration avec la file de tâches."
+
+#. module: spp_demo
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_res_config_settings_form_inherit_spp_demo
+msgid ""
+"Specifies the default maximum number of members per group when generating "
+"demo data."
+msgstr ""
+"Spécifie le nombre maximal de membres par groupe par défaut lors de la "
+"génération de données de démonstration."
+
+#. module: spp_demo
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_res_config_settings_form_inherit_spp_demo
+msgid ""
+"Specifies the default minimum number of members per group when generating "
+"demo data."
+msgstr ""
+"Spécifie le nombre minimal de membres par groupe par défaut lors de la "
+"génération de données de démonstration."
+
+#. module: spp_demo
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_res_config_settings_form_inherit_spp_demo
+msgid ""
+"Specifies the default number of groups to be created when generating demo "
+"data."
+msgstr ""
+"Spécifie le nombre de groupes à créer par défaut lors de la génération de "
+"données de démonstration."
+
+#. module: spp_demo
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_res_config_settings_form_inherit_spp_demo
+msgid ""
+"Specifies the minimum number of groups to be processed in the queue when "
+"generating demo data."
+msgstr ""
+"Spécifie le nombre minimal de groupes à traiter dans la file lors de la "
+"génération de données de démonstration."
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generator__state
+msgid "State"
+msgstr "État"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_bank_types__target_type
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_id_types__target_type
+msgid "Target Type"
+msgstr "Type cible"
+
+#. module: spp_demo
+#: model:ir.model.fields,help:spp_demo.field_spp_demo_data_generation_log__registrant_id
+msgid "The registrant for which the generation failed"
+msgstr "L’inscrit pour lequel la génération a échoué"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generator__use_job_queue
+msgid "Use Job Queue"
+msgstr "Utiliser la file de tâches"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_demo_data_generation_log__validation_regex
+msgid "Validation Regex"
+msgstr "Expression régulière de validation"
+
+#. module: spp_demo
+#: model:ir.model.fields,field_description:spp_demo.field_spp_missing_module__wizard_id
+msgid "Wizard"
+msgstr "Assistant"
+
+#. module: spp_demo
+#: model_terms:ir.ui.view,arch_db:spp_demo.view_demo_data_generator_form
+msgid "failed operation(s) recorded"
+msgstr "opération(s) échouée(s) enregistrée(s)"

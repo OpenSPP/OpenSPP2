@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <!-- ========================================== -->
+    <!-- GIS REPORTS ROOT MENU                      -->
+    <!-- ========================================== -->
+    <menuitem
+        id="menu_gis_report_root"
+        name="GIS Reports"
+        web_icon="spp_gis_report,static/description/OpenSPP-GIS-Reports-Menu-Icons.png"
+        sequence="50"
+    />
+
+    <!-- ========================================== -->
+    <!-- REPORTS SUBMENU                            -->
+    <!-- ========================================== -->
+    <menuitem
+        id="menu_gis_report_reports"
+        name="Reports"
+        parent="menu_gis_report_root"
+        action="action_gis_report"
+        sequence="10"
+    />
+
+    <!-- ========================================== -->
+    <!-- TEMPLATES SUBMENU                          -->
+    <!-- ========================================== -->
+    <menuitem
+        id="menu_gis_report_templates"
+        name="Templates"
+        parent="menu_gis_report_root"
+        action="action_gis_report_template"
+        sequence="20"
+    />
+
+    <!-- ========================================== -->
+    <!-- CONFIGURATION SUBMENU                      -->
+    <!-- ========================================== -->
+    <menuitem
+        id="menu_gis_report_config"
+        name="Configuration"
+        parent="menu_gis_report_root"
+        sequence="100"
+        groups="spp_security.group_spp_admin"
+    />
+
+    <!-- ========================================== -->
+    <!-- CATEGORIES (under Configuration)           -->
+    <!-- ========================================== -->
+    <menuitem
+        id="menu_gis_report_categories"
+        name="Categories"
+        parent="menu_gis_report_config"
+        action="action_gis_report_category"
+        sequence="10"
+    />
+
+    <!-- ========================================== -->
+    <!-- COLOR SCHEMES (under Configuration)        -->
+    <!-- ========================================== -->
+    <menuitem
+        id="menu_gis_color_schemes"
+        name="Color Schemes"
+        parent="menu_gis_report_config"
+        action="spp_gis.action_gis_color_scheme"
+        sequence="20"
+    />
+</odoo>

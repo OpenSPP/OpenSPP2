@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Default Test Personas -->
+
+        <!-- Eligible Personas -->
+        <record id="persona_poor_elderly_widow" model="spp.studio.test.persona">
+            <field name="name">Poor Elderly Widow</field>
+            <field name="description">Elderly woman living alone with very low income. Classic eligible case for most social protection programs.</field>
+            <field name="values">{
+    "income": 2000,
+    "age": 75,
+    "is_female": true,
+    "is_elderly": true,
+    "is_head_of_household": true,
+    "hh_size": 1,
+    "is_registered": true,
+    "pmt_score": 15,
+    "is_disabled": false
+}</field>
+            <field name="category">eligible</field>
+            <field name="is_global" eval="True"/>
+            <field name="sequence">10</field>
+        </record>
+
+        <record id="persona_large_poor_family" model="spp.studio.test.persona">
+            <field name="name">Large Poor Family</field>
+            <field name="description">Family of 7 with low income and multiple children. Tests household size factors.</field>
+            <field name="values">{
+    "income": 3500,
+    "age": 42,
+    "is_female": false,
+    "is_elderly": false,
+    "is_head_of_household": true,
+    "hh_size": 7,
+    "child_count": 5,
+    "is_registered": true,
+    "pmt_score": 22,
+    "dependency_ratio": 0.71
+}</field>
+            <field name="category">eligible</field>
+            <field name="is_global" eval="True"/>
+            <field name="sequence">20</field>
+        </record>
+
+        <record id="persona_disabled_adult" model="spp.studio.test.persona">
+            <field name="name">Disabled Adult</field>
+            <field name="description">Working-age adult with disability. Tests disability-related criteria.</field>
+            <field name="values">{
+    "income": 4000,
+    "age": 35,
+    "is_female": false,
+    "is_elderly": false,
+    "is_disabled": true,
+    "disability_severity": "moderate",
+    "hh_size": 3,
+    "is_registered": true,
+    "pmt_score": 28
+}</field>
+            <field name="category">eligible</field>
+            <field name="is_global" eval="True"/>
+            <field name="sequence">30</field>
+        </record>
+
+        <!-- Ineligible Personas -->
+        <record id="persona_middle_income_family" model="spp.studio.test.persona">
+            <field name="name">Middle Income Family</field>
+            <field name="description">Stable middle-income household. Should not qualify for poverty-targeted programs.</field>
+            <field name="values">{
+    "income": 15000,
+    "age": 40,
+    "is_female": false,
+    "is_elderly": false,
+    "is_head_of_household": true,
+    "hh_size": 4,
+    "child_count": 2,
+    "is_registered": true,
+    "pmt_score": 65,
+    "has_formal_employment": true
+}</field>
+            <field name="category">ineligible</field>
+            <field name="is_global" eval="True"/>
+            <field name="sequence">40</field>
+        </record>
+
+        <record id="persona_wealthy_individual" model="spp.studio.test.persona">
+            <field name="name">Wealthy Individual</field>
+            <field name="description">High income individual. Clear ineligible case.</field>
+            <field name="values">{
+    "income": 50000,
+    "age": 55,
+    "is_female": true,
+    "is_elderly": false,
+    "hh_size": 2,
+    "is_registered": true,
+    "pmt_score": 85,
+    "has_assets": true
+}</field>
+            <field name="category">ineligible</field>
+            <field name="is_global" eval="True"/>
+            <field name="sequence">50</field>
+        </record>
+
+        <!-- Edge Case Personas -->
+        <record id="persona_edge_threshold" model="spp.studio.test.persona">
+            <field name="name">Edge Case - At Threshold</field>
+            <field name="description">Exactly at typical eligibility thresholds. Tests boundary conditions.</field>
+            <field name="values">{
+    "income": 5000,
+    "age": 60,
+    "is_female": true,
+    "is_elderly": false,
+    "hh_size": 4,
+    "is_registered": true,
+    "pmt_score": 25
+}</field>
+            <field name="category">edge</field>
+            <field name="is_global" eval="True"/>
+            <field name="sequence">60</field>
+        </record>
+
+        <record id="persona_edge_unregistered" model="spp.studio.test.persona">
+            <field name="name">Edge Case - Unregistered</field>
+            <field name="description">Would be eligible but not registered. Tests registration requirements.</field>
+            <field name="values">{
+    "income": 2000,
+    "age": 70,
+    "is_female": true,
+    "is_elderly": true,
+    "hh_size": 1,
+    "is_registered": false,
+    "pmt_score": 12
+}</field>
+            <field name="category">edge</field>
+            <field name="is_global" eval="True"/>
+            <field name="sequence">70</field>
+        </record>
+
+        <record id="persona_edge_missing_data" model="spp.studio.test.persona">
+            <field name="name">Edge Case - Missing Data</field>
+            <field name="description">Has null/missing values for some fields. Tests null handling.</field>
+            <field name="values">{
+    "income": null,
+    "age": 45,
+    "is_female": true,
+    "hh_size": 3,
+    "is_registered": true,
+    "pmt_score": null
+}</field>
+            <field name="category">edge</field>
+            <field name="is_global" eval="True"/>
+            <field name="sequence">80</field>
+        </record>
+
+        <record id="persona_edge_young_head" model="spp.studio.test.persona">
+            <field name="name">Edge Case - Young Head of Household</field>
+            <field name="description">Young person who is head of household. Tests age-related edge cases.</field>
+            <field name="values">{
+    "income": 3000,
+    "age": 19,
+    "is_female": false,
+    "is_elderly": false,
+    "is_head_of_household": true,
+    "hh_size": 4,
+    "is_registered": true,
+    "pmt_score": 30,
+    "has_orphans": true
+}</field>
+            <field name="category">edge</field>
+            <field name="is_global" eval="True"/>
+            <field name="sequence">90</field>
+        </record>
+
+    </data>
+</odoo>

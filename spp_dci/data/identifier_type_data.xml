@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- DCI Standard Identifier Types -->
+        <record id="id_type_uin" model="spp.id.type">
+            <field name="name">Unique Identification Number (UIN)</field>
+            <field name="namespace_uri">urn:dci:id:uin</field>
+        </record>
+
+        <record id="id_type_brn" model="spp.id.type">
+            <field name="name">Birth Registration Number (BRN)</field>
+            <field name="namespace_uri">urn:dci:id:brn</field>
+        </record>
+
+        <record id="id_type_mrn" model="spp.id.type">
+            <field name="name">Marriage Registration Number (MRN)</field>
+            <field name="namespace_uri">urn:dci:id:mrn</field>
+        </record>
+
+        <record id="id_type_drn" model="spp.id.type">
+            <field name="name">Death Registration Number (DRN)</field>
+            <field name="namespace_uri">urn:dci:id:drn</field>
+        </record>
+    </data>
+</odoo>

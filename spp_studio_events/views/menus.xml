@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Event Types - under Forms & Fields -->
+    <!-- "Define event data structures" -->
+    <menuitem id="menu_studio_events"
+              name="Event Types"
+              parent="spp_studio.menu_studio_type_builders"
+              action="spp_studio_events.action_studio_event_type"
+              sequence="20"
+              groups="spp_studio.group_studio_viewer"/>
+</odoo>

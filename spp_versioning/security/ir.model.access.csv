@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_artifact_version_user,spp.artifact.version.user,model_spp_artifact_version,base.group_user,1,0,0,0
+access_spp_artifact_version_admin,spp.artifact.version.admin,model_spp_artifact_version,spp_security.group_spp_admin,1,1,1,1
+access_spp_artifact_usage_user,spp.artifact.usage.user,model_spp_artifact_usage,base.group_user,1,0,0,0
+access_spp_artifact_usage_admin,spp.artifact.usage.admin,model_spp_artifact_usage,spp_security.group_spp_admin,1,1,1,1
+access_spp_artifact_version_schedule_wizard,spp.artifact.version.schedule.wizard,model_spp_artifact_version_schedule_wizard,spp_security.group_spp_admin,1,1,1,1

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- ==================== INDIVIDUAL PLACEMENT ZONES ==================== -->
+
+        <!-- Profile Tab Zones -->
+        <record id="zone_individual_profile_demographics" model="spp.studio.placement.zone">
+            <field name="name">Individual - Demographics</field>
+            <field name="code">individual_profile_demographics</field>
+            <field name="target_type">individual</field>
+            <field name="tab_name">Profile</field>
+            <field name="description">Add fields to the Demographics section (birthdate, gender, etc.)</field>
+            <field name="xpath_expression">//notebook[@name='individual_detail']//page[@name='profile']//group[@name='demographics_section']</field>
+            <field name="xpath_position">inside</field>
+            <field name="sequence">10</field>
+            <field name="icon">fa-user</field>
+        </record>
+
+        <record id="zone_individual_profile_contact" model="spp.studio.placement.zone">
+            <field name="name">Individual - Contact</field>
+            <field name="code">individual_profile_contact</field>
+            <field name="target_type">individual</field>
+            <field name="tab_name">Profile</field>
+            <field name="description">Add fields to the Contact Information section (address, phone, email)</field>
+            <field name="xpath_expression">//notebook[@name='individual_detail']//page[@name='profile']//group[@name='contact_section']</field>
+            <field name="xpath_position">inside</field>
+            <field name="sequence">20</field>
+            <field name="icon">fa-address-book</field>
+        </record>
+
+        <record id="zone_individual_profile_financial" model="spp.studio.placement.zone">
+            <field name="name">Individual - Financial</field>
+            <field name="code">individual_profile_financial</field>
+            <field name="target_type">individual</field>
+            <field name="tab_name">Profile</field>
+            <field name="description">Add financial-related fields (bank accounts, income details)</field>
+            <field name="xpath_expression">//notebook[@name='individual_detail']//page[@name='profile']//group[@name='financial_section']</field>
+            <field name="xpath_position">inside</field>
+            <field name="sequence">30</field>
+            <field name="icon">fa-money</field>
+        </record>
+
+        <!-- Identity Tab Zones -->
+        <record id="zone_individual_identity_ids" model="spp.studio.placement.zone">
+            <field name="name">Individual - IDs</field>
+            <field name="code">individual_identity_ids</field>
+            <field name="target_type">individual</field>
+            <field name="tab_name">Identity</field>
+            <field name="description">Add fields near identity documents section</field>
+            <field name="xpath_expression">//notebook[@name='individual_detail']//page[@name='identity']//group[@name='ids_section']</field>
+            <field name="xpath_position">after</field>
+            <field name="sequence">40</field>
+            <field name="icon">fa-id-card</field>
+        </record>
+
+        <record id="zone_individual_identity_relationships" model="spp.studio.placement.zone">
+            <field name="name">Individual - Relationships</field>
+            <field name="code">individual_identity_relationships</field>
+            <field name="target_type">individual</field>
+            <field name="tab_name">Identity</field>
+            <field name="description">Add fields near relationships section</field>
+            <field name="xpath_expression">//notebook[@name='individual_detail']//page[@name='identity']//group[@name='relationships_section']</field>
+            <field name="xpath_position">after</field>
+            <field name="sequence">50</field>
+            <field name="icon">fa-link</field>
+        </record>
+
+        <!-- Participation Tab Zones -->
+        <record id="zone_individual_participation" model="spp.studio.placement.zone">
+            <field name="name">Individual - Participation</field>
+            <field name="code">individual_participation</field>
+            <field name="target_type">individual</field>
+            <field name="tab_name">Participation</field>
+            <field name="description">Add fields to the Participation tab (programs, events)</field>
+            <field name="xpath_expression">//notebook[@name='individual_detail']//page[@name='participation']</field>
+            <field name="xpath_position">inside</field>
+            <field name="sequence">60</field>
+            <field name="icon">fa-calendar</field>
+        </record>
+
+        <!-- ==================== GROUP PLACEMENT ZONES ==================== -->
+
+        <!-- Profile Tab Zones -->
+        <record id="zone_group_profile_contact" model="spp.studio.placement.zone">
+            <field name="name">Group - Contact</field>
+            <field name="code">group_profile_contact</field>
+            <field name="target_type">group</field>
+            <field name="tab_name">Profile</field>
+            <field name="description">Add fields to the Group Contact Information section</field>
+            <field name="xpath_expression">//notebook[@name='group_detail']//page[@name='group_profile']//group[@name='group_contact_section']</field>
+            <field name="xpath_position">inside</field>
+            <field name="sequence">110</field>
+            <field name="icon">fa-address-book</field>
+        </record>
+
+        <record id="zone_group_profile_financial" model="spp.studio.placement.zone">
+            <field name="name">Group - Financial</field>
+            <field name="code">group_profile_financial</field>
+            <field name="target_type">group</field>
+            <field name="tab_name">Profile</field>
+            <field name="description">Add financial-related fields for groups</field>
+            <field name="xpath_expression">//notebook[@name='group_detail']//page[@name='group_profile']//group[@name='group_financial_section']</field>
+            <field name="xpath_position">inside</field>
+            <field name="sequence">120</field>
+            <field name="icon">fa-money</field>
+        </record>
+
+        <!-- Identity Tab Zones -->
+        <record id="zone_group_identity_ids" model="spp.studio.placement.zone">
+            <field name="name">Group - IDs</field>
+            <field name="code">group_identity_ids</field>
+            <field name="target_type">group</field>
+            <field name="tab_name">Identity</field>
+            <field name="description">Add fields near group identity documents section</field>
+            <field name="xpath_expression">//notebook[@name='group_detail']//page[@name='group_identity']//group[@name='group_ids_section']</field>
+            <field name="xpath_position">after</field>
+            <field name="sequence">130</field>
+            <field name="icon">fa-id-card</field>
+        </record>
+
+        <record id="zone_group_identity_relationships" model="spp.studio.placement.zone">
+            <field name="name">Group - Relationships</field>
+            <field name="code">group_identity_relationships</field>
+            <field name="target_type">group</field>
+            <field name="tab_name">Identity</field>
+            <field name="description">Add fields near group relationships section</field>
+            <field name="xpath_expression">//notebook[@name='group_detail']//page[@name='group_identity']//group[@name='group_relationships_section']</field>
+            <field name="xpath_position">after</field>
+            <field name="sequence">140</field>
+            <field name="icon">fa-link</field>
+        </record>
+
+        <!-- Participation Tab Zones -->
+        <record id="zone_group_participation" model="spp.studio.placement.zone">
+            <field name="name">Group - Participation</field>
+            <field name="code">group_participation</field>
+            <field name="target_type">group</field>
+            <field name="tab_name">Participation</field>
+            <field name="description">Add fields to the Group Participation tab</field>
+            <field name="xpath_expression">//notebook[@name='group_detail']//page[@name='group_participation']</field>
+            <field name="xpath_position">inside</field>
+            <field name="sequence">150</field>
+            <field name="icon">fa-calendar</field>
+        </record>
+
+    </data>
+</odoo>

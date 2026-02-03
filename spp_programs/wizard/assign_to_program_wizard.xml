@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <record id="assign_to_program_wizard_form_view" model="ir.ui.view">
+        <field name="name">assign_to_program_wizard_form_view</field>
+        <field name="model">spp.assign.program.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <!-- Technical field for domain filtering in popup dialogs -->
+                    <field name="allowed_program_ids" invisible="1" />
+                    <div class="oe_title">
+                        <h1>
+                            <label for="program_id" string="Program" />
+                        </h1>
+                        <h1>
+                            <field
+                                name="program_id"
+                                options="{'no_create_edit':True,'no_open':True,'no_create':True}"
+                            />
+                        </h1>
+                        <group>
+                            <field name="target_type" readonly="1" force_save="1" />
+                        </group>
+                    </div>
+                </sheet>
+                <footer>
+                    <button
+                        name="assign_registrant"
+                        string="Assign"
+                        type="object"
+                        class="oe_highlight"
+                        title="Assign"
+                    />
+                    <button string="Cancel" class="btn-secondary" special="cancel" title="Cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

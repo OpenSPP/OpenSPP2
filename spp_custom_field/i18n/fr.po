@@ -1,0 +1,163 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* spp_custom_field
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 15.0\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2022-11-24 12:22+0000\n"
+"Last-Translator: Corentin Madec <corentin@newlogic.com>\n"
+"Language-Team: French <https://translate.openspp.org/projects/openspp/"
+"spp_custom_field/fr/>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 4.14\n"
+
+#. module: spp_custom_field
+#: model:ir.model.fields,field_description:spp_custom_field.field_spp_custom_field_group__active
+#: model_terms:ir.ui.view,arch_db:spp_custom_field.view_field_group_search
+msgid "Active"
+msgstr "Actif"
+
+#. module: spp_custom_field
+#: model_terms:ir.ui.view,arch_db:spp_custom_field.view_field_group_search
+msgid "Archived"
+msgstr "Archivé"
+
+#. module: spp_custom_field
+#: model:ir.model,name:spp_custom_field.model_res_partner
+msgid "Contact"
+msgstr "Contact"
+
+#. module: spp_custom_field
+#: model_terms:ir.actions.act_window,help:spp_custom_field.action_field_group
+msgid "Create a new Field Group"
+msgstr "Créer un nouveau groupe de champs"
+
+#. module: spp_custom_field
+#: model:ir.model.fields,field_description:spp_custom_field.field_spp_custom_field_group__create_uid
+msgid "Created by"
+msgstr "Créé par"
+
+#. module: spp_custom_field
+#: model:ir.model.fields,field_description:spp_custom_field.field_spp_custom_field_group__create_date
+msgid "Created on"
+msgstr "Créé le"
+
+#. module: spp_custom_field
+#: model:ir.model,name:spp_custom_field.model_spp_custom_field_group
+msgid "Custom Field Group"
+msgstr "Groupe de champs personnalisés"
+
+#. module: spp_custom_field
+#: model:ir.model.fields,field_description:spp_custom_field.field_spp_custom_field_group__description
+msgid "Description"
+msgstr "Description"
+
+#. module: spp_custom_field
+#: model:ir.model.fields,field_description:spp_custom_field.field_ir_model_fields__display_name
+#: model:ir.model.fields,field_description:spp_custom_field.field_res_partner__display_name
+#: model:ir.model.fields,field_description:spp_custom_field.field_spp_custom_field_group__display_name
+msgid "Display Name"
+msgstr "Nom affiché"
+
+#. module: spp_custom_field
+#: model:ir.model.fields,field_description:spp_custom_field.field_ir_model_fields__field_group_id
+#: model_terms:ir.ui.view,arch_db:spp_custom_field.view_field_group_form
+msgid "Field Group"
+msgstr "Groupe de champs"
+
+#. module: spp_custom_field
+#: model:ir.actions.act_window,name:spp_custom_field.action_field_group
+msgid "Field Groups"
+msgstr "Groupes de champs"
+
+#. module: spp_custom_field
+#: model_terms:ir.actions.act_window,help:spp_custom_field.action_field_group
+msgid ""
+"Field groups help organize custom fields in the user interface.\n"
+"                Fields can be assigned to groups for better visual "
+"organization."
+msgstr ""
+"Les groupes de champs permettent d’organiser les champs personnalisés dans "
+"l’interface utilisateur.\n"
+"                Les champs peuvent être affectés à des groupes pour une "
+"meilleure organisation visuelle."
+
+#. module: spp_custom_field
+#: model:ir.model,name:spp_custom_field.model_ir_model_fields
+msgid "Fields"
+msgstr "Champs"
+
+#. module: spp_custom_field
+#: model:ir.model.fields.selection,name:spp_custom_field.selection__spp_custom_field_group__target_type__grp
+msgid "Group"
+msgstr "Groupe"
+
+#. module: spp_custom_field
+#: model_terms:ir.ui.view,arch_db:spp_custom_field.view_field_group_search
+msgid "Group Fields"
+msgstr "Champs des groupes"
+
+#. module: spp_custom_field
+#: model:ir.model.fields,field_description:spp_custom_field.field_spp_custom_field_group__name
+msgid "Group Name"
+msgstr "Nom du groupe"
+
+#. module: spp_custom_field
+#: model:ir.model.fields,help:spp_custom_field.field_ir_model_fields__field_group_id
+msgid "Group this field belongs to for UI organization"
+msgstr "Groupe auquel appartient ce champ pour l’organisation de l’interface utilisateur"
+
+#. module: spp_custom_field
+#: model:ir.model.fields,field_description:spp_custom_field.field_ir_model_fields__id
+#: model:ir.model.fields,field_description:spp_custom_field.field_res_partner__id
+#: model:ir.model.fields,field_description:spp_custom_field.field_spp_custom_field_group__id
+msgid "ID"
+msgstr "ID"
+
+#. module: spp_custom_field
+#: model:ir.model.fields.selection,name:spp_custom_field.selection__spp_custom_field_group__target_type__indv
+msgid "Individual"
+msgstr "Individu"
+
+#. module: spp_custom_field
+#: model_terms:ir.ui.view,arch_db:spp_custom_field.view_field_group_search
+msgid "Individual Fields"
+msgstr "Champs individuels"
+
+#. module: spp_custom_field
+#: model:ir.model.fields,field_description:spp_custom_field.field_spp_custom_field_group__write_uid
+msgid "Last Updated by"
+msgstr "Dernière mise à jour par"
+
+#. module: spp_custom_field
+#: model:ir.model.fields,field_description:spp_custom_field.field_spp_custom_field_group__write_date
+msgid "Last Updated on"
+msgstr "Dernière mise à jour le"
+
+#. module: spp_custom_field
+#: model:ir.model.fields,help:spp_custom_field.field_ir_model_fields__sequence
+msgid "Order of the field within its group or section"
+msgstr "Ordre du champ au sein de son groupe ou de sa section"
+
+#. module: spp_custom_field
+#: model:ir.model.fields,field_description:spp_custom_field.field_ir_model_fields__sequence
+#: model:ir.model.fields,field_description:spp_custom_field.field_spp_custom_field_group__sequence
+msgid "Sequence"
+msgstr "Séquence"
+
+#. module: spp_custom_field
+#: model:ir.model.fields,help:spp_custom_field.field_spp_custom_field_group__target_type
+msgid "Specify whether this group is for Group or Individual fields"
+msgstr "Préciser si ce groupe concerne les champs de groupe ou les champs individuels"
+
+#. module: spp_custom_field
+#: model:ir.model.fields,field_description:spp_custom_field.field_spp_custom_field_group__target_type
+#: model_terms:ir.ui.view,arch_db:spp_custom_field.view_field_group_search
+msgid "Target Type"
+msgstr "Type de cible"

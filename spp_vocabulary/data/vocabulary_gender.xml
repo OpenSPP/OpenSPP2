@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="vocab_gender" model="spp.vocabulary">
+        <field name="name">Gender</field>
+        <field name="namespace_uri">urn:iso:std:iso:5218</field>
+        <field name="version">2022</field>
+        <field name="is_system">True</field>
+        <field name="domain">core</field>
+        <field name="reference_url">https://www.iso.org/standard/81682.html</field>
+    </record>
+
+    <record id="code_gender_unknown" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_gender"/>
+        <field name="code">0</field>
+        <field name="display">Not Known</field>
+        <field name="sequence">1</field>
+    </record>
+    <record id="code_gender_male" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_gender"/>
+        <field name="code">1</field>
+        <field name="display">Male</field>
+        <field name="sequence">2</field>
+    </record>
+    <record id="code_gender_female" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_gender"/>
+        <field name="code">2</field>
+        <field name="display">Female</field>
+        <field name="sequence">3</field>
+    </record>
+    <record id="code_gender_na" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_gender"/>
+        <field name="code">9</field>
+        <field name="display">Not Applicable</field>
+        <field name="sequence">4</field>
+    </record>
+</odoo>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <!-- Notification Manager -->
+    <record id="view_notification_manager_tree" model="ir.ui.view">
+        <field name="name">view_notification_manager_tree</field>
+        <field name="model">spp.program.notification.manager</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="manager_ref_id" />
+                <field name="program_id" />
+                <field name="manager_id" column_invisible="1" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_notification_manager_form" model="ir.ui.view">
+        <field name="name">view_notification_manager_form</field>
+        <field name="model">spp.program.notification.manager</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <form string="Notification Manager">
+                <sheet>
+                    <group>
+                        <field
+                            name="manager_ref_id"
+                            options="{'no_quick_create':True}"
+                            colspan="4"
+                            context="{'default_program_id':program_id}"
+                        />
+                        <field name="program_id" invisible="1" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- NOTE: SMS Notification Manager views moved to spp_programs_sms bridge module -->
+
+</odoo>

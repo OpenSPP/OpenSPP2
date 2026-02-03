@@ -1,0 +1,243 @@
+# OpenSPP Access Management Compliance Specification
+# Module: spp_change_request_v2
+# Version: 1.0
+#
+# This file declares the expected access control configuration for this module.
+# Run: python -m scripts.compliance.checker spp_change_request_v2
+# Generate tests: python -m scripts.compliance.test_generator spp_change_request_v2
+
+module: spp_change_request_v2
+domain: change_request
+version: "1.0"
+
+# =============================================================================
+# GROUP DEFINITIONS
+# Following ADR-004 Three-Tier Architecture
+# =============================================================================
+
+groups:
+  # --- Tier 3: Technical base groups ---
+  - id: group_cr_read
+    tier: 3
+    comment: "Technical group for read access to change request models."
+
+  - id: group_cr_write
+    tier: 3
+    implied_ids: [group_cr_read]
+    comment: "Technical group for write access to change request models."
+
+  # --- Tier 2: User-facing groups ---
+  - id: group_cr_user
+    tier: 2
+    privilege_id: privilege_cr_user
+    implied_ids: [group_cr_write]
+    comment: "Can create and submit change requests"
+
+  - id: group_cr_validator
+    tier: 2
+    privilege_id: privilege_cr_validator
+    implied_ids: [group_cr_user, spp_approval.group_approval_approver]
+    comment: "Can approve and reject change requests"
+
+  - id: group_cr_manager
+    tier: 2
+    privilege_id: privilege_cr_manager
+    implied_ids: [group_cr_validator]
+    comment: "Full access including configuration"
+
+  # --- Special groups ---
+  - id: group_cr_conflict_approver
+    tier: 2
+      privilege_id: privilege_cr_conflict_approver
+    implied_ids: [group_cr_validator]
+    comment:
+      "Permission to override blocking conflicts on change requests. Typically assigned to managers or supervisors."
+
+# Admin linkage - manager group links to spp_security.group_spp_admin
+admin_link_group: group_cr_manager
+
+# =============================================================================
+# MODEL ACCESS (ir.model.access.csv)
+# Standard pattern: user=read+write+create, validator=read+write+create, manager=full CRUD
+# =============================================================================
+
+model_access:
+  # Configuration models - type definitions and mappings
+  - model: spp.change.request.type
+    user: [read]
+    validator: [read]
+    manager: [read, write, create, unlink]
+
+  - model: spp.change.request.type.mapping
+    user: [read]
+    validator: [read]
+    manager: [read, write, create, unlink]
+
+  # Core change request model
+  - model: spp.change.request
+    user: [read, write, create]
+    validator: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  # Change request detail models - specific change types
+  - model: spp.cr.detail.add_member
+    user: [read, write, create]
+    validator: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.cr.detail.edit_individual
+    user: [read, write, create]
+    validator: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.cr.detail.edit_group
+    user: [read, write, create]
+    validator: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.cr.detail.remove_member
+    user: [read, write, create]
+    validator: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.cr.detail.change_hoh
+    user: [read, write, create]
+    validator: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.cr.detail.exit_registrant
+    user: [read, write, create]
+    validator: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.cr.detail.transfer_member
+    user: [read, write, create]
+    validator: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.cr.detail.update_id
+    user: [read, write, create]
+    validator: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.cr.detail.create_group
+    user: [read, write, create]
+    validator: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.cr.detail.merge_registrants
+    user: [read, write, create]
+    validator: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  - model: spp.cr.detail.split_household
+    user: [read, write, create]
+    validator: [read, write, create]
+    manager: [read, write, create, unlink]
+
+  # Wizard/transient models
+  - model: spp.cr.preview.wizard
+    user: [read, write, create, unlink]
+    validator: [read, write, create, unlink]
+    manager: [read, write, create, unlink]
+
+# =============================================================================
+# RECORD RULES (ir.rule)
+# Data visibility rules based on group membership
+# =============================================================================
+
+record_rules:
+  - id: rule_cr_user
+    model: spp.change.request
+    groups: [group_cr_user]
+    domain_description: "Users can see their own CRs and CRs for registrants they have access to"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: false
+
+  - id: rule_cr_validator
+    model: spp.change.request
+    groups: [group_cr_validator]
+    domain_description: "Validators can see all CRs"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: false
+
+  - id: rule_cr_manager
+    model: spp.change.request
+    groups: [group_cr_manager]
+    domain_description: "Managers have full access to all CRs"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: true
+
+# =============================================================================
+# MENU VISIBILITY
+# Which groups can see which menus
+# =============================================================================
+
+menus:
+  # Main change request menu
+  - id: menu_change_request_root
+    name: "Change Requests"
+    groups: [group_cr_user]
+
+  # Request management submenus
+  - id: menu_change_requests
+    name: "All Requests"
+    parent: menu_change_request_root
+    groups: [] # Inherits from parent
+
+  - id: menu_my_change_requests
+    name: "My Requests"
+    parent: menu_change_request_root
+    groups: [] # Inherits from parent
+
+  - id: menu_pending_change_requests
+    name: "Pending Approval"
+    parent: menu_change_request_root
+    groups: [group_cr_validator]
+
+  - id: menu_approved_change_requests
+    name: "Ready to Apply"
+    parent: menu_change_request_root
+    groups: [group_cr_validator]
+
+  # Reporting submenu - managers only
+  - id: menu_change_request_reporting
+    name: "Reporting"
+    parent: menu_change_request_root
+    groups: [group_cr_manager]
+
+  - id: menu_change_request_analytics
+    name: "Analytics"
+    parent: menu_change_request_reporting
+    groups: [] # Inherits restriction from parent
+
+  # Configuration submenu - managers only
+  - id: menu_change_request_config
+    name: "Configuration"
+    parent: menu_change_request_root
+    groups: [group_cr_manager]
+
+  - id: menu_change_request_types
+    name: "Change Request Types"
+    parent: menu_change_request_config
+    groups: [] # Inherits restriction from parent
+
+# =============================================================================
+# FIELD RESTRICTIONS
+# Fields with group-based visibility in views
+# =============================================================================
+
+field_restrictions: []
+
+# =============================================================================
+# ACTION RESTRICTIONS
+# Actions that are restricted to specific groups
+# =============================================================================
+
+actions: []

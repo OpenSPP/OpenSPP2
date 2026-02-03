@@ -1,0 +1,365 @@
+# OpenSPP Access Management Compliance Specification
+# Module: spp_event_data
+# Version: 1.0
+#
+# This file declares the expected access control configuration for this module.
+# Run: python -m scripts.compliance.checker spp_event_data
+# Generate tests: python -m scripts.compliance.test_generator spp_event_data
+
+module: spp_event_data
+domain: event_data
+version: "1.0"
+
+# =============================================================================
+# SECURITY ARCHITECTURE DECISION
+# =============================================================================
+#
+# This module does NOT define its own groups. Instead, it relies on groups
+# from spp_registry because:
+#
+# 1. Event data is intrinsically tied to registrants (res.partner with is_registrant=True)
+# 2. Users who manage registrants naturally need to manage their event data
+# 3. Avoiding group proliferation - event data is a core registry function
+# 4. Event data can contain highly sensitive personal information from surveys,
+#    field visits, and external systems (health data, financial info, etc.)
+# 5. The same security posture that applies to registrants should apply to their events
+#
+# Groups used from spp_registry:
+# - group_registry_read (Tier 3)
+# - group_registry_write (Tier 3)
+# - group_registry_create (Tier 3)
+# - group_registry_viewer (Tier 2) - read-only access to events
+# - group_registry_officer (Tier 2) - create/edit events, cannot delete
+# - group_registry_manager (Tier 2) - full CRUD including configuration
+# - group_registry_config_admin (Tier 2) - access to configuration menus
+#
+# Groups used from spp_security:
+# - group_spp_admin - full system access
+#
+# =============================================================================
+
+groups: [] # This module intentionally does not define groups
+
+# No admin linkage needed - spp_registry.group_registry_manager already links to admin
+admin_link_group: null
+
+# =============================================================================
+# MODEL ACCESS (ir.model.access.csv)
+# Following the three-tier security architecture
+# =============================================================================
+#
+# Access Pattern Philosophy:
+#
+# EVENT TYPES & CONFIGURATION (spp.event.type, spp.event.field, spp.event.type.mapping):
+# - Configuration data that defines the structure of events
+# - Viewer: Read-only access to see event type definitions
+# - Officer: Read-only access (configuration is manager-only)
+# - Manager: Full CRUD access (can configure event types)
+# - Admin: Full CRUD access
+#
+# EVENT DATA (spp.event.data):
+# - Operational data containing potentially sensitive personal information
+# - Viewer: Read-only access to view event data
+# - Officer: Create and edit events, cannot delete (operational users)
+# - Manager: Full CRUD access (can delete events if needed)
+# - Admin: Full CRUD access
+# - Note: Write access should be granted via group_registry_write
+# - Note: Create access should be granted via group_registry_create
+#
+# WIZARD (spp.create.event.wizard):
+# - Transient model for creating events
+# - Follows same pattern as event data
+# - Viewer: Read-only (can view wizard)
+# - Officer: Can use wizard to create events
+# - Manager: Full access to wizard
+#
+# =============================================================================
+
+model_access:
+  # Configuration Models - Manager control
+  - model: spp.event.type
+    viewer: [read]
+    officer: [read]
+    manager: [read, write, create, unlink]
+    admin: [read, write, create, unlink]
+
+  - model: spp.event.field
+    viewer: [read]
+    officer: [read]
+    manager: [read, write, create, unlink]
+    admin: [read, write, create, unlink]
+
+  - model: spp.event.type.mapping
+    viewer: [read]
+    officer: [read]
+    manager: [read, write, create, unlink]
+    admin: [read, write, create, unlink]
+
+  # Operational Data - Tiered access
+  - model: spp.event.data
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+    admin: [read, write, create, unlink]
+    notes: |
+      Event data contains sensitive personal information from surveys, field visits,
+      and external systems. Access control should be carefully managed.
+      - Officers can create and edit events but cannot delete (audit trail preservation)
+      - Managers can delete events if necessary (e.g., data quality issues)
+      - Write access uses group_registry_write (separate from create)
+      - Create access uses group_registry_create (allows creating without editing existing)
+
+  # Wizard - Follows event data pattern
+  - model: spp.create.event.wizard
+    viewer: [read]
+    officer: [read, write, create]
+    manager: [read, write, create, unlink]
+    admin: [read, write, create, unlink]
+    notes: |
+      Wizard for creating events. Officers and above can use this wizard.
+      Write access granted separately from create to support granular permissions.
+
+# =============================================================================
+# RECORD RULES (ir.rule)
+# Data visibility rules based on group membership
+# =============================================================================
+#
+# Event Data Record Rules:
+#
+# Event data is directly linked to registrants (res.partner). Therefore, event data
+# should inherit the same record-level security as registrants:
+#
+# 1. If spp_area is installed and area-based filtering is active, event data should
+#    be filtered by the registrant's area
+# 2. If group_registry_restrict_self is used, users should only see events for
+#    registrants they manage
+# 3. Event configuration (types, fields, mappings) should be globally readable
+#    for all authenticated users (needed for CEL expressions, forms, etc.)
+#
+# HOWEVER: Since record rules for registrants are defined in spp_registry and
+# potentially extended in spp_area, we rely on the cascade effect through the
+# partner_id field rather than duplicating rules here.
+#
+# If explicit event data filtering is needed in the future (e.g., by event type,
+# by collector, by date range), additional rules should be added.
+#
+# =============================================================================
+
+# Record rules are not currently implemented for this module.
+# Event data visibility is controlled via model ACLs.
+#
+# FUTURE CONSIDERATIONS:
+# - Global read rules could be added for event type configuration
+# - Event data could inherit visibility rules from registrant (partner_id)
+# - Area-based or collector-based filtering could be added if needed
+#
+record_rules: []
+
+# =============================================================================
+# MENU VISIBILITY
+# Which groups can see which menus
+# =============================================================================
+#
+# Menu Philosophy:
+#
+# Configuration menus (Event Types) should be restricted to managers and admins
+# because they control the structure and behavior of the event system.
+#
+# Operational menus (Event Data) should be accessible to officers and above
+# because they need to view and manage event records.
+#
+# Current implementation restricts all menus to admin only, which is too restrictive.
+# Ideal state:
+# - Event Types menu: Registry Manager + Admin (configuration access)
+# - Event Data menu: Registry Officer + Manager + Admin (operational access)
+#
+# =============================================================================
+
+menus:
+  # Event Types - Configuration Menu
+  - id: menu_spp_event_type
+    name: "Event Types"
+    parent: spp_registry.spp_configuration_menu_root
+    groups: [spp_registry.group_registry_config_admin]
+    notes: |
+      Event type configuration should be accessible to Registry Managers and Admins.
+      The parent menu (spp_configuration_menu_root) already restricts to config access,
+      but explicit group assignment ensures clarity.
+      Current: groups="spp_security.group_spp_admin" (too restrictive)
+      Ideal: groups="spp_registry.group_registry_config_admin"
+
+  # Event Data - Operational Menu
+  - id: menu_spp_event_data
+    name: "Event Data"
+    parent: spp_registry.spp_configuration_menu_root
+    groups: [spp_registry.group_registry_officer]
+    notes: |
+      Event data should be accessible to Registry Officers and above for operational use.
+      This menu should be moved from Configuration to a more prominent location,
+      or the groups should be relaxed to allow officers to access it.
+      Current: groups="spp_security.group_spp_admin" (too restrictive)
+      Ideal: groups="spp_registry.group_registry_officer"
+
+      Alternative: Consider moving this menu to a top-level "Events" menu under
+      the Registry section, separate from Configuration, to make it more accessible
+      for operational users.
+
+# =============================================================================
+# FIELD RESTRICTIONS
+# Fields with group-based visibility in views
+# =============================================================================
+#
+# Event data fields that may need restricted visibility:
+#
+# 1. source_raw_data (spp.event.data) - Contains raw data from external sources,
+#    potentially for debugging. Should be visible to managers/admins only.
+#
+# 2. Legacy fields (model, res_id, registrar) - Backward compatibility fields
+#    that should be hidden from regular users, visible to managers/admins for
+#    migration/debugging purposes.
+#
+# 3. External source configuration (spp.event.type) - Server URLs, API keys, etc.
+#    should be restricted to admins only for security.
+#
+# =============================================================================
+
+field_restrictions:
+  - model: spp.event.data
+    field_name: source_raw_data
+    groups: [spp_registry.group_registry_manager]
+    reason: "Raw external data should only be visible to managers for debugging"
+
+  - model: spp.event.data
+    field_name: model
+    groups: [spp_registry.group_registry_manager]
+    reason: "Legacy field for backward compatibility, manager/admin only"
+
+  - model: spp.event.data
+    field_name: res_id
+    groups: [spp_registry.group_registry_manager]
+    reason: "Legacy field for backward compatibility, manager/admin only"
+
+  - model: spp.event.data
+    field_name: registrar
+    groups: [spp_registry.group_registry_manager]
+    reason: "Legacy field for backward compatibility, manager/admin only"
+
+  - model: spp.event.type
+    field_name: external_server_url
+    groups: [spp_security.group_spp_admin]
+    reason: "External system credentials should be admin-only for security"
+
+  - model: spp.event.type
+    field_name: external_project_id
+    groups: [spp_security.group_spp_admin]
+    reason: "External system credentials should be admin-only for security"
+
+# =============================================================================
+# ACTION RESTRICTIONS
+# Actions that are restricted to specific groups
+# =============================================================================
+
+actions:
+  - id: action_spp_event_type
+    name: "Event Types"
+    groups: [spp_registry.group_registry_config_admin]
+    notes: "Event type configuration action should be accessible to managers"
+
+  - id: action_spp_event_data
+    name: "Event Data"
+    groups: [spp_registry.group_registry_officer]
+    notes: "Event data action should be accessible to officers and above"
+# =============================================================================
+# ADDITIONAL SECURITY CONSIDERATIONS
+# =============================================================================
+#
+# 1. Data Sensitivity:
+#    Event data can contain highly sensitive personal information (health data,
+#    financial information, behavioral data, etc.). Consider:
+#    - Field-level encryption for sensitive data (if spp_pii_encryption is installed)
+#    - Data classification tags on event fields
+#    - Audit logging of access to event data
+#
+# 2. External Source Security:
+#    Event types can connect to external systems (ODK, KoBoToolbox, APIs).
+#    - API credentials should be stored securely (encrypted)
+#    - External sync should use secure protocols (HTTPS, token auth)
+#    - Rate limiting and error handling for external APIs
+#
+# 3. Change Request Integration:
+#    Events can trigger change requests. Ensure:
+#    - Change request permissions are properly configured
+#    - Users cannot bypass approval workflows via events
+#
+# 4. Lifecycle State Transitions:
+#    Event states (draft -> pending -> active -> superseded/expired) should be
+#    controlled by permissions:
+#    - Officers can create drafts and activate (if no approval required)
+#    - Managers can force state changes
+#    - Approval workflows should be enforced when configured
+#
+# 5. Area-Based Filtering (if spp_area is installed):
+#    Event data should inherit area restrictions from the linked registrant.
+#    If events need independent area filtering (e.g., by collection location),
+#    additional fields and record rules may be needed.
+#
+# 6. Collector Attribution:
+#    The collector_id field tracks who collected the data. This could be used for:
+#    - Filtering events by collector (record rule)
+#    - Quality metrics per collector
+#    - Restricting users to only see their own collected events
+#
+# 7. Expiry and Supersession:
+#    The cron job _cron_expire_events automatically expires events.
+#    - Ensure cron job runs with appropriate permissions
+#    - Consider record rules to hide expired events from viewers
+#    - Managers may need to see expired events for audit purposes
+#
+# =============================================================================
+
+# =============================================================================
+# TESTING RECOMMENDATIONS
+# =============================================================================
+#
+# When generating tests, ensure coverage for:
+#
+# 1. ACL Tests:
+#    - Viewer can read all models, cannot write/create/delete
+#    - Officer can read all, write/create event data, cannot delete
+#    - Manager has full CRUD on all models
+#    - Admin has full CRUD on all models
+#    - Separate write and create permissions are tested independently
+#
+# 2. Record Rule Tests:
+#    - Global read rules work for all authenticated users
+#    - Event data visibility matches registrant visibility
+#    - Area-based filtering (if applicable)
+#    - Self-restriction filtering (if applicable)
+#
+# 3. Menu Tests:
+#    - Event Types menu visible to managers and admins only
+#    - Event Data menu visible to officers, managers, and admins
+#    - Menus properly nested under configuration
+#
+# 4. Field Visibility Tests:
+#    - source_raw_data visible to managers only
+#    - Legacy fields visible to managers only
+#    - External credentials visible to admins only
+#
+# 5. Action Tests:
+#    - Actions accessible by correct groups
+#    - Action domains properly filter data
+#
+# 6. Integration Tests:
+#    - Event creation via wizard respects permissions
+#    - State transitions respect permissions
+#    - Change request creation respects permissions
+#    - External sync respects permissions
+#
+# 7. Edge Cases:
+#    - Users without any registry groups cannot access event data
+#    - Restrict self group properly limits event visibility
+#    - Expired events handling
+#    - Superseded events handling
+#
+# =============================================================================

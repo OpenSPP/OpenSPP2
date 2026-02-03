@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Registry Search Module Security Groups -->
+    <!-- Following ADR-004 three-tier architecture -->
+
+    <!-- Privilege for auditor browse-all capability -->
+    <record id="privilege_registry_search_auditor" model="res.groups.privilege">
+        <field name="name">Auditor (Browse All)</field>
+        <field name="category_id" ref="spp_security.category_spp_registry" />
+        <field name="sequence">60</field>
+    </record>
+
+    <!-- Special group for auditors who need browse-all access -->
+    <record id="group_registry_search_auditor" model="res.groups">
+        <field name="name">Auditor (Browse All)</field>
+        <field name="privilege_id" ref="privilege_registry_search_auditor" />
+        <field
+            name="comment"
+        >Special group for auditors who need to browse all registrants without search restrictions. This bypasses the search-first privacy protection for audit purposes. Should only be granted to users with legitimate audit responsibilities.</field>
+        <field name="implied_ids" eval="[Command.link(ref('spp_registry.group_registry_read'))]" />
+    </record>
+
+    <!-- Link auditor to admin (admins can always browse all) -->
+    <record id="spp_security.group_spp_admin" model="res.groups">
+        <field name="implied_ids" eval="[Command.link(ref('group_registry_search_auditor'))]" />
+    </record>
+</odoo>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Sri Lanka Reference Number Formats -->
+
+    <!-- Override donation sequence with SL prefix: DON-SL-YYYY-nnnnnn -->
+    <record id="spp_drims.seq_drims_donation" model="ir.sequence">
+        <field name="name">DRIMS Donation Reference (Sri Lanka)</field>
+        <field name="code">spp.drims.donation</field>
+        <field name="prefix">DON-SL-%(year)s-</field>
+        <field name="padding">6</field>
+        <field name="number_increment">1</field>
+        <field name="implementation">standard</field>
+    </record>
+
+    <!-- Override request sequence with SL prefix: REQ-SL-YYYY-nnnnnn -->
+    <record id="spp_drims.seq_drims_request" model="ir.sequence">
+        <field name="name">DRIMS Request Reference (Sri Lanka)</field>
+        <field name="code">spp.drims.request</field>
+        <field name="prefix">REQ-SL-%(year)s-</field>
+        <field name="padding">6</field>
+        <field name="number_increment">1</field>
+        <field name="implementation">standard</field>
+    </record>
+
+    <!-- Override waybill sequence with SL prefix: WB-SL-YYYY-nnnnnn -->
+    <record id="spp_drims.seq_drims_waybill" model="ir.sequence">
+        <field name="name">DRIMS Waybill Reference (Sri Lanka)</field>
+        <field name="code">spp.drims.waybill</field>
+        <field name="prefix">WB-SL-%(year)s-</field>
+        <field name="padding">6</field>
+        <field name="number_increment">1</field>
+        <field name="implementation">standard</field>
+    </record>
+
+    <!-- Incident sequence with SL prefix: INC-SL-YYYY-nn -->
+    <record id="seq_drims_incident_sl" model="ir.sequence">
+        <field name="name">DRIMS Incident Reference (Sri Lanka)</field>
+        <field name="code">spp.drims.incident</field>
+        <field name="prefix">INC-SL-%(year)s-</field>
+        <field name="padding">2</field>
+        <field name="number_increment">1</field>
+        <field name="implementation">standard</field>
+    </record>
+</odoo>

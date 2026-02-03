@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Root Menu - Only visible to users with approval access -->
+    <menuitem
+        id="menu_approval_root"
+        name="Approvals"
+        web_icon="spp_base_common,static/description/icon-Surveys-White-line.png"
+        sequence="45"
+        groups="group_approval_viewer"/>
+
+    <!-- My Approvals submenu -->
+    <menuitem
+        id="menu_my_approvals"
+        name="My Approvals"
+        parent="menu_approval_root"
+        sequence="10"/>
+
+    <menuitem
+        id="menu_my_pending_approvals"
+        name="Pending Approvals"
+        parent="menu_my_approvals"
+        action="approval_review_my_pending_action"
+        sequence="10"/>
+
+    <menuitem
+        id="menu_all_reviews"
+        name="All Reviews"
+        parent="menu_my_approvals"
+        action="approval_review_action"
+        sequence="20"
+        groups="group_approval_manager"/>
+
+    <!-- Configuration submenu -->
+    <menuitem
+        id="menu_approval_config"
+        name="Configuration"
+        parent="menu_approval_root"
+        sequence="90"
+        groups="group_approval_manager"/>
+
+    <menuitem
+        id="menu_approval_definitions"
+        name="Approval Definitions"
+        parent="menu_approval_config"
+        action="approval_definition_action"
+        sequence="10"/>
+
+    <menuitem
+        id="menu_approval_freeze"
+        name="Freeze Periods"
+        parent="menu_approval_config"
+        action="approval_freeze_action"
+        sequence="20"/>
+</odoo>

@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Stock Picking Form View - Add DRIMS Fields -->
+    <record id="view_picking_form_drims" model="ir.ui.view">
+        <field name="name">stock.picking.form.drims</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <!-- Add smart buttons -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="%(spp_drims.action_drims_donation)d"
+                        type="action"
+                        class="oe_stat_button"
+                        icon="fa-gift"
+                        invisible="drims_donation_id == False"
+                        context="{'search_default_id': drims_donation_id}">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_text">Donation</span>
+                    </div>
+                </button>
+                <button name="%(spp_drims.action_drims_request)d"
+                        type="action"
+                        class="oe_stat_button"
+                        icon="fa-handshake-o"
+                        invisible="drims_request_id == False"
+                        context="{'search_default_id': drims_request_id}">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_text">Request</span>
+                    </div>
+                </button>
+                <button name="%(spp_hazard.action_hazard_incident)d"
+                        type="action"
+                        class="oe_stat_button"
+                        icon="fa-exclamation-triangle"
+                        invisible="incident_id == False"
+                        context="{'search_default_id': incident_id}">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_text">Incident</span>
+                    </div>
+                </button>
+                <button name="action_view_drims_return"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-undo"
+                        invisible="drims_return_id == False">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_text">Return</span>
+                    </div>
+                </button>
+            </xpath>
+
+            <!-- Add Create Return button in header for completed dispatches -->
+            <xpath expr="//header" position="inside">
+                <button name="action_create_drims_return"
+                        string="Create Return"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="drims_type != 'request_dispatch' or state != 'done' or drims_return_id != False"/>
+                <!-- Print Waybill button (GAP-DIS-002) -->
+                <button name="%(spp_drims.action_report_drims_waybill)d"
+                        string="Print Waybill"
+                        type="action"
+                        class="btn-secondary"
+                        invisible="not drims_type_id or state == 'draft'"
+                        icon="fa-print"/>
+            </xpath>
+
+            <!-- Add DRIMS tab -->
+            <xpath expr="//notebook" position="inside">
+                <page string="DRIMS" name="drims" invisible="drims_type_id == False">
+                    <group>
+                        <group string="DRIMS Information" name="drims_info">
+                            <field name="drims_type_id"/>
+                            <field name="drims_type" invisible="1"/>
+                            <field name="waybill_number"/>
+                            <field name="drims_donation_id" invisible="drims_type not in ['donation_receipt']"/>
+                            <field name="drims_request_id" invisible="drims_type not in ['request_dispatch']"/>
+                            <field name="incident_id"/>
+                        </group>
+                        <group string="Transport Details" name="transport">
+                            <field name="transport_mode_id"/>
+                            <field name="vehicle_registration"/>
+                            <field name="driver_name"/>
+                            <field name="driver_phone"/>
+                        </group>
+                    </group>
+
+                    <!-- Beneficiary Tracking - Visible for dispatches -->
+                    <group invisible="drims_type != 'request_dispatch'">
+                        <group string="Distribution Details">
+                            <field name="beneficiary_area_id" options="{'no_create': True}"
+                                   required="drims_type == 'request_dispatch'"/>
+                            <field name="beneficiary_count"/>
+                            <field name="distribution_type_id" options="{'no_create': True}"/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <group string="Departure &amp; Arrival" name="dates">
+                            <field name="date_departed" readonly="1"/>
+                            <field name="date_arrived" readonly="1"/>
+                        </group>
+                        <group>
+                            <button name="action_confirm_departure"
+                                    type="object"
+                                    string="Confirm Departure"
+                                    class="btn-primary"
+                                    invisible="date_departed != False"/>
+                            <button name="action_confirm_pod"
+                                    type="object"
+                                    string="Confirm Delivery"
+                                    class="btn-primary"
+                                    invisible="is_pod_confirmed == True"/>
+                        </group>
+                    </group>
+
+                    <separator string="Proof of Delivery (POD)"/>
+                    <group>
+                        <group string="Receiver Information" name="receiver">
+                            <field name="pod_status_id"/>
+                            <field name="is_pod_confirmed"/>
+                            <field name="pod_received_by"/>
+                            <field name="pod_receiver_title"/>
+                            <field name="pod_receiver_id_number"/>
+                        </group>
+                        <group string="Location" name="location">
+                            <label for="pod_gps_latitude" string="GPS Coordinates"/>
+                            <div class="o_row">
+                                <field name="pod_gps_latitude" placeholder="Latitude"/>
+                                <field name="pod_gps_longitude" placeholder="Longitude"/>
+                            </div>
+                        </group>
+                    </group>
+
+                    <group>
+                        <field name="pod_signature" widget="image" class="oe_avatar"/>
+                    </group>
+
+                    <group string="Delivery Photos" name="photos">
+                        <field name="pod_photo_ids" widget="many2many_binary" nolabel="1"/>
+                    </group>
+
+                    <group string="Notes" name="notes">
+                        <field name="pod_notes" nolabel="1" placeholder="Additional delivery notes..."/>
+                        <field name="discrepancy_notes" nolabel="1" placeholder="Any discrepancies or issues..."/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Stock Picking Tree View - Add DRIMS Fields -->
+    <record id="view_picking_tree_drims" model="ir.ui.view">
+        <field name="name">stock.picking.tree.drims</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.vpicktree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="waybill_number" optional="hide"/>
+                <field name="drims_type_id" optional="hide"/>
+                <field name="incident_id" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Stock Picking Search View - Add DRIMS Filters -->
+    <record id="view_picking_search_drims" model="ir.ui.view">
+        <field name="name">stock.picking.search.drims</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_internal_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <field name="waybill_number"/>
+                <field name="drims_donation_id"/>
+                <field name="drims_request_id"/>
+                <field name="incident_id"/>
+                <separator/>
+                <filter string="DRIMS Transfers" name="drims_transfers"
+                        domain="[('drims_type_id', '!=', False)]"/>
+                <filter string="Donation Receipts" name="donation_receipts"
+                        domain="[('drims_type', '=', 'donation_receipt')]"/>
+                <filter string="Request Dispatches" name="request_dispatches"
+                        domain="[('drims_type', '=', 'request_dispatch')]"/>
+                <filter string="POD Pending" name="pod_pending"
+                        domain="[('is_pod_confirmed', '=', False), ('drims_type_id', '!=', False)]"/>
+                <filter string="POD Confirmed" name="is_pod_confirmed"
+                        domain="[('is_pod_confirmed', '=', True)]"/>
+                <separator/>
+                <group>
+                    <filter string="DRIMS Type" name="group_drims_type"
+                            context="{'group_by': 'drims_type_id'}"/>
+                    <filter string="Incident" name="group_incident"
+                            context="{'group_by': 'incident_id'}"/>
+                    <filter string="POD Status" name="group_pod_status"
+                            context="{'group_by': 'pod_status_id'}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- DRIMS Dispatch Pivot View - Distribution Analysis -->
+    <record id="view_picking_pivot_drims" model="ir.ui.view">
+        <field name="name">stock.picking.pivot.drims</field>
+        <field name="model">stock.picking</field>
+        <field name="arch" type="xml">
+            <pivot string="Distribution Analysis" sample="1">
+                <field name="incident_id" type="row"/>
+                <field name="beneficiary_area_id" type="row"/>
+                <field name="scheduled_date" interval="month" type="col"/>
+                <field name="beneficiary_count" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- DRIMS Dispatch Graph View - Distribution Trend -->
+    <record id="view_picking_graph_drims" model="ir.ui.view">
+        <field name="name">stock.picking.graph.drims</field>
+        <field name="model">stock.picking</field>
+        <field name="arch" type="xml">
+            <graph string="Distribution Trend" type="bar" sample="1">
+                <field name="beneficiary_area_id"/>
+                <field name="beneficiary_count" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- DRIMS Dispatch Action -->
+    <record id="action_drims_dispatch" model="ir.actions.act_window">
+        <field name="name">DRIMS Dispatches</field>
+        <field name="res_model">stock.picking</field>
+        <field name="view_mode">list,pivot,graph,form</field>
+        <field name="path">drims-dispatches</field>
+        <field name="domain">[('drims_type', '=', 'request_dispatch')]</field>
+        <field name="context">{
+            'search_default_request_dispatches': 1,
+            'default_drims_type': 'request_dispatch'
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a DRIMS Dispatch
+            </p>
+            <p>
+                DRIMS dispatches are stock transfers that fulfill disaster relief requests.
+                They include waybill tracking, transport details, and proof of delivery.
+            </p>
+        </field>
+    </record>
+</odoo>

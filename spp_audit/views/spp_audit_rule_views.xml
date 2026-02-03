@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+  <!-- explicit list view definition -->
+  <record id="spp_audit_rule_tree" model="ir.ui.view">
+    <field name="name">spp_audit_rule_tree</field>
+    <field name="model">spp.audit.rule</field>
+    <field name="arch" type="xml">
+      <list>
+        <field name="name" />
+        <field name="model_id" />
+        <field name="is_log_create" />
+        <field name="is_log_write" />
+        <field name="is_log_unlink" />
+        <field name="is_log_activate" optional="hide" />
+        <field name="is_log_deactivate" optional="hide" />
+        <field name="is_log_state_change" optional="hide" />
+        <field name="is_log_download" optional="hide" />
+        <field name="is_log_preview" optional="hide" />
+        <field name="is_log_export" optional="hide" />
+        <field name="is_view_logs" />
+        <field name="is_post_to_thread" optional="hide" />
+      </list>
+    </field>
+  </record>
+
+  <!-- explicit form view definition -->
+  <record id="spp_audit_rule_form" model="ir.ui.view">
+    <field name="name">spp_audit_rule_form</field>
+    <field name="model">spp.audit.rule</field>
+    <field name="arch" type="xml">
+      <form string="Audit Rule">
+        <field name="field_to_log_ids_domain" invisible="1" />
+        <field name="field_id_domain" invisible="1" />
+        <sheet>
+          <group name="audit_rule_fields">
+            <group name="general_section" string="General">
+              <field name="parent_id" options="{'no_create': True, 'no_open': True, 'no_edit': True}" />
+              <field name="name" />
+              <field name="model_id" options="{'no_create': True, 'no_open': True}" />
+              <field
+                  name="field_to_log_ids"
+                  widget="many2many_tags"
+                  options="{'no_open':True,'no_create':True,'no_create_edit':True,'no_edit':True}"
+                  domain="field_to_log_ids_domain"
+              />
+              <field name="is_view_logs" />
+              <field
+                  name="field_id"
+                  invisible="not parent_id"
+                  options="{'no_open': True, 'no_create': True, 'no_edit': True}"
+                  domain="field_id_domain"
+              />
+            </group>
+            <group name="standard_actions_section" string="Standard Actions (Automatic)">
+              <field name="is_log_create" />
+              <field name="is_log_write" />
+              <field name="is_log_unlink" />
+            </group>
+            <group name="lifecycle_actions_section" string="Lifecycle Actions (Explicit)">
+              <field name="is_log_activate" />
+              <field name="is_log_deactivate" />
+              <field name="is_log_state_change" />
+            </group>
+            <group name="file_access_section" string="File Access Logging">
+              <field name="is_log_download" />
+              <field name="is_log_preview" />
+              <field name="is_log_export" />
+            </group>
+            <group name="integration_section" string="Integration">
+              <field name="is_post_to_thread" />
+            </group>
+          </group>
+          <field name="is_mail_thread" invisible="1" />
+          <notebook invisible="not is_mail_thread">
+            <page name="related_rules" string="Related Rules">
+              <field name="child_ids">
+                <list create="0" edit="0" delete="0" editable="bottom">
+                  <field name="name" />
+                  <field name="is_log_create" />
+                  <field name="is_log_write" />
+                  <field name="is_log_unlink" />
+                  <field name="model_id" />
+                  <field name="field_id" />
+                </list>
+              </field>
+            </page>
+          </notebook>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <!-- actions opening views on models -->
+  <record id="spp_audit_rule_action_window" model="ir.actions.act_window">
+    <field name="name">Audit Rule</field>
+    <field name="res_model">spp.audit.rule</field>
+    <field name="view_mode">list,form</field>
+    <field name="help">Create and manage the audit rule.</field>
+  </record>
+
+  <!-- Top menu item -->
+  <menuitem
+        name="Audit Log"
+        id="spp_audit.menu_root"
+        groups="spp_audit.group_audit_manager"
+        web_icon="spp_audit,static/description/OpenSPP-Icons-Audit.png"
+    />
+
+  <!-- Sub-menu item -->
+
+  <menuitem name="Audit" id="spp_audit.audit_submenu" parent="spp_audit.menu_root" />
+
+  <!-- actions -->
+  <menuitem
+        name="Rule"
+        id="spp_audit.rule_menu"
+        parent="spp_audit.audit_submenu"
+        action="spp_audit_rule_action_window"
+    />
+</odoo>

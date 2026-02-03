@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- DRIMS Configuration Default Values -->
+        <!-- These parameters are owned by spp_drims and can be edited via spp_studio_drims UI -->
+        <!-- noupdate="1" means values only initialize on first install, preserving user changes -->
+
+        <!-- =================================================================== -->
+        <!-- APPROVAL SLA SETTINGS (hours to approve requests by priority) -->
+        <!-- =================================================================== -->
+        <record id="default_sla_hours_critical" model="ir.config_parameter">
+            <field name="key">drims.sla.hours.critical</field>
+            <field name="value">4</field>
+        </record>
+
+        <record id="default_sla_hours_high" model="ir.config_parameter">
+            <field name="key">drims.sla.hours.high</field>
+            <field name="value">8</field>
+        </record>
+
+        <record id="default_sla_hours_routine" model="ir.config_parameter">
+            <field name="key">drims.sla.hours.routine</field>
+            <field name="value">24</field>
+        </record>
+
+        <record id="default_sla_hours_low" model="ir.config_parameter">
+            <field name="key">drims.sla.hours.low</field>
+            <field name="value">48</field>
+        </record>
+
+        <record id="default_sla_warning_threshold_pct" model="ir.config_parameter">
+            <field name="key">drims.sla.warning_threshold_pct</field>
+            <field name="value">75</field>
+        </record>
+
+        <!-- =================================================================== -->
+        <!-- DELIVERY SLA SETTINGS (alerts for request delivery deadlines) -->
+        <!-- =================================================================== -->
+        <record id="default_delivery_sla_enabled" model="ir.config_parameter">
+            <field name="key">drims.delivery_sla.enabled</field>
+            <field name="value">True</field>
+        </record>
+
+        <record id="default_delivery_sla_warning_days" model="ir.config_parameter">
+            <field name="key">drims.delivery_sla.warning_days</field>
+            <field name="value">2</field>
+        </record>
+
+        <record id="default_delivery_sla_critical_days" model="ir.config_parameter">
+            <field name="key">drims.delivery_sla.critical_days</field>
+            <field name="value">3</field>
+        </record>
+
+        <record id="default_delivery_sla_escalate_days" model="ir.config_parameter">
+            <field name="key">drims.delivery_sla.escalate_days</field>
+            <field name="value">7</field>
+        </record>
+
+        <!-- =================================================================== -->
+        <!-- INVENTORY ALERT SETTINGS -->
+        <!-- =================================================================== -->
+        <record id="default_low_stock_threshold_pct" model="ir.config_parameter">
+            <field name="key">drims.alerts.low_stock_threshold_pct</field>
+            <field name="value">50</field>
+        </record>
+
+        <record id="default_expiry_warning_days" model="ir.config_parameter">
+            <field name="key">drims.alerts.expiry_warning_days</field>
+            <field name="value">30</field>
+        </record>
+
+        <record id="default_expiry_high_days" model="ir.config_parameter">
+            <field name="key">drims.alerts.expiry_high_days</field>
+            <field name="value">14</field>
+        </record>
+
+        <record id="default_expiry_critical_days" model="ir.config_parameter">
+            <field name="key">drims.alerts.expiry_critical_days</field>
+            <field name="value">7</field>
+        </record>
+
+        <record id="default_auto_resolve" model="ir.config_parameter">
+            <field name="key">drims.alerts.auto_resolve</field>
+            <field name="value">True</field>
+        </record>
+
+        <!-- =================================================================== -->
+        <!-- PERFORMANCE SETTINGS -->
+        <!-- =================================================================== -->
+        <record id="default_kpi_cache_ttl" model="ir.config_parameter">
+            <field name="key">drims.performance.kpi_cache_ttl_minutes</field>
+            <field name="value">30</field>
+        </record>
+
+    </data>
+</odoo>

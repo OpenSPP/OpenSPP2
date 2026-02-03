@@ -1,0 +1,643 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* spp_dci_client_crvs
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_event__active
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_sender__active
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_event_search
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_sender_search
+msgid "Active"
+msgstr "Actif"
+
+#. module: spp_dci_client_crvs
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_sender_search
+msgid "Active Status"
+msgstr "Statut actif"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,help:spp_dci_client_crvs.field_spp_dci_crvs_sender__notes
+msgid "Additional notes about this CRVS registry"
+msgstr "Notes supplémentaires concernant ce registre CRVS"
+
+#. module: spp_dci_client_crvs
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_sender_form
+msgid "Additional notes about this CRVS registry..."
+msgstr "Notes supplémentaires concernant ce registre CRVS..."
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,help:spp_dci_client_crvs.field_spp_dci_crvs_event__notes
+msgid "Additional notes about this event"
+msgstr "Notes supplémentaires concernant cet événement"
+
+#. module: spp_dci_client_crvs
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_event_form
+msgid "Additional notes about this event..."
+msgstr "Notes supplémentaires concernant cet événement..."
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_sender__algorithm
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_sender_search
+msgid "Algorithm"
+msgstr "Algorithme"
+
+#. module: spp_dci_client_crvs
+#. odoo-python
+#: code:addons/spp_dci_client_crvs/models/crvs_sender.py:0
+msgid "Algorithm not set for CRVS sender %s"
+msgstr "Algorithme non défini pour l’émetteur CRVS %s"
+
+#. module: spp_dci_client_crvs
+#. odoo-python
+#: code:addons/spp_dci_client_crvs/models/crvs_event.py:0
+msgid "An event with this identifier, type, and date already exists."
+msgstr "Un événement avec cet identifiant, ce type et cette date existe déjà."
+
+#. module: spp_dci_client_crvs
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_event_search
+msgid "Archived"
+msgstr "Archivé"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields.selection,name:spp_dci_client_crvs.selection__spp_dci_crvs_event__event_type__birth
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_event_search
+msgid "Birth"
+msgstr "Naissance"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model,name:spp_dci_client_crvs.model_spp_dci_crvs_event
+msgid "CRVS Event"
+msgstr "Événement CRVS"
+
+#. module: spp_dci_client_crvs
+#: model:ir.actions.act_window,name:spp_dci_client_crvs.action_spp_dci_crvs_event
+#: model:ir.ui.menu,name:spp_dci_client_crvs.menu_spp_dci_crvs_event
+msgid "CRVS Events"
+msgstr "Événements CRVS"
+
+#. module: spp_dci_client_crvs
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_sender_form
+msgid "CRVS Registry Name"
+msgstr "Nom du registre CRVS"
+
+#. module: spp_dci_client_crvs
+#: model:ir.actions.act_window,name:spp_dci_client_crvs.action_spp_dci_crvs_sender
+#: model:ir.model,name:spp_dci_client_crvs.model_spp_dci_crvs_sender
+#: model:ir.ui.menu,name:spp_dci_client_crvs.menu_spp_dci_crvs_sender
+msgid "CRVS Sender Registry"
+msgstr "Registre des émetteurs CRVS"
+
+#. module: spp_dci_client_crvs
+#: model_terms:ir.actions.act_window,help:spp_dci_client_crvs.action_spp_dci_crvs_event
+msgid ""
+"CRVS events (births, deaths, marriages, divorces) are received\n"
+"                automatically from Civil Registration and Vital Statistics "
+"systems\n"
+"                via webhook notifications."
+msgstr ""
+"Les événements CRVS (naissances, décès, mariages, divorces) sont reçus\n"
+"                automatiquement depuis les systèmes d’état civil et de "
+"statistiques de l’état civil\n"
+"                via des notifications webhook."
+
+#. module: spp_dci_client_crvs
+#: model_terms:ir.actions.act_window,help:spp_dci_client_crvs.action_spp_dci_crvs_sender
+msgid ""
+"Configure trusted CRVS registries and their public keys for signature "
+"verification.\n"
+"                Public keys can be fetched automatically from CRVS JWKS "
+"endpoints."
+msgstr ""
+"Configurez les registres CRVS de confiance et leurs clés publiques pour la "
+"vérification des signatures.\n"
+"                Les clés publiques peuvent être récupérées automatiquement "
+"depuis les points de terminaison JWKS CRVS."
+
+#. module: spp_dci_client_crvs
+#: model_terms:ir.actions.act_window,help:spp_dci_client_crvs.action_spp_dci_crvs_sender
+msgid "Create a new CRVS Sender Registry Entry"
+msgstr "Créer une nouvelle entrée du registre des émetteurs CRVS"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_event__create_uid
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_sender__create_uid
+msgid "Created by"
+msgstr "Créé par"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_event__create_date
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_sender__create_date
+msgid "Created on"
+msgstr "Créé le"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,help:spp_dci_client_crvs.field_spp_dci_crvs_sender__algorithm
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_sender_form
+msgid "Cryptographic signature algorithm"
+msgstr "Algorithme de signature cryptographique"
+
+#. module: spp_dci_client_crvs
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_sender_form
+msgid "DCI Protocol Settings"
+msgstr "Paramètres du protocole DCI"
+
+#. module: spp_dci_client_crvs
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_sender_form
+msgid "DCI sender identifier for CRVS registry (e.g., 'crvs.national.gov')"
+msgstr ""
+"Identifiant de l’émetteur DCI pour le registre CRVS (p. ex. « crvs.national."
+"gov »)"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,help:spp_dci_client_crvs.field_spp_dci_crvs_sender__sender_id
+msgid "DCI sender identifier for the CRVS registry (e.g., 'crvs.national.gov')"
+msgstr ""
+"Identifiant de l’émetteur DCI pour le registre CRVS (p. ex. « crvs.national."
+"gov »)"
+
+#. module: spp_dci_client_crvs
+#. odoo-python
+#: code:addons/spp_dci_client_crvs/models/crvs_sender.py:0
+msgid ""
+"DCI verification service not available. Please ensure spp_dci module is "
+"installed."
+msgstr ""
+"Service de vérification DCI indisponible. Veuillez vous assurer que le "
+"module spp_dci est installé."
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,help:spp_dci_client_crvs.field_spp_dci_crvs_event__processed_date
+msgid "Date and time when event was processed"
+msgstr "Date et heure du traitement de l’événement"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,help:spp_dci_client_crvs.field_spp_dci_crvs_event__received_date
+msgid "Date and time when event was received"
+msgstr "Date et heure de réception de l’événement"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,help:spp_dci_client_crvs.field_spp_dci_crvs_event__event_date
+msgid "Date when the vital event occurred"
+msgstr "Date de survenue de l’événement vital"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields.selection,name:spp_dci_client_crvs.selection__spp_dci_crvs_event__event_type__death
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_event_search
+msgid "Death"
+msgstr "Décès"
+
+#. module: spp_dci_client_crvs
+#. odoo-python
+#: code:addons/spp_dci_client_crvs/models/crvs_event.py:0
+msgid "Deceased - CRVS notification received on %s"
+msgstr "Décédé(e) – notification CRVS reçue le %s"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_event__display_name
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_sender__display_name
+msgid "Display Name"
+msgstr "Nom affiché"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields.selection,name:spp_dci_client_crvs.selection__spp_dci_crvs_event__event_type__divorce
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_event_search
+msgid "Divorce"
+msgstr "Divorce"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields.selection,name:spp_dci_client_crvs.selection__spp_dci_crvs_sender__algorithm__ed25519
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_sender_search
+msgid "Ed25519"
+msgstr "Ed25519"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields.selection,name:spp_dci_client_crvs.selection__spp_dci_crvs_event__state__error
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_event_search
+msgid "Error"
+msgstr "Erreur"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_event__error_message
+msgid "Error Message"
+msgstr "Message d’erreur"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,help:spp_dci_client_crvs.field_spp_dci_crvs_event__error_message
+msgid "Error details if processing failed"
+msgstr "Détails de l’erreur si le traitement a échoué"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_event__event_date
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_event_search
+msgid "Event Date"
+msgstr "Date de l’événement"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_event__name
+msgid "Event Reference"
+msgstr "Référence de l’événement"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_event__event_type
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_event_search
+msgid "Event Type"
+msgstr "Type d’événement"
+
+#. module: spp_dci_client_crvs
+#. odoo-python
+#: code:addons/spp_dci_client_crvs/models/crvs_event.py:0
+msgid "Event date cannot be in the future."
+msgstr "La date de l’événement ne peut pas être dans le futur."
+
+#. module: spp_dci_client_crvs
+#. odoo-python
+#: code:addons/spp_dci_client_crvs/models/crvs_sender.py:0
+msgid "Failed to convert JWK to PEM: %s"
+msgstr "Échec de conversion de JWK en PEM : %s"
+
+#. module: spp_dci_client_crvs
+#. odoo-python
+#: code:addons/spp_dci_client_crvs/models/crvs_sender.py:0
+msgid "Failed to fetch JWKS from %s: %s"
+msgstr "Échec de récupération du JWKS depuis %s : %s"
+
+#. module: spp_dci_client_crvs
+#. odoo-python
+#: code:addons/spp_dci_client_crvs/models/crvs_sender.py:0
+msgid "Failed to fetch public key: %s"
+msgstr "Échec de récupération de la clé publique : %s"
+
+#. module: spp_dci_client_crvs
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_sender_form
+msgid "Fetch Public Key"
+msgstr "Récupérer la clé publique"
+
+#. module: spp_dci_client_crvs
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_sender_form
+msgid "Fetch public key from JWKS endpoint"
+msgstr "Récupérer la clé publique depuis le point de terminaison JWKS"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,help:spp_dci_client_crvs.field_spp_dci_crvs_sender__name
+msgid "Friendly name for this CRVS registry"
+msgstr "Nom convivial pour ce registre CRVS"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_event__id
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_sender__id
+msgid "ID"
+msgstr "ID"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_event__identifier_type
+msgid "Identifier Type"
+msgstr "Type d’identifiant"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_event__identifier_value
+msgid "Identifier Value"
+msgstr "Valeur de l’identifiant"
+
+#. module: spp_dci_client_crvs
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_sender_search
+msgid "Inactive"
+msgstr "Inactif"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,help:spp_dci_client_crvs.field_spp_dci_crvs_sender__active
+msgid "Inactive senders will not be used for signature verification"
+msgstr ""
+"Les émetteurs inactifs ne seront pas utilisés pour la vérification des "
+"signatures"
+
+#. module: spp_dci_client_crvs
+#. odoo-python
+#: code:addons/spp_dci_client_crvs/models/crvs_sender.py:0
+msgid "Invalid JWKS response: 'keys' field not found"
+msgstr "Réponse JWKS non valide : champ « keys » introuvable"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_sender__jwks_url
+msgid "JWKS URL"
+msgstr "URL JWKS"
+
+#. module: spp_dci_client_crvs
+#. odoo-python
+#: code:addons/spp_dci_client_crvs/models/crvs_sender.py:0
+msgid "JWKS URL must start with http:// or https://"
+msgstr "L’URL JWKS doit commencer par http:// ou https://"
+
+#. module: spp_dci_client_crvs
+#. odoo-python
+#: code:addons/spp_dci_client_crvs/models/crvs_sender.py:0
+msgid "JWKS URL not configured for CRVS sender %s"
+msgstr "URL JWKS non configurée pour l’émetteur CRVS %s"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_sender__last_key_fetch
+msgid "Last Key Fetch"
+msgstr "Dernière récupération de la clé"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_event__write_uid
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_sender__write_uid
+msgid "Last Updated by"
+msgstr "Dernière mise à jour par"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_event__write_date
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_sender__write_date
+msgid "Last Updated on"
+msgstr "Dernière mise à jour le"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields.selection,name:spp_dci_client_crvs.selection__spp_dci_crvs_event__event_type__marriage
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_event_search
+msgid "Marriage"
+msgstr "Mariage"
+
+#. module: spp_dci_client_crvs
+#. odoo-python
+#: code:addons/spp_dci_client_crvs/models/crvs_sender.py:0
+msgid "Missing 'n' or 'e' parameter in RSA JWK"
+msgstr "Paramètre « n » ou « e » manquant dans le JWK RSA"
+
+#. module: spp_dci_client_crvs
+#. odoo-python
+#: code:addons/spp_dci_client_crvs/models/crvs_sender.py:0
+msgid "Missing 'x' parameter in Ed25519 JWK"
+msgstr "Paramètre « x » manquant dans le JWK Ed25519"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_sender__name
+msgid "Name"
+msgstr "Nom"
+
+#. module: spp_dci_client_crvs
+#. odoo-python
+#: code:addons/spp_dci_client_crvs/models/crvs_event.py:0
+msgid "New"
+msgstr "Nouveau"
+
+#. module: spp_dci_client_crvs
+#: model_terms:ir.actions.act_window,help:spp_dci_client_crvs.action_spp_dci_crvs_event
+msgid "No CRVS events received yet"
+msgstr "Aucun événement CRVS reçu pour le moment"
+
+#. module: spp_dci_client_crvs
+#. odoo-python
+#: code:addons/spp_dci_client_crvs/models/crvs_event.py:0
+msgid "No failed events selected for retry."
+msgstr "Aucun événement en échec sélectionné pour une nouvelle tentative."
+
+#. module: spp_dci_client_crvs
+#. odoo-python
+#: code:addons/spp_dci_client_crvs/models/crvs_sender.py:0
+msgid ""
+"No matching key found in JWKS for CRVS sender %s. Expected kid to start with "
+"'%s|'"
+msgstr ""
+"Aucune clé correspondante trouvée dans le JWKS pour l’émetteur CRVS %s. Le "
+"kid devait commencer par « %s| »"
+
+#. module: spp_dci_client_crvs
+#. odoo-python
+#: code:addons/spp_dci_client_crvs/models/crvs_event.py:0
+msgid "No matching person found in registry"
+msgstr "Aucune personne correspondante trouvée dans le registre"
+
+#. module: spp_dci_client_crvs
+#. odoo-python
+#: code:addons/spp_dci_client_crvs/models/crvs_sender.py:0
+msgid ""
+"No public key available for CRVS sender %s. Please fetch the public key "
+"first."
+msgstr ""
+"Aucune clé publique disponible pour l’émetteur CRVS %s. Veuillez d’abord "
+"récupérer la clé publique."
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_event__notes
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_sender__notes
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_event_form
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_sender_form
+msgid "Notes"
+msgstr "Notes"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,help:spp_dci_client_crvs.field_spp_dci_crvs_event__raw_data
+msgid "Original JSON data received from CRVS system"
+msgstr "Données JSON originales reçues depuis le système CRVS"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,help:spp_dci_client_crvs.field_spp_dci_crvs_sender__public_key
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_sender_form
+msgid "PEM-encoded public key for signature verification"
+msgstr "Clé publique au format PEM pour la vérification des signatures"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_event__person_id
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_event_search
+msgid "Person"
+msgstr "Personne"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,help:spp_dci_client_crvs.field_spp_dci_crvs_event__person_id
+msgid "Person associated with this event (if matched to registry)"
+msgstr ""
+"Personne associée à cet événement (si correspondance trouvée dans le "
+"registre)"
+
+#. module: spp_dci_client_crvs
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_event_form
+msgid "Process Event"
+msgstr "Traiter l’événement"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields.selection,name:spp_dci_client_crvs.selection__spp_dci_crvs_event__state__processed
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_event_search
+msgid "Processed"
+msgstr "Traité"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_event__processed_by
+msgid "Processed By"
+msgstr "Traité par"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_event__processed_date
+msgid "Processed Date"
+msgstr "Date de traitement"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields.selection,name:spp_dci_client_crvs.selection__spp_dci_crvs_event__state__processing
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_event_search
+msgid "Processing"
+msgstr "En cours de traitement"
+
+#. module: spp_dci_client_crvs
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_event_form
+msgid "Processing Information"
+msgstr "Informations de traitement"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,help:spp_dci_client_crvs.field_spp_dci_crvs_event__state
+msgid "Processing status of this event"
+msgstr "Statut de traitement de cet événement"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_sender__public_key
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_sender_form
+msgid "Public Key"
+msgstr "Clé publique"
+
+#. module: spp_dci_client_crvs
+#. odoo-python
+#: code:addons/spp_dci_client_crvs/models/crvs_sender.py:0
+msgid "Public key fetched successfully from %s"
+msgstr "Clé publique récupérée avec succès depuis %s"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields.selection,name:spp_dci_client_crvs.selection__spp_dci_crvs_sender__algorithm__rs256
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_sender_search
+msgid "RSA-256"
+msgstr "RSA-256"
+
+#. module: spp_dci_client_crvs
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_event_form
+msgid "Raw Data"
+msgstr "Données brutes"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_event__raw_data
+msgid "Raw Data (JSON)"
+msgstr "Données brutes (JSON)"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields.selection,name:spp_dci_client_crvs.selection__spp_dci_crvs_event__state__received
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_event_search
+msgid "Received"
+msgstr "Reçu"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_event__received_date
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_event_search
+msgid "Received Date"
+msgstr "Date de réception"
+
+#. module: spp_dci_client_crvs
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_event_search
+msgid "Received This Month"
+msgstr "Reçus ce mois-ci"
+
+#. module: spp_dci_client_crvs
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_event_search
+msgid "Received This Week"
+msgstr "Reçus cette semaine"
+
+#. module: spp_dci_client_crvs
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_event_search
+msgid "Received Today"
+msgstr "Reçus aujourd’hui"
+
+#. module: spp_dci_client_crvs
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_event_form
+msgid "Retry Processing"
+msgstr "Relancer le traitement"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_sender__sender_id
+msgid "Sender ID"
+msgstr "ID de l’émetteur"
+
+#. module: spp_dci_client_crvs
+#. odoo-python
+#: code:addons/spp_dci_client_crvs/models/crvs_sender.py:0
+msgid "Sender ID must be unique. A CRVS sender already exists with this ID."
+msgstr ""
+"L’ID de l’émetteur doit être unique. Un émetteur CRVS existe déjà avec cet "
+"ID."
+
+#. module: spp_dci_client_crvs
+#. odoo-python
+#: code:addons/spp_dci_client_crvs/models/crvs_sender.py:0
+msgid ""
+"Sender ID must contain only alphanumeric characters, dots, hyphens, and "
+"underscores."
+msgstr ""
+"L’ID de l’émetteur ne doit contenir que des caractères alphanumériques, des "
+"points, des tirets et des traits de soulignement."
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,help:spp_dci_client_crvs.field_spp_dci_crvs_event__active
+msgid "Set to false to archive this event"
+msgstr "Définissez sur faux pour archiver cet événement"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,field_description:spp_dci_client_crvs.field_spp_dci_crvs_event__state
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_event_search
+msgid "Status"
+msgstr "Statut"
+
+#. module: spp_dci_client_crvs
+#. odoo-python
+#: code:addons/spp_dci_client_crvs/models/crvs_sender.py:0
+msgid "Success"
+msgstr "Succès"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,help:spp_dci_client_crvs.field_spp_dci_crvs_event__identifier_value
+msgid "The actual identifier value from CRVS"
+msgstr "La valeur réelle de l’identifiant provenant du CRVS"
+
+#. module: spp_dci_client_crvs
+#. odoo-python
+#: code:addons/spp_dci_client_crvs/models/crvs_event.py:0
+msgid "This event has already been processed."
+msgstr "Cet événement a déjà été traité."
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,help:spp_dci_client_crvs.field_spp_dci_crvs_event__identifier_type
+msgid "Type of identifier (BRN, DRN, MRN, UIN, etc.)"
+msgstr "Type d’identifiant (BRN, DRN, MRN, UIN, etc.)"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,help:spp_dci_client_crvs.field_spp_dci_crvs_event__event_type
+msgid "Type of vital event received from CRVS"
+msgstr "Type d’événement vital reçu du CRVS"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,help:spp_dci_client_crvs.field_spp_dci_crvs_sender__jwks_url
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_sender_form
+msgid "URL to CRVS registry's JWKS endpoint (/.well-known/jwks.json)"
+msgstr ""
+"URL du point de terminaison JWKS du registre CRVS (/.well-known/jwks.json)"
+
+#. module: spp_dci_client_crvs
+#. odoo-python
+#: code:addons/spp_dci_client_crvs/models/crvs_sender.py:0
+msgid "Unsupported JWK key type: %s (curve: %s)"
+msgstr "Type de clé JWK non pris en charge : %s (courbe : %s)"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,help:spp_dci_client_crvs.field_spp_dci_crvs_event__processed_by
+msgid "User who processed this event"
+msgstr "Utilisateur ayant traité cet événement"
+
+#. module: spp_dci_client_crvs
+#: model:ir.model.fields,help:spp_dci_client_crvs.field_spp_dci_crvs_sender__last_key_fetch
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_crvs.view_spp_dci_crvs_sender_form
+msgid "When we last fetched their JWKS"
+msgstr "Date de la dernière récupération de leur JWKS"

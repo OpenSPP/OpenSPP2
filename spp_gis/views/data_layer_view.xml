@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record model="ir.ui.view" id="spp_gis_data_layer_form">
+        <field name="name">spp.gis.data.layer.form</field>
+        <field name="model">spp.gis.data.layer</field>
+        <field name="arch" type="xml">
+            <form string="Data Layer">
+                <sheet>
+                    <group string="General" col="4">
+                        <field name="name" />
+                        <field name="view_id" />
+                        <field name="geo_field_id" />
+                        <field name="geo_repr" />
+                        <field name="active_on_startup" />
+                        <field name="sequence" />
+                        <field name="layer_opacity" />
+                        <field name="model_id" invisible="1" />
+                        <field name="model_name" invisible="1" />
+                    </group>
+                    <group string="Filtering" col="4">
+                        <field
+                            name="domain"
+                            colspan="4"
+                            widget="domain"
+                            options="{'model': 'model_name'}"
+                        />
+                    </group>
+                    <group string="Colors" name="colors" col="4" colspan="4" invisible="geo_repr == 'choropleth'">
+                        <field name="begin_color" widget="color" />
+                    </group>
+                    <group string="Choropleth Configuration" name="choropleth_config" col="4" colspan="4" invisible="geo_repr != 'choropleth'">
+                        <field name="choropleth_field_id" required="geo_repr == 'choropleth'" />
+                        <field name="choropleth_color_ramp" />
+                        <field name="choropleth_color_low" widget="color" invisible="choropleth_color_ramp != 'custom'" />
+                        <field name="choropleth_color_high" widget="color" invisible="choropleth_color_ramp != 'custom'" />
+                        <field name="choropleth_classification" />
+                        <field name="choropleth_class_count" invisible="choropleth_classification == 'linear'" />
+                        <field name="choropleth_manual_breaks" invisible="choropleth_classification != 'manual'" />
+                        <field name="choropleth_min_value" />
+                        <field name="choropleth_max_value" />
+                    </group>
+                    <group string="Legend" col="4" colspan="4" invisible="geo_repr != 'choropleth'">
+                        <field name="choropleth_show_legend" />
+                        <field name="choropleth_legend_title" invisible="not choropleth_show_legend" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="spp_gis_data_layer_view_form">
+        <field name="name">spp.gis.data.layer.form</field>
+        <field name="model">spp.gis.data.layer</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group string="General" col="4">
+                        <field name="name" />
+                        <field name="geo_field_id" />
+                        <field name="geo_repr" />
+                        <field name="sequence" readonly="1" />
+                        <field name="layer_opacity" />
+                        <field name="model_id" invisible="1" />
+                        <field name="model_name" invisible="1" />
+                    </group>
+                    <group string="Filtering" col="4">
+                        <field
+                            name="domain"
+                            colspan="4"
+                            widget="domain"
+                            options="{'model': 'model_name'}"
+                        />
+                    </group>
+                    <group string="Colors" name="colors" col="4" colspan="4" invisible="geo_repr == 'choropleth'">
+                        <field name="begin_color" widget="color" />
+                    </group>
+                    <group string="Choropleth Configuration" name="choropleth_config" col="4" colspan="4" invisible="geo_repr != 'choropleth'">
+                        <field name="choropleth_field_id" required="geo_repr == 'choropleth'" />
+                        <field name="choropleth_color_ramp" />
+                        <field name="choropleth_color_low" widget="color" invisible="choropleth_color_ramp != 'custom'" />
+                        <field name="choropleth_color_high" widget="color" invisible="choropleth_color_ramp != 'custom'" />
+                        <field name="choropleth_classification" />
+                        <field name="choropleth_class_count" invisible="choropleth_classification == 'linear'" />
+                        <field name="choropleth_manual_breaks" invisible="choropleth_classification != 'manual'" />
+                        <field name="choropleth_min_value" />
+                        <field name="choropleth_max_value" />
+                    </group>
+                    <group string="Legend" col="4" colspan="4" invisible="geo_repr != 'choropleth'">
+                        <field name="choropleth_show_legend" />
+                        <field name="choropleth_legend_title" invisible="not choropleth_show_legend" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_spp_gis_data_layer_view" model="ir.actions.act_window">
+        <field name="name">Data Layer</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">spp.gis.data.layer</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="spp_gis_data_layer_view_form" />
+    </record>
+
+
+    <record model="ir.ui.view" id="spp_gis_data_layer_view_tree">
+        <field name="name">spp.gis.data.layer.tree</field>
+        <field name="model">spp.gis.data.layer</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name" select="1" />
+                <field name="geo_repr" select="1" />
+                <field name="geo_field_id" select="1" />
+                <field name="active_on_startup" />
+                <field name="sequence" />
+            </list>
+        </field>
+    </record>
+
+    <record id="action_data_layer_view" model="ir.actions.act_window">
+        <field name="name">Data Layer</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">spp.gis.data.layer</field>
+        <field name="view_id" ref="spp_gis_data_layer_view_tree" />
+    </record>
+
+</odoo>

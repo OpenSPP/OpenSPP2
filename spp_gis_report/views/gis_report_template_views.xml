@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <!-- ========================================== -->
+    <!-- GIS REPORT TEMPLATE KANBAN VIEW            -->
+    <!-- ========================================== -->
+    <record id="view_gis_report_template_kanban" model="ir.ui.view">
+        <field name="name">spp.gis.report.template.kanban</field>
+        <field name="model">spp.gis.report.template</field>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="category_id" quick_create="false" class="o_kanban_mobile">
+                <field name="id" />
+                <field name="name" />
+                <field name="description" />
+                <field name="icon" />
+                <field name="category_id" />
+                <field name="preview_image" />
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_global_click">
+                            <!-- Preview Image or Icon -->
+                            <div class="o_kanban_image">
+                                <t t-if="record.preview_image.raw_value">
+                                    <img
+                                        t-att-src="kanban_image('spp.gis.report.template', 'preview_image', record.id.raw_value)"
+                                        alt="Preview"
+                                        class="img img-fluid"
+                                    />
+                                </t>
+                                <t t-else="">
+                                    <div class="text-center py-4 bg-light">
+                                        <i
+                                            t-attf-class="fa {{ record.icon.raw_value }} fa-4x text-primary"
+                                            aria-hidden="true"
+                                            title="Template"
+                                        />
+                                    </div>
+                                </t>
+                            </div>
+
+                            <!-- Template Info -->
+                            <div class="oe_kanban_details">
+                                <div class="o_kanban_record_top">
+                                    <div class="o_kanban_record_headings">
+                                        <strong class="o_kanban_record_title">
+                                            <field name="name" />
+                                        </strong>
+                                    </div>
+                                </div>
+                                <div class="o_kanban_record_body">
+                                    <field name="description" />
+                                </div>
+                                <div class="o_kanban_record_bottom mt-2">
+                                    <div class="oe_kanban_bottom_right">
+                                        <button
+                                            name="action_create_report"
+                                            type="object"
+                                            class="btn btn-primary btn-sm"
+                                        >
+                                            <i class="fa fa-plus me-1" />Create Report
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- GIS REPORT TEMPLATE LIST VIEW              -->
+    <!-- ========================================== -->
+    <record id="view_gis_report_template_list" model="ir.ui.view">
+        <field name="name">spp.gis.report.template.list</field>
+        <field name="model">spp.gis.report.template</field>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+            <list sample="1" default_order="category_id, sequence, name">
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="code" />
+                <field name="category_id" />
+                <field name="icon" optional="hide" />
+                <field name="requires_program" widget="boolean" optional="show" />
+                <field name="requires_incident" widget="boolean" optional="show" />
+                <field name="requires_reference_data" optional="hide" />
+            </list>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- GIS REPORT TEMPLATE SEARCH VIEW            -->
+    <!-- ========================================== -->
+    <record id="view_gis_report_template_search" model="ir.ui.view">
+        <field name="name">spp.gis.report.template.search</field>
+        <field name="model">spp.gis.report.template</field>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="code" />
+                <field name="category_id" />
+
+                <separator />
+
+                <filter name="requires_program" string="Requires Program" domain="[('requires_program', '=', True)]" />
+                <filter name="requires_incident" string="Requires Incident" domain="[('requires_incident', '=', True)]" />
+
+                <separator />
+
+                <filter name="group_category" string="Category" context="{'group_by': 'category_id'}" />
+            </search>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- GIS REPORT TEMPLATE FORM VIEW              -->
+    <!-- ========================================== -->
+    <record id="view_gis_report_template_form" model="ir.ui.view">
+        <field name="name">spp.gis.report.template.form</field>
+        <field name="model">spp.gis.report.template</field>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <field name="preview_image" widget="image" class="oe_avatar" />
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Template Name" required="1" />
+                        </h1>
+                    </div>
+
+                    <group col="2">
+                        <group name="basic_info">
+                            <field name="code" />
+                            <field name="category_id" />
+                            <field name="sequence" />
+                            <field name="icon" />
+                        </group>
+                        <group name="requirements">
+                            <field name="requires_program" widget="boolean_toggle" />
+                            <field name="requires_incident" widget="boolean_toggle" />
+                            <field name="requires_reference_data" />
+                        </group>
+                    </group>
+
+                    <separator string="Description" />
+                    <field name="description" nolabel="1" placeholder="Describe what this template creates..." />
+
+                    <separator string="Configuration" />
+                    <field name="config" widget="ace" options="{'mode': 'json'}" />
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- GIS REPORT TEMPLATE ACTION                 -->
+    <!-- ========================================== -->
+    <record id="action_gis_report_template" model="ir.actions.act_window">
+        <field name="name">Report Templates</field>
+        <field name="res_model">spp.gis.report.template</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <div class="text-center text-muted py-5">
+                <i class="fa fa-puzzle-piece fa-3x mb-3 opacity-50" />
+                <h5>No Templates Available</h5>
+                <p>Templates provide pre-configured report setups for common use cases.</p>
+            </div>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,590 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* spp_dci_client_ibr
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,field_description:spp_dci_client_ibr.field_spp_dci_ibr_sender__active
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_ibr.view_spp_dci_ibr_sender_search
+msgid "Active"
+msgstr "Actif"
+
+#. module: spp_dci_client_ibr
+#: model_terms:ir.actions.act_window,help:spp_dci_client_ibr.action_spp_dci_ibr_sender
+msgid "Add a trusted Integrated Beneficiary Registry sender"
+msgstr ""
+"Ajouter un émetteur approuvé du Registre intégré des bénéficiaires (IBR)"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,help:spp_dci_client_ibr.field_spp_dci_ibr_sender__notes
+msgid "Additional notes about this IBR registry"
+msgstr "Notes supplémentaires concernant ce registre IBR"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,help:spp_dci_client_ibr.field_spp_dci_duplication_check__notes
+msgid "Additional notes about this duplication check"
+msgstr "Notes supplémentaires concernant ce contrôle de doublons"
+
+#. module: spp_dci_client_ibr
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_ibr.view_dci_duplication_check_form
+msgid "Additional notes about this duplication check..."
+msgstr "Notes supplémentaires concernant ce contrôle de doublons..."
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,field_description:spp_dci_client_ibr.field_spp_dci_ibr_sender__algorithm
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_ibr.view_spp_dci_ibr_sender_search
+msgid "Algorithm"
+msgstr "Algorithme"
+
+#. module: spp_dci_client_ibr
+#. odoo-python
+#: code:addons/spp_dci_client_ibr/models/ibr_sender.py:0
+msgid "Algorithm not set for IBR sender %s"
+msgstr "Algorithme non défini pour l'émetteur IBR %s"
+
+#. module: spp_dci_client_ibr
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_ibr.view_spp_dci_ibr_sender_search
+msgid "Archived"
+msgstr "Archivé"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,field_description:spp_dci_client_ibr.field_spp_dci_duplication_check__check_date
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_ibr.view_dci_duplication_check_search
+msgid "Check Date"
+msgstr "Date du contrôle"
+
+#. module: spp_dci_client_ibr
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_ibr.view_dci_duplication_check_form
+msgid "Check Information"
+msgstr "Informations du contrôle"
+
+#. module: spp_dci_client_ibr
+#: model_terms:ir.actions.act_window,help:spp_dci_client_ibr.action_dci_duplication_check
+msgid ""
+"Check for duplicate enrollments across programs using the Integrated "
+"Beneficiary Registry (IBR)."
+msgstr ""
+"Rechercher les inscriptions en double entre les programmes à l’aide du "
+"Registre intégré des bénéficiaires (IBR)."
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields.selection,name:spp_dci_client_ibr.selection__spp_dci_duplication_check__state__checking
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_ibr.view_dci_duplication_check_search
+msgid "Checking"
+msgstr "Vérification en cours"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields.selection,name:spp_dci_client_ibr.selection__spp_dci_duplication_check__state__completed
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_ibr.view_dci_duplication_check_search
+msgid "Completed"
+msgstr "Terminé"
+
+#. module: spp_dci_client_ibr
+#: model_terms:ir.actions.act_window,help:spp_dci_client_ibr.action_spp_dci_ibr_sender
+msgid ""
+"Configure trusted IBR registries that can send callback notifications.\n"
+"                Each sender must have a registered public key for signature "
+"verification."
+msgstr ""
+"Configurer les registres IBR approuvés pouvant envoyer des notifications de "
+"rappel.\\n                Chaque émetteur doit disposer d’une clé publique "
+"enregistrée pour la vérification des signatures."
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields.selection,name:spp_dci_client_ibr.selection__spp_dci_duplication_check__result__confirmed_match
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_ibr.view_dci_duplication_check_search
+msgid "Confirmed Match"
+msgstr "Correspondance confirmée"
+
+#. module: spp_dci_client_ibr
+#: model_terms:ir.actions.act_window,help:spp_dci_client_ibr.action_dci_duplication_check
+msgid "Create a DCI Duplication Check"
+msgstr "Créer un contrôle de doublons DCI"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,field_description:spp_dci_client_ibr.field_spp_dci_duplication_check__create_uid
+#: model:ir.model.fields,field_description:spp_dci_client_ibr.field_spp_dci_ibr_sender__create_uid
+msgid "Created by"
+msgstr "Créé par"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,field_description:spp_dci_client_ibr.field_spp_dci_duplication_check__create_date
+#: model:ir.model.fields,field_description:spp_dci_client_ibr.field_spp_dci_ibr_sender__create_date
+msgid "Created on"
+msgstr "Créé le"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,help:spp_dci_client_ibr.field_spp_dci_ibr_sender__algorithm
+msgid "Cryptographic signature algorithm"
+msgstr "Algorithme de signature cryptographique"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model,name:spp_dci_client_ibr.model_spp_dci_duplication_check
+msgid "DCI Duplication Check"
+msgstr "Contrôle de doublons DCI"
+
+#. module: spp_dci_client_ibr
+#: model:ir.actions.act_window,name:spp_dci_client_ibr.action_dci_duplication_check
+msgid "DCI Duplication Checks"
+msgstr "Contrôles de doublons DCI"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,help:spp_dci_client_ibr.field_spp_dci_ibr_sender__sender_id
+msgid "DCI sender identifier for the IBR registry (e.g., 'ibr.national.gov')"
+msgstr ""
+"Identifiant d'émetteur DCI pour le registre IBR (p. ex., 'ibr.national.gov')"
+
+#. module: spp_dci_client_ibr
+#. odoo-python
+#: code:addons/spp_dci_client_ibr/models/ibr_sender.py:0
+msgid ""
+"DCI verification service not available. Please ensure spp_dci module is "
+"installed."
+msgstr ""
+"Service de vérification DCI indisponible. Veuillez vous assurer que le "
+"module spp_dci est installé."
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,field_description:spp_dci_client_ibr.field_spp_dci_duplication_check__data_source_id
+msgid "Data Source"
+msgstr "Source de données"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,help:spp_dci_client_ibr.field_spp_dci_duplication_check__check_date
+msgid "Date and time when the duplication check was performed"
+msgstr "Date et heure auxquelles le contrôle de doublons a été effectué"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,field_description:spp_dci_client_ibr.field_fastapi_endpoint__display_name
+#: model:ir.model.fields,field_description:spp_dci_client_ibr.field_spp_dci_duplication_check__display_name
+#: model:ir.model.fields,field_description:spp_dci_client_ibr.field_spp_dci_ibr_sender__display_name
+msgid "Display Name"
+msgstr "Nom affiché"
+
+#. module: spp_dci_client_ibr
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_ibr.view_dci_duplication_check_form
+msgid "Duplication Check"
+msgstr "Contrôle de doublons"
+
+#. module: spp_dci_client_ibr
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_ibr.view_dci_duplication_check_tree
+msgid "Duplication Checks"
+msgstr "Contrôles de doublons"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields.selection,name:spp_dci_client_ibr.selection__spp_dci_ibr_sender__algorithm__ed25519
+msgid "Ed25519"
+msgstr "Ed25519"
+
+#. module: spp_dci_client_ibr
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_ibr.view_dci_duplication_check_form
+msgid "Error Information"
+msgstr "Informations sur l’erreur"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,field_description:spp_dci_client_ibr.field_spp_dci_duplication_check__error_message
+msgid "Error Message"
+msgstr "Message d’erreur"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,help:spp_dci_client_ibr.field_spp_dci_duplication_check__error_message
+msgid "Error message if the check failed"
+msgstr "Message d’erreur si le contrôle a échoué"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields.selection,name:spp_dci_client_ibr.selection__spp_dci_duplication_check__state__failed
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_ibr.view_dci_duplication_check_search
+msgid "Failed"
+msgstr "Échec"
+
+#. module: spp_dci_client_ibr
+#. odoo-python
+#: code:addons/spp_dci_client_ibr/models/ibr_sender.py:0
+msgid "Failed to convert JWK to PEM: %s"
+msgstr "Échec de la conversion du JWK en PEM : %s"
+
+#. module: spp_dci_client_ibr
+#. odoo-python
+#: code:addons/spp_dci_client_ibr/models/ibr_sender.py:0
+msgid "Failed to fetch JWKS from %s: %s"
+msgstr "Échec de la récupération des JWKS depuis %s : %s"
+
+#. module: spp_dci_client_ibr
+#. odoo-python
+#: code:addons/spp_dci_client_ibr/models/ibr_sender.py:0
+msgid "Failed to fetch public key: %s"
+msgstr "Échec de la récupération de la clé publique : %s"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model,name:spp_dci_client_ibr.model_fastapi_endpoint
+msgid "FastAPI Endpoint"
+msgstr "Point de terminaison FastAPI"
+
+#. module: spp_dci_client_ibr
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_ibr.view_spp_dci_ibr_sender_form
+msgid "Fetch Public Key"
+msgstr "Récupérer la clé publique"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,help:spp_dci_client_ibr.field_spp_dci_ibr_sender__name
+msgid "Friendly name for this IBR registry"
+msgstr "Nom convivial pour ce registre IBR"
+
+#. module: spp_dci_client_ibr
+#: model:ir.ui.menu,name:spp_dci_client_ibr.menu_dci_duplication_check
+msgid "IBR Duplication Checks"
+msgstr "Contrôles de doublons IBR"
+
+#. module: spp_dci_client_ibr
+#: model:ir.actions.act_window,name:spp_dci_client_ibr.action_spp_dci_ibr_sender
+#: model:ir.model,name:spp_dci_client_ibr.model_spp_dci_ibr_sender
+msgid "IBR Sender Registry"
+msgstr "Registre des émetteurs IBR"
+
+#. module: spp_dci_client_ibr
+#: model:ir.ui.menu,name:spp_dci_client_ibr.menu_spp_dci_ibr_sender
+msgid "IBR Senders"
+msgstr "Émetteurs IBR"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,field_description:spp_dci_client_ibr.field_fastapi_endpoint__id
+#: model:ir.model.fields,field_description:spp_dci_client_ibr.field_spp_dci_duplication_check__id
+#: model:ir.model.fields,field_description:spp_dci_client_ibr.field_spp_dci_ibr_sender__id
+msgid "ID"
+msgstr "ID"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,field_description:spp_dci_client_ibr.field_spp_dci_duplication_check__identifier_type
+msgid "Identifier Type"
+msgstr "Type d’identifiant"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,field_description:spp_dci_client_ibr.field_spp_dci_duplication_check__identifier_value
+msgid "Identifier Value"
+msgstr "Valeur de l’identifiant"
+
+#. module: spp_dci_client_ibr
+#. odoo-python
+#: code:addons/spp_dci_client_ibr/models/duplication_check.py:0
+msgid "Identifier type cannot be empty."
+msgstr "Le type d’identifiant ne peut pas être vide."
+
+#. module: spp_dci_client_ibr
+#. odoo-python
+#: code:addons/spp_dci_client_ibr/models/duplication_check.py:0
+msgid "Identifier value cannot be empty."
+msgstr "La valeur de l’identifiant ne peut pas être vide."
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,help:spp_dci_client_ibr.field_spp_dci_ibr_sender__active
+msgid "Inactive senders will not be used for signature verification"
+msgstr ""
+"Les émetteurs inactifs ne seront pas utilisés pour la vérification des "
+"signatures"
+
+#. module: spp_dci_client_ibr
+#. odoo-python
+#: code:addons/spp_dci_client_ibr/models/ibr_sender.py:0
+msgid "Invalid JWKS response: 'keys' field not found"
+msgstr "Réponse JWKS non valide : champ 'keys' introuvable"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,field_description:spp_dci_client_ibr.field_spp_dci_ibr_sender__jwks_url
+msgid "JWKS URL"
+msgstr "URL JWKS"
+
+#. module: spp_dci_client_ibr
+#. odoo-python
+#: code:addons/spp_dci_client_ibr/models/ibr_sender.py:0
+msgid "JWKS URL must start with http:// or https://"
+msgstr "L’URL JWKS doit commencer par http:// ou https://"
+
+#. module: spp_dci_client_ibr
+#. odoo-python
+#: code:addons/spp_dci_client_ibr/models/ibr_sender.py:0
+msgid "JWKS URL not configured for IBR sender %s"
+msgstr "URL JWKS non configurée pour l’émetteur IBR %s"
+
+#. module: spp_dci_client_ibr
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_ibr.view_spp_dci_ibr_sender_form
+msgid "Key Management"
+msgstr "Gestion des clés"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,field_description:spp_dci_client_ibr.field_spp_dci_ibr_sender__last_key_fetch
+msgid "Last Key Fetch"
+msgstr "Dernière récupération de clé"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,field_description:spp_dci_client_ibr.field_spp_dci_duplication_check__write_uid
+#: model:ir.model.fields,field_description:spp_dci_client_ibr.field_spp_dci_ibr_sender__write_uid
+msgid "Last Updated by"
+msgstr "Dernière mise à jour par"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,field_description:spp_dci_client_ibr.field_spp_dci_duplication_check__write_date
+#: model:ir.model.fields,field_description:spp_dci_client_ibr.field_spp_dci_ibr_sender__write_date
+msgid "Last Updated on"
+msgstr "Dernière mise à jour le"
+
+#. module: spp_dci_client_ibr
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_ibr.view_dci_duplication_check_form
+msgid "List of programs where duplicates were found..."
+msgstr "Liste des programmes dans lesquels des doublons ont été trouvés..."
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,help:spp_dci_client_ibr.field_spp_dci_duplication_check__matched_programs
+msgid "List of programs where potential duplicates were found"
+msgstr ""
+"Liste des programmes dans lesquels des doublons potentiels ont été trouvés"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,field_description:spp_dci_client_ibr.field_spp_dci_duplication_check__matched_programs
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_ibr.view_dci_duplication_check_form
+msgid "Matched Programs"
+msgstr "Programmes correspondants"
+
+#. module: spp_dci_client_ibr
+#. odoo-python
+#: code:addons/spp_dci_client_ibr/models/ibr_sender.py:0
+msgid "Missing 'n' or 'e' parameter in RSA JWK"
+msgstr "Paramètre 'n' ou 'e' manquant dans le JWK RSA"
+
+#. module: spp_dci_client_ibr
+#. odoo-python
+#: code:addons/spp_dci_client_ibr/models/ibr_sender.py:0
+msgid "Missing 'x' parameter in Ed25519 JWK"
+msgstr "Paramètre 'x' manquant dans le JWK Ed25519"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,field_description:spp_dci_client_ibr.field_spp_dci_ibr_sender__name
+msgid "Name"
+msgstr "Nom"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields.selection,name:spp_dci_client_ibr.selection__spp_dci_duplication_check__result__no_match
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_ibr.view_dci_duplication_check_search
+msgid "No Match"
+msgstr "Aucune correspondance"
+
+#. module: spp_dci_client_ibr
+#. odoo-python
+#: code:addons/spp_dci_client_ibr/models/duplication_check.py:0
+msgid ""
+"No active IBR data source found. Please configure an IBR data source first."
+msgstr ""
+"Aucune source de données IBR active trouvée. Veuillez d’abord configurer une "
+"source de données IBR."
+
+#. module: spp_dci_client_ibr
+#. odoo-python
+#: code:addons/spp_dci_client_ibr/models/ibr_sender.py:0
+msgid ""
+"No matching key found in JWKS for IBR sender %s. Expected kid to start with "
+"'%s|'"
+msgstr ""
+"Aucune clé correspondante trouvée dans les JWKS pour l’émetteur IBR %s. Le "
+"kid attendu devait commencer par '%s|'"
+
+#. module: spp_dci_client_ibr
+#. odoo-python
+#: code:addons/spp_dci_client_ibr/models/ibr_sender.py:0
+msgid ""
+"No public key available for IBR sender %s. Please fetch the public key first."
+msgstr ""
+"Aucune clé publique disponible pour l’émetteur IBR %s. Veuillez d’abord "
+"récupérer la clé publique."
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,field_description:spp_dci_client_ibr.field_spp_dci_duplication_check__notes
+#: model:ir.model.fields,field_description:spp_dci_client_ibr.field_spp_dci_ibr_sender__notes
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_ibr.view_dci_duplication_check_form
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_ibr.view_spp_dci_ibr_sender_form
+msgid "Notes"
+msgstr "Notes"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,help:spp_dci_client_ibr.field_spp_dci_ibr_sender__public_key
+msgid "PEM-encoded public key for signature verification"
+msgstr "Clé publique encodée en PEM pour la vérification des signatures"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields.selection,name:spp_dci_client_ibr.selection__spp_dci_duplication_check__result__possible_match
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_ibr.view_dci_duplication_check_search
+msgid "Possible Match"
+msgstr "Correspondance possible"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,field_description:spp_dci_client_ibr.field_spp_dci_ibr_sender__public_key
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_ibr.view_spp_dci_ibr_sender_form
+msgid "Public Key"
+msgstr "Clé publique"
+
+#. module: spp_dci_client_ibr
+#. odoo-python
+#: code:addons/spp_dci_client_ibr/models/ibr_sender.py:0
+msgid "Public key fetched successfully from %s"
+msgstr "Clé publique récupérée avec succès depuis %s"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields.selection,name:spp_dci_client_ibr.selection__spp_dci_ibr_sender__algorithm__rs256
+msgid "RSA-256"
+msgstr "RSA-256"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,help:spp_dci_client_ibr.field_spp_dci_duplication_check__raw_response
+msgid "Raw JSON response from the DCI API for debugging"
+msgstr "Réponse JSON brute de l’API DCI pour le débogage"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,field_description:spp_dci_client_ibr.field_spp_dci_duplication_check__raw_response
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_ibr.view_dci_duplication_check_form
+msgid "Raw Response"
+msgstr "Réponse brute"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields.selection,name:spp_dci_client_ibr.selection__spp_dci_duplication_check__state__ready
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_ibr.view_dci_duplication_check_search
+msgid "Ready"
+msgstr "Prêt"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,field_description:spp_dci_client_ibr.field_spp_dci_duplication_check__partner_id
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_ibr.view_dci_duplication_check_search
+msgid "Registrant"
+msgstr "Inscrit"
+
+#. module: spp_dci_client_ibr
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_ibr.view_dci_duplication_check_form
+msgid "Registrant Information"
+msgstr "Informations sur l’inscrit"
+
+#. module: spp_dci_client_ibr
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_ibr.view_dci_duplication_check_form
+msgid "Reset to Ready"
+msgstr "Réinitialiser à l’état « Prêt »"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,field_description:spp_dci_client_ibr.field_spp_dci_duplication_check__result
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_ibr.view_dci_duplication_check_search
+msgid "Result"
+msgstr "Résultat"
+
+#. module: spp_dci_client_ibr
+#. odoo-python
+#: code:addons/spp_dci_client_ibr/models/duplication_check.py:0
+msgid "Result cannot be empty."
+msgstr "Le résultat ne peut pas être vide."
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,help:spp_dci_client_ibr.field_spp_dci_duplication_check__result
+msgid "Result of the duplication check"
+msgstr "Résultat du contrôle de doublons"
+
+#. module: spp_dci_client_ibr
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_ibr.view_dci_duplication_check_form
+msgid "Run Check"
+msgstr "Lancer le contrôle"
+
+#. module: spp_dci_client_ibr
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_ibr.view_dci_duplication_check_search
+msgid "Search Duplication Checks"
+msgstr "Rechercher des contrôles de doublons"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,field_description:spp_dci_client_ibr.field_spp_dci_ibr_sender__sender_id
+msgid "Sender ID"
+msgstr "ID de l’émetteur"
+
+#. module: spp_dci_client_ibr
+#. odoo-python
+#: code:addons/spp_dci_client_ibr/models/ibr_sender.py:0
+msgid "Sender ID must be unique. An IBR sender already exists with this ID."
+msgstr ""
+"L’ID de l’émetteur doit être unique. Un émetteur IBR existe déjà avec cet ID."
+
+#. module: spp_dci_client_ibr
+#. odoo-python
+#: code:addons/spp_dci_client_ibr/models/ibr_sender.py:0
+msgid ""
+"Sender ID must contain only alphanumeric characters, dots, hyphens, and "
+"underscores."
+msgstr ""
+"L’ID de l’émetteur doit contenir uniquement des caractères alphanumériques, "
+"des points, des tirets et des soulignements."
+
+#. module: spp_dci_client_ibr
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_ibr.view_spp_dci_ibr_sender_form
+msgid "Sender Information"
+msgstr "Informations sur l’émetteur"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,field_description:spp_dci_client_ibr.field_spp_dci_duplication_check__state
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_ibr.view_dci_duplication_check_search
+msgid "State"
+msgstr "État"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,help:spp_dci_client_ibr.field_spp_dci_duplication_check__state
+msgid "State of the duplication check process"
+msgstr "État du processus de contrôle de doublons"
+
+#. module: spp_dci_client_ibr
+#. odoo-python
+#: code:addons/spp_dci_client_ibr/models/ibr_sender.py:0
+msgid "Success"
+msgstr "Succès"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,help:spp_dci_client_ibr.field_spp_dci_duplication_check__data_source_id
+msgid "The IBR data source that was queried"
+msgstr "La source de données IBR interrogée"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,help:spp_dci_client_ibr.field_spp_dci_duplication_check__partner_id
+msgid "The registrant being checked for duplicates"
+msgstr "L’inscrit faisant l’objet d’une recherche de doublons"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,help:spp_dci_client_ibr.field_spp_dci_duplication_check__identifier_type
+msgid "Type of identifier used for the check (e.g., UIN, BRN, MRN, DRN)"
+msgstr ""
+"Type d’identifiant utilisé pour le contrôle (p. ex., UIN, BRN, MRN, DRN)"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,help:spp_dci_client_ibr.field_spp_dci_ibr_sender__jwks_url
+msgid "URL to IBR registry's JWKS endpoint (/.well-known/jwks.json)"
+msgstr ""
+"URL du point de terminaison JWKS du registre IBR (/.well-known/jwks.json)"
+
+#. module: spp_dci_client_ibr
+#. odoo-python
+#: code:addons/spp_dci_client_ibr/models/ibr_sender.py:0
+msgid "Unsupported JWK key type: %s (curve: %s)"
+msgstr "Type de clé JWK non pris en charge : %s (courbe : %s)"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,help:spp_dci_client_ibr.field_spp_dci_duplication_check__identifier_value
+msgid "Value of the identifier used for the check"
+msgstr "Valeur de l’identifiant utilisé pour le contrôle"
+
+#. module: spp_dci_client_ibr
+#: model:ir.model.fields,help:spp_dci_client_ibr.field_spp_dci_ibr_sender__last_key_fetch
+msgid "When we last fetched their JWKS"
+msgstr "Date de la dernière récupération de leurs JWKS"
+
+#. module: spp_dci_client_ibr
+#: model_terms:ir.ui.view,arch_db:spp_dci_client_ibr.view_spp_dci_ibr_sender_form
+msgid "e.g., National Beneficiary Registry"
+msgstr "p. ex., Registre national des bénéficiaires"

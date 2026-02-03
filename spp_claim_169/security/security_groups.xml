@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Privileges -->
+    <record id="privilege_claim169_user" model="res.groups.privilege">
+        <field name="name">QR Credentials User</field>
+        <field name="category_id" ref="spp_security.category_spp_identity"/>
+        <field name="description">Can view QR credentials and generate new ones for registrants</field>
+    </record>
+
+    <record id="privilege_claim169_manager" model="res.groups.privilege">
+        <field name="name">QR Credentials Manager</field>
+        <field name="category_id" ref="spp_security.category_spp_identity"/>
+        <field name="description">Can manage QR credential configuration, attribute mappings, issuers, and revoke credentials</field>
+    </record>
+
+    <!-- Security Groups -->
+    <record id="group_claim169_user" model="res.groups">
+        <field name="name">QR Credentials User</field>
+        <field name="privilege_id" ref="privilege_claim169_user"/>
+        <field name="comment">Can view QR credentials and generate new ones</field>
+    </record>
+
+    <record id="group_claim169_manager" model="res.groups">
+        <field name="name">QR Credentials Manager</field>
+        <field name="privilege_id" ref="privilege_claim169_manager"/>
+        <field name="implied_ids" eval="[Command.link(ref('group_claim169_user'))]"/>
+        <field name="comment">Can manage QR credential configuration and revoke credentials</field>
+    </record>
+
+    <!-- Record Rules -->
+    <record id="rule_spp_claim169_credential_user" model="ir.rule">
+        <field name="name">QR Credential: User</field>
+        <field name="model_id" ref="model_spp_claim169_credential"/>
+        <field name="groups" eval="[(4, ref('group_claim169_user'))]"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_spp_claim169_credential_manager" model="ir.rule">
+        <field name="name">QR Credential: Manager</field>
+        <field name="model_id" ref="model_spp_claim169_credential"/>
+        <field name="groups" eval="[(4, ref('group_claim169_manager'))]"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_spp_claim169_issuer_config_user" model="ir.rule">
+        <field name="name">QR Credential Issuer Config: User</field>
+        <field name="model_id" ref="model_spp_claim169_issuer_config"/>
+        <field name="groups" eval="[(4, ref('group_claim169_user'))]"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_spp_claim169_issuer_config_manager" model="ir.rule">
+        <field name="name">QR Credential Issuer Config: Manager</field>
+        <field name="model_id" ref="model_spp_claim169_issuer_config"/>
+        <field name="groups" eval="[(4, ref('group_claim169_manager'))]"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_spp_claim169_attribute_mapping_viewer" model="ir.rule">
+        <field name="name">QR Credential Attribute Mapping: All</field>
+        <field name="model_id" ref="model_spp_claim169_attribute_mapping"/>
+        <field name="groups" eval="[(4, ref('group_claim169_user')), (4, ref('group_claim169_manager'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_spp_claim169_attribute_mapping_manager" model="ir.rule">
+        <field name="name">QR Credential Attribute Mapping: Manager</field>
+        <field name="model_id" ref="model_spp_claim169_attribute_mapping"/>
+        <field name="groups" eval="[(4, ref('group_claim169_manager'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+</odoo>
