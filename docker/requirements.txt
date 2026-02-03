@@ -11,7 +11,7 @@
 # -----------------------------------------------------------------------------
 # Core System Dependencies (required for production)
 # -----------------------------------------------------------------------------
-websocket-client~=0.56
+websocket-client~=1.9
 pyOpenSSL
 geoip2
 git-aggregator==4.0
