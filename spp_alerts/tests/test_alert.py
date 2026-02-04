@@ -164,7 +164,13 @@ class TestAlert(AlertsTestCommon):
 
         # Search all alerts by explicit ordering (same as model's _order)
         alerts = self.env["spp.alert"].search(
-            [("id", "in", [alert_low.id, alert_critical.id, alert_medium.id, alert_high.id])],
+            [
+                (
+                    "id",
+                    "in",
+                    [alert_low.id, alert_critical.id, alert_medium.id, alert_high.id],
+                )
+            ],
             order="priority desc, create_date desc",
         )
 

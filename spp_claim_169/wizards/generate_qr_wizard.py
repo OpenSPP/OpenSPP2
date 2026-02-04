@@ -25,15 +25,21 @@ class Claim169GenerateQRWizard(models.TransientModel):
     )
 
     partner_count = fields.Integer(
-        string="Number of Partners", compute="_compute_partner_count", help="Total number of partners selected"
+        string="Number of Partners",
+        compute="_compute_partner_count",
+        help="Total number of partners selected",
     )
 
     issuer_config_id = fields.Many2one(
-        comodel_name="spp.claim169.issuer.config", string="Issuer", required=True, help="Issuer configuration to use"
+        comodel_name="spp.claim169.issuer.config",
+        string="Issuer",
+        required=True,
+        help="Issuer configuration to use",
     )
 
     validity_days = fields.Integer(
-        string="Validity (Days)", help="Number of days credentials are valid for (overrides issuer default)"
+        string="Validity (Days)",
+        help="Number of days credentials are valid for (overrides issuer default)",
     )
 
     generate_mode = fields.Selection(
@@ -214,10 +220,19 @@ class Claim169GenerateQRWizard(models.TransientModel):
                     }
                 )
 
-                _logger.info("Generated credential %s for partner %s", credential.name, partner.name)
+                _logger.info(
+                    "Generated credential %s for partner %s",
+                    credential.name,
+                    partner.name,
+                )
 
             except Exception as e:
-                _logger.error("Failed to generate credential for partner %s: %s", partner.id, str(e), exc_info=True)
+                _logger.error(
+                    "Failed to generate credential for partner %s: %s",
+                    partner.id,
+                    str(e),
+                    exc_info=True,
+                )
                 results["failed"].append({"partner": partner, "error": str(e)})
 
         # Generate result message
@@ -344,7 +359,11 @@ class Claim169GenerateQRWizard(models.TransientModel):
             [
                 ("partner_id", "in", self.partner_ids.ids),
                 ("issuer_config_id", "=", self.issuer_config_id.id),
-                ("issued_at", ">=", fields.Datetime.now().replace(hour=0, minute=0, second=0)),
+                (
+                    "issued_at",
+                    ">=",
+                    fields.Datetime.now().replace(hour=0, minute=0, second=0),
+                ),
             ]
         )
 

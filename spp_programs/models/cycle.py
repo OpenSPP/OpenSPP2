@@ -97,7 +97,10 @@ class SPPCycle(models.Model):
     # In-kind entitlement fields
     inkind_entitlement_ids = fields.One2many("spp.entitlement.inkind", "cycle_id", "In-Kind Entitlements")
     inkind_entitlements_count = fields.Integer(
-        string="# In-kind Entitlements", readonly=True, compute="_compute_inkind_entitlements_count", store=False
+        string="# In-kind Entitlements",
+        readonly=True,
+        compute="_compute_inkind_entitlements_count",
+        store=False,
     )
 
     # Stock Management Fields
@@ -117,7 +120,10 @@ class SPPCycle(models.Model):
     members_count = fields.Integer(string="# Beneficiaries", readonly=True, compute="_compute_members_count")
     entitlements_count = fields.Integer(string="# Entitlements", readonly=True, compute="_compute_entitlements_count")
     total_entitlements_count = fields.Integer(
-        string="# Total Entitlements", readonly=True, compute="_compute_total_entitlements_count", store=False
+        string="# Total Entitlements",
+        readonly=True,
+        compute="_compute_total_entitlements_count",
+        store=False,
     )
     payments_count = fields.Integer(string="# Payments", readonly=True, compute="_compute_payments_count")
     all_members_count = fields.Integer(string="# Enrollments", readonly=True, compute="_compute_all_members_count")
@@ -171,7 +177,9 @@ class SPPCycle(models.Model):
     # Entitlement type indicator
     is_cash_entitlement = fields.Boolean(compute="_compute_entitlement_type", string="Is Cash Entitlement", store=False)
     is_inkind_entitlement = fields.Boolean(
-        compute="_compute_entitlement_type", string="Is In-Kind Entitlement", store=False
+        compute="_compute_entitlement_type",
+        string="Is In-Kind Entitlement",
+        store=False,
     )
 
     # Fund availability fields for auto-approve cycles
@@ -333,22 +341,24 @@ class SPPCycle(models.Model):
                         if pending_review and pending_review.current_tier_id:
                             current_tier = pending_review.current_tier_id
                             if current_tier.approval_group_id:
-                                record.approval_waiting_message = _(
-                                    "Waiting for approval from members of the <b>%s</b> security group."
-                                ) % current_tier.approval_group_id.display_name
+                                record.approval_waiting_message = (
+                                    _("Waiting for approval from members of the <b>%s</b> security group.")
+                                    % current_tier.approval_group_id.display_name
+                                )
                             else:
                                 record.approval_waiting_message = _("Waiting for approval from designated approver.")
                         else:
                             record.approval_waiting_message = _("Waiting for approval.")
                     elif definition.approval_type == "group" and definition.approval_group_id:
-                        record.approval_waiting_message = _(
-                            "Waiting for approval from members of the <b>%s</b> security group."
-                        ) % definition.approval_group_id.display_name
+                        record.approval_waiting_message = (
+                            _("Waiting for approval from members of the <b>%s</b> security group.")
+                            % definition.approval_group_id.display_name
+                        )
                     elif definition.approval_type == "user" and definition.approval_user_ids:
                         user_names = ", ".join(definition.approval_user_ids.mapped("name"))
-                        record.approval_waiting_message = _(
-                            "Waiting for approval from specific users: <b>%s</b>"
-                        ) % user_names
+                        record.approval_waiting_message = (
+                            _("Waiting for approval from specific users: <b>%s</b>") % user_names
+                        )
                     else:
                         record.approval_waiting_message = _("Waiting for approval from designated approver.")
                 else:
@@ -372,8 +382,14 @@ class SPPCycle(models.Model):
             if not has_entitlements:
                 rec.all_entitlements_approved = False
                 continue
-            all_cash_approved = all(ent.state == "approved" for ent in rec.entitlement_ids) if rec.entitlement_ids else True
-            all_inkind_approved = all(ent.state == "approved" for ent in rec.inkind_entitlement_ids) if rec.inkind_entitlement_ids else True
+            all_cash_approved = (
+                all(ent.state == "approved" for ent in rec.entitlement_ids) if rec.entitlement_ids else True
+            )
+            all_inkind_approved = (
+                all(ent.state == "approved" for ent in rec.inkind_entitlement_ids)
+                if rec.inkind_entitlement_ids
+                else True
+            )
             rec.all_entitlements_approved = all_cash_approved and all_inkind_approved
 
     @api.depends("program_id")
@@ -391,7 +407,13 @@ class SPPCycle(models.Model):
                     else:
                         rec.is_inkind_entitlement = True
 
-    @api.depends("auto_approve_entitlements", "entitlement_ids.initial_amount", "entitlement_ids.state", "state", "program_id")
+    @api.depends(
+        "auto_approve_entitlements",
+        "entitlement_ids.initial_amount",
+        "entitlement_ids.state",
+        "state",
+        "program_id",
+    )
     def _compute_fund_availability(self):
         """Compute fund availability for cycles with pending entitlements."""
         for rec in self:
@@ -793,7 +815,7 @@ class SPPCycle(models.Model):
                 "type": "ir.actions.act_window",
                 "view_mode": "form",
                 "res_model": "spp.prepare.entitlement.confirm.wizard",
-                "view_id": self.env.ref("spp_programs.prepare_entitlement_confirm_wizard_view").id,
+                "view_id": self.env.ref("spp_programs.view_spp_prepare_entitlement_confirm_wizard_form").id,
                 "target": "new",
                 "context": {
                     "default_cycle_id": self.id,
@@ -907,14 +929,16 @@ class SPPCycle(models.Model):
 
         # Use stored action for proper URL/refresh handling
         action = self.env.ref("spp_programs.action_cycle_list").sudo().read()[0]
-        action.update({
-            "name": self.name,
-            "view_mode": "form",
-            "views": [[self.env.ref("spp_programs.view_cycle_form").id, "form"]],
-            "res_id": self.id,
-            "context": {"hide_cash": hide_cash},
-            "target": "current",
-        })
+        action.update(
+            {
+                "name": self.name,
+                "view_mode": "form",
+                "views": [[self.env.ref("spp_programs.view_cycle_form").id, "form"]],
+                "res_id": self.id,
+                "context": {"hide_cash": hide_cash},
+                "target": "current",
+            }
+        )
         return action
 
     def open_entitlements_form(self):
@@ -1087,31 +1111,35 @@ class SPPCycle(models.Model):
         self.ensure_one()
         # Use stored action for proper URL/refresh handling
         action = self.env.ref("spp_programs.action_cycle_membership").sudo().read()[0]
-        action.update({
-            "name": _("Cycle Members - %s", self.name),
-            "context": {
-                "create": False,
-                "default_cycle_id": self.id,
-                "search_default_cycle_id": self.id,
-            },
-            "domain": [("cycle_id", "=", self.id)],
-        })
+        action.update(
+            {
+                "name": _("Cycle Members - %s", self.name),
+                "context": {
+                    "create": False,
+                    "default_cycle_id": self.id,
+                    "search_default_cycle_id": self.id,
+                },
+                "domain": [("cycle_id", "=", self.id)],
+            }
+        )
         return action
 
     def open_members_form(self):  # noqa: F811
         self.ensure_one()
         # Use stored action for proper URL/refresh handling
         action = self.env.ref("spp_programs.action_cycle_membership").sudo().read()[0]
-        action.update({
-            "name": _("Cycle Beneficiaries - %s", self.name),
-            "context": {
-                "create": False,
-                "default_cycle_id": self.id,
-                "search_default_enrolled_state": 1,
-                "search_default_cycle_id": self.id,
-            },
-            "domain": [("cycle_id", "=", self.id)],
-        })
+        action.update(
+            {
+                "name": _("Cycle Beneficiaries - %s", self.name),
+                "context": {
+                    "create": False,
+                    "default_cycle_id": self.id,
+                    "search_default_enrolled_state": 1,
+                    "search_default_cycle_id": self.id,
+                },
+                "domain": [("cycle_id", "=", self.id)],
+            }
+        )
         return action
 
     @api.constrains("start_date", "end_date")

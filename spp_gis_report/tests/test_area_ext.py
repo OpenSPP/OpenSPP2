@@ -526,7 +526,10 @@ class TestAreaGetGISLayers(TransactionCase):
         # Create test areas with geo_polygon
         # Use GeoJSON string for geo_polygon field
         test_polygon_geojson = json.dumps(
-            {"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]}
+            {
+                "type": "Polygon",
+                "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
+            }
         )
         cls.area_with_geo = cls.env["spp.area"].create(
             {
@@ -704,14 +707,19 @@ class TestAreaGetGISLayers(TransactionCase):
 
         self.assertIsNotNone(report_layer)
         self.assertEqual(
-            len(report_layer.get("report_features", [])), 0, "Should have 0 features for area without geometry"
+            len(report_layer.get("report_features", [])),
+            0,
+            "Should have 0 features for area without geometry",
         )
 
     def test_03_report_features_skips_stale_data(self):
         """Test that stale report data is excluded."""
         # Create a fresh area for this test to avoid interference
         test_polygon_geojson = json.dumps(
-            {"type": "Polygon", "coordinates": [[[2, 2], [3, 2], [3, 3], [2, 3], [2, 2]]]}
+            {
+                "type": "Polygon",
+                "coordinates": [[[2, 2], [3, 2], [3, 3], [2, 3], [2, 2]]],
+            }
         )
         stale_area = self.env["spp.area"].create(
             {
@@ -758,7 +766,11 @@ class TestAreaGetGISLayers(TransactionCase):
 
         self.assertIsNotNone(report_layer)
         features = report_layer.get("report_features", [])
-        self.assertEqual(len(features), 0, f"Should have 0 features for stale data, but found {len(features)}")
+        self.assertEqual(
+            len(features),
+            0,
+            f"Should have 0 features for stale data, but found {len(features)}",
+        )
 
     def test_04_report_legend_from_thresholds(self):
         """Test that report_legend is built from thresholds."""
@@ -876,4 +888,8 @@ class TestAreaGetGISLayers(TransactionCase):
 
         self.assertIsNotNone(found_layer)
         self.assertEqual(found_layer.get("source_type"), "model")
-        self.assertNotIn("report_features", found_layer, "Model layers should not have report_features")
+        self.assertNotIn(
+            "report_features",
+            found_layer,
+            "Model layers should not have report_features",
+        )

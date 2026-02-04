@@ -301,7 +301,13 @@ class CELVariable(models.Model):
         for var in self:
             var.supports_historical = var.period_granularity != "current"
 
-    @api.depends("source_type", "aggregate_type", "aggregate_target", "aggregate_field", "aggregate_filter")
+    @api.depends(
+        "source_type",
+        "aggregate_type",
+        "aggregate_target",
+        "aggregate_field",
+        "aggregate_filter",
+    )
     def _compute_cel_expression(self):
         """Auto-compute cel_expression for aggregate variables.
 

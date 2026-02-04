@@ -722,7 +722,10 @@ class TestGRMCrossUserWrites(TestAccessControlBase):
         self.assertEqual(len(found), 1, "Viewer should see their assigned ticket")
 
         # But viewer should NOT be able to write to it
-        with self.assertRaises(AccessError, msg="Viewer should not have write access even to visible tickets"):
+        with self.assertRaises(
+            AccessError,
+            msg="Viewer should not have write access even to visible tickets",
+        ):
             ticket.with_user(self.user_viewer).write({"name": "Modified by Viewer"})
 
     def test_viewer_cannot_unlink_visible_ticket(self):
@@ -735,7 +738,10 @@ class TestGRMCrossUserWrites(TestAccessControlBase):
             }
         )
 
-        with self.assertRaises(AccessError, msg="Viewer should not have delete access even to visible tickets"):
+        with self.assertRaises(
+            AccessError,
+            msg="Viewer should not have delete access even to visible tickets",
+        ):
             ticket.with_user(self.user_viewer).unlink()
 
     def test_officer_can_write_assigned_ticket(self):

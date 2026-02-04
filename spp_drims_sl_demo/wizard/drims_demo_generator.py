@@ -568,7 +568,12 @@ class DrimsDemoGenerator(models.TransientModel):
             area_type = level_to_type.get(area.area_level)
             if area_type and area.area_type_id != area_type:
                 area.area_type_id = area_type
-                _logger.debug("Assigned type ID %s to area ID %s (level %d)", area_type.id, area.id, area.area_level)
+                _logger.debug(
+                    "Assigned type ID %s to area ID %s (level %d)",
+                    area_type.id,
+                    area.id,
+                    area.area_level,
+                )
 
     def _link_warehouses_to_areas(self):
         """Link DRIMS warehouses to their respective areas by name matching."""
@@ -671,7 +676,10 @@ class DrimsDemoGenerator(models.TransientModel):
                         "or create hazard categories before generating demo incidents."
                     )
                 )
-            _logger.info("Using fallback category ID %s - spp_hazard demo data not loaded", fallback_category.id)
+            _logger.info(
+                "Using fallback category ID %s - spp_hazard demo data not loaded",
+                fallback_category.id,
+            )
 
         # Get coordination modes for multi-agency coordination
         coord_modes = self._get_coordination_modes()
@@ -690,9 +698,17 @@ class DrimsDemoGenerator(models.TransientModel):
                 "description": "Heavy rainfall from southwest monsoon causing widespread flooding "
                 "in Western and Southern provinces. Over 50,000 families affected.",
                 "affected_areas": [
-                    {"name": "Colombo", "severity": "5", "population": 25000},  # Catastrophic
+                    {
+                        "name": "Colombo",
+                        "severity": "5",
+                        "population": 25000,
+                    },  # Catastrophic
                     {"name": "Gampaha", "severity": "4", "population": 15000},  # Severe
-                    {"name": "Galle", "severity": "3", "population": 10000},  # Significant
+                    {
+                        "name": "Galle",
+                        "severity": "3",
+                        "population": 10000,
+                    },  # Significant
                 ],
                 "coordination_mode": "lead_agency",  # Government-led response
             },
@@ -705,8 +721,16 @@ class DrimsDemoGenerator(models.TransientModel):
                 "description": "Multiple landslides in Ratnapura district following heavy rains. "
                 "Several villages evacuated, relief operations underway.",
                 "affected_areas": [
-                    {"name": "Ratnapura", "severity": "5", "population": 8000},  # Catastrophic
-                    {"name": "Kegalle", "severity": "3", "population": 3000},  # Significant
+                    {
+                        "name": "Ratnapura",
+                        "severity": "5",
+                        "population": 8000,
+                    },  # Catastrophic
+                    {
+                        "name": "Kegalle",
+                        "severity": "3",
+                        "population": 3000,
+                    },  # Significant
                 ],
                 "coordination_mode": "cluster",  # UN cluster coordination
             },
@@ -720,7 +744,11 @@ class DrimsDemoGenerator(models.TransientModel):
                 "Agricultural losses and water shortages reported.",
                 "affected_areas": [
                     {"name": "Jaffna", "severity": "4", "population": 12000},  # Severe
-                    {"name": "Anuradhapura", "severity": "3", "population": 8000},  # Significant
+                    {
+                        "name": "Anuradhapura",
+                        "severity": "3",
+                        "population": 8000,
+                    },  # Significant
                 ],
                 "coordination_mode": "consortium",  # NGO consortium
             },
@@ -1265,7 +1293,11 @@ class DrimsDemoGenerator(models.TransientModel):
         """Get priority vocabulary codes."""
         return self.env["spp.vocabulary.code"].search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:priority-levels"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:priority-levels",
+                ),
             ]
         )
 
@@ -1273,7 +1305,11 @@ class DrimsDemoGenerator(models.TransientModel):
         """Get coordination modes as dict keyed by code."""
         modes = self.env["spp.vocabulary.code"].search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:coordination-modes"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:coordination-modes",
+                ),
             ]
         )
         return {m.code: m for m in modes}
@@ -1301,7 +1337,11 @@ class DrimsDemoGenerator(models.TransientModel):
         # Get alert types
         alert_types = AlertType.search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:alert-types"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:alert-types",
+                ),
             ]
         )
         type_map = {t.code: t for t in alert_types}
@@ -1446,7 +1486,11 @@ class DrimsDemoGenerator(models.TransientModel):
                 ("state", "in", ("active", "acknowledged")),
             ]
         )
-        _logger.info("Demo alerts created: %d direct, %d total active", created_count, total_alert_count)
+        _logger.info(
+            "Demo alerts created: %d direct, %d total active",
+            created_count,
+            total_alert_count,
+        )
 
     def _generate_completed_dispatches(self, incidents):
         """Generate completed dispatch pickings with beneficiary data.
@@ -1468,7 +1512,11 @@ class DrimsDemoGenerator(models.TransientModel):
         # Get the request_dispatch DRIMS type
         drims_type_dispatch = self.env["spp.vocabulary.code"].search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:drims-types"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:drims-types",
+                ),
                 ("code", "=", "request_dispatch"),
             ],
             limit=1,
@@ -1618,7 +1666,11 @@ class DrimsDemoGenerator(models.TransientModel):
         # Get personnel roles
         roles = self.env["spp.vocabulary.code"].search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:personnel-roles"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:personnel-roles",
+                ),
             ]
         )
         role_list = list(roles)
@@ -1680,7 +1732,13 @@ class DrimsDemoGenerator(models.TransientModel):
             "Karunaratne",
         ]
 
-        statuses = ["deployed", "deployed", "deployed", "standby", "on_leave"]  # Weighted toward deployed
+        statuses = [
+            "deployed",
+            "deployed",
+            "deployed",
+            "standby",
+            "on_leave",
+        ]  # Weighted toward deployed
 
         for incident in incidents:
             # Get warehouses linked to this incident
@@ -1753,10 +1811,16 @@ class DrimsDemoGenerator(models.TransientModel):
         GISReport = self.env["spp.gis.report"]
 
         # Find all active DRIMS-related reports
-        drims_reports = GISReport.search([
-            ("source_model", "in", ["spp.drims.request", "spp.hazard.incident.area"]),
-            ("active", "=", True),
-        ])
+        drims_reports = GISReport.search(
+            [
+                (
+                    "source_model",
+                    "in",
+                    ["spp.drims.request", "spp.hazard.incident.area"],
+                ),
+                ("active", "=", True),
+            ]
+        )
 
         if not drims_reports:
             _logger.debug("No DRIMS-related GIS reports found - skipping refresh")
@@ -1766,9 +1830,9 @@ class DrimsDemoGenerator(models.TransientModel):
         for report in drims_reports:
             try:
                 report._refresh_data()
-                _logger.info("Refreshed GIS report: %s", report.name)
+                _logger.info("Refreshed GIS report ID %s", report.id)
             except Exception:
-                _logger.exception("Failed to refresh GIS report: %s", report.name)
+                _logger.exception("Failed to refresh GIS report ID %s", report.id)
 
     def _generate_pod_gps_for_area(self, area):
         """Generate POD GPS coordinates for a destination area.

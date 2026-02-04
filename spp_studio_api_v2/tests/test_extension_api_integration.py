@@ -14,9 +14,7 @@ class TestExtensionAPIIntegration(TransactionCase):
         super().setUpClass()
 
         # Get or create ID Type vocabulary (using the vocabulary-based ID type system)
-        id_type_vocab = cls.env["spp.vocabulary"].search(
-            [("namespace_uri", "=", "urn:openspp:vocab:id-type")], limit=1
-        )
+        id_type_vocab = cls.env["spp.vocabulary"].search([("namespace_uri", "=", "urn:openspp:vocab:id-type")], limit=1)
         if not id_type_vocab:
             id_type_vocab = cls.env["spp.vocabulary"].create(
                 {
@@ -27,7 +25,10 @@ class TestExtensionAPIIntegration(TransactionCase):
 
         # Get or create test ID type code within the ID Type vocabulary
         cls.id_type = cls.env["spp.vocabulary.code"].search(
-            [("vocabulary_id", "=", id_type_vocab.id), ("code", "=", "test_national_id")],
+            [
+                ("vocabulary_id", "=", id_type_vocab.id),
+                ("code", "=", "test_national_id"),
+            ],
             limit=1,
         )
         if not cls.id_type:

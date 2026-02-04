@@ -170,7 +170,12 @@ class SPPCRBatchApprovalWizard(models.TransientModel):
                         <td>{type_name}</td>
                         <td>{status}</td>
                     </tr>
-                """).format(icon=icon, name=cr_name, type_name=cr_type_name, status=status_text_escaped)
+                """).format(
+                        icon=icon,
+                        name=cr_name,
+                        type_name=cr_type_name,
+                        status=status_text_escaped,
+                    )
                 )
 
             rec.result_html = Markup("""
@@ -222,7 +227,7 @@ class SPPCRBatchApprovalWizard(models.TransientModel):
                 success_count += 1
 
             except Exception as e:
-                _logger.warning("Batch action failed for CR %s: %s", cr.name, str(e))
+                _logger.warning("Batch action failed for CR ID %s: %s", cr.id, str(e))
                 line.result_status = "error"
                 line.result_message = str(e)
                 failed_count += 1

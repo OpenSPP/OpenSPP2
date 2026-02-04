@@ -9,9 +9,21 @@ from odoo.exceptions import UserError, ValidationError
 
 from odoo.addons.fastapi.dependencies import odoo_env
 from odoo.addons.spp_api_v2.middleware.auth import get_authenticated_client
-from odoo.addons.spp_api_v2.schemas.search_result import SearchResult, create_search_result
+from odoo.addons.spp_api_v2.schemas.search_result import (
+    SearchResult,
+    create_search_result,
+)
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Path, Query, Response, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    Header,
+    HTTPException,
+    Path,
+    Query,
+    Response,
+    status,
+)
 
 from ..schemas.change_request import (
     ApproveActionData,
@@ -176,19 +188,31 @@ async def search_change_requests(
     query_params = "&".join(query_parts)
 
     # Build self URL
-    self_url = f"{base_url}?{query_params}&_count={count}&_offset={offset}" if query_params else f"{base_url}?_count={count}&_offset={offset}"
+    self_url = (
+        f"{base_url}?{query_params}&_count={count}&_offset={offset}"
+        if query_params
+        else f"{base_url}?_count={count}&_offset={offset}"
+    )
 
     # Build next URL
     next_url = None
     if offset + count < total:
         next_offset = offset + count
-        next_url = f"{base_url}?{query_params}&_count={count}&_offset={next_offset}" if query_params else f"{base_url}?_count={count}&_offset={next_offset}"
+        next_url = (
+            f"{base_url}?{query_params}&_count={count}&_offset={next_offset}"
+            if query_params
+            else f"{base_url}?_count={count}&_offset={next_offset}"
+        )
 
     # Build prev URL
     prev_url = None
     if offset > 0:
         prev_offset = max(0, offset - count)
-        prev_url = f"{base_url}?{query_params}&_count={count}&_offset={prev_offset}" if query_params else f"{base_url}?_count={count}&_offset={prev_offset}"
+        prev_url = (
+            f"{base_url}?{query_params}&_count={count}&_offset={prev_offset}"
+            if query_params
+            else f"{base_url}?_count={count}&_offset={prev_offset}"
+        )
 
     return create_search_result(
         data=data,

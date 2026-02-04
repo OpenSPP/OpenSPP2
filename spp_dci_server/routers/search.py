@@ -101,7 +101,9 @@ async def search_registry(
 
         # Execute search using DCISocialSearchService
         try:
-            from odoo.addons.spp_dci_server_social.services.search_service import DCISocialSearchService
+            from odoo.addons.spp_dci_server_social.services.search_service import (
+                DCISocialSearchService,
+            )
 
             search_service = DCISocialSearchService(env)
             search_response = search_service.execute_search(search_request)
@@ -206,7 +208,10 @@ async def search_registry(
                 response_signature = signer.sign(header_dict, message_dict)
                 _logger.debug("Response signed with key: %s", active_key.key_id)
         except Exception as e:
-            _logger.warning("Failed to sign response: %s - continuing with unsigned response", str(e))
+            _logger.warning(
+                "Failed to sign response: %s - continuing with unsigned response",
+                str(e),
+            )
             response_signature = ""
 
         response_envelope = DCIEnvelope(

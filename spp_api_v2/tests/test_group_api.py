@@ -229,7 +229,12 @@ class TestGroupAPIEndpoints(ApiV2HttpTestCase):
         """POST /Group creates new group"""
         payload = {
             "resourceType": "Group",
-            "identifier": [{"system": "urn:openspp:vocab:id-type#test_household_id", "value": "HH-CREATE-001"}],
+            "identifier": [
+                {
+                    "system": "urn:openspp:vocab:id-type#test_household_id",
+                    "value": "HH-CREATE-001",
+                }
+            ],
             "name": "New Household",
             "type": "Group",
             "active": True,
@@ -255,7 +260,12 @@ class TestGroupAPIEndpoints(ApiV2HttpTestCase):
         """POST /Group with members creates group memberships"""
         payload = {
             "resourceType": "Group",
-            "identifier": [{"system": "urn:openspp:vocab:id-type#test_household_id", "value": "HH-CREATE-002"}],
+            "identifier": [
+                {
+                    "system": "urn:openspp:vocab:id-type#test_household_id",
+                    "value": "HH-CREATE-002",
+                }
+            ],
             "name": "Group with Members",
             "type": "Group",
             "member": [
@@ -295,13 +305,21 @@ class TestGroupAPIEndpoints(ApiV2HttpTestCase):
         memberships = self.env["spp.group.membership"].search([("group", "=", group.id)])
         relationships = self.env["spp.registry.relationship"].search([("destination", "=", group.id)])
         # Either memberships or relationships should be created
-        self.assertTrue(len(memberships) > 0 or len(relationships) > 0, "No members or relationships created")
+        self.assertTrue(
+            len(memberships) > 0 or len(relationships) > 0,
+            "No members or relationships created",
+        )
 
     def test_create_group_source_tracking(self):
         """Created group has source_system set"""
         payload = {
             "resourceType": "Group",
-            "identifier": [{"system": "urn:openspp:vocab:id-type#test_household_id", "value": "HH-SOURCE-001"}],
+            "identifier": [
+                {
+                    "system": "urn:openspp:vocab:id-type#test_household_id",
+                    "value": "HH-SOURCE-001",
+                }
+            ],
             "name": "Source Test Group",
             "type": "Group",
         }
@@ -330,7 +348,12 @@ class TestGroupAPIEndpoints(ApiV2HttpTestCase):
 
         payload = {
             "resourceType": "Group",
-            "identifier": [{"system": "urn:openspp:vocab:id-type#test_household_id", "value": "HH-FORBIDDEN-001"}],
+            "identifier": [
+                {
+                    "system": "urn:openspp:vocab:id-type#test_household_id",
+                    "value": "HH-FORBIDDEN-001",
+                }
+            ],
             "name": "Forbidden Group",
             "type": "Group",
         }
@@ -393,7 +416,12 @@ class TestGroupAPIEndpoints(ApiV2HttpTestCase):
         """POST /Group with address creates location"""
         payload = {
             "resourceType": "Group",
-            "identifier": [{"system": "urn:openspp:vocab:id-type#test_household_id", "value": "HH-CREATE-003"}],
+            "identifier": [
+                {
+                    "system": "urn:openspp:vocab:id-type#test_household_id",
+                    "value": "HH-CREATE-003",
+                }
+            ],
             "name": "Group with Address",
             "type": "Group",
             "address": [

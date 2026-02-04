@@ -464,14 +464,10 @@ class TestGISReport(TransactionCase):
         )
 
         # Filter to children of region
-        geojson = report._to_geojson(
-            parent_area_id=self.area_region.id, include_geometry=False
-        )
+        geojson = report._to_geojson(parent_area_id=self.area_region.id, include_geometry=False)
 
         self.assertEqual(len(geojson["features"]), 1)
-        self.assertEqual(
-            geojson["features"][0]["properties"]["parent_area_id"], self.area_region.id
-        )
+        self.assertEqual(geojson["features"][0]["properties"]["parent_area_id"], self.area_region.id)
 
     def test_16_get_summary_basic(self):
         """Test summary statistics generation."""
@@ -546,9 +542,7 @@ class TestGISReport(TransactionCase):
         self.assertTrue(default_scheme, "Default color scheme should exist")
 
         # Create report with specific color scheme
-        viridis_scheme = self.env["spp.gis.color.scheme"].search(
-            [("code", "=", "viridis")], limit=1
-        )
+        viridis_scheme = self.env["spp.gis.color.scheme"].search([("code", "=", "viridis")], limit=1)
         if viridis_scheme:
             report = self.env["spp.gis.report"].create(
                 {
@@ -615,7 +609,7 @@ class TestGISReport(TransactionCase):
         self.assertEqual(len(active_reports), 0)
 
         # Should appear when searching with active_test=False
-        inactive_reports = self.env["spp.gis.report"].with_context(
-            active_test=False
-        ).search([("code", "=", "active_test")])
+        inactive_reports = (
+            self.env["spp.gis.report"].with_context(active_test=False).search([("code", "=", "active_test")])
+        )
         self.assertEqual(len(inactive_reports), 1)

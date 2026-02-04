@@ -274,7 +274,12 @@ class VocabularyCode(models.Model):
             for rec in self:
                 if rec.vocabulary_id.is_system and not rec.is_local:
                     # Only allow active/deprecated/sequence changes on system vocab codes
-                    allowed_fields = {"active", "deprecated", "deprecated_date", "sequence"}
+                    allowed_fields = {
+                        "active",
+                        "deprecated",
+                        "deprecated_date",
+                        "sequence",
+                    }
                     disallowed = set(vals.keys()) - allowed_fields
                     if disallowed:
                         raise UserError(

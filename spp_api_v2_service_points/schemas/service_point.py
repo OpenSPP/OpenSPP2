@@ -5,7 +5,12 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
-from odoo.addons.spp_api_v2.schemas.base import Address, ContactPoint, Reference, ResourceMeta
+from odoo.addons.spp_api_v2.schemas.base import (
+    Address,
+    ContactPoint,
+    Reference,
+    ResourceMeta,
+)
 
 
 class ServicePoint(BaseModel):

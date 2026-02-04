@@ -329,7 +329,17 @@ class TestE2EWorkflow(TransactionCase):
                 "deployment_profile_id": base_profile.id,
                 "vocabulary_id": vocab.id,
                 "active_code_ids": [
-                    (6, 0, [code_head.id, code_spouse.id, code_child.id, code_parent.id, code_other.id])
+                    (
+                        6,
+                        0,
+                        [
+                            code_head.id,
+                            code_spouse.id,
+                            code_child.id,
+                            code_parent.id,
+                            code_other.id,
+                        ],
+                    )
                 ],
             }
         )

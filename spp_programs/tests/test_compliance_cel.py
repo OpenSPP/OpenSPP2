@@ -88,7 +88,10 @@ class TestComplianceCELBreaking(TransactionCase):
         self.manager._compute_compliance_cel_preview()
         # Should either succeed (treating as literal) or fail safely
         # Verify no destructive SQL was executed - table should still be usable
-        self.assertTrue(self.env["res.partner"].search_count([]) >= 0, "res.partner table should not be dropped")
+        self.assertTrue(
+            self.env["res.partner"].search_count([]) >= 0,
+            "res.partner table should not be dropped",
+        )
 
     def test_code_injection_in_compliance_cel_expression(self):
         """Code injection attempts should not execute harmful code.

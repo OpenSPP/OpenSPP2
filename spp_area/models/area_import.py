@@ -454,7 +454,12 @@ class OpenSPPAreaImport(models.Model):
                 if total_rows % 1000 == 0:
                     elapsed = time.time() - parse_start
                     rate = total_rows / elapsed if elapsed > 0 else 0
-                    _logger.info("Area Import: Parsed %d rows in %.2fs (%.0f rows/s)", total_rows, elapsed, rate)
+                    _logger.info(
+                        "Area Import: Parsed %d rows in %.2fs (%.0f rows/s)",
+                        total_rows,
+                        elapsed,
+                        rate,
+                    )
 
             sheet_time = time.time() - sheet_start
             _logger.info(
@@ -636,7 +641,10 @@ class OpenSPPAreaImport(models.Model):
         if not language_codes:
             return
 
-        _logger.info("Area Import: Checking languages to activate: %s", ", ".join(sorted(language_codes)))
+        _logger.info(
+            "Area Import: Checking languages to activate: %s",
+            ", ".join(sorted(language_codes)),
+        )
 
         # Get active languages in Odoo
         active_languages = self.env[_res_lang_model].search([("active", "=", True)])
@@ -668,7 +676,7 @@ class OpenSPPAreaImport(models.Model):
                     .search([("code", "=ilike", f"{lang_code}_%")], limit=1)
                 )
             if lang:
-                _logger.info("Area Import: Auto-activating language: %s", lang.name)
+                _logger.info("Area Import: Auto-activating language: %s", lang.code)
                 lang.active = True
             else:
                 _logger.warning("Area Import: Language code %s not found in system", lang_code)
@@ -700,7 +708,10 @@ class OpenSPPAreaImport(models.Model):
         if not found_languages:
             return None
 
-        _logger.info("Area Import: Found languages in JSON: %s", ", ".join(sorted(found_languages)))
+        _logger.info(
+            "Area Import: Found languages in JSON: %s",
+            ", ".join(sorted(found_languages)),
+        )
 
         # Get active languages in Odoo
         # Build a set of ISO codes from active languages, handling missing iso_code gracefully
@@ -713,7 +724,10 @@ class OpenSPPAreaImport(models.Model):
                 # Fall back to extracting from code (e.g., "en_US" -> "EN")
                 active_iso_codes.add(lang.code.split("_")[0].upper())
 
-        _logger.info("Area Import: Active language ISO codes: %s", ", ".join(sorted(active_iso_codes)))
+        _logger.info(
+            "Area Import: Active language ISO codes: %s",
+            ", ".join(sorted(active_iso_codes)),
+        )
 
         # Check for missing languages
         missing_languages = found_languages - active_iso_codes
@@ -789,7 +803,9 @@ class OpenSPPAreaImport(models.Model):
 
         json_file_record = self.env["spp.area.import.json"].browse(json_file_id)
         _logger.info(
-            "Area Import: Processing %s (batch %d)", json_file_record.json_file_name, json_file_record.batch_number
+            "Area Import: Processing %s (batch %d)",
+            json_file_record.json_file_name,
+            json_file_record.batch_number,
         )
 
         # Decode and parse JSON
@@ -797,7 +813,11 @@ class OpenSPPAreaImport(models.Model):
         json_string = json_bytes.decode("utf-8")
         rows = json.loads(json_string)
 
-        _logger.info("Area Import: Loaded %d rows from %s", len(rows), json_file_record.json_file_name)
+        _logger.info(
+            "Area Import: Loaded %d rows from %s",
+            len(rows),
+            json_file_record.json_file_name,
+        )
 
         # Get active languages for mapping ISO codes
         active_languages = self.env[_res_lang_model].search([("active", "=", True)])
@@ -882,7 +902,10 @@ class OpenSPPAreaImport(models.Model):
 
         batch_time = time.time() - import_start
         _logger.info(
-            "Area Import: Completed batch %d - %d rows in %.2fs", json_file_record.batch_number, len(rows), batch_time
+            "Area Import: Completed batch %d - %d rows in %.2fs",
+            json_file_record.batch_number,
+            len(rows),
+            batch_time,
         )
 
         # Update progress

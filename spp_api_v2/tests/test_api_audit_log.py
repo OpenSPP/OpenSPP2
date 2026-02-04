@@ -42,7 +42,10 @@ class TestApiAuditLog(ApiV2TestCase):
         self.assertEqual(audit_log.api_client_id, self.api_client)
         self.assertEqual(audit_log.operation, "read")
         self.assertEqual(audit_log.resource_type, "individual")
-        self.assertEqual(audit_log.resource_identifier, "urn:openspp:vocab:id-type#test_national_id|IND-001")
+        self.assertEqual(
+            audit_log.resource_identifier,
+            "urn:openspp:vocab:id-type#test_national_id|IND-001",
+        )
         self.assertEqual(audit_log.status, "success")
         self.assertEqual(audit_log.request_id, "test-123")
         self.assertEqual(audit_log.ip_address, "192.168.1.100")
@@ -188,7 +191,13 @@ class TestApiAuditLog(ApiV2TestCase):
 
     def test_log_operation_all_status_options(self):
         """log_operation accepts all status options"""
-        statuses = ["success", "access_denied", "not_found", "validation_error", "error"]
+        statuses = [
+            "success",
+            "access_denied",
+            "not_found",
+            "validation_error",
+            "error",
+        ]
 
         for status in statuses:
             audit_log = self.audit_log_model.sudo().log_operation(

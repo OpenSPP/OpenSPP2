@@ -107,7 +107,14 @@ class ArtifactUsage(models.Model):
     )
 
     @api.model
-    def register_usage(self, artifact_model, artifact_res_id, consumer_model, consumer_res_id, usage_type="other"):
+    def register_usage(
+        self,
+        artifact_model,
+        artifact_res_id,
+        consumer_model,
+        consumer_res_id,
+        usage_type="other",
+    ):
         """Register a usage relationship between an artifact and consumer.
 
         This is a convenience method that handles duplicates gracefully.
@@ -146,7 +153,14 @@ class ArtifactUsage(models.Model):
         )
 
     @api.model
-    def unregister_usage(self, artifact_model, artifact_res_id, consumer_model, consumer_res_id, usage_type=None):
+    def unregister_usage(
+        self,
+        artifact_model,
+        artifact_res_id,
+        consumer_model,
+        consumer_res_id,
+        usage_type=None,
+    ):
         """Remove a usage relationship.
 
         Args:

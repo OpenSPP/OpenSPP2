@@ -253,7 +253,11 @@ class DCISubscription(models.Model):
             config = self.env["ir.config_parameter"].sudo()
             allow_http = config.get_param("dci.allow_http_callbacks", "false").lower() == "true"
             skip_ip_check = config.get_param("dci.allow_internal_callback_ips", "false").lower() == "true"
-            validate_callback_url(self.callback_uri, require_https=not allow_http, skip_ip_check=skip_ip_check)
+            validate_callback_url(
+                self.callback_uri,
+                require_https=not allow_http,
+                skip_ip_check=skip_ip_check,
+            )
         except ValidationError as e:
             _logger.error(
                 "Notification URL validation failed for subscription %s: %s",
@@ -342,7 +346,10 @@ class DCISubscription(models.Model):
                 max_subscriptions = int(
                     self.env["ir.config_parameter"]
                     .sudo()
-                    .get_param("dci.max_subscriptions_per_sender", DEFAULT_MAX_SUBSCRIPTIONS_PER_SENDER)
+                    .get_param(
+                        "dci.max_subscriptions_per_sender",
+                        DEFAULT_MAX_SUBSCRIPTIONS_PER_SENDER,
+                    )
                 )
                 current_count = self.search_count(
                     [
@@ -361,7 +368,11 @@ class DCISubscription(models.Model):
                 config = self.env["ir.config_parameter"].sudo()
                 allow_http = config.get_param("dci.allow_http_callbacks", "false").lower() == "true"
                 skip_ip_check = config.get_param("dci.allow_internal_callback_ips", "false").lower() == "true"
-                validate_callback_url(callback_uri, require_https=not allow_http, skip_ip_check=skip_ip_check)
+                validate_callback_url(
+                    callback_uri,
+                    require_https=not allow_http,
+                    skip_ip_check=skip_ip_check,
+                )
 
         return super().create(vals_list)
 

@@ -19,60 +19,66 @@ class TestDataLayerExtension(TransactionCase):
         super().setUpClass()
 
         # Get required models
-        cls.partner_model = cls.env["ir.model"].search(
-            [("model", "=", "res.partner")], limit=1
-        )
-        cls.area_model = cls.env["ir.model"].search(
-            [("model", "=", "spp.area")], limit=1
-        )
+        cls.partner_model = cls.env["ir.model"].search([("model", "=", "res.partner")], limit=1)
+        cls.area_model = cls.env["ir.model"].search([("model", "=", "spp.area")], limit=1)
 
         # Get geo field for area
-        cls.geo_field = cls.env["ir.model.fields"].search([
-            ("model_id", "=", cls.area_model.id),
-            ("name", "=", "geo_polygon"),
-        ], limit=1)
-
-        # Get or create a GIS view for spp.area
-        cls.gis_view = cls.env["ir.ui.view"].search([
-            ("model", "=", "spp.area"),
-            ("type", "=", "gis"),
-        ], limit=1)
-
-        # Create a color scheme for tests
-        cls.color_scheme = cls.env["spp.gis.color.scheme"].search(
-            [("code", "=", "viridis")], limit=1
+        cls.geo_field = cls.env["ir.model.fields"].search(
+            [
+                ("model_id", "=", cls.area_model.id),
+                ("name", "=", "geo_polygon"),
+            ],
+            limit=1,
         )
 
+        # Get or create a GIS view for spp.area
+        cls.gis_view = cls.env["ir.ui.view"].search(
+            [
+                ("model", "=", "spp.area"),
+                ("type", "=", "gis"),
+            ],
+            limit=1,
+        )
+
+        # Create a color scheme for tests
+        cls.color_scheme = cls.env["spp.gis.color.scheme"].search([("code", "=", "viridis")], limit=1)
+
         # Create category
-        cls.category = cls.env["spp.gis.report.category"].create({
-            "name": "Test Category",
-            "code": "test_layer_ext",
-        })
+        cls.category = cls.env["spp.gis.report.category"].create(
+            {
+                "name": "Test Category",
+                "code": "test_layer_ext",
+            }
+        )
 
         # Create a test report
-        cls.report = cls.env["spp.gis.report"].create({
-            "name": "Layer Test Report",
-            "code": "layer_test_report",
-            "category_id": cls.category.id,
-            "source_model_id": cls.partner_model.id,
-            "area_field_path": "area_id",
-            "aggregation_method": "count",
-            "normalization_method": "raw",
-            "base_area_level": 2,
-            "geometry_type": "polygon",
-            "auto_create_layer": False,  # Disable for manual testing
-        })
+        cls.report = cls.env["spp.gis.report"].create(
+            {
+                "name": "Layer Test Report",
+                "code": "layer_test_report",
+                "category_id": cls.category.id,
+                "source_model_id": cls.partner_model.id,
+                "area_field_path": "area_id",
+                "aggregation_method": "count",
+                "normalization_method": "raw",
+                "base_area_level": 2,
+                "geometry_type": "polygon",
+                "auto_create_layer": False,  # Disable for manual testing
+            }
+        )
 
     def test_01_layer_source_type_default(self):
         """Test default source type is 'model'."""
         if not self.gis_view or not self.geo_field:
             self.skipTest("GIS view or geo field not available")
 
-        layer = self.env["spp.gis.data.layer"].create({
-            "name": "Model Layer",
-            "geo_field_id": self.geo_field.id,
-            "view_id": self.gis_view.id,
-        })
+        layer = self.env["spp.gis.data.layer"].create(
+            {
+                "name": "Model Layer",
+                "geo_field_id": self.geo_field.id,
+                "view_id": self.gis_view.id,
+            }
+        )
 
         self.assertEqual(layer.source_type, "model")
         self.assertFalse(layer.is_report_layer)
@@ -82,13 +88,15 @@ class TestDataLayerExtension(TransactionCase):
         if not self.gis_view or not self.geo_field:
             self.skipTest("GIS view or geo field not available")
 
-        layer = self.env["spp.gis.data.layer"].create({
-            "name": "Report Layer",
-            "source_type": "report",
-            "report_id": self.report.id,
-            "geo_field_id": self.geo_field.id,
-            "view_id": self.gis_view.id,
-        })
+        layer = self.env["spp.gis.data.layer"].create(
+            {
+                "name": "Report Layer",
+                "source_type": "report",
+                "report_id": self.report.id,
+                "geo_field_id": self.geo_field.id,
+                "view_id": self.gis_view.id,
+            }
+        )
 
         self.assertEqual(layer.source_type, "report")
         self.assertTrue(layer.is_report_layer)
@@ -103,14 +111,16 @@ class TestDataLayerExtension(TransactionCase):
         geometry_types = ["polygon", "point", "cluster", "heatmap"]
 
         for geom_type in geometry_types:
-            layer = self.env["spp.gis.data.layer"].create({
-                "name": f"Geom {geom_type}",
-                "source_type": "report",
-                "report_id": self.report.id,
-                "geometry_type": geom_type,
-                "geo_field_id": self.geo_field.id,
-                "view_id": self.gis_view.id,
-            })
+            layer = self.env["spp.gis.data.layer"].create(
+                {
+                    "name": f"Geom {geom_type}",
+                    "source_type": "report",
+                    "report_id": self.report.id,
+                    "geometry_type": geom_type,
+                    "geo_field_id": self.geo_field.id,
+                    "view_id": self.gis_view.id,
+                }
+            )
 
             self.assertEqual(layer.geometry_type, geom_type)
             layer.unlink()
@@ -120,14 +130,16 @@ class TestDataLayerExtension(TransactionCase):
         if not self.gis_view or not self.geo_field:
             self.skipTest("GIS view or geo field not available")
 
-        layer = self.env["spp.gis.data.layer"].create({
-            "name": "Color Scheme Layer",
-            "source_type": "report",
-            "report_id": self.report.id,
-            "color_scheme_id": self.color_scheme.id if self.color_scheme else False,
-            "geo_field_id": self.geo_field.id,
-            "view_id": self.gis_view.id,
-        })
+        layer = self.env["spp.gis.data.layer"].create(
+            {
+                "name": "Color Scheme Layer",
+                "source_type": "report",
+                "report_id": self.report.id,
+                "color_scheme_id": self.color_scheme.id if self.color_scheme else False,
+                "geo_field_id": self.geo_field.id,
+                "view_id": self.gis_view.id,
+            }
+        )
 
         if self.color_scheme:
             self.assertEqual(layer.color_scheme_id, self.color_scheme)
@@ -138,13 +150,15 @@ class TestDataLayerExtension(TransactionCase):
             self.skipTest("GIS view or geo field not available")
 
         # Layer without color scheme should fall back to report's scheme
-        layer = self.env["spp.gis.data.layer"].create({
-            "name": "Fallback Scheme Layer",
-            "source_type": "report",
-            "report_id": self.report.id,
-            "geo_field_id": self.geo_field.id,
-            "view_id": self.gis_view.id,
-        })
+        layer = self.env["spp.gis.data.layer"].create(
+            {
+                "name": "Fallback Scheme Layer",
+                "source_type": "report",
+                "report_id": self.report.id,
+                "geo_field_id": self.geo_field.id,
+                "view_id": self.gis_view.id,
+            }
+        )
 
         effective = layer.get_effective_color_scheme()
         # Should get report's scheme or default
@@ -155,17 +169,19 @@ class TestDataLayerExtension(TransactionCase):
         if not self.gis_view or not self.geo_field:
             self.skipTest("GIS view or geo field not available")
 
-        layer = self.env["spp.gis.data.layer"].create({
-            "name": "Polygon Style Layer",
-            "source_type": "report",
-            "report_id": self.report.id,
-            "geometry_type": "polygon",
-            "fill_opacity": 0.8,
-            "stroke_color": "#ff0000",
-            "stroke_width": 2.0,
-            "geo_field_id": self.geo_field.id,
-            "view_id": self.gis_view.id,
-        })
+        layer = self.env["spp.gis.data.layer"].create(
+            {
+                "name": "Polygon Style Layer",
+                "source_type": "report",
+                "report_id": self.report.id,
+                "geometry_type": "polygon",
+                "fill_opacity": 0.8,
+                "stroke_color": "#ff0000",
+                "stroke_width": 2.0,
+                "geo_field_id": self.geo_field.id,
+                "view_id": self.gis_view.id,
+            }
+        )
 
         style = layer.get_layer_style()
 
@@ -179,15 +195,17 @@ class TestDataLayerExtension(TransactionCase):
         if not self.gis_view or not self.geo_field:
             self.skipTest("GIS view or geo field not available")
 
-        layer = self.env["spp.gis.data.layer"].create({
-            "name": "Point Style Layer",
-            "source_type": "report",
-            "report_id": self.report.id,
-            "geometry_type": "point",
-            "point_radius": 12,
-            "geo_field_id": self.geo_field.id,
-            "view_id": self.gis_view.id,
-        })
+        layer = self.env["spp.gis.data.layer"].create(
+            {
+                "name": "Point Style Layer",
+                "source_type": "report",
+                "report_id": self.report.id,
+                "geometry_type": "point",
+                "point_radius": 12,
+                "geo_field_id": self.geo_field.id,
+                "view_id": self.gis_view.id,
+            }
+        )
 
         style = layer.get_layer_style()
 
@@ -199,16 +217,18 @@ class TestDataLayerExtension(TransactionCase):
         if not self.gis_view or not self.geo_field:
             self.skipTest("GIS view or geo field not available")
 
-        layer = self.env["spp.gis.data.layer"].create({
-            "name": "Cluster Style Layer",
-            "source_type": "report",
-            "report_id": self.report.id,
-            "geometry_type": "cluster",
-            "point_radius": 10,
-            "cluster_radius": 80,
-            "geo_field_id": self.geo_field.id,
-            "view_id": self.gis_view.id,
-        })
+        layer = self.env["spp.gis.data.layer"].create(
+            {
+                "name": "Cluster Style Layer",
+                "source_type": "report",
+                "report_id": self.report.id,
+                "geometry_type": "cluster",
+                "point_radius": 10,
+                "cluster_radius": 80,
+                "geo_field_id": self.geo_field.id,
+                "view_id": self.gis_view.id,
+            }
+        )
 
         style = layer.get_layer_style()
 
@@ -221,17 +241,19 @@ class TestDataLayerExtension(TransactionCase):
         if not self.gis_view or not self.geo_field:
             self.skipTest("GIS view or geo field not available")
 
-        layer = self.env["spp.gis.data.layer"].create({
-            "name": "Heatmap Style Layer",
-            "source_type": "report",
-            "report_id": self.report.id,
-            "geometry_type": "heatmap",
-            "heatmap_radius": 30,
-            "heatmap_blur": 20,
-            "heatmap_max_intensity": 0.8,
-            "geo_field_id": self.geo_field.id,
-            "view_id": self.gis_view.id,
-        })
+        layer = self.env["spp.gis.data.layer"].create(
+            {
+                "name": "Heatmap Style Layer",
+                "source_type": "report",
+                "report_id": self.report.id,
+                "geometry_type": "heatmap",
+                "heatmap_radius": 30,
+                "heatmap_blur": 20,
+                "heatmap_max_intensity": 0.8,
+                "geo_field_id": self.geo_field.id,
+                "view_id": self.gis_view.id,
+            }
+        )
 
         style = layer.get_layer_style()
 
@@ -245,12 +267,14 @@ class TestDataLayerExtension(TransactionCase):
         if not self.gis_view or not self.geo_field:
             self.skipTest("GIS view or geo field not available")
 
-        layer = self.env["spp.gis.data.layer"].new({
-            "name": "Onchange Test",
-            "source_type": "model",
-            "geo_field_id": self.geo_field.id,
-            "view_id": self.gis_view.id,
-        })
+        layer = self.env["spp.gis.data.layer"].new(
+            {
+                "name": "Onchange Test",
+                "source_type": "model",
+                "geo_field_id": self.geo_field.id,
+                "view_id": self.gis_view.id,
+            }
+        )
 
         # Change to report type
         layer.source_type = "report"
@@ -264,12 +288,14 @@ class TestDataLayerExtension(TransactionCase):
         if not self.gis_view or not self.geo_field:
             self.skipTest("GIS view or geo field not available")
 
-        layer = self.env["spp.gis.data.layer"].new({
-            "name": "New",
-            "source_type": "report",
-            "geo_field_id": self.geo_field.id,
-            "view_id": self.gis_view.id,
-        })
+        layer = self.env["spp.gis.data.layer"].new(
+            {
+                "name": "New",
+                "source_type": "report",
+                "geo_field_id": self.geo_field.id,
+                "view_id": self.gis_view.id,
+            }
+        )
 
         # Select report
         layer.report_id = self.report
@@ -287,14 +313,16 @@ class TestDataLayerExtension(TransactionCase):
         if not self.gis_view or not self.geo_field or not self.color_scheme:
             self.skipTest("Required models not available")
 
-        layer = self.env["spp.gis.data.layer"].create({
-            "name": "Color Scheme Style Test",
-            "source_type": "report",
-            "report_id": self.report.id,
-            "color_scheme_id": self.color_scheme.id,
-            "geo_field_id": self.geo_field.id,
-            "view_id": self.gis_view.id,
-        })
+        layer = self.env["spp.gis.data.layer"].create(
+            {
+                "name": "Color Scheme Style Test",
+                "source_type": "report",
+                "report_id": self.report.id,
+                "color_scheme_id": self.color_scheme.id,
+                "geo_field_id": self.geo_field.id,
+                "view_id": self.gis_view.id,
+            }
+        )
 
         style = layer.get_layer_style()
 
@@ -311,45 +339,51 @@ class TestReportLayerAutoSync(TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.partner_model = cls.env["ir.model"].search(
-            [("model", "=", "res.partner")], limit=1
+        cls.partner_model = cls.env["ir.model"].search([("model", "=", "res.partner")], limit=1)
+        cls.area_model = cls.env["ir.model"].search([("model", "=", "spp.area")], limit=1)
+
+        cls.geo_field = cls.env["ir.model.fields"].search(
+            [
+                ("model_id", "=", cls.area_model.id),
+                ("name", "=", "geo_polygon"),
+            ],
+            limit=1,
         )
-        cls.area_model = cls.env["ir.model"].search(
-            [("model", "=", "spp.area")], limit=1
+
+        cls.gis_view = cls.env["ir.ui.view"].search(
+            [
+                ("model", "=", "spp.area"),
+                ("type", "=", "gis"),
+            ],
+            limit=1,
         )
 
-        cls.geo_field = cls.env["ir.model.fields"].search([
-            ("model_id", "=", cls.area_model.id),
-            ("name", "=", "geo_polygon"),
-        ], limit=1)
-
-        cls.gis_view = cls.env["ir.ui.view"].search([
-            ("model", "=", "spp.area"),
-            ("type", "=", "gis"),
-        ], limit=1)
-
-        cls.category = cls.env["spp.gis.report.category"].create({
-            "name": "Auto Sync Test",
-            "code": "auto_sync_test",
-        })
+        cls.category = cls.env["spp.gis.report.category"].create(
+            {
+                "name": "Auto Sync Test",
+                "code": "auto_sync_test",
+            }
+        )
 
     def test_01_report_auto_create_layer_on_create(self):
         """Test layer is auto-created when report is created with auto_create_layer=True."""
         if not self.gis_view or not self.geo_field:
             self.skipTest("GIS view or geo field not available")
 
-        report = self.env["spp.gis.report"].create({
-            "name": "Auto Create Layer Test",
-            "code": "auto_create_layer_test",
-            "category_id": self.category.id,
-            "source_model_id": self.partner_model.id,
-            "area_field_path": "area_id",
-            "aggregation_method": "count",
-            "normalization_method": "raw",
-            "base_area_level": 2,
-            "geometry_type": "polygon",
-            "auto_create_layer": True,
-        })
+        report = self.env["spp.gis.report"].create(
+            {
+                "name": "Auto Create Layer Test",
+                "code": "auto_create_layer_test",
+                "category_id": self.category.id,
+                "source_model_id": self.partner_model.id,
+                "area_field_path": "area_id",
+                "aggregation_method": "count",
+                "normalization_method": "raw",
+                "base_area_level": 2,
+                "geometry_type": "polygon",
+                "auto_create_layer": True,
+            }
+        )
 
         self.assertTrue(report.layer_id)
         self.assertEqual(report.layer_id.source_type, "report")
@@ -358,17 +392,19 @@ class TestReportLayerAutoSync(TransactionCase):
 
     def test_02_report_no_layer_when_disabled(self):
         """Test no layer is created when auto_create_layer=False."""
-        report = self.env["spp.gis.report"].create({
-            "name": "No Auto Layer Test",
-            "code": "no_auto_layer_test",
-            "category_id": self.category.id,
-            "source_model_id": self.partner_model.id,
-            "area_field_path": "area_id",
-            "aggregation_method": "count",
-            "normalization_method": "raw",
-            "base_area_level": 2,
-            "auto_create_layer": False,
-        })
+        report = self.env["spp.gis.report"].create(
+            {
+                "name": "No Auto Layer Test",
+                "code": "no_auto_layer_test",
+                "category_id": self.category.id,
+                "source_model_id": self.partner_model.id,
+                "area_field_path": "area_id",
+                "aggregation_method": "count",
+                "normalization_method": "raw",
+                "base_area_level": 2,
+                "auto_create_layer": False,
+            }
+        )
 
         self.assertFalse(report.layer_id)
 
@@ -377,17 +413,19 @@ class TestReportLayerAutoSync(TransactionCase):
         if not self.gis_view or not self.geo_field:
             self.skipTest("GIS view or geo field not available")
 
-        report = self.env["spp.gis.report"].create({
-            "name": "Original Name",
-            "code": "name_sync_test",
-            "category_id": self.category.id,
-            "source_model_id": self.partner_model.id,
-            "area_field_path": "area_id",
-            "aggregation_method": "count",
-            "normalization_method": "raw",
-            "base_area_level": 2,
-            "auto_create_layer": True,
-        })
+        report = self.env["spp.gis.report"].create(
+            {
+                "name": "Original Name",
+                "code": "name_sync_test",
+                "category_id": self.category.id,
+                "source_model_id": self.partner_model.id,
+                "area_field_path": "area_id",
+                "aggregation_method": "count",
+                "normalization_method": "raw",
+                "base_area_level": 2,
+                "auto_create_layer": True,
+            }
+        )
 
         original_layer = report.layer_id
         self.assertEqual(original_layer.name, "Original Name")
@@ -403,18 +441,20 @@ class TestReportLayerAutoSync(TransactionCase):
         if not self.gis_view or not self.geo_field:
             self.skipTest("GIS view or geo field not available")
 
-        report = self.env["spp.gis.report"].create({
-            "name": "Geometry Sync Test",
-            "code": "geom_sync_test",
-            "category_id": self.category.id,
-            "source_model_id": self.partner_model.id,
-            "area_field_path": "area_id",
-            "aggregation_method": "count",
-            "normalization_method": "raw",
-            "base_area_level": 2,
-            "geometry_type": "polygon",
-            "auto_create_layer": True,
-        })
+        report = self.env["spp.gis.report"].create(
+            {
+                "name": "Geometry Sync Test",
+                "code": "geom_sync_test",
+                "category_id": self.category.id,
+                "source_model_id": self.partner_model.id,
+                "area_field_path": "area_id",
+                "aggregation_method": "count",
+                "normalization_method": "raw",
+                "base_area_level": 2,
+                "geometry_type": "polygon",
+                "auto_create_layer": True,
+            }
+        )
 
         self.assertEqual(report.layer_id.geometry_type, "polygon")
 
@@ -428,17 +468,19 @@ class TestReportLayerAutoSync(TransactionCase):
         if not self.gis_view or not self.geo_field:
             self.skipTest("GIS view or geo field not available")
 
-        report = self.env["spp.gis.report"].create({
-            "name": "Delete Layer Test",
-            "code": "delete_layer_test",
-            "category_id": self.category.id,
-            "source_model_id": self.partner_model.id,
-            "area_field_path": "area_id",
-            "aggregation_method": "count",
-            "normalization_method": "raw",
-            "base_area_level": 2,
-            "auto_create_layer": True,
-        })
+        report = self.env["spp.gis.report"].create(
+            {
+                "name": "Delete Layer Test",
+                "code": "delete_layer_test",
+                "category_id": self.category.id,
+                "source_model_id": self.partner_model.id,
+                "area_field_path": "area_id",
+                "aggregation_method": "count",
+                "normalization_method": "raw",
+                "base_area_level": 2,
+                "auto_create_layer": True,
+            }
+        )
 
         layer_id = report.layer_id.id
         self.assertTrue(layer_id)
@@ -454,17 +496,19 @@ class TestReportLayerAutoSync(TransactionCase):
         if not self.gis_view or not self.geo_field:
             self.skipTest("GIS view or geo field not available")
 
-        report = self.env["spp.gis.report"].create({
-            "name": "Manual Sync Test",
-            "code": "manual_sync_test",
-            "category_id": self.category.id,
-            "source_model_id": self.partner_model.id,
-            "area_field_path": "area_id",
-            "aggregation_method": "count",
-            "normalization_method": "raw",
-            "base_area_level": 2,
-            "auto_create_layer": True,
-        })
+        report = self.env["spp.gis.report"].create(
+            {
+                "name": "Manual Sync Test",
+                "code": "manual_sync_test",
+                "category_id": self.category.id,
+                "source_model_id": self.partner_model.id,
+                "area_field_path": "area_id",
+                "aggregation_method": "count",
+                "normalization_method": "raw",
+                "base_area_level": 2,
+                "auto_create_layer": True,
+            }
+        )
 
         # Call sync action
         result = report.action_sync_layer()
@@ -477,18 +521,20 @@ class TestReportLayerAutoSync(TransactionCase):
         geometry_types = ["polygon", "point", "cluster", "heatmap"]
 
         for geom_type in geometry_types:
-            report = self.env["spp.gis.report"].create({
-                "name": f"Geom Type {geom_type}",
-                "code": f"geom_type_{geom_type}",
-                "category_id": self.category.id,
-                "source_model_id": self.partner_model.id,
-                "area_field_path": "area_id",
-                "aggregation_method": "count",
-                "normalization_method": "raw",
-                "base_area_level": 2,
-                "geometry_type": geom_type,
-                "auto_create_layer": False,
-            })
+            report = self.env["spp.gis.report"].create(
+                {
+                    "name": f"Geom Type {geom_type}",
+                    "code": f"geom_type_{geom_type}",
+                    "category_id": self.category.id,
+                    "source_model_id": self.partner_model.id,
+                    "area_field_path": "area_id",
+                    "aggregation_method": "count",
+                    "normalization_method": "raw",
+                    "base_area_level": 2,
+                    "geometry_type": geom_type,
+                    "auto_create_layer": False,
+                }
+            )
 
             self.assertEqual(report.geometry_type, geom_type)
             report.unlink()
@@ -498,17 +544,19 @@ class TestReportLayerAutoSync(TransactionCase):
         if not self.gis_view or not self.geo_field:
             self.skipTest("GIS view or geo field not available")
 
-        report = self.env["spp.gis.report"].create({
-            "name": "Cascade Delete Test",
-            "code": "cascade_delete_test",
-            "category_id": self.category.id,
-            "source_model_id": self.partner_model.id,
-            "area_field_path": "area_id",
-            "aggregation_method": "count",
-            "normalization_method": "raw",
-            "base_area_level": 2,
-            "auto_create_layer": True,
-        })
+        report = self.env["spp.gis.report"].create(
+            {
+                "name": "Cascade Delete Test",
+                "code": "cascade_delete_test",
+                "category_id": self.category.id,
+                "source_model_id": self.partner_model.id,
+                "area_field_path": "area_id",
+                "aggregation_method": "count",
+                "normalization_method": "raw",
+                "base_area_level": 2,
+                "auto_create_layer": True,
+            }
+        )
 
         layer_id = report.layer_id.id
         self.assertTrue(layer_id)

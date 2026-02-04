@@ -101,8 +101,8 @@ export class GisRenderer extends Component {
      * Check if a record matches a domain filter.
      * Supports simple conditions: =, !=, in, not in, <, >, <=, >=
      * @param {Object} values - Record field values
-     * @param {string|Array} domain - Domain filter (string or array)
-     * @returns {boolean} True if record matches domain
+     * @param {String|Array} domain - Domain filter (string or array)
+     * @returns {Boolean} True if record matches domain
      */
     _matchesDomain(values, domain) {
         if (!domain) return true;
@@ -158,10 +158,10 @@ export class GisRenderer extends Component {
 
     /**
      * Load records for a specific model via RPC.
-     * @param {string} model - Model name (e.g., "stock.warehouse")
-     * @param {string} geoField - Geo field name to fetch
+     * @param {String} model - Model name (e.g., "stock.warehouse")
+     * @param {String} geoField - Geo field name to fetch
      * @param {Array} extraFields - Additional fields to fetch for choropleth values
-     * @param {string} domain - Optional domain filter
+     * @param {String} domain - Optional domain filter
      * @returns {Promise<Array>} Records with geo field data
      */
     async _loadModelRecords(model, geoField, extraFields, domain) {
@@ -183,7 +183,9 @@ export class GisRenderer extends Component {
         // a computed/related field that can't be searched. Filter after fetch.
 
         try {
-            const records = await this.orm.searchRead(model, parsedDomain, fields, {limit: 10000});
+            const records = await this.orm.searchRead(model, parsedDomain, fields, {
+                limit: 10000,
+            });
             // Filter out records without geo data (handles computed/related fields)
             return records.filter((r) => r[geoField]);
         } catch (error) {
@@ -196,7 +198,7 @@ export class GisRenderer extends Component {
      * Build features from a set of records for a specific layer.
      * @param {Array} records - Records from the model
      * @param {Object} layer - Layer configuration
-     * @param {string} geoField - Geo field name
+     * @param {String} geoField - Geo field name
      * @returns {Array} GeoJSON features
      */
     _buildFeaturesFromRecords(records, layer, geoField) {
@@ -1024,8 +1026,8 @@ export class GisRenderer extends Component {
 
     /**
      * Format a numeric value for display in the legend.
-     * @param {number} value - The value to format
-     * @returns {string} Formatted value
+     * @param {Number} value - The value to format
+     * @returns {String} Formatted value
      */
     _formatLegendValue(value) {
         if (typeof value !== "number" || isNaN(value)) {

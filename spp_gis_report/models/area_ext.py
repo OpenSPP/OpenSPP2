@@ -184,7 +184,11 @@ class Area(models.Model):
                     elif isinstance(geo_value, dict):
                         geometry = geo_value
                     else:
-                        _logger.warning("Unexpected geo_polygon type for area %s: %s", area.id, type(geo_value))
+                        _logger.warning(
+                            "Unexpected geo_polygon type for area %s: %s",
+                            area.id,
+                            type(geo_value),
+                        )
                         continue
 
                     # Validate geometry has required GeoJSON structure
@@ -193,9 +197,20 @@ class Area(models.Model):
                         continue
 
                     # Ensure geometry type is valid for turf.js
-                    valid_types = {"Point", "LineString", "Polygon", "MultiPoint", "MultiLineString", "MultiPolygon"}
+                    valid_types = {
+                        "Point",
+                        "LineString",
+                        "Polygon",
+                        "MultiPoint",
+                        "MultiLineString",
+                        "MultiPolygon",
+                    }
                     if geometry.get("type") not in valid_types:
-                        _logger.warning("Unknown geometry type '%s' for area %s", geometry.get("type"), area.id)
+                        _logger.warning(
+                            "Unknown geometry type '%s' for area %s",
+                            geometry.get("type"),
+                            area.id,
+                        )
                         continue
 
                 except (json.JSONDecodeError, TypeError, KeyError) as e:

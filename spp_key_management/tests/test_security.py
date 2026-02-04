@@ -220,7 +220,11 @@ class TestKeyStorageSecurity(TransactionCase):
         private_components = ["d", "p", "q", "dp", "dq", "qi"]
 
         for component in private_components:
-            self.assertNotIn(component, public_jwk, f"Private component '{component}' found in public key!")
+            self.assertNotIn(
+                component,
+                public_jwk,
+                f"Private component '{component}' found in public key!",
+            )
 
     def test_encryption_keys_cannot_be_deleted(self):
         """Test that encryption keys cannot be deleted (audit requirement)."""

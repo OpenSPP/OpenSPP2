@@ -602,7 +602,10 @@ class SPPMISDemoGenerator(models.TransientModel):
 
             # Create members for existing groups that are missing them
             if groups_needing_members:
-                _logger.info("Creating members for %d existing groups...", len(groups_needing_members))
+                _logger.info(
+                    "Creating members for %d existing groups...",
+                    len(groups_needing_members),
+                )
                 for group, story in groups_needing_members:
                     try:
                         profile = story.get("profile", {})
@@ -611,7 +614,12 @@ class SPPMISDemoGenerator(models.TransientModel):
                             (
                                 j
                                 for j in journey
-                                if j.get("action") in ("register", "register_household", "emergency_register")
+                                if j.get("action")
+                                in (
+                                    "register",
+                                    "register_household",
+                                    "emergency_register",
+                                )
                             ),
                             {"days_back": 90},
                         )
@@ -723,7 +731,11 @@ class SPPMISDemoGenerator(models.TransientModel):
             (registration_date, registrant.id),
         )
 
-        _logger.info("Created story registrant (partner_id=%s, story_id=%s)", registrant.id, story.get("id", "unknown"))
+        _logger.info(
+            "Created story registrant (partner_id=%s, story_id=%s)",
+            registrant.id,
+            story.get("id", "unknown"),
+        )
 
         # For households, create family members
         if is_group and "head" in profile:
@@ -905,7 +917,12 @@ class SPPMISDemoGenerator(models.TransientModel):
 
                 # Create head of household
                 head = self._create_random_individual(
-                    fake, head_name, head_gender, head_age, registration_date, reserved_names
+                    fake,
+                    head_name,
+                    head_gender,
+                    head_age,
+                    registration_date,
+                    reserved_names,
                 )
                 if head:
                     stats["random_individuals_created"] += 1
@@ -931,7 +948,12 @@ class SPPMISDemoGenerator(models.TransientModel):
 
                     if spouse_name not in reserved_names:
                         spouse = self._create_random_individual(
-                            fake, spouse_name, spouse_gender, spouse_age, registration_date, reserved_names
+                            fake,
+                            spouse_name,
+                            spouse_gender,
+                            spouse_age,
+                            registration_date,
+                            reserved_names,
                         )
                         if spouse:
                             stats["random_individuals_created"] += 1
@@ -952,7 +974,12 @@ class SPPMISDemoGenerator(models.TransientModel):
 
                     if member_name not in reserved_names:
                         member = self._create_random_individual(
-                            fake, member_name, member_gender, member_age, registration_date, reserved_names
+                            fake,
+                            member_name,
+                            member_gender,
+                            member_age,
+                            registration_date,
+                            reserved_names,
                         )
                         if member:
                             stats["random_individuals_created"] += 1
@@ -1069,7 +1096,11 @@ class SPPMISDemoGenerator(models.TransientModel):
                     self._configure_cycle_manager(program, program_def)
 
             except Exception as e:
-                _logger.error("Error creating program (program_id=%s): %s", program_def.get("id", "unknown"), e)
+                _logger.error(
+                    "Error creating program (program_id=%s): %s",
+                    program_def.get("id", "unknown"),
+                    e,
+                )
 
         return created_programs
 
@@ -1093,7 +1124,10 @@ class SPPMISDemoGenerator(models.TransientModel):
                         "amount_per_individual_in_group": 0,
                     }
                 )
-                _logger.info("Configured in-kind entitlement for program (program_id=%s)", program.id)
+                _logger.info(
+                    "Configured in-kind entitlement for program (program_id=%s)",
+                    program.id,
+                )
             else:
                 # For cash programs - configure CEL formula if available
                 amount = program_def.get("entitlement_amount", 100)
@@ -1135,10 +1169,18 @@ class SPPMISDemoGenerator(models.TransientModel):
                                 entitlement_formula,
                             )
 
-                _logger.info("Configured cash entitlement $%.2f for program (program_id=%s)", amount, program.id)
+                _logger.info(
+                    "Configured cash entitlement $%.2f for program (program_id=%s)",
+                    amount,
+                    program.id,
+                )
 
         except Exception as e:
-            _logger.warning("Could not configure entitlement manager for program (program_id=%s): %s", program.id, e)
+            _logger.warning(
+                "Could not configure entitlement manager for program (program_id=%s): %s",
+                program.id,
+                e,
+            )
 
     def _configure_cycle_manager(self, program, program_def):
         """Configure the cycle manager for a program."""
@@ -1151,7 +1193,11 @@ class SPPMISDemoGenerator(models.TransientModel):
                     }
                 )
         except Exception as e:
-            _logger.warning("Could not configure cycle manager for program (program_id=%s): %s", program.id, e)
+            _logger.warning(
+                "Could not configure cycle manager for program (program_id=%s): %s",
+                program.id,
+                e,
+            )
 
     def _configure_eligibility_manager(self, program, program_def):
         """Configure the eligibility manager with CEL expression.
@@ -1396,7 +1442,10 @@ class SPPMISDemoGenerator(models.TransientModel):
             )
 
             if not registrant:
-                _logger.warning("Registrant not found for story (story_id=%s), skipping enrollment...", story_id)
+                _logger.warning(
+                    "Registrant not found for story (story_id=%s), skipping enrollment...",
+                    story_id,
+                )
                 stats["missing_registrants"].append(story_name)
                 continue
 
@@ -1457,14 +1506,15 @@ class SPPMISDemoGenerator(models.TransientModel):
                         # Track payments by cycle for batch creation
                         if cycle and payments:
                             if cycle.id not in payments_by_cycle:
-                                payments_by_cycle[cycle.id] = {"cycle": cycle, "payments": []}
+                                payments_by_cycle[cycle.id] = {
+                                    "cycle": cycle,
+                                    "payments": [],
+                                }
                             payments_by_cycle[cycle.id]["payments"].extend(payments)
 
                     # Create in-kind entitlements if defined
                     if self.create_story_payments and enrollment_def.get("entitlements"):
-                        self._create_story_inkind_entitlements(
-                            registrant, program, enrollment, enrollment_def, stats
-                        )
+                        self._create_story_inkind_entitlements(registrant, program, enrollment, enrollment_def, stats)
 
         # Create payment batches for each cycle
         if payments_by_cycle:
@@ -1547,7 +1597,10 @@ class SPPMISDemoGenerator(models.TransientModel):
             # Get the journal for entitlements
             journal = program.journal_id
             if not journal:
-                _logger.warning("No journal configured for program (program_id=%s), skipping payments", program.id)
+                _logger.warning(
+                    "No journal configured for program (program_id=%s), skipping payments",
+                    program.id,
+                )
                 return created_payments, cycle
 
             # Create cycle membership for the registrant (required before entitlements)
@@ -1672,7 +1725,11 @@ class SPPMISDemoGenerator(models.TransientModel):
                 )
 
             except Exception as e:
-                _logger.warning("Could not create payment batch for cycle (cycle_id=%s): %s", cycle_id, e)
+                _logger.warning(
+                    "Could not create payment batch for cycle (cycle_id=%s): %s",
+                    cycle_id,
+                    e,
+                )
 
         return created_batches
 
@@ -1919,7 +1976,11 @@ class SPPMISDemoGenerator(models.TransientModel):
             # Create enrollment
             try:
                 enrollment_date = fake.date_between(start_date="-180d", end_date="-10d")
-                state = random.choices(["draft", "enrolled", "paused", "exited"], weights=[10, 60, 10, 20], k=1)[0]
+                state = random.choices(
+                    ["draft", "enrolled", "paused", "exited"],
+                    weights=[10, 60, 10, 20],
+                    k=1,
+                )[0]
 
                 membership = self.env["spp.program.membership"].create(
                     {
@@ -1942,7 +2003,11 @@ class SPPMISDemoGenerator(models.TransientModel):
                 _logger.warning("Could not create volume enrollment: %s", e)
                 stats["volume_skipped"] += 1
 
-        _logger.info("Volume generation: %d created, %d skipped", len(enrollments), stats["volume_skipped"])
+        _logger.info(
+            "Volume generation: %d created, %d skipped",
+            len(enrollments),
+            stats["volume_skipped"],
+        )
 
         return enrollments
 
@@ -1962,7 +2027,11 @@ class SPPMISDemoGenerator(models.TransientModel):
             cycles_to_create = max(0, self.cycles_per_program - existing_cycles)
 
             if cycles_to_create == 0:
-                _logger.info("Program (program_id=%s) already has %d cycles", program.id, existing_cycles)
+                _logger.info(
+                    "Program (program_id=%s) already has %d cycles",
+                    program.id,
+                    existing_cycles,
+                )
                 continue
 
             for _i in range(cycles_to_create):
@@ -1985,7 +2054,11 @@ class SPPMISDemoGenerator(models.TransientModel):
                             cycle_manager.prepare_entitlements(cycle)
 
                 except Exception as e:
-                    _logger.warning("Could not create cycle for program (program_id=%s): %s", program.id, e)
+                    _logger.warning(
+                        "Could not create cycle for program (program_id=%s): %s",
+                        program.id,
+                        e,
+                    )
 
         return cycles
 
@@ -2125,7 +2198,12 @@ class SPPMISDemoGenerator(models.TransientModel):
 
         event = self.env["spp.event.data"].create(event_vals)
         stats["events_created"] += 1
-        _logger.info("Created %s event (event_id=%s, partner_id=%s)", event_type_code, event.id, registrant.id)
+        _logger.info(
+            "Created %s event (event_id=%s, partner_id=%s)",
+            event_type_code,
+            event.id,
+            registrant.id,
+        )
 
         return event
 
@@ -2199,10 +2277,19 @@ class SPPMISDemoGenerator(models.TransientModel):
                 "spp_demo.demo_viewer",
                 [
                     ("spp_registry", "group_registry_viewer"),  # Registry access
-                    ("spp_service_points", "group_service_points_viewer"),  # Registrant form reads service points
-                    ("spp_vocabulary", "group_vocabulary_viewer"),  # Vocabulary read access for forms
+                    (
+                        "spp_service_points",
+                        "group_service_points_viewer",
+                    ),  # Registrant form reads service points
+                    (
+                        "spp_vocabulary",
+                        "group_vocabulary_viewer",
+                    ),  # Vocabulary read access for forms
                     ("spp_programs", "group_programs_viewer"),
-                    ("spp_change_request_v2", "group_cr_user"),  # Needs user to see menu
+                    (
+                        "spp_change_request_v2",
+                        "group_cr_user",
+                    ),  # Needs user to see menu
                     ("spp_grm", "group_grm_viewer"),
                     ("spp_case_base", "group_case_viewer"),
                 ],
@@ -2213,7 +2300,10 @@ class SPPMISDemoGenerator(models.TransientModel):
                 [
                     ("spp_registry", "group_registry_officer"),  # Registry access
                     ("spp_service_points", "group_service_points_officer"),
-                    ("spp_vocabulary", "group_vocabulary_officer"),  # Vocabulary for editing/creating
+                    (
+                        "spp_vocabulary",
+                        "group_vocabulary_officer",
+                    ),  # Vocabulary for editing/creating
                     ("spp_programs", "group_programs_officer"),
                     ("spp_change_request_v2", "group_cr_user"),
                     ("spp_grm", "group_grm_officer"),
@@ -2224,7 +2314,10 @@ class SPPMISDemoGenerator(models.TransientModel):
             (
                 "spp_demo.demo_supervisor",
                 [
-                    ("spp_registry", "group_registry_officer"),  # Registry access (officer level)
+                    (
+                        "spp_registry",
+                        "group_registry_officer",
+                    ),  # Registry access (officer level)
                     ("spp_service_points", "group_service_points_officer"),
                     ("spp_vocabulary", "group_vocabulary_officer"),
                     ("spp_programs", "group_programs_officer"),
@@ -2238,14 +2331,23 @@ class SPPMISDemoGenerator(models.TransientModel):
                 "spp_demo.demo_manager",
                 [
                     ("spp_registry", "group_registry_manager"),  # Registry access
-                    ("spp_registry_search", "group_registry_auditor"),  # Browse-all audit access
+                    (
+                        "spp_registry_search",
+                        "group_registry_auditor",
+                    ),  # Browse-all audit access
                     ("spp_service_points", "group_service_points_manager"),
-                    ("spp_vocabulary", "group_vocabulary_manager"),  # Full vocabulary access
+                    (
+                        "spp_vocabulary",
+                        "group_vocabulary_manager",
+                    ),  # Full vocabulary access
                     ("spp_programs", "group_programs_manager"),
                     ("spp_change_request_v2", "group_cr_manager"),
                     ("spp_grm", "group_grm_manager"),
                     ("spp_case_base", "group_case_manager"),
-                    ("spp_cel_domain", "group_cel_domain_manager"),  # CEL Domain Manager access
+                    (
+                        "spp_cel_domain",
+                        "group_cel_domain_manager",
+                    ),  # CEL Domain Manager access
                     ("spp_studio", "group_studio_manager"),  # Studio Manager access
                 ],
             ),
@@ -2572,7 +2674,11 @@ class SPPMISDemoGenerator(models.TransientModel):
                 if cr:
                     created_crs.append(cr)
             except Exception as e:
-                _logger.error("Error creating change request for story (story_id=%s): %s", story_id, e)
+                _logger.error(
+                    "Error creating change request for story (story_id=%s): %s",
+                    story_id,
+                    e,
+                )
 
         return created_crs
 
@@ -2677,7 +2783,12 @@ class SPPMISDemoGenerator(models.TransientModel):
                 self._set_cr_state(cr, "revision", revision_notes=revision_notes)
 
             stats["change_requests_created"] += 1
-            _logger.info("Created %s change request (cr_id=%s, partner_id=%s)", target_state, cr.id, registrant.id)
+            _logger.info(
+                "Created %s change request (cr_id=%s, partner_id=%s)",
+                target_state,
+                cr.id,
+                registrant.id,
+            )
 
             return cr
 
@@ -2791,7 +2902,13 @@ class SPPMISDemoGenerator(models.TransientModel):
                         "given_name": proposed_changes.get("given_name"),
                         "family_name": proposed_changes.get("family_name"),
                         "member_name": " ".join(
-                            filter(None, [proposed_changes.get("given_name"), proposed_changes.get("family_name")])
+                            filter(
+                                None,
+                                [
+                                    proposed_changes.get("given_name"),
+                                    proposed_changes.get("family_name"),
+                                ],
+                            )
                         ),
                         "birthdate": proposed_changes.get("birthdate"),
                         "relationship_id": relationship_id,
@@ -2819,7 +2936,11 @@ class SPPMISDemoGenerator(models.TransientModel):
                     target_name = self._get_story_name(target_story)
                     # Search with ilike for case-insensitive match
                     target_group = self.env["res.partner"].search(
-                        [("name", "ilike", target_name), ("is_group", "=", True), ("is_registrant", "=", True)],
+                        [
+                            ("name", "ilike", target_name),
+                            ("is_group", "=", True),
+                            ("is_registrant", "=", True),
+                        ],
                         limit=1,
                     )
                 vals.update(
@@ -2903,13 +3024,18 @@ class SPPMISDemoGenerator(models.TransientModel):
 
                 if primary_name:
                     primary = self.env["res.partner"].search(
-                        [("name", "ilike", primary_name), ("is_registrant", "=", True)], limit=1
+                        [("name", "ilike", primary_name), ("is_registrant", "=", True)],
+                        limit=1,
                     )
                     primary_id = primary.id if primary else False
 
                 if duplicate_name:
                     duplicate = self.env["res.partner"].search(
-                        [("name", "ilike", duplicate_name), ("is_registrant", "=", True)], limit=1
+                        [
+                            ("name", "ilike", duplicate_name),
+                            ("is_registrant", "=", True),
+                        ],
+                        limit=1,
                     )
                     duplicate_id = duplicate.id if duplicate else False
 
@@ -3038,7 +3164,11 @@ class SPPMISDemoGenerator(models.TransientModel):
 
         stats["fairness_analysis_created"] = created_count
         stats["fairness_snapshots_created"] = snapshot_count
-        _logger.info("Created %d fairness analysis records and %d snapshots", created_count, snapshot_count)
+        _logger.info(
+            "Created %d fairness analysis records and %d snapshots",
+            created_count,
+            snapshot_count,
+        )
 
     def _get_fairness_demo_data(self):
         """Get demo data structure for fairness analysis."""
@@ -3230,9 +3360,9 @@ class SPPMISDemoGenerator(models.TransientModel):
                     }
                 )
                 result["issuer_created"] = True
-                _logger.info("[spp.mis.demo] Created issuer config: %s", issuer.name)
+                _logger.info("[spp.mis.demo] Created issuer config ID %s", issuer.id)
             else:
-                _logger.info("[spp.mis.demo] Using existing issuer config: %s", issuer.name)
+                _logger.info("[spp.mis.demo] Using existing issuer config ID %s", issuer.id)
 
             # Step 4: Generate credentials for demo story personas
             if self.generate_credentials_for_stories:
@@ -3335,7 +3465,12 @@ class SPPMISDemoGenerator(models.TransientModel):
 
         # Stories (auto-generated)
         if stats.get("stories_created", 0) > 0:
-            message_parts.append(_("Stories: %(count)s registrants auto-created", count=stats["stories_created"]))
+            message_parts.append(
+                _(
+                    "Stories: %(count)s registrants auto-created",
+                    count=stats["stories_created"],
+                )
+            )
 
         # Random groups (auto-generated)
         if stats.get("random_groups_created", 0) > 0:
@@ -3385,12 +3520,20 @@ class SPPMISDemoGenerator(models.TransientModel):
 
         # Change Requests
         if self.create_change_requests and stats["change_requests_created"] > 0:
-            message_parts.append(_("Change Requests: %(count)s created", count=stats["change_requests_created"]))
+            message_parts.append(
+                _(
+                    "Change Requests: %(count)s created",
+                    count=stats["change_requests_created"],
+                )
+            )
 
         # Fairness Analysis
         if self.create_fairness_analysis and stats.get("fairness_analysis_created", 0) > 0:
             message_parts.append(
-                _("Fairness Analysis: %(count)s records created", count=stats["fairness_analysis_created"])
+                _(
+                    "Fairness Analysis: %(count)s records created",
+                    count=stats["fairness_analysis_created"],
+                )
             )
 
         # GRM Tickets
@@ -3405,7 +3548,10 @@ class SPPMISDemoGenerator(models.TransientModel):
         if self.generate_claim169_demo:
             if stats.get("claim169_skipped"):
                 message_parts.append(
-                    _("QR Credentials: skipped (%(reason)s)", reason=stats.get("claim169_skip_reason", "unknown"))
+                    _(
+                        "QR Credentials: skipped (%(reason)s)",
+                        reason=stats.get("claim169_skip_reason", "unknown"),
+                    )
                 )
             else:
                 claim169_parts = []
@@ -3415,7 +3561,10 @@ class SPPMISDemoGenerator(models.TransientModel):
                     claim169_parts.append(_("issuer config"))
                 if stats.get("claim169_credentials_created", 0) > 0:
                     claim169_parts.append(
-                        _("%(count)s credentials", count=stats["claim169_credentials_created"])
+                        _(
+                            "%(count)s credentials",
+                            count=stats["claim169_credentials_created"],
+                        )
                     )
                 if claim169_parts:
                     message_parts.append(_("QR Credentials: %s created") % ", ".join(claim169_parts))
@@ -3424,7 +3573,10 @@ class SPPMISDemoGenerator(models.TransientModel):
         if stats["missing_registrants"]:
             message_parts.append("")
             message_parts.append(
-                _("Warning: Missing registrants: %(names)s", names=", ".join(stats["missing_registrants"]))
+                _(
+                    "Warning: Missing registrants: %(names)s",
+                    names=", ".join(stats["missing_registrants"]),
+                )
             )
             message_parts.append(_("Run 'Generate Stories' in spp_demo first."))
 

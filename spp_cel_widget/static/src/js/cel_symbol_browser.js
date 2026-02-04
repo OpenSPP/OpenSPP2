@@ -25,7 +25,7 @@ export class CelSymbolBrowser extends Component {
         this.state = useState({
             searchQuery: "",
             expandedVariables: new Set(),
-            activeTab: "fields", // fields, variables, library, functions
+            activeTab: "fields", // Fields, variables, library, functions
             valueTypeFilter: "", // "", "boolean", "number", etc.
             categoryFilter: "", // "" or category name
         });

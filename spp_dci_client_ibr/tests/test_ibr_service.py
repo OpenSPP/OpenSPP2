@@ -279,7 +279,9 @@ class TestIBRService(TransactionCase):
 
     def test_duplication_result_class(self):
         """Test DuplicationResult helper class."""
-        from odoo.addons.spp_dci_client_ibr.services.ibr_service import DuplicationResult
+        from odoo.addons.spp_dci_client_ibr.services.ibr_service import (
+            DuplicationResult,
+        )
 
         result = DuplicationResult(
             is_duplicate=True,
@@ -298,7 +300,9 @@ class TestIBRService(TransactionCase):
 
     def test_duplication_result_defaults(self):
         """Test DuplicationResult default values."""
-        from odoo.addons.spp_dci_client_ibr.services.ibr_service import DuplicationResult
+        from odoo.addons.spp_dci_client_ibr.services.ibr_service import (
+            DuplicationResult,
+        )
 
         result = DuplicationResult()
 

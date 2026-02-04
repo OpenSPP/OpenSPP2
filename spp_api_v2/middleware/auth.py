@@ -134,7 +134,10 @@ def _validate_jwt_secret_strength(secret: str) -> bool:
 
     # Minimum length: 32 characters (256 bits for HS256)
     if len(secret) < 32:
-        _logger.error("SECURITY: JWT secret is too short (%d chars). Must be >= 32 chars.", len(secret))
+        _logger.error(
+            "SECURITY: JWT secret is too short (%d chars). Must be >= 32 chars.",
+            len(secret),
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Server configuration error",
@@ -146,7 +149,10 @@ def _validate_jwt_secret_strength(secret: str) -> bool:
 
     # Minimum entropy of 3.0 bits per character (good randomness)
     if entropy < 3.0:
-        _logger.error("SECURITY: JWT secret has low entropy (%.2f). Use a cryptographically random value.", entropy)
+        _logger.error(
+            "SECURITY: JWT secret has low entropy (%.2f). Use a cryptographically random value.",
+            entropy,
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Server configuration error",

@@ -397,7 +397,12 @@ class CelExecutor(models.AbstractModel):
 
     @api.model
     def compile_and_preview(
-        self, model: str, expr: str, limit: int = 50, fields: list[str] | None = None, materialize_sql: bool = False
+        self,
+        model: str,
+        expr: str,
+        limit: int = 50,
+        fields: list[str] | None = None,
+        materialize_sql: bool = False,
     ) -> dict[str, Any]:
         import uuid
 
@@ -422,7 +427,10 @@ class CelExecutor(models.AbstractModel):
                 self._logger.info("[CEL SQL] Using SQL fast path for expr=%s", expr)
             else:
                 # Fall back to Python execution (may be slow for large datasets)
-                self._logger.info("[CEL SQL] SQL fast path unavailable, falling back to Python for expr=%s", expr)
+                self._logger.info(
+                    "[CEL SQL] SQL fast path unavailable, falling back to Python for expr=%s",
+                    expr,
+                )
                 exec_self = self.with_context(cel_mode="preview", cel_request_id=request_id)
                 ids = exec_self._execute_plan(model, plan, metrics_info)
                 # If a fast-path domain override was provided in metrics_info, use it instead of materializing ids
@@ -616,7 +624,11 @@ class CelExecutor(models.AbstractModel):
         # Use search_count for efficiency (respects record rules and base_domain)
         count = self.env[model].search_count(final_domain)
 
-        return {"count": count, "path": "python", "warnings": ["Count required Python execution"]}
+        return {
+            "count": count,
+            "path": "python",
+            "warnings": ["Count required Python execution"],
+        }
 
     # Plan → Domain (best effort)
     def _plan_to_domain(self, model: str, plan: Any) -> tuple[list[Any], bool]:
@@ -1054,7 +1066,12 @@ class CelExecutor(models.AbstractModel):
         # Fallback: cannot split
         return [], child_plan
 
-    def _exec_metric(self, model: str, p: MetricCompare, metrics_info: list[dict[str, Any]] | None = None) -> list[int]:
+    def _exec_metric(
+        self,
+        model: str,
+        p: MetricCompare,
+        metrics_info: list[dict[str, Any]] | None = None,
+    ) -> list[int]:
         """Evaluate metric comparison and return matching subject IDs for current model.
 
         Uses openspp.metrics service with mode=fallback.
@@ -1115,7 +1132,14 @@ class CelExecutor(models.AbstractModel):
             path = "sql"
             if metrics_info is not None:
                 mi = dict(status)
-                mi.update({"metric": p.metric, "period_key": period_key, "path": path, "override_domain": domain})
+                mi.update(
+                    {
+                        "metric": p.metric,
+                        "period_key": period_key,
+                        "path": path,
+                        "override_domain": domain,
+                    }
+                )
                 metrics_info.append(mi)
             # We return [] and let compile_and_preview use override_domain to avoid
             # materializing ids into a huge 'in' list
@@ -1299,7 +1323,12 @@ class CelExecutor(models.AbstractModel):
             stale_count,
             status,
         )
-        return {"status": status, "base": base_count, "have": have_count, "stale": stale_count}
+        return {
+            "status": status,
+            "base": base_count,
+            "have": have_count,
+            "stale": stale_count,
+        }
 
     def _metric_inselect_sql(
         self,
@@ -1547,7 +1576,11 @@ class CelExecutor(models.AbstractModel):
 
         svc = self.env["spp.indicator"]
         values, stats = svc.evaluate(
-            p.metric, p.child_model, all_child_ids, str(p.period_key or "default"), mode="fallback"
+            p.metric,
+            p.child_model,
+            all_child_ids,
+            str(p.period_key or "default"),
+            mode="fallback",
         )
         if metrics_info is not None and stats:
             metrics_info.append(dict(stats, metric=p.metric, period_key=str(p.period_key or "default")))

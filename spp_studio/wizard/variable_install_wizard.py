@@ -730,7 +730,11 @@ class VariableInstallWizardLine(models.TransientModel):
         """Check if line can be installed."""
         for line in self:
             # Cannot install if: no match, already active, or wrong context
-            line.is_installable = line.match_type not in ("none", "existing_active", "wrong_context")
+            line.is_installable = line.match_type not in (
+                "none",
+                "existing_active",
+                "wrong_context",
+            )
 
     def _install_variable(self):
         """Install this variable based on match type.
@@ -758,7 +762,7 @@ class VariableInstallWizardLine(models.TransientModel):
                     variable.active = True
                 if hasattr(variable, "state") and variable.state == "draft":
                     variable.action_activate()
-                _logger.info("Activated existing variable: %s", variable.name)
+                _logger.info("Activated existing variable ID %s", variable.id)
                 return variable
 
             elif source_type == "standard":
@@ -771,7 +775,7 @@ class VariableInstallWizardLine(models.TransientModel):
                     variable.active = True
                 if hasattr(variable, "state") and variable.state == "draft":
                     variable.action_activate()
-                _logger.info("Activated standard variable: %s", variable.name)
+                _logger.info("Activated standard variable ID %s", variable.id)
                 return variable
 
             elif source_type == "field":
@@ -848,7 +852,7 @@ class VariableInstallWizardLine(models.TransientModel):
         }
 
         variable = Variable.create(vals)
-        _logger.info("Created field variable: %s", variable.name)
+        _logger.info("Created field variable ID %s", variable.id)
         return variable
 
     def _create_vocabulary_variable(self, group_id):
@@ -878,7 +882,7 @@ class VariableInstallWizardLine(models.TransientModel):
         }
 
         variable = Variable.create(vals)
-        _logger.info("Created vocabulary variable: %s", variable.name)
+        _logger.info("Created vocabulary variable ID %s", variable.id)
         return variable
 
     def _create_indicator_variable(self, indicator_id):
@@ -915,7 +919,7 @@ class VariableInstallWizardLine(models.TransientModel):
         }
 
         variable = Variable.create(vals)
-        _logger.info("Created indicator variable: %s", variable.name)
+        _logger.info("Created indicator variable ID %s", variable.id)
         return variable
 
     def _create_scoring_variable(self, model_id, var_type="score"):
@@ -961,7 +965,7 @@ class VariableInstallWizardLine(models.TransientModel):
             vals["source_scoring_id"] = model.id
 
         variable = Variable.create(vals)
-        _logger.info("Created scoring variable: %s", variable.name)
+        _logger.info("Created scoring variable ID %s", variable.id)
         return variable
 
     def action_create_variable(self):

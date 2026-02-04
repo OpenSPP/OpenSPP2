@@ -251,7 +251,15 @@ class SQLBuilder:
                HAVING COUNT(*) >= 2
         """
         # Normalize operator
-        op_map = {"==": "=", "=": "=", "!=": "!=", ">": ">", ">=": ">=", "<": "<", "<=": "<="}
+        op_map = {
+            "==": "=",
+            "=": "=",
+            "!=": "!=",
+            ">": ">",
+            ">=": ">=",
+            "<": "<",
+            "<=": "<=",
+        }
         sql_op = op_map.get(having_op)
         if sql_op is None:
             raise ValueError(f"Unsupported operator for HAVING: {having_op}")
@@ -307,7 +315,15 @@ class SQLBuilder:
             raise ValueError(f"Unsupported aggregate function: {agg_func}")
 
         # Normalize operator
-        op_map = {"==": "=", "=": "=", "!=": "!=", ">": ">", ">=": ">=", "<": "<", "<=": "<="}
+        op_map = {
+            "==": "=",
+            "=": "=",
+            "!=": "!=",
+            ">": ">",
+            ">=": ">=",
+            "<": "<",
+            "<=": "<=",
+        }
         sql_op = op_map.get(having_op)
         if sql_op is None:
             raise ValueError(f"Unsupported operator for HAVING: {having_op}")

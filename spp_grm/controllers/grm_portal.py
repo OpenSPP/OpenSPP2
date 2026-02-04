@@ -9,7 +9,12 @@ _logger = logging.getLogger(__name__)
 
 
 class SPPGrmPortal(CustomerPortal):
-    @http.route(["/my/tickets", "/my/tickets/page/<int:page>"], type="http", auth="user", website=True)
+    @http.route(
+        ["/my/tickets", "/my/tickets/page/<int:page>"],
+        type="http",
+        auth="user",
+        website=True,
+    )
     def portal_my_tickets(self, page=1, **kw):
         partner = request.env.user.partner_id
         ticket = request.env["spp.grm.ticket"]

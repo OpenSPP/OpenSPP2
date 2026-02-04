@@ -130,7 +130,11 @@ class TestGroupHierarchy(TestComplianceBase):
         implied_ids = group.implied_ids.mapped("id")
         implied_group = self.env.ref("spp_change_request_v2.group_cr_read", raise_if_not_found=False)
         if implied_group:
-            self.assertIn(implied_group.id, implied_ids, "group_cr_write should imply group_cr_read")
+            self.assertIn(
+                implied_group.id,
+                implied_ids,
+                "group_cr_write should imply group_cr_read",
+            )
 
     def test_group_cr_user_implies(self):
         """Test group_cr_user implies correct groups."""
@@ -140,7 +144,11 @@ class TestGroupHierarchy(TestComplianceBase):
         implied_ids = group.implied_ids.mapped("id")
         implied_group = self.env.ref("spp_change_request_v2.group_cr_write", raise_if_not_found=False)
         if implied_group:
-            self.assertIn(implied_group.id, implied_ids, "group_cr_user should imply group_cr_write")
+            self.assertIn(
+                implied_group.id,
+                implied_ids,
+                "group_cr_user should imply group_cr_write",
+            )
 
     def test_group_cr_validator_implies(self):
         """Test group_cr_validator implies correct groups."""
@@ -150,7 +158,11 @@ class TestGroupHierarchy(TestComplianceBase):
         implied_ids = group.implied_ids.mapped("id")
         implied_group = self.env.ref("spp_change_request_v2.group_cr_user", raise_if_not_found=False)
         if implied_group:
-            self.assertIn(implied_group.id, implied_ids, "group_cr_validator should imply group_cr_user")
+            self.assertIn(
+                implied_group.id,
+                implied_ids,
+                "group_cr_validator should imply group_cr_user",
+            )
 
     def test_group_cr_manager_implies(self):
         """Test group_cr_manager implies correct groups."""
@@ -160,7 +172,11 @@ class TestGroupHierarchy(TestComplianceBase):
         implied_ids = group.implied_ids.mapped("id")
         implied_group = self.env.ref("spp_change_request_v2.group_cr_validator", raise_if_not_found=False)
         if implied_group:
-            self.assertIn(implied_group.id, implied_ids, "group_cr_manager should imply group_cr_validator")
+            self.assertIn(
+                implied_group.id,
+                implied_ids,
+                "group_cr_manager should imply group_cr_validator",
+            )
 
 
 @tagged("post_install", "-at_install", "access_control", "compliance")
@@ -754,7 +770,11 @@ class TestRecordRules(TestComplianceBase):
             self.skipTest("Rule rule_cr_user not found")
 
         # Verify rule model
-        self.assertEqual(rule.model_id.model, "spp.change.request", "Rule should be for model spp.change.request")
+        self.assertEqual(
+            rule.model_id.model,
+            "spp.change.request",
+            "Rule should be for model spp.change.request",
+        )
 
         # Verify permissions
         self.assertEqual(rule.perm_read, True)
@@ -785,7 +805,11 @@ class TestRecordRules(TestComplianceBase):
             self.skipTest("Rule rule_cr_validator not found")
 
         # Verify rule model
-        self.assertEqual(rule.model_id.model, "spp.change.request", "Rule should be for model spp.change.request")
+        self.assertEqual(
+            rule.model_id.model,
+            "spp.change.request",
+            "Rule should be for model spp.change.request",
+        )
 
         # Verify permissions
         self.assertEqual(rule.perm_read, True)
@@ -807,7 +831,11 @@ class TestRecordRules(TestComplianceBase):
 
         expected_group = self.env.ref("spp_change_request_v2.group_cr_validator", raise_if_not_found=False)
         if expected_group:
-            self.assertIn(expected_group, rule.groups, "Rule should include group group_cr_validator")
+            self.assertIn(
+                expected_group,
+                rule.groups,
+                "Rule should include group group_cr_validator",
+            )
 
     def test_rule_rule_cr_manager_exists(self):
         """Test record rule rule_cr_manager exists and is configured."""
@@ -816,7 +844,11 @@ class TestRecordRules(TestComplianceBase):
             self.skipTest("Rule rule_cr_manager not found")
 
         # Verify rule model
-        self.assertEqual(rule.model_id.model, "spp.change.request", "Rule should be for model spp.change.request")
+        self.assertEqual(
+            rule.model_id.model,
+            "spp.change.request",
+            "Rule should be for model spp.change.request",
+        )
 
         # Verify permissions
         self.assertEqual(rule.perm_read, True)
@@ -838,7 +870,11 @@ class TestRecordRules(TestComplianceBase):
 
         expected_group = self.env.ref("spp_change_request_v2.group_cr_manager", raise_if_not_found=False)
         if expected_group:
-            self.assertIn(expected_group, rule.groups, "Rule should include group group_cr_manager")
+            self.assertIn(
+                expected_group,
+                rule.groups,
+                "Rule should include group group_cr_manager",
+            )
 
 
 @tagged("post_install", "-at_install", "access_control", "compliance")
@@ -876,5 +912,7 @@ class TestAdminLinkage(TestComplianceBase):
 
         all_implied = get_all_implied(admin_group)
         self.assertIn(
-            manager_group.id, all_implied, "Admin group should imply group_cr_manager (directly or transitively)"
+            manager_group.id,
+            all_implied,
+            "Admin group should imply group_cr_manager (directly or transitively)",
         )

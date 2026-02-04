@@ -94,7 +94,11 @@ class DrimsInterWarehouseTransfer(models.TransientModel):
         # Get DRIMS transfer type
         drims_type = self.env["spp.vocabulary.code"].search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:drims-types"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:drims-types",
+                ),
                 ("code", "=", "transfer"),
             ],
             limit=1,

@@ -6,7 +6,7 @@
     "license": "LGPL-3",
     "development_status": "Stable",
     "author": "OpenSPP Community",
-    "website": "https://docs.openspp.org",
+    "website": "https://github.com/OpenSPP/OpenSPP2",
     "category": "Tools",
     "depends": [
         "base",

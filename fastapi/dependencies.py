@@ -49,7 +49,9 @@ def optionally_authenticated_partner_impl() -> ResPartner | None:
     """
 
 
-def authenticated_partner_env(partner: Annotated[ResPartner, Depends(authenticated_partner_impl)]) -> Environment:
+def authenticated_partner_env(
+    partner: Annotated[ResPartner, Depends(authenticated_partner_impl)],
+) -> Environment:
     """Return an environment with the authenticated partner id in the context"""
     return partner.with_context(authenticated_partner_id=partner.id).env
 

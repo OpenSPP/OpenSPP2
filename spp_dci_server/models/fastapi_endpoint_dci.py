@@ -119,7 +119,11 @@ class SppDciServerEndpoint(models.Model):
             from ..routers.callbacks import dci_callback_router
             from ..routers.jwks import jwks_router
             from ..routers.receipt import dci_receipt_router
-            from ..routers.registry_aliases import crvs_router, disability_router, farmer_router
+            from ..routers.registry_aliases import (
+                crvs_router,
+                disability_router,
+                farmer_router,
+            )
             from ..routers.search import dci_search_router
 
             # JWKS at root level (/.well-known/jwks.json)

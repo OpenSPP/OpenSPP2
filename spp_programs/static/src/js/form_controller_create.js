@@ -31,8 +31,7 @@ patch(FormController.prototype, {
 
         // Check if create should be disabled
         const modelName = this.props.resModel;
-        const shouldHideCreate =
-            this.props.context?.create === false || MODELS_WITHOUT_CREATE.includes(modelName);
+        const shouldHideCreate = this.props.context?.create === false || MODELS_WITHOUT_CREATE.includes(modelName);
 
         if (shouldHideCreate) {
             this._hideCreateObserver = null;
@@ -49,8 +48,7 @@ patch(FormController.prototype, {
                 if (!rootEl) return;
 
                 // Find the action container
-                const container =
-                    rootEl.closest(".o_action") || rootEl.closest(".o_dialog") || document.body;
+                const container = rootEl.closest(".o_action") || rootEl.closest(".o_dialog") || document.body;
 
                 // Hide existing buttons immediately
                 hideCreateButtons(container);

@@ -452,7 +452,10 @@ class PhoneNumberDeduplication(models.Model):
 
         duplicate_individuals = [x.partner_id.id for x in duplicate_individuals_ids]
         duplicate_individuals = list(dict.fromkeys(duplicate_individuals))
-        _logger.debug("Found %s individual(s) with duplicated phone numbers", len(duplicate_individuals))
+        _logger.debug(
+            "Found %s individual(s) with duplicated phone numbers",
+            len(duplicate_individuals),
+        )
 
         group_with_duplicates = self.env["spp.group.membership"].search(
             [("group", "in", group_ids), ("individual", "in", duplicate_individuals)]
@@ -589,7 +592,10 @@ class IDDocumentDeduplicationEligibilityManager(models.Model):
     def enroll_eligible_registrants(self, program_memberships):
         # TODO: check if the beneficiary still match the criterias
         _logger.debug("-" * 100)
-        _logger.debug("Checking eligibility for %s program membership(s)", len(program_memberships))
+        _logger.debug(
+            "Checking eligibility for %s program membership(s)",
+            len(program_memberships),
+        )
         for rec in self:
             beneficiaries = rec._verify_eligibility(program_memberships)
             return self.env["spp.program.membership"].search(
@@ -642,7 +648,10 @@ class PhoneNumberDeduplicationEligibilityManager(models.Model):
     def enroll_eligible_registrants(self, program_memberships):
         # TODO: check if the beneficiary still match the criterias
         _logger.debug("-" * 100)
-        _logger.debug("Checking eligibility for %s program membership(s)", len(program_memberships))
+        _logger.debug(
+            "Checking eligibility for %s program membership(s)",
+            len(program_memberships),
+        )
         for rec in self:
             beneficiaries = rec._verify_eligibility(program_memberships)
             return self.env["spp.program.membership"].search(

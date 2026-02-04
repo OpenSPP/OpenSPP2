@@ -162,7 +162,10 @@ class StudioCRFieldMapping(models.Model):
             if record.validation_type in ("regex", "domain"):
                 if not record.validation_rule:
                     raise ValidationError(
-                        _("Validation rule is required for %(type)s validation.", type=record.validation_type)
+                        _(
+                            "Validation rule is required for %(type)s validation.",
+                            type=record.validation_type,
+                        )
                     )
                 if record.validation_type == "regex":
                     # Test if valid regex

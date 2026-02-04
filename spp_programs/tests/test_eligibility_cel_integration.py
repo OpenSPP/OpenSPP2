@@ -401,7 +401,10 @@ class TestEligibilityCELIntegration(TransactionCase):
         manager._compute_cel_preview()
 
         # Should find exactly 3 partners
-        self.assertTrue(manager.cel_is_valid, f"CEL expression should be valid. Error: {manager.cel_preview_error}")
+        self.assertTrue(
+            manager.cel_is_valid,
+            f"CEL expression should be valid. Error: {manager.cel_preview_error}",
+        )
         self.assertEqual(manager.cel_preview_count, 3)
 
     def test_performance_with_large_dataset(self):

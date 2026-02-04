@@ -11,7 +11,7 @@
  *
  * @param {Object} cm - CodeMirror modules
  * @param {Function} getValidation - Function that returns validation result promise
- * @param {string} profile - CEL profile name
+ * @param {String} profile - CEL profile name
  * @returns {Extension} CodeMirror linter extension
  */
 export function createCelLinter(cm, getValidation, profile) {
@@ -65,7 +65,7 @@ export function createCelLinter(cm, getValidation, profile) {
  *
  * @param {EditorView} view - CodeMirror editor view
  * @param {Object} error - Error object from validation
- * @param {string} severity - "error" | "warning" | "info"
+ * @param {String} severity - "error" | "warning" | "info"
  * @returns {Diagnostic} CodeMirror diagnostic
  */
 function createDiagnostic(view, error, severity) {

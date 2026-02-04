@@ -190,7 +190,10 @@ class CashEntitlementItemCEL(models.Model):
 
             service = self.env["spp.cel.service"]
             result = service.compile_expression(
-                self.cel_condition, profile=profile, base_domain=base_domain or [], limit=0
+                self.cel_condition,
+                profile=profile,
+                base_domain=base_domain or [],
+                limit=0,
             )
 
             if not result.get("valid"):
@@ -256,9 +259,7 @@ class CashEntitlementManagerCEL(models.Model):
                     .ids
                 )
                 original_count = len(beneficiaries)
-                beneficiaries = beneficiaries.filtered(
-                    lambda cm: cm.partner_id.id in satisfied_registrant_ids
-                )
+                beneficiaries = beneficiaries.filtered(lambda cm: cm.partner_id.id in satisfied_registrant_ids)
                 _logger.info(
                     "Compliance filtering: %d -> %d beneficiaries",
                     original_count,
@@ -349,7 +350,10 @@ class CashEntitlementManagerCEL(models.Model):
                 # No condition
                 beneficiaries_ids = all_beneficiaries_ids
 
-            _logger.info("Found %d matching beneficiaries for entitlement item", len(beneficiaries_ids))
+            _logger.info(
+                "Found %d matching beneficiaries for entitlement item",
+                len(beneficiaries_ids),
+            )
 
             beneficiaries_with_entitlements = (
                 self.env["spp.entitlement"]

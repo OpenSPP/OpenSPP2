@@ -73,7 +73,9 @@ export class CelSearchPortal extends Component {
         const expression = this.state.celExpression.trim();
 
         if (!expression) {
-            this.notification.add(_t("Please enter a CEL expression to search."), {type: "warning"});
+            this.notification.add(_t("Please enter a CEL expression to search."), {
+                type: "warning",
+            });
             return;
         }
 

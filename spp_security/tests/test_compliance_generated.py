@@ -101,7 +101,8 @@ class TestGroupHierarchy(TestComplianceBase):
         if not self.user_manager or not self.group_officer:
             self.skipTest("Required groups not found")
         self.assertTrue(
-            self.user_manager.has_group("spp_security.group_admin_officer"), "Manager should have officer privileges"
+            self.user_manager.has_group("spp_security.group_admin_officer"),
+            "Manager should have officer privileges",
         )
 
     def test_officer_implies_viewer(self):
@@ -109,7 +110,8 @@ class TestGroupHierarchy(TestComplianceBase):
         if not self.user_officer or not self.group_viewer:
             self.skipTest("Required groups not found")
         self.assertTrue(
-            self.user_officer.has_group("spp_security.group_admin_viewer"), "Officer should have viewer privileges"
+            self.user_officer.has_group("spp_security.group_admin_viewer"),
+            "Officer should have viewer privileges",
         )
 
 
@@ -167,4 +169,8 @@ class TestRecordRules(TestComplianceBase):
 
         expected_group = self.env.ref("spp_security.group_access_restrict_self", raise_if_not_found=False)
         if expected_group:
-            self.assertIn(expected_group, rule.groups, "Rule should include group group_access_restrict_self")
+            self.assertIn(
+                expected_group,
+                rule.groups,
+                "Rule should include group group_access_restrict_self",
+            )

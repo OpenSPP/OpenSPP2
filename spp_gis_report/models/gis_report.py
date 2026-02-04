@@ -98,6 +98,7 @@ class GISReport(models.Model):
         """Get domain for source_model_id field filtering."""
         models = self._get_gis_report_source_models()
         return [("model", "in", models)]
+
     area_field_path = fields.Char(
         "Area Field Path",
         required=True,
@@ -404,7 +405,6 @@ class GISReport(models.Model):
         for report in self:
             report.data_count = len(report.data_ids)
 
-
     @api.depends("cron_id", "refresh_interval")
     def _compute_next_refresh(self):
         """Compute the next scheduled refresh time."""
@@ -445,11 +445,11 @@ class GISReport(models.Model):
             dict: {area_id: {'raw': float, 'count': int, 'weight': float}}
         """
         self.ensure_one()
-        _logger.info("Computing base aggregation for report: %s", self.name)
+        _logger.info("Computing base aggregation for report ID %s", self.id)
 
         # Get the source model
         if not self.source_model:
-            _logger.warning("No source model configured for report: %s", self.name)
+            _logger.warning("No source model configured for report ID %s", self.id)
             return {}
 
         Model = self.env[self.source_model]
@@ -461,9 +461,7 @@ class GISReport(models.Model):
         area_field = self.area_field_path.split(".")[0]
 
         # Get areas at the base level
-        base_areas = self.env["spp.area"].search([
-            ("area_level", "=", self.base_area_level)
-        ])
+        base_areas = self.env["spp.area"].search([("area_level", "=", self.base_area_level)])
 
         if not base_areas:
             _logger.info("No areas at level %s found", self.base_area_level)
@@ -474,10 +472,7 @@ class GISReport(models.Model):
 
         # Initialize results for all base areas with 0
         # This ensures areas with no matching records get 0 instead of being missing
-        results = {
-            area.id: {"raw": 0, "count": 0, "weight": 0}
-            for area in base_areas
-        }
+        results = {area.id: {"raw": 0, "count": 0, "weight": 0} for area in base_areas}
 
         if self.aggregation_method == "count":
             # Efficient count using read_group
@@ -498,9 +493,7 @@ class GISReport(models.Model):
 
         elif self.aggregation_method in ("sum", "avg", "min", "max"):
             if not self.aggregation_field:
-                _logger.warning(
-                    "No aggregation_field set for %s method", self.aggregation_method
-                )
+                _logger.warning("No aggregation_field set for %s method", self.aggregation_method)
                 return {}
 
             # Aggregate with specific field
@@ -631,7 +624,7 @@ class GISReport(models.Model):
             dict: {area_id: {'raw': float, 'count': int, 'weight': float, 'is_rollup': bool}}
         """
         self.ensure_one()
-        _logger.info("Computing hierarchy rollup for report: %s", self.name)
+        _logger.info("Computing hierarchy rollup for report ID %s", self.id)
 
         if not self.enable_rollup:
             # Mark base results as non-rollup and return
@@ -674,20 +667,19 @@ class GISReport(models.Model):
                 break
 
             # Get parent areas at the current level
-            parent_areas = self.env["spp.area"].search([
-                ("area_level", "=", current_level),
-                ("id", "in", parent_ids),
-            ])
+            parent_areas = self.env["spp.area"].search(
+                [
+                    ("area_level", "=", current_level),
+                    ("id", "in", parent_ids),
+                ]
+            )
 
             if not parent_areas:
                 break
 
             # OPTIMIZATION: Batch load area metadata for all areas in current results
             # Only load areas we haven't loaded yet
-            areas_to_load = [
-                aid for aid in all_area_ids_in_results
-                if aid not in areas_data
-            ]
+            areas_to_load = [aid for aid in all_area_ids_in_results if aid not in areas_data]
             if areas_to_load:
                 loaded_areas = self.env["spp.area"].browse(areas_to_load)
                 # Prefetch all fields we need in one query
@@ -726,8 +718,7 @@ class GISReport(models.Model):
                 # Filter out children with None raw values (no data) for aggregation
                 all_child_data = [all_results[cid] for cid in child_ids]
                 child_data_with_values = [
-                    (cid, d) for cid, d in zip(child_ids, all_child_data, strict=False)
-                    if d.get("raw") is not None
+                    (cid, d) for cid, d in zip(child_ids, all_child_data, strict=False) if d.get("raw") is not None
                 ]
 
                 # If all children have no data, parent has no data
@@ -764,19 +755,14 @@ class GISReport(models.Model):
 
                     total_weight = sum(weights)
                     if total_weight > 0:
-                        raw = sum(
-                            d["raw"] * w for d, w in zip(child_data, weights, strict=False)
-                        ) / total_weight
+                        raw = sum(d["raw"] * w for d, w in zip(child_data, weights, strict=False)) / total_weight
                     else:
                         raw = 0
                     count = sum(d["count"] for d in child_data)
                     weight = total_weight
 
                 elif self.rollup_method == "avg":
-                    raw = (
-                        sum(d["raw"] for d in child_data) / len(child_data)
-                        if child_data else 0
-                    )
+                    raw = sum(d["raw"] for d in child_data) / len(child_data) if child_data else 0
                     count = sum(d["count"] for d in child_data)
                     weight = len(child_data)
 
@@ -872,7 +858,7 @@ class GISReport(models.Model):
             ]
             # Extend to cover all values
             breakpoints = [min(sorted_values)] + breakpoints + [max(sorted_values)]
-            breakpoints = sorted(set(breakpoints))[:num_buckets + 1]
+            breakpoints = sorted(set(breakpoints))[: num_buckets + 1]
 
         else:
             # Default to quartiles
@@ -884,13 +870,15 @@ class GISReport(models.Model):
 
         # Create threshold records
         for i in range(num_buckets):
-            thresholds.append({
-                "sequence": (i + 1) * 10,
-                "min_value": breakpoints[i],
-                "max_value": breakpoints[i + 1] if i < len(breakpoints) - 1 else None,
-                "color": colors[i] if i < len(colors) else colors[-1],
-                "label": labels[i] if i < len(labels) else f"Bucket {i + 1}",
-            })
+            thresholds.append(
+                {
+                    "sequence": (i + 1) * 10,
+                    "min_value": breakpoints[i],
+                    "max_value": breakpoints[i + 1] if i < len(breakpoints) - 1 else None,
+                    "color": colors[i] if i < len(colors) else colors[-1],
+                    "label": labels[i] if i < len(labels) else f"Bucket {i + 1}",
+                }
+            )
 
         return thresholds
 
@@ -942,7 +930,7 @@ class GISReport(models.Model):
         gaps.sort(reverse=True)
 
         # Take top (num_buckets - 1) gaps as break points
-        break_indices = sorted([g[1] for g in gaps[:num_buckets - 1]])
+        break_indices = sorted([g[1] for g in gaps[: num_buckets - 1]])
 
         # Build breakpoints
         breakpoints = [sorted_values[0]]
@@ -974,8 +962,7 @@ class GISReport(models.Model):
             return fallback.get_discrete_colors(num_colors)
 
         # Ultimate fallback - simple grayscale
-        return [f"#{hex(int(255 * i / max(num_colors - 1, 1)))[2:].zfill(2) * 3}"
-                for i in range(num_colors)]
+        return [f"#{hex(int(255 * i / max(num_colors - 1, 1)))[2:].zfill(2) * 3}" for i in range(num_colors)]
 
     def _get_bucket_labels(self, num_buckets):
         """Generate bucket labels.
@@ -1025,19 +1012,21 @@ class GISReport(models.Model):
             return results
 
         # Convert threshold records to list of dicts if needed
-        if hasattr(thresholds, 'sorted'):  # Odoo recordset
+        if hasattr(thresholds, "sorted"):  # Odoo recordset
             threshold_list = []
-            for t in thresholds.sorted('sequence'):
-                threshold_list.append({
-                    'min_value': t.min_value,
-                    'max_value': t.max_value,
-                    'color': t.color,
-                    'label': t.label,
-                })
+            for t in thresholds.sorted("sequence"):
+                threshold_list.append(
+                    {
+                        "min_value": t.min_value,
+                        "max_value": t.max_value,
+                        "color": t.color,
+                        "label": t.label,
+                    }
+                )
             thresholds = threshold_list
 
         # Sort by min_value
-        thresholds = sorted(thresholds, key=lambda t: t.get('min_value') or float('-inf'))
+        thresholds = sorted(thresholds, key=lambda t: t.get("min_value") or float("-inf"))
 
         for _area_id, data in results.items():
             value = data.get("normalized", data.get("raw"))
@@ -1154,13 +1143,13 @@ class GISReport(models.Model):
         Optimized for large datasets with batch queries.
         """
         self.ensure_one()
-        _logger.info("Starting full refresh for report: %s", self.name)
+        _logger.info("Starting full refresh for report ID %s", self.id)
 
         # Step 1: Compute base aggregation
         base_results = self._compute_base_aggregation()
 
         if not base_results:
-            _logger.info("No data found for report: %s", self.name)
+            _logger.info("No data found for report ID %s", self.id)
             # Clear existing data
             self.data_ids.unlink()
             self.last_refresh = fields.Datetime.now()
@@ -1185,10 +1174,7 @@ class GISReport(models.Model):
         all_results = self._compute_hierarchy_rollup(base_results)
 
         # OPTIMIZATION: Batch load rolled-up areas for normalization
-        rollup_area_ids = [
-            aid for aid, data in all_results.items()
-            if data.get("is_rollup") and aid not in area_cache
-        ]
+        rollup_area_ids = [aid for aid, data in all_results.items() if data.get("is_rollup") and aid not in area_cache]
         if rollup_area_ids:
             rollup_areas = self.env["spp.area"].browse(rollup_area_ids)
             rollup_areas.read(["area_sqkm", "population", "household_count"])
@@ -1208,9 +1194,7 @@ class GISReport(models.Model):
         # Step 5: Compute or get thresholds
         if self.threshold_mode.startswith("auto_"):
             # Compute automatic thresholds
-            normalized_values = [
-                d.get("normalized", d["raw"]) for d in all_results.values()
-            ]
+            normalized_values = [d.get("normalized", d["raw"]) for d in all_results.values()]
             thresholds = self._compute_auto_thresholds(normalized_values)
         else:
             # Use manual thresholds
@@ -1225,14 +1209,16 @@ class GISReport(models.Model):
             self.threshold_ids.filtered(lambda t: not t.description).unlink()
             # Create new ones
             for t in thresholds:
-                self.env["spp.gis.report.threshold"].create({
-                    "report_id": self.id,
-                    "sequence": t["sequence"],
-                    "min_value": t["min_value"],
-                    "max_value": t["max_value"],
-                    "color": t["color"],
-                    "label": t["label"],
-                })
+                self.env["spp.gis.report.threshold"].create(
+                    {
+                        "report_id": self.id,
+                        "sequence": t["sequence"],
+                        "min_value": t["min_value"],
+                        "max_value": t["max_value"],
+                        "color": t["color"],
+                        "label": t["label"],
+                    }
+                )
 
         # Step 8: Store results in spp.gis.report.data
         now = fields.Datetime.now()
@@ -1294,15 +1280,12 @@ class GISReport(models.Model):
             dict: A notification action to display to the user.
         """
         self.ensure_one()
-        _logger.info("Scheduling refresh for report: %s", self.name)
+        _logger.info("Scheduling refresh for report ID %s", self.id)
 
         # Use queue_job if available, otherwise run synchronously
-        if hasattr(self, 'with_delay'):
+        if hasattr(self, "with_delay"):
             self.is_syncing = True
-            self.with_delay(
-                priority=10,
-                description=f"Re-sync GIS Report: {self.name}"
-            )._refresh_data()
+            self.with_delay(priority=10, description=f"Re-sync GIS Report: {self.name}")._refresh_data()
             message = _("Report data refresh has been scheduled.")
         else:
             self._refresh_data()
@@ -1335,26 +1318,24 @@ class GISReport(models.Model):
         that have passed their next_refresh time.
         """
         now = fields.Datetime.now()
-        reports_to_refresh = self.search([
-            ("refresh_mode", "=", "scheduled"),
-            ("active", "=", True),
-            "|",
-            ("next_refresh", "=", False),
-            ("next_refresh", "<=", now),
-        ])
-
-        _logger.info(
-            "GIS Report cron: Found %d reports to refresh", len(reports_to_refresh)
+        reports_to_refresh = self.search(
+            [
+                ("refresh_mode", "=", "scheduled"),
+                ("active", "=", True),
+                "|",
+                ("next_refresh", "=", False),
+                ("next_refresh", "<=", now),
+            ]
         )
+
+        _logger.info("GIS Report cron: Found %d reports to refresh", len(reports_to_refresh))
 
         for report in reports_to_refresh:
             try:
                 report._refresh_data()
-                _logger.info("GIS Report cron: Refreshed '%s'", report.name)
+                _logger.info("GIS Report cron: Refreshed report ID %s", report.id)
             except Exception:
-                _logger.exception(
-                    "GIS Report cron: Failed to refresh '%s'", report.name
-                )
+                _logger.exception("GIS Report cron: Failed to refresh '%s'", report.name)
 
     def action_view_map(self):
         """Open the map view for this report.
@@ -1427,7 +1408,7 @@ class GISReport(models.Model):
         TODO: Implement using PostGIS ST_AsGeoJSON for performance
         """
         self.ensure_one()
-        _logger.info("Generating GeoJSON for report: %s", self.name)
+        _logger.info("Generating GeoJSON for report ID %s", self.id)
 
         # Build domain for filtering data
         domain = [("report_id", "=", self.id)]
@@ -1441,9 +1422,7 @@ class GISReport(models.Model):
         if parent_area_id:
             parent_area = self.env["spp.area"].browse(parent_area_id)
             if parent_area.exists():
-                child_areas = self.env["spp.area"].search(
-                    [("parent_id", "=", parent_area_id)]
-                )
+                child_areas = self.env["spp.area"].search([("parent_id", "=", parent_area_id)])
                 domain.append(("area_id", "in", child_areas.ids))
 
         # Get filtered data records
@@ -1462,12 +1441,8 @@ class GISReport(models.Model):
                 "area_level": data.area_level,
                 "area_level_name": f"Level {data.area_level}",
                 "parent_area_id": data.parent_area_id.id if data.parent_area_id else None,
-                "parent_area_code": (
-                    data.parent_area_id.code if data.parent_area_id else None
-                ),
-                "parent_area_name": (
-                    data.parent_area_id.name if data.parent_area_id else None
-                ),
+                "parent_area_code": (data.parent_area_id.code if data.parent_area_id else None),
+                "parent_area_name": (data.parent_area_id.name if data.parent_area_id else None),
                 "has_data": has_data,  # False if no source data for this area
                 "raw_value": data.raw_value,  # null if no data
                 "normalized_value": data.normalized_value,  # null if no data
@@ -1514,8 +1489,7 @@ class GISReport(models.Model):
                     feature["geometry"] = shape.__geo_interface__
                 except ImportError:
                     _logger.warning(
-                        "shapely not available, geometry export limited. "
-                        "Install shapely for full geometry support."
+                        "shapely not available, geometry export limited. " "Install shapely for full geometry support."
                     )
                     feature["geometry"] = None
                 except Exception as e:
@@ -1543,22 +1517,12 @@ class GISReport(models.Model):
             "total_features": len(features),
             "normalization": {
                 "method": self.normalization_method,
-                "label": dict(self._fields["normalization_method"].selection).get(
-                    self.normalization_method
-                ),
-                "reference": (
-                    self.reference_indicator_id.code
-                    if self.reference_indicator_id
-                    else None
-                ),
+                "label": dict(self._fields["normalization_method"].selection).get(self.normalization_method),
+                "reference": (self.reference_indicator_id.code if self.reference_indicator_id else None),
             },
             "data_freshness": {
-                "last_refresh": (
-                    self.last_refresh.isoformat() if self.last_refresh else None
-                ),
-                "next_refresh": (
-                    self.next_refresh.isoformat() if self.next_refresh else None
-                ),
+                "last_refresh": (self.last_refresh.isoformat() if self.last_refresh else None),
+                "next_refresh": (self.next_refresh.isoformat() if self.next_refresh else None),
                 "is_stale": self.is_stale,
             },
         }
@@ -1602,7 +1566,7 @@ class GISReport(models.Model):
             dict: Summary statistics
         """
         self.ensure_one()
-        _logger.info("Generating summary for report: %s", self.name)
+        _logger.info("Generating summary for report ID %s", self.id)
 
         # Build domain for filtering data
         domain = [("report_id", "=", self.id)]
@@ -1613,9 +1577,7 @@ class GISReport(models.Model):
         if parent_area_id:
             parent_area = self.env["spp.area"].browse(parent_area_id)
             if parent_area.exists():
-                child_areas = self.env["spp.area"].search(
-                    [("parent_id", "=", parent_area_id)]
-                )
+                child_areas = self.env["spp.area"].search([("parent_id", "=", parent_area_id)])
                 domain.append(("area_id", "in", child_areas.ids))
 
         # Get filtered data records
@@ -1632,9 +1594,7 @@ class GISReport(models.Model):
 
         # Calculate statistics - filter out None values (no-data areas)
         raw_values = [v for v in data_records.mapped("raw_value") if v is not None]
-        normalized_values = [
-            v for v in data_records.mapped("normalized_value") if v is not None
-        ]
+        normalized_values = [v for v in data_records.mapped("normalized_value") if v is not None]
 
         # Count areas with and without data
         areas_with_data = len(raw_values)
@@ -1655,11 +1615,7 @@ class GISReport(models.Model):
                     "max_normalized": max(normalized_values),
                     "mean_normalized": statistics.mean(normalized_values),
                     "median_normalized": statistics.median(normalized_values),
-                    "stddev_normalized": (
-                        statistics.stdev(normalized_values)
-                        if len(normalized_values) > 1
-                        else 0
-                    ),
+                    "stddev_normalized": (statistics.stdev(normalized_values) if len(normalized_values) > 1 else 0),
                 }
             )
 
@@ -1682,9 +1638,7 @@ class GISReport(models.Model):
 
         total_count = len(data_records)
         for _label, bucket_info in bucket_data.items():
-            bucket_info["percentage"] = (
-                (bucket_info["count"] / total_count * 100) if total_count else 0
-            )
+            bucket_info["percentage"] = (bucket_info["count"] / total_count * 100) if total_count else 0
             distribution.append(bucket_info)
 
         return {
@@ -1712,8 +1666,12 @@ class GISReport(models.Model):
 
         # Sync layer if relevant fields changed
         layer_sync_fields = {
-            "name", "geometry_type", "color_scheme_id", "auto_create_layer",
-            "layer_active_on_startup", "active",
+            "name",
+            "geometry_type",
+            "color_scheme_id",
+            "auto_create_layer",
+            "layer_active_on_startup",
+            "active",
         }
         if layer_sync_fields & set(vals.keys()):
             for report in self:
@@ -1743,28 +1701,32 @@ class GISReport(models.Model):
             return
 
         # Get or find the area model's geo field for the layer
-        area_model = self.env["ir.model"].search(
-            [("model", "=", "spp.area")], limit=1
-        )
+        area_model = self.env["ir.model"].search([("model", "=", "spp.area")], limit=1)
         if not area_model:
             _logger.warning("spp.area model not found, cannot create layer")
             return
 
         # Find the geo_polygon field on spp.area
-        geo_field = self.env["ir.model.fields"].search([
-            ("model_id", "=", area_model.id),
-            ("name", "=", "geo_polygon"),
-        ], limit=1)
+        geo_field = self.env["ir.model.fields"].search(
+            [
+                ("model_id", "=", area_model.id),
+                ("name", "=", "geo_polygon"),
+            ],
+            limit=1,
+        )
 
         if not geo_field:
             _logger.warning("geo_polygon field not found on spp.area")
             return
 
         # Find or create a GIS view for spp.area
-        gis_view = self.env["ir.ui.view"].search([
-            ("model", "=", "spp.area"),
-            ("type", "=", "gis"),
-        ], limit=1)
+        gis_view = self.env["ir.ui.view"].search(
+            [
+                ("model", "=", "spp.area"),
+                ("type", "=", "gis"),
+            ],
+            limit=1,
+        )
 
         if not gis_view:
             _logger.warning("No GIS view found for spp.area")
@@ -1786,12 +1748,12 @@ class GISReport(models.Model):
         if self.layer_id:
             # Update existing layer
             self.layer_id.write(layer_vals)
-            _logger.info("Updated data layer for report: %s", self.name)
+            _logger.info("Updated data layer for report ID %s", self.id)
         else:
             # Create new layer
             layer = self.env["spp.gis.data.layer"].create(layer_vals)
             self.layer_id = layer
-            _logger.info("Created data layer for report: %s", self.name)
+            _logger.info("Created data layer for report ID %s", self.id)
 
     def action_sync_layer(self):
         """Manual action to sync the data layer."""

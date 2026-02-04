@@ -14,7 +14,7 @@
  * - Accessibility support (ARIA, keyboard navigation)
  */
 
-import {Component, useState, onWillStart} from "@odoo/owl";
+import {Component, onWillStart, useState} from "@odoo/owl";
 import {registry} from "@web/core/registry";
 import {useService} from "@web/core/utils/hooks";
 import {_t} from "@web/core/l10n/translation";
@@ -35,7 +35,7 @@ export class RegistrySearchPortal extends Component {
 
         this.state = useState({
             searchTerm: "",
-            searchType: "all", // all, individuals, groups
+            searchType: "all", // All, individuals, groups
             isSearching: false,
             hasSearched: false,
             results: [],
@@ -134,14 +134,18 @@ export class RegistrySearchPortal extends Component {
 
             // Search registrants
             const fields = ["id", "name", "is_group", "phone", "email", "registration_date", "disabled"];
-            const results = await this.orm.searchRead("res.partner", domain, fields, {limit: SEARCH_RESULT_LIMIT});
+            const results = await this.orm.searchRead("res.partner", domain, fields, {
+                limit: SEARCH_RESULT_LIMIT,
+            });
 
             this.state.results = results;
             this.state.totalCount = results.length;
             // Indicate if there may be more results beyond the limit
             this.state.hasMoreResults = results.length >= SEARCH_RESULT_LIMIT;
         } catch {
-            this.notification.add(_t("Search failed. Please try again."), {type: "danger"});
+            this.notification.add(_t("Search failed. Please try again."), {
+                type: "danger",
+            });
         } finally {
             this.state.isSearching = false;
         }

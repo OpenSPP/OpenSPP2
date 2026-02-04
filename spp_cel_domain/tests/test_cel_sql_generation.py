@@ -203,8 +203,16 @@ class TestCelSqlGeneration(TransactionCase):
 
         self.assertTrue(result["valid"], f"Expression should be valid: {result.get('error')}")
         # household1 has a child under 5, household2 does not
-        self.assertIn(self.household1.id, result["ids"], "Household1 should match (has child under 5)")
-        self.assertNotIn(self.household2.id, result["ids"], "Household2 should not match (no children under 5)")
+        self.assertIn(
+            self.household1.id,
+            result["ids"],
+            "Household1 should match (has child under 5)",
+        )
+        self.assertNotIn(
+            self.household2.id,
+            result["ids"],
+            "Household2 should not match (no children under 5)",
+        )
 
     def test_sql_path_for_count(self):
         """Test that SQL path works for count operations."""
@@ -224,7 +232,11 @@ class TestCelSqlGeneration(TransactionCase):
         self.assertTrue(result["valid"], f"Expression should be valid: {result.get('error')}")
         # household1 has 2 members, household2 has 1 member
         self.assertIn(self.household1.id, result["ids"], "Household1 should match (has 2 members)")
-        self.assertNotIn(self.household2.id, result["ids"], "Household2 should not match (has only 1 member)")
+        self.assertNotIn(
+            self.household2.id,
+            result["ids"],
+            "Household2 should not match (has only 1 member)",
+        )
 
     def test_format_domain_for_log_truncates_large_lists(self):
         """Test that _format_domain_for_log truncates large ID lists."""
@@ -424,7 +436,8 @@ class TestSQLPythonParity(TransactionCase):
 
         # Both must be valid
         self.assertTrue(
-            sql_result["valid"], f"{test_description}: SQL path should be valid. Error: {sql_result.get('error')}"
+            sql_result["valid"],
+            f"{test_description}: SQL path should be valid. Error: {sql_result.get('error')}",
         )
         self.assertTrue(
             python_result["valid"],
@@ -473,22 +486,30 @@ class TestSQLPythonParity(TransactionCase):
     def test_parity_exists_with_filter(self):
         """Test: members.exists(m, age_years(m.birthdate) < 5)"""
         self._assert_paths_equal(
-            "members.exists(m, age_years(m.birthdate) < 5)", "Exists with filter - households with children under 5"
+            "members.exists(m, age_years(m.birthdate) < 5)",
+            "Exists with filter - households with children under 5",
         )
 
     def test_parity_count_equals(self):
         """Test: members.count(m, true) == 2"""
-        self._assert_paths_equal("members.count(m, true) == 2", "Count equals - households with exactly 2 members")
+        self._assert_paths_equal(
+            "members.count(m, true) == 2",
+            "Count equals - households with exactly 2 members",
+        )
 
     def test_parity_count_greater_than(self):
         """Test: members.count(m, true) >= 2"""
         self._assert_paths_equal(
-            "members.count(m, true) >= 2", "Count greater than or equal - households with 2+ members"
+            "members.count(m, true) >= 2",
+            "Count greater than or equal - households with 2+ members",
         )
 
     def test_parity_count_less_than(self):
         """Test: members.count(m, true) < 3"""
-        self._assert_paths_equal("members.count(m, true) < 3", "Count less than - households with fewer than 3 members")
+        self._assert_paths_equal(
+            "members.count(m, true) < 3",
+            "Count less than - households with fewer than 3 members",
+        )
 
     def test_parity_and_combination(self):
         """Test: members.exists(m, true) && is_registrant == true"""
@@ -502,7 +523,8 @@ class TestSQLPythonParity(TransactionCase):
         # Expression that will match no households in our test data
         # (looking for households with more than 10 members)
         self._assert_paths_equal(
-            "members.count(m, true) > 10", "Empty result set - no households with more than 10 members"
+            "members.count(m, true) > 10",
+            "Empty result set - no households with more than 10 members",
         )
 
 
@@ -740,7 +762,11 @@ class TestSQLEdgeCases(TransactionCase):
         base_domain = [
             ("is_registrant", "=", True),
             ("is_group", "=", True),
-            ("id", "in", [self.household_one.id, self.household_two.id, self.household_three.id]),
+            (
+                "id",
+                "in",
+                [self.household_one.id, self.household_two.id, self.household_three.id],
+            ),
         ]
         result = self.service.compile_expression(
             expression,
@@ -750,9 +776,21 @@ class TestSQLEdgeCases(TransactionCase):
 
         self.assertTrue(result["valid"], f"Expression should be valid: {result.get('error')}")
         self.assertEqual(result["count"], 1, "Should match exactly one household")
-        self.assertIn(self.household_two.id, result["ids"], "Should match household with exactly 2 members")
-        self.assertNotIn(self.household_one.id, result["ids"], "Should not match household with 1 member")
-        self.assertNotIn(self.household_three.id, result["ids"], "Should not match household with 3 members")
+        self.assertIn(
+            self.household_two.id,
+            result["ids"],
+            "Should match household with exactly 2 members",
+        )
+        self.assertNotIn(
+            self.household_one.id,
+            result["ids"],
+            "Should not match household with 1 member",
+        )
+        self.assertNotIn(
+            self.household_three.id,
+            result["ids"],
+            "Should not match household with 3 members",
+        )
 
     def test_count_one_below_threshold(self):
         """Test count just below threshold."""
@@ -762,7 +800,11 @@ class TestSQLEdgeCases(TransactionCase):
         base_domain = [
             ("is_registrant", "=", True),
             ("is_group", "=", True),
-            ("id", "in", [self.household_one.id, self.household_two.id, self.household_three.id]),
+            (
+                "id",
+                "in",
+                [self.household_one.id, self.household_two.id, self.household_three.id],
+            ),
         ]
         result = self.service.compile_expression(
             expression,
@@ -771,9 +813,21 @@ class TestSQLEdgeCases(TransactionCase):
         )
 
         self.assertTrue(result["valid"], f"Expression should be valid: {result.get('error')}")
-        self.assertNotIn(self.household_one.id, result["ids"], "Household with 1 member should not match >= 2")
-        self.assertIn(self.household_two.id, result["ids"], "Household with 2 members should match >= 2")
-        self.assertIn(self.household_three.id, result["ids"], "Household with 3 members should match >= 2")
+        self.assertNotIn(
+            self.household_one.id,
+            result["ids"],
+            "Household with 1 member should not match >= 2",
+        )
+        self.assertIn(
+            self.household_two.id,
+            result["ids"],
+            "Household with 2 members should match >= 2",
+        )
+        self.assertIn(
+            self.household_three.id,
+            result["ids"],
+            "Household with 3 members should match >= 2",
+        )
 
     def test_count_one_above_threshold(self):
         """Test count just above threshold."""
@@ -783,7 +837,11 @@ class TestSQLEdgeCases(TransactionCase):
         base_domain = [
             ("is_registrant", "=", True),
             ("is_group", "=", True),
-            ("id", "in", [self.household_one.id, self.household_two.id, self.household_three.id]),
+            (
+                "id",
+                "in",
+                [self.household_one.id, self.household_two.id, self.household_three.id],
+            ),
         ]
         result = self.service.compile_expression(
             expression,
@@ -792,9 +850,21 @@ class TestSQLEdgeCases(TransactionCase):
         )
 
         self.assertTrue(result["valid"], f"Expression should be valid: {result.get('error')}")
-        self.assertIn(self.household_one.id, result["ids"], "Household with 1 member should match <= 2")
-        self.assertIn(self.household_two.id, result["ids"], "Household with 2 members should match <= 2")
-        self.assertNotIn(self.household_three.id, result["ids"], "Household with 3 members should not match <= 2")
+        self.assertIn(
+            self.household_one.id,
+            result["ids"],
+            "Household with 1 member should match <= 2",
+        )
+        self.assertIn(
+            self.household_two.id,
+            result["ids"],
+            "Household with 2 members should match <= 2",
+        )
+        self.assertNotIn(
+            self.household_three.id,
+            result["ids"],
+            "Household with 3 members should not match <= 2",
+        )
 
     def test_household_zero_members(self):
         """Test household with no members for count operations."""
@@ -813,8 +883,16 @@ class TestSQLEdgeCases(TransactionCase):
         )
 
         self.assertTrue(result["valid"], f"Expression should be valid: {result.get('error')}")
-        self.assertNotIn(self.household_empty.id, result["ids"], "Empty household should not match count > 0")
-        self.assertIn(self.household_one.id, result["ids"], "Household with 1 member should match count > 0")
+        self.assertNotIn(
+            self.household_empty.id,
+            result["ids"],
+            "Empty household should not match count > 0",
+        )
+        self.assertIn(
+            self.household_one.id,
+            result["ids"],
+            "Household with 1 member should match count > 0",
+        )
 
     def test_household_one_member(self):
         """Test household with exactly one member."""
@@ -833,8 +911,16 @@ class TestSQLEdgeCases(TransactionCase):
         )
 
         self.assertTrue(result["valid"], f"Expression should be valid: {result.get('error')}")
-        self.assertNotIn(self.household_empty.id, result["ids"], "Empty household should not match exists")
-        self.assertIn(self.household_one.id, result["ids"], "Household with one member should match exists")
+        self.assertNotIn(
+            self.household_empty.id,
+            result["ids"],
+            "Empty household should not match exists",
+        )
+        self.assertIn(
+            self.household_one.id,
+            result["ids"],
+            "Household with one member should match exists",
+        )
 
     def test_null_birthdate_age_filter(self):
         """Test member with NULL birthdate in age filter."""
@@ -855,10 +941,16 @@ class TestSQLEdgeCases(TransactionCase):
         self.assertTrue(result["valid"], f"Expression should be valid: {result.get('error')}")
         # household_null has only a member with NULL birthdate - should not match
         self.assertNotIn(
-            self.household_null.id, result["ids"], "Household with NULL birthdate member should not match age filter"
+            self.household_null.id,
+            result["ids"],
+            "Household with NULL birthdate member should not match age filter",
         )
         # household_one has member aged 20 - should match
-        self.assertIn(self.household_one.id, result["ids"], "Household with member > 18 should match")
+        self.assertIn(
+            self.household_one.id,
+            result["ids"],
+            "Household with member > 18 should match",
+        )
 
     def test_empty_child_filter_results(self):
         """Test when child filter returns empty results."""
@@ -877,7 +969,11 @@ class TestSQLEdgeCases(TransactionCase):
 
         self.assertTrue(result["valid"], f"Expression should be valid: {result.get('error')}")
         # No members have income > 999999, so no households should match
-        self.assertEqual(result["count"], 0, "Should match zero households when child filter is empty")
+        self.assertEqual(
+            result["count"],
+            0,
+            "Should match zero households when child filter is empty",
+        )
         self.assertEqual(len(result["ids"]), 0, "Should return empty ID list")
 
     def test_preview_limited_to_n(self):

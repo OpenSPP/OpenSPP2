@@ -19,14 +19,22 @@ class TestDrimsReturnWizard(DrimsTestCommon):
         # Get return condition vocabulary codes
         cls.condition_good = cls.vocab_code.search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:return-conditions"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:return-conditions",
+                ),
                 ("code", "=", "good"),
             ],
             limit=1,
         )
         cls.condition_damaged = cls.vocab_code.search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:return-conditions"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:return-conditions",
+                ),
                 ("code", "=", "damaged"),
             ],
             limit=1,
@@ -35,7 +43,11 @@ class TestDrimsReturnWizard(DrimsTestCommon):
         # Get drims type for dispatch
         cls.drims_type_dispatch = cls.vocab_code.search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:drims-types"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:drims-types",
+                ),
                 ("code", "=", "request_dispatch"),
             ],
             limit=1,

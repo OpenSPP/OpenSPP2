@@ -350,7 +350,12 @@ class Operator:
         PostGIS spatial relation specified by the `operation` parameter, the geometry created based on
         the `coordinates` and `layer_type`, and the field name associated with the instance.
         """
-        self.clean_and_validate(operation=operation, coordinates=coordinates, distance=distance, layer_type=layer_type)
+        self.clean_and_validate(
+            operation=operation,
+            coordinates=coordinates,
+            distance=distance,
+            layer_type=layer_type,
+        )
 
         geom_functions = {
             "point": self.create_point,

@@ -220,13 +220,13 @@ class PackInstallWizard(models.TransientModel):
                 # Update pack item reference
                 item.installed_logic_id = logic.id
 
-                _logger.info("Installed logic '%s' from pack '%s'", item.name, self.pack_id.name)
+                _logger.info("Installed logic ID %s from pack ID %s", item.id, self.pack_id.id)
 
             except json.JSONDecodeError as e:
-                _logger.error("Invalid JSON in pack item '%s': %s", item.name, e)
-                raise UserError(_("Invalid data in pack item '%s': %s") % (item.name, e)) from e
+                _logger.error("Invalid JSON in pack item ID %s: %s", item.id, e)
+                raise UserError(_("Invalid data in pack item ID %s: %s") % (item.name, e)) from e
             except Exception as e:
-                _logger.error("Error installing pack item '%s': %s", item.name, e)
+                _logger.error("Error installing pack item ID %s: %s", item.id, e)
                 raise UserError(_("Error installing '%s': %s") % (item.name, e)) from e
 
         # Install personas if requested

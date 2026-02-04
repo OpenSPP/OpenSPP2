@@ -44,7 +44,12 @@ class TestBundleService(ApiV2TestCase):
                     ),
                     resource={
                         "type": "Individual",
-                        "identifier": [{"system": "urn:openspp:vocab:id-type#test_national_id", "value": "TXN-001"}],
+                        "identifier": [
+                            {
+                                "system": "urn:openspp:vocab:id-type#test_national_id",
+                                "value": "TXN-001",
+                            }
+                        ],
                         "name": {"given": "John", "family": "Doe"},
                         "active": True,
                     },
@@ -74,7 +79,10 @@ class TestBundleService(ApiV2TestCase):
                     resource={
                         "type": "Individual",
                         "identifier": [
-                            {"system": "urn:openspp:vocab:id-type#test_national_id", "value": "TXN-MULTI-1"}
+                            {
+                                "system": "urn:openspp:vocab:id-type#test_national_id",
+                                "value": "TXN-MULTI-1",
+                            }
                         ],
                         "name": {"given": "Alice", "family": "Smith"},
                     },
@@ -85,7 +93,10 @@ class TestBundleService(ApiV2TestCase):
                     resource={
                         "type": "Individual",
                         "identifier": [
-                            {"system": "urn:openspp:vocab:id-type#test_national_id", "value": "TXN-MULTI-2"}
+                            {
+                                "system": "urn:openspp:vocab:id-type#test_national_id",
+                                "value": "TXN-MULTI-2",
+                            }
                         ],
                         "name": {"given": "Bob", "family": "Jones"},
                     },
@@ -116,7 +127,10 @@ class TestBundleService(ApiV2TestCase):
                     resource={
                         "type": "Individual",
                         "identifier": [
-                            {"system": "urn:openspp:vocab:id-type#test_national_id", "value": "PLACEHOLDER-IND"}
+                            {
+                                "system": "urn:openspp:vocab:id-type#test_national_id",
+                                "value": "PLACEHOLDER-IND",
+                            }
                         ],
                         "name": {"given": "Head", "family": "Person"},
                     },
@@ -127,7 +141,10 @@ class TestBundleService(ApiV2TestCase):
                     resource={
                         "type": "Group",
                         "identifier": [
-                            {"system": "urn:openspp:vocab:id-type#test_household_id", "value": "PLACEHOLDER-GRP"}
+                            {
+                                "system": "urn:openspp:vocab:id-type#test_household_id",
+                                "value": "PLACEHOLDER-GRP",
+                            }
                         ],
                         "name": "Test Household",
                         "member": [
@@ -165,7 +182,12 @@ class TestBundleService(ApiV2TestCase):
                     request=BundleRequest(method="POST", url="Individual"),
                     resource={
                         "type": "Individual",
-                        "identifier": [{"system": "urn:openspp:vocab:id-type#test_national_id", "value": "ROLLBACK-1"}],
+                        "identifier": [
+                            {
+                                "system": "urn:openspp:vocab:id-type#test_national_id",
+                                "value": "ROLLBACK-1",
+                            }
+                        ],
                         "name": {"given": "Valid", "family": "Entry"},
                     },
                 ),
@@ -198,7 +220,12 @@ class TestBundleService(ApiV2TestCase):
                     request=BundleRequest(method="POST", url="Individual"),
                     resource={
                         "type": "Individual",
-                        "identifier": [{"system": "urn:openspp:vocab:id-type#test_national_id", "value": "BATCH-001"}],
+                        "identifier": [
+                            {
+                                "system": "urn:openspp:vocab:id-type#test_national_id",
+                                "value": "BATCH-001",
+                            }
+                        ],
                         "name": {"given": "Batch", "family": "Test"},
                     },
                 )
@@ -222,7 +249,10 @@ class TestBundleService(ApiV2TestCase):
                     resource={
                         "type": "Individual",
                         "identifier": [
-                            {"system": "urn:openspp:vocab:id-type#test_national_id", "value": "BATCH-SUCCESS"}
+                            {
+                                "system": "urn:openspp:vocab:id-type#test_national_id",
+                                "value": "BATCH-SUCCESS",
+                            }
                         ],
                         "name": {"given": "Valid", "family": "Entry"},
                     },
@@ -242,7 +272,10 @@ class TestBundleService(ApiV2TestCase):
                     resource={
                         "type": "Individual",
                         "identifier": [
-                            {"system": "urn:openspp:vocab:id-type#test_national_id", "value": "BATCH-SUCCESS-2"}
+                            {
+                                "system": "urn:openspp:vocab:id-type#test_national_id",
+                                "value": "BATCH-SUCCESS-2",
+                            }
                         ],
                         "name": {"given": "Another", "family": "Valid"},
                     },
@@ -295,7 +328,12 @@ class TestBundleService(ApiV2TestCase):
                     # Missing request
                     resource={
                         "type": "Individual",
-                        "identifier": [{"system": "urn:openspp:vocab:id-type#test_national_id", "value": "NO-REQUEST"}],
+                        "identifier": [
+                            {
+                                "system": "urn:openspp:vocab:id-type#test_national_id",
+                                "value": "NO-REQUEST",
+                            }
+                        ],
                         "name": {"given": "Test", "family": "Test"},
                     },
                 )
@@ -315,7 +353,10 @@ class TestBundleService(ApiV2TestCase):
                     resource={
                         "type": "Individual",
                         "identifier": [
-                            {"system": "urn:openspp:vocab:id-type#test_national_id", "value": "CREATE-VIA-BUNDLE"}
+                            {
+                                "system": "urn:openspp:vocab:id-type#test_national_id",
+                                "value": "CREATE-VIA-BUNDLE",
+                            }
                         ],
                         "name": {"given": "Created", "family": "ViaBundel"},
                         "birthDate": "1990-01-01",
@@ -346,7 +387,10 @@ class TestBundleService(ApiV2TestCase):
                     resource={
                         "type": "Group",
                         "identifier": [
-                            {"system": "urn:openspp:vocab:id-type#test_household_id", "value": "GROUP-WITH-MEMBER"}
+                            {
+                                "system": "urn:openspp:vocab:id-type#test_household_id",
+                                "value": "GROUP-WITH-MEMBER",
+                            }
                         ],
                         "name": "Test Group",
                         "member": [
@@ -390,7 +434,10 @@ class TestBundleService(ApiV2TestCase):
                     resource={
                         "type": "Individual",
                         "identifier": [
-                            {"system": "urn:openspp:vocab:id-type#test_national_id", "value": "UPDATE-VIA-BUNDLE"}
+                            {
+                                "system": "urn:openspp:vocab:id-type#test_national_id",
+                                "value": "UPDATE-VIA-BUNDLE",
+                            }
                         ],
                         "name": {"given": "Updated", "family": "Name"},
                     },

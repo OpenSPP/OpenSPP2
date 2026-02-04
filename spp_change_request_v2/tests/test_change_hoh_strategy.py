@@ -96,8 +96,16 @@ class TestChangeHOHStrategy(TransactionCase):
 
         # Verify role transferred
         self.assertTrue(cr.is_applied)
-        self.assertIn(self.head_kind, self.member_membership.membership_type_ids, "New head should have head role")
-        self.assertNotIn(self.head_kind, self.head_membership.membership_type_ids, "Old head should not have head role")
+        self.assertIn(
+            self.head_kind,
+            self.member_membership.membership_type_ids,
+            "New head should have head role",
+        )
+        self.assertNotIn(
+            self.head_kind,
+            self.head_membership.membership_type_ids,
+            "Old head should not have head role",
+        )
 
     def test_change_hoh_assigns_new_role_to_previous(self):
         """Test previous head gets new role assigned."""
@@ -126,7 +134,9 @@ class TestChangeHOHStrategy(TransactionCase):
 
         # Verify previous head has new role
         self.assertIn(
-            self.spouse_kind, self.head_membership.membership_type_ids, "Previous head should have spouse role"
+            self.spouse_kind,
+            self.head_membership.membership_type_ids,
+            "Previous head should have spouse role",
         )
 
     def test_change_hoh_on_individual_fails(self):
@@ -162,7 +172,15 @@ class TestChangeHOHStrategy(TransactionCase):
         if not self.cr_type:
             self.skipTest("Change HOH CR type not found")
 
-        reasons = ["deceased", "incapacitated", "left_household", "age_change", "voluntary", "correction", "other"]
+        reasons = [
+            "deceased",
+            "incapacitated",
+            "left_household",
+            "age_change",
+            "voluntary",
+            "correction",
+            "other",
+        ]
 
         for _i, reason in enumerate(reasons):
             # Create new group and members for each test

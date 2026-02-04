@@ -29,7 +29,11 @@ class TestDrimsPersonnel(DrimsTestCommon):
         # Get personnel role vocabulary codes (if they exist)
         cls.role_field_officer = cls.vocab_code.search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:personnel-roles"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:personnel-roles",
+                ),
                 ("code", "=", "field_officer"),
             ],
             limit=1,

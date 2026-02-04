@@ -48,7 +48,10 @@ class TestBatchAPIEndpoint(ApiV2HttpTestCase):
                     "resource": {
                         "type": "Individual",
                         "identifier": [
-                            {"system": "urn:openspp:vocab:id-type#test_national_id", "value": "BATCH-TXN-001"}
+                            {
+                                "system": "urn:openspp:vocab:id-type#test_national_id",
+                                "value": "BATCH-TXN-001",
+                            }
                         ],
                         "name": {"given": "Transaction", "family": "Test"},
                     },
@@ -85,7 +88,10 @@ class TestBatchAPIEndpoint(ApiV2HttpTestCase):
                     "resource": {
                         "type": "Individual",
                         "identifier": [
-                            {"system": "urn:openspp:vocab:id-type#test_national_id", "value": "BATCH-BCH-001"}
+                            {
+                                "system": "urn:openspp:vocab:id-type#test_national_id",
+                                "value": "BATCH-BCH-001",
+                            }
                         ],
                         "name": {"given": "Batch", "family": "Test"},
                     },
@@ -96,7 +102,10 @@ class TestBatchAPIEndpoint(ApiV2HttpTestCase):
                     "resource": {
                         "type": "Individual",
                         "identifier": [
-                            {"system": "urn:openspp:vocab:id-type#test_national_id", "value": "BATCH-BCH-002"}
+                            {
+                                "system": "urn:openspp:vocab:id-type#test_national_id",
+                                "value": "BATCH-BCH-002",
+                            }
                         ],
                         "name": {"given": "Another", "family": "Test"},
                     },
@@ -127,7 +136,10 @@ class TestBatchAPIEndpoint(ApiV2HttpTestCase):
                     "resource": {
                         "type": "Individual",
                         "identifier": [
-                            {"system": "urn:openspp:vocab:id-type#test_national_id", "value": "RESP-FORMAT-001"}
+                            {
+                                "system": "urn:openspp:vocab:id-type#test_national_id",
+                                "value": "RESP-FORMAT-001",
+                            }
                         ],
                         "name": {"given": "Response", "family": "Format"},
                     },
@@ -161,7 +173,10 @@ class TestBatchAPIEndpoint(ApiV2HttpTestCase):
                     "resource": {
                         "type": "Individual",
                         "identifier": [
-                            {"system": "urn:openspp:vocab:id-type#test_national_id", "value": "PLACEHOLDER-001"}
+                            {
+                                "system": "urn:openspp:vocab:id-type#test_national_id",
+                                "value": "PLACEHOLDER-001",
+                            }
                         ],
                         "name": {"given": "Placeholder", "family": "Test"},
                     },
@@ -172,7 +187,10 @@ class TestBatchAPIEndpoint(ApiV2HttpTestCase):
                     "resource": {
                         "type": "Group",
                         "identifier": [
-                            {"system": "urn:openspp:vocab:id-type#test_household_id", "value": "PLACEHOLDER-GRP"}
+                            {
+                                "system": "urn:openspp:vocab:id-type#test_household_id",
+                                "value": "PLACEHOLDER-GRP",
+                            }
                         ],
                         "name": "Placeholder Group",
                         "member": [
@@ -263,7 +281,10 @@ class TestBatchAPIEndpoint(ApiV2HttpTestCase):
                     "resource": {
                         "type": "Individual",
                         "identifier": [
-                            {"system": "urn:openspp:vocab:id-type#test_national_id", "value": "ROLLBACK-001"}
+                            {
+                                "system": "urn:openspp:vocab:id-type#test_national_id",
+                                "value": "ROLLBACK-001",
+                            }
                         ],
                         "name": {"given": "Valid", "family": "Entry"},
                     },
@@ -302,7 +323,10 @@ class TestBatchAPIEndpoint(ApiV2HttpTestCase):
                     "resource": {
                         "type": "Individual",
                         "identifier": [
-                            {"system": "urn:openspp:vocab:id-type#test_national_id", "value": "PARTIAL-001"}
+                            {
+                                "system": "urn:openspp:vocab:id-type#test_national_id",
+                                "value": "PARTIAL-001",
+                            }
                         ],
                         "name": {"given": "Valid", "family": "Entry"},
                     },
@@ -320,7 +344,10 @@ class TestBatchAPIEndpoint(ApiV2HttpTestCase):
                     "resource": {
                         "type": "Individual",
                         "identifier": [
-                            {"system": "urn:openspp:vocab:id-type#test_national_id", "value": "PARTIAL-003"}
+                            {
+                                "system": "urn:openspp:vocab:id-type#test_national_id",
+                                "value": "PARTIAL-003",
+                            }
                         ],
                         "name": {"given": "Another", "family": "Valid"},
                     },
@@ -404,7 +431,12 @@ class TestBatchAPIEndpoint(ApiV2HttpTestCase):
                     },
                     "resource": {
                         "type": "Individual",
-                        "identifier": [{"system": "urn:openspp:vocab:id-type#test_national_id", "value": "PUT-IN-TXN"}],
+                        "identifier": [
+                            {
+                                "system": "urn:openspp:vocab:id-type#test_national_id",
+                                "value": "PUT-IN-TXN",
+                            }
+                        ],
                         "name": {"given": "Updated", "family": "Name"},
                     },
                 }
@@ -472,7 +504,12 @@ class TestBatchAPIEndpoint(ApiV2HttpTestCase):
                     "request": {"method": "POST", "url": "Individual"},
                     "resource": {
                         "type": "Individual",
-                        "identifier": [{"system": "urn:openspp:vocab:id-type#test_national_id", "value": "MIXED-NEW"}],
+                        "identifier": [
+                            {
+                                "system": "urn:openspp:vocab:id-type#test_national_id",
+                                "value": "MIXED-NEW",
+                            }
+                        ],
                         "name": {"given": "New", "family": "Individual"},
                     },
                 },
@@ -553,7 +590,12 @@ class TestBatchAPIEndpoint(ApiV2HttpTestCase):
                     "request": {"method": "POST", "url": "Individual"},
                     "resource": {
                         "type": "Individual",
-                        "identifier": [{"system": "urn:openspp:vocab:id-type#test_national_id", "value": "MULTI-IND"}],
+                        "identifier": [
+                            {
+                                "system": "urn:openspp:vocab:id-type#test_national_id",
+                                "value": "MULTI-IND",
+                            }
+                        ],
                         "name": {"given": "Multi", "family": "Individual"},
                     },
                 },
@@ -561,7 +603,12 @@ class TestBatchAPIEndpoint(ApiV2HttpTestCase):
                     "request": {"method": "POST", "url": "Group"},
                     "resource": {
                         "type": "Group",
-                        "identifier": [{"system": "urn:openspp:vocab:id-type#test_household_id", "value": "MULTI-GRP"}],
+                        "identifier": [
+                            {
+                                "system": "urn:openspp:vocab:id-type#test_household_id",
+                                "value": "MULTI-GRP",
+                            }
+                        ],
                         "name": "Multi Group",
                     },
                 },

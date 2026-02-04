@@ -23,7 +23,12 @@ class TestConsentService(ApiV2TestCase):
         """Without consent, only identifier returned"""
         data = {
             "type": "Individual",
-            "identifier": [{"system": "urn:openspp:vocab:id-type#test_national_id", "value": "IND-001"}],
+            "identifier": [
+                {
+                    "system": "urn:openspp:vocab:id-type#test_national_id",
+                    "value": "IND-001",
+                }
+            ],
             "name": {"given": "John", "family": "Doe"},
             "birthDate": "1990-01-01",
             "gender": {"coding": [{"code": "1"}]},
@@ -54,7 +59,12 @@ class TestConsentService(ApiV2TestCase):
 
         data = {
             "type": "Individual",
-            "identifier": [{"system": "urn:openspp:vocab:id-type#test_national_id", "value": "IND-001"}],
+            "identifier": [
+                {
+                    "system": "urn:openspp:vocab:id-type#test_national_id",
+                    "value": "IND-001",
+                }
+            ],
             "name": {"given": "John", "family": "Doe"},
             "active": True,
             "birthDate": "1990-01-01",
@@ -94,7 +104,12 @@ class TestConsentService(ApiV2TestCase):
 
         data = {
             "type": "Individual",
-            "identifier": [{"system": "urn:openspp:vocab:id-type#test_national_id", "value": "IND-001"}],
+            "identifier": [
+                {
+                    "system": "urn:openspp:vocab:id-type#test_national_id",
+                    "value": "IND-001",
+                }
+            ],
             "name": {"given": "John", "family": "Doe"},
             "birthDate": "1990-01-01",
             "gender": {"coding": [{"code": "1"}]},
@@ -141,7 +156,12 @@ class TestConsentService(ApiV2TestCase):
 
         data = {
             "type": "Individual",
-            "identifier": [{"system": "urn:openspp:vocab:id-type#test_national_id", "value": "IND-001"}],
+            "identifier": [
+                {
+                    "system": "urn:openspp:vocab:id-type#test_national_id",
+                    "value": "IND-001",
+                }
+            ],
             "name": {"given": "John", "family": "Doe"},
             "birthDate": "1990-01-01",
             "gender": {"coding": [{"code": "1"}]},
@@ -175,7 +195,12 @@ class TestConsentService(ApiV2TestCase):
 
         data = {
             "type": "Individual",
-            "identifier": [{"system": "urn:openspp:vocab:id-type#test_national_id", "value": "IND-001"}],
+            "identifier": [
+                {
+                    "system": "urn:openspp:vocab:id-type#test_national_id",
+                    "value": "IND-001",
+                }
+            ],
             "name": {"given": "John", "family": "Doe"},
             "birthDate": "1990-01-01",
         }
@@ -221,7 +246,12 @@ class TestConsentService(ApiV2TestCase):
 
         data = {
             "type": "Individual",
-            "identifier": [{"system": "urn:openspp:vocab:id-type#test_national_id", "value": "IND-001"}],
+            "identifier": [
+                {
+                    "system": "urn:openspp:vocab:id-type#test_national_id",
+                    "value": "IND-001",
+                }
+            ],
             "name": {"given": "John", "family": "Doe"},
             "extension": {
                 "farmer": {"farmSize": 2.5},
@@ -309,7 +339,12 @@ class TestConsentService(ApiV2TestCase):
 
         data = {
             "type": "Individual",
-            "identifier": [{"system": "urn:openspp:vocab:id-type#test_national_id", "value": "IND-001"}],
+            "identifier": [
+                {
+                    "system": "urn:openspp:vocab:id-type#test_national_id",
+                    "value": "IND-001",
+                }
+            ],
             "name": {"given": "John", "family": "Doe"},
         }
 

@@ -94,7 +94,12 @@ class CELProgramParameter(models.Model):
             except ValueError as e:
                 raise ValidationError(
                     _("Invalid value '%(value)s' for variable '%(name)s' (expected %(type)s): %(error)s")
-                    % {"value": value, "name": rec.variable_id.name, "type": value_type, "error": str(e)}
+                    % {
+                        "value": value,
+                        "name": rec.variable_id.name,
+                        "type": value_type,
+                        "error": str(e),
+                    }
                 ) from e
 
     @api.model

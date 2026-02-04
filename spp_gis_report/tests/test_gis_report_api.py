@@ -17,96 +17,116 @@ class TestGISReportAPI(HttpCase):
         super().setUpClass()
 
         # Create test area hierarchy
-        cls.area_country = cls.env["spp.area"].create({
-            "draft_name": "API Test Country",
-            "code": "API_TC",
-            "area_level": 0,
-        })
-        cls.area_region = cls.env["spp.area"].create({
-            "draft_name": "API Test Region",
-            "code": "API_TC_R1",
-            "parent_id": cls.area_country.id,
-            "area_level": 1,
-            "population": 100000,
-        })
-        cls.area_district_1 = cls.env["spp.area"].create({
-            "draft_name": "API Test District 1",
-            "code": "API_TC_R1_D1",
-            "parent_id": cls.area_region.id,
-            "area_level": 2,
-            "population": 50000,
-        })
-        cls.area_district_2 = cls.env["spp.area"].create({
-            "draft_name": "API Test District 2",
-            "code": "API_TC_R1_D2",
-            "parent_id": cls.area_region.id,
-            "area_level": 2,
-            "population": 50000,
-        })
-
-        # Create test category
-        cls.category = cls.env["spp.gis.report.category"].create({
-            "name": "API Test Category",
-            "code": "api_test_cat",
-        })
-
-        # Get model reference
-        cls.partner_model = cls.env["ir.model"].search(
-            [("model", "=", "res.partner")], limit=1
+        cls.area_country = cls.env["spp.area"].create(
+            {
+                "draft_name": "API Test Country",
+                "code": "API_TC",
+                "area_level": 0,
+            }
+        )
+        cls.area_region = cls.env["spp.area"].create(
+            {
+                "draft_name": "API Test Region",
+                "code": "API_TC_R1",
+                "parent_id": cls.area_country.id,
+                "area_level": 1,
+                "population": 100000,
+            }
+        )
+        cls.area_district_1 = cls.env["spp.area"].create(
+            {
+                "draft_name": "API Test District 1",
+                "code": "API_TC_R1_D1",
+                "parent_id": cls.area_region.id,
+                "area_level": 2,
+                "population": 50000,
+            }
+        )
+        cls.area_district_2 = cls.env["spp.area"].create(
+            {
+                "draft_name": "API Test District 2",
+                "code": "API_TC_R1_D2",
+                "parent_id": cls.area_region.id,
+                "area_level": 2,
+                "population": 50000,
+            }
         )
 
+        # Create test category
+        cls.category = cls.env["spp.gis.report.category"].create(
+            {
+                "name": "API Test Category",
+                "code": "api_test_cat",
+            }
+        )
+
+        # Get model reference
+        cls.partner_model = cls.env["ir.model"].search([("model", "=", "res.partner")], limit=1)
+
         # Create test report with data
-        cls.test_report = cls.env["spp.gis.report"].create({
-            "name": "API Test Report",
-            "code": "api_test_report",
-            "category_id": cls.category.id,
-            "source_model_id": cls.partner_model.id,
-            "area_field_path": "area_id",
-            "aggregation_method": "count",
-            "normalization_method": "raw",
-            "base_area_level": 2,
-        })
+        cls.test_report = cls.env["spp.gis.report"].create(
+            {
+                "name": "API Test Report",
+                "code": "api_test_report",
+                "category_id": cls.category.id,
+                "source_model_id": cls.partner_model.id,
+                "area_field_path": "area_id",
+                "aggregation_method": "count",
+                "normalization_method": "raw",
+                "base_area_level": 2,
+            }
+        )
 
         # Create test data for multiple areas
-        cls.env["spp.gis.report.data"].create({
-            "report_id": cls.test_report.id,
-            "area_id": cls.area_district_1.id,
-            "raw_value": 100,
-            "normalized_value": 100,
-        })
-        cls.env["spp.gis.report.data"].create({
-            "report_id": cls.test_report.id,
-            "area_id": cls.area_district_2.id,
-            "raw_value": 200,
-            "normalized_value": 200,
-        })
-        cls.env["spp.gis.report.data"].create({
-            "report_id": cls.test_report.id,
-            "area_id": cls.area_region.id,
-            "raw_value": 300,
-            "normalized_value": 300,
-            "is_rollup": True,
-        })
+        cls.env["spp.gis.report.data"].create(
+            {
+                "report_id": cls.test_report.id,
+                "area_id": cls.area_district_1.id,
+                "raw_value": 100,
+                "normalized_value": 100,
+            }
+        )
+        cls.env["spp.gis.report.data"].create(
+            {
+                "report_id": cls.test_report.id,
+                "area_id": cls.area_district_2.id,
+                "raw_value": 200,
+                "normalized_value": 200,
+            }
+        )
+        cls.env["spp.gis.report.data"].create(
+            {
+                "report_id": cls.test_report.id,
+                "area_id": cls.area_region.id,
+                "raw_value": 300,
+                "normalized_value": 300,
+                "is_rollup": True,
+            }
+        )
 
         # Create report with disaggregation
-        cls.report_disagg = cls.env["spp.gis.report"].create({
-            "name": "API Disaggregation Test",
-            "code": "api_disagg_test",
-            "category_id": cls.category.id,
-            "source_model_id": cls.partner_model.id,
-            "area_field_path": "area_id",
-            "aggregation_method": "count",
-            "normalization_method": "raw",
-            "base_area_level": 2,
-            "disaggregate_by_gender": True,
-        })
-        cls.env["spp.gis.report.data"].create({
-            "report_id": cls.report_disagg.id,
-            "area_id": cls.area_district_1.id,
-            "raw_value": 100,
-            "normalized_value": 100,
-            "disaggregation": {"gender": {"male": 60, "female": 40}},
-        })
+        cls.report_disagg = cls.env["spp.gis.report"].create(
+            {
+                "name": "API Disaggregation Test",
+                "code": "api_disagg_test",
+                "category_id": cls.category.id,
+                "source_model_id": cls.partner_model.id,
+                "area_field_path": "area_id",
+                "aggregation_method": "count",
+                "normalization_method": "raw",
+                "base_area_level": 2,
+                "disaggregate_by_gender": True,
+            }
+        )
+        cls.env["spp.gis.report.data"].create(
+            {
+                "report_id": cls.report_disagg.id,
+                "area_id": cls.area_district_1.id,
+                "raw_value": 100,
+                "normalized_value": 100,
+                "disaggregation": {"gender": {"male": 60, "female": 40}},
+            }
+        )
 
     def _get_json(self, url):
         """Make a GET request and parse JSON response.
@@ -119,8 +139,9 @@ class TestGISReportAPI(HttpCase):
         """
         response = self.url_open(url)
         self.assertEqual(
-            response.status_code, 200,
-            f"Expected 200 but got {response.status_code}: {response.text}"
+            response.status_code,
+            200,
+            f"Expected 200 but got {response.status_code}: {response.text}",
         )
         return json.loads(response.text)
 
@@ -153,8 +174,9 @@ class TestGISReportAPI(HttpCase):
         full_url = self.base_url() + url
         response = self.opener.post(full_url, timeout=30)
         self.assertEqual(
-            response.status_code, 200,
-            f"Expected 200 but got {response.status_code}: {response.text}"
+            response.status_code,
+            200,
+            f"Expected 200 but got {response.status_code}: {response.text}",
         )
         return response.json()
 
@@ -179,10 +201,7 @@ class TestGISReportAPI(HttpCase):
         self.assertGreater(len(result["reports"]), 0)
 
         # Find our test report and verify structure
-        test_report = next(
-            (r for r in result["reports"] if r["code"] == "api_test_report"),
-            None
-        )
+        test_report = next((r for r in result["reports"] if r["code"] == "api_test_report"), None)
         self.assertIsNotNone(test_report, "Test report should be in list")
 
         # Verify report structure
@@ -203,9 +222,7 @@ class TestGISReportAPI(HttpCase):
         self.assertIn("api_test_report", report_codes)
 
         # Get our report data
-        test_report_data = next(
-            r for r in result["reports"] if r["code"] == "api_test_report"
-        )
+        test_report_data = next(r for r in result["reports"] if r["code"] == "api_test_report")
         self.assertEqual(test_report_data["name"], "API Test Report")
         # Admin levels should include 1 (region) and 2 (districts)
         self.assertIn(2, test_report_data["admin_levels_available"])
@@ -217,9 +234,7 @@ class TestGISReportAPI(HttpCase):
     def test_04_geojson_endpoint_basic(self):
         """Test basic GeoJSON endpoint returns FeatureCollection."""
         self.authenticate("admin", "admin")
-        result = self._get_json(
-            "/api/v2/GISReport/api_test_report/geojson?include_geometry=false"
-        )
+        result = self._get_json("/api/v2/GISReport/api_test_report/geojson?include_geometry=false")
 
         self.assertEqual(result["type"], "FeatureCollection")
         self.assertIn("features", result)
@@ -229,9 +244,7 @@ class TestGISReportAPI(HttpCase):
     def test_05_geojson_output_format(self):
         """Test GeoJSON output has correct feature structure."""
         self.authenticate("admin", "admin")
-        result = self._get_json(
-            "/api/v2/GISReport/api_test_report/geojson?include_geometry=false"
-        )
+        result = self._get_json("/api/v2/GISReport/api_test_report/geojson?include_geometry=false")
 
         # Verify feature structure
         feature = result["features"][0]
@@ -260,9 +273,7 @@ class TestGISReportAPI(HttpCase):
     def test_06_geojson_admin_level_filter(self):
         """Test GeoJSON filtering by admin level."""
         self.authenticate("admin", "admin")
-        result = self._get_json(
-            "/api/v2/GISReport/api_test_report/geojson?admin_level=2&include_geometry=false"
-        )
+        result = self._get_json("/api/v2/GISReport/api_test_report/geojson?admin_level=2&include_geometry=false")
 
         # Should only have district data
         self.assertEqual(len(result["features"]), 2)
@@ -287,8 +298,7 @@ class TestGISReportAPI(HttpCase):
         """Test GeoJSON filtering by multiple area codes."""
         self.authenticate("admin", "admin")
         result = self._get_json(
-            "/api/v2/GISReport/api_test_report/geojson"
-            "?area_codes=API_TC_R1_D1,API_TC_R1_D2&include_geometry=false"
+            "/api/v2/GISReport/api_test_report/geojson" "?area_codes=API_TC_R1_D1,API_TC_R1_D2&include_geometry=false"
         )
 
         # Should have both districts
@@ -298,8 +308,7 @@ class TestGISReportAPI(HttpCase):
         """Test GeoJSON filtering by parent area code."""
         self.authenticate("admin", "admin")
         result = self._get_json(
-            "/api/v2/GISReport/api_test_report/geojson"
-            "?parent_area_code=API_TC_R1&include_geometry=false"
+            "/api/v2/GISReport/api_test_report/geojson" "?parent_area_code=API_TC_R1&include_geometry=false"
         )
 
         # Should have 2 districts (children of region)
@@ -311,9 +320,7 @@ class TestGISReportAPI(HttpCase):
     def test_10_geojson_simple_format(self):
         """Test GeoJSON simple format (features only, no metadata)."""
         self.authenticate("admin", "admin")
-        result = self._get_json(
-            "/api/v2/GISReport/api_test_report/geojson?format=simple&include_geometry=false"
-        )
+        result = self._get_json("/api/v2/GISReport/api_test_report/geojson?format=simple&include_geometry=false")
 
         # Should only have type and features
         self.assertEqual(result["type"], "FeatureCollection")
@@ -324,8 +331,7 @@ class TestGISReportAPI(HttpCase):
         """Test GeoJSON includes disaggregation data when requested."""
         self.authenticate("admin", "admin")
         result = self._get_json(
-            "/api/v2/GISReport/api_disagg_test/geojson"
-            "?include_disaggregation=true&include_geometry=false"
+            "/api/v2/GISReport/api_disagg_test/geojson" "?include_disaggregation=true&include_geometry=false"
         )
 
         # Verify disaggregation included
@@ -375,9 +381,7 @@ class TestGISReportAPI(HttpCase):
     def test_15_summary_endpoint_admin_level_filter(self):
         """Test summary endpoint with admin level filter."""
         self.authenticate("admin", "admin")
-        result = self._get_json(
-            "/api/v2/GISReport/api_test_report/summary?admin_level=2"
-        )
+        result = self._get_json("/api/v2/GISReport/api_test_report/summary?admin_level=2")
 
         # Should only include districts
         self.assertEqual(result["area_count"], 2)
@@ -386,9 +390,7 @@ class TestGISReportAPI(HttpCase):
     def test_16_summary_endpoint_parent_area_filter(self):
         """Test summary endpoint with parent area code filter."""
         self.authenticate("admin", "admin")
-        result = self._get_json(
-            "/api/v2/GISReport/api_test_report/summary?parent_area_code=API_TC_R1"
-        )
+        result = self._get_json("/api/v2/GISReport/api_test_report/summary?parent_area_code=API_TC_R1")
 
         # Should only include districts (children of region)
         self.assertEqual(result["area_count"], 2)
@@ -396,9 +398,7 @@ class TestGISReportAPI(HttpCase):
     def test_17_summary_endpoint_report_not_found(self):
         """Test summary endpoint handles non-existent report."""
         self.authenticate("admin", "admin")
-        status, result = self._get_json_with_status(
-            "/api/v2/GISReport/nonexistent_report_code/summary"
-        )
+        status, result = self._get_json_with_status("/api/v2/GISReport/nonexistent_report_code/summary")
 
         # Should return 404 error
         self.assertEqual(status, 404)
@@ -445,6 +445,7 @@ class TestGISReportAPI(HttpCase):
         # Unauthenticated requests to auth="user" endpoints get redirected to login
         # or return 303 (See Other) redirect
         self.assertIn(
-            response.status_code, [303, 401, 403],
-            f"Expected redirect or auth error but got {response.status_code}"
+            response.status_code,
+            [303, 401, 403],
+            f"Expected redirect or auth error but got {response.status_code}",
         )

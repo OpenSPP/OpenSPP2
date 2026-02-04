@@ -8,11 +8,35 @@
   "domain": "core",
   "is_hierarchical": false,
   "codes": [
-    {"code": "VIS", "display": "Seeing", "definition": "Difficulty seeing, even if wearing glasses"},
-    {"code": "HRG", "display": "Hearing", "definition": "Difficulty hearing, even if using a hearing aid"},
-    {"code": "MOB", "display": "Walking", "definition": "Difficulty walking or climbing steps"},
-    {"code": "COG", "display": "Remembering", "definition": "Difficulty remembering or concentrating"},
-    {"code": "SC", "display": "Self-care", "definition": "Difficulty with self-care such as washing or dressing"},
-    {"code": "COM", "display": "Communicating", "definition": "Difficulty communicating using usual language"}
+    {
+      "code": "VIS",
+      "display": "Seeing",
+      "definition": "Difficulty seeing, even if wearing glasses"
+    },
+    {
+      "code": "HRG",
+      "display": "Hearing",
+      "definition": "Difficulty hearing, even if using a hearing aid"
+    },
+    {
+      "code": "MOB",
+      "display": "Walking",
+      "definition": "Difficulty walking or climbing steps"
+    },
+    {
+      "code": "COG",
+      "display": "Remembering",
+      "definition": "Difficulty remembering or concentrating"
+    },
+    {
+      "code": "SC",
+      "display": "Self-care",
+      "definition": "Difficulty with self-care such as washing or dressing"
+    },
+    {
+      "code": "COM",
+      "display": "Communicating",
+      "definition": "Difficulty communicating using usual language"
+    }
   ]
 }

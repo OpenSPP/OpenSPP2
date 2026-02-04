@@ -79,7 +79,12 @@ class ApprovalMixinMultitier(models.AbstractModel):
 
                 if all_reviews:
                     review_statuses = all_reviews.mapped(lambda r: f"{r.id}:{r.status}")
-                    _logger.warning("Review statuses for %s %s: %s", record._name, record.id, review_statuses)
+                    _logger.warning(
+                        "Review statuses for %s %s: %s",
+                        record._name,
+                        record.id,
+                        review_statuses,
+                    )
 
                 _logger.warning(
                     "Multi-tier permission check: active_review found for %s %s: %s (is_multitier=%s)",
@@ -122,7 +127,11 @@ class ApprovalMixinMultitier(models.AbstractModel):
                 if self.env.user in approvers:
                     record.can_approve = True
                     record.can_reject = True
-                    _logger.warning("Multi-tier permission result for %s %s: can_approve=True", record._name, record.id)
+                    _logger.warning(
+                        "Multi-tier permission result for %s %s: can_approve=True",
+                        record._name,
+                        record.id,
+                    )
                 else:
                     _logger.warning(
                         "Multi-tier permission result for %s %s: can_approve=False (user not in approvers)",
@@ -134,11 +143,22 @@ class ApprovalMixinMultitier(models.AbstractModel):
         """Override to handle multi-tier approval."""
         for record in self:
             _logger.warning(
-                "Multi-tier action_approve called for %s %s by user %s", record._name, record.id, self.env.user.name
+                "Multi-tier action_approve called for %s %s by user %s",
+                record._name,
+                record.id,
+                self.env.user.name,
             )
-            _logger.warning("Multi-tier action_approve: calling _check_can_approve for %s %s", record._name, record.id)
+            _logger.warning(
+                "Multi-tier action_approve: calling _check_can_approve for %s %s",
+                record._name,
+                record.id,
+            )
             record._check_can_approve()
-            _logger.warning("Multi-tier action_approve: _check_can_approve passed for %s %s", record._name, record.id)
+            _logger.warning(
+                "Multi-tier action_approve: _check_can_approve passed for %s %s",
+                record._name,
+                record.id,
+            )
 
             # Find active review
             active_review = record.approval_review_ids.filtered(lambda r: r.status == "pending")[:1]
@@ -155,7 +175,11 @@ class ApprovalMixinMultitier(models.AbstractModel):
 
                 # Check if all tiers are now complete
                 if active_review.status == "approved":
-                    _logger.warning("All tiers approved, completing approval for %s %s", record._name, record.id)
+                    _logger.warning(
+                        "All tiers approved, completing approval for %s %s",
+                        record._name,
+                        record.id,
+                    )
                     record._do_approve(comment=comment)
             else:
                 _logger.warning("Single-tier approval for %s %s", record._name, record.id)

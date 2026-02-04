@@ -2,7 +2,6 @@
 """Tests for VariableValueService."""
 
 import time
-from datetime import datetime
 
 from odoo import fields
 from odoo.tests.common import TransactionCase

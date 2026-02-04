@@ -481,7 +481,12 @@ class SPPGRMDemoGenerator(models.TransientModel):
                     if ticket:
                         created_tickets |= ticket
                 except Exception as e:
-                    _logger.error("Error creating story ticket for %s: %s", story_id, e, exc_info=True)
+                    _logger.error(
+                        "Error creating story ticket for %s: %s",
+                        story_id,
+                        e,
+                        exc_info=True,
+                    )
                     continue
 
         return created_tickets
@@ -587,7 +592,11 @@ class SPPGRMDemoGenerator(models.TransientModel):
                             scenario_dict = loader._load_yaml_file(scenario_record.source_file)
                             scenarios.append(scenario_dict)
                         except Exception as e:
-                            _logger.warning("Failed to load scenario %s: %s", scenario_record.name, e)
+                            _logger.warning(
+                                "Failed to load scenario %s: %s",
+                                scenario_record.name,
+                                e,
+                            )
                     if scenarios:
                         return scenarios
 

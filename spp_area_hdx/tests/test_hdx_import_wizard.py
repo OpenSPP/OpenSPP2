@@ -155,7 +155,10 @@ class TestHdxImportWizard(common.TransactionCase):
             "features": [
                 {
                     "type": "Feature",
-                    "properties": {"ADM3_PCODE": "LK3101", "ADM3_EN": "Colombo Updated"},
+                    "properties": {
+                        "ADM3_PCODE": "LK3101",
+                        "ADM3_EN": "Colombo Updated",
+                    },
                     "geometry": polygon,
                 }
             ],

@@ -140,7 +140,11 @@ class ComplianceChecker:
                     self._groups_xml[xml_id] = record
                 elif model == "ir.rule":
                     self._rules_xml[xml_id] = record
-                elif model in ("ir.actions.act_window", "ir.actions.server", "ir.actions.report"):
+                elif model in (
+                    "ir.actions.act_window",
+                    "ir.actions.server",
+                    "ir.actions.report",
+                ):
                     self._actions_xml[xml_id] = record
 
         except ET.ParseError:
@@ -176,7 +180,11 @@ class ComplianceChecker:
                     self._menus_xml[xml_id] = record
                 elif model == "ir.ui.view":
                     self._views_xml[xml_id] = record
-                elif model in ("ir.actions.act_window", "ir.actions.server", "ir.actions.report"):
+                elif model in (
+                    "ir.actions.act_window",
+                    "ir.actions.server",
+                    "ir.actions.report",
+                ):
                     self._actions_xml[xml_id] = record
 
         except ET.ParseError:
@@ -382,8 +390,15 @@ class ComplianceChecker:
                         # Check if rule has write permissions
                         has_write = False
                         for perm_field in record.findall("field"):
-                            if perm_field.get("name") in ("perm_write", "perm_create", "perm_unlink"):
-                                if perm_field.text == "1" or perm_field.get("eval") in ("True", "1"):
+                            if perm_field.get("name") in (
+                                "perm_write",
+                                "perm_create",
+                                "perm_unlink",
+                            ):
+                                if perm_field.text == "1" or perm_field.get("eval") in (
+                                    "True",
+                                    "1",
+                                ):
                                     has_write = True
                                     break
 

@@ -48,7 +48,7 @@ groups:
   # --- Special groups ---
   - id: group_cr_conflict_approver
     tier: 2
-      privilege_id: privilege_cr_conflict_approver
+    privilege_id: privilege_cr_conflict_approver
     implied_ids: [group_cr_validator]
     comment:
       "Permission to override blocking conflicts on change requests. Typically assigned to managers or supervisors."

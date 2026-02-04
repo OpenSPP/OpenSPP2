@@ -64,7 +64,13 @@ class DrimsReport4WWizard(models.TransientModel):
     @api.depends("incident_id")
     def _compute_cluster_ids_domain(self):
         for rec in self:
-            domain = [("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:item-categories")]
+            domain = [
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:item-categories",
+                )
+            ]
             rec.cluster_ids_domain = json.dumps(domain)
 
     @api.constrains("date_from", "date_to")

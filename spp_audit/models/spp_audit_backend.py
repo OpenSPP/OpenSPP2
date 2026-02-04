@@ -101,7 +101,10 @@ class AuditBackendRegistry:
                     else:
                         # Without env, we cannot properly instantiate Odoo models
                         # Skip this backend and log a warning
-                        _logger.debug("Skipping %s backend: no environment available", backend_type)
+                        _logger.debug(
+                            "Skipping %s backend: no environment available",
+                            backend_type,
+                        )
                         results[backend_type] = False
                 except Exception as e:
                     _logger.exception("Failed to write to %s backend: %s", backend_type, e)

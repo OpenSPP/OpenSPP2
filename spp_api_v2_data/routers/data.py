@@ -402,9 +402,15 @@ async def list_variables(
     env: Annotated[Environment, Depends(odoo_env)],
     api_client: Annotated[dict, Depends(get_authenticated_client)],
     provider_code: Annotated[str | None, Query(description="Filter by provider code")] = None,
-    source_type: Annotated[str | None, Query(description="Filter by source type (external, computed, etc.)")] = None,
+    source_type: Annotated[
+        str | None,
+        Query(description="Filter by source type (external, computed, etc.)"),
+    ] = None,
     _count: Annotated[int, Query(ge=1, le=500, alias="_count")] = 100,
-    _last_id: Annotated[int | None, Query(alias="_lastId", description="ID of last record from previous page")] = None,
+    _last_id: Annotated[
+        int | None,
+        Query(alias="_lastId", description="ID of last record from previous page"),
+    ] = None,
 ):
     """
     List variables available for data push/pull.

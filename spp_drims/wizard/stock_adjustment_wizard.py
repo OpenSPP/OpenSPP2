@@ -140,7 +140,11 @@ class DrimsStockAdjustmentWizard(models.TransientModel):
 
         alert_type = self.env["spp.vocabulary.code"].search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:alert-types"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:alert-types",
+                ),
                 ("code", "=", "stock_loss"),
             ],
             limit=1,
@@ -200,7 +204,11 @@ class DrimsStockAdjustmentWizardLine(models.TransientModel):
                 quant = StockQuant.search(
                     [
                         ("product_id", "=", line.product_id.id),
-                        ("location_id", "=", line.wizard_id.warehouse_id.lot_stock_id.id),
+                        (
+                            "location_id",
+                            "=",
+                            line.wizard_id.warehouse_id.lot_stock_id.id,
+                        ),
                     ],
                     limit=1,
                 )

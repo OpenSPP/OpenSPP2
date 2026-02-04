@@ -1,0 +1,33 @@
+#!/bin/bash
+# OpenSPP CLI activation script
+# Usage: . ./activate  (run once per terminal session)
+
+# Get the directory where this script lives
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Check if argcomplete is installed, install if missing
+if ! python3 -c "import argcomplete" 2>/dev/null; then
+    echo "Installing argcomplete for tab completion..."
+    if command -v uv &>/dev/null; then
+        uv pip install --system --quiet argcomplete
+    elif command -v pip3 &>/dev/null; then
+        pip3 install --quiet argcomplete
+    else
+        echo "Warning: Could not install argcomplete (no uv or pip3 found)"
+    fi
+fi
+
+# Add script directory to PATH so 'spp' works as a command
+export PATH="$SCRIPT_DIR:$PATH"
+
+# Activate shell completion using argcomplete
+if command -v register-python-argcomplete &>/dev/null; then
+    # Zsh needs bashcompinit
+    if [[ -n "$ZSH_VERSION" ]]; then
+        autoload -U bashcompinit && bashcompinit
+    fi
+    eval "$(register-python-argcomplete spp)"
+    echo "✓ spp activated with tab completion"
+else
+    echo "✓ spp activated (no tab completion - install argcomplete)"
+fi

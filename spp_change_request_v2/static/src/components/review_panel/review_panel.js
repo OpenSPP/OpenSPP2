@@ -1,6 +1,6 @@
 /** @odoo-module **/
 
-import {Component, useState, useRef, onMounted, onWillUnmount} from "@odoo/owl";
+import {Component, onMounted, onWillUnmount, useRef, useState} from "@odoo/owl";
 import {useService} from "@web/core/utils/hooks";
 import {_t} from "@web/core/l10n/translation";
 
@@ -232,7 +232,9 @@ export class CRReviewPanel extends Component {
                 this.state.showRevisionNotes = false;
                 this.onNext();
             } catch (error) {
-                this.notification.add(error.message || _t("Error requesting changes"), {type: "danger"});
+                this.notification.add(error.message || _t("Error requesting changes"), {
+                    type: "danger",
+                });
             }
         } else {
             this.state.showRevisionNotes = true;

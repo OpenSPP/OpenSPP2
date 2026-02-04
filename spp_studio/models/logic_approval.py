@@ -296,7 +296,7 @@ class LogicApproval(models.Model):
         # Transition to draft state
         self.write({"state": "draft"})
 
-        _logger.info("Logic %s reset to draft", self.name)
+        _logger.info("Logic ID %s reset to draft", self.id)
 
     # ═══════════════════════════════════════════════════════════════════════
     # APPROVAL HOOKS
@@ -315,7 +315,7 @@ class LogicApproval(models.Model):
         # Use the same validation as publishing
         self._check_can_publish()
 
-        _logger.debug("Logic %s passed validation for submission", self.name)
+        _logger.debug("Logic ID %s passed validation for submission", self.id)
 
     def _on_approve(self):
         """Called after approval.

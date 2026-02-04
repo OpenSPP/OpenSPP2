@@ -97,7 +97,11 @@ class CreateReturnWizard(models.TransientModel):
         if self.picking_id.drims_return_id:
             raise UserError(_("A return already exists for this dispatch."))
 
-        _logger.info("Creating return from dispatch ID %s with %d lines", self.picking_id.id, len(lines_to_return))
+        _logger.info(
+            "Creating return from dispatch ID %s with %d lines",
+            self.picking_id.id,
+            len(lines_to_return),
+        )
 
         # Create return record
         Return = self.env["spp.drims.return"]

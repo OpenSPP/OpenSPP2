@@ -184,13 +184,16 @@ services:
       # NOTE: unsafe-inline and unsafe-eval are required by Odoo's OWL framework
       # and legacy JS. This CSP does not meaningfully prevent XSS in Odoo -- it
       # exists to restrict resource origins and prevent framing attacks.
-      - "traefik.http.middlewares.odoo-headers.headers.contentSecurityPolicy=default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; frame-ancestors 'self'; base-uri 'self'; form-action 'self';"
+      - "traefik.http.middlewares.odoo-headers.headers.contentSecurityPolicy=default-src 'self'; script-src 'self'
+        'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'
+        data:; frame-ancestors 'self'; base-uri 'self'; form-action 'self';"
       # Hide server version (Werkzeug/Python)
       - "traefik.http.middlewares.odoo-headers.headers.customResponseHeaders.Server=OpenSPP"
       # Referrer policy
       - "traefik.http.middlewares.odoo-headers.headers.referrerPolicy=strict-origin-when-cross-origin"
       # Permissions policy (disable unused browser features)
-      - "traefik.http.middlewares.odoo-headers.headers.permissionsPolicy=camera=(), microphone=(), geolocation=(), payment=()"
+      - "traefik.http.middlewares.odoo-headers.headers.permissionsPolicy=camera=(), microphone=(), geolocation=(),
+        payment=()"
       # XSS protection
       - "traefik.http.middlewares.odoo-headers.headers.browserXssFilter=true"
       # NOTE: Odoo docs recommend `proxy_cookie_flags session_id samesite=lax secure`

@@ -18,7 +18,11 @@ from odoo.api import Environment
 
 from odoo.addons.fastapi.dependencies import odoo_env
 from odoo.addons.spp_dci.schemas.constants import MsgHeaderStatusReasonCode
-from odoo.addons.spp_dci.schemas.search import SearchRequest, SearchResponse, SearchResponseItem
+from odoo.addons.spp_dci.schemas.search import (
+    SearchRequest,
+    SearchResponse,
+    SearchResponseItem,
+)
 
 from fastapi import APIRouter, Depends, status
 

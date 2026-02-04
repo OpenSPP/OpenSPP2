@@ -170,7 +170,9 @@ class InspectionWizard(models.TransientModel):
                 )
 
         _logger.info(
-            "Confirming inspection for donation %s with %d lines", self.donation_id.reference, len(self.line_ids)
+            "Confirming inspection for donation %s with %d lines",
+            self.donation_id.reference,
+            len(self.line_ids),
         )
 
         # Process each product group

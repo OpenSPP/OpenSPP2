@@ -188,6 +188,6 @@ def _create_event_directly(env, notification_data: dict) -> int:
     try:
         event.process_event()
     except Exception as e:
-        _logger.error("Failed to auto-process event %s: %s", event.name, str(e))
+        _logger.error("Failed to auto-process event ID %s: %s", event.id, str(e))
 
     return event.id

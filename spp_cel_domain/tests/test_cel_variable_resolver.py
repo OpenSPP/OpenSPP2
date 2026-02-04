@@ -419,7 +419,10 @@ class TestCELVariableResolverCaching(TransactionCase, CELTestDataMixin):
         )
 
         # Expand with logging enabled
-        with self.assertLogs("odoo.addons.spp_cel_domain.models.cel_variable_resolver", level=logging.DEBUG) as log_ctx:
+        with self.assertLogs(
+            "odoo.addons.spp_cel_domain.models.cel_variable_resolver",
+            level=logging.DEBUG,
+        ) as log_ctx:
             self.resolver.expand_expression(
                 "log_var == 42",
                 context_type="individual",

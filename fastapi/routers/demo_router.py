@@ -66,7 +66,9 @@ async def get_lang(env: Annotated[Environment, Depends(odoo_env)]):
 
 
 @router.get("/demo/who_ami")
-async def who_ami(partner: Annotated[ResPartner, Depends(authenticated_partner)]) -> DemoUserInfo:
+async def who_ami(
+    partner: Annotated[ResPartner, Depends(authenticated_partner)],
+) -> DemoUserInfo:
     """Who am I?
 
     Returns the authenticated partner

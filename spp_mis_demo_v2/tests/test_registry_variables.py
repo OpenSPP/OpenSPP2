@@ -278,5 +278,3 @@ class TestGeneratorFieldPopulation(TransactionCase):
             sample_size * 0.5,  # At least 50% low income
             f"Low income tier ({low_count}/{sample_size}) should be majority",
         )
-
-

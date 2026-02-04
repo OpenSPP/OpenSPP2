@@ -68,7 +68,11 @@ export function createCelHighlightStyle(cm) {
         {tag: tags.function(tags.variableName), color: "#795e26"},
 
         // Built-in functions
-        {tag: tags.standard(tags.function(tags.variableName)), color: "#795e26", fontWeight: "500"},
+        {
+            tag: tags.standard(tags.function(tags.variableName)),
+            color: "#795e26",
+            fontWeight: "500",
+        },
 
         // Punctuation
         {tag: tags.punctuation, color: "#333333"},
@@ -143,7 +147,10 @@ export function createCelSimpleTheme(cm) {
         ".cm-function": {color: "#795e26 !important"},
 
         // Built-in functions get bold
-        ".cm-function.cm-builtin": {color: "#795e26 !important", fontWeight: "500"},
+        ".cm-function.cm-builtin": {
+            color: "#795e26 !important",
+            fontWeight: "500",
+        },
 
         // Punctuation
         ".cm-punctuation": {color: "#333333 !important"},

@@ -203,7 +203,11 @@ class TestDrimsDonation(DrimsTestCommon):
         """Test donation with donor type vocabulary."""
         donor_type = self.env["spp.vocabulary.code"].search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:donor-types"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:donor-types",
+                ),
                 ("code", "=", "ngo"),
             ],
             limit=1,
@@ -407,7 +411,11 @@ class TestDrimsDonation(DrimsTestCommon):
         # Try to skip to 'stocked' state (should fail)
         stocked_state = self.env["spp.vocabulary.code"].search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:donation-states"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:donation-states",
+                ),
                 ("code", "=", "stocked"),
             ],
             limit=1,

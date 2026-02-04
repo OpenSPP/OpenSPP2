@@ -30,12 +30,11 @@ spp_master_key = <base64-encoded-32-byte-key>
 
 ### 3. Auto-derived (Demo/Development Only)
 
-If no explicit key is configured, a key is automatically derived from the database UUID.
-This provides a zero-config experience for demos while logging a warning in non-demo mode.
+If no explicit key is configured, a key is automatically derived from the database UUID. This provides a zero-config
+experience for demos while logging a warning in non-demo mode.
 
-**Security Note**: The derived key is deterministic per database, so encrypted data
-persists across restarts. However, for production deployments, always use an explicit
-key via environment variable.
+**Security Note**: The derived key is deterministic per database, so encrypted data persists across restarts. However,
+for production deployments, always use an explicit key via environment variable.
 
 ## Key Providers
 
@@ -75,11 +74,11 @@ public_jwk = json.loads(key.public_key_jwk)
 
 ### Supported Key Types
 
-| Type | Algorithms | Use Case |
-|------|------------|----------|
-| `rsa` | RS256, RS384, RS512 | Legacy compatibility |
-| `ec` | ES256, ES384, ES512 | Standard signatures |
-| `ed25519` | EdDSA | Modern, compact signatures |
+| Type      | Algorithms          | Use Case                   |
+| --------- | ------------------- | -------------------------- |
+| `rsa`     | RS256, RS384, RS512 | Legacy compatibility       |
+| `ec`      | ES256, ES384, ES512 | Standard signatures        |
+| `ed25519` | EdDSA               | Modern, compact signatures |
 
 ## Security Groups
 

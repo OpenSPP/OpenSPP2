@@ -87,7 +87,10 @@ class SppCashEntitlementManager(models.Model):
                 )
             else:
                 beneficiaries_ids = all_beneficiaries_ids
-            _logger.info("Processing %d beneficiaries for entitlement item", len(beneficiaries_ids))
+            _logger.info(
+                "Processing %d beneficiaries for entitlement item",
+                len(beneficiaries_ids),
+            )
 
             beneficiaries_with_entitlements = (
                 self.env["spp.entitlement"]

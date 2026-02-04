@@ -257,8 +257,20 @@
     {"code": "YE", "display": "Yemen"},
     {"code": "ZM", "display": "Zambia"},
     {"code": "ZW", "display": "Zimbabwe"},
-    {"code": "XA", "display": "Stateless", "definition": "Person without citizenship of any country"},
-    {"code": "XK", "display": "Kosovo", "definition": "User-assigned code for Kosovo"},
-    {"code": "ZZ", "display": "Unknown", "definition": "Unknown or unspecified country"}
+    {
+      "code": "XA",
+      "display": "Stateless",
+      "definition": "Person without citizenship of any country"
+    },
+    {
+      "code": "XK",
+      "display": "Kosovo",
+      "definition": "User-assigned code for Kosovo"
+    },
+    {
+      "code": "ZZ",
+      "display": "Unknown",
+      "definition": "Unknown or unspecified country"
+    }
   ]
 }

@@ -128,7 +128,7 @@ patch(FormController.prototype, {
 
     /**
      * Insert CEL expression into the expression field
-     * @param {string} expression - The CEL expression to insert
+     * @param {String} expression - The CEL expression to insert
      */
     async _insertCelExpression(expression) {
         try {

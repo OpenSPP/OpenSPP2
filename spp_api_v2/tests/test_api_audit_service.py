@@ -59,7 +59,10 @@ class TestApiAuditService(ApiV2TestCase):
         self.assertTrue(audit_log, "Audit log should be created")
         self.assertEqual(audit_log.operation, "read")
         self.assertEqual(audit_log.resource_type, "individual")
-        self.assertEqual(audit_log.resource_identifier, "urn:openspp:vocab:id-type#test_national_id|IND-001")
+        self.assertEqual(
+            audit_log.resource_identifier,
+            "urn:openspp:vocab:id-type#test_national_id|IND-001",
+        )
         self.assertEqual(audit_log.consent_id, self.consent)
         self.assertEqual(audit_log.purpose, "service_delivery")
         self.assertEqual(audit_log.legal_basis, "consent")
@@ -187,7 +190,10 @@ class TestApiAuditService(ApiV2TestCase):
         self.assertTrue(audit_log)
         self.assertEqual(audit_log.operation, "create")
         self.assertEqual(audit_log.resource_type, "individual")
-        self.assertEqual(audit_log.resource_identifier, "urn:openspp:vocab:id-type#test_national_id|IND-002")
+        self.assertEqual(
+            audit_log.resource_identifier,
+            "urn:openspp:vocab:id-type#test_national_id|IND-002",
+        )
         self.assertEqual(audit_log.model_name, "res.partner")
         self.assertEqual(audit_log.res_id, new_individual.id)
         self.assertEqual(audit_log.status, "success")

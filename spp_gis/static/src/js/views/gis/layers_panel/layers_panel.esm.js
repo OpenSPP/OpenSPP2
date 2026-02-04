@@ -21,7 +21,10 @@ export class LayersPanel extends Component {
         this.rpc = rpc;
         this.user = user;
         // Initialize gisLayers with the expected structure
-        this.state = useState({gisLayers: {actives: [], backgrounds: []}, isFolded: false});
+        this.state = useState({
+            gisLayers: {actives: [], backgrounds: []},
+            isFolded: false,
+        });
         this.addDialog = useOwnedDialogs();
         this.rasterLayersStore = rasterLayersStore;
 
@@ -107,7 +110,9 @@ export class LayersPanel extends Component {
 
     async resequenceAndUpdate(dataRowId, refId) {
         try {
-            await this.props.dataLayerModel.resequence(dataRowId, refId, {handleField: "sequence"});
+            await this.props.dataLayerModel.resequence(dataRowId, refId, {
+                handleField: "sequence",
+            });
             this.props.dataLayerModel.records.forEach((element) => {
                 this.onDataLayerChange(element, "onSequenceChanged", element.data.sequence);
             });
@@ -158,7 +163,10 @@ export class LayersPanel extends Component {
         try {
             switch (action) {
                 case "onVisibleChanged": {
-                    Object.assign(dataLayer, {isVisible: value, onVisibleChanged: true});
+                    Object.assign(dataLayer, {
+                        isVisible: value,
+                        onVisibleChanged: true,
+                    });
                     break;
                 }
                 case "onLayerChanged": {
@@ -177,7 +185,10 @@ export class LayersPanel extends Component {
                     break;
                 }
                 case "onSequenceChanged": {
-                    Object.assign(dataLayer, {sequence: value, onSequenceChanged: true});
+                    Object.assign(dataLayer, {
+                        sequence: value,
+                        onSequenceChanged: true,
+                    });
                     break;
                 }
             }

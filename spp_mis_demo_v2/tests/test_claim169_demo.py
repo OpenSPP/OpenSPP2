@@ -17,9 +17,7 @@ class TestClaim169Demo(TransactionCase):
         super().setUpClass()
 
         # Set up default provider for key manager (required for encryption)
-        existing_default = cls.env["spp.key.provider.registry"].search(
-            [("is_default", "=", True)]
-        )
+        existing_default = cls.env["spp.key.provider.registry"].search([("is_default", "=", True)])
         if not existing_default:
             cls.env["spp.key.provider.registry"].create(
                 {
@@ -167,26 +165,18 @@ class TestClaim169Demo(TransactionCase):
         }
 
         # Run twice
-        generator1 = self.env["spp.mis.demo.generator"].create(
-            {"name": "Idempotent Test 1", **generator_params}
-        )
+        generator1 = self.env["spp.mis.demo.generator"].create({"name": "Idempotent Test 1", **generator_params})
         generator1.action_generate()
 
-        generator2 = self.env["spp.mis.demo.generator"].create(
-            {"name": "Idempotent Test 2", **generator_params}
-        )
+        generator2 = self.env["spp.mis.demo.generator"].create({"name": "Idempotent Test 2", **generator_params})
         generator2.action_generate()
 
         # Should only have one signing key
-        signing_keys = self.env["spp.asymmetric.key"].search(
-            [("name", "=", "Demo Claim 169 Signing Key")]
-        )
+        signing_keys = self.env["spp.asymmetric.key"].search([("name", "=", "Demo Claim 169 Signing Key")])
         self.assertEqual(len(signing_keys), 1, "Should not duplicate signing key")
 
         # Should only have one issuer
-        issuers = self.env["spp.claim169.issuer.config"].search(
-            [("name", "=", "Demo National ID")]
-        )
+        issuers = self.env["spp.claim169.issuer.config"].search([("name", "=", "Demo National ID")])
         self.assertEqual(len(issuers), 1, "Should not duplicate issuer config")
 
         # Should only have one active credential per registrant
@@ -201,12 +191,8 @@ class TestClaim169Demo(TransactionCase):
     def test_claim169_disabled(self):
         """Test that no Claim 169 data is created when disabled."""
         # Clean up any existing demo data first
-        self.env["spp.asymmetric.key"].search(
-            [("name", "=", "Demo Claim 169 Signing Key")]
-        ).unlink()
-        self.env["spp.claim169.issuer.config"].search(
-            [("name", "=", "Demo National ID")]
-        ).unlink()
+        self.env["spp.asymmetric.key"].search([("name", "=", "Demo Claim 169 Signing Key")]).unlink()
+        self.env["spp.claim169.issuer.config"].search([("name", "=", "Demo National ID")]).unlink()
 
         generator = self.env["spp.mis.demo.generator"].create(
             {

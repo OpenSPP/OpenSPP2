@@ -116,8 +116,8 @@ class DatabaseKeyProvider(models.AbstractModel):
                 _(
                     "Cannot derive master key: database.uuid not set.\n\n"
                     "Please configure SPP_MASTER_KEY environment variable:\n"
-                    "export SPP_MASTER_KEY=$(python -c \"import secrets, base64; "
-                    "print(base64.b64encode(secrets.token_bytes(32)).decode())\")"
+                    'export SPP_MASTER_KEY=$(python -c "import secrets, base64; '
+                    'print(base64.b64encode(secrets.token_bytes(32)).decode())")'
                 )
             )
 
@@ -134,9 +134,7 @@ class DatabaseKeyProvider(models.AbstractModel):
             )
             _derived_key_warning_shown = True
         elif not _derived_key_warning_shown and is_demo:
-            _logger.info(
-                "Demo mode: Using derived master key from database UUID."
-            )
+            _logger.info("Demo mode: Using derived master key from database UUID.")
             _derived_key_warning_shown = True
 
         return derived

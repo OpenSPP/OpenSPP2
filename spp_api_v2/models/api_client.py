@@ -373,7 +373,7 @@ class ApiClient(models.Model):
                 "client_secret_hash": self._hash_secret(new_secret),
             }
         )
-        _logger.info("Regenerated client secret for %s", self.name)
+        _logger.info("Regenerated client secret for client ID %s", self.id)
 
         # Create wizard to show credentials
         wizard = self.env["spp.api.client.show.secret.wizard"].create(

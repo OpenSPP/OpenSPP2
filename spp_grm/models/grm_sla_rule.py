@@ -147,7 +147,7 @@ class SPPGRMSLARule(models.Model):
                     return False
             except Exception as e:
                 # Log error but don't fail - treat invalid domain as not matching
-                _logger.warning("Error evaluating SLA rule %s domain: %s", self.name, e)
+                _logger.warning("Error evaluating SLA rule ID %s domain: %s", self.id, e)
                 return False
 
         return True

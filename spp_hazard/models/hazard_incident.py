@@ -135,7 +135,11 @@ class HazardIncident(models.Model):
     def _compute_is_ongoing(self):
         """Compute whether the incident is ongoing."""
         for rec in self:
-            rec.is_ongoing = not rec.end_date and rec.status in ("alert", "active", "recovery")
+            rec.is_ongoing = not rec.end_date and rec.status in (
+                "alert",
+                "active",
+                "recovery",
+            )
 
     @api.depends("area_ids")
     def _compute_area_count(self):

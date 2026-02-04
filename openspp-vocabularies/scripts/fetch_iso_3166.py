@@ -51,9 +51,21 @@ def add_special_codes(codes):
     existing = {c["code"] for c in codes}
 
     special = [
-        {"code": "XA", "display": "Stateless", "definition": "Person without citizenship of any country"},
-        {"code": "XK", "display": "Kosovo", "definition": "User-assigned code for Kosovo"},
-        {"code": "ZZ", "display": "Unknown", "definition": "Unknown or unspecified country"},
+        {
+            "code": "XA",
+            "display": "Stateless",
+            "definition": "Person without citizenship of any country",
+        },
+        {
+            "code": "XK",
+            "display": "Kosovo",
+            "definition": "User-assigned code for Kosovo",
+        },
+        {
+            "code": "ZZ",
+            "display": "Unknown",
+            "definition": "Unknown or unspecified country",
+        },
     ]
 
     for code in special:

@@ -15,7 +15,11 @@ def get_branding_config(env):
 
 def version_info_payload(env):
     system_name = get_param(env, "spp.system.name", "OpenSPP Platform")
-    return {"server_version": system_name, "server_serie": "19.0", "protocol_version": 1}
+    return {
+        "server_version": system_name,
+        "server_serie": "19.0",
+        "protocol_version": 1,
+    }
 
 
 def telemetry_payload(env):
@@ -23,4 +27,8 @@ def telemetry_payload(env):
     if not enabled:
         return {"status": "disabled", "message": "Telemetry disabled"}
     endpoint = get_param(env, "spp.telemetry.endpoint", "https://telemetry.openspp.org")
-    return {"status": "redirected", "endpoint": endpoint, "message": "Telemetry redirected to OpenSPP"}
+    return {
+        "status": "redirected",
+        "endpoint": endpoint,
+        "message": "Telemetry redirected to OpenSPP",
+    }

@@ -318,7 +318,17 @@ class TestExtension(ApiV2TestCase):
                 "url": "urn:openspp:extension:farmer",
                 "module_id": self.test_module.id,
                 "applies_to": "individual",
-                "field_ids": [(6, 0, [self.field_farm_size.id, field_is_organic.id, field_plot_count.id])],
+                "field_ids": [
+                    (
+                        6,
+                        0,
+                        [
+                            self.field_farm_size.id,
+                            field_is_organic.id,
+                            field_plot_count.id,
+                        ],
+                    )
+                ],
             }
         )
 

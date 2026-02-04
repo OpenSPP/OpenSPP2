@@ -11,7 +11,7 @@ using W3C Data Privacy Vocabulary (DPV) concepts. Provides GDPR-compliant
 consent lifecycle management with full audit trail.""",
     "sequence": 1,
     "author": "OpenSPP.org",
-    "website": "https://docs.openspp.org",
+    "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
     "development_status": "Beta",
     "maintainers": ["jeremi", "gonzalesedwin1123"],

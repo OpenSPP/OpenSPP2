@@ -220,7 +220,15 @@ class TestExitRegistrantStrategy(TransactionCase):
         if not self.cr_type:
             self.skipTest("Exit registrant CR type not found")
 
-        reasons = ["deceased", "emigrated", "duplicate", "ineligible", "voluntary", "fraud", "other"]
+        reasons = [
+            "deceased",
+            "emigrated",
+            "duplicate",
+            "ineligible",
+            "voluntary",
+            "fraud",
+            "other",
+        ]
 
         for reason in reasons:
             individual = self.partner_model.create(

@@ -5,7 +5,12 @@
 # This file follows the same pattern as Odoo's release.py for compatibility
 # with the build/package.py script.
 
-RELEASE_LEVELS = [ALPHA, BETA, CANDIDATE, FINAL] = ["alpha", "beta", "candidate", "final"]
+RELEASE_LEVELS = [ALPHA, BETA, CANDIDATE, FINAL] = [
+    "alpha",
+    "beta",
+    "candidate",
+    "final",
+]
 RELEASE_LEVELS_DISPLAY = {ALPHA: ALPHA, BETA: BETA, CANDIDATE: "rc", FINAL: ""}
 
 # OpenSPP version info (major, minor, micro, release_level, serial)

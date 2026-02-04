@@ -84,10 +84,7 @@ class CelWidgetDemo(models.TransientModel):
         profile = self.selected_profile or "registry_individuals"
 
         if not expression.strip():
-            self.validation_result = (
-                '<div class="alert alert-warning mb-0">'
-                "No expression to validate</div>"
-            )
+            self.validation_result = '<div class="alert alert-warning mb-0">' "No expression to validate</div>"
             return self._reopen_self()
 
         result = provider.validate_expression(expression, profile)
@@ -96,14 +93,11 @@ class CelWidgetDemo(models.TransientModel):
             count = result.get("matching_count")
             count_str = count if count is not None else "N/A"
             self.validation_result = (
-                '<div class="alert alert-success mb-0">'
-                f"<strong>Valid!</strong> Matching records: {count_str}</div>"
+                '<div class="alert alert-success mb-0">' f"<strong>Valid!</strong> Matching records: {count_str}</div>"
             )
         else:
             errors = result.get("errors", [])
-            error_items = "".join(
-                f"<li>{e.get('message', 'Unknown error')}</li>" for e in errors
-            )
+            error_items = "".join(f"<li>{e.get('message', 'Unknown error')}</li>" for e in errors)
             self.validation_result = (
                 '<div class="alert alert-danger mb-0">'
                 f"<strong>Invalid</strong><ul class='mb-0 mt-1'>{error_items}</ul></div>"
@@ -118,9 +112,8 @@ class CelWidgetDemo(models.TransientModel):
 
         symbols = provider.get_symbols_for_profile(profile)
         parts = [
-            "<h5>Symbols for <code>{}</code></h5>".format(profile),
-            "<p class='text-muted small mb-2'>"
-            "Click any row to insert into the expression editor above.</p>",
+            f"<h5>Symbols for <code>{profile}</code></h5>",
+            "<p class='text-muted small mb-2'>" "Click any row to insert into the expression editor above.</p>",
         ]
 
         # Shared row style for clickable rows
@@ -159,9 +152,7 @@ class CelWidgetDemo(models.TransientModel):
         # CEL variables (from spp.cel.variable)
         cel_vars = symbols.get("cel_variables", [])
         if cel_vars:
-            parts.append(
-                f"<h6 class='mt-3'>CEL Variables ({len(cel_vars)})</h6>"
-            )
+            parts.append(f"<h6 class='mt-3'>CEL Variables ({len(cel_vars)})</h6>")
             rows = "".join(
                 f"<tr style='{row_style}'"
                 f" data-cel-insert='{v.get('cel_expression', v['name'])}'>"
@@ -182,9 +173,7 @@ class CelWidgetDemo(models.TransientModel):
         # Library expressions
         library = symbols.get("library", [])
         if library:
-            parts.append(
-                f"<h6 class='mt-3'>Library Expressions ({len(library)})</h6>"
-            )
+            parts.append(f"<h6 class='mt-3'>Library Expressions ({len(library)})</h6>")
             rows = "".join(
                 f"<tr style='{row_style}'"
                 f" data-cel-insert='{e.get('cel_expression', e['name'])}'>"
@@ -204,9 +193,7 @@ class CelWidgetDemo(models.TransientModel):
         # Functions
         functions = symbols.get("functions", [])
         if functions:
-            parts.append(
-                f"<h6 class='mt-3'>Functions ({len(functions)})</h6>"
-            )
+            parts.append(f"<h6 class='mt-3'>Functions ({len(functions)})</h6>")
             rows = "".join(
                 f"<tr style='{row_style}'"
                 f" data-cel-insert='{f['name']}()'>"
@@ -224,9 +211,7 @@ class CelWidgetDemo(models.TransientModel):
         # Operators
         operators = symbols.get("operators", [])
         if operators:
-            parts.append(
-                f"<h6 class='mt-3'>Operators ({len(operators)})</h6>"
-            )
+            parts.append(f"<h6 class='mt-3'>Operators ({len(operators)})</h6>")
             rows = "".join(
                 f"<tr style='{row_style}'"
                 f" data-cel-insert=' {op['symbol']} '>"

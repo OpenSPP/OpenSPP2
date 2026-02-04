@@ -11,7 +11,7 @@
     "license": "LGPL-3",
     "author": "ACSONE SA/NV,Odoo Community Association (OCA)",
     "maintainers": ["lmignon"],
-    "website": "https://docs.openspp.org",
+    "website": "https://github.com/OpenSPP/OpenSPP2",
     "depends": ["endpoint_route_handler", "spp_security"],
     "data": [
         "security/privileges.xml",

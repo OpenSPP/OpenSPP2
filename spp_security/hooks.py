@@ -60,9 +60,7 @@ def _setup_admin_group_inheritance(env):
 
         # Add spp_admin to system_admin's implied_ids
         system_admin.write({"implied_ids": [(4, spp_admin.id)]})
-        _logger.info(
-            "Configured admin group inheritance: base.group_system -> spp_security.group_spp_admin"
-        )
+        _logger.info("Configured admin group inheritance: base.group_system -> spp_security.group_spp_admin")
 
     except Exception as e:
         _logger.warning("Failed to set up admin group inheritance: %s", str(e))

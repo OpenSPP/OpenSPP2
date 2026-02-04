@@ -133,7 +133,7 @@ class SppApiFilterPreset(models.Model):
         try:
             return json.loads(self.filter_json)
         except json.JSONDecodeError:
-            _logger.warning("Failed to parse filter_json for preset %s", self.name)
+            _logger.warning("Failed to parse filter_json for preset ID %s", self.id)
             return []
 
     def to_domain(self, filter_service):

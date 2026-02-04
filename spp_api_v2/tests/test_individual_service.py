@@ -242,7 +242,12 @@ class TestIndividualService(ApiV2TestCase):
         from ..schemas.base import HumanName, Identifier
 
         schema = Individual(
-            identifier=[Identifier(system="urn:openspp:vocab:id-type#test_national_id", value="CREATE-001")],
+            identifier=[
+                Identifier(
+                    system="urn:openspp:vocab:id-type#test_national_id",
+                    value="CREATE-001",
+                )
+            ],
             name=HumanName(given="New", family="Person"),
         )
 
@@ -261,7 +266,12 @@ class TestIndividualService(ApiV2TestCase):
         )
 
         schema = Individual(
-            identifier=[Identifier(system="urn:openspp:vocab:id-type#test_national_id", value="UPDATE-001")],
+            identifier=[
+                Identifier(
+                    system="urn:openspp:vocab:id-type#test_national_id",
+                    value="UPDATE-001",
+                )
+            ],
             name=HumanName(given="Updated", family="Name"),
         )
 
@@ -294,7 +304,12 @@ class TestIndividualService(ApiV2TestCase):
         photo_b64 = base64.b64encode(self.create_test_photo()).decode("utf-8")
 
         schema = Individual(
-            identifier=[Identifier(system="urn:openspp:vocab:id-type#test_national_id", value="PHOTO-001")],
+            identifier=[
+                Identifier(
+                    system="urn:openspp:vocab:id-type#test_national_id",
+                    value="PHOTO-001",
+                )
+            ],
             name=HumanName(given="Photo", family="Test"),
             photo=photo_b64,
         )

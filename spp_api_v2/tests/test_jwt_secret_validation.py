@@ -186,7 +186,10 @@ class TestJWTSecretValidationDirect(ApiV2TestCase):
         """_validate_jwt_secret_strength caches valid secrets"""
         import hashlib
 
-        from ..middleware.auth import _validate_jwt_secret_strength, _validated_jwt_secrets
+        from ..middleware.auth import (
+            _validate_jwt_secret_strength,
+            _validated_jwt_secrets,
+        )
 
         secret = "cacheTestXk9mP2nQ5rR8tY1zW4vE6uH3j"
         secret_hash = hashlib.sha256(secret.encode()).hexdigest()

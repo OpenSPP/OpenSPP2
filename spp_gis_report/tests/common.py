@@ -167,7 +167,12 @@ class GISReportTestBase(TransactionCase):
         )
 
     def create_test_report(
-        self, name="Test Report", code=None, aggregation_method="count", normalization_method="raw", **kwargs
+        self,
+        name="Test Report",
+        code=None,
+        aggregation_method="count",
+        normalization_method="raw",
+        **kwargs,
     ):
         """Helper to create a test GIS report.
 

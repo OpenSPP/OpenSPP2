@@ -905,7 +905,11 @@ class GroupService:
                         .sudo()
                         .search(
                             [
-                                ("namespace_uri", "=", "urn:openspp:vocab:group-membership-type"),
+                                (
+                                    "namespace_uri",
+                                    "=",
+                                    "urn:openspp:vocab:group-membership-type",
+                                ),
                                 ("code", "=", mapped_role_code),
                             ],
                             limit=1,
@@ -954,7 +958,11 @@ class GroupService:
                 # Use external identifier in error log (no database IDs)
                 individual_id = individual.reg_ids[0] if individual.reg_ids else None
                 individual_str = f"{individual_id.namespace_uri}|{individual_id.value}" if individual_id else "unknown"
-                _logger.error("Failed to create membership for individual %s: %s", individual_str, e)
+                _logger.error(
+                    "Failed to create membership for individual %s: %s",
+                    individual_str,
+                    e,
+                )
                 # Continue with other members even if one fails
                 continue
 

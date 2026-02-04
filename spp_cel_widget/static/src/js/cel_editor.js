@@ -14,13 +14,13 @@
  * - Symbol browser support
  */
 
-import {Component, useState, useRef, onMounted, onWillDestroy, onWillUpdateProps} from "@odoo/owl";
+import {Component, onMounted, onWillDestroy, onWillUpdateProps, useRef, useState} from "@odoo/owl";
 import {useService} from "@web/core/utils/hooks";
 
 import {celLanguageMode, createCelTokenTable} from "./cel_language/syntax";
-import {createCelSimpleTheme, createCelHighlightStyle} from "./cel_language/highlight";
+import {createCelHighlightStyle, createCelSimpleTheme} from "./cel_language/highlight";
 import {createCelAutocomplete} from "./cel_language/autocomplete";
-import {createCelLinter, createCelLintGutter} from "./cel_language/lint";
+import {createCelLintGutter, createCelLinter} from "./cel_language/lint";
 import {CelSymbolBrowser} from "./cel_symbol_browser";
 
 export class CelEditor extends Component {
@@ -29,8 +29,8 @@ export class CelEditor extends Component {
     static props = {
         value: {type: String, optional: true},
         profile: {type: String, optional: true},
-        expressionType: {type: String, optional: true}, // filter, formula, scoring, validation, other
-        outputType: {type: String, optional: true}, // boolean, number, string, money
+        expressionType: {type: String, optional: true}, // Filter, formula, scoring, validation, other
+        outputType: {type: String, optional: true}, // Boolean, number, string, money
         readonly: {type: Boolean, optional: true},
         placeholder: {type: String, optional: true},
         minHeight: {type: String, optional: true},

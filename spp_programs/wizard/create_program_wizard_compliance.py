@@ -18,8 +18,7 @@ class SppProgramCreateWizard(models.TransientModel):
     )
     compliance_cel_expression = fields.Text(
         string="Compliance CEL Expression",
-        help="CEL expression for compliance criteria. "
-        "Leave empty to create manager without initial expression.",
+        help="CEL expression for compliance criteria. " "Leave empty to create manager without initial expression.",
     )
 
     def _check_required_fields(self):

@@ -44,7 +44,14 @@ try:
     from .check_performance import PerformanceChecker
     from .check_ui_patterns import UIPatternChecker
     from .check_xml_ids import XMLValidator, find_xml_files_in_module
-    from .common import LintConfig, OutputFormatter, Severity, Violation, get_summary_stats, print_summary
+    from .common import (
+        LintConfig,
+        OutputFormatter,
+        Severity,
+        Violation,
+        get_summary_stats,
+        print_summary,
+    )
 except ImportError:
     from check_acl import ACLChecker
     from check_logger import LoggerChecker

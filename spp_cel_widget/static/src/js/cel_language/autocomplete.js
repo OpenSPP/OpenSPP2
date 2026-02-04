@@ -59,8 +59,8 @@ function celCompletionSource(context, symbols) {
 
 /**
  * Get property completions after a dot
- * @param {string} text - Text including the dot
- * @param {number} from - Start position
+ * @param {String} text - Text including the dot
+ * @param {Number} from - Start position
  * @param {Object} symbols
  * @returns {CompletionResult}
  */
@@ -77,7 +77,7 @@ function getPropertyCompletions(text, from, symbols) {
     }
 
     // Get fields for the base variable (or nested path)
-    let fields = baseVar.fields || [];
+    const fields = baseVar.fields || [];
 
     // If there are nested parts, try to resolve them
     if (parts.length > 1) {
@@ -129,8 +129,8 @@ function getPropertyCompletions(text, from, symbols) {
 
 /**
  * Get top-level completions (variables, functions, keywords)
- * @param {string} text - Current word
- * @param {number} from - Start position
+ * @param {String} text - Current word
+ * @param {Number} from - Start position
  * @param {Object} symbols
  * @returns {CompletionResult}
  */
@@ -163,7 +163,7 @@ function getTopLevelCompletions(text, from, symbols) {
         let apply = f.name + "(";
         if (f.params && f.params.length > 0) {
             // Add placeholder for first param
-            apply += "";
+            apply = String(apply);
         }
         apply += ")";
 
@@ -218,7 +218,7 @@ function getTopLevelCompletions(text, from, symbols) {
 /**
  * Format function info for tooltip
  * @param {Object} f - Function info
- * @returns {string}
+ * @returns {String}
  */
 function formatFunctionInfo(f) {
     let info = f.doc || "";
@@ -245,8 +245,8 @@ function formatFunctionInfo(f) {
 
 /**
  * Get completion type for a field type
- * @param {string} fieldType
- * @returns {string}
+ * @param {String} fieldType
+ * @returns {String}
  */
 function getCompletionType(fieldType) {
     switch (fieldType) {

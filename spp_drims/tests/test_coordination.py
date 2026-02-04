@@ -72,7 +72,11 @@ class TestCoordinationVocabularies(DrimsTestCommon):
         for code in expected_codes:
             role = self.env["spp.vocabulary.code"].search(
                 [
-                    ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:organization-roles"),
+                    (
+                        "vocabulary_id.namespace_uri",
+                        "=",
+                        "urn:openspp:vocab:drims:organization-roles",
+                    ),
                     ("code", "=", code),
                 ],
                 limit=1,
@@ -101,7 +105,11 @@ class TestCoordinationVocabularies(DrimsTestCommon):
         for code in expected_codes:
             mode = self.env["spp.vocabulary.code"].search(
                 [
-                    ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:coordination-modes"),
+                    (
+                        "vocabulary_id.namespace_uri",
+                        "=",
+                        "urn:openspp:vocab:drims:coordination-modes",
+                    ),
                     ("code", "=", code),
                 ],
                 limit=1,
@@ -202,7 +210,11 @@ class TestIncidentCoordinationMode(DrimsTestCommon):
         """Test coordination mode can be set from vocabulary."""
         cluster_mode = self.env["spp.vocabulary.code"].search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:coordination-modes"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:coordination-modes",
+                ),
                 ("code", "=", "cluster"),
             ],
             limit=1,
@@ -215,7 +227,11 @@ class TestIncidentCoordinationMode(DrimsTestCommon):
         # Try to set a code from a different vocabulary
         invalid_code = self.env["spp.vocabulary.code"].search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:priority-levels"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:priority-levels",
+                ),
             ],
             limit=1,
         )
@@ -377,7 +393,11 @@ class TestPartnerOrganizationFields(DrimsTestCommon):
         """Test organization role can be set from vocabulary."""
         implementing_partner = self.env["spp.vocabulary.code"].search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:organization-roles"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:organization-roles",
+                ),
                 ("code", "=", "implementing_partner"),
             ],
             limit=1,

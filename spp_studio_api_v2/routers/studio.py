@@ -36,7 +36,8 @@ class StudioFieldInfo(BaseModel):
     placementZone: str | None = Field(default=None, description="Form placement zone")
     apiExposed: bool = Field(default=True, description="Whether exposed via API")
     selectionOptions: list[dict] | None = Field(
-        default=None, description="For selection/multi_select: [{'value': 'x', 'label': 'X'}]"
+        default=None,
+        description="For selection/multi_select: [{'value': 'x', 'label': 'X'}]",
     )
     isReadonly: bool = Field(default=False, description="Whether field is read-only")
     isSearchable: bool = Field(default=False, description="Whether field is searchable")
@@ -137,7 +138,10 @@ async def list_studio_fields(
     target_type: Annotated[str | None, Query(description="Filter by target registry (individual/group)")] = None,
     api_exposed_only: Annotated[bool, Query(description="Only return API-exposed fields")] = True,
     _count: Annotated[int, Query(ge=1, le=500, alias="_count")] = 100,
-    _last_id: Annotated[int | None, Query(alias="_lastId", description="ID of last record from previous page")] = None,
+    _last_id: Annotated[
+        int | None,
+        Query(alias="_lastId", description="ID of last record from previous page"),
+    ] = None,
 ):
     """List Studio custom fields."""
     if not api_client.has_scope("studio", "read"):
@@ -355,7 +359,10 @@ async def list_variables(
     source_type: Annotated[str | None, Query(description="Filter by source type")] = None,
     category: Annotated[str | None, Query(description="Filter by category name")] = None,
     _count: Annotated[int, Query(ge=1, le=500, alias="_count")] = 100,
-    _last_id: Annotated[int | None, Query(alias="_lastId", description="ID of last record from previous page")] = None,
+    _last_id: Annotated[
+        int | None,
+        Query(alias="_lastId", description="ID of last record from previous page"),
+    ] = None,
 ):
     """List available CEL variables."""
     if not api_client.has_scope("studio", "read"):
@@ -396,9 +403,7 @@ async def list_variables(
         applies_to = var.applies_to
 
         if not cel_accessor or not value_type or not source_type or not applies_to:
-            _logger.warning(
-                "Skipping variable %s with missing required fields", var.name or var.id
-            )
+            _logger.warning("Skipping variable ID %s with missing required fields", var.id)
             continue
 
         # Ensure string type for required fields (some may be False/None from Odoo)
@@ -407,7 +412,9 @@ async def list_variables(
                 VariableInfo(
                     name=str(cel_accessor),
                     label=str(getattr(var, "label", None) or var.name or cel_accessor),
-                    description=str(getattr(var, "description", None) or "") if getattr(var, "description", None) else None,
+                    description=str(getattr(var, "description", None) or "")
+                    if getattr(var, "description", None)
+                    else None,
                     valueType=str(value_type),
                     sourceType=str(source_type),
                     appliesTo=str(applies_to),
@@ -418,9 +425,7 @@ async def list_variables(
                 )
             )
         except Exception as e:
-            _logger.warning(
-                "Failed to serialize variable %s: %s", var.name or var.id, e
-            )
+            _logger.warning("Failed to serialize variable ID %s: %s", var.id, e)
             continue
 
     # Get the ID of the last item for cursor pagination

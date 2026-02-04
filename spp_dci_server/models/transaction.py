@@ -261,7 +261,11 @@ class DCITransaction(models.Model):
             config = self.env["ir.config_parameter"].sudo()
             allow_http = config.get_param("dci.allow_http_callbacks", "false").lower() == "true"
             skip_ip_check = config.get_param("dci.allow_internal_callback_ips", "false").lower() == "true"
-            validate_callback_url(self.callback_uri, require_https=not allow_http, skip_ip_check=skip_ip_check)
+            validate_callback_url(
+                self.callback_uri,
+                require_https=not allow_http,
+                skip_ip_check=skip_ip_check,
+            )
         except ValidationError as e:
             _logger.error(
                 "Callback URL validation failed for transaction %s: %s",
@@ -347,7 +351,11 @@ class DCITransaction(models.Model):
             config = self.env["ir.config_parameter"].sudo()
             allow_http = config.get_param("dci.allow_http_callbacks", "false").lower() == "true"
             skip_ip_check = config.get_param("dci.allow_internal_callback_ips", "false").lower() == "true"
-            validate_callback_url(self.callback_uri, require_https=not allow_http, skip_ip_check=skip_ip_check)
+            validate_callback_url(
+                self.callback_uri,
+                require_https=not allow_http,
+                skip_ip_check=skip_ip_check,
+            )
         except ValidationError as e:
             _logger.error("Callback URL validation failed on retry: %s", str(e))
             self.state = "callback_failed"
@@ -752,7 +760,11 @@ class DCITransaction(models.Model):
             config = self.env["ir.config_parameter"].sudo()
             allow_http = config.get_param("dci.allow_http_callbacks", "false").lower() == "true"
             skip_ip_check = config.get_param("dci.allow_internal_callback_ips", "false").lower() == "true"
-            validate_callback_url(self.callback_uri, require_https=not allow_http, skip_ip_check=skip_ip_check)
+            validate_callback_url(
+                self.callback_uri,
+                require_https=not allow_http,
+                skip_ip_check=skip_ip_check,
+            )
         except ValidationError as e:
             _logger.error(
                 "Callback URL validation failed for transaction %s: %s",

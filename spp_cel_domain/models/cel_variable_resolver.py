@@ -129,7 +129,14 @@ class CELVariableResolver(models.AbstractModel):
     # ═══════════════════════════════════════════════════════════════════════
 
     @api.model
-    def expand_expression(self, expression, program_id=None, context_type="group", _depth=0, _seen_vars=None):
+    def expand_expression(
+        self,
+        expression,
+        program_id=None,
+        context_type="group",
+        _depth=0,
+        _seen_vars=None,
+    ):
         """Expand variable references in a CEL expression recursively.
 
         Takes a simplified expression like:
@@ -283,7 +290,9 @@ class CELVariableResolver(models.AbstractModel):
                     replacements[var_name] = metric_call
                     variables_used.append(var_name)
                     _logger.debug(
-                        "Variable '%s' has cache_strategy='%s', emitting metric() call", var_name, cache_strategy
+                        "Variable '%s' has cache_strategy='%s', emitting metric() call",
+                        var_name,
+                        cache_strategy,
                     )
                 else:
                     # Get the CEL expression for this variable
@@ -295,7 +304,11 @@ class CELVariableResolver(models.AbstractModel):
 
                         # Recursively expand the variable's expression
                         recursive_result = self.expand_expression(
-                            cel_expr, program_id, context_type, _depth=_depth + 1, _seen_vars=new_seen
+                            cel_expr,
+                            program_id,
+                            context_type,
+                            _depth=_depth + 1,
+                            _seen_vars=new_seen,
                         )
 
                         # Use the recursively expanded expression
@@ -526,7 +539,13 @@ class CELVariableResolver(models.AbstractModel):
     def _get_cache_key(self, expression, program_id, context_type):
         """Generate a cache key for an expression resolution."""
         company_id = self.env.company.id
-        return (expression, program_id, context_type, company_id, self._get_cache_version())
+        return (
+            expression,
+            program_id,
+            context_type,
+            company_id,
+            self._get_cache_version(),
+        )
 
     @api.model
     def _get_cache_version(self):

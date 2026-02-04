@@ -102,7 +102,10 @@ export class GisController extends Component {
                 throw new Error("Model name and Record ID are required to open a record.");
             }
             // Load views for the given model, with a fallback on default form view if no viewId is provided
-            const {views} = await this.view.loadViews({resModel, views: [[false, "form"]]});
+            const {views} = await this.view.loadViews({
+                resModel,
+                views: [[false, "form"]],
+            });
 
             const formViewId = viewId || [[views.form.id, "form"]];
             // Ensure a form view is available

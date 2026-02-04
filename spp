@@ -327,7 +327,15 @@ def _wait_for_odoo_ready(profile: str, timeout: int = 300):
 
         # Check health endpoint
         result = run(
-            docker_compose("exec", "-T", service, "curl", "-sf", "http://localhost:8069/web/health", profile=profile),
+            docker_compose(
+                "exec",
+                "-T",
+                service,
+                "curl",
+                "-sf",
+                "http://localhost:8069/web/health",
+                profile=profile,
+            ),
             check=False,
             capture=True,
         )
@@ -427,7 +435,10 @@ def _wait_for_module_installed(profile: str, module_name: str, timeout: int = 60
                 return True, None
             elif state in ("to install", "to upgrade"):
                 # Registry loaded but module not installed = installation failed
-                return False, f"Module state is '{state}' after registry load - installation failed"
+                return (
+                    False,
+                    f"Module state is '{state}' after registry load - installation failed",
+                )
 
         # Check for fatal errors
         if "ParseError:" in logs or "ValueError:" in logs or "odoo.tools.convert.ParseError" in logs:
@@ -716,11 +727,33 @@ def cmd_resetdb(args):
     # Drop and recreate database (db_name is validated above)
     run(
         docker_compose(
-            "exec", "-T", "db", "psql", "-U", "odoo", "-d", "postgres", "-c", f"DROP DATABASE IF EXISTS {db_name};"
+            "exec",
+            "-T",
+            "db",
+            "psql",
+            "-U",
+            "odoo",
+            "-d",
+            "postgres",
+            "-c",
+            f"DROP DATABASE IF EXISTS {db_name};",
         ),
         check=False,
     )
-    run(docker_compose("exec", "-T", "db", "psql", "-U", "odoo", "-d", "postgres", "-c", f"CREATE DATABASE {db_name};"))
+    run(
+        docker_compose(
+            "exec",
+            "-T",
+            "db",
+            "psql",
+            "-U",
+            "odoo",
+            "-d",
+            "postgres",
+            "-c",
+            f"CREATE DATABASE {db_name};",
+        )
+    )
 
     # Store modules for start command to pick up
     os.environ["ODOO_INIT_MODULES"] = modules
@@ -837,7 +870,20 @@ def cmd_sql(args):
 
     if args.query:
         # Run a single SQL command
-        run(docker_compose("exec", "-T", "db", "psql", "-U", "odoo", "-d", db_name, "-c", args.query))
+        run(
+            docker_compose(
+                "exec",
+                "-T",
+                "db",
+                "psql",
+                "-U",
+                "odoo",
+                "-d",
+                db_name,
+                "-c",
+                args.query,
+            )
+        )
     elif args.file:
         # Run SQL from file
         run(docker_compose("exec", "-T", "db", "psql", "-U", "odoo", "-d", db_name, "-f", args.file))
@@ -1215,7 +1261,12 @@ def build_parser():
         description="OpenSPP Developer CLI",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("--dry-run", "-n", action="store_true", help="Show what would be executed without running")
+    parser.add_argument(
+        "--dry-run",
+        "-n",
+        action="store_true",
+        help="Show what would be executed without running",
+    )
     subparsers = parser.add_subparsers(dest="command", help="Command to run")
 
     # test
@@ -1230,12 +1281,16 @@ def build_parser():
     # start
     p = subparsers.add_parser("start", help="Start Odoo dev server")
     demo_arg = p.add_argument(
-        "--demo", default=CONFIG.get("default_demo"), help="Demo profile: " + ", ".join(DEMO_PROFILES.keys())
+        "--demo",
+        default=CONFIG.get("default_demo"),
+        help="Demo profile: " + ", ".join(DEMO_PROFILES.keys()),
     )
     if HAS_ARGCOMPLETE:
         demo_arg.completer = _demo_completer
     p.add_argument(
-        "--no-watch", action="store_true", help="Disable auto-reload (dev profile has it enabled by default)"
+        "--no-watch",
+        action="store_true",
+        help="Disable auto-reload (dev profile has it enabled by default)",
     )
     p.add_argument(
         "--profile",
@@ -1245,7 +1300,12 @@ def build_parser():
     )
     p.add_argument("--wipe", action="store_true", help="Wipe all data (volumes) before starting")
     p.add_argument("--no-build", action="store_true", help="Skip Docker image freshness check")
-    p.add_argument("-y", "--yes", action="store_true", help="Skip confirmation prompt (auto-rebuild if needed)")
+    p.add_argument(
+        "-y",
+        "--yes",
+        action="store_true",
+        help="Skip confirmation prompt (auto-rebuild if needed)",
+    )
     p.add_argument(
         "--generate",
         action="store_true",
@@ -1265,13 +1325,21 @@ def build_parser():
     demo_arg = p.add_argument("--demo", help="Demo profile: " + ", ".join(DEMO_PROFILES.keys()))
     if HAS_ARGCOMPLETE:
         demo_arg.completer = _demo_completer
-    p.add_argument("--db", default=CONFIG.get("default_db", "openspp"), help="Database name (default: openspp)")
+    p.add_argument(
+        "--db",
+        default=CONFIG.get("default_db", "openspp"),
+        help="Database name (default: openspp)",
+    )
     p.add_argument("-y", "--yes", action="store_true", help="Skip confirmation prompt")
 
     # update
     p = subparsers.add_parser("update", help="Update changed modules (auto-detects via checksums)")
     p.add_argument("modules", nargs="*", help="(ignored) click-odoo-update auto-detects changes")
-    p.add_argument("--db", default=CONFIG.get("default_db", "openspp"), help="Database name (default: openspp)")
+    p.add_argument(
+        "--db",
+        default=CONFIG.get("default_db", "openspp"),
+        help="Database name (default: openspp)",
+    )
 
     # build
     p = subparsers.add_parser("build", help="Build Docker images")
@@ -1297,7 +1365,12 @@ def build_parser():
     # sql
     p = subparsers.add_parser("sql", help="Open PostgreSQL shell or run SQL")
     p.add_argument("query", nargs="?", help="SQL query to run (optional)")
-    p.add_argument("--database", "-d", default=CONFIG.get("default_db", "openspp"), help="Database name")
+    p.add_argument(
+        "--database",
+        "-d",
+        default=CONFIG.get("default_db", "openspp"),
+        help="Database name",
+    )
     p.add_argument("--file", "-f", help="SQL file to execute")
 
     # url

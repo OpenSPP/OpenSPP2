@@ -334,7 +334,12 @@ class TestSearchSchemas(unittest.TestCase):
                         reg_record_type="PERSON",
                         reg_records=[
                             {
-                                "identifier": [{"identifier_type": "UIN", "identifier_value": "123456789"}],
+                                "identifier": [
+                                    {
+                                        "identifier_type": "UIN",
+                                        "identifier_value": "123456789",
+                                    }
+                                ],
                                 "name": {"given_name": "John", "surname": "Doe"},
                             }
                         ],

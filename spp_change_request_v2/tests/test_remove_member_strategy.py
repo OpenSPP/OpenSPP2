@@ -183,7 +183,14 @@ class TestRemoveMemberStrategy(TransactionCase):
         if not self.cr_type:
             self.skipTest("Remove member CR type not found")
 
-        reasons = ["left_household", "deceased", "married_out", "migrated", "correction", "other"]
+        reasons = [
+            "left_household",
+            "deceased",
+            "married_out",
+            "migrated",
+            "correction",
+            "other",
+        ]
 
         for reason in reasons:
             # Create new member for each test

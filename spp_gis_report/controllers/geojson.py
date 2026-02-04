@@ -44,9 +44,7 @@ class GISReportController(http.Controller):
             MissingError: If report not found
             AccessError: If user lacks access
         """
-        report = request.env["spp.gis.report"].search(
-            [("code", "=", report_code)], limit=1
-        )
+        report = request.env["spp.gis.report"].search([("code", "=", report_code)], limit=1)
         if not report:
             raise MissingError(_("Report not found: %s", report_code))
 
@@ -91,29 +89,23 @@ class GISReportController(http.Controller):
         try:
             # Get all active reports - Odoo's record rules handle access filtering
             # Reports with access_group_ids are filtered separately if needed
-            reports = request.env["spp.gis.report"].search([
-                ("active", "=", True),
-            ])
+            reports = request.env["spp.gis.report"].search(
+                [
+                    ("active", "=", True),
+                ]
+            )
 
             # Get available admin levels for each report
             report_list = []
             for report in reports:
-                admin_levels = (
-                    report.data_ids.mapped("area_level")
-                    if report.data_ids
-                    else []
-                )
+                admin_levels = report.data_ids.mapped("area_level") if report.data_ids else []
 
                 report_list.append(
                     {
                         "code": report.code,
                         "name": report.name,
                         "category": report.category_id.name if report.category_id else None,
-                        "last_refresh": (
-                            report.last_refresh.isoformat()
-                            if report.last_refresh
-                            else None
-                        ),
+                        "last_refresh": (report.last_refresh.isoformat() if report.last_refresh else None),
                         "admin_levels_available": sorted(set(admin_levels)),
                         "has_disaggregation": any(
                             [
@@ -161,7 +153,7 @@ class GISReportController(http.Controller):
         include_geometry="true",
         include_disaggregation="false",
         format="full",
-        **kwargs
+        **kwargs,
     ):
         """Get report data as GeoJSON.
 
@@ -181,7 +173,11 @@ class GISReportController(http.Controller):
             report = self._get_report_by_code(report_code)
 
             # Convert string parameters to proper types
-            include_geometry_bool = str(include_geometry).lower() in ("true", "1", "yes")
+            include_geometry_bool = str(include_geometry).lower() in (
+                "true",
+                "1",
+                "yes",
+            )
             include_disaggregation_bool = str(include_disaggregation).lower() in (
                 "true",
                 "1",
@@ -195,9 +191,7 @@ class GISReportController(http.Controller):
             # Resolve parent area code
             parent_area_id = None
             if parent_area_code:
-                parent_area = request.env["spp.area"].search(
-                    [("code", "=", parent_area_code)], limit=1
-                )
+                parent_area = request.env["spp.area"].search([("code", "=", parent_area_code)], limit=1)
                 parent_area_id = parent_area.id if parent_area else None
 
             geojson = report._to_geojson(
@@ -210,10 +204,12 @@ class GISReportController(http.Controller):
 
             # Return simple format if requested (features only)
             if format == "simple":
-                return self._json_response({
-                    "type": "FeatureCollection",
-                    "features": geojson.get("features", []),
-                })
+                return self._json_response(
+                    {
+                        "type": "FeatureCollection",
+                        "features": geojson.get("features", []),
+                    }
+                )
 
             return self._json_response(geojson)
 
@@ -267,9 +263,7 @@ class GISReportController(http.Controller):
             # Resolve parent area code
             parent_area_id = None
             if parent_area_code:
-                parent_area = request.env["spp.area"].search(
-                    [("code", "=", parent_area_code)], limit=1
-                )
+                parent_area = request.env["spp.area"].search([("code", "=", parent_area_code)], limit=1)
                 parent_area_id = parent_area.id if parent_area else None
 
             summary = report._get_summary(
@@ -324,12 +318,14 @@ class GISReportController(http.Controller):
             # Trigger refresh (uses queue_job in implementation)
             report.action_refresh()
 
-            return self._json_response({
-                "status": "queued",
-                "report_code": report.code,
-                "timestamp": fields.Datetime.now().isoformat(),
-                "message": _("Report refresh has been queued for processing"),
-            })
+            return self._json_response(
+                {
+                    "status": "queued",
+                    "report_code": report.code,
+                    "timestamp": fields.Datetime.now().isoformat(),
+                    "message": _("Report refresh has been queued for processing"),
+                }
+            )
 
         except MissingError as e:
             return self._json_response(

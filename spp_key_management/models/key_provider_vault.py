@@ -339,7 +339,11 @@ class VaultKeyProvider(models.AbstractModel):
                 exportable=False,  # HSM keys should not be exportable
                 mount_point=mount_point,
             )
-            _logger.info("Created Vault Transit signing key: %s (type: %s)", key_id, vault_key_type)
+            _logger.info(
+                "Created Vault Transit signing key: %s (type: %s)",
+                key_id,
+                vault_key_type,
+            )
             return {"key_id": key_id, "key_type": vault_key_type}
         except hvac.exceptions.InvalidRequest as e:
             if "already exists" in str(e):

@@ -3,7 +3,7 @@
     <!-- Approval Domain Privilege -->
     <!-- Single consolidated privilege for all approval access levels -->
 
-    <record id="privilege_approval" model="res.groups.privilege">
+    <record id="privilege_approval_user" model="res.groups.privilege">
         <field name="name">Approvals</field>
         <field name="category_id" ref="spp_security.category_spp_approvals"/>
         <field name="description">Access to approval workflow management</field>
@@ -12,7 +12,7 @@
     <!-- Specialized Roles Privilege -->
     <!-- Separate privilege for functional roles that can be combined with basic access levels -->
 
-    <record id="privilege_approval_specialized" model="res.groups.privilege">
+    <record id="privilege_approval_approver" model="res.groups.privilege">
         <field name="name">Approvals: Specialized Roles</field>
         <field name="category_id" ref="spp_security.category_spp_approvals"/>
         <field name="description">Specialized functional roles for approval workflows (Approver)</field>

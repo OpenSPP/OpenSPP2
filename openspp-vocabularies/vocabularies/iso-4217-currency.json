@@ -163,6 +163,10 @@
     {"code": "ZAR", "display": "Rand"},
     {"code": "ZMW", "display": "Zambian Kwacha"},
     {"code": "ZWL", "display": "Zimbabwe Dollar"},
-    {"code": "XXX", "display": "No currency", "definition": "Used when no currency is involved"}
+    {
+      "code": "XXX",
+      "display": "No currency",
+      "definition": "Used when no currency is involved"
+    }
   ]
 }

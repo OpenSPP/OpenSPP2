@@ -146,7 +146,13 @@ class SearchService:
                     )
                     if reg_id:
                         # Search via group_membership_ids relationship
-                        domain.append(("group_membership_ids.individual", "=", reg_id.partner_id.id))
+                        domain.append(
+                            (
+                                "group_membership_ids.individual",
+                                "=",
+                                reg_id.partner_id.id,
+                            )
+                        )
 
         # Execute search with sudo() to access registry.id via domain
         Partner = self.env["res.partner"]

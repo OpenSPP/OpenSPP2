@@ -563,11 +563,17 @@ async def txn_status(
                     txn_status_obj = json.loads(txn.response_payload)
                 except (json.JSONDecodeError, TypeError):
                     txn_status_obj = _build_minimal_search_response(
-                        txn.transaction_id, txn.dci_status, txn.error_code, txn.error_message
+                        txn.transaction_id,
+                        txn.dci_status,
+                        txn.error_code,
+                        txn.error_message,
                     )
             else:
                 txn_status_obj = _build_minimal_search_response(
-                    txn.transaction_id, txn.dci_status, txn.error_code, txn.error_message
+                    txn.transaction_id,
+                    txn.dci_status,
+                    txn.error_code,
+                    txn.error_message,
                 )
 
             txn_status_data = TxnStatusResponseData(

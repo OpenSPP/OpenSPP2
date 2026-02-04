@@ -116,7 +116,7 @@ class DataCacheManager(models.AbstractModel):
             return {}
 
         else:
-            _logger.warning("Unknown source_type '%s' for variable '%s'", source_type, variable.name)
+            _logger.warning("Unknown source_type '%s' for variable ID %s", source_type, variable.id)
             return {}
 
     def _compute_field_values(self, variable, subject_ids):
@@ -136,7 +136,7 @@ class DataCacheManager(models.AbstractModel):
         try:
             Model = self.env[model_name]
         except KeyError:
-            _logger.warning("Model '%s' not found for variable '%s'", model_name, variable.name)
+            _logger.warning("Model '%s' not found for variable ID %s", model_name, variable.id)
             return {}
 
         records = Model.browse(subject_ids).exists()
@@ -152,7 +152,13 @@ class DataCacheManager(models.AbstractModel):
                     value = value.ids
                 result[rec.id] = value
             except Exception as e:
-                _logger.debug("Error reading field '%s' on %s#%d: %s", variable.source_field, model_name, rec.id, e)
+                _logger.debug(
+                    "Error reading field '%s' on %s#%d: %s",
+                    variable.source_field,
+                    model_name,
+                    rec.id,
+                    e,
+                )
 
         return result
 
@@ -188,7 +194,12 @@ class DataCacheManager(models.AbstractModel):
                 )
                 result[rec.id] = value
             except Exception as e:
-                _logger.debug("Error evaluating CEL for %s on record %d: %s", variable.name, rec.id, e)
+                _logger.debug(
+                    "Error evaluating CEL for %s on record %d: %s",
+                    variable.name,
+                    rec.id,
+                    e,
+                )
 
         return result
 
@@ -216,7 +227,12 @@ class DataCacheManager(models.AbstractModel):
                 value = cel_service.evaluate_member_aggregate(group, cel_expression)
                 result[group.id] = value
             except Exception as e:
-                _logger.debug("Error evaluating aggregate for %s on group %d: %s", variable.name, group.id, e)
+                _logger.debug(
+                    "Error evaluating aggregate for %s on group %d: %s",
+                    variable.name,
+                    group.id,
+                    e,
+                )
 
         return result
 
@@ -284,7 +300,12 @@ class DataCacheManager(models.AbstractModel):
                 cache = {}
                 self._session_cache.cache = cache
             for subject_id, value in computed.items():
-                cache_key = (company_id, variable.name, subject_id, period_key or "current")
+                cache_key = (
+                    company_id,
+                    variable.name,
+                    subject_id,
+                    period_key or "current",
+                )
                 cache[cache_key] = value
 
         elif variable.cache_strategy in ("ttl", "manual"):
@@ -381,7 +402,11 @@ class DataCacheManager(models.AbstractModel):
         )
 
         if not result.get("success"):
-            _logger.warning("Failed to refresh variable '%s': %s", variable_name, result.get("error_message"))
+            _logger.warning(
+                "Failed to refresh variable '%s': %s",
+                variable_name,
+                result.get("error_message"),
+            )
             return {}
 
         # Fetch the computed values from cache to return
@@ -578,7 +603,10 @@ class DataCacheManager(models.AbstractModel):
 
             # Compute values directly
             _logger.info(
-                "Pre-computing variable '%s' for %d subjects (period=%s)", variable_name, len(subject_ids), period_key
+                "Pre-computing variable '%s' for %d subjects (period=%s)",
+                variable_name,
+                len(subject_ids),
+                period_key,
             )
 
             computed = self._compute_variable_values(var, subject_ids, period_key, program_id)
@@ -681,7 +709,11 @@ class DataCacheManager(models.AbstractModel):
                 overall_result["success"] = True
                 return overall_result
 
-            _logger.info("Pre-computing %d cached variables for %d subjects", len(variables), len(subject_ids))
+            _logger.info(
+                "Pre-computing %d cached variables for %d subjects",
+                len(variables),
+                len(subject_ids),
+            )
 
             # Pre-compute each variable
             for var in variables:
@@ -702,7 +734,9 @@ class DataCacheManager(models.AbstractModel):
                         overall_result["total_errors"] += result["errors"]
                     else:
                         _logger.warning(
-                            "Failed to pre-compute variable '%s': %s", var.name, result.get("error_message")
+                            "Failed to pre-compute variable '%s': %s",
+                            var.name,
+                            result.get("error_message"),
                         )
 
                 except Exception as e:
@@ -776,7 +810,11 @@ class DataCacheManager(models.AbstractModel):
                 ]
             )
 
-            _logger.info("Refreshing stale cached variables (cutoff: %s, batch_size: %d)", cutoff, batch_size)
+            _logger.info(
+                "Refreshing stale cached variables (cutoff: %s, batch_size: %d)",
+                cutoff,
+                batch_size,
+            )
 
             for var in cached_variables:
                 try:
@@ -805,7 +843,11 @@ class DataCacheManager(models.AbstractModel):
                     # Extract unique subject IDs
                     subject_ids = list(set(stale_values.mapped("subject_id")))
 
-                    _logger.info("Refreshing variable '%s' for %d subjects", var.name, len(subject_ids))
+                    _logger.info(
+                        "Refreshing variable '%s' for %d subjects",
+                        var.name,
+                        len(subject_ids),
+                    )
 
                     # Refresh the variable
                     refresh_result = self.precompute_variable(

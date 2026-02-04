@@ -240,9 +240,7 @@ class StudioEventType(models.Model):
         """Ensure approval definition is set when approval is required."""
         for record in self:
             if record.requires_approval and not record.approval_definition_id:
-                raise ValidationError(
-                    _("Please select an approval workflow when approval is required.")
-                )
+                raise ValidationError(_("Please select an approval workflow when approval is required."))
 
     def _pre_activate(self):
         """Create the actual spp.event.type record when activating."""

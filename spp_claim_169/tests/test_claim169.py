@@ -360,9 +360,7 @@ class TestCredentialGeneration(TestClaim169Base):
         except ImportError:
             self.skipTest("claim169 library not installed")
 
-        cwt_bytes, qr_data = self.service.generate_cwt_for_partner(
-            self.partner.id, self.issuer_config.id
-        )
+        cwt_bytes, qr_data = self.service.generate_cwt_for_partner(self.partner.id, self.issuer_config.id)
 
         # cwt_bytes should be None (library handles encoding internally)
         self.assertIsNone(cwt_bytes)
@@ -408,9 +406,7 @@ class TestCredentialGeneration(TestClaim169Base):
             self.skipTest("claim169 library not installed")
 
         # Generate a credential
-        cwt_bytes, qr_data = self.service.generate_cwt_for_partner(
-            self.partner.id, self.issuer_config.id
-        )
+        cwt_bytes, qr_data = self.service.generate_cwt_for_partner(self.partner.id, self.issuer_config.id)
 
         # Decode the QR data (unverified)
         claims = self.service.decode_from_qr(qr_data)
@@ -428,9 +424,7 @@ class TestCredentialGeneration(TestClaim169Base):
             self.skipTest("claim169 library not installed")
 
         # Generate a credential
-        cwt_bytes, qr_data = self.service.generate_cwt_for_partner(
-            self.partner.id, self.issuer_config.id
-        )
+        cwt_bytes, qr_data = self.service.generate_cwt_for_partner(self.partner.id, self.issuer_config.id)
 
         # Verify the credential using the same key
         result = self.service.verify_credential(qr_data, self.signing_key.id)
@@ -448,9 +442,7 @@ class TestCredentialGeneration(TestClaim169Base):
             self.skipTest("claim169 library not installed")
 
         # Generate a credential
-        cwt_bytes, qr_data = self.service.generate_cwt_for_partner(
-            self.partner.id, self.issuer_config.id
-        )
+        cwt_bytes, qr_data = self.service.generate_cwt_for_partner(self.partner.id, self.issuer_config.id)
 
         # Create a different key for verification
         other_key = self.env["spp.asymmetric.key"].create(

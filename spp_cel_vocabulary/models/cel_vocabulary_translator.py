@@ -161,7 +161,12 @@ class CelVocabularyTranslator(models.AbstractModel):
         return LeafDomain(field_model or model, domain), explain
 
     def _handle_semantic_helper(
-        self, model: str, node: P.Call, cfg: dict[str, Any], ctx: dict[str, Any], func_name: str
+        self,
+        model: str,
+        node: P.Call,
+        cfg: dict[str, Any],
+        ctx: dict[str, Any],
+        func_name: str,
     ):
         """Translate semantic helper functions like is_female(field) to domain.
 

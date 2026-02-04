@@ -386,7 +386,11 @@ class SPPCashEntitlementManager(models.Model):
             else:
                 beneficiaries_ids = all_beneficiaries_ids
 
-            _logger.info("Processing entitlement item %s for %d beneficiaries", rec.id, len(beneficiaries_ids))
+            _logger.info(
+                "Processing entitlement item %s for %d beneficiaries",
+                rec.id,
+                len(beneficiaries_ids),
+            )
 
             # Get beneficiaries who don't already have entitlements
             beneficiaries_with_entitlements = (

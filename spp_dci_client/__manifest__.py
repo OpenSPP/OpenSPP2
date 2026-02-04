@@ -5,7 +5,7 @@
     "version": "19.0.2.0.0",
     "category": "OpenSPP/Integration",
     "author": "OpenSPP.org",
-    "website": "https://docs.openspp.org",
+    "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
     "development_status": "Alpha",
     "depends": [

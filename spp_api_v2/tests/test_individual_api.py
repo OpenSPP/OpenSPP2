@@ -233,7 +233,12 @@ class TestIndividualAPIEndpoints(ApiV2HttpTestCase):
         """POST /Individual creates new individual"""
         payload = {
             "type": "Individual",
-            "identifier": [{"system": "urn:openspp:vocab:id-type#test_national_id", "value": "CREATE-001"}],
+            "identifier": [
+                {
+                    "system": "urn:openspp:vocab:id-type#test_national_id",
+                    "value": "CREATE-001",
+                }
+            ],
             "name": {"given": "New", "family": "Person"},
             "active": True,
         }
@@ -258,7 +263,12 @@ class TestIndividualAPIEndpoints(ApiV2HttpTestCase):
         """Created individual has source_system set"""
         payload = {
             "type": "Individual",
-            "identifier": [{"system": "urn:openspp:vocab:id-type#test_national_id", "value": "SOURCE-001"}],
+            "identifier": [
+                {
+                    "system": "urn:openspp:vocab:id-type#test_national_id",
+                    "value": "SOURCE-001",
+                }
+            ],
             "name": {"given": "Source", "family": "Test"},
         }
 
@@ -286,7 +296,12 @@ class TestIndividualAPIEndpoints(ApiV2HttpTestCase):
 
         payload = {
             "type": "Individual",
-            "identifier": [{"system": "urn:openspp:vocab:id-type#test_national_id", "value": "FORBIDDEN-001"}],
+            "identifier": [
+                {
+                    "system": "urn:openspp:vocab:id-type#test_national_id",
+                    "value": "FORBIDDEN-001",
+                }
+            ],
             "name": {"given": "Forbidden", "family": "Test"},
         }
 
@@ -352,7 +367,12 @@ class TestIndividualAPIEndpoints(ApiV2HttpTestCase):
 
         payload = {
             "type": "Individual",
-            "identifier": [{"system": "urn:openspp:vocab:id-type#test_national_id", "value": "IND-001"}],
+            "identifier": [
+                {
+                    "system": "urn:openspp:vocab:id-type#test_national_id",
+                    "value": "IND-001",
+                }
+            ],
             "name": {"given": "Forbidden", "family": "Update"},
         }
 

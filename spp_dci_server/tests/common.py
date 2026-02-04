@@ -61,7 +61,14 @@ class DCIServerCommon(TransactionCase):
             cls.org_type_government = cls.env["spp.consent.org.type"].search([("code", "=", "government")], limit=1)
 
     @classmethod
-    def create_test_sender(cls, sender_id=None, public_key=None, algorithm=None, active=True, partner_id=None):
+    def create_test_sender(
+        cls,
+        sender_id=None,
+        public_key=None,
+        algorithm=None,
+        active=True,
+        partner_id=None,
+    ):
         """Helper to create a test sender registry entry.
 
         Args:

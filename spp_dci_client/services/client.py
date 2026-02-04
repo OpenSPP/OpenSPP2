@@ -905,7 +905,11 @@ class DCIClient:
         headers = self.data_source.get_headers()
 
         try:
-            _logger.info("Making DCI request to %s (action: %s)", url, envelope["header"]["action"])
+            _logger.info(
+                "Making DCI request to %s (action: %s)",
+                url,
+                envelope["header"]["action"],
+            )
             _logger.debug(
                 "Request headers: %s",
                 {k: (v[:20] + "...") if k == "Authorization" and v else v for k, v in headers.items()},

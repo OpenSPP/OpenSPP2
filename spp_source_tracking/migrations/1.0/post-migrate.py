@@ -26,7 +26,10 @@ def migrate(cr, version):
     """
     )
     registrant_count = cr.rowcount
-    _logger.info("Updated %s existing registrants with migration source tracking", registrant_count)
+    _logger.info(
+        "Updated %s existing registrants with migration source tracking",
+        registrant_count,
+    )
 
     # Update existing registry IDs
     cr.execute(
@@ -52,6 +55,9 @@ def migrate(cr, version):
     """
     )
     membership_count = cr.rowcount
-    _logger.info("Updated %s existing program memberships with migration source tracking", membership_count)
+    _logger.info(
+        "Updated %s existing program memberships with migration source tracking",
+        membership_count,
+    )
 
     _logger.info("Source tracking migration completed successfully")

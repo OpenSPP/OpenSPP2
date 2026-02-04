@@ -8,9 +8,17 @@
   "domain": "core",
   "is_hierarchical": false,
   "codes": [
-    {"code": "0", "display": "Not known", "definition": "Gender not known or not specified"},
+    {
+      "code": "0",
+      "display": "Not known",
+      "definition": "Gender not known or not specified"
+    },
     {"code": "1", "display": "Male", "definition": "Male gender"},
     {"code": "2", "display": "Female", "definition": "Female gender"},
-    {"code": "9", "display": "Not applicable", "definition": "Not applicable (e.g., for organizations)"}
+    {
+      "code": "9",
+      "display": "Not applicable",
+      "definition": "Not applicable (e.g., for organizations)"
+    }
   ]
 }

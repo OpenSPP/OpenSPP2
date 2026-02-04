@@ -144,7 +144,11 @@ class DCISigningKey(models.Model):
                 }
             )
 
-            _logger.info("Successfully generated %s keypair for key_id: %s", self.algorithm, self.key_id)
+            _logger.info(
+                "Successfully generated %s keypair for key_id: %s",
+                self.algorithm,
+                self.key_id,
+            )
 
             return {
                 "type": "ir.actions.client",

@@ -115,7 +115,7 @@ class SppApiPath(models.Model):
                 if isinstance(static_domain, list):
                     domain.extend(static_domain)
             except (ValueError, SyntaxError) as e:
-                _logger.warning("Failed to evaluate filter_domain for %s: %s", self.name, e)
+                _logger.warning("Failed to evaluate filter_domain for path ID %s: %s", self.id, e)
 
         # Combine with additional domain
         if additional_domain:

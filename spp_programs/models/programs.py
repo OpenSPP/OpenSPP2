@@ -50,11 +50,11 @@ class SPPProgram(models.Model):
     description = fields.Text(string="description")
     company_id = fields.Many2one("res.company", default=lambda self: self.env.company)
     target_type = fields.Selection(selection=[("group", "Group"), ("individual", "Individual")], default="group")
-    
+
     # Access control fields
     can_edit_configuration = fields.Boolean(
         compute="_compute_can_edit_configuration",
-        help="Whether the current user can edit program configuration"
+        help="Whether the current user can edit program configuration",
     )
 
     # delivery_mechanism = fields.Selection([("mobile", "Mobile"), ("bank_account", "Bank Account"),
@@ -212,13 +212,14 @@ class SPPProgram(models.Model):
 
     def _compute_can_edit_configuration(self):
         """Check if current user can edit program configuration.
-        
+
         Only Admin and Program Managers can edit configuration.
         Validators can view but not edit.
         """
         for rec in self:
-            rec.can_edit_configuration = self.env.user.has_group("spp_security.group_spp_admin") or \
-                                         self.env.user.has_group("spp_programs.group_programs_manager")
+            rec.can_edit_configuration = self.env.user.has_group(
+                "spp_security.group_spp_admin"
+            ) or self.env.user.has_group("spp_programs.group_programs_manager")
 
     @api.model
     def create(self, vals):
@@ -554,18 +555,20 @@ class SPPProgram(models.Model):
 
         # Use stored action for proper URL/refresh handling
         action = self.env.ref("spp_programs.action_program_membership").sudo().read()[0]
-        action.update({
-            "name": _("Beneficiaries - %s", self.name),
-            "context": {
-                "create": False,
-                "edit": False,
-                "default_program_id": self.id,
-                "active_id": self.id,
-                "active_model": "spp.program",
-                "search_default_program_id": self.id,
-            },
-            "domain": [("program_id", "=", self.id)],
-        })
+        action.update(
+            {
+                "name": _("Beneficiaries - %s", self.name),
+                "context": {
+                    "create": False,
+                    "edit": False,
+                    "default_program_id": self.id,
+                    "active_id": self.id,
+                    "active_model": "spp.program",
+                    "search_default_program_id": self.id,
+                },
+                "domain": [("program_id", "=", self.id)],
+            }
+        )
         return action
 
     def open_duplicate_membership_form(self):
@@ -591,17 +594,19 @@ class SPPProgram(models.Model):
 
         # Use stored action for proper URL/refresh handling
         action = self.env.ref("spp_programs.action_cycle_list").sudo().read()[0]
-        action.update({
-            "name": _("Cycles - %s", self.name),
-            "context": {
-                "create": False,
-                "default_program_id": self.id,
-                "active_id": self.id,
-                "active_model": "spp.program",
-                "search_default_program_id": self.id,
-            },
-            "domain": [("program_id", "=", self.id)],
-        })
+        action.update(
+            {
+                "name": _("Cycles - %s", self.name),
+                "context": {
+                    "create": False,
+                    "default_program_id": self.id,
+                    "active_id": self.id,
+                    "active_model": "spp.program",
+                    "search_default_program_id": self.id,
+                },
+                "domain": [("program_id", "=", self.id)],
+            }
+        )
         return action
 
     def open_program_form(self):
@@ -612,20 +617,25 @@ class SPPProgram(models.Model):
 
             # Use stored action for proper URL/refresh handling
             action = self.env.ref("spp_programs.action_program_list").sudo().read()[0]
-            action.update({
-                "name": rec.name,
-                "view_mode": "form",
-                "views": [[view_id.id, "form"]],
-                "res_id": rec.id,
-                "target": "current",
-            })
+            action.update(
+                {
+                    "name": rec.name,
+                    "view_mode": "form",
+                    "views": [[view_id.id, "form"]],
+                    "res_id": rec.id,
+                    "target": "current",
+                }
+            )
             return action
 
     def import_eligible_registrants(self, state="draft"):
         eligibility_managers = self.get_managers(self.MANAGER_ELIGIBILITY)
         if eligibility_managers:
             manager = eligibility_managers[0]
-            _logger.debug("spp_programs: Importing eligible registrants using manager: %s", manager)
+            _logger.debug(
+                "spp_programs: Importing eligible registrants using manager: %s",
+                manager,
+            )
             new_beneficiaries_count = manager.import_eligible_registrants()
 
             if new_beneficiaries_count < 1000:
@@ -663,7 +673,12 @@ class SPPProgram(models.Model):
         related_jobs = jobs.filtered(lambda r: self in r.records.program_id)
         return [("id", "in", related_jobs.ids)]
 
-    @api.constrains("entitlement_manager_ids", "program_manager_ids", "cycle_manager_ids", "payment_manager_ids")
+    @api.constrains(
+        "entitlement_manager_ids",
+        "program_manager_ids",
+        "cycle_manager_ids",
+        "payment_manager_ids",
+    )
     def check_managers_limit(self):
         for record in self:
             error_messages = []

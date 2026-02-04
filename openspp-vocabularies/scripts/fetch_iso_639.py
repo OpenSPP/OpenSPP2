@@ -28,7 +28,12 @@ def fetch_languages():
         # Filter to only ISO 639-1 codes (2 characters)
         code = item.get("alpha2")
         if code and len(code) == 2:
-            codes.append({"code": code.lower(), "display": item.get("English", item.get("name", ""))})
+            codes.append(
+                {
+                    "code": code.lower(),
+                    "display": item.get("English", item.get("name", "")),
+                }
+            )
     return codes
 
 
@@ -37,9 +42,21 @@ def add_special_codes(codes):
     existing = {c["code"] for c in codes}
 
     special = [
-        {"code": "sgn", "display": "Sign Languages", "definition": "ISO 639-3 macrolanguage for sign languages"},
-        {"code": "und", "display": "Undetermined", "definition": "Used when language cannot be determined"},
-        {"code": "zxx", "display": "No linguistic content", "definition": "Used for non-linguistic content"},
+        {
+            "code": "sgn",
+            "display": "Sign Languages",
+            "definition": "ISO 639-3 macrolanguage for sign languages",
+        },
+        {
+            "code": "und",
+            "display": "Undetermined",
+            "definition": "Used when language cannot be determined",
+        },
+        {
+            "code": "zxx",
+            "display": "No linguistic content",
+            "definition": "Used for non-linguistic content",
+        },
     ]
 
     for code in special:

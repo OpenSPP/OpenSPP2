@@ -36,7 +36,10 @@ class CELSymbolError(CELError):
         message = f"Unknown symbol: '{symbol}'"
         if available_symbols:
             message += f". Available: {', '.join(sorted(available_symbols)[:10])}"
-        super().__init__(message, {"symbol": symbol, "available": available_symbols, "profile": profile})
+        super().__init__(
+            message,
+            {"symbol": symbol, "available": available_symbols, "profile": profile},
+        )
         self.symbol = symbol
         self.available_symbols = available_symbols
         self.profile = profile

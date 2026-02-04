@@ -228,7 +228,10 @@ class SppApiPathFilter(models.Model):
         # Check operator is allowed
         allowed = self.get_operators()
         if operator not in allowed:
-            return False, f"Operator '{operator}' not allowed. Valid: {', '.join(allowed)}"
+            return (
+                False,
+                f"Operator '{operator}' not allowed. Valid: {', '.join(allowed)}",
+            )
 
         # Check max values for in/nin
         if operator in ("in", "nin"):
@@ -240,7 +243,10 @@ class SppApiPathFilter(models.Model):
                 values = [value]
 
             if len(values) > self.max_values:
-                return False, f"Too many values ({len(values)}). Maximum: {self.max_values}"
+                return (
+                    False,
+                    f"Too many values ({len(values)}). Maximum: {self.max_values}",
+                )
 
         return True, None
 

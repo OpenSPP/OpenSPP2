@@ -2,7 +2,6 @@
 
 from unittest.mock import patch
 
-from odoo.exceptions import UserError
 from odoo.tests import common, tagged
 
 

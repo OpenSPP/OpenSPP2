@@ -66,7 +66,13 @@ class CelEventTranslator(models.AbstractModel):
             # Check if left side is an aggregate function
             if isinstance(node.left, P.Call) and isinstance(node.left.func, P.Ident):
                 func_name = node.left.func.name
-                if func_name in ("events_count", "events_sum", "events_avg", "events_min", "events_max"):
+                if func_name in (
+                    "events_count",
+                    "events_sum",
+                    "events_avg",
+                    "events_min",
+                    "events_max",
+                ):
                     return self._handle_aggregate_compare(model, node, cfg, ctx)
 
         # Handle function calls
@@ -80,7 +86,13 @@ class CelEventTranslator(models.AbstractModel):
                 return self._handle_has_event(model, node, cfg, ctx)
 
             # Event aggregation functions (when used alone, not in comparison)
-            elif func_name in ("events_count", "events_sum", "events_avg", "events_min", "events_max"):
+            elif func_name in (
+                "events_count",
+                "events_sum",
+                "events_avg",
+                "events_min",
+                "events_max",
+            ):
                 return self._handle_events_aggregate(model, node, cfg, ctx)
 
             # Period helper functions

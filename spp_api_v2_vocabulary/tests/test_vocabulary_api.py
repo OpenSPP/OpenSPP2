@@ -30,9 +30,7 @@ class TestVocabularyAPI(TransactionCase):
             cls.org_type_private = cls.env["spp.consent.org.type"].search([("code", "=", "private")], limit=1)
 
         # Get or create test vocabulary (search first to avoid duplicates)
-        cls.vocab = cls.env["spp.vocabulary"].search(
-            [("namespace_uri", "=", "urn:test:vocab:test")], limit=1
-        )
+        cls.vocab = cls.env["spp.vocabulary"].search([("namespace_uri", "=", "urn:test:vocab:test")], limit=1)
         if not cls.vocab:
             cls.vocab = cls.env["spp.vocabulary"].create(
                 {
@@ -102,7 +100,8 @@ class TestVocabularyAPI(TransactionCase):
             )
 
         cls.parent_code = cls.env["spp.vocabulary.code"].search(
-            [("vocabulary_id", "=", cls.hier_vocab.id), ("code", "=", "PARENT")], limit=1
+            [("vocabulary_id", "=", cls.hier_vocab.id), ("code", "=", "PARENT")],
+            limit=1,
         )
         if not cls.parent_code:
             cls.parent_code = cls.env["spp.vocabulary.code"].create(
@@ -126,9 +125,7 @@ class TestVocabularyAPI(TransactionCase):
             )
 
         # Get or create additional vocabulary for domain filtering
-        cls.health_vocab = cls.env["spp.vocabulary"].search(
-            [("namespace_uri", "=", "urn:test:vocab:health")], limit=1
-        )
+        cls.health_vocab = cls.env["spp.vocabulary"].search([("namespace_uri", "=", "urn:test:vocab:health")], limit=1)
         if not cls.health_vocab:
             cls.health_vocab = cls.env["spp.vocabulary"].create(
                 {
@@ -422,9 +419,7 @@ class TestVocabularyAPIEndpoints(TransactionCase):
             raise_if_not_found=False,
         )
         if not cls.org_type_government:
-            cls.org_type_government = cls.env["spp.consent.org.type"].search(
-                [("code", "=", "government")], limit=1
-            )
+            cls.org_type_government = cls.env["spp.consent.org.type"].search([("code", "=", "government")], limit=1)
 
         # Create API client with scope
         cls.org_type_government = cls.env.ref(

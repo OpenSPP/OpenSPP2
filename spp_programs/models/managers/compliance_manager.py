@@ -10,6 +10,7 @@ Architecture:
 - spp.compliance.manager.base: Abstract base with interface definition
 - spp.compliance.manager.default: Default implementation with CEL support
 """
+
 import logging
 
 from odoo import _, api, fields, models
@@ -167,7 +168,11 @@ class DefaultComplianceManager(models.Model):
                 "registry_groups" if rec.program_id.target_type == "group" else "registry_individuals"
             )
 
-    @api.depends("compliance_cel_expression", "program_id.target_type", "program_id.program_membership_ids")
+    @api.depends(
+        "compliance_cel_expression",
+        "program_id.target_type",
+        "program_id.program_membership_ids",
+    )
     def _compute_compliance_cel_preview(self):
         for rec in self:
             rec.compliance_cel_preview_count = 0
@@ -183,9 +188,7 @@ class DefaultComplianceManager(models.Model):
 
                 # Get enrolled beneficiaries from the program
                 # Compliance only applies to enrolled members, not all registrants
-                enrolled_members = rec.program_id.program_membership_ids.filtered(
-                    lambda m: m.state == "enrolled"
-                )
+                enrolled_members = rec.program_id.program_membership_ids.filtered(lambda m: m.state == "enrolled")
                 enrolled_partner_ids = enrolled_members.mapped("partner_id.id")
 
                 # Build base domain filtering only enrolled beneficiaries
@@ -201,7 +204,10 @@ class DefaultComplianceManager(models.Model):
                 # Use sudo() as CEL may access vocabulary records
                 service = self.env["spp.cel.service"].sudo()
                 result = service.compile_expression(
-                    rec.compliance_cel_expression, profile=profile, base_domain=base_domain, limit=0
+                    rec.compliance_cel_expression,
+                    profile=profile,
+                    base_domain=base_domain,
+                    limit=0,
                 )
 
                 if result.get("valid"):
@@ -249,7 +255,10 @@ class DefaultComplianceManager(models.Model):
 
             service = self.env["spp.cel.service"].sudo()
             result = service.compile_expression(
-                self.compliance_cel_expression, profile=profile, base_domain=domain, limit=0
+                self.compliance_cel_expression,
+                profile=profile,
+                base_domain=domain,
+                limit=0,
             )
 
             if not result.get("valid"):
@@ -330,7 +339,8 @@ class DefaultComplianceManager(models.Model):
             "tag": "display_notification",
             "params": {
                 "title": _("Expression Valid"),
-                "message": _("%d enrolled beneficiaries match this compliance expression.") % self.compliance_cel_preview_count,
+                "message": _("%d enrolled beneficiaries match this compliance expression.")
+                % self.compliance_cel_preview_count,
                 "type": "success",
                 "sticky": False,
             },
@@ -347,9 +357,7 @@ class DefaultComplianceManager(models.Model):
 
             # Get enrolled beneficiaries from the program
             # Compliance only applies to enrolled members, not all registrants
-            enrolled_members = self.program_id.program_membership_ids.filtered(
-                lambda m: m.state == "enrolled"
-            )
+            enrolled_members = self.program_id.program_membership_ids.filtered(lambda m: m.state == "enrolled")
             enrolled_partner_ids = enrolled_members.mapped("partner_id.id")
 
             # Build base domain filtering only enrolled beneficiaries

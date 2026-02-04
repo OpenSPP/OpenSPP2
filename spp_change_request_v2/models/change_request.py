@@ -248,21 +248,17 @@ class SPPChangeRequest(models.Model):
 
                     if group_name:
                         if approved_tiers:
-                            rec.multitier_approval_message = _(
-                                "Approved at previous level. Awaiting approval from: %s"
-                            ) % group_name
+                            rec.multitier_approval_message = (
+                                _("Approved at previous level. Awaiting approval from: %s") % group_name
+                            )
                         else:
-                            rec.multitier_approval_message = _(
-                                "Awaiting approval from: %s"
-                            ) % group_name
+                            rec.multitier_approval_message = _("Awaiting approval from: %s") % group_name
             else:
                 # Single-tier approval - get group from definition
                 definition = active_review.definition_id
                 if definition and definition.approval_group_id:
                     group_name = definition.approval_group_id.name
-                    rec.multitier_approval_message = _(
-                        "Awaiting approval from: %s"
-                    ) % group_name
+                    rec.multitier_approval_message = _("Awaiting approval from: %s") % group_name
 
     @api.depends("request_type_id", "request_type_id.target_type")
     def _compute_target_type_message(self):
@@ -432,7 +428,10 @@ class SPPChangeRequest(models.Model):
         # Archive directories after CR is deleted to preserve files and avoid constraint issues
         if directories_to_archive:
             directories_to_archive.write({"active": False})
-            _logger.info("Archived %d DMS directories after CR deletion", len(directories_to_archive))
+            _logger.info(
+                "Archived %d DMS directories after CR deletion",
+                len(directories_to_archive),
+            )
         return result
 
     # ══════════════════════════════════════════════════════════════════════════
@@ -474,7 +473,10 @@ class SPPChangeRequest(models.Model):
         # Get parent directory
         parent_dir = self._get_parent_directory()
         if not parent_dir:
-            _logger.error("Cannot create DMS directory for CR %s: parent directory not found", self.name)
+            _logger.error(
+                "Cannot create DMS directory for CR %s: parent directory not found",
+                self.name,
+            )
             return
 
         # Create subdirectory for this CR
@@ -662,7 +664,7 @@ class SPPChangeRequest(models.Model):
             strategy = self.request_type_id.get_apply_strategy()
             changes = strategy.preview(self) or {}
         except Exception as e:
-            _logger.warning("Error computing preview for CR %s: %s", self.name, e)
+            _logger.warning("Error computing preview for CR ID %s: %s", self.id, e)
             return (
                 '<div class="alert alert-warning">'
                 '<i class="fa fa-exclamation-triangle me-2"></i>'

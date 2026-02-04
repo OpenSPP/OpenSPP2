@@ -119,7 +119,10 @@ class SPPGRMTicket(models.Model):
         index=True,
     )
     partner_id = fields.Many2one(
-        comodel_name="res.partner", string="Contact", required=True, domain="[('is_registrant', '=', True)]"
+        comodel_name="res.partner",
+        string="Contact",
+        required=True,
+        domain="[('is_registrant', '=', True)]",
     )
     partner_email = fields.Char(string="Email", related="partner_id.email", store=True)
     last_stage_update = fields.Datetime(default=fields.Datetime.now)
@@ -575,7 +578,10 @@ class SPPGRMTicket(models.Model):
                 )
                 continue
 
-            _logger.info("SLA breach detected for ticket %s, triggering auto-escalation", ticket.number)
+            _logger.info(
+                "SLA breach detected for ticket %s, triggering auto-escalation",
+                ticket.number,
+            )
 
             # Try to apply escalation rules if spp_grm_cel module is installed
             if "spp.grm.escalation.rule" in self.env:

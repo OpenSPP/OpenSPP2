@@ -154,7 +154,13 @@ class SPPCRDocumentUploadWizard(models.TransientModel):
             else:
                 # No restriction - show all document types
                 wizard.document_type_domain = str(
-                    [("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:cr_document_type")]
+                    [
+                        (
+                            "vocabulary_id.namespace_uri",
+                            "=",
+                            "urn:openspp:vocab:cr_document_type",
+                        )
+                    ]
                 )
 
     @api.depends(

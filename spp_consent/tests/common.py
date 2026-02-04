@@ -25,7 +25,10 @@ class Common(TransactionCase):
                                 (
                                     4,
                                     cls.env["spp.vocabulary.code"]
-                                    .get_code("urn:openspp:vocab:group-membership-type", "head")
+                                    .get_code(
+                                        "urn:openspp:vocab:group-membership-type",
+                                        "head",
+                                    )
                                     .id,
                                 )
                             ],

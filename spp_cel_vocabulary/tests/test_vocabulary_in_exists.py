@@ -129,7 +129,10 @@ class TestVocabularyInExists(TransactionCase, CELTestDataMixin):
         This was the bug - is_female would return TRUE instead of a domain
         checking gender_id.uri or gender_id.reference_uri.
         """
-        from odoo.addons.spp_cel_domain.models.cel_queryplan import ExistsThrough, LeafDomain
+        from odoo.addons.spp_cel_domain.models.cel_queryplan import (
+            ExistsThrough,
+            LeafDomain,
+        )
 
         expr = "members.exists(m, is_female(m.gender_id))"
 
@@ -144,7 +147,9 @@ class TestVocabularyInExists(TransactionCase, CELTestDataMixin):
 
         # Verify domain is NOT the TRUE fallback
         self.assertNotEqual(
-            child_plan.domain, [("id", "!=", 0)], "Should create actual gender domain, not TRUE fallback"
+            child_plan.domain,
+            [("id", "!=", 0)],
+            "Should create actual gender domain, not TRUE fallback",
         )
 
         # Verify domain checks gender_id.uri or gender_id.reference_uri
@@ -162,7 +167,10 @@ class TestVocabularyInExists(TransactionCase, CELTestDataMixin):
 
     def test_is_male_inside_exists_translates_correctly(self):
         """Test that is_male(m.gender_id) inside exists() creates proper domain."""
-        from odoo.addons.spp_cel_domain.models.cel_queryplan import ExistsThrough, LeafDomain
+        from odoo.addons.spp_cel_domain.models.cel_queryplan import (
+            ExistsThrough,
+            LeafDomain,
+        )
 
         expr = "members.exists(m, is_male(m.gender_id))"
 
@@ -177,12 +185,17 @@ class TestVocabularyInExists(TransactionCase, CELTestDataMixin):
 
         # Verify domain is NOT the TRUE fallback
         self.assertNotEqual(
-            child_plan.domain, [("id", "!=", 0)], "Should create actual gender domain, not TRUE fallback"
+            child_plan.domain,
+            [("id", "!=", 0)],
+            "Should create actual gender domain, not TRUE fallback",
         )
 
         # Verify domain checks gender_id fields
         domain_str = str(child_plan.domain)
-        self.assertTrue("gender_id" in domain_str, f"Domain should check gender_id, got: {child_plan.domain}")
+        self.assertTrue(
+            "gender_id" in domain_str,
+            f"Domain should check gender_id, got: {child_plan.domain}",
+        )
 
     def test_combined_head_and_is_female(self):
         """Test head(m) && is_female(m.gender_id) pattern.
@@ -221,7 +234,10 @@ class TestVocabularyInExists(TransactionCase, CELTestDataMixin):
         inside exists() were returning TRUE ([("id", "!=", 0)]) instead of
         proper domain filters checking vocabulary code URIs.
         """
-        from odoo.addons.spp_cel_domain.models.cel_queryplan import ExistsThrough, LeafDomain
+        from odoo.addons.spp_cel_domain.models.cel_queryplan import (
+            ExistsThrough,
+            LeafDomain,
+        )
 
         expr = "members.exists(m, is_female(m.gender_id))"
 
@@ -240,7 +256,9 @@ class TestVocabularyInExists(TransactionCase, CELTestDataMixin):
         # The critical check: domain should NOT be the TRUE fallback
         domain = getattr(child_plan, "domain", [])
         self.assertNotEqual(
-            domain, [("id", "!=", 0)], "is_female should create actual domain checking gender_id.uri, not TRUE fallback"
+            domain,
+            [("id", "!=", 0)],
+            "is_female should create actual domain checking gender_id.uri, not TRUE fallback",
         )
 
         # Verify the domain actually checks gender_id fields
@@ -251,7 +269,11 @@ class TestVocabularyInExists(TransactionCase, CELTestDataMixin):
         )
 
         # Verify it's checking membership in a code list (should have "in" operator)
-        self.assertIn("in", domain_str, f"Domain should use 'in' operator to check code membership, got: {domain}")
+        self.assertIn(
+            "in",
+            domain_str,
+            f"Domain should use 'in' operator to check code membership, got: {domain}",
+        )
 
     def test_function_registry_skips_variable_references(self):
         """Regression test: function registry should skip functions with variable refs.
@@ -263,13 +285,19 @@ class TestVocabularyInExists(TransactionCase, CELTestDataMixin):
         The bug was that the function registry would try to evaluate m.gender_id as
         a literal, pass an AST node to the function, and return TRUE as a fallback.
         """
-        from odoo.addons.spp_cel_domain.models.cel_queryplan import ExistsThrough, LeafDomain
+        from odoo.addons.spp_cel_domain.models.cel_queryplan import (
+            ExistsThrough,
+            LeafDomain,
+        )
 
         # Test multiple vocabulary functions to ensure the fix works for all
         test_cases = [
             ("members.exists(m, is_female(m.gender_id))", "gender_id"),
             ("members.exists(m, is_male(m.gender_id))", "gender_id"),
-            ('members.exists(m, in_group(m.gender_id, "feminine_gender"))', "gender_id"),
+            (
+                'members.exists(m, in_group(m.gender_id, "feminine_gender"))',
+                "gender_id",
+            ),
         ]
 
         for expr, expected_field in test_cases:
@@ -283,13 +311,17 @@ class TestVocabularyInExists(TransactionCase, CELTestDataMixin):
 
                 # Critical: domain should NOT be TRUE fallback
                 self.assertNotEqual(
-                    child_plan.domain, [("id", "!=", 0)], f"Expression '{expr}' should not use TRUE fallback"
+                    child_plan.domain,
+                    [("id", "!=", 0)],
+                    f"Expression '{expr}' should not use TRUE fallback",
                 )
 
                 # Domain should reference the expected field
                 domain_str = str(child_plan.domain)
                 self.assertIn(
-                    expected_field, domain_str, f"Expression '{expr}' domain should reference {expected_field}"
+                    expected_field,
+                    domain_str,
+                    f"Expression '{expr}' domain should reference {expected_field}",
                 )
 
 
@@ -444,7 +476,10 @@ class TestIsFemaleHeadedIntegration(TransactionCase, CELTestDataMixin):
             limit=100,
         )
 
-        self.assertTrue(result.get("valid"), f"Expression should be valid, got error: {result.get('error')}")
+        self.assertTrue(
+            result.get("valid"),
+            f"Expression should be valid, got error: {result.get('error')}",
+        )
         self.assertIn("EXISTS", result.get("explain", "").upper())
 
     def test_is_female_headed_matches_female_headed_household(self):
@@ -460,7 +495,11 @@ class TestIsFemaleHeadedIntegration(TransactionCase, CELTestDataMixin):
 
         # Female-headed household should be in results
         ids = result.get("ids", [])
-        self.assertIn(self.hh_female_head.id, ids, f"Female-headed household should match. Got IDs: {ids}")
+        self.assertIn(
+            self.hh_female_head.id,
+            ids,
+            f"Female-headed household should match. Got IDs: {ids}",
+        )
 
     def test_is_female_headed_excludes_male_headed_household(self):
         """Test that male-headed household is NOT matched."""
@@ -475,7 +514,11 @@ class TestIsFemaleHeadedIntegration(TransactionCase, CELTestDataMixin):
 
         # Male-headed household should NOT be in results
         ids = result.get("ids", [])
-        self.assertNotIn(self.hh_male_head.id, ids, f"Male-headed household should NOT match. Got IDs: {ids}")
+        self.assertNotIn(
+            self.hh_male_head.id,
+            ids,
+            f"Male-headed household should NOT match. Got IDs: {ids}",
+        )
 
     def test_correct_count_for_female_headed(self):
         """Test that count is correct for female-headed filter."""
@@ -490,7 +533,9 @@ class TestIsFemaleHeadedIntegration(TransactionCase, CELTestDataMixin):
 
         # Should match exactly 1 household (the female-headed one)
         self.assertEqual(
-            result.get("count"), 1, f"Should match exactly 1 female-headed household, got {result.get('count')}"
+            result.get("count"),
+            1,
+            f"Should match exactly 1 female-headed household, got {result.get('count')}",
         )
 
 
@@ -534,7 +579,8 @@ class TestVocabularyTranslatorInheritance(TransactionCase):
     def test_semantic_helpers_constant_is_available(self):
         """Test that SEMANTIC_HELPERS mapping is available."""
         self.assertTrue(
-            hasattr(self.translator, "SEMANTIC_HELPERS"), "Translator should have SEMANTIC_HELPERS constant"
+            hasattr(self.translator, "SEMANTIC_HELPERS"),
+            "Translator should have SEMANTIC_HELPERS constant",
         )
 
         helpers = getattr(self.translator, "SEMANTIC_HELPERS", {})

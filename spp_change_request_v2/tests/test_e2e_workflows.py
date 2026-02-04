@@ -635,7 +635,14 @@ class TestE2EWorkflows(TransactionCase):
         5. Exit remaining member (e.g., emigration)
         6. Exit household
         """
-        if not all([self.create_group_type, self.add_member_type, self.remove_member_type, self.exit_registrant_type]):
+        if not all(
+            [
+                self.create_group_type,
+                self.add_member_type,
+                self.remove_member_type,
+                self.exit_registrant_type,
+            ]
+        ):
             self.skipTest("Required CR types not found")
 
         # Step 1: Create household

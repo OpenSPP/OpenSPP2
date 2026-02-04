@@ -5,7 +5,10 @@ import re
 import time
 
 from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
+from cryptography.hazmat.primitives.asymmetric.ed25519 import (
+    Ed25519PrivateKey,
+    Ed25519PublicKey,
+)
 
 
 class DCISigner:
@@ -13,7 +16,13 @@ class DCISigner:
     DCI HTTP Signature signer following draft-cavage specification.
     """
 
-    def __init__(self, private_key: bytes, sender_id: str, key_id: str, algorithm: str = "ed25519"):
+    def __init__(
+        self,
+        private_key: bytes,
+        sender_id: str,
+        key_id: str,
+        algorithm: str = "ed25519",
+    ):
         """
         Initialize DCI signer.
 

@@ -705,7 +705,11 @@ class IndividualService:
             # Log using external identifier
             primary_id = partner.reg_ids[0] if partner.reg_ids else None
             identifier_str = f"{primary_id.namespace_uri}|{primary_id.value}" if primary_id else "unknown"
-            _logger.info("Partially updated individual %s via API from %s", identifier_str, source)
+            _logger.info(
+                "Partially updated individual %s via API from %s",
+                identifier_str,
+                source,
+            )
 
         return partner
 

@@ -258,7 +258,11 @@ class BaseCycleManager(models.AbstractModel):
             pending_reviews = rec.approval_review_ids.filtered(lambda r: r.status == "pending")
             if pending_reviews:
                 pending_reviews.write(
-                    {"status": "approved", "reviewer_id": self.env.user.id, "review_date": fields.Datetime.now()}
+                    {
+                        "status": "approved",
+                        "reviewer_id": self.env.user.id,
+                        "review_date": fields.Datetime.now(),
+                    }
                 )
 
     def on_state_change(self, cycle):
@@ -629,7 +633,7 @@ class DefaultCycleManager(models.Model):
         cycle.update({"state": constants.STATE_CANCELLED})
 
     def new_cycle(self, name, new_start_date, sequence):
-        _logger.debug("Creating new cycle for program %s", self.program_id.name)
+        _logger.debug("Creating new cycle for program ID %s", self.program_id.id)
         _logger.debug("New start date: %s", new_start_date)
 
         # convert date to datetime
@@ -656,7 +660,7 @@ class DefaultCycleManager(models.Model):
                     "auto_approve_entitlements": rec.auto_approve_entitlements,
                 }
             )
-            _logger.debug("New cycle created: %s", cycle.name)
+            _logger.debug("New cycle created: ID %s", cycle.id)
             return cycle
 
     def _needs_month_end_fallback(self):
@@ -665,12 +669,7 @@ class DefaultCycleManager(models.Model):
         Returns True for monthly recurrence with day > 28, which may not exist
         in all months (e.g., Feb 30 doesn't exist).
         """
-        return (
-            self.rrule_type == "monthly"
-            and self.month_by == "date"
-            and self.day
-            and self.day > 28
-        )
+        return self.rrule_type == "monthly" and self.month_by == "date" and self.day and self.day > 28
 
     def _get_safe_day_for_month(self, year, month, target_day):
         """Get the actual day to use for a given month, clamping to the last day if needed.
@@ -785,7 +784,7 @@ class DefaultCycleManager(models.Model):
         """
         self.ensure_one()
         self._ensure_can_edit_cycle(cycle)
-        _logger.debug("Adding beneficiaries to the cycle %s", cycle.name)
+        _logger.debug("Adding beneficiaries to the cycle ID %s", cycle.id)
         _logger.debug("Beneficiaries: %s", len(beneficiaries))
 
         # Only add beneficiaries not added yet

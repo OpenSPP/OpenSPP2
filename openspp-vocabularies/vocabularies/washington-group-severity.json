@@ -8,9 +8,25 @@
   "domain": "core",
   "is_hierarchical": false,
   "codes": [
-    {"code": "1", "display": "No difficulty", "definition": "No difficulty performing the activity"},
-    {"code": "2", "display": "Some difficulty", "definition": "Some difficulty performing the activity"},
-    {"code": "3", "display": "A lot of difficulty", "definition": "A lot of difficulty performing the activity"},
-    {"code": "4", "display": "Cannot do at all", "definition": "Cannot perform the activity at all"}
+    {
+      "code": "1",
+      "display": "No difficulty",
+      "definition": "No difficulty performing the activity"
+    },
+    {
+      "code": "2",
+      "display": "Some difficulty",
+      "definition": "Some difficulty performing the activity"
+    },
+    {
+      "code": "3",
+      "display": "A lot of difficulty",
+      "definition": "A lot of difficulty performing the activity"
+    },
+    {
+      "code": "4",
+      "display": "Cannot do at all",
+      "definition": "Cannot perform the activity at all"
+    }
   ]
 }

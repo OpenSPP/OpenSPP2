@@ -86,7 +86,12 @@ class SPPCRApplyMergeRegistrants(models.AbstractModel):
                         if is_head_from_duplicate:
                             # Remove head membership type when transferring
                             new_types = membership.membership_type_ids.filtered(lambda t: t != head_type)
-                            membership.write({"group": primary.id, "membership_type_ids": [Command.set(new_types.ids)]})
+                            membership.write(
+                                {
+                                    "group": primary.id,
+                                    "membership_type_ids": [Command.set(new_types.ids)],
+                                }
+                            )
                             _logger.info(
                                 "Transferred membership_id=%s from group %s to group %s (removed head role)",
                                 membership.id,

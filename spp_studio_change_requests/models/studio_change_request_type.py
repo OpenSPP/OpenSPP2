@@ -762,7 +762,11 @@ class StudioChangeRequestType(models.Model):
         validator_access = access_model.search(
             [
                 ("model_id", "=", self.detail_model_id.id),
-                ("group_id", "=", self.env.ref("spp_change_request_v2.group_cr_validator").id),
+                (
+                    "group_id",
+                    "=",
+                    self.env.ref("spp_change_request_v2.group_cr_validator").id,
+                ),
             ],
             limit=1,
         )
@@ -777,7 +781,11 @@ class StudioChangeRequestType(models.Model):
         user_access = access_model.search(
             [
                 ("model_id", "=", self.detail_model_id.id),
-                ("group_id", "=", self.env.ref("spp_change_request_v2.group_cr_user").id),
+                (
+                    "group_id",
+                    "=",
+                    self.env.ref("spp_change_request_v2.group_cr_user").id,
+                ),
             ],
             limit=1,
         )

@@ -13,35 +13,55 @@ class DrimsTestCommon(TransactionCase):
         cls.vocab_code = cls.env["spp.vocabulary.code"]
         cls.priority_routine = cls.vocab_code.search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:priority-levels"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:priority-levels",
+                ),
                 ("code", "=", "routine"),
             ],
             limit=1,
         )
         cls.priority_critical = cls.vocab_code.search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:priority-levels"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:priority-levels",
+                ),
                 ("code", "=", "critical"),
             ],
             limit=1,
         )
         cls.state_draft = cls.vocab_code.search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:request-states"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:request-states",
+                ),
                 ("code", "=", "draft"),
             ],
             limit=1,
         )
         cls.state_announced = cls.vocab_code.search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:donation-states"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:donation-states",
+                ),
                 ("code", "=", "announced"),
             ],
             limit=1,
         )
         cls.condition_new = cls.vocab_code.search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:item-conditions"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:item-conditions",
+                ),
                 ("code", "=", "new"),
             ],
             limit=1,

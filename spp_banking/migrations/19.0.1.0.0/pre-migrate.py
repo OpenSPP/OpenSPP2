@@ -38,7 +38,10 @@ def migrate(cr, version):
         WHERE module = 'g2p_bank_rest_api';
     """)
     rows_updated = cr.rowcount
-    _logger.info("  → Updated %d external ID records from g2p_bank_rest_api to spp_banking_rest_api", rows_updated)
+    _logger.info(
+        "  → Updated %d external ID records from g2p_bank_rest_api to spp_banking_rest_api",
+        rows_updated,
+    )
 
     # Step 3: Update module dependencies in ir_module_module_dependency
     _logger.info("Step 3: Updating module dependencies")

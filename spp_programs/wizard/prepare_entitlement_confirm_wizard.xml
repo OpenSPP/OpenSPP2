@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <record id="prepare_entitlement_confirm_wizard_view" model="ir.ui.view">
+    <record id="view_spp_prepare_entitlement_confirm_wizard_form" model="ir.ui.view">
         <field name="name">spp.prepare.entitlement.confirm.wizard.form</field>
         <field name="model">spp.prepare.entitlement.confirm.wizard</field>
         <field name="arch" type="xml">
@@ -43,7 +43,7 @@
         <field name="name">Prepare Entitlements Confirmation</field>
         <field name="res_model">spp.prepare.entitlement.confirm.wizard</field>
         <field name="view_mode">form</field>
-        <field name="view_id" ref="prepare_entitlement_confirm_wizard_view" />
+        <field name="view_id" ref="view_spp_prepare_entitlement_confirm_wizard_form" />
         <field name="target">new</field>
     </record>
 </odoo>

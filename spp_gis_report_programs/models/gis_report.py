@@ -20,9 +20,11 @@ class GISReportProgramsExtension(models.Model):
 
         if self.program_id and self.source_model == "res.partner":
             # Filter to registrants enrolled in the program
-            domain = expression.AND([
-                domain,
-                [("program_membership_ids.program_id", "=", self.program_id.id)]
-            ])
+            domain = expression.AND(
+                [
+                    domain,
+                    [("program_membership_ids.program_id", "=", self.program_id.id)],
+                ]
+            )
 
         return domain

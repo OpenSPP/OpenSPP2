@@ -340,7 +340,13 @@ class DrimsAlert(models.Model):
                             "Stock level for %s at %s is below threshold.\n"
                             "Available: %.2f, Needed: %.2f, Threshold: %.2f"
                         )
-                        % (product.name, warehouse.name, available, qty_needed, threshold),
+                        % (
+                            product.name,
+                            warehouse.name,
+                            available,
+                            qty_needed,
+                            threshold,
+                        ),
                         "incident_id": incident.id,
                         "warehouse_id": warehouse.id,
                         "product_id": product.id,
@@ -437,7 +443,15 @@ class DrimsAlert(models.Model):
         # Prepare alerts to create in batch
         alerts_to_create = []
         for row in expiring_data:
-            lot_id, lot_name, expiration_date, total_qty, product_id, product_name, warehouse_id = row
+            (
+                lot_id,
+                lot_name,
+                expiration_date,
+                total_qty,
+                product_id,
+                product_name,
+                warehouse_id,
+            ) = row
             if product_id in existing_product_ids:
                 continue
 
@@ -565,7 +579,12 @@ class DrimsAlert(models.Model):
                                 "Request %s is due in %d day(s) and is not yet dispatched.\n"
                                 "Destination: %s\nState: %s"
                             )
-                            % (request.reference, days_until, request.destination_area_id.name, request.state),
+                            % (
+                                request.reference,
+                                days_until,
+                                request.destination_area_id.name,
+                                request.state,
+                            ),
                             "incident_id": request.incident_id.id,
                             "request_id": request.id,
                             "days_until": days_until,

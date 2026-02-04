@@ -8,7 +8,7 @@ for eligibility, entitlement conditions, amount formulas, and compliance criteri
 import logging
 
 from odoo import Command, _, api, fields, models
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
@@ -308,22 +308,28 @@ class SPPCreateProgramWizardCEL(models.TransientModel):
 
         # Add template lineage tracking if criteria template is selected
         if self.compliance_criteria_id:
-            vals.update({
-                "source_expression_id": self.compliance_criteria_id.id,
-                "is_compliance_locked": self.compliance_criteria_id.is_locked,
-            })
+            vals.update(
+                {
+                    "source_expression_id": self.compliance_criteria_id.id,
+                    "is_compliance_locked": self.compliance_criteria_id.is_locked,
+                }
+            )
 
         # Create the compliance manager implementation
         compliance_impl = self.env["spp.compliance.manager.default"].sudo().create(vals)
 
         # Create the wrapper and link to program
-        program.write({
-            "compliance_manager_ids": [
-                Command.create({
-                    "manager_ref_id": f"spp.compliance.manager.default,{compliance_impl.id}",
-                }),
-            ],
-        })
+        program.write(
+            {
+                "compliance_manager_ids": [
+                    Command.create(
+                        {
+                            "manager_ref_id": f"spp.compliance.manager.default,{compliance_impl.id}",
+                        }
+                    ),
+                ],
+            }
+        )
 
     def _check_required_fields(self):
         """Override to validate CEL expressions before program creation."""
@@ -902,7 +908,12 @@ class SPPCreateProgramWizardInKindItemCEL(models.TransientModel):
                 rec.quantity_cel_is_valid = False
                 rec.quantity_cel_error = _("Syntax error: %s") % str(e)
 
-    @api.depends("has_condition", "condition_mode", "condition_cel_expression", "program_id.target_type")
+    @api.depends(
+        "has_condition",
+        "condition_mode",
+        "condition_cel_expression",
+        "program_id.target_type",
+    )
     def _compute_condition_cel_preview(self):
         """Compute preview and validation for condition CEL expression."""
         for rec in self:

@@ -1,6 +1,6 @@
 /** @odoo-module **/
 
-import {Component, useState, useRef, onMounted, onWillUnmount, useEffect} from "@odoo/owl";
+import {Component, onMounted, onWillUnmount, useEffect, useRef, useState} from "@odoo/owl";
 import {registry} from "@web/core/registry";
 import {useService} from "@web/core/utils/hooks";
 
@@ -37,7 +37,7 @@ export class VariablePicker extends Component {
             highlightedIndex: -1,
             recentlyUsed: [],
             expandedCategories: new Set(),
-            scopeFilter: "all", // all, individual, group, shared
+            scopeFilter: "all", // All, individual, group, shared
         });
 
         this.inputRef = useRef("vpInput");

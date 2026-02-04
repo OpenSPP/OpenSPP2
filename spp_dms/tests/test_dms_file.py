@@ -69,7 +69,10 @@ class TestSPPDMSFile(TransactionCase):
 
         self.assertEqual(self.dms_file.content, new_content)
         self.assertEqual(self.dms_file.size, len(base64.b64decode(new_content)))
-        self.assertEqual(self.dms_file.checksum, hashlib.sha512(base64.b64decode(new_content)).hexdigest())
+        self.assertEqual(
+            self.dms_file.checksum,
+            hashlib.sha512(base64.b64decode(new_content)).hexdigest(),
+        )
 
     def test_compute_image_1920_with_unknown_mimetype(self):
         self.dms_file.mimetype = "application/unknown"

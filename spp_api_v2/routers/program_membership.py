@@ -8,7 +8,17 @@ from odoo.api import Environment
 
 from odoo.addons.fastapi.dependencies import odoo_env
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Path, Query, Request, Response, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    Header,
+    HTTPException,
+    Path,
+    Query,
+    Request,
+    Response,
+    status,
+)
 
 from ..middleware.auth import get_authenticated_client
 from ..schemas.program_membership import ProgramMembership
@@ -158,7 +168,10 @@ async def search_program_memberships(
                 membership.partner_id.id, api_client, "program_membership", data
             )
             consent_info = filtered_data.pop("_consent", None)
-            if consent_info and consent_info.get("status") in ("no_consent", "scope_mismatch"):
+            if consent_info and consent_info.get("status") in (
+                "no_consent",
+                "scope_mismatch",
+            ):
                 return None
             return filtered_data
         except Exception as e:

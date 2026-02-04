@@ -53,7 +53,13 @@ class StockPicking(models.Model):
 
     # Odoo 19: group_id replaced with reference_ids (Many2many)
     # We'll compute cycle_id from the first reference that has a cycle
-    cycle_id = fields.Many2one("spp.cycle", string="Cycle", compute="_compute_cycle_id", store=True, readonly=False)
+    cycle_id = fields.Many2one(
+        "spp.cycle",
+        string="Cycle",
+        compute="_compute_cycle_id",
+        store=True,
+        readonly=False,
+    )
 
     @api.depends("reference_ids", "reference_ids.cycle_id")
     def _compute_cycle_id(self):

@@ -141,7 +141,10 @@ class DefaultEligibilityManagerCEL(models.Model):
 
                 service = self.env["spp.cel.service"]
                 result = service.compile_expression(
-                    rec.cel_expression, profile=profile, base_domain=base_domain, limit=0
+                    rec.cel_expression,
+                    profile=profile,
+                    base_domain=base_domain,
+                    limit=0,
                 )
 
                 if result.get("valid"):

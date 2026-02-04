@@ -44,7 +44,14 @@ async def get_metadata(
     resources = {
         "Individual": ResourceMetadata(
             operations=["read", "search", "create", "update", "patch"],
-            search_params=["identifier", "name", "birthdate", "gender", "address", "group"],
+            search_params=[
+                "identifier",
+                "name",
+                "birthdate",
+                "gender",
+                "address",
+                "group",
+            ],
         ),
         "Group": ResourceMetadata(
             operations=["read", "search", "create", "update", "patch"],
@@ -93,9 +100,7 @@ def _get_extensions(env: Environment) -> list[ExtensionMetadata]:
 
     # Query active extensions (public endpoint, use sudo for access)
     ext_model = env["spp.api.extension"].sudo()
-    active_extensions = ext_model.search(
-        [("active", "=", True), ("module_id.state", "=", "installed")]
-    )
+    active_extensions = ext_model.search([("active", "=", True), ("module_id.state", "=", "installed")])
 
     for ext in active_extensions:
         # Determine which resources this extension applies to

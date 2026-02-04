@@ -57,7 +57,7 @@ class LogicTestRunner(models.Model):
                 )
 
             except Exception as e:
-                _logger.exception("Error running test %s (ID: %s)", test.name, test.id)
+                _logger.exception("Error running test ID %s", test.id)
                 results["total"] += 1
                 results["errors"] += 1
                 results["details"].append(
@@ -192,7 +192,10 @@ class LogicTestRunner(models.Model):
         if variable.source_type == "field":
             # Direct field access
             if not variable.source_field:
-                _logger.warning("Variable %s has source_type='field' but no source_field", variable.name)
+                _logger.warning(
+                    "Variable %s has source_type='field' but no source_field",
+                    variable.name,
+                )
                 return None
 
             try:
@@ -221,13 +224,23 @@ class LogicTestRunner(models.Model):
                 )
                 return None
 
-        elif variable.source_type in ("vocabulary", "indicator", "scoring", "computed", "aggregate"):
+        elif variable.source_type in (
+            "vocabulary",
+            "indicator",
+            "scoring",
+            "computed",
+            "aggregate",
+        ):
             # These variable types need CEL evaluation
             # Use the CEL service to evaluate the variable's expression
             return self._evaluate_variable_via_cel(variable, registrant)
 
         else:
-            _logger.warning("Unknown source_type '%s' for variable %s", variable.source_type, variable.name)
+            _logger.warning(
+                "Unknown source_type '%s' for variable %s",
+                variable.source_type,
+                variable.name,
+            )
             return None
 
     def _evaluate_variable_via_cel(self, variable, registrant):
@@ -253,7 +266,7 @@ class LogicTestRunner(models.Model):
 
         # Check if CEL service is available
         if not self.env["ir.model"].search([("model", "=", "spp.cel.service")], limit=1):
-            _logger.debug("CEL service not available for variable %s", variable.name)
+            _logger.debug("CEL service not available for variable ID %s", variable.id)
             return None
 
         try:

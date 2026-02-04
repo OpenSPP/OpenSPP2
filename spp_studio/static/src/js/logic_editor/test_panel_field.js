@@ -1,6 +1,6 @@
 /** @odoo-module **/
 
-import {Component, useState, onWillUpdateProps} from "@odoo/owl";
+import {Component, onWillUpdateProps, useState} from "@odoo/owl";
 import {registry} from "@web/core/registry";
 import {useService} from "@web/core/utils/hooks";
 import {standardFieldProps} from "@web/views/fields/standard_field_props";

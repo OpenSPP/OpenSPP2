@@ -122,7 +122,10 @@ class SPPGroupMembership(models.Model):
         # Delegate to the group model's invalidation method
         groups.invalidate_group_metrics()
 
-        _logger.debug("[spp.registry] Membership change triggered invalidation for groups: %s", groups.ids)
+        _logger.debug(
+            "[spp.registry] Membership change triggered invalidation for groups: %s",
+            groups.ids,
+        )
 
     def write(self, vals):
         # Capture affected groups before write (in case group changes)

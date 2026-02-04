@@ -25,9 +25,23 @@ from pathlib import Path
 
 # Import common utilities
 try:
-    from .common import LintConfig, OutputFormatter, Severity, Violation, add_common_args, print_summary
+    from .common import (
+        LintConfig,
+        OutputFormatter,
+        Severity,
+        Violation,
+        add_common_args,
+        print_summary,
+    )
 except ImportError:
-    from common import LintConfig, OutputFormatter, Severity, Violation, add_common_args, print_summary
+    from common import (
+        LintConfig,
+        OutputFormatter,
+        Severity,
+        Violation,
+        add_common_args,
+        print_summary,
+    )
 
 
 class PerformanceChecker:
@@ -378,7 +392,13 @@ class PerformanceChecker:
                                     break
                                 if self._is_covered_by_depends(chain):
                                     break
-                                self.found_violations.append((node.lineno, loop_var, ".".join([var_name] + chain)))
+                                self.found_violations.append(
+                                    (
+                                        node.lineno,
+                                        loop_var,
+                                        ".".join([var_name] + chain),
+                                    )
+                                )
                                 break
 
                 self.generic_visit(node)

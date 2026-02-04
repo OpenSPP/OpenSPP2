@@ -154,7 +154,11 @@ class TestCycleAutoApproveFundCheck(TransactionCase):
         result = self.cycle.action_approve()
 
         # Cycle should be approved
-        self.assertEqual(self.cycle.state, "approved", "Cycle should be approved when funds are sufficient")
+        self.assertEqual(
+            self.cycle.state,
+            "approved",
+            "Cycle should be approved when funds are sufficient",
+        )
 
         # Entitlements should be approved
         entitlements = self.cycle.get_entitlements(["approved"], entitlement_model="spp.entitlement")
@@ -194,7 +198,11 @@ class TestCycleAutoApproveFundCheck(TransactionCase):
         self.assertEqual(result["type"], "ir.actions.client", "Should return client action")
         self.assertEqual(result["tag"], "display_notification", "Should return notification")
         self.assertEqual(result["params"]["type"], "danger", "Should return danger notification")
-        self.assertIn("Insufficient funds", result["params"]["message"], "Should mention insufficient funds")
+        self.assertIn(
+            "Insufficient funds",
+            result["params"]["message"],
+            "Should mention insufficient funds",
+        )
 
         # Cycle should NOT be approved
         self.assertEqual(test_cycle.state, "to_approve", "Cycle should remain in 'to_approve' state")
@@ -234,7 +242,11 @@ class TestCycleAutoApproveFundCheck(TransactionCase):
         result = test_cycle.action_approve()
 
         # Cycle should be approved
-        self.assertEqual(test_cycle.state, "approved", "Cycle should be approved when funds are exact")
+        self.assertEqual(
+            test_cycle.state,
+            "approved",
+            "Cycle should be approved when funds are exact",
+        )
 
         # Entitlements should be approved
         entitlements = test_cycle.get_entitlements(["approved"], entitlement_model="spp.entitlement")
@@ -284,7 +296,9 @@ class TestCycleAutoApproveFundCheck(TransactionCase):
 
         # Cycle should be approved even without funds
         self.assertEqual(
-            test_cycle.state, "approved", "Cycle should be approved when auto-approve is disabled (no fund check)"
+            test_cycle.state,
+            "approved",
+            "Cycle should be approved when auto-approve is disabled (no fund check)",
         )
 
     @patch("odoo.fields.Date.today")
@@ -321,10 +335,18 @@ class TestCycleAutoApproveFundCheck(TransactionCase):
         self.assertEqual(result["type"], "ir.actions.client", "Should return client action")
         self.assertEqual(result["tag"], "display_notification", "Should return notification")
         self.assertEqual(result["params"]["type"], "warning", "Should return warning notification")
-        self.assertIn("no entitlements", result["params"]["message"], "Should mention no entitlements")
+        self.assertIn(
+            "no entitlements",
+            result["params"]["message"],
+            "Should mention no entitlements",
+        )
 
         # Cycle should be approved
-        self.assertEqual(test_cycle.state, "approved", "Cycle should be approved even with no entitlements")
+        self.assertEqual(
+            test_cycle.state,
+            "approved",
+            "Cycle should be approved even with no entitlements",
+        )
 
     @patch("odoo.fields.Date.today")
     def test_06_fund_check_considers_already_approved_entitlements(self, mock_today):
@@ -376,7 +398,11 @@ class TestCycleAutoApproveFundCheck(TransactionCase):
         second_cycle.action_approve()
 
         # Second cycle should be approved
-        self.assertEqual(second_cycle.state, "approved", "Second cycle should be approved with remaining funds")
+        self.assertEqual(
+            second_cycle.state,
+            "approved",
+            "Second cycle should be approved with remaining funds",
+        )
 
         # Create third cycle - should fail as no funds left
         third_cycle = self.env["spp.cycle"].create(

@@ -9,7 +9,10 @@ from odoo.api import Environment
 
 from odoo.addons.fastapi.dependencies import odoo_env
 from odoo.addons.spp_api_v2.middleware.auth import get_authenticated_client
-from odoo.addons.spp_api_v2.schemas.search_result import SearchResult, create_search_result
+from odoo.addons.spp_api_v2.schemas.search_result import (
+    SearchResult,
+    create_search_result,
+)
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, Response, status
 

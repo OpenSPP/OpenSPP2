@@ -52,9 +52,7 @@ class TestStudioRouterEndpoints(ApiV2TestCase, HttpCase):
         )
 
         # Get or create CEL variable category
-        cls.variable_category = cls.env["spp.cel.variable.category"].search(
-            [("code", "=", "demographics")], limit=1
-        )
+        cls.variable_category = cls.env["spp.cel.variable.category"].search([("code", "=", "demographics")], limit=1)
         if not cls.variable_category:
             cls.variable_category = cls.env["spp.cel.variable.category"].create(
                 {
@@ -86,10 +84,12 @@ class TestStudioRouterEndpoints(ApiV2TestCase, HttpCase):
             )
         else:
             # Update existing variable to use the test category
-            cls.cel_variable.write({
-                "category_id": cls.variable_category.id,
-                "state": "active",
-            })
+            cls.cel_variable.write(
+                {
+                    "category_id": cls.variable_category.id,
+                    "state": "active",
+                }
+            )
 
         # Create data value for variable
         cls.data_value = cls.env["spp.data.value"].create(
@@ -848,7 +848,10 @@ class TestStudioVariablesFunctional(TestStudioRouterEndpoints):
         # sourceType may be "field" or "computed" depending on demo data
         self.assertIn(var_item["sourceType"], ["field", "computed"])
         self.assertIn(var_item["appliesTo"], ["individual", "both"])
-        self.assertIn(var_item["periodGranularity"], ["current", "none", "daily", "monthly", "yearly"])
+        self.assertIn(
+            var_item["periodGranularity"],
+            ["current", "none", "daily", "monthly", "yearly"],
+        )
         # Category may or may not be Demographics depending on demo data
         if var_item.get("category"):
             self.assertIsInstance(var_item["category"], str)
@@ -1085,7 +1088,10 @@ class TestStudioSubjectVariablesFunctional(TestStudioRouterEndpoints):
             }
         )
 
-        url = f"{self.api_base_url}/variables/Individual/" f"urn:openspp:vocab:id-type|IND-STUDIO-001?variables=age,income"
+        url = (
+            f"{self.api_base_url}/variables/Individual/"
+            f"urn:openspp:vocab:id-type|IND-STUDIO-001?variables=age,income"
+        )
 
         response = self.url_open(url, headers=self._get_headers())
 
@@ -1111,7 +1117,9 @@ class TestStudioSubjectVariablesFunctional(TestStudioRouterEndpoints):
             }
         )
 
-        url = f"{self.api_base_url}/variables/Individual/" f"urn:openspp:vocab:id-type|IND-STUDIO-001?period_key=2024-12"
+        url = (
+            f"{self.api_base_url}/variables/Individual/" f"urn:openspp:vocab:id-type|IND-STUDIO-001?period_key=2024-12"
+        )
 
         response = self.url_open(url, headers=self._get_headers())
 

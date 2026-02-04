@@ -118,7 +118,11 @@ class TestCreateGroupStrategy(TransactionCase):
         self.assertTrue(membership, "Head should be member of new group")
 
         if self.head_kind:
-            self.assertIn(self.head_kind, membership.membership_type_ids, "Head should have head role")
+            self.assertIn(
+                self.head_kind,
+                membership.membership_type_ids,
+                "Head should have head role",
+            )
 
     def test_create_group_with_new_head(self):
         """Test creating group with new individual as head."""

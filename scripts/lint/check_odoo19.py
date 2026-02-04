@@ -39,9 +39,23 @@ except ImportError:
 
 # Import common utilities
 try:
-    from .common import LintConfig, OutputFormatter, Severity, Violation, add_common_args, print_summary
+    from .common import (
+        LintConfig,
+        OutputFormatter,
+        Severity,
+        Violation,
+        add_common_args,
+        print_summary,
+    )
 except ImportError:
-    from common import LintConfig, OutputFormatter, Severity, Violation, add_common_args, print_summary
+    from common import (
+        LintConfig,
+        OutputFormatter,
+        Severity,
+        Violation,
+        add_common_args,
+        print_summary,
+    )
 
 
 # Command API tuple patterns
@@ -530,7 +544,11 @@ Examples:
     parser.add_argument("files", nargs="*", help="Files to check")
     parser.add_argument("--xml", action="store_true", help="Check XML files for search view issues")
     parser.add_argument("--fix", action="store_true", help="Auto-fix Command API tuples")
-    parser.add_argument("--dry-run", action="store_true", help="Show what would be fixed without making changes")
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be fixed without making changes",
+    )
     parser.add_argument("--module", help="Check all files in a module")
 
     args = parser.parse_args()

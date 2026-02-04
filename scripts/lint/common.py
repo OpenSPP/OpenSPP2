@@ -277,7 +277,10 @@ def print_summary(violations: list[Violation]):
 def add_common_args(parser):
     """Add common arguments to an argument parser."""
     parser.add_argument(
-        "--format", choices=["text", "json", "github"], default="text", help="Output format (default: text)"
+        "--format",
+        choices=["text", "json", "github"],
+        default="text",
+        help="Output format (default: text)",
     )
     parser.add_argument("--summary", action="store_true", help="Show summary statistics")
     parser.add_argument("--config", type=Path, help="Path to .openspp-lint.yaml config file")

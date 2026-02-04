@@ -19,18 +19,10 @@ class TestColorScheme(TransactionCase):
         super().setUpClass()
 
         # Get predefined color schemes
-        cls.viridis = cls.env["spp.gis.color.scheme"].search(
-            [("code", "=", "viridis")], limit=1
-        )
-        cls.blues = cls.env["spp.gis.color.scheme"].search(
-            [("code", "=", "blues")], limit=1
-        )
-        cls.red_white_blue = cls.env["spp.gis.color.scheme"].search(
-            [("code", "=", "red_white_blue")], limit=1
-        )
-        cls.set1 = cls.env["spp.gis.color.scheme"].search(
-            [("code", "=", "set1")], limit=1
-        )
+        cls.viridis = cls.env["spp.gis.color.scheme"].search([("code", "=", "viridis")], limit=1)
+        cls.blues = cls.env["spp.gis.color.scheme"].search([("code", "=", "blues")], limit=1)
+        cls.red_white_blue = cls.env["spp.gis.color.scheme"].search([("code", "=", "red_white_blue")], limit=1)
+        cls.set1 = cls.env["spp.gis.color.scheme"].search([("code", "=", "set1")], limit=1)
 
     def test_01_predefined_schemes_exist(self):
         """Test that predefined color schemes are loaded."""
@@ -48,9 +40,7 @@ class TestColorScheme(TransactionCase):
 
         # Viridis should be default
         if self.viridis:
-            default_scheme = self.env["spp.gis.color.scheme"].search(
-                [("is_default", "=", True)], limit=1
-            )
+            default_scheme = self.env["spp.gis.color.scheme"].search([("is_default", "=", True)], limit=1)
             if default_scheme:
                 self.assertEqual(default_scheme.code, "viridis")
 
@@ -192,20 +182,20 @@ class TestColorScheme(TransactionCase):
         self.assertTrue(self.viridis.is_colorblind_safe)
 
         # Check we can filter by this flag
-        safe_schemes = self.env["spp.gis.color.scheme"].search([
-            ("is_colorblind_safe", "=", True)
-        ])
+        safe_schemes = self.env["spp.gis.color.scheme"].search([("is_colorblind_safe", "=", True)])
         self.assertTrue(len(safe_schemes) > 0)
 
     def test_15_create_custom_scheme(self):
         """Test creating a custom color scheme."""
-        scheme = self.env["spp.gis.color.scheme"].create({
-            "name": "Custom Test Scheme",
-            "code": "custom_test",
-            "scheme_type": "sequential",
-            "colors": '["#000000", "#ffffff"]',
-            "is_colorblind_safe": False,
-        })
+        scheme = self.env["spp.gis.color.scheme"].create(
+            {
+                "name": "Custom Test Scheme",
+                "code": "custom_test",
+                "scheme_type": "sequential",
+                "colors": '["#000000", "#ffffff"]',
+                "is_colorblind_safe": False,
+            }
+        )
 
         self.assertEqual(scheme.name, "Custom Test Scheme")
         self.assertEqual(scheme.scheme_type, "sequential")
@@ -218,22 +208,25 @@ class TestColorScheme(TransactionCase):
 
     def test_16_code_uniqueness(self):
         """Test that color scheme codes are unique."""
-        from odoo.exceptions import ValidationError
         from psycopg2 import IntegrityError
+
+        from odoo.exceptions import ValidationError
 
         # Try to create scheme with duplicate code
         # Use try/except instead of assertRaises with tuple (Odoo 19 compatibility)
         with self.assertRaises(Exception) as cm:
-            self.env["spp.gis.color.scheme"].create({
-                "name": "Duplicate Code Test",
-                "code": "viridis",  # Already exists
-                "scheme_type": "sequential",
-                "colors": '["#ff0000"]',
-            })
+            self.env["spp.gis.color.scheme"].create(
+                {
+                    "name": "Duplicate Code Test",
+                    "code": "viridis",  # Already exists
+                    "scheme_type": "sequential",
+                    "colors": '["#ff0000"]',
+                }
+            )
         # Verify it's one of the expected exception types
         self.assertTrue(
             isinstance(cm.exception, (ValidationError, IntegrityError)),
-            f"Expected ValidationError or IntegrityError, got {type(cm.exception).__name__}"
+            f"Expected ValidationError or IntegrityError, got {type(cm.exception).__name__}",
         )
 
     def test_17_hex_to_rgb_conversion(self):
@@ -260,12 +253,14 @@ class TestColorScheme(TransactionCase):
 
     def test_19_single_color_interpolation(self):
         """Test interpolation with single color scheme."""
-        scheme = self.env["spp.gis.color.scheme"].create({
-            "name": "Single Color",
-            "code": "single_test",
-            "scheme_type": "sequential",
-            "colors": '["#ff0000"]',
-        })
+        scheme = self.env["spp.gis.color.scheme"].create(
+            {
+                "name": "Single Color",
+                "code": "single_test",
+                "scheme_type": "sequential",
+                "colors": '["#ff0000"]',
+            }
+        )
 
         color = scheme.interpolate_color(0.5, 0, 1)
         self.assertEqual(color, "#ff0000")
@@ -275,12 +270,14 @@ class TestColorScheme(TransactionCase):
 
     def test_20_empty_colors_handling(self):
         """Test handling of empty or invalid colors JSON."""
-        scheme = self.env["spp.gis.color.scheme"].create({
-            "name": "Empty Colors",
-            "code": "empty_test",
-            "scheme_type": "sequential",
-            "colors": "[]",
-        })
+        scheme = self.env["spp.gis.color.scheme"].create(
+            {
+                "name": "Empty Colors",
+                "code": "empty_test",
+                "scheme_type": "sequential",
+                "colors": "[]",
+            }
+        )
 
         # Should return fallback gray
         color = scheme.interpolate_color(0.5, 0, 1)

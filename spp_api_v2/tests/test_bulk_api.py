@@ -366,8 +366,14 @@ class TestBulkAPIEndpoint(ApiV2HttpTestCase):
         statuses = {item["identifier"]: item["status"] for item in data["items"]}
         self.assertEqual(statuses["urn:openspp:vocab:id-type#test_national_id|IND-001"], "success")
         self.assertEqual(statuses["urn:openspp:vocab:id-type#test_national_id|IND-002"], "success")
-        self.assertEqual(statuses["urn:openspp:vocab:id-type#test_national_id|IND-003"], "access_denied")
-        self.assertEqual(statuses["urn:openspp:vocab:id-type#test_national_id|NONEXISTENT"], "access_denied")
+        self.assertEqual(
+            statuses["urn:openspp:vocab:id-type#test_national_id|IND-003"],
+            "access_denied",
+        )
+        self.assertEqual(
+            statuses["urn:openspp:vocab:id-type#test_national_id|NONEXISTENT"],
+            "access_denied",
+        )
 
     def test_bulk_export_preserves_order(self):
         """Results are returned in same order as request"""
@@ -388,8 +394,14 @@ class TestBulkAPIEndpoint(ApiV2HttpTestCase):
         data = json.loads(response.content)
 
         # Order should match request
-        self.assertEqual(data["items"][0]["identifier"], "urn:openspp:vocab:id-type#test_national_id|IND-002")
-        self.assertEqual(data["items"][1]["identifier"], "urn:openspp:vocab:id-type#test_national_id|IND-001")
+        self.assertEqual(
+            data["items"][0]["identifier"],
+            "urn:openspp:vocab:id-type#test_national_id|IND-002",
+        )
+        self.assertEqual(
+            data["items"][1]["identifier"],
+            "urn:openspp:vocab:id-type#test_national_id|IND-001",
+        )
 
     def test_bulk_export_empty_identifiers_returns_400(self):
         """Request with empty identifiers list returns 422"""

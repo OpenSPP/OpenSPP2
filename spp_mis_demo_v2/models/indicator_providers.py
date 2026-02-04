@@ -92,7 +92,10 @@ def _activate_variables(env, xml_ids, source_name):
         try:
             variable = env.ref(xml_id, raise_if_not_found=False)
             if not variable:
-                _logger.warning("[spp.mis.demo] Variable not found: %s (may not be installed)", xml_id)
+                _logger.warning(
+                    "[spp.mis.demo] Variable not found: %s (may not be installed)",
+                    xml_id,
+                )
                 continue
 
             if variable.state == "active":
@@ -102,7 +105,7 @@ def _activate_variables(env, xml_ids, source_name):
             if variable.state == "draft":
                 variable.action_activate()
                 activated += 1
-                _logger.debug("[spp.mis.demo] Activated variable: %s", variable.name)
+                _logger.debug("[spp.mis.demo] Activated variable ID %s", variable.id)
             else:
                 _logger.debug(
                     "[spp.mis.demo] Variable %s in state %s, skipping",

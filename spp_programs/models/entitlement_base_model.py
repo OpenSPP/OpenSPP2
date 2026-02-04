@@ -119,7 +119,9 @@ class SPPEntitlement(models.Model):
                 spp_program_manager = self.env.user.has_group("spp_programs.group_programs_manager")
                 spp_program_cycle_approver = self.env.user.has_group("spp_programs.group_programs_cycle_approver")
 
-                if not (group_spp_registrar or spp_program_validator or spp_program_manager or spp_program_cycle_approver):
+                if not (
+                    group_spp_registrar or spp_program_validator or spp_program_manager or spp_program_cycle_approver
+                ):
                     raise ValidationError(_("You have no access in the Entitlement List View"))
 
         return arch, view

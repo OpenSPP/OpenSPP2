@@ -97,7 +97,13 @@ class TestBulkConsent(TransactionCase):
 
         # Verify consent created for all 3 registrants
         consents = self.env["spp.consent"].search(
-            [("signatory_id", "in", [self.registrant1.id, self.registrant2.id, self.registrant3.id])]
+            [
+                (
+                    "signatory_id",
+                    "in",
+                    [self.registrant1.id, self.registrant2.id, self.registrant3.id],
+                )
+            ]
         )
 
         self.assertEqual(len(consents), 3, "Should create 3 consent records")
@@ -168,7 +174,11 @@ class TestBulkConsent(TransactionCase):
         wizard = (
             self.env["spp.bulk.record.consent.wizard"]
             .with_context(
-                active_ids=[self.registrant1.id, self.registrant2.id, self.registrant3.id],
+                active_ids=[
+                    self.registrant1.id,
+                    self.registrant2.id,
+                    self.registrant3.id,
+                ],
                 active_model="res.partner",
             )
             .create(
@@ -184,7 +194,11 @@ class TestBulkConsent(TransactionCase):
         )
 
         # Wizard should auto-populate registrant_ids from context
-        self.assertEqual(len(wizard.registrant_ids), 3, "Should pre-populate 3 registrants from context")
+        self.assertEqual(
+            len(wizard.registrant_ids),
+            3,
+            "Should pre-populate 3 registrants from context",
+        )
         self.assertIn(self.registrant1, wizard.registrant_ids)
         self.assertIn(self.registrant2, wizard.registrant_ids)
         self.assertIn(self.registrant3, wizard.registrant_ids)
@@ -194,7 +208,11 @@ class TestBulkConsent(TransactionCase):
         wizard = (
             self.env["spp.bulk.record.consent.wizard"]
             .with_context(
-                active_ids=[self.registrant1.id, self.non_registrant.id, self.registrant2.id],
+                active_ids=[
+                    self.registrant1.id,
+                    self.non_registrant.id,
+                    self.registrant2.id,
+                ],
                 active_model="res.partner",
             )
             .create(

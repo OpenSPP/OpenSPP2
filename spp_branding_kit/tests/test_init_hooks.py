@@ -100,8 +100,14 @@ class TestInitHooks(TransactionCase):
         uninstall_hook(self.env)
 
         # Check that openspp.* parameters were removed
-        self.assertFalse(self.IrConfigParam.get_param("openspp.system.name"), "openspp.system.name should be removed")
-        self.assertFalse(self.IrConfigParam.get_param("openspp.telemetry.enabled"), "telemetry param removed")
+        self.assertFalse(
+            self.IrConfigParam.get_param("openspp.system.name"),
+            "openspp.system.name should be removed",
+        )
+        self.assertFalse(
+            self.IrConfigParam.get_param("openspp.telemetry.enabled"),
+            "telemetry param removed",
+        )
 
         # Check that other parameters remain
         self.assertEqual(

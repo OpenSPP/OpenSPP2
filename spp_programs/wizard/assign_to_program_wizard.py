@@ -56,7 +56,10 @@ class SPPAssignToProgramWizard(models.TransientModel):
     def assign_registrant(self):
         if self.env.context.get("active_ids"):
             partner_ids = self.env.context.get("active_ids")
-            _logger.debug("Adding to Program Wizard with %s registrant record(s)", len(partner_ids))
+            _logger.debug(
+                "Adding to Program Wizard with %s registrant record(s)",
+                len(partner_ids),
+            )
             ctr = 0
             ig_ctr = 0
             ok_ctr = 0
@@ -96,7 +99,12 @@ class SPPAssignToProgramWizard(models.TransientModel):
                 else:
                     ig_ctr += 1
                     _logger.debug("Registrant was ignored because already in the Program")
-            _logger.debug("Total selected registrants: %s, Total ignored: %s, Total added: %s", ctr, ig_ctr, ok_ctr)
+            _logger.debug(
+                "Total selected registrants: %s, Total ignored: %s, Total added: %s",
+                ctr,
+                ig_ctr,
+                ok_ctr,
+            )
 
             if len(partner_ids) == 1:
                 if rec.disabled and rec.is_group:

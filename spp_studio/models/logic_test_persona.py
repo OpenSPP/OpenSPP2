@@ -124,7 +124,7 @@ class LogicTestPersona(models.Model):
                 persona.values_display = "\n".join(html_parts)
 
             except json.JSONDecodeError as e:
-                _logger.error("Invalid JSON in persona %s values: %s", persona.name, str(e))
+                _logger.error("Invalid JSON in persona ID %s values: %s", persona.id, str(e))
                 persona.values_display = f"<p class='text-danger'>Invalid JSON: {str(e)}</p>"
             except Exception as e:
                 _logger.exception("Error formatting persona %s values display", persona.name)
@@ -163,7 +163,7 @@ class LogicTestPersona(models.Model):
         try:
             return json.loads(self.values)
         except json.JSONDecodeError as e:
-            _logger.error("Invalid JSON in persona %s values: %s", self.name, str(e))
+            _logger.error("Invalid JSON in persona ID %s values: %s", self.id, str(e))
             raise UserError(f"Invalid JSON in persona '{self.name}': {str(e)}") from e
 
     def action_duplicate(self):

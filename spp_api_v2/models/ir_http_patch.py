@@ -55,7 +55,13 @@ class IrHttp(models.AbstractModel):
         except Exception:
             pass
 
-        cache_key = (self._name, "routing_map", key, tuple(mods), endpoint_route_version)
+        cache_key = (
+            self._name,
+            "routing_map",
+            key,
+            tuple(mods),
+            endpoint_route_version,
+        )
 
         # Try to get from cache manually
         try:
@@ -110,7 +116,11 @@ class IrHttp(models.AbstractModel):
             _logger.debug("Could not sync FastAPI endpoints: %s", e)
 
         # Generate routing map
-        _logger.debug("Generating routing map for key %s (version %s)", str(key), endpoint_route_version)
+        _logger.debug(
+            "Generating routing map for key %s (version %s)",
+            str(key),
+            endpoint_route_version,
+        )
 
         routing_map = werkzeug.routing.Map(strict_slashes=False, converters=self._get_converters())
         route_count = 0
@@ -133,7 +143,11 @@ class IrHttp(models.AbstractModel):
             rule.merge_slashes = False
             routing_map.add(rule)
 
-        _logger.debug("Routing map built with %d routes, FastAPI routes: %s", route_count, fastapi_routes)
+        _logger.debug(
+            "Routing map built with %d routes, FastAPI routes: %s",
+            route_count,
+            fastapi_routes,
+        )
 
         # Store in cache manually
         try:

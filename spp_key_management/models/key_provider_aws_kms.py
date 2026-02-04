@@ -520,8 +520,7 @@ class AWSKMSKeyProvider(models.AbstractModel):
         # Explicitly reject Ed25519 - AWS KMS doesn't support it
         if algorithm in ("ed25519", "EdDSA"):
             raise UserError(
-                "AWS KMS does not support Ed25519 verification. "
-                "Please use ECDSA keys or HashiCorp Vault Transit."
+                "AWS KMS does not support Ed25519 verification. " "Please use ECDSA keys or HashiCorp Vault Transit."
             )
 
         client = self._get_kms_client()

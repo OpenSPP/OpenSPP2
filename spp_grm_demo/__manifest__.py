@@ -7,7 +7,7 @@
     "category": "OpenSPP/Monitoring",
     "summary": "Demo data generator for Grievance Redress Mechanism",
     "author": "OpenSPP.org",
-    "website": "https://docs.openspp.org",
+    "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
     "development_status": "Alpha",
     "maintainers": ["jeremi", "gonzalesedwin1123"],

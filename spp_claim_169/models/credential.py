@@ -37,7 +37,10 @@ class Claim169Credential(models.Model):
     )
 
     display_name = fields.Char(
-        string="Display Name", compute="_compute_display_name", store=True, help="Human-readable credential identifier"
+        string="Display Name",
+        compute="_compute_display_name",
+        store=True,
+        help="Human-readable credential identifier",
     )
 
     partner_id = fields.Many2one(
@@ -115,7 +118,10 @@ class Claim169Credential(models.Model):
     )
 
     issued_at = fields.Datetime(
-        string="Issued At", required=True, default=fields.Datetime.now, help="Timestamp when credential was issued"
+        string="Issued At",
+        required=True,
+        default=fields.Datetime.now,
+        help="Timestamp when credential was issued",
     )
 
     expires_at = fields.Datetime(string="Expires At", required=True, help="Timestamp when credential expires")
@@ -146,7 +152,9 @@ class Claim169Credential(models.Model):
     revoked_at = fields.Datetime(string="Revoked At", help="Timestamp when credential was revoked")
 
     revoked_by_id = fields.Many2one(
-        comodel_name="res.users", string="Revoked By", help="User who revoked the credential"
+        comodel_name="res.users",
+        string="Revoked By",
+        help="User who revoked the credential",
     )
 
     company_id = fields.Many2one(
@@ -289,7 +297,7 @@ class Claim169Credential(models.Model):
                 record.decoded_claims_display = "".join(html_parts)
 
             except Exception as e:
-                _logger.warning("Failed to decode claims for credential %s: %s", record.name, e)
+                _logger.warning("Failed to decode claims for credential ID %s: %s", record.id, e)
                 record.decoded_claims = False
                 record.decoded_claims_display = (
                     '<div class="alert alert-warning">Unable to decode credential data</div>'
@@ -337,13 +345,20 @@ class Claim169Credential(models.Model):
             self.write(vals)
 
             _logger.info(
-                "Generated Claim 169 credential for partner %s (ID: %s)", self.partner_id.name, self.partner_id.id
+                "Generated Claim 169 credential for partner %s (ID: %s)",
+                self.partner_id.name,
+                self.partner_id.id,
             )
 
             return self
 
         except Exception as e:
-            _logger.error("Failed to generate credential for partner %s: %s", self.partner_id.id, str(e), exc_info=True)
+            _logger.error(
+                "Failed to generate credential for partner %s: %s",
+                self.partner_id.id,
+                str(e),
+                exc_info=True,
+            )
             raise UserError(_("Credential generation failed: %s") % str(e)) from e
 
     def action_revoke(self):
@@ -374,7 +389,10 @@ class Claim169Credential(models.Model):
         user_name = self.env.user.name
         for record in self:
             _logger.info(
-                "Revoked credential %s for partner %s by user %s", record.name, partner_names[record.id], user_name
+                "Revoked credential %s for partner %s by user %s",
+                record.name,
+                partner_names[record.id],
+                user_name,
             )
 
     def action_regenerate(self):
@@ -429,7 +447,12 @@ class Claim169Credential(models.Model):
             return base64.b64encode(img_bytes)
 
         except Exception as e:
-            _logger.error("Failed to generate QR image for credential %s: %s", self.name, str(e), exc_info=True)
+            _logger.error(
+                "Failed to generate QR image for credential %s: %s",
+                self.name,
+                str(e),
+                exc_info=True,
+            )
             return False
 
     @api.constrains("issued_at", "expires_at")
@@ -454,7 +477,7 @@ class Claim169Credential(models.Model):
             new_values={"downloaded_by": self.env.user.name},
         )
 
-        _logger.info("QR credential %s downloaded by user %s", self.name, self.env.user.name)
+        _logger.info("QR credential ID %s downloaded by user ID %s", self.id, self.env.user.id)
 
         # Return download action
         return {

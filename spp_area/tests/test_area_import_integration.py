@@ -105,7 +105,10 @@ class AreaImportIntegrationTest(AreaImportBaseTestMixin):
         level_0_raw = self.area_import_id_2.raw_data_ids.filtered(lambda r: r.level == 0)
         for raw in level_0_raw:
             if raw.area_id:
-                self.assertFalse(raw.area_id.parent_id, f"Level 0 area {raw.admin_name} should not have parent")
+                self.assertFalse(
+                    raw.area_id.parent_id,
+                    f"Level 0 area {raw.admin_name} should not have parent",
+                )
 
         # Check that level 1+ areas have parents
         level_1_raw = self.area_import_id_2.raw_data_ids.filtered(lambda r: r.level > 0)
@@ -186,7 +189,11 @@ class AreaImportIntegrationTest(AreaImportBaseTestMixin):
         total_imported = len(self.area_import_id_2.raw_data_ids)
 
         # Should match
-        self.assertEqual(total_json_rows, total_imported, "JSON rows count should match imported rows count")
+        self.assertEqual(
+            total_json_rows,
+            total_imported,
+            "JSON rows count should match imported rows count",
+        )
 
     def test_08_duplicate_code_handling(self):
         """Test handling of duplicate area codes"""
@@ -226,7 +233,11 @@ class AreaImportIntegrationTest(AreaImportBaseTestMixin):
 
         # Area count should not significantly increase (duplicates updated)
         second_area_count = len(self.env["spp.area"].search([]))
-        self.assertLessEqual(second_area_count, first_area_count * 1.1, "Duplicate import should update not create")
+        self.assertLessEqual(
+            second_area_count,
+            first_area_count * 1.1,
+            "Duplicate import should update not create",
+        )
 
         # Check that records show as "Updated"
         updated_count = len(new_import.raw_data_ids.filtered(lambda r: r.state == "Updated"))

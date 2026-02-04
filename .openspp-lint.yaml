@@ -1,0 +1,98 @@
+# OpenSPP Lint Configuration
+# See scripts/lint/README.md for documentation
+
+# Module-specific overrides
+modules:
+  # Example: Allow non-standard patterns for specific modules
+  # spp_api:
+  #   allow_model_patterns:
+  #     - "spp_api.*"
+
+# Rule configurations
+rules:
+  naming:
+    # Additional Boolean field exceptions (beyond is_*/has_* prefix)
+    boolean_exceptions:
+      - "bidirectional"
+      - "recurring"
+      - "active" # Standard Odoo field
+    # Additional verb prefixes for Boolean fields
+    boolean_verb_prefixes:
+      - "compute_"
+      - "generate_"
+    # Additional Many2one exceptions (fields that don't need _id suffix)
+    # Built-in exceptions: parent, company, currency, country, state,
+    #                      partner, user, categ, id_type, kind,
+    #                      source, destination, relation,
+    #                      disabled_by, created_by, approved_by, rejected_by,
+    #                      district, region, province, city, village
+    many2one_exceptions: []
+
+    # Model namespace exceptions (models that don't need spp.* namespace)
+    # Built-in exceptions include:
+    #   - Standard Odoo models (res.partner, res.users, etc.)
+    #   - Third-party models (queue.job, fastapi.endpoint, res.users.role, etc.)
+    # Add any additional models here that should be excluded from the spp.* check
+    namespace_exceptions: []
+    # Example:
+    # namespace_exceptions:
+    #   - "my.custom.model"
+    #   - "external.lib.model"
+
+  xml_ids:
+    # Allow legacy patterns during migration
+    allow_legacy_patterns: false
+
+  performance:
+    # N+1 detection is Odoo-aware:
+    # - Skips methods with @api.depends (Odoo prefetches automatically)
+    # - Detects .mapped() prefetch patterns
+    # - Skips ORM method calls on related objects (write, update, etc.)
+    # - Tracks nested loops correctly
+    n_plus_one_threshold: 1
+
+  ui:
+    # Models likely to have >1k records (require list limit="80")
+    large_models:
+      - "res.partner" # Registry
+      - "spp.payment" # Transactional
+      - "spp.entitlement" # Transactional
+      - "spp.event.data" # Transactional
+      - "spp.program.membership" # Relationship
+      - "spp.group.membership" # Relationship
+      - "spp.change.request" # Workflow (high volume)
+
+    # Search panel threshold (disable if records exceed this count)
+    search_panel_max_records: 100000
+
+    # O2M fields that can be editable (exceptions to large O2M rule)
+    # Add fields known to have <100 records
+    allow_editable_o2m:
+      - "line_ids" # Generic line items (typically <20)
+      - "manager_ids" # Program managers (typically <10)
+      - "approver_ids" # Approval workflow (typically <5)
+
+# Severity overrides (change default severity for rules)
+# Valid values: error, warning, info
+severity:
+  # Naming checks as warnings (common during migration)
+  naming.boolean_prefix: warning
+  naming.many2one_suffix: warning
+
+  # UI pattern checks
+  ui.xpath_class: error # Error for @class (Odoo 19 incompatible)
+  ui.statusbar_location: error # Error for statusbar in wrong location
+  ui.extension_points: info # Info for missing extension points
+  ui.large_o2m_editable: warning # Warn for editable large O2M fields
+
+  # Example: Downgrade performance checks during migration
+  # performance.offset_pagination: info
+  # performance.n_plus_one: info
+
+# Patterns to ignore (glob patterns)
+ignore:
+  - "**/migrations/**"
+  - "**/tests/**"
+  - "**/__pycache__/**"
+  # Demo data generators - one-time operations where N+1 queries are acceptable
+  - "**/wizard/*demo_generator.py"

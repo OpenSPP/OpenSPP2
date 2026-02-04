@@ -457,7 +457,11 @@ class AzureKeyVaultProvider(models.AbstractModel):
             azure_key_type = "RSA"
 
         key = self._ensure_signing_key_exists(key_id, azure_key_type)
-        _logger.info("Azure Key Vault signing key ready: %s (version: %s)", key.name, key.properties.version)
+        _logger.info(
+            "Azure Key Vault signing key ready: %s (version: %s)",
+            key.name,
+            key.properties.version,
+        )
         return key.properties.version
 
     def sign_with_keyvault(self, key_id, data, algorithm="ES256"):

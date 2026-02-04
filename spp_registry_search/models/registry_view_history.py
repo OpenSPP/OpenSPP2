@@ -166,13 +166,15 @@ class RegistryViewHistory(models.Model):
         for h in history_data:
             partner_id = h["partner_id"][0]
             if partner_id in partner_map:
-                result.append({
-                    "id": partner_id,
-                    "name": partner_map[partner_id].get("name", ""),
-                    "is_group": partner_map[partner_id].get("is_group", False),
-                    "avatar_128": partner_map[partner_id].get("avatar_128", False),
-                    "view_date": h["view_date"].isoformat() if h["view_date"] else None,
-                })
+                result.append(
+                    {
+                        "id": partner_id,
+                        "name": partner_map[partner_id].get("name", ""),
+                        "is_group": partner_map[partner_id].get("is_group", False),
+                        "avatar_128": partner_map[partner_id].get("avatar_128", False),
+                        "view_date": h["view_date"].isoformat() if h["view_date"] else None,
+                    }
+                )
                 if len(result) >= limit:
                     break
 

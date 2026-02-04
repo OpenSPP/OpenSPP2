@@ -263,7 +263,12 @@ class SPPInKindEntitlementItemCEL(models.Model):
         compute="_compute_quantity_cel_preview",
     )
 
-    @api.depends("quantity_cel_expression", "quantity", "quantity_mode", "entitlement_id.program_id")
+    @api.depends(
+        "quantity_cel_expression",
+        "quantity",
+        "quantity_mode",
+        "entitlement_id.program_id",
+    )
     def _compute_quantity_cel_preview(self):
         """Compute a preview of the CEL formula with sample data."""
         for rec in self:

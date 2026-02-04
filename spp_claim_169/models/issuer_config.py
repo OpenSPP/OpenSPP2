@@ -18,10 +18,16 @@ class Claim169IssuerConfig(models.Model):
     _description = "Claim 169 Issuer Configuration"
     _order = "name"
 
-    name = fields.Char(string="Issuer Name", required=True, help="Descriptive name for this issuer configuration")
+    name = fields.Char(
+        string="Issuer Name",
+        required=True,
+        help="Descriptive name for this issuer configuration",
+    )
 
     issuer_id = fields.Char(
-        string="Issuer ID", required=True, help="DID or identifier for the 'iss' claim (e.g., 'did:example:issuer123')"
+        string="Issuer ID",
+        required=True,
+        help="DID or identifier for the 'iss' claim (e.g., 'did:example:issuer123')",
     )
 
     signing_key_id = fields.Many2one(
@@ -39,7 +45,9 @@ class Claim169IssuerConfig(models.Model):
     )
 
     is_default = fields.Boolean(
-        string="Default Issuer", default=False, help="Use this issuer by default when generating credentials"
+        string="Default Issuer",
+        default=False,
+        help="Use this issuer by default when generating credentials",
     )
 
     company_id = fields.Many2one(
@@ -55,7 +63,11 @@ class Claim169IssuerConfig(models.Model):
         help="Total number of credentials issued by this issuer",
     )
 
-    active = fields.Boolean(string="Active", default=True, help="Inactive issuers cannot be used for new credentials")
+    active = fields.Boolean(
+        string="Active",
+        default=True,
+        help="Inactive issuers cannot be used for new credentials",
+    )
 
     @api.depends("issuer_id")
     def _compute_credential_count(self):

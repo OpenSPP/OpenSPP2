@@ -60,7 +60,10 @@ class TestSQLInjectionPrevention(TransactionCase):
             base_domain=[("id", "=", self.household.id)],
         )
 
-        self.assertTrue(result["valid"], f"Should handle special chars safely: {result.get('error')}")
+        self.assertTrue(
+            result["valid"],
+            f"Should handle special chars safely: {result.get('error')}",
+        )
         self.assertIn(self.household.id, result["ids"])
 
     def test_aggregation_with_special_char_data(self):
@@ -213,7 +216,10 @@ class TestORCombinations(TransactionCase):
             base_domain=self.test_base,
         )
 
-        self.assertTrue(result["valid"], f"Complex expression should be valid: {result.get('error')}")
+        self.assertTrue(
+            result["valid"],
+            f"Complex expression should be valid: {result.get('error')}",
+        )
         # HH-A: count=3 >= 2, sum=15000 >= 4000 -> matches first part
         # HH-B: count=1 -> matches second part
         # HH-C: count=2 >= 2, sum=4000 >= 4000 -> matches first part
@@ -499,7 +505,10 @@ class TestUnicodeHandling(TransactionCase):
             base_domain=self.test_base,
         )
 
-        self.assertTrue(result["valid"], f"Should handle unicode in aggregation: {result.get('error')}")
+        self.assertTrue(
+            result["valid"],
+            f"Should handle unicode in aggregation: {result.get('error')}",
+        )
         self.assertIn(self.household_unicode.id, result["ids"])
         self.assertIn(self.household_emoji.id, result["ids"])
 
@@ -601,5 +610,8 @@ class TestMultipleAggregations(TransactionCase):
             base_domain=self.test_base,
         )
 
-        self.assertTrue(result["valid"], f"Should be valid even if impossible: {result.get('error')}")
+        self.assertTrue(
+            result["valid"],
+            f"Should be valid even if impossible: {result.get('error')}",
+        )
         self.assertEqual(result["count"], 0, "Impossible condition should match nothing")

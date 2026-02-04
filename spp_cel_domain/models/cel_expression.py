@@ -377,5 +377,5 @@ class CELExpression(models.Model):
             )
             return result.get("expression", self.cel_expression)
         except Exception as e:
-            _logger.warning("Failed to resolve expression '%s': %s", self.name, str(e))
+            _logger.warning("Failed to resolve expression ID %s: %s", self.id, str(e))
             return self.cel_expression

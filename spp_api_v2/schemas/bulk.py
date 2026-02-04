@@ -90,7 +90,12 @@ class BulkExportResponse(BaseModel):
                         "status": "success",
                         "resource": {
                             "type": "Individual",
-                            "identifier": [{"system": "urn:gov:ph:psa:national-id", "value": "PH-123456789"}],
+                            "identifier": [
+                                {
+                                    "system": "urn:gov:ph:psa:national-id",
+                                    "value": "PH-123456789",
+                                }
+                            ],
                             "name": {"family": "SANTOS", "given": "Maria"},
                         },
                     },
@@ -99,7 +104,12 @@ class BulkExportResponse(BaseModel):
                         "status": "success",
                         "resource": {
                             "type": "Individual",
-                            "identifier": [{"system": "urn:gov:ph:psa:national-id", "value": "PH-987654321"}],
+                            "identifier": [
+                                {
+                                    "system": "urn:gov:ph:psa:national-id",
+                                    "value": "PH-987654321",
+                                }
+                            ],
                             "name": {"family": "REYES", "given": "Juan"},
                         },
                     },

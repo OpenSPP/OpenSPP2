@@ -26,7 +26,14 @@ from xml.etree import ElementTree as ET
 
 # Import common utilities
 try:
-    from .common import LintConfig, OutputFormatter, Severity, Violation, add_common_args, print_summary
+    from .common import (
+        LintConfig,
+        OutputFormatter,
+        Severity,
+        Violation,
+        add_common_args,
+        print_summary,
+    )
 except ImportError:
     from common import LintConfig, OutputFormatter, Severity, Violation, add_common_args
 

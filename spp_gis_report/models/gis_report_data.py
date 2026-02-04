@@ -148,8 +148,7 @@ class GISReportData(models.Model):
     # ===== Disaggregation Data =====
     disaggregation = fields.Json(
         "Disaggregation Data",
-        help="Breakdown by gender, age, disability, etc. "
-        'Example: {"gender": {"male": 580, "female": 670}}',
+        help="Breakdown by gender, age, disability, etc. " 'Example: {"gender": {"male": 580, "female": 670}}',
     )
 
     # ===== Cache Metadata =====

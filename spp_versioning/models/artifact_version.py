@@ -338,7 +338,10 @@ class ArtifactVersion(models.Model):
             if is_many2one:
                 if not value:
                     return False
-                return {"_ref": value.id, "_data": self._extract_embed_data(value, embed_fields)}
+                return {
+                    "_ref": value.id,
+                    "_data": self._extract_embed_data(value, embed_fields),
+                }
 
             # many2many, one2many
             if not value:

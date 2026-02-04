@@ -87,7 +87,10 @@ class DataCacheInvalidation(models.AbstractModel):
             DataValue.invalidate(var_name, subject_ids)
 
         _logger.debug(
-            "Invalidated cache for variables %s on subjects %s (reason: %s)", variable_names, subject_ids, reason
+            "Invalidated cache for variables %s on subjects %s (reason: %s)",
+            variable_names,
+            subject_ids,
+            reason,
         )
 
 
@@ -196,7 +199,7 @@ class CelVariableCacheInvalidation(models.Model):
         for var in self:
             if var.uses_persistent_cache():
                 DataValue.invalidate_pattern(var.name)
-                _logger.info("Invalidated all cached values for variable '%s'", var.name)
+                _logger.info("Invalidated all cached values for variable ID %s", var.id)
 
     def action_invalidate_cache(self):
         """UI action to invalidate all cached values."""

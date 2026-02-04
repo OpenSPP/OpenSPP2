@@ -227,11 +227,11 @@ class CRVSEvent(models.Model):
                 }
             )
 
-            _logger.info("Successfully processed CRVS event %s", self.name)
+            _logger.info("Successfully processed CRVS event ID %s", self.id)
             return True
 
         except Exception as e:
-            _logger.error("Failed to process CRVS event %s: %s", self.name, str(e), exc_info=True)
+            _logger.error("Failed to process CRVS event ID %s: %s", self.id, str(e), exc_info=True)
             self.write(
                 {
                     "state": "error",
@@ -373,10 +373,15 @@ class CRVSEvent(models.Model):
                             "value": identifier_value,
                         }
                     )
-                    _logger.info("Added %s identifier %s to partner %s", id_type, identifier_value, person.id)
+                    _logger.info(
+                        "Added %s identifier %s to partner %s",
+                        id_type,
+                        identifier_value,
+                        person.id,
+                    )
 
         except json.JSONDecodeError:
-            _logger.warning("Failed to parse raw_data JSON for event %s", self.name)
+            _logger.warning("Failed to parse raw_data JSON for event ID %s", self.id)
         except Exception as e:
             _logger.error("Error extracting identifier from raw_data: %s", str(e))
 

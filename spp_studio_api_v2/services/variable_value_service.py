@@ -125,7 +125,11 @@ class VariableValueService:
             return {}
 
         if len(partner_ids) > MAX_BATCH_SIZE:
-            _logger.warning("Batch size %d exceeds limit %d, truncating", len(partner_ids), MAX_BATCH_SIZE)
+            _logger.warning(
+                "Batch size %d exceeds limit %d, truncating",
+                len(partner_ids),
+                MAX_BATCH_SIZE,
+            )
             partner_ids = partner_ids[:MAX_BATCH_SIZE]
 
         if "spp.data.value" not in self.env:

@@ -263,7 +263,11 @@ class TestConsentMatching(TransactionCase):
         consent = self._create_consent(
             signatory=self.individual,
             recipient_mode="category",
-            allowed_org_types=[self.org_type_ngo, self.org_type_government, self.org_type_un],
+            allowed_org_types=[
+                self.org_type_ngo,
+                self.org_type_government,
+                self.org_type_un,
+            ],
         )
 
         found_ngo = self.env["spp.consent"].check_consent(

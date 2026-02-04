@@ -13,7 +13,17 @@ from odoo.exceptions import ValidationError
 
 from odoo.addons.fastapi.dependencies import odoo_env
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Path, Query, Request, Response, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    Header,
+    HTTPException,
+    Path,
+    Query,
+    Request,
+    Response,
+    status,
+)
 
 from ..middleware.auth import get_authenticated_client
 from ..schemas.group import Group
@@ -195,7 +205,10 @@ async def search_groups(
         group_data = group_service.to_api_schema(group, extensions=extension_list)
         filtered_data = consent_service.filter_response(group.id, api_client, "group", group_data)
         consent_info = filtered_data.pop("_consent", None)
-        if consent_info and consent_info.get("status") in ("no_consent", "scope_mismatch"):
+        if consent_info and consent_info.get("status") in (
+            "no_consent",
+            "scope_mismatch",
+        ):
             return None
         return filtered_data
 

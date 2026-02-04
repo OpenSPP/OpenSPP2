@@ -15,11 +15,12 @@ patch(ListRenderer.prototype, {
         if (record.resModel === "spp.program") {
             // Skip custom behavior if in selection mode (e.g., Many2one "Search More..." dialog)
             // In selection mode, don't open form - let dialog handle row selection
-            const isSelectionMode = this.props.onSelect ||
-                                    this.props.selectRecord ||
-                                    this.props.noOpen ||
-                                    this.env.inDialog ||
-                                    this.env.config?.noOpen;
+            const isSelectionMode =
+                this.props.onSelect ||
+                this.props.selectRecord ||
+                this.props.noOpen ||
+                this.env.inDialog ||
+                this.env.config?.noOpen;
 
             if (isSelectionMode) {
                 // In selection mode, use default behavior which handles selection

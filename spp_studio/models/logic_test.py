@@ -151,7 +151,7 @@ class LogicTest(models.Model):
                 test.error_message = False
 
             except Exception as e:
-                _logger.exception("Error executing test %s", test.name)
+                _logger.exception("Error executing test ID %s", test.id)
                 test.actual_result = False
                 test.passed = False
                 test.result = "error"
@@ -193,24 +193,33 @@ class LogicTest(models.Model):
 
         if self.input_type == "persona":
             if not self.persona_id:
-                _logger.warning("Test %s: persona input type selected but no persona specified", self.name)
+                _logger.warning(
+                    "Test %s: persona input type selected but no persona specified",
+                    self.name,
+                )
                 return None
             return self.persona_id.get_values_dict()
 
         elif self.input_type == "values":
             if not self.custom_values:
-                _logger.warning("Test %s: custom values input type selected but no values provided", self.name)
+                _logger.warning(
+                    "Test %s: custom values input type selected but no values provided",
+                    self.name,
+                )
                 return {}
 
             try:
                 return json.loads(self.custom_values)
             except json.JSONDecodeError as e:
-                _logger.error("Test %s: invalid JSON in custom_values: %s", self.name, str(e))
+                _logger.error("Test ID %s: invalid JSON in custom_values: %s", self.id, str(e))
                 return None
 
         elif self.input_type == "registrant":
             if not self.registrant_id:
-                _logger.warning("Test %s: registrant input type selected but no registrant specified", self.name)
+                _logger.warning(
+                    "Test %s: registrant input type selected but no registrant specified",
+                    self.name,
+                )
                 return None
 
             # Use test runner to build registrant context
@@ -251,7 +260,7 @@ class LogicTest(models.Model):
 
                 return result, steps
             except Exception as e:
-                _logger.exception("CEL service execution failed for test %s", self.name)
+                _logger.exception("CEL service execution failed for test ID %s", self.id)
                 steps.append(
                     {
                         "expression": expression,
@@ -265,7 +274,7 @@ class LogicTest(models.Model):
         error_msg = (
             "CEL service (spp.cel.service) is not available. " "Please install and configure the spp_cel_domain module."
         )
-        _logger.error("CEL service not available for test %s", self.name)
+        _logger.error("CEL service not available for test ID %s", self.id)
         steps.append(
             {
                 "expression": expression,

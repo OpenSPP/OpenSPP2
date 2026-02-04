@@ -168,7 +168,11 @@ class CRVSService:
                 return False
 
             # If we found death records, person is deceased
-            _logger.info("Death record found for %s:%s - person is deceased", identifier_type, identifier_value)
+            _logger.info(
+                "Death record found for %s:%s - person is deceased",
+                identifier_type,
+                identifier_value,
+            )
             return True
 
         except Exception as e:
@@ -208,7 +212,11 @@ class CRVSService:
 
                 # Parse response
                 if not response or "message" not in response:
-                    _logger.error("Invalid CRVS subscribe response for %s: %s", event_type, response)
+                    _logger.error(
+                        "Invalid CRVS subscribe response for %s: %s",
+                        event_type,
+                        response,
+                    )
                     continue
 
                 message = response["message"]
@@ -226,7 +234,11 @@ class CRVSService:
                         subscription_id,
                     )
                 else:
-                    _logger.warning("No subscription_id in CRVS response for %s: %s", event_type, message)
+                    _logger.warning(
+                        "No subscription_id in CRVS response for %s: %s",
+                        event_type,
+                        message,
+                    )
 
             if not subscription_ids:
                 raise UserError("Failed to subscribe to any CRVS events")

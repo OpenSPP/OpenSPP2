@@ -69,11 +69,20 @@ class SPPDemoDataGenerator(models.Model):
     is_remember_settings = fields.Boolean(string="Remember Settings", default=False)
     number_of_groups = fields.Integer(string="Number of Groups", default=_default_number_of_groups, required=True)
     members_range_from = fields.Integer(
-        string="Members per Group (From)", default=_default_members_range_from, required=True
+        string="Members per Group (From)",
+        default=_default_members_range_from,
+        required=True,
     )
-    members_range_to = fields.Integer(string="Members per Group (To)", default=_default_members_range_to, required=True)
+    members_range_to = fields.Integer(
+        string="Members per Group (To)",
+        default=_default_members_range_to,
+        required=True,
+    )
     locale_origin = fields.Many2one(
-        "res.country", string="Locale Origin", required=True, default=_default_locale_origin
+        "res.country",
+        string="Locale Origin",
+        required=True,
+        default=_default_locale_origin,
     )
     locale_origin_faker_locale = fields.Char(string="Locale Origin Faker Locale", related="locale_origin.faker_locale")
     batch_size = fields.Integer(string="Batch Size", default=_default_batch_size, required=True)
@@ -84,7 +93,12 @@ class SPPDemoDataGenerator(models.Model):
         help="Generate data within the last N days. Used for time-based demo data generation.",
     )
     state = fields.Selection(
-        [("draft", "Draft"), ("in_progress", "In Progress"), ("completed", "Completed"), ("cancelled", "Cancelled")],
+        [
+            ("draft", "Draft"),
+            ("in_progress", "In Progress"),
+            ("completed", "Completed"),
+            ("cancelled", "Cancelled"),
+        ],
         string="State",
         default="draft",
         required=True,
@@ -487,7 +501,10 @@ class SPPDemoDataGenerator(models.Model):
         gender_code = VocabCode.get_code("urn:iso:std:iso:5218", iso_code)
         if not gender_code:
             gender_code = VocabCode.search(
-                [("namespace_uri", "=", "urn:iso:std:iso:5218"), ("display", "ilike", gender)],
+                [
+                    ("namespace_uri", "=", "urn:iso:std:iso:5218"),
+                    ("display", "ilike", gender),
+                ],
                 limit=1,
             )
         return gender_code.id if gender_code else False
@@ -614,7 +631,10 @@ class SPPDemoDataGenerator(models.Model):
     def get_id_type(self, target_type):
         if self.id_type_ids:
             id_type = self.env["spp.demo.data.id.types"].search(
-                [("target_type", "=", target_type), ("demo_data_generator_id", "=", self.id)]
+                [
+                    ("target_type", "=", target_type),
+                    ("demo_data_generator_id", "=", self.id),
+                ]
             )
             if id_type:
                 if len(self.id_type_ids) == 1:
@@ -882,7 +902,10 @@ class SPPDemoDataGenerator(models.Model):
     def get_bank_type(self, target_type):
         if self.bank_type_ids:
             bank_type = self.env["spp.demo.data.bank.types"].search(
-                [("target_type", "=", target_type), ("demo_data_generator_id", "=", self.id)]
+                [
+                    ("target_type", "=", target_type),
+                    ("demo_data_generator_id", "=", self.id),
+                ]
             )
             if bank_type:
                 if len(self.bank_type_ids) == 1:
@@ -940,7 +963,10 @@ class SPPDemoDataGenerator(models.Model):
             attempt += 1
 
         # Return None if we couldn't generate a valid phone number
-        _logger.warning("Failed to generate valid phone number after %s attempts. Returning None.", max_attempts)
+        _logger.warning(
+            "Failed to generate valid phone number after %s attempts. Returning None.",
+            max_attempts,
+        )
         return None
 
     def create_phone_numbers(self, fake, registrant):
@@ -981,7 +1007,11 @@ class SPPDemoDataGenerator(models.Model):
             self.env["spp.phone.number"].create(phone_vals_list)
 
         if failed_count > 0:
-            _logger.warning("Failed to generate %d phone number(s) for registrant_id=%s", failed_count, registrant.id)
+            _logger.warning(
+                "Failed to generate %d phone number(s) for registrant_id=%s",
+                failed_count,
+                registrant.id,
+            )
 
         registrant.phone_number_ids_change()
 
@@ -1102,10 +1132,19 @@ class SPPDemoDataGenerator(models.Model):
 
                 if partner:
                     created_partners[story["id"]] = partner
-                    _logger.info("Created demo story: %s (partner_id=%s)", story["id"], partner.id)
+                    _logger.info(
+                        "Created demo story: %s (partner_id=%s)",
+                        story["id"],
+                        partner.id,
+                    )
 
             except Exception as e:
-                _logger.error("Error creating story '%s': %s", story.get("id", "unknown"), e, exc_info=True)
+                _logger.error(
+                    "Error creating story '%s': %s",
+                    story.get("id", "unknown"),
+                    e,
+                    exc_info=True,
+                )
 
         _logger.info(f"Demo story generation completed. Created {len(created_partners)} stories.")
         return created_partners

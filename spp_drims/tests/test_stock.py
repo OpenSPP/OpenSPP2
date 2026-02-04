@@ -18,7 +18,11 @@ class TestDrimsStock(DrimsTestCommon):
         """Test waybill number auto-generation."""
         drims_type = self.vocab_code.search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:drims-types"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:drims-types",
+                ),
                 ("code", "=", "request_dispatch"),
             ],
             limit=1,
@@ -40,7 +44,11 @@ class TestDrimsStock(DrimsTestCommon):
         """Test proof of delivery confirmation."""
         drims_type = self.vocab_code.search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:drims-types"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:drims-types",
+                ),
                 ("code", "=", "request_dispatch"),
             ],
             limit=1,
@@ -139,7 +147,11 @@ class TestDrimsStock(DrimsTestCommon):
         """Test picking DRIMS tracking fields and move association."""
         drims_type = self.vocab_code.search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:drims-types"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:drims-types",
+                ),
                 ("code", "=", "request_dispatch"),
             ],
             limit=1,
@@ -198,7 +210,11 @@ class TestDrimsStock(DrimsTestCommon):
         """Test warehouse health is 'warning' with 1-2 alerts."""
         alert_type = self.vocab_code.search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:alert-types"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:alert-types",
+                ),
                 ("code", "=", "low_stock"),
             ],
             limit=1,
@@ -228,7 +244,11 @@ class TestDrimsStock(DrimsTestCommon):
         """Test warehouse health is 'critical' with 3+ alerts."""
         alert_type = self.vocab_code.search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:alert-types"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:alert-types",
+                ),
                 ("code", "=", "low_stock"),
             ],
             limit=1,
@@ -259,7 +279,11 @@ class TestDrimsStock(DrimsTestCommon):
         """Test smart button action to view active alerts."""
         alert_type = self.vocab_code.search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:alert-types"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:alert-types",
+                ),
                 ("code", "=", "low_stock"),
             ],
             limit=1,

@@ -133,7 +133,15 @@ class TestLogicVariable(TransactionCase, CELTestDataMixin):
 
     def test_all_source_types(self):
         """Test all available source types can be created."""
-        source_types = ["field", "external", "scoring", "vocabulary", "computed", "constant", "aggregate"]
+        source_types = [
+            "field",
+            "external",
+            "scoring",
+            "vocabulary",
+            "computed",
+            "constant",
+            "aggregate",
+        ]
 
         for i, stype in enumerate(source_types):
             variable = self.LogicVariable.create(

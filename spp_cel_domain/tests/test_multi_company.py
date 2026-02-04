@@ -53,7 +53,18 @@ class TestMultiCompanySetup(TransactionCase, CELTestDataMixin):
                 "login": f"user_a_{self._test_id}",
                 "company_id": self.company_a.id,
                 "company_ids": [(6, 0, [self.company_a.id])],
-                "group_ids": [(6, 0, [group_user.id, group_read.id, group_viewer.id, group_manager.id])],
+                "group_ids": [
+                    (
+                        6,
+                        0,
+                        [
+                            group_user.id,
+                            group_read.id,
+                            group_viewer.id,
+                            group_manager.id,
+                        ],
+                    )
+                ],
                 "role_line_ids": [],
             }
         )
@@ -64,7 +75,18 @@ class TestMultiCompanySetup(TransactionCase, CELTestDataMixin):
                 "login": f"user_b_{self._test_id}",
                 "company_id": self.company_b.id,
                 "company_ids": [(6, 0, [self.company_b.id])],
-                "group_ids": [(6, 0, [group_user.id, group_read.id, group_viewer.id, group_manager.id])],
+                "group_ids": [
+                    (
+                        6,
+                        0,
+                        [
+                            group_user.id,
+                            group_read.id,
+                            group_viewer.id,
+                            group_manager.id,
+                        ],
+                    )
+                ],
                 "role_line_ids": [],
             }
         )
@@ -76,7 +98,19 @@ class TestMultiCompanySetup(TransactionCase, CELTestDataMixin):
                 "login": f"multi_admin_{self._test_id}",
                 "company_id": self.company_a.id,
                 "company_ids": [(6, 0, [self.company_a.id, self.company_b.id])],
-                "group_ids": [(6, 0, [group_user.id, group_read.id, group_viewer.id, group_manager.id, group_admin.id])],
+                "group_ids": [
+                    (
+                        6,
+                        0,
+                        [
+                            group_user.id,
+                            group_read.id,
+                            group_viewer.id,
+                            group_manager.id,
+                            group_admin.id,
+                        ],
+                    )
+                ],
                 "role_line_ids": [],
             }
         )

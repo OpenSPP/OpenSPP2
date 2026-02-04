@@ -144,35 +144,55 @@ class TestInspectionWizard(DrimsTestCommon):
         # Get vocabulary codes for inspection
         cls.state_received = cls.vocab_code.search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:donation-states"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:donation-states",
+                ),
                 ("code", "=", "received"),
             ],
             limit=1,
         )
         cls.condition_new = cls.vocab_code.search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:item-conditions"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:item-conditions",
+                ),
                 ("code", "=", "new"),
             ],
             limit=1,
         )
         cls.condition_damaged = cls.vocab_code.search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:item-conditions"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:item-conditions",
+                ),
                 ("code", "=", "damaged"),
             ],
             limit=1,
         )
         cls.disposition_accept = cls.vocab_code.search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:item-dispositions"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:item-dispositions",
+                ),
                 ("code", "=", "accept"),
             ],
             limit=1,
         )
         cls.disposition_return = cls.vocab_code.search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:item-dispositions"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:item-dispositions",
+                ),
                 ("code", "=", "return"),
             ],
             limit=1,

@@ -702,12 +702,16 @@ class TestCelVocabularyCursorHandling(TransactionCase, CELTestDataMixin):
         handler = registry.get_handler("is_female")
         self.assertIsNotNone(handler)
         self.assertTrue(
-            getattr(handler, "_cel_needs_env", False), "is_female should be marked with _cel_needs_env=True"
+            getattr(handler, "_cel_needs_env", False),
+            "is_female should be marked with _cel_needs_env=True",
         )
 
         handler = registry.get_handler("code")
         self.assertIsNotNone(handler)
-        self.assertTrue(getattr(handler, "_cel_needs_env", False), "code should be marked with _cel_needs_env=True")
+        self.assertTrue(
+            getattr(handler, "_cel_needs_env", False),
+            "code should be marked with _cel_needs_env=True",
+        )
 
     def test_evaluate_expression_with_vocabulary_function(self):
         """Test CEL evaluation with vocabulary functions uses fresh environment.

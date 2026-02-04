@@ -203,7 +203,7 @@ class VocabularyConceptGroup(models.Model):
         try:
             return json.loads(self.code_uris) if self.code_uris else []
         except (json.JSONDecodeError, TypeError):
-            _logger.warning("Invalid JSON in code_uris for group %s", self.name)
+            _logger.warning("Invalid JSON in code_uris for group ID %s", self.id)
             return []
 
     def name_get(self):

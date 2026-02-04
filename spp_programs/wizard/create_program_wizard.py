@@ -311,19 +311,22 @@ class SPPCreateNewProgramWiz(models.TransientModel):
             # Always update when entitlement type changes
             if rec.entitlement_type == "inkind":
                 inkind_def = self.env.ref(
-                    "spp_programs.approval_definition_entitlement_inkind", raise_if_not_found=False
+                    "spp_programs.approval_definition_entitlement_inkind",
+                    raise_if_not_found=False,
                 )
                 if inkind_def:
                     rec.entitlement_approval_definition_id = inkind_def
                 else:
                     # Fallback to cash approval definition if in-kind not found
                     rec.entitlement_approval_definition_id = self.env.ref(
-                        "spp_programs.approval_definition_entitlement", raise_if_not_found=False
+                        "spp_programs.approval_definition_entitlement",
+                        raise_if_not_found=False,
                     )
             else:
                 # For 'default' and 'cash' entitlement types
                 rec.entitlement_approval_definition_id = self.env.ref(
-                    "spp_programs.approval_definition_entitlement", raise_if_not_found=False
+                    "spp_programs.approval_definition_entitlement",
+                    raise_if_not_found=False,
                 )
 
     def _get_default_program_ui(self):

@@ -57,15 +57,24 @@ class TestGRMSecurity(TransactionCase):
 
     def test_group_hierarchy_manager_has_officer(self):
         """Test manager inherits officer permissions."""
-        self.assertTrue(self.manager.has_group("spp_grm.group_grm_officer"), "Manager should have officer permissions")
+        self.assertTrue(
+            self.manager.has_group("spp_grm.group_grm_officer"),
+            "Manager should have officer permissions",
+        )
 
     def test_group_hierarchy_manager_has_viewer(self):
         """Test manager inherits viewer permissions."""
-        self.assertTrue(self.manager.has_group("spp_grm.group_grm_viewer"), "Manager should have viewer permissions")
+        self.assertTrue(
+            self.manager.has_group("spp_grm.group_grm_viewer"),
+            "Manager should have viewer permissions",
+        )
 
     def test_group_hierarchy_officer_has_viewer(self):
         """Test officer inherits viewer permissions."""
-        self.assertTrue(self.officer.has_group("spp_grm.group_grm_viewer"), "Officer should have viewer permissions")
+        self.assertTrue(
+            self.officer.has_group("spp_grm.group_grm_viewer"),
+            "Officer should have viewer permissions",
+        )
 
     def test_admin_has_manager(self):
         """Test OpenSPP admin has GRM manager access."""
@@ -78,7 +87,10 @@ class TestGRMSecurity(TransactionCase):
                 ],
             }
         )
-        self.assertTrue(admin.has_group("spp_grm.group_grm_manager"), "Admin should have GRM manager access")
+        self.assertTrue(
+            admin.has_group("spp_grm.group_grm_manager"),
+            "Admin should have GRM manager access",
+        )
 
     def test_user_sees_own_tickets(self):
         """Test user sees own tickets."""

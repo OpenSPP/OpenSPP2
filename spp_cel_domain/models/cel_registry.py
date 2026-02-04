@@ -78,16 +78,32 @@ DEFAULT_PRESETS = {
         "root_model": "spp.program.membership",
         "symbols": {
             "r": {"model": "spp.program.membership"},  # ADR-008: 'r' for current record
-            "registrant": {"relation": "many2one", "field": "partner_id", "model": "res.partner"},
-            "program": {"relation": "many2one", "field": "program_id", "model": "spp.program"},
+            "registrant": {
+                "relation": "many2one",
+                "field": "partner_id",
+                "model": "res.partner",
+            },
+            "program": {
+                "relation": "many2one",
+                "field": "program_id",
+                "model": "spp.program",
+            },
         },
     },
     "entitlements": {
         "root_model": "spp.entitlement",
         "symbols": {
             "r": {"model": "spp.entitlement"},  # ADR-008: 'r' for current record
-            "registrant": {"relation": "many2one", "field": "partner_id", "model": "res.partner"},
-            "program": {"relation": "many2one", "field": "program_id", "model": "spp.program"},
+            "registrant": {
+                "relation": "many2one",
+                "field": "partner_id",
+                "model": "res.partner",
+            },
+            "program": {
+                "relation": "many2one",
+                "field": "program_id",
+                "model": "spp.program",
+            },
         },
     },
     "grm_tickets": {
@@ -96,11 +112,31 @@ DEFAULT_PRESETS = {
         "symbols": {
             "ticket": {"model": "spp.grm.ticket"},
             "r": {"model": "spp.grm.ticket"},  # ADR-008: 'r' alias for current record
-            "category": {"relation": "many2one", "field": "category_id", "model": "spp.grm.category"},
-            "channel": {"relation": "many2one", "field": "channel_id", "model": "spp.grm.channel"},
-            "stage": {"relation": "many2one", "field": "stage_id", "model": "spp.grm.stage"},
-            "partner": {"relation": "many2one", "field": "partner_id", "model": "res.partner"},
-            "team": {"relation": "many2one", "field": "team_id", "model": "spp.grm.team"},
+            "category": {
+                "relation": "many2one",
+                "field": "category_id",
+                "model": "spp.grm.category",
+            },
+            "channel": {
+                "relation": "many2one",
+                "field": "channel_id",
+                "model": "spp.grm.channel",
+            },
+            "stage": {
+                "relation": "many2one",
+                "field": "stage_id",
+                "model": "spp.grm.stage",
+            },
+            "partner": {
+                "relation": "many2one",
+                "field": "partner_id",
+                "model": "res.partner",
+            },
+            "team": {
+                "relation": "many2one",
+                "field": "team_id",
+                "model": "spp.grm.team",
+            },
             "user": {"relation": "many2one", "field": "user_id", "model": "res.users"},
         },
         "functions": [

@@ -109,7 +109,14 @@ class FilterService:
         filters_by_name = {f.name: f for f in path_config.get_available_filters(api_client)}
 
         # Reserved parameters that are not filters
-        reserved_params = {"_count", "_offset", "_sort", "_elements", "_extensions", "preset"}
+        reserved_params = {
+            "_count",
+            "_offset",
+            "_sort",
+            "_elements",
+            "_extensions",
+            "preset",
+        }
 
         for param_key, param_value in params.items():
             if param_key in reserved_params or param_value is None:
@@ -360,7 +367,10 @@ class FilterService:
         max_complexity = path_config.max_filter_complexity
 
         if count > max_complexity:
-            return False, f"Filter complexity ({count}) exceeds maximum ({max_complexity})"
+            return (
+                False,
+                f"Filter complexity ({count}) exceeds maximum ({max_complexity})",
+            )
 
         return True, None
 

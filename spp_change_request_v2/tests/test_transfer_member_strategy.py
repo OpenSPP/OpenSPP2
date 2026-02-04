@@ -284,7 +284,14 @@ class TestTransferMemberStrategy(TransactionCase):
         if not self.cr_type:
             self.skipTest("Transfer member CR type not found")
 
-        reasons = ["marriage", "separation", "relocation", "household_split", "correction", "other"]
+        reasons = [
+            "marriage",
+            "separation",
+            "relocation",
+            "household_split",
+            "correction",
+            "other",
+        ]
 
         for reason in reasons:
             individual = self.partner_model.create(

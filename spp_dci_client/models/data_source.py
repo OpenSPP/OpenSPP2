@@ -385,7 +385,11 @@ class DCIDataSource(models.Model):
 
         except Exception as e:
             # Log technical details for troubleshooting
-            _logger.error("Unexpected error during OAuth2 token request for data source %s: %s", self.code, str(e))
+            _logger.error(
+                "Unexpected error during OAuth2 token request for data source %s: %s",
+                self.code,
+                str(e),
+            )
             # Show generic user-friendly message
             raise UserError(_("An unexpected error occurred. Please contact your administrator.")) from e
 

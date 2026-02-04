@@ -144,7 +144,10 @@ class StockPicking(models.Model):
                     rec.pod_gps_point = json.dumps(
                         {
                             "type": "Point",
-                            "coordinates": [rec.pod_gps_longitude, rec.pod_gps_latitude],
+                            "coordinates": [
+                                rec.pod_gps_longitude,
+                                rec.pod_gps_latitude,
+                            ],
                         }
                     )
                 else:

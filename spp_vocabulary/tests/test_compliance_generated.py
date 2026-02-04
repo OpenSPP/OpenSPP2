@@ -134,7 +134,11 @@ class TestGroupHierarchy(TestComplianceBase):
         implied_ids = group.implied_ids.mapped("id")
         implied_group = self.env.ref("spp_vocabulary.group_vocabulary_read", raise_if_not_found=False)
         if implied_group:
-            self.assertIn(implied_group.id, implied_ids, "group_vocabulary_write should imply group_vocabulary_read")
+            self.assertIn(
+                implied_group.id,
+                implied_ids,
+                "group_vocabulary_write should imply group_vocabulary_read",
+            )
 
     def test_group_vocabulary_create_implies(self):
         """Test group_vocabulary_create implies correct groups."""
@@ -144,7 +148,11 @@ class TestGroupHierarchy(TestComplianceBase):
         implied_ids = group.implied_ids.mapped("id")
         implied_group = self.env.ref("spp_vocabulary.group_vocabulary_read", raise_if_not_found=False)
         if implied_group:
-            self.assertIn(implied_group.id, implied_ids, "group_vocabulary_create should imply group_vocabulary_read")
+            self.assertIn(
+                implied_group.id,
+                implied_ids,
+                "group_vocabulary_create should imply group_vocabulary_read",
+            )
 
     def test_group_vocabulary_viewer_implies(self):
         """Test group_vocabulary_viewer implies correct groups."""
@@ -154,7 +162,11 @@ class TestGroupHierarchy(TestComplianceBase):
         implied_ids = group.implied_ids.mapped("id")
         implied_group = self.env.ref("spp_vocabulary.group_vocabulary_read", raise_if_not_found=False)
         if implied_group:
-            self.assertIn(implied_group.id, implied_ids, "group_vocabulary_viewer should imply group_vocabulary_read")
+            self.assertIn(
+                implied_group.id,
+                implied_ids,
+                "group_vocabulary_viewer should imply group_vocabulary_read",
+            )
 
     def test_group_vocabulary_officer_implies(self):
         """Test group_vocabulary_officer implies correct groups."""
@@ -165,15 +177,23 @@ class TestGroupHierarchy(TestComplianceBase):
         implied_group = self.env.ref("spp_vocabulary.group_vocabulary_viewer", raise_if_not_found=False)
         if implied_group:
             self.assertIn(
-                implied_group.id, implied_ids, "group_vocabulary_officer should imply group_vocabulary_viewer"
+                implied_group.id,
+                implied_ids,
+                "group_vocabulary_officer should imply group_vocabulary_viewer",
             )
         implied_group = self.env.ref("spp_vocabulary.group_vocabulary_write", raise_if_not_found=False)
         if implied_group:
-            self.assertIn(implied_group.id, implied_ids, "group_vocabulary_officer should imply group_vocabulary_write")
+            self.assertIn(
+                implied_group.id,
+                implied_ids,
+                "group_vocabulary_officer should imply group_vocabulary_write",
+            )
         implied_group = self.env.ref("spp_vocabulary.group_vocabulary_create", raise_if_not_found=False)
         if implied_group:
             self.assertIn(
-                implied_group.id, implied_ids, "group_vocabulary_officer should imply group_vocabulary_create"
+                implied_group.id,
+                implied_ids,
+                "group_vocabulary_officer should imply group_vocabulary_create",
             )
 
     def test_group_vocabulary_manager_implies(self):
@@ -185,7 +205,9 @@ class TestGroupHierarchy(TestComplianceBase):
         implied_group = self.env.ref("spp_vocabulary.group_vocabulary_officer", raise_if_not_found=False)
         if implied_group:
             self.assertIn(
-                implied_group.id, implied_ids, "group_vocabulary_manager should imply group_vocabulary_officer"
+                implied_group.id,
+                implied_ids,
+                "group_vocabulary_manager should imply group_vocabulary_officer",
             )
 
 
@@ -365,7 +387,11 @@ class TestRecordRules(TestComplianceBase):
             self.skipTest("Rule rule_vocabulary_global_read not found")
 
         # Verify rule model
-        self.assertEqual(rule.model_id.model, "spp.vocabulary", "Rule should be for model spp.vocabulary")
+        self.assertEqual(
+            rule.model_id.model,
+            "spp.vocabulary",
+            "Rule should be for model spp.vocabulary",
+        )
 
         # Verify permissions
         self.assertEqual(rule.perm_read, True)
@@ -380,7 +406,11 @@ class TestRecordRules(TestComplianceBase):
             self.skipTest("Rule rule_vocabulary_code_global_read not found")
 
         # Verify rule model
-        self.assertEqual(rule.model_id.model, "spp.vocabulary.code", "Rule should be for model spp.vocabulary.code")
+        self.assertEqual(
+            rule.model_id.model,
+            "spp.vocabulary.code",
+            "Rule should be for model spp.vocabulary.code",
+        )
 
         # Verify permissions
         self.assertEqual(rule.perm_read, True)
@@ -396,7 +426,9 @@ class TestRecordRules(TestComplianceBase):
 
         # Verify rule model
         self.assertEqual(
-            rule.model_id.model, "spp.vocabulary.mapping", "Rule should be for model spp.vocabulary.mapping"
+            rule.model_id.model,
+            "spp.vocabulary.mapping",
+            "Rule should be for model spp.vocabulary.mapping",
         )
 
         # Verify permissions

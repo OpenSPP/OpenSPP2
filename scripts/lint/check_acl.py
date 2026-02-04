@@ -18,9 +18,23 @@ from pathlib import Path
 
 # Import common utilities
 try:
-    from .common import LintConfig, OutputFormatter, Severity, Violation, add_common_args, print_summary
+    from .common import (
+        LintConfig,
+        OutputFormatter,
+        Severity,
+        Violation,
+        add_common_args,
+        print_summary,
+    )
 except ImportError:
-    from common import LintConfig, OutputFormatter, Severity, Violation, add_common_args, print_summary
+    from common import (
+        LintConfig,
+        OutputFormatter,
+        Severity,
+        Violation,
+        add_common_args,
+        print_summary,
+    )
 
 
 def is_installable_module(manifest_path):
@@ -139,8 +153,16 @@ Exit codes:
   1 - One or more modules missing ACL files
 """,
     )
-    parser.add_argument("--check-only", action="store_true", help="Only report issues without failing (exit code 0)")
-    parser.add_argument("--root", default=".", help="Root directory to scan (default: current directory)")
+    parser.add_argument(
+        "--check-only",
+        action="store_true",
+        help="Only report issues without failing (exit code 0)",
+    )
+    parser.add_argument(
+        "--root",
+        default=".",
+        help="Root directory to scan (default: current directory)",
+    )
 
     # Add common arguments
     add_common_args(parser)

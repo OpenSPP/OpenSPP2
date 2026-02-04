@@ -644,7 +644,9 @@ class TestDemoStoryHouseholdMembers(TransactionCase):
             )
 
             self.assertEqual(
-                len(head_membership), 1, f"Household '{story_name}' should have exactly one head of household"
+                len(head_membership),
+                1,
+                f"Household '{story_name}' should have exactly one head of household",
             )
 
     def test_idempotent_member_creation(self):
@@ -668,7 +670,11 @@ class TestDemoStoryHouseholdMembers(TransactionCase):
         # Count should be the same
         second_count = self.env["spp.group.membership"].search_count([("group", "=", group.id)])
 
-        self.assertEqual(first_count, second_count, "Running generator twice should not duplicate members")
+        self.assertEqual(
+            first_count,
+            second_count,
+            "Running generator twice should not duplicate members",
+        )
 
     def test_individual_members_have_correct_attributes(self):
         """Test that created individual members have correct attributes."""

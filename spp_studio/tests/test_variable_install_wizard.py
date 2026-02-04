@@ -176,7 +176,10 @@ class TestVariableInstallWizardMatching(TransactionCase):
         match_info = wizard._find_match("name")
 
         # Should match as field type (or existing if already defined)
-        self.assertIn(match_info["type"], ["field", "existing_active", "existing_inactive", "standard"])
+        self.assertIn(
+            match_info["type"],
+            ["field", "existing_active", "existing_inactive", "standard"],
+        )
 
     def test_match_no_match(self):
         """Test when no match is found."""
@@ -202,7 +205,10 @@ class TestVariableInstallWizardMatching(TransactionCase):
         # Test _score suffix pattern
         match_info = wizard._find_match("pmt_score")
         # Will be 'none' if no scoring model exists, or 'scoring' if it does
-        self.assertIn(match_info["type"], ["none", "scoring", "existing_active", "existing_inactive", "standard"])
+        self.assertIn(
+            match_info["type"],
+            ["none", "scoring", "existing_active", "existing_inactive", "standard"],
+        )
 
     def test_match_metric_pattern(self):
         """Test matching metric() indicator pattern."""

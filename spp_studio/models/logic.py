@@ -484,7 +484,12 @@ class Logic(models.Model):
 
         # All tests must pass
         if self.test_fail_count > 0:
-            errors.append(_("Cannot publish logic with failing tests (%s failing)", self.test_fail_count))
+            errors.append(
+                _(
+                    "Cannot publish logic with failing tests (%s failing)",
+                    self.test_fail_count,
+                )
+            )
 
         # No missing variables
         if self.missing_variables:
@@ -575,7 +580,7 @@ class Logic(models.Model):
                     )
                 )
             record.state = "archived"
-            _logger.info("Archived logic %s", record.name)
+            _logger.info("Archived logic ID %s", record.id)
 
     def action_draft(self):
         """Create a new draft version from published logic.
@@ -589,7 +594,7 @@ class Logic(models.Model):
             # For reusable logic, we edit in place (new version on next publish)
             # For inline logic, we just set back to draft
             record.state = "draft"
-            _logger.info("Created new draft from published logic %s", record.name)
+            _logger.info("Created new draft from published logic ID %s", record.id)
 
     # Note: action_submit_for_approval, action_approve, action_reject are implemented
     # in LogicApproval which integrates with spp.approval.mixin for standardized workflow
@@ -628,10 +633,20 @@ class Logic(models.Model):
             message = _("All %s tests passed!", total)
             msg_type = "success"
         elif errors > 0:
-            message = _("%(passed)s/%(total)s passed, %(errors)s errors", passed=passed, total=total, errors=errors)
+            message = _(
+                "%(passed)s/%(total)s passed, %(errors)s errors",
+                passed=passed,
+                total=total,
+                errors=errors,
+            )
             msg_type = "danger"
         else:
-            message = _("%(passed)s/%(total)s passed, %(failed)s failed", passed=passed, total=total, failed=failed)
+            message = _(
+                "%(passed)s/%(total)s passed, %(failed)s failed",
+                passed=passed,
+                total=total,
+                failed=failed,
+            )
             msg_type = "warning"
 
         return {

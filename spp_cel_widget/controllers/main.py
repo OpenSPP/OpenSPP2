@@ -39,7 +39,12 @@ def _validate_expression(expression):
 class CelWidgetController(http.Controller):
     """HTTP endpoints for CEL expression widget."""
 
-    @http.route("/spp_cel/symbols/<string:profile>", type="jsonrpc", auth="user", methods=["POST"])
+    @http.route(
+        "/spp_cel/symbols/<string:profile>",
+        type="jsonrpc",
+        auth="user",
+        methods=["POST"],
+    )
     def get_symbols(self, profile):
         """Get symbols for a CEL profile.
 
@@ -70,7 +75,10 @@ class CelWidgetController(http.Controller):
         expression = _validate_expression(expression)
         provider = request.env["spp.cel.symbol.provider"]
         return provider.validate_expression(
-            expression, profile, expression_type=expression_type, output_type=output_type
+            expression,
+            profile,
+            expression_type=expression_type,
+            output_type=output_type,
         )
 
     @http.route("/spp_cel/profiles", type="jsonrpc", auth="user", methods=["POST"])

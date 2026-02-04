@@ -20,14 +20,22 @@ class TestDrimsAlert(DrimsTestCommon):
         # Get or create alert types
         cls.alert_type_low_stock = cls.AlertType.search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:alert-types"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:alert-types",
+                ),
                 ("code", "=", "low_stock"),
             ],
             limit=1,
         )
         cls.alert_type_sla = cls.AlertType.search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:alert-types"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:alert-types",
+                ),
                 ("code", "=", "sla_breach"),
             ],
             limit=1,
@@ -155,7 +163,10 @@ class TestDrimsAlert(DrimsTestCommon):
         request.action_submit()
 
         # Update date_needed to past date directly (bypassing ORM constraint)
-        self.env.cr.execute("UPDATE spp_drims_request SET date_needed = %s WHERE id = %s", (self.past_date, request.id))
+        self.env.cr.execute(
+            "UPDATE spp_drims_request SET date_needed = %s WHERE id = %s",
+            (self.past_date, request.id),
+        )
         request.invalidate_recordset()
 
         # Run SLA check

@@ -449,7 +449,11 @@ class TestDrimsRequest(DrimsTestCommon):
         # Set state to allocated
         allocated_state = self.env["spp.vocabulary.code"].search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:request-states"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:request-states",
+                ),
                 ("code", "=", "allocated"),
             ],
             limit=1,
@@ -498,7 +502,11 @@ class TestDrimsRequest(DrimsTestCommon):
         # Set state to allocated but don't allocate any lines
         allocated_state = self.env["spp.vocabulary.code"].search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:request-states"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:request-states",
+                ),
                 ("code", "=", "allocated"),
             ],
             limit=1,

@@ -334,7 +334,14 @@ class TestSplitHouseholdStrategy(TransactionCase):
         if not self.cr_type:
             self.skipTest("Split household CR type not found")
 
-        reasons = ["marriage", "separation", "independence", "relocation", "correction", "other"]
+        reasons = [
+            "marriage",
+            "separation",
+            "independence",
+            "relocation",
+            "correction",
+            "other",
+        ]
 
         for reason in reasons:
             # Create fresh group for each test

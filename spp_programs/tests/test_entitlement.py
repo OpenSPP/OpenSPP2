@@ -16,20 +16,24 @@ class TestEntitlement(Common):
             Command.link(cls.env.ref("base.group_user").id),
             Command.link(cls.env.ref("spp_programs.group_programs_manager").id),
         ]
-        cls.test_user_1 = cls.env["res.users"].create({
-            "name": "test",
-            "login": "test",
-            "group_ids": group,
-            "role_line_ids": [],  # Bypass default roles to test explicit group assignments
-        })
+        cls.test_user_1 = cls.env["res.users"].create(
+            {
+                "name": "test",
+                "login": "test",
+                "group_ids": group,
+                "role_line_ids": [],  # Bypass default roles to test explicit group assignments
+            }
+        )
 
         # User without access groups - should NOT have access to entitlement views
-        cls.test_user_2 = cls.env["res.users"].create({
-            "name": "test2",
-            "login": "test2",
-            "group_ids": [Command.link(cls.env.ref("base.group_user").id)],
-            "role_line_ids": [],  # Bypass default roles
-        })
+        cls.test_user_2 = cls.env["res.users"].create(
+            {
+                "name": "test2",
+                "login": "test2",
+                "group_ids": [Command.link(cls.env.ref("base.group_user").id)],
+                "role_line_ids": [],  # Bypass default roles
+            }
+        )
 
     def test_01_generate_code(self):
         self.assertIsNotNone(self.entitlement._generate_code())
@@ -329,7 +333,11 @@ class TestEntitlement(Common):
         # Test rejection from an invalid state ('approved')
         self.entitlement.state = "approved"
         self.entitlement._reject_entitlement(to_state="reject", reject_reason="Should not work")
-        self.assertEqual(self.entitlement.state, "approved", "Entitlement in 'approved' state should not be rejected.")
+        self.assertEqual(
+            self.entitlement.state,
+            "approved",
+            "Entitlement in 'approved' state should not be rejected.",
+        )
 
     def test_15_reset_to_pending_wizard(self):
         """Test that `reset_to_pending` returns the correct wizard action."""

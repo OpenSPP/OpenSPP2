@@ -249,7 +249,10 @@ class TestConsentEdgeCases(TransactionCase):
         )
 
         result = consent_with_recipients.is_recipient_allowed(recipient_id=None, org_type_code=None)
-        self.assertTrue(result, "Should return True when consent has recipients (even without specifying which)")
+        self.assertTrue(
+            result,
+            "Should return True when consent has recipients (even without specifying which)",
+        )
 
         # Test 2: Consent with NO recipients - should return False
         consent_without_recipients = self.env["spp.consent"].create(

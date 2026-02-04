@@ -399,7 +399,11 @@ class BaseAreaImportTest(AreaImportBaseTestMixin):
         import_record.process_file()
 
         # Verify final state is Validated (not Imported or Parsed)
-        self.assertEqual(import_record.state, "Validated", "State should be Validated after process_file")
+        self.assertEqual(
+            import_record.state,
+            "Validated",
+            "State should be Validated after process_file",
+        )
 
         # Verify all intermediate steps completed
         self.assertIsNotNone(import_record.date_parsed, "Parsing should have completed")
@@ -413,7 +417,11 @@ class BaseAreaImportTest(AreaImportBaseTestMixin):
         validated_count = self.env["spp.area.import.raw"].search_count(
             [("id", "in", import_record.raw_data_ids.ids), ("state", "=", "Validated")]
         )
-        self.assertEqual(validated_count, len(import_record.raw_data_ids), "All raw data records should be validated")
+        self.assertEqual(
+            validated_count,
+            len(import_record.raw_data_ids),
+            "All raw data records should be validated",
+        )
 
     def test_25_process_file_progress_tracking(self):
         """Test that progress tracking works during process_file"""

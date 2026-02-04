@@ -8,9 +8,21 @@
   "domain": "core",
   "is_hierarchical": false,
   "codes": [
-    {"code": "1", "display": "Single (never married)", "definition": "Person who has never been married"},
-    {"code": "2", "display": "Married", "definition": "Person currently married"},
-    {"code": "3", "display": "Widowed", "definition": "Person whose spouse has died and who has not remarried"},
+    {
+      "code": "1",
+      "display": "Single (never married)",
+      "definition": "Person who has never been married"
+    },
+    {
+      "code": "2",
+      "display": "Married",
+      "definition": "Person currently married"
+    },
+    {
+      "code": "3",
+      "display": "Widowed",
+      "definition": "Person whose spouse has died and who has not remarried"
+    },
     {
       "code": "4",
       "display": "Divorced",
@@ -21,6 +33,10 @@
       "display": "Separated",
       "definition": "Person who is legally or informally separated from their spouse"
     },
-    {"code": "9", "display": "Unknown", "definition": "Marital status unknown or not stated"}
+    {
+      "code": "9",
+      "display": "Unknown",
+      "definition": "Marital status unknown or not stated"
+    }
   ]
 }

@@ -117,7 +117,8 @@ class TestGroupHierarchy(TestComplianceBase):
         if not self.user_manager or not self.group_officer:
             self.skipTest("Required groups not found")
         self.assertTrue(
-            self.user_manager.has_group("spp_approval.group_approval_officer"), "Manager should have officer privileges"
+            self.user_manager.has_group("spp_approval.group_approval_officer"),
+            "Manager should have officer privileges",
         )
 
     def test_officer_implies_viewer(self):
@@ -125,7 +126,8 @@ class TestGroupHierarchy(TestComplianceBase):
         if not self.user_officer or not self.group_viewer:
             self.skipTest("Required groups not found")
         self.assertTrue(
-            self.user_officer.has_group("spp_approval.group_approval_viewer"), "Officer should have viewer privileges"
+            self.user_officer.has_group("spp_approval.group_approval_viewer"),
+            "Officer should have viewer privileges",
         )
 
     def test_group_approval_write_implies(self):
@@ -136,7 +138,11 @@ class TestGroupHierarchy(TestComplianceBase):
         implied_ids = group.implied_ids.mapped("id")
         implied_group = self.env.ref("spp_approval.group_approval_read", raise_if_not_found=False)
         if implied_group:
-            self.assertIn(implied_group.id, implied_ids, "group_approval_write should imply group_approval_read")
+            self.assertIn(
+                implied_group.id,
+                implied_ids,
+                "group_approval_write should imply group_approval_read",
+            )
 
     def test_group_approval_viewer_implies(self):
         """Test group_approval_viewer implies correct groups."""
@@ -146,7 +152,11 @@ class TestGroupHierarchy(TestComplianceBase):
         implied_ids = group.implied_ids.mapped("id")
         implied_group = self.env.ref("spp_approval.group_approval_read", raise_if_not_found=False)
         if implied_group:
-            self.assertIn(implied_group.id, implied_ids, "group_approval_viewer should imply group_approval_read")
+            self.assertIn(
+                implied_group.id,
+                implied_ids,
+                "group_approval_viewer should imply group_approval_read",
+            )
 
     def test_group_approval_officer_implies(self):
         """Test group_approval_officer implies correct groups."""
@@ -156,10 +166,18 @@ class TestGroupHierarchy(TestComplianceBase):
         implied_ids = group.implied_ids.mapped("id")
         implied_group = self.env.ref("spp_approval.group_approval_viewer", raise_if_not_found=False)
         if implied_group:
-            self.assertIn(implied_group.id, implied_ids, "group_approval_officer should imply group_approval_viewer")
+            self.assertIn(
+                implied_group.id,
+                implied_ids,
+                "group_approval_officer should imply group_approval_viewer",
+            )
         implied_group = self.env.ref("spp_approval.group_approval_write", raise_if_not_found=False)
         if implied_group:
-            self.assertIn(implied_group.id, implied_ids, "group_approval_officer should imply group_approval_write")
+            self.assertIn(
+                implied_group.id,
+                implied_ids,
+                "group_approval_officer should imply group_approval_write",
+            )
 
     def test_group_approval_manager_implies(self):
         """Test group_approval_manager implies correct groups."""
@@ -169,7 +187,11 @@ class TestGroupHierarchy(TestComplianceBase):
         implied_ids = group.implied_ids.mapped("id")
         implied_group = self.env.ref("spp_approval.group_approval_officer", raise_if_not_found=False)
         if implied_group:
-            self.assertIn(implied_group.id, implied_ids, "group_approval_manager should imply group_approval_officer")
+            self.assertIn(
+                implied_group.id,
+                implied_ids,
+                "group_approval_manager should imply group_approval_officer",
+            )
 
     def test_group_approval_approver_implies(self):
         """Test group_approval_approver implies correct groups."""
@@ -179,7 +201,11 @@ class TestGroupHierarchy(TestComplianceBase):
         implied_ids = group.implied_ids.mapped("id")
         implied_group = self.env.ref("spp_approval.group_approval_viewer", raise_if_not_found=False)
         if implied_group:
-            self.assertIn(implied_group.id, implied_ids, "group_approval_approver should imply group_approval_viewer")
+            self.assertIn(
+                implied_group.id,
+                implied_ids,
+                "group_approval_approver should imply group_approval_viewer",
+            )
 
     def test_group_approval_admin_implies(self):
         """Test group_approval_admin implies correct groups."""
@@ -189,7 +215,11 @@ class TestGroupHierarchy(TestComplianceBase):
         implied_ids = group.implied_ids.mapped("id")
         implied_group = self.env.ref("spp_approval.group_approval_manager", raise_if_not_found=False)
         if implied_group:
-            self.assertIn(implied_group.id, implied_ids, "group_approval_admin should imply group_approval_manager")
+            self.assertIn(
+                implied_group.id,
+                implied_ids,
+                "group_approval_admin should imply group_approval_manager",
+            )
 
 
 @tagged("post_install", "-at_install", "access_control", "compliance")
@@ -513,7 +543,11 @@ class TestRecordRules(TestComplianceBase):
             self.skipTest("Rule rule_spp_approval_review_approver not found")
 
         # Verify rule model
-        self.assertEqual(rule.model_id.model, "spp.approval.review", "Rule should be for model spp.approval.review")
+        self.assertEqual(
+            rule.model_id.model,
+            "spp.approval.review",
+            "Rule should be for model spp.approval.review",
+        )
 
         # Verify permissions
         self.assertEqual(rule.perm_read, True)
@@ -535,7 +569,11 @@ class TestRecordRules(TestComplianceBase):
 
         expected_group = self.env.ref("spp_approval.group_approval_approver", raise_if_not_found=False)
         if expected_group:
-            self.assertIn(expected_group, rule.groups, "Rule should include group group_approval_approver")
+            self.assertIn(
+                expected_group,
+                rule.groups,
+                "Rule should include group group_approval_approver",
+            )
 
     def test_rule_rule_spp_approval_review_manager_exists(self):
         """Test record rule rule_spp_approval_review_manager exists and is configured."""
@@ -544,7 +582,11 @@ class TestRecordRules(TestComplianceBase):
             self.skipTest("Rule rule_spp_approval_review_manager not found")
 
         # Verify rule model
-        self.assertEqual(rule.model_id.model, "spp.approval.review", "Rule should be for model spp.approval.review")
+        self.assertEqual(
+            rule.model_id.model,
+            "spp.approval.review",
+            "Rule should be for model spp.approval.review",
+        )
 
         # Verify permissions
         self.assertEqual(rule.perm_read, True)
@@ -566,7 +608,11 @@ class TestRecordRules(TestComplianceBase):
 
         expected_group = self.env.ref("spp_approval.group_approval_manager", raise_if_not_found=False)
         if expected_group:
-            self.assertIn(expected_group, rule.groups, "Rule should include group group_approval_manager")
+            self.assertIn(
+                expected_group,
+                rule.groups,
+                "Rule should include group group_approval_manager",
+            )
 
     def test_rule_rule_spp_approval_definition_company_exists(self):
         """Test record rule rule_spp_approval_definition_company exists and is configured."""
@@ -576,7 +622,9 @@ class TestRecordRules(TestComplianceBase):
 
         # Verify rule model
         self.assertEqual(
-            rule.model_id.model, "spp.approval.definition", "Rule should be for model spp.approval.definition"
+            rule.model_id.model,
+            "spp.approval.definition",
+            "Rule should be for model spp.approval.definition",
         )
 
         # Verify permissions
@@ -592,7 +640,11 @@ class TestRecordRules(TestComplianceBase):
             self.skipTest("Rule rule_spp_approval_freeze_company not found")
 
         # Verify rule model
-        self.assertEqual(rule.model_id.model, "spp.approval.freeze", "Rule should be for model spp.approval.freeze")
+        self.assertEqual(
+            rule.model_id.model,
+            "spp.approval.freeze",
+            "Rule should be for model spp.approval.freeze",
+        )
 
         # Verify permissions
         self.assertEqual(rule.perm_read, True)
@@ -636,5 +688,7 @@ class TestAdminLinkage(TestComplianceBase):
 
         all_implied = get_all_implied(admin_group)
         self.assertIn(
-            manager_group.id, all_implied, "Admin group should imply group_approval_manager (directly or transitively)"
+            manager_group.id,
+            all_implied,
+            "Admin group should imply group_approval_manager (directly or transitively)",
         )

@@ -255,7 +255,11 @@ class DrimsRequest(models.Model):
     def _get_default_state(self):
         return self.env["spp.vocabulary.code"].search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:request-states"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:request-states",
+                ),
                 ("code", "=", "draft"),
             ],
             limit=1,
@@ -365,7 +369,11 @@ class DrimsRequest(models.Model):
         """Submit request for approval."""
         submitted_state = self.env["spp.vocabulary.code"].search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:request-states"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:request-states",
+                ),
                 ("code", "=", "submitted"),
             ],
             limit=1,
@@ -388,7 +396,11 @@ class DrimsRequest(models.Model):
         """Called when approval is complete."""
         approved_state = self.env["spp.vocabulary.code"].search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:request-states"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:request-states",
+                ),
                 ("code", "=", "approved"),
             ],
             limit=1,
@@ -399,7 +411,11 @@ class DrimsRequest(models.Model):
         """Called when request is rejected."""
         rejected_state = self.env["spp.vocabulary.code"].search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:request-states"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:request-states",
+                ),
                 ("code", "=", "rejected"),
             ],
             limit=1,
@@ -430,7 +446,11 @@ class DrimsRequest(models.Model):
         """Request changes from the requester."""
         revision_state = self.env["spp.vocabulary.code"].search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:request-states"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:request-states",
+                ),
                 ("code", "=", "draft"),
             ],
             limit=1,
@@ -448,7 +468,11 @@ class DrimsRequest(models.Model):
         """Reset rejected request to draft for resubmission."""
         draft_state = self.env["spp.vocabulary.code"].search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:request-states"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:request-states",
+                ),
                 ("code", "=", "draft"),
             ],
             limit=1,
@@ -475,7 +499,11 @@ class DrimsRequest(models.Model):
             # Update state to allocated
             allocated_state = self.env["spp.vocabulary.code"].search(
                 [
-                    ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:request-states"),
+                    (
+                        "vocabulary_id.namespace_uri",
+                        "=",
+                        "urn:openspp:vocab:drims:request-states",
+                    ),
                     ("code", "=", "allocated"),
                 ],
                 limit=1,
@@ -528,7 +556,11 @@ class DrimsRequest(models.Model):
             quants = Quant.search(
                 [
                     ("product_id", "=", line.product_id.id),
-                    ("location_id", "child_of", self.source_warehouse_id.lot_stock_id.id),
+                    (
+                        "location_id",
+                        "child_of",
+                        self.source_warehouse_id.lot_stock_id.id,
+                    ),
                     ("quantity", ">", 0),
                 ],
                 order="in_date asc",
@@ -589,7 +621,11 @@ class DrimsRequest(models.Model):
         # Get DRIMS dispatch type
         drims_type = self.env["spp.vocabulary.code"].search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:drims-types"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:drims-types",
+                ),
                 ("code", "=", "request_dispatch"),
             ],
             limit=1,
@@ -636,7 +672,11 @@ class DrimsRequest(models.Model):
         # Update request state to dispatched
         dispatched_state = self.env["spp.vocabulary.code"].search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:request-states"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:request-states",
+                ),
                 ("code", "=", "dispatched"),
             ],
             limit=1,

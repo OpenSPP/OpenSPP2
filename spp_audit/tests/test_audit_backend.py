@@ -56,7 +56,9 @@ class TestAuditConfig(TransactionCase):
     def test_get_enabled_backends(self):
         """Test getting list of enabled backends."""
         with patch.dict(
-            os.environ, {"OPENSPP_AUDIT_BACKEND_DB": "true", "OPENSPP_AUDIT_BACKEND_FILE": "true"}, clear=False
+            os.environ,
+            {"OPENSPP_AUDIT_BACKEND_DB": "true", "OPENSPP_AUDIT_BACKEND_FILE": "true"},
+            clear=False,
         ):
             backends = AuditConfig.get_enabled_backends()
             self.assertIn("db", backends)
@@ -94,7 +96,13 @@ class TestAuditBackendRegistry(TransactionCase):
         entry = {"test": "data"}
         original_keys = set(entry.keys())
 
-        with patch.dict(os.environ, {"OPENSPP_AUDIT_BACKEND_DB": "false", "OPENSPP_AUDIT_BACKEND_FILE": "false"}):
+        with patch.dict(
+            os.environ,
+            {
+                "OPENSPP_AUDIT_BACKEND_DB": "false",
+                "OPENSPP_AUDIT_BACKEND_FILE": "false",
+            },
+        ):
             AuditBackendRegistry.dispatch(entry, self.env)
 
         # Original entry should not be mutated
@@ -202,12 +210,20 @@ class TestMailThreadPosting(TransactionCase):
         # Get messages - should only have creation tracking, not audit
         # The audit log should be created but no message_post should occur
         audit_logs = self.env["spp.audit.log"].search(
-            [("model_id", "=", self.model.id), ("res_id", "=", partner.id), ("method", "=", "create")]
+            [
+                ("model_id", "=", self.model.id),
+                ("res_id", "=", partner.id),
+                ("method", "=", "create"),
+            ]
         )
 
         # Audit log should exist (if DB backend enabled)
         if AuditConfig.get_bool("backend_db", env=self.env):
-            self.assertEqual(len(audit_logs), 1, "Expected exactly one audit log for partner creation")
+            self.assertEqual(
+                len(audit_logs),
+                1,
+                "Expected exactly one audit log for partner creation",
+            )
 
         # Clean up
         partner.unlink()

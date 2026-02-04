@@ -65,7 +65,14 @@ class TestSearchService(ApiV2TestCase):
         domain = self.service._parse_identifier_param("urn:openspp:vocab:id-type#test_national_id|IND-001")
 
         self.assertEqual(len(domain), 2)
-        self.assertIn(("reg_ids.id_type_id.uri", "=", "urn:openspp:vocab:id-type#test_national_id"), domain)
+        self.assertIn(
+            (
+                "reg_ids.id_type_id.uri",
+                "=",
+                "urn:openspp:vocab:id-type#test_national_id",
+            ),
+            domain,
+        )
         self.assertIn(("reg_ids.value", "=", "IND-001"), domain)
 
     def test_search_by_identifier(self):

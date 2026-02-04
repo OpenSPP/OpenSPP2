@@ -37,10 +37,12 @@ class ManagerMixin(models.AbstractModel):
                 action = self.env[res_model].get_formview_action()
                 context = dict(self.env.context)
                 if readonly:
-                    context.update({
-                        "create": False,
-                        "edit": False,
-                    })
+                    context.update(
+                        {
+                            "create": False,
+                            "edit": False,
+                        }
+                    )
                 action.update(
                     {
                         "views": [(self.env[res_model].get_manager_view_id(), "form")],

@@ -177,7 +177,11 @@ class TestDrimsIncident(DrimsTestCommon):
         # Get the request_dispatch vocabulary code
         drims_type = self.env["spp.vocabulary.code"].search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:drims-types"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:drims-types",
+                ),
                 ("code", "=", "request_dispatch"),
             ],
             limit=1,

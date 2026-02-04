@@ -94,7 +94,10 @@ class VariableRemapWizard(models.TransientModel):
     def _compute_is_type_change(self):
         """Check if this is a type change (computed/aggregate -> field)."""
         for wizard in self:
-            wizard.is_type_change = wizard.current_source_type in ("computed", "aggregate")
+            wizard.is_type_change = wizard.current_source_type in (
+                "computed",
+                "aggregate",
+            )
 
     @api.depends("new_field_id")
     def _compute_new_field_preview(self):

@@ -19,14 +19,20 @@ class Claim169AttributeMapping(models.Model):
     _description = "Claim 169 Attribute Mapping"
     _order = "sequence, claim_number"
 
-    name = fields.Char(string="Mapping Name", required=True, help="Descriptive name for this attribute mapping")
+    name = fields.Char(
+        string="Mapping Name",
+        required=True,
+        help="Descriptive name for this attribute mapping",
+    )
 
     claim_number = fields.Integer(string="Claim Number", required=True, help="Claim 169 attribute number (1-99)")
 
     claim_name = fields.Char(string="Claim Name", help="Human-readable claim name (e.g., 'full_name', 'dob')")
 
     source_field = fields.Char(
-        string="Source Field", required=True, help="Field path on res.partner (e.g., 'name', 'birthdate', 'phone')"
+        string="Source Field",
+        required=True,
+        help="Field path on res.partner (e.g., 'name', 'birthdate', 'phone')",
     )
 
     transform_type = fields.Selection(
@@ -44,11 +50,14 @@ class Claim169AttributeMapping(models.Model):
     )
 
     cel_expression = fields.Text(
-        string="CEL Expression", help="CEL expression for complex transformations (when transform_type='cel')"
+        string="CEL Expression",
+        help="CEL expression for complex transformations (when transform_type='cel')",
     )
 
     is_active = fields.Boolean(
-        string="Active", default=True, help="Only active mappings are used in credential generation"
+        string="Active",
+        default=True,
+        help="Only active mappings are used in credential generation",
     )
 
     sequence = fields.Integer(string="Sequence", default=10, help="Order of processing (lower numbers first)")
@@ -122,7 +131,12 @@ class Claim169AttributeMapping(models.Model):
                 value = value[field_name]
             return value
         except (KeyError, AttributeError) as e:
-            _logger.warning("Failed to get field '%s' from partner %s: %s", field_path, partner.id, str(e))
+            _logger.warning(
+                "Failed to get field '%s' from partner %s: %s",
+                field_path,
+                partner.id,
+                str(e),
+            )
             return None
 
     def _transform_value(self, value, partner):

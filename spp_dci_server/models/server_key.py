@@ -159,7 +159,10 @@ class DCIServerKey(models.Model):
                 }
             )
 
-            _logger.info("Successfully generated Ed25519 keypair for server key_id: %s", self.key_id)
+            _logger.info(
+                "Successfully generated Ed25519 keypair for server key_id: %s",
+                self.key_id,
+            )
 
             return {
                 "type": "ir.actions.client",
@@ -173,7 +176,11 @@ class DCIServerKey(models.Model):
             }
 
         except Exception as e:
-            _logger.error("Failed to generate keypair for server key_id %s: %s", self.key_id, str(e))
+            _logger.error(
+                "Failed to generate keypair for server key_id %s: %s",
+                self.key_id,
+                str(e),
+            )
             raise UserError(_("Failed to generate keypair: %s") % str(e)) from e
 
     def action_activate(self):

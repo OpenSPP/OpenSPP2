@@ -53,6 +53,10 @@
       "display": "Doctoral or equivalent level",
       "definition": "Programs designed primarily to lead to an advanced research qualification"
     },
-    {"code": "9", "display": "Not elsewhere classified", "definition": "Education level not elsewhere classified"}
+    {
+      "code": "9",
+      "display": "Not elsewhere classified",
+      "definition": "Education level not elsewhere classified"
+    }
   ]
 }

@@ -219,7 +219,7 @@ class ExtensionService:
 
         elif field.ttype == "one2many":
             # Skip one2many fields - too complex for simple extension
-            _logger.debug("Skipping one2many field: %s", field.name)
+            _logger.debug("Skipping one2many field: %s", field.id)
             return None
 
         elif field.ttype == "date":

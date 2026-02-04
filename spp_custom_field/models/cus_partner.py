@@ -77,7 +77,9 @@ class OpenSPPResPartner(models.Model):
                     xpath_expr = ".//div[@class='row mt16 o_settings_container o_no_group']"
                     if not custom_page.xpath(xpath_expr):
                         custom_div = etree.SubElement(
-                            custom_page, "div", {"class": "row mt16 o_settings_container o_no_group"}
+                            custom_page,
+                            "div",
+                            {"class": "row mt16 o_settings_container o_no_group"},
                         )
                     else:
                         custom_div = custom_page.xpath(xpath_expr)[0]
@@ -102,7 +104,9 @@ class OpenSPPResPartner(models.Model):
                     xpath_expr = ".//div[@class='row mt16 o_settings_container o_no_group']"
                     if not indicators_page.xpath(xpath_expr):
                         indicators_div = etree.SubElement(
-                            indicators_page, "div", {"class": "row mt16 o_settings_container o_no_group"}
+                            indicators_page,
+                            "div",
+                            {"class": "row mt16 o_settings_container o_no_group"},
                         )
                     else:
                         indicators_div = indicators_page.xpath(xpath_expr)[0]

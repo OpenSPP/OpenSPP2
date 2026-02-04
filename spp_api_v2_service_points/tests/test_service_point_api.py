@@ -61,7 +61,8 @@ class TestServicePointAPI(TransactionCase):
                 }
             )
         cls.service_type_cash = cls.env["spp.vocabulary.code"].search(
-            [("vocabulary_id", "=", cls.service_vocab.id), ("code", "=", "CASH")], limit=1
+            [("vocabulary_id", "=", cls.service_vocab.id), ("code", "=", "CASH")],
+            limit=1,
         )
         if not cls.service_type_cash:
             cls.service_type_cash = cls.env["spp.vocabulary.code"].create(
@@ -72,7 +73,8 @@ class TestServicePointAPI(TransactionCase):
                 }
             )
         cls.service_type_voucher = cls.env["spp.vocabulary.code"].search(
-            [("vocabulary_id", "=", cls.service_vocab.id), ("code", "=", "VOUCHER")], limit=1
+            [("vocabulary_id", "=", cls.service_vocab.id), ("code", "=", "VOUCHER")],
+            limit=1,
         )
         if not cls.service_type_voucher:
             cls.service_type_voucher = cls.env["spp.vocabulary.code"].create(
@@ -337,7 +339,8 @@ class TestServicePointAPIEndpoints(TransactionCase):
                 }
             )
         cls.service_type_cash = cls.env["spp.vocabulary.code"].search(
-            [("vocabulary_id", "=", cls.service_vocab.id), ("code", "=", "CASH")], limit=1
+            [("vocabulary_id", "=", cls.service_vocab.id), ("code", "=", "CASH")],
+            limit=1,
         )
         if not cls.service_type_cash:
             cls.service_type_cash = cls.env["spp.vocabulary.code"].create(

@@ -193,7 +193,10 @@ class ApprovalMixin(models.AbstractModel):
             record.can_approve = False
             record.can_reject = False
             _logger.warning(
-                "Computing approval permissions for %s %s, state=%s", record._name, record.id, record.approval_state
+                "Computing approval permissions for %s %s, state=%s",
+                record._name,
+                record.id,
+                record.approval_state,
             )
 
             if record.approval_state == "pending":
@@ -231,7 +234,11 @@ class ApprovalMixin(models.AbstractModel):
                             )
                         else:
                             approvers = self.env["res.users"]
-                            _logger.error("No active review found for multi-tier record %s %s", record._name, record.id)
+                            _logger.error(
+                                "No active review found for multi-tier record %s %s",
+                                record._name,
+                                record.id,
+                            )
                     else:
                         # Single-tier: use definition approvers
                         approvers = definition.get_approvers(record)
@@ -247,7 +254,10 @@ class ApprovalMixin(models.AbstractModel):
                         record.can_approve = True
                         record.can_reject = True
                         _logger.warning(
-                            "User ID %s can approve/reject %s %s", self.env.user.id, record._name, record.id
+                            "User ID %s can approve/reject %s %s",
+                            self.env.user.id,
+                            record._name,
+                            record.id,
                         )
                     else:
                         _logger.warning(
@@ -535,7 +545,12 @@ class ApprovalMixin(models.AbstractModel):
         if self.approval_state != "pending":
             raise UserError(_("Only pending records can be approved."))
         self._compute_approval_permissions()
-        _logger.warning("_check_can_approve result for %s %s: can_approve=%s", self._name, self.id, self.can_approve)
+        _logger.warning(
+            "_check_can_approve result for %s %s: can_approve=%s",
+            self._name,
+            self.id,
+            self.can_approve,
+        )
 
         # Check for data consistency
         pending_reviews = self.approval_review_ids.filtered(lambda r: r.status == "pending")

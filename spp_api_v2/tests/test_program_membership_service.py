@@ -235,7 +235,14 @@ class TestProgramMembershipService(ApiV2TestCase):
 
     def test_status_validation(self):
         """Status values are correctly handled"""
-        valid_statuses = ["draft", "enrolled", "paused", "exited", "not_eligible", "duplicated"]
+        valid_statuses = [
+            "draft",
+            "enrolled",
+            "paused",
+            "exited",
+            "not_eligible",
+            "duplicated",
+        ]
 
         for idx, status in enumerate(valid_statuses):
             # Each membership needs a unique program (unique constraint: partner+program)

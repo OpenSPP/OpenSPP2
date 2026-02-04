@@ -171,7 +171,9 @@ class SPPEntitlement(models.Model):
                 spp_program_manager = self.env.user.has_group("spp_programs.group_programs_manager")
                 spp_program_cycle_approver = self.env.user.has_group("spp_programs.group_programs_cycle_approver")
 
-                if not (group_spp_registrar or spp_program_validator or spp_program_manager or spp_program_cycle_approver):
+                if not (
+                    group_spp_registrar or spp_program_validator or spp_program_manager or spp_program_cycle_approver
+                ):
                     raise ValidationError(_("You have no access in the Entitlement List View"))
 
         return arch, view
@@ -256,24 +258,28 @@ class SPPEntitlement(models.Model):
             current_user = self.env.user
             definition = record.entitlement_approval_definition_id
             user_in_approval_group = False
-            
+
             if definition:
                 if definition.approval_type == "group" and definition.approval_group_id:
                     user_in_approval_group = current_user.id in definition.approval_group_id.user_ids.ids
                 elif definition.approval_type == "user" and definition.approval_user_ids:
                     user_in_approval_group = current_user.id in definition.approval_user_ids.ids
-            
+
             # Show fund availability message if user is in approval group and pending
             if user_in_approval_group and record.state == "pending_validation":
                 # Check fund availability for cash entitlements
                 from ..models import constants
-                
-                entitlement_manager = record.cycle_id.program_id.get_manager(constants.MANAGER_ENTITLEMENT) if record.cycle_id and record.cycle_id.program_id else None
+
+                entitlement_manager = (
+                    record.cycle_id.program_id.get_manager(constants.MANAGER_ENTITLEMENT)
+                    if record.cycle_id and record.cycle_id.program_id
+                    else None
+                )
                 if entitlement_manager and entitlement_manager.IS_CASH_ENTITLEMENT:
                     try:
                         available_funds = entitlement_manager.check_fund_balance(record.cycle_id.program_id.id)
                         required_amount = record.initial_amount
-                        
+
                         if available_funds < required_amount:
                             record.show_fund_availability_message = True
                             record.has_insufficient_funds = True
@@ -283,9 +289,12 @@ class SPPEntitlement(models.Model):
                                 "Available: <b>%s %.2f</b> | "
                                 "Shortage: <b>%s %.2f</b>"
                             ) % (
-                                record.currency_id.symbol, required_amount,
-                                record.currency_id.symbol, available_funds,
-                                record.currency_id.symbol, required_amount - available_funds
+                                record.currency_id.symbol,
+                                required_amount,
+                                record.currency_id.symbol,
+                                available_funds,
+                                record.currency_id.symbol,
+                                required_amount - available_funds,
                             )
                         else:
                             record.show_fund_availability_message = True
@@ -295,8 +304,10 @@ class SPPEntitlement(models.Model):
                                 "Required: <b>%s %.2f</b> | "
                                 "Available: <b>%s %.2f</b>"
                             ) % (
-                                record.currency_id.symbol, required_amount,
-                                record.currency_id.symbol, available_funds
+                                record.currency_id.symbol,
+                                required_amount,
+                                record.currency_id.symbol,
+                                available_funds,
                             )
                     except Exception:
                         # If fund check fails, don't show the message
@@ -311,22 +322,23 @@ class SPPEntitlement(models.Model):
                 record.show_fund_availability_message = False
                 record.fund_availability_message = False
                 record.has_insufficient_funds = False
-            
+
             # Show waiting message only if pending and user cannot approve or reject
             if record.state == "pending_validation" and not record.can_approve and not record.can_reject:
                 record.show_approval_waiting_message = True
-                
+
                 # Build the message based on approval definition
                 if definition:
                     if definition.approval_type == "group" and definition.approval_group_id:
-                        record.approval_waiting_message = _(
-                            "Waiting for approval from members of the <b>%s</b> security group."
-                        ) % definition.approval_group_id.display_name
+                        record.approval_waiting_message = (
+                            _("Waiting for approval from members of the <b>%s</b> security group.")
+                            % definition.approval_group_id.display_name
+                        )
                     elif definition.approval_type == "user" and definition.approval_user_ids:
                         user_names = ", ".join(definition.approval_user_ids.mapped("name"))
-                        record.approval_waiting_message = _(
-                            "Waiting for approval from specific users: <b>%s</b>"
-                        ) % user_names
+                        record.approval_waiting_message = (
+                            _("Waiting for approval from specific users: <b>%s</b>") % user_names
+                        )
                     else:
                         record.approval_waiting_message = _("Waiting for approval from designated approver.")
                 else:
@@ -476,7 +488,14 @@ class SPPEntitlement(models.Model):
     def action_reset_to_draft(self):
         """Reset entitlement to draft state."""
         for record in self:
-            valid_reset_states = ("pending_validation", "cancelled", "reject", "rejected1", "rejected2", "rejected3")
+            valid_reset_states = (
+                "pending_validation",
+                "cancelled",
+                "reject",
+                "rejected1",
+                "rejected2",
+                "rejected3",
+            )
             if record.state not in valid_reset_states:
                 raise UserError(_("Only entitlements pending approval, cancelled, or rejected can be reset to draft."))
 
@@ -759,7 +778,9 @@ class InKindEntitlement(models.Model):
                 spp_program_manager = self.env.user.has_group("spp_programs.group_programs_manager")
                 spp_program_cycle_approver = self.env.user.has_group("spp_programs.group_programs_cycle_approver")
 
-                if not (group_spp_registrar or spp_program_validator or spp_program_manager or spp_program_cycle_approver):
+                if not (
+                    group_spp_registrar or spp_program_validator or spp_program_manager or spp_program_cycle_approver
+                ):
                     raise ValidationError(_("You have no access in the Entitlement List View"))
 
         return arch, view
@@ -800,23 +821,24 @@ class InKindEntitlement(models.Model):
             record.show_fund_availability_message = False
             record.fund_availability_message = False
             record.has_insufficient_funds = False
-            
+
             # Show waiting message only if pending and user cannot approve or reject
             if record.state == "pending_validation" and not record.can_approve and not record.can_reject:
                 record.show_approval_waiting_message = True
-                
+
                 # Build the message based on approval definition
                 definition = record.entitlement_approval_definition_id
                 if definition:
                     if definition.approval_type == "group" and definition.approval_group_id:
-                        record.approval_waiting_message = _(
-                            "Waiting for approval from members of the <b>%s</b> security group."
-                        ) % definition.approval_group_id.display_name
+                        record.approval_waiting_message = (
+                            _("Waiting for approval from members of the <b>%s</b> security group.")
+                            % definition.approval_group_id.display_name
+                        )
                     elif definition.approval_type == "user" and definition.approval_user_ids:
                         user_names = ", ".join(definition.approval_user_ids.mapped("name"))
-                        record.approval_waiting_message = _(
-                            "Waiting for approval from specific users: <b>%s</b>"
-                        ) % user_names
+                        record.approval_waiting_message = (
+                            _("Waiting for approval from specific users: <b>%s</b>") % user_names
+                        )
                     else:
                         record.approval_waiting_message = _("Waiting for approval from designated approver.")
                 else:
@@ -923,7 +945,14 @@ class InKindEntitlement(models.Model):
     def action_reset_to_draft(self):
         """Reset in-kind entitlement to draft."""
         for record in self:
-            if record.state not in ("pending_validation", "reject", "rejected1", "rejected2", "rejected3", "cancelled"):
+            if record.state not in (
+                "pending_validation",
+                "reject",
+                "rejected1",
+                "rejected2",
+                "rejected3",
+                "cancelled",
+            ):
                 raise UserError(
                     _("Only entitlements pending validation, rejected, or cancelled can be reset to draft.")
                 )
@@ -992,7 +1021,9 @@ class InKindEntitlement(models.Model):
 
                     pending_reviews = rec.approval_review_ids.filtered(lambda r: r.status == "pending")
                     _logger.debug(
-                        "In-Kind Entitlement %s - Found %d pending reviews to approve", rec.id, len(pending_reviews)
+                        "In-Kind Entitlement %s - Found %d pending reviews to approve",
+                        rec.id,
+                        len(pending_reviews),
                     )
                     if pending_reviews:
                         pending_reviews.write(
@@ -1002,7 +1033,10 @@ class InKindEntitlement(models.Model):
                                 "review_date": fields.Datetime.now(),
                             }
                         )
-                        _logger.debug("In-Kind Entitlement %s - Updated approval reviews to approved", rec.id)
+                        _logger.debug(
+                            "In-Kind Entitlement %s - Updated approval reviews to approved",
+                            rec.id,
+                        )
 
         state_err, message = ent_manager.approve_entitlements(self)
 

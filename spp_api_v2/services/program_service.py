@@ -43,12 +43,16 @@ class ProgramService:
         # Try searching in spp.program.id model if it exists (from spp_program_id module)
         # NOTE: If spp.program.id uses vocabulary codes, update to use id_type_id.uri
         if "spp.program.id" in self.env:
-            prog_id = self.env["spp.program.id"].sudo().search(
-                [
-                    ("namespace_uri", "=", system_uri),
-                    ("value", "=", value),
-                ],
-                limit=1,
+            prog_id = (
+                self.env["spp.program.id"]
+                .sudo()
+                .search(
+                    [
+                        ("namespace_uri", "=", system_uri),
+                        ("value", "=", value),
+                    ],
+                    limit=1,
+                )
             )
             if prog_id and prog_id.program_id:
                 return prog_id.program_id
@@ -57,9 +61,13 @@ class ProgramService:
         if system_uri == "urn:openspp:program":
             # Convert slug back to name for search (e.g., "test-program" -> "test program")
             name_guess = value.replace("-", " ")
-            program = self.env["spp.program"].sudo().search(
-                [("name", "=ilike", name_guess)],
-                limit=1,
+            program = (
+                self.env["spp.program"]
+                .sudo()
+                .search(
+                    [("name", "=ilike", name_guess)],
+                    limit=1,
+                )
             )
             if program:
                 return program

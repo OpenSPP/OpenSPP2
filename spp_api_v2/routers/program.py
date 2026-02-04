@@ -9,7 +9,16 @@ from odoo.osv import expression
 
 from odoo.addons.fastapi.dependencies import odoo_env
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request, Response, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Path,
+    Query,
+    Request,
+    Response,
+    status,
+)
 
 from ..middleware.auth import get_authenticated_client
 from ..schemas.program import Program
@@ -80,7 +89,10 @@ async def search_programs(
     type_: Annotated[str | None, Query(alias="type")] = None,
     target_type: Annotated[str | None, Query(alias="targetType")] = None,
     count: Annotated[int, Query(alias="_count", ge=1, le=100)] = 20,
-    last_id: Annotated[int | None, Query(alias="_lastId", description="ID of last record from previous page")] = None,
+    last_id: Annotated[
+        int | None,
+        Query(alias="_lastId", description="ID of last record from previous page"),
+    ] = None,
 ):
     """
     Search for programs.

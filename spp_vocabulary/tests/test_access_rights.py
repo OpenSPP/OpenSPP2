@@ -113,11 +113,15 @@ class TestVocabularyAccessRights(TransactionCase):
     def test_officer_can_create_vocabulary(self):
         """Test that officer can create vocabulary records."""
         # Disable mail tracking to avoid res.company access issues
-        vocab = self.Vocabulary.with_context(tracking_disable=True).with_user(self.user_officer).create(
-            {
-                "name": "Officer Created",
-                "namespace_uri": "urn:test:officer-created",
-            }
+        vocab = (
+            self.Vocabulary.with_context(tracking_disable=True)
+            .with_user(self.user_officer)
+            .create(
+                {
+                    "name": "Officer Created",
+                    "namespace_uri": "urn:test:officer-created",
+                }
+            )
         )
         self.assertTrue(vocab.id)
         self.assertEqual(vocab.name, "Officer Created")
@@ -180,12 +184,16 @@ class TestVocabularyAccessRights(TransactionCase):
     def test_officer_can_create_code(self):
         """Test that officer can create vocabulary code records."""
         # Disable mail tracking to avoid res.company access issues
-        code = self.VocabularyCode.with_context(tracking_disable=True).with_user(self.user_officer).create(
-            {
-                "vocabulary_id": self.vocab.id,
-                "code": "OFFICER_CREATED",
-                "display": "Officer Created",
-            }
+        code = (
+            self.VocabularyCode.with_context(tracking_disable=True)
+            .with_user(self.user_officer)
+            .create(
+                {
+                    "vocabulary_id": self.vocab.id,
+                    "code": "OFFICER_CREATED",
+                    "display": "Officer Created",
+                }
+            )
         )
         self.assertTrue(code.id)
         self.assertEqual(code.code, "OFFICER_CREATED")
@@ -236,10 +244,14 @@ class TestVocabularyAccessRights(TransactionCase):
     def test_officer_can_create_profile(self):
         """Test that officer can create deployment profile records."""
         # Disable mail tracking to avoid res.company access issues
-        profile = self.DeploymentProfile.with_context(tracking_disable=True).with_user(self.user_officer).create(
-            {
-                "name": "Officer Profile",
-            }
+        profile = (
+            self.DeploymentProfile.with_context(tracking_disable=True)
+            .with_user(self.user_officer)
+            .create(
+                {
+                    "name": "Officer Profile",
+                }
+            )
         )
         self.assertTrue(profile.id)
 
@@ -301,11 +313,15 @@ class TestVocabularyAccessRights(TransactionCase):
     def test_officer_can_create_concept_group(self):
         """Test that officer can create concept group records."""
         # Disable mail tracking to avoid res.company access issues
-        group = self.ConceptGroup.with_context(tracking_disable=True).with_user(self.user_officer).create(
-            {
-                "name": "officer_created_group",
-                "label": "Officer Created Group",
-            }
+        group = (
+            self.ConceptGroup.with_context(tracking_disable=True)
+            .with_user(self.user_officer)
+            .create(
+                {
+                    "name": "officer_created_group",
+                    "label": "Officer Created Group",
+                }
+            )
         )
         self.assertTrue(group.id)
 

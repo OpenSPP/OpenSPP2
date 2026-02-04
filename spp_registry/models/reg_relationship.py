@@ -50,7 +50,15 @@ class SPPRegistrantRelationship(models.Model):
         for rec in self:
             if not rec.source or not rec.destination:
                 # Return all relationship codes
-                all_codes = VocabCode.search([("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:relationship")])
+                all_codes = VocabCode.search(
+                    [
+                        (
+                            "vocabulary_id.namespace_uri",
+                            "=",
+                            "urn:openspp:vocab:relationship",
+                        )
+                    ]
+                )
                 rec.available_relation_ids = all_codes
                 continue
 
@@ -84,7 +92,15 @@ class SPPRegistrantRelationship(models.Model):
                 rec.available_relation_ids = VocabCode.browse(code_ids)
             else:
                 # Fallback to all codes
-                all_codes = VocabCode.search([("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:relationship")])
+                all_codes = VocabCode.search(
+                    [
+                        (
+                            "vocabulary_id.namespace_uri",
+                            "=",
+                            "urn:openspp:vocab:relationship",
+                        )
+                    ]
+                )
                 rec.available_relation_ids = all_codes
 
     @api.onchange("source", "destination")

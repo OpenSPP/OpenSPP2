@@ -4,7 +4,7 @@
     "category": "OpenSPP",
     "summary": "Reusable CEL expression editor with syntax highlighting and autocomplete",
     "author": "OpenSPP",
-    "website": "https://docs.openspp.org",
+    "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
     "development_status": "Stable",
     "depends": [

@@ -270,7 +270,13 @@ class TestMergeRegistrantsStrategy(TransactionCase):
         if not self.cr_type:
             self.skipTest("Merge registrants CR type not found")
 
-        reasons = ["duplicate_entry", "system_migration", "household_merge", "data_quality", "other"]
+        reasons = [
+            "duplicate_entry",
+            "system_migration",
+            "household_merge",
+            "data_quality",
+            "other",
+        ]
 
         for reason in reasons:
             primary = self.partner_model.create(

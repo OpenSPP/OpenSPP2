@@ -8,15 +8,55 @@
   "domain": "core",
   "is_hierarchical": false,
   "codes": [
-    {"code": "CHR", "display": "Christianity", "definition": "Christian faith traditions"},
-    {"code": "ISL", "display": "Islam", "definition": "Islamic faith traditions"},
-    {"code": "HIN", "display": "Hinduism", "definition": "Hindu faith traditions"},
-    {"code": "BUD", "display": "Buddhism", "definition": "Buddhist faith traditions"},
-    {"code": "SIK", "display": "Sikhism", "definition": "Sikh faith traditions"},
-    {"code": "JUD", "display": "Judaism", "definition": "Jewish faith traditions"},
-    {"code": "OTH", "display": "Other Religion", "definition": "Other religious affiliations not listed"},
-    {"code": "NON", "display": "No Religion", "definition": "No religious affiliation, atheist, or agnostic"},
-    {"code": "UNK", "display": "Unknown", "definition": "Religious affiliation not known or not stated"},
-    {"code": "REF", "display": "Prefer not to say", "definition": "Declined to state religious affiliation"}
+    {
+      "code": "CHR",
+      "display": "Christianity",
+      "definition": "Christian faith traditions"
+    },
+    {
+      "code": "ISL",
+      "display": "Islam",
+      "definition": "Islamic faith traditions"
+    },
+    {
+      "code": "HIN",
+      "display": "Hinduism",
+      "definition": "Hindu faith traditions"
+    },
+    {
+      "code": "BUD",
+      "display": "Buddhism",
+      "definition": "Buddhist faith traditions"
+    },
+    {
+      "code": "SIK",
+      "display": "Sikhism",
+      "definition": "Sikh faith traditions"
+    },
+    {
+      "code": "JUD",
+      "display": "Judaism",
+      "definition": "Jewish faith traditions"
+    },
+    {
+      "code": "OTH",
+      "display": "Other Religion",
+      "definition": "Other religious affiliations not listed"
+    },
+    {
+      "code": "NON",
+      "display": "No Religion",
+      "definition": "No religious affiliation, atheist, or agnostic"
+    },
+    {
+      "code": "UNK",
+      "display": "Unknown",
+      "definition": "Religious affiliation not known or not stated"
+    },
+    {
+      "code": "REF",
+      "display": "Prefer not to say",
+      "definition": "Declined to state religious affiliation"
+    }
   ]
 }

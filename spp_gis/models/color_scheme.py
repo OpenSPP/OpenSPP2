@@ -61,8 +61,7 @@ class GisColorScheme(models.Model):
     default_steps = fields.Integer(
         "Default Steps",
         default=5,
-        help="Number of discrete color steps when classifying data. "
-        "Used as default for reports using this scheme.",
+        help="Number of discrete color steps when classifying data. " "Used as default for reports using this scheme.",
     )
 
     # Accessibility
@@ -101,7 +100,9 @@ class GisColorScheme(models.Model):
                 colors = []
 
             if not colors:
-                scheme.preview_gradient = '<div style="width:100px;height:20px;background:#ccc;border-radius:3px;"></div>'
+                scheme.preview_gradient = (
+                    '<div style="width:100px;height:20px;background:#ccc;border-radius:3px;"></div>'
+                )
                 continue
 
             if scheme.scheme_type == "qualitative":
@@ -117,7 +118,7 @@ class GisColorScheme(models.Model):
                 gradient = ", ".join(colors)
                 scheme.preview_gradient = (
                     f'<div style="width:100px;height:20px;'
-                    f'background:linear-gradient(to right, {gradient});'
+                    f"background:linear-gradient(to right, {gradient});"
                     f'border-radius:3px;"></div>'
                 )
 
@@ -215,9 +216,7 @@ class GisColorScheme(models.Model):
         if count <= 1:
             return [colors[len(colors) // 2]] if colors else ["#808080"]
 
-        return [
-            self.interpolate_color(i / (count - 1), 0, 1) for i in range(count)
-        ]
+        return [self.interpolate_color(i / (count - 1), 0, 1) for i in range(count)]
 
     @api.model
     def get_default_scheme(self):

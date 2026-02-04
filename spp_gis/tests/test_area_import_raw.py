@@ -73,7 +73,10 @@ class AreaImportRawTest(TransactionCase):
         self.area_import_raw_id.validate_raw_data()
 
         self.assertEqual(self.area_import_raw_id.state, "Error")
-        self.assertIn("Longitude is required if Latitude is provided", self.area_import_raw_id.remarks)
+        self.assertIn(
+            "Longitude is required if Latitude is provided",
+            self.area_import_raw_id.remarks,
+        )
 
     def test_03_check_longitude_without_latitude(self):
         """Test that longitude requires latitude"""
@@ -83,7 +86,10 @@ class AreaImportRawTest(TransactionCase):
         self.area_import_raw_id.validate_raw_data()
 
         self.assertEqual(self.area_import_raw_id.state, "Error")
-        self.assertIn("Latitude is required if Longitude is provided", self.area_import_raw_id.remarks)
+        self.assertIn(
+            "Latitude is required if Longitude is provided",
+            self.area_import_raw_id.remarks,
+        )
 
     def test_04_valid_coordinates(self):
         """Test that valid coordinates pass validation"""
@@ -135,7 +141,10 @@ class AreaImportRawTest(TransactionCase):
 
         # Check GeoJSON generation
         area_vals = self.area_import_raw_id.get_area_vals()
-        self.assertEqual(area_vals["coordinates"], '{"type": "Point", "coordinates": [-122.5, -13.5]}')
+        self.assertEqual(
+            area_vals["coordinates"],
+            '{"type": "Point", "coordinates": [-122.5, -13.5]}',
+        )
 
     def test_08_boundary_coordinates(self):
         """Test validation at boundary values"""

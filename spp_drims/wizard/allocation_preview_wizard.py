@@ -62,7 +62,11 @@ class DrimsAllocationPreviewWizard(models.TransientModel):
         for wizard in self:
             wizard.has_shortfall = any(line.shortfall > 0 for line in wizard.line_ids)
 
-    @api.depends("line_ids.quantity_requested", "line_ids.available_qty", "line_ids.quantity_to_allocate")
+    @api.depends(
+        "line_ids.quantity_requested",
+        "line_ids.available_qty",
+        "line_ids.quantity_to_allocate",
+    )
     def _compute_totals(self):
         for wizard in self:
             wizard.total_requested = sum(wizard.line_ids.mapped("quantity_requested"))
@@ -198,7 +202,11 @@ class DrimsAllocationPreviewWizard(models.TransientModel):
         # Update request state to allocated
         allocated_state = self.env["spp.vocabulary.code"].search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:request-states"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:request-states",
+                ),
                 ("code", "=", "allocated"),
             ],
             limit=1,

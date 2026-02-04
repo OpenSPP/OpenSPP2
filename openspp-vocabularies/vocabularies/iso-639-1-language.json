@@ -192,8 +192,20 @@
     {"code": "za", "display": "Zhuang"},
     {"code": "zh", "display": "Chinese"},
     {"code": "zu", "display": "Zulu"},
-    {"code": "sgn", "display": "Sign Languages", "definition": "ISO 639-3 macrolanguage for sign languages"},
-    {"code": "und", "display": "Undetermined", "definition": "Used when language cannot be determined"},
-    {"code": "zxx", "display": "No linguistic content", "definition": "Used for non-linguistic content"}
+    {
+      "code": "sgn",
+      "display": "Sign Languages",
+      "definition": "ISO 639-3 macrolanguage for sign languages"
+    },
+    {
+      "code": "und",
+      "display": "Undetermined",
+      "definition": "Used when language cannot be determined"
+    },
+    {
+      "code": "zxx",
+      "display": "No linguistic content",
+      "definition": "Used for non-linguistic content"
+    }
   ]
 }

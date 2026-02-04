@@ -71,7 +71,10 @@ class ResPartnerTest(TransactionCase):
                 {
                     "id": expected_partner.id,
                     "name": expected_partner.name,
-                    "area_id": (expected_partner.area_id.id, expected_partner.area_id.draft_name),
+                    "area_id": (
+                        expected_partner.area_id.id,
+                        expected_partner.area_id.draft_name,
+                    ),
                 }
             ],
         )

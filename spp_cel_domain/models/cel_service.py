@@ -33,7 +33,15 @@ class CELService(models.AbstractModel):
     _description = "CEL Expression Service"
 
     @api.model
-    def compile_expression(self, expression, profile, base_domain=None, limit=0, fields=None, materialize_sql=False):
+    def compile_expression(
+        self,
+        expression,
+        profile,
+        base_domain=None,
+        limit=0,
+        fields=None,
+        materialize_sql=False,
+    ):
         """Compile a CEL expression and return results.
 
         Args:
@@ -98,7 +106,11 @@ class CELService(models.AbstractModel):
             # Execute compilation with expanded expression
             executor = self.env["spp.cel.executor"].with_context(cel_profile=profile, cel_cfg=cfg)
             exec_result = executor.compile_and_preview(
-                root_model, expanded_expression, limit=limit, fields=fields, materialize_sql=materialize_sql
+                root_model,
+                expanded_expression,
+                limit=limit,
+                fields=fields,
+                materialize_sql=materialize_sql,
             )
 
             result["domain"] = exec_result.get("domain", [])
@@ -272,7 +284,12 @@ class CELService(models.AbstractModel):
         Returns:
             List of profile names
         """
-        return ["registry_individuals", "registry_groups", "program_memberships", "entitlements"]
+        return [
+            "registry_individuals",
+            "registry_groups",
+            "program_memberships",
+            "entitlements",
+        ]
 
     @api.model
     def get_profile_info(self, profile):

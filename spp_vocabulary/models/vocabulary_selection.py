@@ -161,7 +161,10 @@ class VocabularySelection(models.Model):
                     )
 
     @api.depends(
-        "active_code_ids", "parent_selection_id", "excluded_code_ids", "parent_selection_id.effective_code_ids"
+        "active_code_ids",
+        "parent_selection_id",
+        "excluded_code_ids",
+        "parent_selection_id.effective_code_ids",
     )
     def _compute_effective_codes(self):
         """Compute effective codes considering inheritance and exclusions.

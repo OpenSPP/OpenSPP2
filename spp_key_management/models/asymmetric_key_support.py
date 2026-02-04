@@ -436,7 +436,9 @@ class AsymmetricKeyStorage(models.Model):
     def _sign_ed25519(self, key_dict, data):
         """Sign with Ed25519."""
         try:
-            from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+            from cryptography.hazmat.primitives.asymmetric.ed25519 import (
+                Ed25519PrivateKey,
+            )
         except ImportError as err:
             raise UserError("cryptography library required for Ed25519 signing") from err
 
@@ -450,7 +452,9 @@ class AsymmetricKeyStorage(models.Model):
         try:
             from cryptography.hazmat.primitives import hashes
             from cryptography.hazmat.primitives.asymmetric import ec
-            from cryptography.hazmat.primitives.asymmetric.utils import decode_dss_signature
+            from cryptography.hazmat.primitives.asymmetric.utils import (
+                decode_dss_signature,
+            )
         except ImportError as err:
             raise UserError("cryptography library required for ECDSA signing") from err
 
@@ -467,7 +471,9 @@ class AsymmetricKeyStorage(models.Model):
         try:
             from cryptography.hazmat.primitives import hashes
             from cryptography.hazmat.primitives.asymmetric import ec
-            from cryptography.hazmat.primitives.asymmetric.utils import decode_dss_signature
+            from cryptography.hazmat.primitives.asymmetric.utils import (
+                decode_dss_signature,
+            )
         except ImportError as err:
             raise UserError("cryptography library required for ECDSA signing") from err
 
@@ -517,7 +523,9 @@ class AsymmetricKeyStorage(models.Model):
     def _verify_ed25519(self, key_dict, data, signature):
         """Verify Ed25519 signature."""
         try:
-            from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
+            from cryptography.hazmat.primitives.asymmetric.ed25519 import (
+                Ed25519PublicKey,
+            )
         except ImportError as err:
             raise UserError("cryptography library required") from err
 
@@ -535,7 +543,9 @@ class AsymmetricKeyStorage(models.Model):
         try:
             from cryptography.hazmat.primitives import hashes
             from cryptography.hazmat.primitives.asymmetric import ec
-            from cryptography.hazmat.primitives.asymmetric.utils import encode_dss_signature
+            from cryptography.hazmat.primitives.asymmetric.utils import (
+                encode_dss_signature,
+            )
         except ImportError as err:
             raise UserError("cryptography library required") from err
 
@@ -563,7 +573,9 @@ class AsymmetricKeyStorage(models.Model):
         try:
             from cryptography.hazmat.primitives import hashes
             from cryptography.hazmat.primitives.asymmetric import ec
-            from cryptography.hazmat.primitives.asymmetric.utils import encode_dss_signature
+            from cryptography.hazmat.primitives.asymmetric.utils import (
+                encode_dss_signature,
+            )
         except ImportError as err:
             raise UserError("cryptography library required") from err
 

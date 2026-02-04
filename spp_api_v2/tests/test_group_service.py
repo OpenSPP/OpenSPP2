@@ -185,7 +185,12 @@ class TestGroupService(ApiV2TestCase):
     def test_from_api_schema_creates_vals(self):
         """from_api_schema converts API schema to Odoo vals"""
         schema = Group(
-            identifier=[Identifier(system="urn:openspp:vocab:id-type#test_household_id", value="HH-NEW-001")],
+            identifier=[
+                Identifier(
+                    system="urn:openspp:vocab:id-type#test_household_id",
+                    value="HH-NEW-001",
+                )
+            ],
             name="New Household",
             active=True,
             type="Group",
@@ -201,7 +206,12 @@ class TestGroupService(ApiV2TestCase):
     def test_from_api_schema_address(self):
         """from_api_schema converts address correctly"""
         schema = Group(
-            identifier=[Identifier(system="urn:openspp:vocab:id-type#test_household_id", value="HH-NEW-001")],
+            identifier=[
+                Identifier(
+                    system="urn:openspp:vocab:id-type#test_household_id",
+                    value="HH-NEW-001",
+                )
+            ],
             name="Test Group",
             address=[
                 Address(
@@ -226,7 +236,12 @@ class TestGroupService(ApiV2TestCase):
     def test_create_with_source_tracking(self):
         """Create sets source_system from context"""
         schema = Group(
-            identifier=[Identifier(system="urn:openspp:vocab:id-type#test_household_id", value="HH-CREATE-001")],
+            identifier=[
+                Identifier(
+                    system="urn:openspp:vocab:id-type#test_household_id",
+                    value="HH-CREATE-001",
+                )
+            ],
             name="New Group",
         )
 
@@ -241,7 +256,12 @@ class TestGroupService(ApiV2TestCase):
         individual = self.create_test_individual(identifier_value="IND-001")
 
         schema = Group(
-            identifier=[Identifier(system="urn:openspp:vocab:id-type#test_household_id", value="HH-CREATE-002")],
+            identifier=[
+                Identifier(
+                    system="urn:openspp:vocab:id-type#test_household_id",
+                    value="HH-CREATE-002",
+                )
+            ],
             name="Group with Members",
             member=[
                 GroupMember(
@@ -277,7 +297,12 @@ class TestGroupService(ApiV2TestCase):
         )
 
         schema = Group(
-            identifier=[Identifier(system="urn:openspp:vocab:id-type#test_household_id", value="HH-UPDATE-001")],
+            identifier=[
+                Identifier(
+                    system="urn:openspp:vocab:id-type#test_household_id",
+                    value="HH-UPDATE-001",
+                )
+            ],
             name="Updated Name",
         )
 
@@ -300,7 +325,12 @@ class TestGroupService(ApiV2TestCase):
     def test_create_member_invalid_reference_ignored(self):
         """Invalid member references are logged and ignored"""
         schema = Group(
-            identifier=[Identifier(system="urn:openspp:vocab:id-type#test_household_id", value="HH-CREATE-003")],
+            identifier=[
+                Identifier(
+                    system="urn:openspp:vocab:id-type#test_household_id",
+                    value="HH-CREATE-003",
+                )
+            ],
             name="Group with Invalid Member",
             member=[
                 GroupMember(
@@ -322,7 +352,12 @@ class TestGroupService(ApiV2TestCase):
     def test_create_member_nonexistent_individual(self):
         """Non-existent individual in member is logged and ignored"""
         schema = Group(
-            identifier=[Identifier(system="urn:openspp:vocab:id-type#test_household_id", value="HH-CREATE-004")],
+            identifier=[
+                Identifier(
+                    system="urn:openspp:vocab:id-type#test_household_id",
+                    value="HH-CREATE-004",
+                )
+            ],
             name="Group with Non-existent Member",
             member=[
                 GroupMember(

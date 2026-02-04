@@ -84,7 +84,7 @@ class ChangeRequestService:
         # Build registrant reference
         registrant_ref = self.get_primary_identifier(cr.registrant_id)
         if not registrant_ref:
-            _logger.warning("CR %s registrant has no external identifier", cr.name)
+            _logger.warning("CR ID %s registrant has no external identifier", cr.id)
             registrant_ref = {
                 "system": "urn:openspp:internal",
                 "value": f"partner-{cr.registrant_id.id}",

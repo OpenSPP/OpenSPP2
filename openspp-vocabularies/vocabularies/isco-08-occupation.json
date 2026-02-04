@@ -8,7 +8,11 @@
   "domain": "core",
   "is_hierarchical": true,
   "codes": [
-    {"code": "0", "display": "Armed Forces Occupations", "definition": "Occupations in armed forces"},
+    {
+      "code": "0",
+      "display": "Armed Forces Occupations",
+      "definition": "Occupations in armed forces"
+    },
     {
       "code": "1",
       "display": "Managers",

@@ -30,9 +30,23 @@ from pathlib import Path
 
 # Import common utilities
 try:
-    from .common import LintConfig, OutputFormatter, Severity, Violation, add_common_args, print_summary
+    from .common import (
+        LintConfig,
+        OutputFormatter,
+        Severity,
+        Violation,
+        add_common_args,
+        print_summary,
+    )
 except ImportError:
-    from common import LintConfig, OutputFormatter, Severity, Violation, add_common_args, print_summary
+    from common import (
+        LintConfig,
+        OutputFormatter,
+        Severity,
+        Violation,
+        add_common_args,
+        print_summary,
+    )
 
 
 # Fields that might contain PII - warn if logged directly
@@ -55,7 +69,12 @@ PII_FIELD_PATTERNS = [
 class LoggerChecker:
     """Checks logger usage patterns in Python files."""
 
-    def __init__(self, check_pii: bool = True, check_print: bool = False, config: LintConfig = None):
+    def __init__(
+        self,
+        check_pii: bool = True,
+        check_print: bool = False,
+        config: LintConfig = None,
+    ):
         self.check_pii = check_pii
         self.check_print = check_print  # Already handled by pylint, optional here
         self.config = config or LintConfig.load()
@@ -122,7 +141,14 @@ class LoggerChecker:
                     # Also check logging.info(), etc.
                     if isinstance(node.func.value, ast.Name):
                         if node.func.value.id == "logging":
-                            if node.func.attr in ["debug", "info", "warning", "error", "critical", "exception"]:
+                            if node.func.attr in [
+                                "debug",
+                                "info",
+                                "warning",
+                                "error",
+                                "critical",
+                                "exception",
+                            ]:
                                 return True
         return False
 

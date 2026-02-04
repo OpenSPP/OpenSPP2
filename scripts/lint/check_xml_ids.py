@@ -46,9 +46,23 @@ except ImportError:
 
 # Import common utilities
 try:
-    from .common import LintConfig, OutputFormatter, Severity, Violation, add_common_args, print_summary
+    from .common import (
+        LintConfig,
+        OutputFormatter,
+        Severity,
+        Violation,
+        add_common_args,
+        print_summary,
+    )
 except ImportError:
-    from common import LintConfig, OutputFormatter, Severity, Violation, add_common_args, print_summary
+    from common import (
+        LintConfig,
+        OutputFormatter,
+        Severity,
+        Violation,
+        add_common_args,
+        print_summary,
+    )
 
 
 # Model-based naming patterns
@@ -77,7 +91,10 @@ NAMING_RULES = {
             r"^action_[a-z0-9_]+_(form|list|tree|kanban|graph|pivot|calendar|gantt|activity|gis)_view$",
         ],
         "description": "Action view IDs should follow 'action_{model}_{type}_view' pattern",
-        "examples": ["action_generate_program_form_view", "action_spp_program_list_view"],
+        "examples": [
+            "action_generate_program_form_view",
+            "action_spp_program_list_view",
+        ],
     },
     "ir.ui.menu": {
         "patterns": [
@@ -96,7 +113,11 @@ NAMING_RULES = {
             r"^category_[a-z0-9_]+$",
         ],
         "description": "Group IDs should follow 'group_{domain}_{level}' or 'category_{domain}' pattern",
-        "examples": ["group_registry_officer", "group_programs_approver", "category_spp_registry"],
+        "examples": [
+            "group_registry_officer",
+            "group_programs_approver",
+            "category_spp_registry",
+        ],
         "allowed_deprecated": True,  # Allow deprecated groups for backward compatibility
     },
     "ir.module.category": {
@@ -107,7 +128,11 @@ NAMING_RULES = {
             r"^[a-z0-9_]+_category$",  # Generic {name}_category
         ],
         "description": "Category IDs should follow 'category_spp_{domain}' or '{module}_category' pattern",
-        "examples": ["category_spp", "category_spp_registry", "module_openspp_grm_category"],
+        "examples": [
+            "category_spp",
+            "category_spp_registry",
+            "module_openspp_grm_category",
+        ],
     },
     "res.groups.privilege": {
         "patterns": [

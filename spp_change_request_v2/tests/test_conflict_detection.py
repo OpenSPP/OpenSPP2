@@ -313,7 +313,10 @@ class TestConflictDetection(TransactionCase):
 
         # Backdate cr1 to 2 hours ago
         old_date = fields.Datetime.now() - timedelta(hours=2)
-        self.env.cr.execute("UPDATE spp_change_request SET create_date = %s WHERE id = %s", (old_date, cr1.id))
+        self.env.cr.execute(
+            "UPDATE spp_change_request SET create_date = %s WHERE id = %s",
+            (old_date, cr1.id),
+        )
         cr1.invalidate_recordset()
 
         # Create second CR
@@ -638,7 +641,10 @@ class TestDuplicateDetection(TransactionCase):
 
         # Backdate cr1 to outside time window
         old_date = fields.Datetime.now() - timedelta(hours=72)
-        self.env.cr.execute("UPDATE spp_change_request SET create_date = %s WHERE id = %s", (old_date, cr1.id))
+        self.env.cr.execute(
+            "UPDATE spp_change_request SET create_date = %s WHERE id = %s",
+            (old_date, cr1.id),
+        )
         cr1.invalidate_recordset()
 
         cr2 = self.env["spp.change.request"].create(

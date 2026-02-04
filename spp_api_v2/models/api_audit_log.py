@@ -355,7 +355,18 @@ class ApiAuditLog(models.Model):
             domain.append(("timestamp", "<=", date_to))
 
         # Database-level aggregation using _read_group for scalability (Odoo 19)
-        by_operation = {op: 0 for op in ["read", "search", "export", "create", "update", "patch", "delete"]}
+        by_operation = {
+            op: 0
+            for op in [
+                "read",
+                "search",
+                "export",
+                "create",
+                "update",
+                "patch",
+                "delete",
+            ]
+        }
         operation_data = self._read_group(domain, ["operation"], ["__count"])
         for operation, count in operation_data:
             if operation in by_operation:
@@ -367,7 +378,16 @@ class ApiAuditLog(models.Model):
             if resource_type in by_resource_type:
                 by_resource_type[resource_type] = count
 
-        by_status = {st: 0 for st in ["success", "access_denied", "not_found", "validation_error", "error"]}
+        by_status = {
+            st: 0
+            for st in [
+                "success",
+                "access_denied",
+                "not_found",
+                "validation_error",
+                "error",
+            ]
+        }
         status_data = self._read_group(domain, ["status"], ["__count"])
         for status_val, count in status_data:
             if status_val in by_status:

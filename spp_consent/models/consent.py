@@ -1211,7 +1211,10 @@ class OpenSPPConsent(models.Model):
                 "hasExpiryDate": {"@type": "xsd:date"},
                 "hasEffectiveDate": {"@type": "xsd:date"},
             },
-            "@type": ["dpv:ConsentRecord", "iso27560:ConsentRecordInformationStructure"],
+            "@type": [
+                "dpv:ConsentRecord",
+                "iso27560:ConsentRecordInformationStructure",
+            ],
             "@id": f"urn:uuid:{self.external_id}",
             # ----------------------------------------------------------------
             # Section 1: Header/Metadata

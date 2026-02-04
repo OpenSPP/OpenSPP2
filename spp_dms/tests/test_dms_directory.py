@@ -28,7 +28,10 @@ class TestDmsDirectory(TransactionCase):
         self.assertEqual(self.dms_directry_id.complete_name, "Test Directory")
 
         self.dms_directory_with_parent_id._compute_complete_name()
-        self.assertEqual(self.dms_directory_with_parent_id.complete_name, "Parent Directory / Child Directory")
+        self.assertEqual(
+            self.dms_directory_with_parent_id.complete_name,
+            "Parent Directory / Child Directory",
+        )
 
     def test_compute_size(self):
         new_dms = self.dms_directory_model.new({"name": "New Directory"})
@@ -46,7 +49,10 @@ class TestDmsDirectory(TransactionCase):
     def test_compute_count_directories(self):
         self.dms_directory_with_parent_id._compute_count_directories()
         self.assertEqual(self.dms_directory_with_parent_id.count_directories, 0)
-        self.assertEqual(self.dms_directory_with_parent_id.count_directories_title, "0 Subdirectories")
+        self.assertEqual(
+            self.dms_directory_with_parent_id.count_directories_title,
+            "0 Subdirectories",
+        )
 
     def test_compute_count_files(self):
         self.dms_directory_with_parent_id._compute_count_files()
@@ -88,7 +94,10 @@ class TestDmsDirectory(TransactionCase):
         self.assertEqual(action["target"], "current")
         self.assertEqual(action["view_mode"], "list,form")
         self.assertEqual(action["context"]["default_directory_id"], self.dms_directry_id.id)
-        self.assertEqual(action["context"]["searchpanel_default_directory_id"], self.dms_directry_id.id)
+        self.assertEqual(
+            action["context"]["searchpanel_default_directory_id"],
+            self.dms_directry_id.id,
+        )
         self.assertEqual(action["domain"], [("directory_id", "child_of", self.dms_directry_id.id)])
         self.assertEqual(action["limit"], 80)
         self.assertFalse(action["res_id"])

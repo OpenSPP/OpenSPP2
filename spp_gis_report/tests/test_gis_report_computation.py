@@ -45,57 +45,69 @@ class TestGISReportComputation(GISReportTestBase):
         """Create more registrants for aggregation testing."""
         # District 1: 5 individuals, 2 groups
         for i in range(4):
-            cls.env["res.partner"].create({
-                "name": f"District1 Individual {i+2}",
+            cls.env["res.partner"].create(
+                {
+                    "name": f"District1 Individual {i+2}",
+                    "is_registrant": True,
+                    "is_group": False,
+                    "area_id": cls.area_district_1.id,
+                }
+            )
+        cls.env["res.partner"].create(
+            {
+                "name": "District1 Group 2",
                 "is_registrant": True,
-                "is_group": False,
+                "is_group": True,
                 "area_id": cls.area_district_1.id,
-            })
-        cls.env["res.partner"].create({
-            "name": "District1 Group 2",
-            "is_registrant": True,
-            "is_group": True,
-            "area_id": cls.area_district_1.id,
-        })
+            }
+        )
 
         # District 2: 3 individuals, 1 group
         for i in range(2):
-            cls.env["res.partner"].create({
-                "name": f"District2 Individual {i+2}",
-                "is_registrant": True,
-                "is_group": False,
-                "area_id": cls.area_district_2.id,
-            })
+            cls.env["res.partner"].create(
+                {
+                    "name": f"District2 Individual {i+2}",
+                    "is_registrant": True,
+                    "is_group": False,
+                    "area_id": cls.area_district_2.id,
+                }
+            )
 
     @classmethod
     def _create_second_region(cls):
         """Create a second region with districts for multi-region tests."""
-        cls.area_region_2 = cls.env["spp.area"].create({
-            "draft_name": "Test Region 2",
-            "code": "TC-R2",
-            "parent_id": cls.area_country.id,
-            "area_level": 1,
-            "area_sqkm": 2000.0,
-            "population": 200000,
-            "household_count": 40000,
-        })
-        cls.area_district_3 = cls.env["spp.area"].create({
-            "draft_name": "Test District 3",
-            "code": "TC-R2-D1",
-            "parent_id": cls.area_region_2.id,
-            "area_level": 2,
-            "area_sqkm": 1000.0,
-            "population": 100000,
-            "household_count": 20000,
-        })
+        cls.area_region_2 = cls.env["spp.area"].create(
+            {
+                "draft_name": "Test Region 2",
+                "code": "TC-R2",
+                "parent_id": cls.area_country.id,
+                "area_level": 1,
+                "area_sqkm": 2000.0,
+                "population": 200000,
+                "household_count": 40000,
+            }
+        )
+        cls.area_district_3 = cls.env["spp.area"].create(
+            {
+                "draft_name": "Test District 3",
+                "code": "TC-R2-D1",
+                "parent_id": cls.area_region_2.id,
+                "area_level": 2,
+                "area_sqkm": 1000.0,
+                "population": 100000,
+                "household_count": 20000,
+            }
+        )
         # Add some registrants to district 3
         for i in range(10):
-            cls.env["res.partner"].create({
-                "name": f"District3 Individual {i+1}",
-                "is_registrant": True,
-                "is_group": False,
-                "area_id": cls.area_district_3.id,
-            })
+            cls.env["res.partner"].create(
+                {
+                    "name": f"District3 Individual {i+1}",
+                    "is_registrant": True,
+                    "is_group": False,
+                    "area_id": cls.area_district_3.id,
+                }
+            )
 
     # ===== BASE AGGREGATION TESTS =====
 
@@ -381,7 +393,12 @@ class TestGISReportComputation(GISReportTestBase):
             {"min_value": 0, "max_value": 25, "color": "#ff0000", "label": "Low"},
             {"min_value": 25, "max_value": 50, "color": "#ffff00", "label": "Medium"},
             {"min_value": 50, "max_value": 75, "color": "#00ff00", "label": "High"},
-            {"min_value": 75, "max_value": None, "color": "#0000ff", "label": "Very High"},
+            {
+                "min_value": 75,
+                "max_value": None,
+                "color": "#0000ff",
+                "label": "Very High",
+            },
         ]
 
         assigned = report._assign_thresholds(results, thresholds)
@@ -408,7 +425,7 @@ class TestGISReportComputation(GISReportTestBase):
         report = self.create_test_report(name="Boundary Test")
 
         results = {
-            1: {"raw": 0, "normalized": 0},    # Exactly at min
+            1: {"raw": 0, "normalized": 0},  # Exactly at min
             2: {"raw": 25, "normalized": 25},  # At boundary (should go to next)
             3: {"raw": 100, "normalized": 100},  # At max
         }
@@ -441,8 +458,8 @@ class TestGISReportComputation(GISReportTestBase):
 
         normalized = report._apply_statistical_normalization(results)
 
-        self.assertEqual(normalized[1]["normalized"], 0)    # Min maps to 0
-        self.assertEqual(normalized[2]["normalized"], 50)   # Mid maps to 50
+        self.assertEqual(normalized[1]["normalized"], 0)  # Min maps to 0
+        self.assertEqual(normalized[2]["normalized"], 50)  # Mid maps to 50
         self.assertEqual(normalized[3]["normalized"], 100)  # Max maps to 100
 
     def test_statistical_normalization_percentile(self):
@@ -516,17 +533,13 @@ class TestGISReportComputation(GISReportTestBase):
         self.assertIsNotNone(report.last_refresh)
 
         # Check district data
-        district_data = report.data_ids.filtered(
-            lambda d: d.area_id == self.area_district_1
-        )
+        district_data = report.data_ids.filtered(lambda d: d.area_id == self.area_district_1)
         self.assertEqual(len(district_data), 1)
         self.assertEqual(district_data.raw_value, 5)
         self.assertFalse(district_data.is_rollup)
 
         # Check region data (rolled up)
-        region_data = report.data_ids.filtered(
-            lambda d: d.area_id == self.area_region
-        )
+        region_data = report.data_ids.filtered(lambda d: d.area_id == self.area_region)
         self.assertEqual(len(region_data), 1)
         self.assertEqual(region_data.raw_value, 8)  # 5 + 3
         self.assertTrue(region_data.is_rollup)
@@ -548,17 +561,17 @@ class TestGISReportComputation(GISReportTestBase):
         # First refresh
         report._refresh_data()
         first_refresh = report.last_refresh
-        first_count = report.data_ids.filtered(
-            lambda d: d.area_id == self.area_district_1
-        ).raw_value
+        first_count = report.data_ids.filtered(lambda d: d.area_id == self.area_district_1).raw_value
 
         # Add more registrants
-        self.env["res.partner"].create({
-            "name": "New Individual",
-            "is_registrant": True,
-            "is_group": False,
-            "area_id": self.area_district_1.id,
-        })
+        self.env["res.partner"].create(
+            {
+                "name": "New Individual",
+                "is_registrant": True,
+                "is_group": False,
+                "area_id": self.area_district_1.id,
+            }
+        )
 
         # Second refresh
         report._refresh_data()
@@ -567,9 +580,7 @@ class TestGISReportComputation(GISReportTestBase):
         self.assertGreaterEqual(report.last_refresh, first_refresh)
 
         # Should have updated count
-        new_count = report.data_ids.filtered(
-            lambda d: d.area_id == self.area_district_1
-        ).raw_value
+        new_count = report.data_ids.filtered(lambda d: d.area_id == self.area_district_1).raw_value
         self.assertEqual(new_count, first_count + 1)
 
     def test_refresh_data_removes_obsolete(self):
@@ -584,17 +595,21 @@ class TestGISReportComputation(GISReportTestBase):
         report._refresh_data()
 
         # Create a temporary area with data
-        temp_area = self.env["spp.area"].create({
-            "draft_name": "Temporary Area",
-            "code": "TEMP",
-            "area_level": 2,
-        })
-        self.env["spp.gis.report.data"].create({
-            "report_id": report.id,
-            "area_id": temp_area.id,
-            "raw_value": 999,
-            "normalized_value": 999,
-        })
+        temp_area = self.env["spp.area"].create(
+            {
+                "draft_name": "Temporary Area",
+                "code": "TEMP",
+                "area_level": 2,
+            }
+        )
+        self.env["spp.gis.report.data"].create(
+            {
+                "report_id": report.id,
+                "area_id": temp_area.id,
+                "raw_value": 999,
+                "normalized_value": 999,
+            }
+        )
 
         # Refresh - temp area has no matching registrants so data should be removed
         report._refresh_data()
@@ -629,9 +644,7 @@ class TestGISReportComputation(GISReportTestBase):
         report._refresh_data()
 
         # Check normalization was applied
-        district_data = report.data_ids.filtered(
-            lambda d: d.area_id == self.area_district_1
-        )
+        district_data = report.data_ids.filtered(lambda d: d.area_id == self.area_district_1)
         # 5 individuals / 50000 population * 1000 = 0.1
         self.assertAlmostEqual(district_data.normalized_value, 0.1, places=2)
 
@@ -640,9 +653,7 @@ class TestGISReportComputation(GISReportTestBase):
     def test_color_palette_viridis(self):
         """Test color-blind safe palette generation."""
         # Get viridis color scheme (default, color-blind safe)
-        viridis = self.env["spp.gis.color.scheme"].search(
-            [("code", "=", "viridis")], limit=1
-        )
+        viridis = self.env["spp.gis.color.scheme"].search([("code", "=", "viridis")], limit=1)
         report = self.create_test_report(
             name="Color Palette Test",
             color_scheme_id=viridis.id if viridis else False,
@@ -656,9 +667,7 @@ class TestGISReportComputation(GISReportTestBase):
     def test_color_palette_interpolation(self):
         """Test palette interpolation for different bucket counts."""
         # Get blues color scheme for interpolation test
-        blues = self.env["spp.gis.color.scheme"].search(
-            [("code", "=", "blues")], limit=1
-        )
+        blues = self.env["spp.gis.color.scheme"].search([("code", "=", "blues")], limit=1)
         report = self.create_test_report(
             name="Palette Interpolation Test",
             color_scheme_id=blues.id if blues else False,
@@ -718,9 +727,7 @@ class TestGISReportComputation(GISReportTestBase):
         domain = report._build_filter_domain()
 
         # Should include program membership filter
-        has_program_filter = any(
-            "program_membership_ids.program_id" in str(d) for d in domain
-        )
+        has_program_filter = any("program_membership_ids.program_id" in str(d) for d in domain)
         self.assertTrue(has_program_filter)
 
     def test_build_filter_domain_invalid(self):
@@ -744,18 +751,22 @@ class TestGISReportComputation(GISReportTestBase):
         child of area_country (level 0) which will be at level 1.
         """
         # Create isolated area as child of country (will be level 1)
-        isolated_area = self.env["spp.area"].create({
-            "draft_name": "Isolated Area",
-            "code": "ISOLATED",
-            "parent_id": self.area_country.id,  # Child of country = level 1
-            "population": 1000,
-        })
-        self.env["res.partner"].create({
-            "name": "Isolated Registrant",
-            "is_registrant": True,
-            "is_group": False,
-            "area_id": isolated_area.id,
-        })
+        isolated_area = self.env["spp.area"].create(
+            {
+                "draft_name": "Isolated Area",
+                "code": "ISOLATED",
+                "parent_id": self.area_country.id,  # Child of country = level 1
+                "population": 1000,
+            }
+        )
+        self.env["res.partner"].create(
+            {
+                "name": "Isolated Registrant",
+                "is_registrant": True,
+                "is_group": False,
+                "area_id": isolated_area.id,
+            }
+        )
         # Ensure records are visible to subsequent searches
         self.env.cr.flush()
         self.env.invalidate_all()
@@ -776,9 +787,7 @@ class TestGISReportComputation(GISReportTestBase):
         self.assertGreater(report.data_count, 0)
 
         # Verify the isolated area has the expected count (1 registrant)
-        isolated_data = report.data_ids.filtered(
-            lambda d: d.area_id == isolated_area
-        )
+        isolated_data = report.data_ids.filtered(lambda d: d.area_id == isolated_area)
         self.assertEqual(len(isolated_data), 1)
         self.assertEqual(isolated_data.raw_value, 1)
 
@@ -807,8 +816,18 @@ class TestGISReportComputation(GISReportTestBase):
         }
 
         thresholds = [
-            {"min_value": None, "max_value": 0, "color": "#ff0000", "label": "Negative"},
-            {"min_value": 0, "max_value": None, "color": "#00ff00", "label": "Positive"},
+            {
+                "min_value": None,
+                "max_value": 0,
+                "color": "#ff0000",
+                "label": "Negative",
+            },
+            {
+                "min_value": 0,
+                "max_value": None,
+                "color": "#00ff00",
+                "label": "Positive",
+            },
         ]
 
         assigned = report._assign_thresholds(results, thresholds)

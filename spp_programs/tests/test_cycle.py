@@ -63,15 +63,28 @@ class TestCycle(Common):
             }
         )
 
-        self.assertIsNone(first_cycle.get_previous_cycle(), "First cycle should have no previous cycle.")
-        self.assertEqual(
-            first_cycle.get_next_cycle(), middle_cycle, "Next cycle for first_cycle should be middle_cycle."
+        self.assertIsNone(
+            first_cycle.get_previous_cycle(),
+            "First cycle should have no previous cycle.",
         )
         self.assertEqual(
-            middle_cycle.get_previous_cycle(), first_cycle, "Previous cycle for middle_cycle should be first_cycle."
+            first_cycle.get_next_cycle(),
+            middle_cycle,
+            "Next cycle for first_cycle should be middle_cycle.",
         )
-        self.assertEqual(middle_cycle.get_next_cycle(), last_cycle, "Next cycle for middle_cycle should be last_cycle.")
         self.assertEqual(
-            last_cycle.get_previous_cycle(), middle_cycle, "Previous cycle for last_cycle should be middle_cycle."
+            middle_cycle.get_previous_cycle(),
+            first_cycle,
+            "Previous cycle for middle_cycle should be first_cycle.",
+        )
+        self.assertEqual(
+            middle_cycle.get_next_cycle(),
+            last_cycle,
+            "Next cycle for middle_cycle should be last_cycle.",
+        )
+        self.assertEqual(
+            last_cycle.get_previous_cycle(),
+            middle_cycle,
+            "Previous cycle for last_cycle should be middle_cycle.",
         )
         self.assertIsNone(last_cycle.get_next_cycle(), "Last cycle should have no next cycle.")

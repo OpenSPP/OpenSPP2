@@ -38,7 +38,11 @@ def add_special_codes(codes):
     existing = {c["code"] for c in codes}
 
     special = [
-        {"code": "XXX", "display": "No currency", "definition": "Used when no currency is involved"},
+        {
+            "code": "XXX",
+            "display": "No currency",
+            "definition": "Used when no currency is involved",
+        },
     ]
 
     for code in special:

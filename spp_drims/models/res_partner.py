@@ -57,7 +57,14 @@ class ResPartner(models.Model):
         """Helper for search comparison."""
         import operator as op
 
-        ops = {">": op.gt, "<": op.lt, ">=": op.ge, "<=": op.le, "=": op.eq, "!=": op.ne}
+        ops = {
+            ">": op.gt,
+            "<": op.lt,
+            ">=": op.ge,
+            "<=": op.le,
+            "=": op.eq,
+            "!=": op.ne,
+        }
         return ops.get(operator, op.eq)(count, value)
 
     def action_view_drims_personnel(self):

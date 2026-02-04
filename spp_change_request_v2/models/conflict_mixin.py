@@ -591,7 +591,10 @@ class SPPCRConflictMixin(models.AbstractModel):
 
         # Determine new conflict status, preserving "overridden" if still valid
         new_conflict_status = conflict_result["status"]
-        if self.conflict_status == "overridden" and conflict_result["status"] in ("blocked", "warning"):
+        if self.conflict_status == "overridden" and conflict_result["status"] in (
+            "blocked",
+            "warning",
+        ):
             # Preserve overridden status if conflicts still exist but were already overridden
             new_conflict_status = "overridden"
 

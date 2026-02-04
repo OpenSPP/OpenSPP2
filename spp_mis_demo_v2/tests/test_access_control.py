@@ -382,7 +382,11 @@ class TestTechnicalGroups(TestAccessControlBase):
 
         # Create a test registrant for read/write tests
         cls.test_registrant = cls.env["res.partner"].create(
-            {"name": "Technical Test Registrant", "is_registrant": True, "is_group": False}
+            {
+                "name": "Technical Test Registrant",
+                "is_registrant": True,
+                "is_group": False,
+            }
         )
 
         # Invalidate cache and refresh user records

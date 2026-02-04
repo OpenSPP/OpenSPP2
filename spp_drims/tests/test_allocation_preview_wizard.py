@@ -31,14 +31,22 @@ class TestDrimsAllocationPreviewWizard(DrimsTestCommon):
         # Get state vocabulary codes
         cls.state_pending = cls.vocab_code.search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:request-states"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:request-states",
+                ),
                 ("code", "=", "pending"),
             ],
             limit=1,
         )
         cls.state_allocated = cls.vocab_code.search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:request-states"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:request-states",
+                ),
                 ("code", "=", "allocated"),
             ],
             limit=1,

@@ -70,7 +70,10 @@ class ApiV2TestCase(TransactionCase):
 
         # Get or create test ID type codes within the ID Type vocabulary
         cls.id_type_national = cls.env["spp.vocabulary.code"].search(
-            [("vocabulary_id", "=", id_type_vocab.id), ("code", "=", "test_national_id")],
+            [
+                ("vocabulary_id", "=", id_type_vocab.id),
+                ("code", "=", "test_national_id"),
+            ],
             limit=1,
         )
         if not cls.id_type_national:
@@ -98,7 +101,10 @@ class ApiV2TestCase(TransactionCase):
                 }
             )
         cls.id_type_household = cls.env["spp.vocabulary.code"].search(
-            [("vocabulary_id", "=", id_type_vocab.id), ("code", "=", "test_household_id")],
+            [
+                ("vocabulary_id", "=", id_type_vocab.id),
+                ("code", "=", "test_household_id"),
+            ],
             limit=1,
         )
         if not cls.id_type_household:
@@ -745,7 +751,10 @@ class ApiV2HttpTestCase(HttpCase):
             )
 
         cls.id_type_national = cls.env["spp.vocabulary.code"].search(
-            [("vocabulary_id", "=", id_type_vocab.id), ("code", "=", "test_national_id")],
+            [
+                ("vocabulary_id", "=", id_type_vocab.id),
+                ("code", "=", "test_national_id"),
+            ],
             limit=1,
         )
         if not cls.id_type_national:
@@ -760,7 +769,10 @@ class ApiV2HttpTestCase(HttpCase):
             )
 
         cls.id_type_household = cls.env["spp.vocabulary.code"].search(
-            [("vocabulary_id", "=", id_type_vocab.id), ("code", "=", "test_household_id")],
+            [
+                ("vocabulary_id", "=", id_type_vocab.id),
+                ("code", "=", "test_household_id"),
+            ],
             limit=1,
         )
         if not cls.id_type_household:

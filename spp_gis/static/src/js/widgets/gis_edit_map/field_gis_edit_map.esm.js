@@ -38,7 +38,11 @@ export class FieldGisEditMap extends Component {
 
             const default_center = JSON.parse(editInfo.default_center);
 
-            Object.assign(this, {defaultZoom: default_zoom, srid, defaultCenter: default_center});
+            Object.assign(this, {
+                defaultZoom: default_zoom,
+                srid,
+                defaultCenter: default_center,
+            });
 
             this.renderMap();
             this.onLoadMap();
@@ -120,7 +124,7 @@ export class FieldGisEditMap extends Component {
                     const centroid = turf.centroid(obj);
                     return centroid.geometry.coordinates;
                 } catch {
-                    // skip invalid geo data
+                    // Skip invalid geo data
                 }
             }
         }
@@ -204,7 +208,9 @@ export class FieldGisEditMap extends Component {
         function updateArea(e) {
             console.log(e);
             var data = self.draw.getAll();
-            self.props.record.update({[self.props.name]: JSON.stringify(data.features[0].geometry)});
+            self.props.record.update({
+                [self.props.name]: JSON.stringify(data.features[0].geometry),
+            });
         }
 
         this.draw = new MapboxDraw({

@@ -172,8 +172,15 @@ class TestEntitlementManager(TransactionCase):
         res = self._cash_entitlement_manager.validate_entitlements(self.cycle)
         self.assertEqual(res["params"]["type"], "success", "Should display success notification!")
         self.assertEqual(entitlement.state, "approved", "Entitlement should now be approved!")
-        self.assertTrue(entitlement.service_fee_disbursement_id, "Service fee payment should be created!")
-        self.assertEqual(entitlement.service_fee_disbursement_id.amount, 1.0, "Service fee amount should be correct!")
+        self.assertTrue(
+            entitlement.service_fee_disbursement_id,
+            "Service fee payment should be created!",
+        )
+        self.assertEqual(
+            entitlement.service_fee_disbursement_id.amount,
+            1.0,
+            "Service fee amount should be correct!",
+        )
 
         # Test case 3: Invalid state validation
         entitlement2 = self.create_entitlement()

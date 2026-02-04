@@ -60,7 +60,10 @@ class CelRuleWizard(models.TransientModel):
             path = result.get("path", "domain")
             warnings = result.get("warnings") or []
             self.explain_text = self._build_explain_html(
-                self.cel_expression, clean_explain, path, warnings,
+                self.cel_expression,
+                clean_explain,
+                path,
+                warnings,
             )
             # Append simple warnings if present in struct
             warnings_lines = []
@@ -167,14 +170,12 @@ class CelRuleWizard(models.TransientModel):
         parts = []
         # Expression echo
         parts.append(
-            f'<div class="mb-2"><strong>Expression:</strong> '
-            f"<code>{Markup.escape(expression)}</code></div>"
+            f'<div class="mb-2"><strong>Expression:</strong> ' f"<code>{Markup.escape(expression)}</code></div>"
         )
         # Translation
         if translated:
             parts.append(
-                f'<div class="mb-2"><strong>Translates to:</strong> '
-                f"<code>{Markup.escape(translated)}</code></div>"
+                f'<div class="mb-2"><strong>Translates to:</strong> ' f"<code>{Markup.escape(translated)}</code></div>"
             )
         # Execution path
         path_labels = {
@@ -183,14 +184,10 @@ class CelRuleWizard(models.TransientModel):
             "python": "Python evaluation (may be slow for large datasets)",
         }
         path_label = path_labels.get(path, path)
-        parts.append(
-            f'<div class="mb-2 text-muted"><strong>Execution path:</strong> {path_label}</div>'
-        )
+        parts.append(f'<div class="mb-2 text-muted"><strong>Execution path:</strong> {path_label}</div>')
         # Warnings
         for w in warnings:
-            parts.append(
-                f'<div class="text-warning"><i class="fa fa-exclamation-triangle"/> {Markup.escape(w)}</div>'
-            )
+            parts.append(f'<div class="text-warning"><i class="fa fa-exclamation-triangle"/> {Markup.escape(w)}</div>')
         return "".join(parts)
 
     @staticmethod

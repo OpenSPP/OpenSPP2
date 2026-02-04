@@ -354,7 +354,10 @@ class TestClientService(TransactionCase):
         # Mock HTTP response
         mock_response = MagicMock()
         mock_response.status_code = 200
-        mock_response.json.return_value = {"header": {"status": "success"}, "message": {"data": "test"}}
+        mock_response.json.return_value = {
+            "header": {"status": "success"},
+            "message": {"data": "test"},
+        }
         mock_response.raise_for_status = MagicMock()
 
         mock_http_client = MagicMock()

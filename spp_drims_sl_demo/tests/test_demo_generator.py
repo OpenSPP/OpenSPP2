@@ -162,7 +162,9 @@ class TestDrimsDemoGenerator(DrimsTestCommon):
         valid_states = ["announced", "received", "inspected", "stocked", "cancelled"]
         for donation in donations:
             self.assertIn(
-                donation.state, valid_states, f"Donation {donation.reference} has invalid state: {donation.state}"
+                donation.state,
+                valid_states,
+                f"Donation {donation.reference} has invalid state: {donation.state}",
             )
 
     def test_action_generate_creates_valid_requests(self):
@@ -207,5 +209,7 @@ class TestDrimsDemoGenerator(DrimsTestCommon):
         ]
         for request in requests:
             self.assertIn(
-                request.state, valid_states, f"Request {request.reference} has invalid state: {request.state}"
+                request.state,
+                valid_states,
+                f"Request {request.reference} has invalid state: {request.state}",
             )

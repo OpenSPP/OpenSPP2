@@ -602,7 +602,12 @@ class DataValue(models.Model):
                 count = len(records)
                 records.unlink()
                 total_deleted += count
-                _logger.info("Purged %d expired %s values older than %d days", count, source_type, days)
+                _logger.info(
+                    "Purged %d expired %s values older than %d days",
+                    count,
+                    source_type,
+                    days,
+                )
 
         # Purge remaining with default retention
         cutoff = now - timedelta(days=default_days)
@@ -616,7 +621,11 @@ class DataValue(models.Model):
             count = len(records)
             records.unlink()
             total_deleted += count
-            _logger.info("Purged %d expired values older than %d days (default retention)", count, default_days)
+            _logger.info(
+                "Purged %d expired values older than %d days (default retention)",
+                count,
+                default_days,
+            )
 
         return total_deleted
 

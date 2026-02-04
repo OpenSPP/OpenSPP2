@@ -100,7 +100,13 @@ BUILTIN_FUNCTIONS = [
         "name": "head",
         "signature": "head(member_var) -> bool",
         "doc": "Check if membership represents head of household",
-        "params": [{"name": "member_var", "type": "identifier", "doc": "Member variable in exists/count"}],
+        "params": [
+            {
+                "name": "member_var",
+                "type": "identifier",
+                "doc": "Member variable in exists/count",
+            }
+        ],
         "return_type": "bool",
         "examples": ["members.exists(m, head(m) and m.gender == 'female')"],
     },
@@ -132,11 +138,24 @@ BUILTIN_FUNCTIONS = [
         "doc": "Get indicator metric value (requires spp_indicators)",
         "params": [
             {"name": "name", "type": "string", "doc": "Metric name"},
-            {"name": "subject", "type": "string", "doc": "Optional subject context", "optional": True},
-            {"name": "period", "type": "string", "doc": "Optional time period", "optional": True},
+            {
+                "name": "subject",
+                "type": "string",
+                "doc": "Optional subject context",
+                "optional": True,
+            },
+            {
+                "name": "period",
+                "type": "string",
+                "doc": "Optional time period",
+                "optional": True,
+            },
         ],
         "return_type": "float",
-        "examples": ['metric("household.size") >= 4', 'metric("income.monthly") < 5000'],
+        "examples": [
+            'metric("household.size") >= 4',
+            'metric("income.monthly") < 5000',
+        ],
     },
 ]
 
@@ -158,7 +177,17 @@ OPERATORS = [
 KEYWORDS = ["true", "false", "null"]
 
 # Field types we expose for autocompletion
-SIMPLE_FIELD_TYPES = ("char", "text", "integer", "float", "boolean", "date", "datetime", "selection", "monetary")
+SIMPLE_FIELD_TYPES = (
+    "char",
+    "text",
+    "integer",
+    "float",
+    "boolean",
+    "date",
+    "datetime",
+    "selection",
+    "monetary",
+)
 
 # Module prefixes whose fields should be included in the symbol browser.
 # Fields from other Odoo modules (accounting, CRM, stock, etc.) are excluded.
@@ -460,7 +489,7 @@ class CelSymbolProvider(models.AbstractModel):
             return fields
 
         # For models that are themselves SPP models, include all meaningful fields
-        is_spp_model = model_name.startswith(("spp.", "g2p.", "openg2p."))
+        is_spp_model = model_name.startswith("spp.")
 
         # Build set of allowed field names from SPP modules via ir.model.data
         spp_field_names = set()

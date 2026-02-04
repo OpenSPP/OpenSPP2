@@ -214,7 +214,10 @@ class Base(models.AbstractModel):
         "type" key is set to "FeatureCollection", and the value of the "features" key is set to the
         input parameter `features`, which is a list of features.
         """
-        return {"type": "FeatureCollection", "features": features if isinstance(features, list) else [features]}
+        return {
+            "type": "FeatureCollection",
+            "features": features if isinstance(features, list) else [features],
+        }
 
     @api.model
     def get_field_type_from_layer_type(self, layer_type):
@@ -243,7 +246,12 @@ class Base(models.AbstractModel):
 
     @api.model
     def gis_locational_query(
-        self, longitude: float, latitude: float, layer_type="polygon", spatial_relation="intersects", distance=None
+        self,
+        longitude: float,
+        latitude: float,
+        layer_type="polygon",
+        spatial_relation="intersects",
+        distance=None,
     ):
         """
         The function `gis_locational_query` performs a spatial query based on given coordinates, layer

@@ -93,7 +93,11 @@ class SPPCRConflictComparisonWizard(models.TransientModel):
             for cr in [primary_cr] + list(conflicting_crs):
                 lines.append(
                     Command.create(
-                        {"change_request_id": cr.id, "is_primary": cr.id == primary_cr.id, "decision": "none"}
+                        {
+                            "change_request_id": cr.id,
+                            "is_primary": cr.id == primary_cr.id,
+                            "decision": "none",
+                        }
                     )
                 )
             res["line_ids"] = lines
@@ -143,7 +147,14 @@ class SPPCRConflictComparisonWizard(models.TransientModel):
                 cr_ids.mapped("create_uid").read(["name"])
 
             # Build comparison table - headers are static so no escaping needed
-            headers = ["Request", "Submitted", "By", "Proposed Value", "Documents", "Decision"]
+            headers = [
+                "Request",
+                "Submitted",
+                "By",
+                "Proposed Value",
+                "Documents",
+                "Decision",
+            ]
             header_html = Markup("").join(Markup("<th>{}</th>").format(h) for h in headers)
 
             rows = []
@@ -273,7 +284,7 @@ class SPPCRConflictComparisonWizard(models.TransientModel):
                         cr._do_reject(_("Declined via conflict resolution - another request approved"))
                         results["rejected"].append(cr.name)
             except Exception as e:
-                _logger.warning("Failed to process CR %s: %s", cr.name, str(e))
+                _logger.warning("Failed to process CR ID %s: %s", cr.id, str(e))
                 results["errors"].append(f"{cr.name}: {str(e)}")
 
         # Show results notification

@@ -42,7 +42,11 @@ class TestDMSDirectoryCreation(TransactionCase):
             raise_if_not_found=False,
         )
         self.assertTrue(parent, "Parent 'Change Request' directory should exist from data")
-        self.assertEqual(parent.name, "Change Request", "Parent directory should be named 'Change Request'")
+        self.assertEqual(
+            parent.name,
+            "Change Request",
+            "Parent directory should be named 'Change Request'",
+        )
         self.assertTrue(parent.is_root_directory, "Parent should be a root directory")
 
         # Create a change request
@@ -148,7 +152,10 @@ class TestDMSDirectoryCreation(TransactionCase):
         # Verify directory was archived (not deleted, to preserve files)
         directory = self.directory_model.with_context(active_test=False).browse(directory_id)
         self.assertTrue(directory.exists(), "Directory should still exist after CR deletion")
-        self.assertFalse(directory.active, "Directory should be archived (active=False) when CR is deleted")
+        self.assertFalse(
+            directory.active,
+            "Directory should be archived (active=False) when CR is deleted",
+        )
 
     def test_05_complete_name_computed(self):
         """Test that complete directory name includes parent path."""

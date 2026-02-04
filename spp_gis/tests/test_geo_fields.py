@@ -135,8 +135,9 @@ class TestGeoFields(TransactionCase):
 
     def test_convert_to_column_validates_geojson(self):
         """Test that convert_to_column still validates GeoJSON input."""
-        from odoo.addons.spp_gis.fields import GeoPointField
         from odoo.exceptions import ValidationError
+
+        from odoo.addons.spp_gis.fields import GeoPointField
 
         field = GeoPointField()
 

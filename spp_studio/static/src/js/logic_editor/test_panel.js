@@ -91,7 +91,7 @@ export class LogicTestPanel extends Component {
     /**
      * Get the appropriate icon class based on test status
      * @param {Object} test - Test object
-     * @returns {string} CSS classes for the icon
+     * @returns {String} CSS classes for the icon
      */
     getStatusIcon(test) {
         if (test.error_message) {
@@ -121,7 +121,7 @@ export class LogicTestPanel extends Component {
 
     /**
      * Toggle expansion of test details
-     * @param {number} testId - ID of test to toggle
+     * @param {Number} testId - ID of test to toggle
      */
     toggleTestExpansion(testId) {
         if (this.state.expandedTests.has(testId)) {
@@ -133,8 +133,8 @@ export class LogicTestPanel extends Component {
 
     /**
      * Check if test is expanded
-     * @param {number} testId - ID of test
-     * @returns {boolean}
+     * @param {Number} testId - ID of test
+     * @returns {Boolean}
      */
     isTestExpanded(testId) {
         return this.state.expandedTests.has(testId);
@@ -155,8 +155,8 @@ export class LogicTestPanel extends Component {
 
     /**
      * Format execution time in milliseconds
-     * @param {number} ms - Milliseconds
-     * @returns {string} Formatted time string
+     * @param {Number} ms - Milliseconds
+     * @returns {String} Formatted time string
      */
     formatExecutionTime(ms) {
         if (!ms) return "N/A";
@@ -167,7 +167,7 @@ export class LogicTestPanel extends Component {
     /**
      * Get test status text
      * @param {Object} test - Test object
-     * @returns {string} Status text
+     * @returns {String} Status text
      */
     getTestStatus(test) {
         if (this.state.runningTestId === test.id) return "Running...";

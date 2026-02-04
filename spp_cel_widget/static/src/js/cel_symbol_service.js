@@ -24,8 +24,8 @@ export const celSymbolService = {
         return {
             /**
              * Get symbols for a profile
-             * @param {string} profile - Profile name
-             * @param {boolean} forceRefresh - Skip cache
+             * @param {String} profile - Profile name
+             * @param {Boolean} forceRefresh - Skip cache
              * @returns {Promise<Object>} Symbol data
              */
             async getSymbols(profile, forceRefresh = false) {
@@ -47,11 +47,11 @@ export const celSymbolService = {
 
             /**
              * Validate a CEL expression
-             * @param {string} expression - CEL expression
-             * @param {string} profile - Profile name
+             * @param {String} expression - CEL expression
+             * @param {String} profile - Profile name
              * @param {Object} options - Optional parameters
-             * @param {string} options.expression_type - Type of expression (filter, formula, scoring, etc.)
-             * @param {string} options.output_type - Expected output type (boolean, number, money, string)
+             * @param {String} options.expression_type - Type of expression (filter, formula, scoring, etc.)
+             * @param {String} options.output_type - Expected output type (boolean, number, money, string)
              * @returns {Promise<Object>} Validation result
              */
             async validate(expression, profile, options = {}) {
@@ -101,7 +101,7 @@ export const celSymbolService = {
 
             /**
              * Clear symbol cache
-             * @param {string} profile - Optional specific profile to clear
+             * @param {String} profile - Optional specific profile to clear
              */
             clearCache(profile = null) {
                 if (profile) {

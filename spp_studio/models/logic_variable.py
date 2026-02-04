@@ -28,7 +28,12 @@ class LogicVariable(models.Model):
     to work with a single variable model.
     """
 
-    _inherit = ["spp.cel.variable", "spp.studio.mixin", "mail.thread", "mail.activity.mixin"]
+    _inherit = [
+        "spp.cel.variable",
+        "spp.studio.mixin",
+        "mail.thread",
+        "mail.activity.mixin",
+    ]
     _name = "spp.cel.variable"  # Keep same table
     _description = "Logic Variable"
     _order = "category_id, sequence, name"
@@ -212,7 +217,12 @@ class LogicVariable(models.Model):
             target = "group"
 
         if target == "individual":
-            if category_code in ("demographics", "household", "characteristics", "location"):
+            if category_code in (
+                "demographics",
+                "household",
+                "characteristics",
+                "location",
+            ):
                 return "individual_profile_demographics"
             if category_code == "economic":
                 return "individual_profile_financial"
@@ -224,7 +234,12 @@ class LogicVariable(models.Model):
             # Group registry
             if category_code == "economic":
                 return "group_profile_financial"
-            if category_code in ("demographics", "household", "characteristics", "location"):
+            if category_code in (
+                "demographics",
+                "household",
+                "characteristics",
+                "location",
+            ):
                 return "group_profile_contact"
             if category_code in ("program", "indicators", "scoring"):
                 return "group_participation"

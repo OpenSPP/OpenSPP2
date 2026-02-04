@@ -99,9 +99,15 @@ class MultiInKindEntitlementApproval(models.TransientModel):
 
     quantity = fields.Integer("Quantity", related="entitlement_id.quantity")
     currency_id = fields.Many2one("res.currency", related="entitlement_id.currency_id")
-    unit_price = fields.Monetary(string="Value/Unit", currency_field="currency_id", related="entitlement_id.unit_price")
+    unit_price = fields.Monetary(
+        string="Value/Unit",
+        currency_field="currency_id",
+        related="entitlement_id.unit_price",
+    )
     total_amount = fields.Monetary(
-        string="Total Value", currency_field="currency_id", related="entitlement_id.total_amount"
+        string="Total Value",
+        currency_field="currency_id",
+        related="entitlement_id.total_amount",
     )
 
     state = fields.Selection(

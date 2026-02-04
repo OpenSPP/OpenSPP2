@@ -254,7 +254,14 @@ class CelTranslator(models.AbstractModel):
                 parent_field = sym["parent"]
                 link_field = sym.get("link_to") or sym.get("link_field") or sym.get("link") or "id"
                 default_domain = sym.get("default_domain")
-                op = {"EQ": "==", "NE": "!=", "GT": ">", "GE": ">=", "LT": "<", "LE": "<="}[inner_cmp.op]
+                op = {
+                    "EQ": "==",
+                    "NE": "!=",
+                    "GT": ">",
+                    "GE": ">=",
+                    "LT": "<",
+                    "LE": "<=",
+                }[inner_cmp.op]
                 rhs = self._eval_literal(inner_cmp.right, ctx)
                 node_plan = AggMetricCompare(
                     through_model=through,
@@ -268,7 +275,10 @@ class CelTranslator(models.AbstractModel):
                     rhs=rhs,
                     default_domain=default_domain,
                 )
-                return node_plan, f"ALL over {coll_name} of METRIC({metric_name}) {op} {rhs}"
+                return (
+                    node_plan,
+                    f"ALL over {coll_name} of METRIC({metric_name}) {op} {rhs}",
+                )
             # require_coverage(inner_expr, min)
             if isinstance(node.func, P.Ident) and node.func.name == "require_coverage":
                 inner = node.args[0] if node.args else None
@@ -351,7 +361,11 @@ class CelTranslator(models.AbstractModel):
                     child_model = self._symbol_child_model(sym)
                     subctx = dict(ctx)
                     if isinstance(var, P.Ident):
-                        subctx[var.name] = {"kind": "rel_var", "sym": sym, "model": child_model}
+                        subctx[var.name] = {
+                            "kind": "rel_var",
+                            "sym": sym,
+                            "model": child_model,
+                        }
                     child_plan, explain = self._to_plan(child_model, pred, cfg, subctx)
                     through = sym["through"]
                     parent_field = sym["parent"]
@@ -359,13 +373,27 @@ class CelTranslator(models.AbstractModel):
                     default_domain = sym.get("default_domain")
                     if method == "exists":
                         return (
-                            ExistsThrough(through, parent_field, link_field, child_model, child_plan, default_domain),
+                            ExistsThrough(
+                                through,
+                                parent_field,
+                                link_field,
+                                child_model,
+                                child_plan,
+                                default_domain,
+                            ),
                             f"EXISTS in {coll_name}: {explain}",
                         )
                     else:
                         # count(...) must be compared later; represent as count == True unsupported alone
                         return CountThrough(
-                            through, parent_field, link_field, child_model, child_plan, ">=", 1, default_domain
+                            through,
+                            parent_field,
+                            link_field,
+                            child_model,
+                            child_plan,
+                            ">=",
+                            1,
+                            default_domain,
                         ), f"COUNT in {coll_name}: {explain}"
                 elif method in ("exists", "count"):
                     # User tried to use exists/count on unknown or invalid symbol
@@ -388,7 +416,11 @@ class CelTranslator(models.AbstractModel):
                     agg_field = self._extract_field_name(field_expr, var, child_model, cfg, ctx)
                     subctx = dict(ctx)
                     if isinstance(var, P.Ident):
-                        subctx[var.name] = {"kind": "rel_var", "sym": sym, "model": child_model}
+                        subctx[var.name] = {
+                            "kind": "rel_var",
+                            "sym": sym,
+                            "model": child_model,
+                        }
                     child_plan, explain = self._to_plan(child_model, pred, cfg, subctx)
                     through = sym["through"]
                     parent_field = sym["parent"]
@@ -428,7 +460,11 @@ class CelTranslator(models.AbstractModel):
                         child_model = self._symbol_child_model(sym)
                         subctx = dict(ctx)
                         if isinstance(var, P.Ident):
-                            subctx[var.name] = {"kind": "rel_var", "sym": sym, "model": child_model}
+                            subctx[var.name] = {
+                                "kind": "rel_var",
+                                "sym": sym,
+                                "model": child_model,
+                            }
                         child_plan, explain = self._to_plan(child_model, pred, cfg, subctx)
                         through = sym["through"]
                         parent_field = sym["parent"]
@@ -437,14 +473,26 @@ class CelTranslator(models.AbstractModel):
                         if node.func.name == "exists":
                             return (
                                 ExistsThrough(
-                                    through, parent_field, link_field, child_model, child_plan, default_domain
+                                    through,
+                                    parent_field,
+                                    link_field,
+                                    child_model,
+                                    child_plan,
+                                    default_domain,
                                 ),
                                 f"EXISTS in {coll_name}: {explain}",
                             )
                         else:
                             return (
                                 CountThrough(
-                                    through, parent_field, link_field, child_model, child_plan, ">=", 1, default_domain
+                                    through,
+                                    parent_field,
+                                    link_field,
+                                    child_model,
+                                    child_plan,
+                                    ">=",
+                                    1,
+                                    default_domain,
                                 ),
                                 f"COUNT in {coll_name}: {explain}",
                             )
@@ -452,7 +500,10 @@ class CelTranslator(models.AbstractModel):
                         # Unknown or invalid symbol in function-style exists/count
                         raise KeyError(coll_name)
             # Simple leaf function: head(m), has_role(m,"name") -> boolean on membership kinds
-            if isinstance(node.func, P.Ident) and node.func.name in ("head", "has_role"):
+            if isinstance(node.func, P.Ident) and node.func.name in (
+                "head",
+                "has_role",
+            ):
                 m = node.args[0]
                 role_names = None
                 role_ids = None
@@ -532,7 +583,10 @@ class CelTranslator(models.AbstractModel):
                     model,
                     [("area_id", "child_of", area.ids)],
                 ), f"area_id child_of {area.ids}"
-            if isinstance(node.func, P.Ident) and node.func.name in ("has_area_tag", "has_any_area_tag"):
+            if isinstance(node.func, P.Ident) and node.func.name in (
+                "has_area_tag",
+                "has_any_area_tag",
+            ):
                 # has_area_tag('REMOTE') / has_any_area_tag(['REMOTE','URBAN'])
                 if "spp.area.tag" not in self.env:
                     raise KeyError("spp.area.tag")
@@ -612,8 +666,7 @@ class CelTranslator(models.AbstractModel):
             )
         # Fallback: reject unrecognized expressions instead of silently matching everything
         raise NotImplementedError(
-            f"Unrecognized expression in CEL: {type(node).__name__}. "
-            f"Please check your expression syntax."
+            f"Unrecognized expression in CEL: {type(node).__name__}. " f"Please check your expression syntax."
         )
 
     def _cmp_to_leaf(self, model: str, cmp: P.Compare, cfg: dict[str, Any], ctx: dict[str, Any]):  # noqa: C901
@@ -675,14 +728,25 @@ class CelTranslator(models.AbstractModel):
                     child_model = self._symbol_child_model(sym)
                     subctx = dict(ctx)
                     if isinstance(var, P.Ident):
-                        subctx[var.name] = {"kind": "rel_var", "sym": sym, "model": child_model}
+                        subctx[var.name] = {
+                            "kind": "rel_var",
+                            "sym": sym,
+                            "model": child_model,
+                        }
                     child_plan, explain = self._to_plan(child_model, pred, cfg, subctx)
                     through = sym["through"]
                     parent_field = sym["parent"]
                     link_field = sym.get("link_to") or sym.get("link_field") or sym.get("link") or "id"
                     default_domain = sym.get("default_domain")
                     rhs = self._eval_literal(cmp.right, ctx)
-                    op = {"EQ": "==", "NE": "!=", "GT": ">", "GE": ">=", "LT": "<", "LE": "<="}[cmp.op]
+                    op = {
+                        "EQ": "==",
+                        "NE": "!=",
+                        "GT": ">",
+                        "GE": ">=",
+                        "LT": "<",
+                        "LE": "<=",
+                    }[cmp.op]
                     return (
                         CountThrough(
                             through,
@@ -719,14 +783,25 @@ class CelTranslator(models.AbstractModel):
                     agg_field = self._extract_field_name(field_expr, var, child_model, cfg, ctx)
                     subctx = dict(ctx)
                     if isinstance(var, P.Ident):
-                        subctx[var.name] = {"kind": "rel_var", "sym": sym, "model": child_model}
+                        subctx[var.name] = {
+                            "kind": "rel_var",
+                            "sym": sym,
+                            "model": child_model,
+                        }
                     child_plan, explain = self._to_plan(child_model, pred, cfg, subctx)
                     through = sym["through"]
                     parent_field = sym["parent"]
                     link_field = sym.get("link_to") or sym.get("link_field") or sym.get("link") or "id"
                     default_domain = sym.get("default_domain")
                     rhs = self._eval_literal(cmp.right, ctx)
-                    op = {"EQ": "==", "NE": "!=", "GT": ">", "GE": ">=", "LT": "<", "LE": "<="}[cmp.op]
+                    op = {
+                        "EQ": "==",
+                        "NE": "!=",
+                        "GT": ">",
+                        "GE": ">=",
+                        "LT": "<",
+                        "LE": "<=",
+                    }[cmp.op]
                     return (
                         FieldAggregateThrough(
                             through,
@@ -798,7 +873,12 @@ class CelTranslator(models.AbstractModel):
             rhs = self._eval_literal(cmp.right, ctx)
             op = {"EQ": "==", "NE": "!=", "GT": ">", "GE": ">=", "LT": "<", "LE": "<="}[cmp.op]
             plan = MetricCompare(
-                metric=metric_name, subject_var=subject_var, period_key=period_key, params=None, op=op, rhs=rhs
+                metric=metric_name,
+                subject_var=subject_var,
+                period_key=period_key,
+                params=None,
+                op=op,
+                rhs=rhs,
             )
             return plan, f"METRIC({metric_name}) {op} {rhs}"
         # Count(...) comparison
@@ -812,7 +892,11 @@ class CelTranslator(models.AbstractModel):
                     child_model = self._symbol_child_model(sym)
                     subctx = dict(ctx)
                     if isinstance(var, P.Ident):
-                        subctx[var.name] = {"kind": "rel_var", "sym": sym, "model": child_model}
+                        subctx[var.name] = {
+                            "kind": "rel_var",
+                            "sym": sym,
+                            "model": child_model,
+                        }
                     child_plan, explain = self._to_plan(child_model, pred, cfg, subctx)
                     through = sym["through"]
                     parent_field = sym["parent"]
@@ -826,7 +910,14 @@ class CelTranslator(models.AbstractModel):
                             link_field,
                             child_model,
                             child_plan,
-                            {"EQ": "==", "NE": "!=", "GT": ">", "GE": ">=", "LT": "<", "LE": "<="}[cmp.op],
+                            {
+                                "EQ": "==",
+                                "NE": "!=",
+                                "GT": ">",
+                                "GE": ">=",
+                                "LT": "<",
+                                "LE": "<=",
+                            }[cmp.op],
                             rhs,
                             default_domain,
                         ),
@@ -900,7 +991,10 @@ class CelTranslator(models.AbstractModel):
                 rhs=rhs,
                 default_domain=default_domain,
             )
-            return node, f"{agg.upper()} over {coll_name} of METRIC({metric_name}) {op} {rhs}"
+            return (
+                node,
+                f"{agg.upper()} over {coll_name} of METRIC({metric_name}) {op} {rhs}",
+            )
 
         # Normal comparison
         left_field, left_model = self._resolve_field(model, cmp.left, cfg, ctx)
@@ -957,7 +1051,10 @@ class CelTranslator(models.AbstractModel):
                         return key
                     cyc = self.env["spp.cycle"].browse(cid)
                     prev = self.env["spp.cycle"].search(
-                        [("program_id", "=", cyc.program_id.id), ("sequence", "<", cyc.sequence)],
+                        [
+                            ("program_id", "=", cyc.program_id.id),
+                            ("sequence", "<", cyc.sequence),
+                        ],
                         order="sequence desc",
                         limit=1,
                     )
@@ -978,7 +1075,10 @@ class CelTranslator(models.AbstractModel):
                         return key
                     cyc = self.env["spp.cycle"].browse(cid)
                     nxt = self.env["spp.cycle"].search(
-                        [("program_id", "=", cyc.program_id.id), ("sequence", ">", cyc.sequence)],
+                        [
+                            ("program_id", "=", cyc.program_id.id),
+                            ("sequence", ">", cyc.sequence),
+                        ],
                         order="sequence asc",
                         limit=1,
                     )
@@ -1033,7 +1133,11 @@ class CelTranslator(models.AbstractModel):
                     # Search by display name or code in vocabulary
                     rec = self.env["spp.vocabulary.code"].search(
                         [
-                            ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:group-membership-type"),
+                            (
+                                "vocabulary_id.namespace_uri",
+                                "=",
+                                "urn:openspp:vocab:group-membership-type",
+                            ),
                             "|",
                             ("display", "=", name),
                             ("code", "=", name.lower()),
@@ -1096,7 +1200,12 @@ class CelTranslator(models.AbstractModel):
                                 return [(field, "in", resolved_ids)]
                             if op == "ilike":
                                 base_domain = [(field, "in", resolved_ids)]
-                                return Domain.OR([base_domain, [(f"{field}.{label_field}", "ilike", right)]])
+                                return Domain.OR(
+                                    [
+                                        base_domain,
+                                        [(f"{field}.{label_field}", "ilike", right)],
+                                    ]
+                                )
 
                     name_clauses: list[list[Any]] = []
                     for attr in ("value", "name", "code"):
@@ -1241,7 +1350,12 @@ class CelTranslator(models.AbstractModel):
         return False
 
     def _extract_field_name(
-        self, field_expr: Any, var: Any, child_model: str, cfg: dict[str, Any], ctx: dict[str, Any]
+        self,
+        field_expr: Any,
+        var: Any,
+        child_model: str,
+        cfg: dict[str, Any],
+        ctx: dict[str, Any],
     ) -> str:
         """Extract field name from an expression like m.income for aggregation.
 

@@ -190,7 +190,11 @@ class Claim169Service(models.AbstractModel):
                 )
                 # Continue with other mappings
 
-        _logger.debug("Built Claim169Input for partner %s with %d mappings", partner.id, len(mappings))
+        _logger.debug(
+            "Built Claim169Input for partner %s with %d mappings",
+            partner.id,
+            len(mappings),
+        )
 
         return claim_input
 
@@ -410,11 +414,19 @@ class Claim169Service(models.AbstractModel):
                 }
 
             raw_claims = result.claim169.to_dict()
-            return {"valid": True, "claims": self._translate_claim_keys(raw_claims), "error": None}
+            return {
+                "valid": True,
+                "claims": self._translate_claim_keys(raw_claims),
+                "error": None,
+            }
 
         except c169.SignatureError as e:
             _logger.warning("Signature verification failed: %s", str(e))
-            return {"valid": False, "claims": None, "error": f"Signature error: {str(e)}"}
+            return {
+                "valid": False,
+                "claims": None,
+                "error": f"Signature error: {str(e)}",
+            }
         except Exception as e:
             _logger.warning("Credential verification failed: %s", str(e))
             return {"valid": False, "claims": None, "error": str(e)}

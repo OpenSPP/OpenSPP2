@@ -521,7 +521,10 @@ class TestMinApprovers(TestMultitierApproval):
         )
         self.group_validators.write(
             {
-                "user_ids": [Command.link(self.user_validator_2.id), Command.link(self.user_validator_3.id)],
+                "user_ids": [
+                    Command.link(self.user_validator_2.id),
+                    Command.link(self.user_validator_3.id),
+                ],
             }
         )
 
@@ -948,7 +951,10 @@ class TestConcurrentApprovals(TestMultitierApproval):
         )
         self.group_validators.write(
             {
-                "user_ids": [Command.link(self.user_validator_2.id), Command.link(self.user_validator_3.id)],
+                "user_ids": [
+                    Command.link(self.user_validator_2.id),
+                    Command.link(self.user_validator_3.id),
+                ],
             }
         )
 
@@ -1193,7 +1199,10 @@ class TestMixedTierConfigurations(TestMultitierApproval):
         )
         self.group_validators.write(
             {
-                "user_ids": [Command.link(self.user_validator_2.id), Command.link(self.user_validator_3.id)],
+                "user_ids": [
+                    Command.link(self.user_validator_2.id),
+                    Command.link(self.user_validator_3.id),
+                ],
             }
         )
 

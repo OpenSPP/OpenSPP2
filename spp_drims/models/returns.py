@@ -278,7 +278,11 @@ class DrimsReturn(models.Model):
         VocabCode = self.env["spp.vocabulary.code"]
         return_type = VocabCode.search(
             [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:drims-types"),
+                (
+                    "vocabulary_id.namespace_uri",
+                    "=",
+                    "urn:openspp:vocab:drims:drims-types",
+                ),
                 ("code", "=", "return"),
             ],
             limit=1,
@@ -287,7 +291,11 @@ class DrimsReturn(models.Model):
             # Fallback: search for any drims type
             return_type = VocabCode.search(
                 [
-                    ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:drims:drims-types"),
+                    (
+                        "vocabulary_id.namespace_uri",
+                        "=",
+                        "urn:openspp:vocab:drims:drims-types",
+                    ),
                 ],
                 limit=1,
             )

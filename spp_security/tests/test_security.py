@@ -1,6 +1,5 @@
 """Tests for spp_security module."""
 
-from odoo import Command
 from odoo.tests import TransactionCase, tagged
 
 
@@ -119,7 +118,11 @@ class TestSppSecurityAdmin(TransactionCase):
         """Test Odoo system admin automatically gets OpenSPP admin."""
         system_admin = self.env.ref("base.group_system")
         spp_admin = self.env.ref("spp_security.group_spp_admin")
-        self.assertIn(spp_admin, system_admin.implied_ids, "System admin should imply OpenSPP admin")
+        self.assertIn(
+            spp_admin,
+            system_admin.implied_ids,
+            "System admin should imply OpenSPP admin",
+        )
 
     def test_admin_user_inherits_spp_admin(self):
         """Test that system admin implies SPP admin via XML configuration.

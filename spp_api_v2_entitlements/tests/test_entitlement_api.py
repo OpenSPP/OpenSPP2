@@ -499,7 +499,12 @@ class TestEntitlementAPI(TransactionCase):
 
         service = EntitlementService(self.env)
         beneficiary_id = f"{self.reg_id1.id_type_id.uri}|{self.reg_id1.value}"
-        params = {"type": "cash", "beneficiary": beneficiary_id, "_count": 10, "_offset": 0}
+        params = {
+            "type": "cash",
+            "beneficiary": beneficiary_id,
+            "_count": 10,
+            "_offset": 0,
+        }
         records, total = service.search(params)
 
         assert total >= 1

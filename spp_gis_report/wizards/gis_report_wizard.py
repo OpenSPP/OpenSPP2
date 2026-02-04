@@ -228,9 +228,7 @@ class GISReportWizard(models.TransientModel):
             defaults["normalization_method"] = config["normalization_method"]
         if "color_scheme" in config:
             # Look up color scheme by code from template
-            scheme = self.env["spp.gis.color.scheme"].search(
-                [("code", "=", config["color_scheme"])], limit=1
-            )
+            scheme = self.env["spp.gis.color.scheme"].search([("code", "=", config["color_scheme"])], limit=1)
             if scheme:
                 defaults["color_scheme_id"] = scheme.id
         if "threshold_mode" in config:
@@ -272,9 +270,7 @@ class GISReportWizard(models.TransientModel):
                 raise ValidationError(_("Please enter a report name."))
             self._validate_context_requirements()
             if not self.base_area_level or self.base_area_level < 0:
-                raise ValidationError(
-                    _("Please select a valid administrative level.")
-                )
+                raise ValidationError(_("Please select a valid administrative level."))
             self.step = "thresholds"
 
         return {
@@ -380,9 +376,7 @@ class GISReportWizard(models.TransientModel):
         # Extract required fields from template config
         if "source_model" in config:
             # Find ir.model by model name
-            model = self.env["ir.model"].search(
-                [("model", "=", config["source_model"])], limit=1
-            )
+            model = self.env["ir.model"].search([("model", "=", config["source_model"])], limit=1)
             if model:
                 vals["source_model_id"] = model.id
 

@@ -65,7 +65,9 @@ class TestDCISubscription(DCIServerCommon):
 
         # Verify each subscription got a unique code
         self.assertNotEqual(
-            sub1.subscription_code, sub2.subscription_code, "Each subscription should have a unique code"
+            sub1.subscription_code,
+            sub2.subscription_code,
+            "Each subscription should have a unique code",
         )
 
         # Verify codes follow expected format
