@@ -5,7 +5,7 @@ import os
 import unittest
 from contextlib import contextmanager
 
-from odoo import sql_db
+from odoo import Command, sql_db
 from odoo.tests.common import HttpCase
 from odoo.tools import mute_logger
 
@@ -19,12 +19,70 @@ class FastAPIHttpCase(HttpCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.fastapi_demo_app = cls.env.ref("fastapi.fastapi_endpoint_demo")
-        cls.fastapi_multi_demo_app = cls.env.ref("fastapi.fastapi_endpoint_multislash_demo")
+        cls.fastapi_demo_app = cls._get_or_create_demo_endpoint(
+            "fastapi.fastapi_endpoint_demo",
+            name="Fastapi Demo Endpoint",
+            root_path="/fastapi_demo",
+        )
+        cls.fastapi_multi_demo_app = cls._get_or_create_demo_endpoint(
+            "fastapi.fastapi_endpoint_multislash_demo",
+            name="Fastapi Multi-Slash Demo Endpoint",
+            root_path="/fastapi/demo-multi",
+        )
         cls.fastapi_apps = cls.fastapi_demo_app + cls.fastapi_multi_demo_app
         cls.fastapi_apps._handle_registry_sync()
         lang = cls.env["res.lang"].with_context(active_test=False).search([("code", "=", "fr_BE")])
         lang.active = True
+
+    @classmethod
+    def _get_or_create_demo_endpoint(cls, xml_id, name, root_path):
+        """Get demo endpoint from XML ID or create it if missing (demo data not loaded)."""
+        try:
+            return cls.env.ref(xml_id)
+        except ValueError:
+            demo_user = cls._get_or_create_demo_user()
+            endpoint = cls.env["fastapi.endpoint"].create(
+                {
+                    "name": name,
+                    "app": "demo",
+                    "root_path": root_path,
+                    "demo_auth_method": "http_basic",
+                    "user_id": demo_user.id,
+                }
+            )
+            cls.env["ir.model.data"].create(
+                {
+                    "name": xml_id.split(".")[-1],
+                    "module": "fastapi",
+                    "model": "fastapi.endpoint",
+                    "res_id": endpoint.id,
+                }
+            )
+            return endpoint
+
+    @classmethod
+    def _get_or_create_demo_user(cls):
+        """Get or create the demo app user."""
+        try:
+            return cls.env.ref("fastapi.my_demo_app_user")
+        except ValueError:
+            runner_group = cls.env.ref("fastapi.group_fastapi_endpoint_runner")
+            user = cls.env["res.users"].create(
+                {
+                    "name": "My Demo Endpoint User",
+                    "login": "my_demo_app_user",
+                    "groups_id": [Command.set([runner_group.id])],
+                }
+            )
+            cls.env["ir.model.data"].create(
+                {
+                    "name": "my_demo_app_user",
+                    "module": "fastapi",
+                    "model": "res.users",
+                    "res_id": user.id,
+                }
+            )
+            return user
 
     @contextmanager
     def _mocked_commit(self):
@@ -78,9 +136,7 @@ class FastAPIHttpCase(HttpCase):
         expected_status_code: int,
     ) -> None:
         with self._mocked_commit() as mocked_commit:
-            route = (
-                "/fastapi_demo/demo/exception?" f"exception_type={exception_type.value}&error_message={error_message}"
-            )
+            route = f"/fastapi_demo/demo/exception?exception_type={exception_type.value}&error_message={error_message}"
             response = self.url_open(route, timeout=200)
             mocked_commit.assert_not_called()
             self.assertDictEqual(

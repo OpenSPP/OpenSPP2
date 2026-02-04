@@ -8,6 +8,9 @@
     "license": "LGPL-3",
     "development_status": "Stable",
     "maintainers": ["jeremi", "gonzalesedwin1123", "reichie020212", "emjay0921"],
+    "external_dependencies": {
+        "python": ["pyjwt"],
+    },
     "depends": [
         "base",
         "fastapi",

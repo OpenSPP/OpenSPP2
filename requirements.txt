@@ -12,6 +12,7 @@ numpy>=1.22.2
 openpyxl
 parse-accept-language
 pydantic
+pyjwt
 pyproj
 python-dateutil
 python-magic
