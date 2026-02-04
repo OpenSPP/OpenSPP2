@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <data>
         <!-- DCI API Endpoint Registration -->
         <record id="fastapi_endpoint_dci_api" model="fastapi.endpoint">
             <field name="name">OpenSPP DCI API</field>
@@ -41,6 +40,4 @@ This API uses HTTP Signatures (draft-cavage-http-signatures):
 - Integration Guide: `docs/architecture/decisions/ADR-018-dci-api-v2.md`
             </field>
         </record>
-
-    </data>
 </odoo>

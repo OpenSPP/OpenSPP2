@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
         <record id="pack_pmt_targeting" model="spp.studio.pack">
             <field name="name">PMT Targeting</field>
             <field name="code">pmt_targeting</field>
@@ -28,5 +27,4 @@
             <field name="description">Provides tiered benefit amounts based on PMT score (15 or below: 2000, 16-25: 1500, above 25: 1000)</field>
             <field name="logic_data">{"cel_expression": "pmt_score &lt;= 15 ? 2000 : pmt_score &lt;= 25 ? 1500 : 1000"}</field>
         </record>
-    </data>
 </odoo>

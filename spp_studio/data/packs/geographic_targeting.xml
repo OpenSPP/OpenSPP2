@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
         <!-- Geographic Targeting Pack: Location-based eligibility and adjustments -->
         <record id="pack_geographic_targeting" model="spp.studio.pack">
             <field name="name">Geographic Targeting</field>
@@ -140,5 +139,4 @@
             <field name="logic_data">{"cel_expression": "regional_poverty_line * 0.5"}</field>
             <field name="sequence">110</field>
         </record>
-    </data>
 </odoo>

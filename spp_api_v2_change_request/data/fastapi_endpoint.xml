@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <data noupdate="0">
-        <!--
+    <!--
             No additional endpoint needed - this module extends the existing
             API V2 endpoint by adding the ChangeRequest router via the
             _get_fastapi_routers method override.
@@ -9,5 +8,4 @@
             The router is automatically included when spp_api_v2_change_request
             module is installed.
         -->
-    </data>
 </odoo>

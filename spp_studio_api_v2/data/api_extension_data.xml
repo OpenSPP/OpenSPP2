@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
         <!-- Studio API Extension for Individual -->
         <record id="api_extension_studio_individual" model="spp.api.extension">
             <field name="name">Studio Individual Fields</field>
@@ -18,5 +17,4 @@
             <field name="applies_to">group</field>
             <field name="active">True</field>
         </record>
-    </data>
 </odoo>

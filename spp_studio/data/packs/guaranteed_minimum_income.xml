@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
         <!-- Guaranteed Minimum Income Pack: Income floor programs -->
         <record id="pack_guaranteed_minimum" model="spp.studio.pack">
             <field name="name">Guaranteed Minimum Income</field>
@@ -132,5 +131,4 @@
             <field name="logic_data">{"cel_expression": "((minimum_income - non_housing_income) > 0 ? (minimum_income - non_housing_income) : 0) + (actual_rent &lt; max_housing_allowance ? actual_rent : max_housing_allowance)"}</field>
             <field name="sequence">110</field>
         </record>
-    </data>
 </odoo>

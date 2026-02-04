@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
         <!-- Default area tags for use in CEL expressions -->
 
         <record id="area_tag_urban" model="spp.area.tag">
@@ -37,6 +36,4 @@
             <field name="description">Areas currently affected by active disasters</field>
             <field name="color">2</field>
         </record>
-
-    </data>
 </odoo>

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <data noupdate="0">
-        <!-- ProgramMembership Filters -->
+    <!-- ProgramMembership Filters -->
 
         <!-- State filter: in list -->
         <record id="filter_membership_state" model="spp.api.path.filter">
@@ -129,6 +128,4 @@
     {"field": "state", "operator": "eq", "value": "enrolled"}
 ]</field>
         </record>
-
-    </data>
 </odoo>

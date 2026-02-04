@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
     <!-- Change Request Security Groups -->
-    <data noupdate="0">
 
-        <!-- Technical groups for access control -->
+    <!-- Technical groups for access control -->
         <record id="group_cr_read" model="res.groups">
             <field name="name">Change Request: Read</field>
             <field name="comment">Technical group for read access to change request models.</field>
@@ -68,6 +67,4 @@
         <record id="spp_security.group_spp_admin" model="res.groups">
             <field name="implied_ids" eval="[Command.link(ref('group_cr_manager'))]"/>
         </record>
-
-    </data>
 </odoo>

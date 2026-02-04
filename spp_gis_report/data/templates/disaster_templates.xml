@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <data noupdate="0">
-
-        <!-- Disaster Response Templates -->
+    <!-- Disaster Response Templates -->
 
         <record id="template_affected_population" model="spp.gis.report.template">
             <field name="name">Affected Population Map</field>
@@ -113,6 +111,4 @@
     "rollup_weight_source": "count"
 }</field>
         </record>
-
-    </data>
 </odoo>

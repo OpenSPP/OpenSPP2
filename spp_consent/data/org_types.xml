@@ -9,8 +9,7 @@
     Commonly used in social protection where beneficiaries trust certain
     organization types but want to exclude others (e.g., private sector).
 -->
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
         <!-- Government Organizations -->
         <record id="org_type_government" model="spp.consent.org.type">
             <field name="name">Government Agency</field>
@@ -73,5 +72,4 @@
             <field name="description">Organizations that don't fit into the above categories.</field>
             <field name="color">0</field>
         </record>
-    </data>
 </odoo>

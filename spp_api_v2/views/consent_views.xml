@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <data>
         <!-- Extend Consent Form View for API V2 fields -->
         <record id="view_consent_form_api_v2" model="ir.ui.view">
             <field name="name">spp.consent.form.api_v2</field>
@@ -53,6 +52,4 @@
                 </form>
             </field>
         </record>
-
-    </data>
 </odoo>

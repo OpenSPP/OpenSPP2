@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <data noupdate="0">
-
-        <!-- GIS Report Categories -->
+    <!-- GIS Report Categories -->
 
         <record id="category_coverage" model="spp.gis.report.category">
             <field name="name">Coverage Analysis</field>
@@ -43,6 +41,4 @@
             <field name="sequence">50</field>
             <field name="color">9</field>
         </record>
-
-    </data>
 </odoo>

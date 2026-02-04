@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <data>
         <!-- API V2 Endpoint Registration -->
         <record id="fastapi_endpoint_api_v2" model="fastapi.endpoint">
             <field name="name">OpenSPP API V2</field>
@@ -44,6 +43,4 @@ This API uses OAuth 2.0 Client Credentials flow:
 - Capability statement: `GET /api/v2/spp/metadata`
             </field>
         </record>
-
-    </data>
 </odoo>

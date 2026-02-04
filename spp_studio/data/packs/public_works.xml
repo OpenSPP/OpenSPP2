@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
         <!-- Public Works Pack: Employment guarantee and workfare programs -->
         <record id="pack_public_works" model="spp.studio.pack">
             <field name="name">Public Works / Workfare</field>
@@ -143,5 +142,4 @@
             <field name="logic_data">{"cel_expression": "(days_worked * 200) + (children_under_5 > 0 ? days_worked * 50 : 0)"}</field>
             <field name="sequence">120</field>
         </record>
-    </data>
 </odoo>

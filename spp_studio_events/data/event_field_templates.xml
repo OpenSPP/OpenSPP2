@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
         <!-- ══════════════════════════════════════════════════════════════════ -->
         <!-- INCOME ASSESSMENT TEMPLATE -->
         <!-- ══════════════════════════════════════════════════════════════════ -->
@@ -302,5 +301,4 @@ critical|Critical</field>
             <field name="is_required">False</field>
             <field name="sequence">70</field>
         </record>
-    </data>
 </odoo>

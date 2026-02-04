@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
         <!-- OVC Support Pack: Orphans and Vulnerable Children programs -->
         <record id="pack_ovc_support" model="spp.studio.pack">
             <field name="name">OVC Support</field>
@@ -110,5 +109,4 @@
             <field name="logic_data">{"cel_expression": "is_in_secondary ? 800 : 400"}</field>
             <field name="sequence">90</field>
         </record>
-    </data>
 </odoo>

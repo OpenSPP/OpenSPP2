@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
         <!-- Users can only see their own view history -->
         <record id="rule_view_history_own" model="ir.rule">
             <field name="name">View History: Own Records Only</field>
@@ -8,5 +7,4 @@
             <field name="domain_force">[('user_id', '=', user.id)]</field>
             <field name="global">True</field>
         </record>
-    </data>
 </odoo>

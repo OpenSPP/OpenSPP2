@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
         <!-- Disability Assistance Pack: Support for persons with disabilities -->
         <record id="pack_disability_assistance" model="spp.studio.pack">
             <field name="name">Disability Assistance</field>
@@ -99,5 +98,4 @@
             <field name="logic_data">{"cel_expression": "base_benefit + (requires_caregiver ? 500 : 0)"}</field>
             <field name="sequence">80</field>
         </record>
-    </data>
 </odoo>

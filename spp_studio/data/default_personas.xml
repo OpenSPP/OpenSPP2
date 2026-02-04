@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
         <!-- Default Test Personas -->
 
         <!-- Eligible Personas -->
@@ -170,6 +169,4 @@
             <field name="is_global" eval="True"/>
             <field name="sequence">90</field>
         </record>
-
-    </data>
 </odoo>

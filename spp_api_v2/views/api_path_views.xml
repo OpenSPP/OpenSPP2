@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <data>
         <!-- API Path Filter Action - Must be defined before form view that references it -->
         <record id="action_api_path_filter" model="ir.actions.act_window">
             <field name="name">API Filters</field>
@@ -301,6 +300,4 @@
                 </search>
             </field>
         </record>
-
-    </data>
 </odoo>

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <data>
         <!-- SP-MIS Configuration Parameters -->
         <!-- Update the registry type from social_registry to sp_mis -->
         <record id="spp_starter_social_registry.config_starter_type" model="ir.config_parameter">
@@ -12,5 +11,4 @@
             <field name="key">spp_starter.registry_admin_only_crud</field>
             <field name="value">True</field>
         </record>
-    </data>
 </odoo>

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
         <!-- ==================== INDIVIDUAL PLACEMENT ZONES ==================== -->
 
         <!-- Profile Tab Zones -->
@@ -142,6 +141,4 @@
             <field name="sequence">150</field>
             <field name="icon">fa-calendar</field>
         </record>
-
-    </data>
 </odoo>

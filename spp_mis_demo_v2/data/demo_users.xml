@@ -10,8 +10,7 @@
 
     All demo users share the same password: "demo" (hashed in the system)
 -->
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
 
         <!-- ═══════════════════════════════════════════════════════════════════════
              ROLE EXTENSIONS FOR QR CREDENTIALS
@@ -195,6 +194,4 @@
             <field name="company_id" ref="base.main_company"/>
             <field name="active" eval="True"/>
         </record>
-
-    </data>
 </odoo>

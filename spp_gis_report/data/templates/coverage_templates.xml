@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <data noupdate="0">
-
-        <!-- Coverage Analysis Templates -->
+    <!-- Coverage Analysis Templates -->
 
         <record id="template_beneficiary_density" model="spp.gis.report.template">
             <field name="name">Beneficiary Density</field>
@@ -116,6 +114,4 @@
     "rollup_weight_source": "population"
 }</field>
         </record>
-
-    </data>
 </odoo>

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
         <!-- Default approval configuration -->
         <record id="default_approval_config" model="spp.approval.config">
             <field name="name">Default Configuration</field>
@@ -9,5 +8,4 @@
             <field name="send_digest">True</field>
             <field name="digest_time">8.0</field>
         </record>
-    </data>
 </odoo>

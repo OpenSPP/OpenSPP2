@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
         <!-- Exclusion Criteria Pack: Common exclusion rules -->
         <record id="pack_exclusion_criteria" model="spp.studio.pack">
             <field name="name">Exclusion Criteria</field>
@@ -143,5 +142,4 @@
             <field name="logic_data">{"cel_expression": "!in_institutional_care"}</field>
             <field name="sequence">120</field>
         </record>
-    </data>
 </odoo>

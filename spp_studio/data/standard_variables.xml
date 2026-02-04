@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data noupdate="0">
 
         <!-- ═══════════════════════════════════════════════════════════════ -->
         <!-- VARIABLE CATEGORIES                                              -->
@@ -1784,6 +1783,4 @@
             <field name="placement_zone_code">group_profile_financial</field>
             <field name="is_system">True</field>
         </record>
-
-    </data>
 </odoo>

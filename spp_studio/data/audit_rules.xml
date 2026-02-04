@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
         <!--
             Audit Rules for Logic Studio Models
             ===================================
@@ -53,6 +52,4 @@
             <field name="is_log_unlink">True</field>
             <field name="is_view_logs">True</field>
         </record>
-
-    </data>
 </odoo>

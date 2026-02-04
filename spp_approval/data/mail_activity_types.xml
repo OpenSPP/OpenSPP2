@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
         <!-- Activity type for approval requests -->
         <record id="mail_activity_approval_required" model="mail.activity.type">
             <field name="name">Approval Required</field>
@@ -33,5 +32,4 @@
             <field name="res_model">False</field>
             <field name="decoration_type">danger</field>
         </record>
-    </data>
 </odoo>

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
         <!-- Studio Privilege -->
         <!-- Single consolidated privilege for all Studio access levels -->
         <record id="privilege_studio" model="res.groups.privilege">
@@ -9,5 +8,4 @@
             <field name="description">Access to Studio configuration and customization tools</field>
             <field name="sequence">10</field>
         </record>
-    </data>
 </odoo>

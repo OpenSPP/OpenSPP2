@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <data>
         <!-- API Client Tree View -->
         <record id="view_api_client_tree" model="ir.ui.view">
             <field name="name">spp.api.client.tree</field>
@@ -159,6 +158,4 @@
                 </form>
             </field>
         </record>
-
-    </data>
 </odoo>

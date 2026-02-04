@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
         <!-- DRIMS Record Rules -->
 
         <!-- Request Rules: Area-based scoping -->
@@ -293,6 +292,4 @@
             ]</field>
             <field name="global" eval="True"/>
         </record>
-
-    </data>
 </odoo>

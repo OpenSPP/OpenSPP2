@@ -67,7 +67,6 @@
     <!-- ============================================================ -->
 
     <data noupdate="1">
-
         <!-- Multi-Company Access Rule for Partners -->
         <record id="rule_partner_company" model="ir.rule">
             <field name="name">Partners: Multi-company access</field>
@@ -91,7 +90,5 @@
             <field name="domain_force">[('id', '=', user.id)]</field>
             <field name="groups" eval="[Command.link(ref('group_access_restrict_self'))]"/>
         </record>
-
     </data>
-
 </odoo>

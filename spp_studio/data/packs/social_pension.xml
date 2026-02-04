@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
         <!-- Social Pension Pack: Old-age pension programs -->
         <record id="pack_social_pension" model="spp.studio.pack">
             <field name="name">Social Pension</field>
@@ -77,5 +76,4 @@
             <field name="logic_data">{"cel_expression": "base_benefit + (age &gt;= 80 ? 500 : 0)"}</field>
             <field name="sequence">60</field>
         </record>
-    </data>
 </odoo>

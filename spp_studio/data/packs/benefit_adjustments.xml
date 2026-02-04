@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
         <!-- Benefit Adjustments Pack: Inflation, caps, and indexation -->
         <record id="pack_benefit_adjustments" model="spp.studio.pack">
             <field name="name">Benefit Adjustments</field>
@@ -143,5 +142,4 @@
             <field name="logic_data">{"cel_expression": "full_benefit * ((1 - (income_improvement_pct / graduation_threshold_pct)) > 0 ? (1 - (income_improvement_pct / graduation_threshold_pct)) : 0)"}</field>
             <field name="sequence">120</field>
         </record>
-    </data>
 </odoo>

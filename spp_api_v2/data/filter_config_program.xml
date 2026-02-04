@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <data noupdate="0">
-        <!-- Program Filters -->
+    <!-- Program Filters -->
 
         <!-- Name filter: partial match -->
         <record id="filter_program_name" model="spp.api.path.filter">
@@ -78,6 +77,4 @@
             <field name="allowed_operators">gt,gte,lt,lte</field>
             <field name="is_indexed">True</field>
         </record>
-
-    </data>
 </odoo>

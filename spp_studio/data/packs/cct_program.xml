@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
         <!-- CCT Program Pack: Conditional Cash Transfer programs -->
         <record id="pack_cct_program" model="spp.studio.pack">
             <field name="name">Conditional Cash Transfer</field>
@@ -110,6 +109,4 @@
             <field name="logic_data">{"cel_expression": "health_fully_compliant ? 300 : 0"}</field>
             <field name="sequence">100</field>
         </record>
-
-    </data>
 </odoo>

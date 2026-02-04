@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
         <!--
             Audit Rules for Studio Change Request Models
             =============================================
@@ -33,6 +32,4 @@
             <field name="parent_id" ref="audit_rule_studio_cr_type"/>
             <field name="field_id" search="[('model', '=', 'spp.studio.cr.field.mapping'), ('name', '=', 'cr_type_id')]"/>
         </record>
-
-    </data>
 </odoo>

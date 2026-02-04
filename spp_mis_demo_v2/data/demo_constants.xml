@@ -16,8 +16,7 @@
     Demo-specific aggregates (defined here):
     - disabled_count (members with disability status)
 -->
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
 
         <!-- ═══════════════════════════════════════════════════════════════════════
              CATEGORY
@@ -143,6 +142,4 @@
             <field name="cache_strategy">ttl</field>
             <field name="cache_ttl_seconds">86400</field>
         </record>
-
-    </data>
 </odoo>

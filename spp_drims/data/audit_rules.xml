@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
         <!--
             Audit Rules for DRIMS Models
             ============================
@@ -105,5 +104,4 @@
             <value name="log_unlink" eval="False"/>
             <value name="view_logs" eval="True"/>
         </function>
-    </data>
 </odoo>

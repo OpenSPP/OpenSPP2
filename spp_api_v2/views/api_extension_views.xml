@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <data>
         <!-- API Extension Tree View -->
         <record id="view_api_extension_tree" model="ir.ui.view">
             <field name="name">spp.api.extension.tree</field>
@@ -77,6 +76,4 @@
                 </p>
             </field>
         </record>
-
-    </data>
 </odoo>

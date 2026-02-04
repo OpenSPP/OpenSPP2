@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
         <!-- ========================================================================== -->
         <!-- GLOBAL READ ACCESS RULES                                                  -->
         <!-- Service points are reference data that should be visible to all users    -->
@@ -16,5 +15,4 @@
             <field name="perm_unlink" eval="False"/>
             <field name="global" eval="True"/>
         </record>
-    </data>
 </odoo>

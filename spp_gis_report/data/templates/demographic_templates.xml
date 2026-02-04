@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <data noupdate="0">
-
-        <!-- Demographic Templates -->
+    <!-- Demographic Templates -->
 
         <record id="template_female_headed_households" model="spp.gis.report.template">
             <field name="name">Female-Headed Households</field>
@@ -130,6 +128,4 @@
     "rollup_weight_source": "population"
 }</field>
         </record>
-
-    </data>
 </odoo>

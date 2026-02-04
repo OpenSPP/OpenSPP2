@@ -17,8 +17,7 @@
     - ineligible: Should fail eligibility checks (demonstrates rejection logic)
     - edge: Edge cases for testing boundary conditions
 -->
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
 
         <!-- ═══════════════════════════════════════════════════════════════════════
              ELIGIBLE PERSONAS - Success Stories
@@ -137,6 +136,4 @@
             <field name="sequence">120</field>
             <field name="values">{"name": "High Income Household", "is_registrant": true, "is_group": true, "active": true, "hh_size": 4, "child_count": 2, "income": 15000}</field>
         </record>
-
-    </data>
 </odoo>

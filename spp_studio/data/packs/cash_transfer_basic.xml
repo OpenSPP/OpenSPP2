@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
         <record id="pack_cash_transfer_basic" model="spp.studio.pack">
             <field name="name">Cash Transfer Basic</field>
             <field name="code">cash_transfer_basic</field>
@@ -28,5 +27,4 @@
             <field name="description">Provides a fixed benefit amount based on base_benefit variable</field>
             <field name="logic_data">{"cel_expression": "base_benefit"}</field>
         </record>
-    </data>
 </odoo>

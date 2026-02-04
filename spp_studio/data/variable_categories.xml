@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
         <!-- Default Variable Categories -->
 
         <record id="variable_category_demographics" model="spp.cel.variable.category">
@@ -60,6 +59,4 @@
             <field name="color">#27ae60</field>
             <field name="sequence">80</field>
         </record>
-
-    </data>
 </odoo>

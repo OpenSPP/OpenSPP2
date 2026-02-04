@@ -3,9 +3,7 @@
 Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 -->
 <odoo>
-    <data noupdate="0">
-
-        <!-- DRIMS-specific GIS Report Templates -->
+    <!-- DRIMS-specific GIS Report Templates -->
 
         <record id="template_incident_area_severity" model="spp.gis.report.template">
             <field name="name">Incident Area Severity Map</field>
@@ -32,6 +30,4 @@ Higher severity areas are shown in warmer colors (red).</field>
     "rollup_weight_source": "count"
 }</field>
         </record>
-
-    </data>
 </odoo>

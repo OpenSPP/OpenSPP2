@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
         <!-- MapTiler API Key Configuration -->
         <!-- NOTE: You need to set your actual MapTiler API key in System Parameters -->
         <!-- Go to Settings > Technical > Parameters > System Parameters -->
@@ -9,5 +8,4 @@
             <field name="key">spp_gis.map_tiler_api_key</field>
             <field name="value">YOUR_MAPTILER_API_KEY_HERE</field>
         </record>
-    </data>
 </odoo>

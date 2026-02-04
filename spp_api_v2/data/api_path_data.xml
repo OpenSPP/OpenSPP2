@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <data noupdate="0">
-        <!-- API Path Configurations -->
+    <!-- API Path Configurations -->
 
         <!-- Individual Resource Path -->
         <record id="api_path_individual" model="spp.api.path">
@@ -44,6 +43,4 @@
             <field name="allow_custom_filters">False</field>
             <field name="max_filter_complexity">10</field>
         </record>
-
-    </data>
 </odoo>

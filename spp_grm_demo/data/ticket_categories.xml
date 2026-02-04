@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
         <!-- GRM Ticket Categories -->
         <record id="grm_category_payment" model="spp.grm.ticket.category">
             <field name="name">Payment Issues</field>
@@ -33,5 +32,4 @@
         <record id="grm_category_feedback" model="spp.grm.ticket.category">
             <field name="name">Feedback</field>
         </record>
-    </data>
 </odoo>

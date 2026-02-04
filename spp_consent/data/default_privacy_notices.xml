@@ -6,8 +6,7 @@
     privacy notices. They should be customized based on your organization's specific
     data processing activities, legal requirements, and jurisdiction.
 -->
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
 
         <!-- ================================================================== -->
         <!-- 1. PROGRAM ENROLLMENT NOTICE -->
@@ -533,6 +532,4 @@ Your program benefits will continue unaffected by research participation decisio
                 ref('org_type_ingo'),
             ])]"/>
         </record>
-
-    </data>
 </odoo>
