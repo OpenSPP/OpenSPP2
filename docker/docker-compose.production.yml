@@ -81,15 +81,21 @@ services:
   # ==========================================================================
   # Comment out this service if using DATABASE_URL with external database
   db:
-    image: postgis/postgis:17-3.5-alpine
+    image: postgis/postgis:18-3.6-alpine
     environment:
-      POSTGRES_USER: ${DB_USER:-odoo}
+      # NOTE: POSTGRES_USER is created as a superuser by the image.
+      # Option A (strict): set DB_ADMIN_USER to an admin role, set DB_USER to a non-superuser,
+      # and create DB_USER via init scripts (/docker-entrypoint-initdb.d).
+      # Option B (flexible): keep DB_ADMIN_USER=odoo and DB_USER=odoo (default).
+      POSTGRES_USER: ${DB_ADMIN_USER:-odoo}
       POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
       POSTGRES_DB: ${DB_NAME:-openspp}
       # Performance tuning for production
       POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
+      # Option A (strict): init scripts to create non-superuser Odoo role
+      # - ./initdb:/docker-entrypoint-initdb.d:ro
     networks:
       - openspp-prod
     restart: unless-stopped
@@ -122,6 +128,7 @@ services:
       DATABASE_URL: ${DATABASE_URL:-}
       DB_HOST: ${DB_HOST:-db}
       DB_PORT: ${DB_PORT:-5432}
+      # Option A (strict): DB_USER must be a non-superuser created via init script.
       DB_USER: ${DB_USER:-odoo}
       DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
       DB_NAME: ${DB_NAME:-openspp}
@@ -132,7 +139,7 @@ services:
       # Admin credentials
       ODOO_ADMIN_PASSWD: ${ODOO_ADMIN_PASSWD:?ODOO_ADMIN_PASSWD is required}
 
-      # Workers - adjust based on CPU cores (rule: 1 worker per 2 cores)
+      # Workers - adjust based on CPU cores (rule: (CPU cores * 2) + 1; ~1 worker per 6 concurrent users)
       ODOO_WORKERS: ${ODOO_WORKERS:-2}
       ODOO_CRON_THREADS: "1"
 
@@ -290,28 +297,33 @@ services:
           memory: ${QUEUE_MEMORY_RESERVATION:-1G}
 
   # ==========================================================================
-  # Backup - Automated PostgreSQL backups (optional but recommended)
+  # Backup - Automated PostgreSQL/PostGIS backups
   # ==========================================================================
+  # Uses official PostGIS image for full compatibility with spatial data.
+  # Backups run daily at 2am by default (configurable via BACKUP_SCHEDULE).
+  # Retention: 7 daily, 4 weekly, 6 monthly backups.
   backup:
-    image: prodrigestivill/postgres-backup-local:17
+    image: postgis/postgis:18-3.6-alpine
+    entrypoint: ["/backup-entrypoint.sh"]
     depends_on:
       db:
         condition: service_healthy
     environment:
-      POSTGRES_HOST: ${DB_HOST:-db}
-      POSTGRES_PORT: ${DB_PORT:-5432}
-      POSTGRES_DB: ${DB_NAME:-openspp}
-      POSTGRES_USER: ${DB_USER:-odoo}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
-      # Backup schedule (default: daily at 2am)
-      SCHEDULE: ${BACKUP_SCHEDULE:-0 2 * * *}
-      # Keep 7 daily, 4 weekly, 6 monthly backups
-      BACKUP_KEEP_DAYS: 7
-      BACKUP_KEEP_WEEKS: 4
-      BACKUP_KEEP_MONTHS: 6
-      # Compression
-      POSTGRES_EXTRA_OPTS: "-Z6 --format=custom"
+      # PostgreSQL connection (standard PG* variables)
+      PGHOST: ${DB_HOST:-db}
+      PGPORT: ${DB_PORT:-5432}
+      PGDATABASE: ${DB_NAME:-openspp}
+      PGUSER: ${DB_USER:-odoo}
+      PGPASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      # Backup schedule (cron format, default: daily at 2am)
+      BACKUP_SCHEDULE: ${BACKUP_SCHEDULE:-0 2 * * *}
+      # Retention policy
+      BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-7}
+      BACKUP_KEEP_WEEKS: ${BACKUP_KEEP_WEEKS:-4}
+      BACKUP_KEEP_MONTHS: ${BACKUP_KEEP_MONTHS:-6}
     volumes:
+      - ./backup.sh:/backup.sh:ro
+      - ./backup-entrypoint.sh:/backup-entrypoint.sh:ro
       - backup_data:/backups
     networks:
       - openspp-prod
