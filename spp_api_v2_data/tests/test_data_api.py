@@ -887,7 +887,7 @@ class TestDataAPIEndpoints(TransactionCase):
             partner = self.env["res.partner"].create(
                 {
                     "name": f"Test Student {i}",
-                    "ref": f"EDU-{100+i}",
+                    "ref": f"EDU-{100 + i}",
                 }
             )
             partners.append(partner)
@@ -905,7 +905,7 @@ class TestDataAPIEndpoints(TransactionCase):
         DataValue.upsert_values(values_to_push)
 
         # Pull with limit
-        external_ids = ",".join([f"EDU-{100+i}" for i in range(20)])
+        external_ids = ",".join([f"EDU-{100 + i}" for i in range(20)])
         result = await pull_values(
             env=self.env,
             api_client=self.api_client,

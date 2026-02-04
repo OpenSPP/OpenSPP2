@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
     <!--
     DRIMS Demo Users - Sri Lanka
@@ -34,13 +34,16 @@
         <field name="name">DMC Administrator</field>
         <field name="login">admin.dmc@drims.gov.lk</field>
         <field name="password">demo</field>
-        <field name="group_ids" eval="[Command.set([
+        <field
+            name="group_ids"
+            eval="[Command.set([
             ref('base.group_user'),
             ref('base.group_system'),
             ref('spp_drims.group_drims_manager'),
             ref('stock.group_stock_manager'),
-        ])]"/>
-        <field name="company_id" ref="base.main_company"/>
+        ])]"
+        />
+        <field name="company_id" ref="base.main_company" />
     </record>
 
     <!-- ==================== WAREHOUSE STAFF ==================== -->
@@ -51,22 +54,28 @@
         <field name="name">Warehouse Staff - Colombo</field>
         <field name="login">staff.colombo@drims.gov.lk</field>
         <field name="password">demo</field>
-        <field name="group_ids" eval="[Command.set([
+        <field
+            name="group_ids"
+            eval="[Command.set([
             ref('base.group_user'),
             ref('spp_drims.group_drims_warehouse_worker'),
-        ])]"/>
-        <field name="company_id" ref="base.main_company"/>
+        ])]"
+        />
+        <field name="company_id" ref="base.main_company" />
     </record>
 
     <record id="user_wh_staff_kandy" model="res.users">
         <field name="name">Warehouse Staff - Kandy</field>
         <field name="login">staff.kandy@drims.gov.lk</field>
         <field name="password">demo</field>
-        <field name="group_ids" eval="[Command.set([
+        <field
+            name="group_ids"
+            eval="[Command.set([
             ref('base.group_user'),
             ref('spp_drims.group_drims_warehouse_worker'),
-        ])]"/>
-        <field name="company_id" ref="base.main_company"/>
+        ])]"
+        />
+        <field name="company_id" ref="base.main_company" />
     </record>
 
     <!-- ==================== WAREHOUSE MANAGERS ==================== -->
@@ -76,24 +85,30 @@
         <field name="name">Warehouse Manager - Colombo</field>
         <field name="login">wh.colombo@drims.gov.lk</field>
         <field name="password">demo</field>
-        <field name="group_ids" eval="[Command.set([
+        <field
+            name="group_ids"
+            eval="[Command.set([
             ref('base.group_user'),
             ref('spp_drims.group_drims_manager'),
             ref('stock.group_stock_manager'),
-        ])]"/>
-        <field name="company_id" ref="base.main_company"/>
+        ])]"
+        />
+        <field name="company_id" ref="base.main_company" />
     </record>
 
     <record id="user_wh_kandy" model="res.users">
         <field name="name">Warehouse Manager - Kandy</field>
         <field name="login">wh.kandy@drims.gov.lk</field>
         <field name="password">demo</field>
-        <field name="group_ids" eval="[Command.set([
+        <field
+            name="group_ids"
+            eval="[Command.set([
             ref('base.group_user'),
             ref('spp_drims.group_drims_manager'),
             ref('stock.group_stock_manager'),
-        ])]"/>
-        <field name="company_id" ref="base.main_company"/>
+        ])]"
+        />
+        <field name="company_id" ref="base.main_company" />
     </record>
 
     <!-- ==================== APPROVERS ==================== -->
@@ -102,33 +117,42 @@
         <field name="name">National Approver (DMC)</field>
         <field name="login">approver.national@drims.gov.lk</field>
         <field name="password">demo</field>
-        <field name="group_ids" eval="[Command.set([
+        <field
+            name="group_ids"
+            eval="[Command.set([
             ref('base.group_user'),
             ref('spp_drims.group_drims_approver'),
-        ])]"/>
-        <field name="company_id" ref="base.main_company"/>
+        ])]"
+        />
+        <field name="company_id" ref="base.main_company" />
     </record>
 
     <record id="user_approver_western" model="res.users">
         <field name="name">Western Province Approver</field>
         <field name="login">approver.western@drims.gov.lk</field>
         <field name="password">demo</field>
-        <field name="group_ids" eval="[Command.set([
+        <field
+            name="group_ids"
+            eval="[Command.set([
             ref('base.group_user'),
             ref('spp_drims.group_drims_approver'),
-        ])]"/>
-        <field name="company_id" ref="base.main_company"/>
+        ])]"
+        />
+        <field name="company_id" ref="base.main_company" />
     </record>
 
     <record id="user_approver_central" model="res.users">
         <field name="name">Central Province Approver</field>
         <field name="login">approver.central@drims.gov.lk</field>
         <field name="password">demo</field>
-        <field name="group_ids" eval="[Command.set([
+        <field
+            name="group_ids"
+            eval="[Command.set([
             ref('base.group_user'),
             ref('spp_drims.group_drims_approver'),
-        ])]"/>
-        <field name="company_id" ref="base.main_company"/>
+        ])]"
+        />
+        <field name="company_id" ref="base.main_company" />
     </record>
 
     <!-- ==================== FIELD OFFICERS ==================== -->
@@ -138,44 +162,56 @@
         <field name="name">Field Officer - Colombo District</field>
         <field name="login">officer.colombo@drims.gov.lk</field>
         <field name="password">demo</field>
-        <field name="group_ids" eval="[Command.set([
+        <field
+            name="group_ids"
+            eval="[Command.set([
             ref('base.group_user'),
             ref('spp_drims.group_drims_field_officer'),
-        ])]"/>
-        <field name="company_id" ref="base.main_company"/>
+        ])]"
+        />
+        <field name="company_id" ref="base.main_company" />
     </record>
 
     <record id="user_officer_gampaha" model="res.users">
         <field name="name">Field Officer - Gampaha District</field>
         <field name="login">officer.gampaha@drims.gov.lk</field>
         <field name="password">demo</field>
-        <field name="group_ids" eval="[Command.set([
+        <field
+            name="group_ids"
+            eval="[Command.set([
             ref('base.group_user'),
             ref('spp_drims.group_drims_field_officer'),
-        ])]"/>
-        <field name="company_id" ref="base.main_company"/>
+        ])]"
+        />
+        <field name="company_id" ref="base.main_company" />
     </record>
 
     <record id="user_officer_kandy" model="res.users">
         <field name="name">Field Officer - Kandy District</field>
         <field name="login">officer.kandy@drims.gov.lk</field>
         <field name="password">demo</field>
-        <field name="group_ids" eval="[Command.set([
+        <field
+            name="group_ids"
+            eval="[Command.set([
             ref('base.group_user'),
             ref('spp_drims.group_drims_field_officer'),
-        ])]"/>
-        <field name="company_id" ref="base.main_company"/>
+        ])]"
+        />
+        <field name="company_id" ref="base.main_company" />
     </record>
 
     <record id="user_officer_galle" model="res.users">
         <field name="name">Field Officer - Galle District</field>
         <field name="login">officer.galle@drims.gov.lk</field>
         <field name="password">demo</field>
-        <field name="group_ids" eval="[Command.set([
+        <field
+            name="group_ids"
+            eval="[Command.set([
             ref('base.group_user'),
             ref('spp_drims.group_drims_field_officer'),
-        ])]"/>
-        <field name="company_id" ref="base.main_company"/>
+        ])]"
+        />
+        <field name="company_id" ref="base.main_company" />
     </record>
 
     <!-- ==================== VIEWERS / LEADERSHIP ==================== -->
@@ -184,22 +220,27 @@
         <field name="name">Secretary - Ministry of Disaster Management</field>
         <field name="login">secretary@drims.gov.lk</field>
         <field name="password">demo</field>
-        <field name="group_ids" eval="[Command.set([
+        <field
+            name="group_ids"
+            eval="[Command.set([
             ref('base.group_user'),
             ref('spp_drims.group_drims_viewer'),
-        ])]"/>
-        <field name="company_id" ref="base.main_company"/>
+        ])]"
+        />
+        <field name="company_id" ref="base.main_company" />
     </record>
 
     <record id="user_viewer_director" model="res.users">
         <field name="name">Director - DMC</field>
         <field name="login">director@drims.gov.lk</field>
         <field name="password">demo</field>
-        <field name="group_ids" eval="[Command.set([
+        <field
+            name="group_ids"
+            eval="[Command.set([
             ref('base.group_user'),
             ref('spp_drims.group_drims_viewer'),
-        ])]"/>
-        <field name="company_id" ref="base.main_company"/>
+        ])]"
+        />
+        <field name="company_id" ref="base.main_company" />
     </record>
-
 </odoo>

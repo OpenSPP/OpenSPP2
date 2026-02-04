@@ -19,7 +19,11 @@
                                 domain="[('id', 'in', available_individual_ids)]"
                                 required="1"
                             />
-                            <field name="new_head_membership_id" invisible="1" force_save="1"/>
+                            <field
+                                name="new_head_membership_id"
+                                invisible="1"
+                                force_save="1"
+                            />
                         </group>
                     </group>
                     <group>
@@ -28,11 +32,17 @@
                             <field name="effective_date" />
                         </group>
                         <group string="Previous Head Reassignment">
-                            <field name="previous_head_new_role_id" options="{'no_create': True}" />
+                            <field
+                                name="previous_head_new_role_id"
+                                options="{'no_create': True}"
+                            />
                         </group>
                     </group>
                     <group string="Additional Information">
-                        <field name="remarks" placeholder="Enter any additional notes..." />
+                        <field
+                            name="remarks"
+                            placeholder="Enter any additional notes..."
+                        />
                     </group>
                 </sheet>
             </form>

@@ -145,7 +145,7 @@ class SPPProgram(models.Model):
     view_id = fields.Many2one(
         "ir.ui.view",
         "Program UI Template",
-        domain="[('model', '=', 'spp.program'), " "('type', '=', 'form')," "('inherit_id', '=', False),]",
+        domain="[('model', '=', 'spp.program'), ('type', '=', 'form'),('inherit_id', '=', False),]",
         default=lambda self: self._get_default_program_ui(),
     )
 

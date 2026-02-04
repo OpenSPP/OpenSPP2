@@ -21,7 +21,9 @@ export class FieldGisEditMap extends Component {
         onWillStart(async () => {
             return Promise.all([
                 loadJS("/spp_gis/static/lib/turf-3.0.11/turf.min.js"),
-                loadJS("/spp_gis/static/lib/maptiler-sdk-js-1.2.0/maptiler-sdk.umd.min.js"),
+                loadJS(
+                    "/spp_gis/static/lib/maptiler-sdk-js-1.2.0/maptiler-sdk.umd.min.js"
+                ),
                 loadJS("/spp_gis/static/lib/mapbox-gl-draw-1.2.0/mapbox-gl-draw.js"),
                 loadCSS("/spp_gis/static/lib/maptiler-sdk-js-1.2.0/maptiler-sdk.css"),
                 loadCSS("/spp_gis/static/lib/mapbox-gl-draw-1.2.0/mapbox-gl-draw.css"),
@@ -31,9 +33,11 @@ export class FieldGisEditMap extends Component {
 
         onMounted(async () => {
             maptilersdk.config.apiKey = this.mapTilerKey;
-            const editInfo = await this.orm.call(this.props.record.resModel, "get_edit_info_for_gis_column", [
-                this.props.name,
-            ]);
+            const editInfo = await this.orm.call(
+                this.props.record.resModel,
+                "get_edit_info_for_gis_column",
+                [this.props.name]
+            );
             const {default_zoom, srid} = editInfo;
 
             const default_center = JSON.parse(editInfo.default_center);
@@ -74,7 +78,10 @@ export class FieldGisEditMap extends Component {
     onLoadMap() {
         if (this.props.record.data[this.props.name]) {
             this.map.on("load", async () => {
-                this.addSourceAndLayer(this.sourceId, this.props.record.data[this.props.name]);
+                this.addSourceAndLayer(
+                    this.sourceId,
+                    this.props.record.data[this.props.name]
+                );
             });
         }
     }
@@ -230,7 +237,9 @@ export class FieldGisEditMap extends Component {
         });
         this.map.addControl(this.draw);
 
-        const drawControls = document.querySelectorAll(".mapboxgl-ctrl-group.mapboxgl-ctrl");
+        const drawControls = document.querySelectorAll(
+            ".mapboxgl-ctrl-group.mapboxgl-ctrl"
+        );
         drawControls.forEach((elem) => {
             elem.classList.add("maplibregl-ctrl", "maplibregl-ctrl-group");
         });
@@ -243,7 +252,9 @@ export class FieldGisEditMap extends Component {
         this.map.on("click", `${this.sourceId}-polygon-layerid`, (e) => {
             new maptilersdk.Popup()
                 .setLngLat(e.lngLat)
-                .setHTML(`<img src="${url}" height="200" width="300" alt="Placeholder Image">`)
+                .setHTML(
+                    `<img src="${url}" height="200" width="300" alt="Placeholder Image">`
+                )
                 .addTo(this.map);
         });
     }
@@ -290,7 +301,12 @@ export class FieldGisEditMap extends Component {
             {
                 id: "highlight-active-points",
                 type: "circle",
-                filter: ["all", ["==", "$type", "Point"], ["==", "meta", "feature"], ["==", "active", "true"]],
+                filter: [
+                    "all",
+                    ["==", "$type", "Point"],
+                    ["==", "meta", "feature"],
+                    ["==", "active", "true"],
+                ],
                 paint: {
                     "circle-radius": 7,
                     "circle-color": "#000000",
@@ -299,7 +315,12 @@ export class FieldGisEditMap extends Component {
             {
                 id: "points-are-blue",
                 type: "circle",
-                filter: ["all", ["==", "$type", "Point"], ["==", "meta", "feature"], ["==", "active", "false"]],
+                filter: [
+                    "all",
+                    ["==", "$type", "Point"],
+                    ["==", "meta", "feature"],
+                    ["==", "active", "false"],
+                ],
                 paint: {
                     "circle-radius": 5,
                     "circle-color": "#000088",
@@ -308,7 +329,11 @@ export class FieldGisEditMap extends Component {
             {
                 id: "gl-draw-line",
                 type: "line",
-                filter: ["all", ["==", "$type", "LineString"], ["!=", "mode", "static"]],
+                filter: [
+                    "all",
+                    ["==", "$type", "LineString"],
+                    ["!=", "mode", "static"],
+                ],
                 layout: {
                     "line-cap": "round",
                     "line-join": "round",
@@ -324,7 +349,11 @@ export class FieldGisEditMap extends Component {
             {
                 id: "gl-draw-line-static",
                 type: "line",
-                filter: ["all", ["==", "$type", "LineString"], ["==", "mode", "static"]],
+                filter: [
+                    "all",
+                    ["==", "$type", "LineString"],
+                    ["==", "mode", "static"],
+                ],
                 layout: {
                     "line-cap": "round",
                     "line-join": "round",

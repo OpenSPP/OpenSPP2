@@ -4,47 +4,69 @@
     <record id="view_warehouse_form_drims" model="ir.ui.view">
         <field name="name">stock.warehouse.form.drims</field>
         <field name="model">stock.warehouse</field>
-        <field name="inherit_id" ref="stock.view_warehouse"/>
+        <field name="inherit_id" ref="stock.view_warehouse" />
         <field name="arch" type="xml">
             <!-- Add smart buttons -->
             <xpath expr="//div[@name='button_box']" position="inside">
-                <button name="%(spp_drims.action_drims_donation)d"
-                        type="action"
-                        class="oe_stat_button"
-                        icon="fa-gift"
-                        invisible="drims_donation_count == 0 or not is_drims_warehouse"
-                        context="{'search_default_warehouse_id': id}">
-                    <field name="drims_donation_count" widget="statinfo" string="Donations"/>
+                <button
+                    name="%(spp_drims.action_drims_donation)d"
+                    type="action"
+                    class="oe_stat_button"
+                    icon="fa-gift"
+                    invisible="drims_donation_count == 0 or not is_drims_warehouse"
+                    context="{'search_default_warehouse_id': id}"
+                >
+                    <field
+                        name="drims_donation_count"
+                        widget="statinfo"
+                        string="Donations"
+                    />
                 </button>
-                <button name="%(spp_drims.action_drims_dispatch)d"
-                        type="action"
-                        class="oe_stat_button"
-                        icon="fa-truck"
-                        invisible="drims_dispatch_count == 0 or not is_drims_warehouse"
-                        context="{'search_default_warehouse_id': id, 'search_default_drims_type': 'request_dispatch'}">
-                    <field name="drims_dispatch_count" widget="statinfo" string="Dispatches"/>
+                <button
+                    name="%(spp_drims.action_drims_dispatch)d"
+                    type="action"
+                    class="oe_stat_button"
+                    icon="fa-truck"
+                    invisible="drims_dispatch_count == 0 or not is_drims_warehouse"
+                    context="{'search_default_warehouse_id': id, 'search_default_drims_type': 'request_dispatch'}"
+                >
+                    <field
+                        name="drims_dispatch_count"
+                        widget="statinfo"
+                        string="Dispatches"
+                    />
                 </button>
-                <button name="action_view_active_alerts"
-                        type="object"
-                        class="oe_stat_button"
-                        icon="fa-exclamation-triangle"
-                        invisible="drims_active_alert_count == 0 or not is_drims_warehouse">
-                    <field name="drims_active_alert_count" widget="statinfo" string="Alerts"/>
+                <button
+                    name="action_view_active_alerts"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-exclamation-triangle"
+                    invisible="drims_active_alert_count == 0 or not is_drims_warehouse"
+                >
+                    <field
+                        name="drims_active_alert_count"
+                        widget="statinfo"
+                        string="Alerts"
+                    />
                 </button>
-                <button name="action_view_expired_stock"
-                        type="object"
-                        class="oe_stat_button"
-                        icon="fa-clock-o"
-                        invisible="not is_drims_warehouse">
+                <button
+                    name="action_view_expired_stock"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-clock-o"
+                    invisible="not is_drims_warehouse"
+                >
                     <div class="o_stat_info">
                         <span class="o_stat_text">Expired Stock</span>
                     </div>
                 </button>
-                <button name="action_dispose_expired_stock"
-                        type="object"
-                        class="oe_stat_button"
-                        icon="fa-trash"
-                        invisible="not is_drims_warehouse">
+                <button
+                    name="action_dispose_expired_stock"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-trash"
+                    invisible="not is_drims_warehouse"
+                >
                     <div class="o_stat_info">
                         <span class="o_stat_text">Dispose Expired</span>
                     </div>
@@ -53,28 +75,49 @@
 
             <!-- Add DRIMS configuration tab -->
             <xpath expr="//notebook" position="inside">
-                <page string="DRIMS Configuration" name="drims_config" invisible="not is_drims_warehouse">
+                <page
+                    string="DRIMS Configuration"
+                    name="drims_config"
+                    invisible="not is_drims_warehouse"
+                >
                     <group>
-                        <group string="Disaster Response Configuration" name="drims_settings">
-                            <field name="is_drims_warehouse"/>
-                            <field name="drims_capacity" invisible="not is_drims_warehouse"/>
-                            <field name="area_id" invisible="not is_drims_warehouse"/>
+                        <group
+                            string="Disaster Response Configuration"
+                            name="drims_settings"
+                        >
+                            <field name="is_drims_warehouse" />
+                            <field
+                                name="drims_capacity"
+                                invisible="not is_drims_warehouse"
+                            />
+                            <field name="area_id" invisible="not is_drims_warehouse" />
                         </group>
                         <group string="Emergency Contact" name="emergency_contact">
-                            <field name="emergency_contact" invisible="not is_drims_warehouse"/>
-                            <field name="emergency_phone" invisible="not is_drims_warehouse"/>
+                            <field
+                                name="emergency_contact"
+                                invisible="not is_drims_warehouse"
+                            />
+                            <field
+                                name="emergency_phone"
+                                invisible="not is_drims_warehouse"
+                            />
                         </group>
                     </group>
 
                     <group string="Active Response" name="active_response">
-                        <field name="incident_ids" widget="many2many_tags" nolabel="1" invisible="not is_drims_warehouse"/>
+                        <field
+                            name="incident_ids"
+                            widget="many2many_tags"
+                            nolabel="1"
+                            invisible="not is_drims_warehouse"
+                        />
                     </group>
                 </page>
             </xpath>
 
             <!-- Add DRIMS checkbox in general info -->
             <xpath expr="//field[@name='code']" position="after">
-                <field name="is_drims_warehouse"/>
+                <field name="is_drims_warehouse" />
             </xpath>
         </field>
     </record>
@@ -83,17 +126,21 @@
     <record id="view_warehouse_tree_drims" model="ir.ui.view">
         <field name="name">stock.warehouse.tree.drims</field>
         <field name="model">stock.warehouse</field>
-        <field name="inherit_id" ref="stock.view_warehouse_tree"/>
+        <field name="inherit_id" ref="stock.view_warehouse_tree" />
         <field name="arch" type="xml">
             <xpath expr="//field[@name='name']" position="after">
-                <field name="is_drims_warehouse" optional="show"/>
-                <field name="drims_stock_health" widget="badge" optional="show"
-                       decoration-danger="drims_stock_health == 'critical'"
-                       decoration-warning="drims_stock_health == 'warning'"
-                       decoration-success="drims_stock_health == 'good'"/>
-                <field name="drims_active_alert_count" optional="hide"/>
-                <field name="drims_capacity" optional="hide"/>
-                <field name="area_id" optional="hide"/>
+                <field name="is_drims_warehouse" optional="show" />
+                <field
+                    name="drims_stock_health"
+                    widget="badge"
+                    optional="show"
+                    decoration-danger="drims_stock_health == 'critical'"
+                    decoration-warning="drims_stock_health == 'warning'"
+                    decoration-success="drims_stock_health == 'good'"
+                />
+                <field name="drims_active_alert_count" optional="hide" />
+                <field name="drims_capacity" optional="hide" />
+                <field name="area_id" optional="hide" />
             </xpath>
         </field>
     </record>
@@ -105,16 +152,22 @@
         <field name="priority">50</field>
         <field name="arch" type="xml">
             <search string="Warehouses">
-                <field name="name"/>
-                <field name="code"/>
-                <field name="area_id"/>
-                <separator/>
-                <filter string="DRIMS Warehouses" name="drims_warehouses"
-                        domain="[('is_drims_warehouse', '=', True)]"/>
-                <separator/>
+                <field name="name" />
+                <field name="code" />
+                <field name="area_id" />
+                <separator />
+                <filter
+                    string="DRIMS Warehouses"
+                    name="drims_warehouses"
+                    domain="[('is_drims_warehouse', '=', True)]"
+                />
+                <separator />
                 <group>
-                    <filter string="Coverage Area" name="group_area"
-                            context="{'group_by': 'area_id'}"/>
+                    <filter
+                        string="Coverage Area"
+                        name="group_area"
+                        context="{'group_by': 'area_id'}"
+                    />
                 </group>
             </search>
         </field>

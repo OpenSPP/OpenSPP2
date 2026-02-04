@@ -1,7 +1,6 @@
 /** @odoo-module **/
 
-import {Component, onMounted, useEffect, useRef} from "@odoo/owl";
-import {registry} from "@web/core/registry";
+import {onMounted} from "@odoo/owl";
 import {FormController} from "@web/views/form/form_controller";
 import {patch} from "@web/core/utils/patch";
 

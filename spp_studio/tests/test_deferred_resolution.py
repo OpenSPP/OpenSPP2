@@ -414,7 +414,7 @@ class TestDeferredResolutionPackInstall(TransactionCase, CELTestDataMixin):
         )
 
         _logger.info(
-            f"Installed logic expression: {installed_logic.cel_expression} " f"(original variable reference preserved)"
+            f"Installed logic expression: {installed_logic.cel_expression} (original variable reference preserved)"
         )
 
         # Clean up
@@ -715,8 +715,7 @@ class TestDeferredResolutionWithExistingPacks(TransactionCase):
                 # Warn about missing variables (don't fail - they may be optional)
                 if result.get("missing_variables"):
                     _logger.warning(
-                        f"Pack '{pack.code}' item '{item.name}' has missing variables: "
-                        f"{result['missing_variables']}"
+                        f"Pack '{pack.code}' item '{item.name}' has missing variables: {result['missing_variables']}"
                     )
 
     def _extract_cel_from_item(self, item):
@@ -1263,7 +1262,7 @@ class TestVariableResolverCriticalEdgeCases(TransactionCase, CELTestDataMixin):
             if i == 0:
                 expr = "100"  # Base case
             else:
-                expr = f"depth_var_{i-1} + 1"
+                expr = f"depth_var_{i - 1} + 1"
 
             var = self.LogicVariable.create(
                 {

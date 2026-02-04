@@ -47,7 +47,7 @@ class DefaultEligibilityManagerCEL(models.Model):
     is_eligibility_locked = fields.Boolean(
         string="Eligibility Locked",
         default=False,
-        help="When checked, the eligibility expression cannot be modified. " "This is enforced by a Python constraint.",
+        help="When checked, the eligibility expression cannot be modified. This is enforced by a Python constraint.",
     )
     has_drifted_from_template = fields.Boolean(
         string="Modified from Template",

@@ -1,192 +1,243 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <templates xml:space="preserve">
   <!-- Logic Test Panel Template -->
   <t t-name="spp_studio.TestPanel">
-    <div class="logic-test-panel">
-      <!-- Header with Run All button -->
-      <div class="ltp-header">
-        <h5>Test Results</h5>
-        <button class="btn btn-primary btn-sm"
-                t-on-click="runAllTests"
-                t-att-disabled="state.running">
-          <i class="fa fa-play"/> Run All Tests
+        <div class="logic-test-panel">
+            <!-- Header with Run All button -->
+            <div class="ltp-header">
+                <h5>Test Results</h5>
+                <button
+                    class="btn btn-primary btn-sm"
+                    t-on-click="runAllTests"
+                    t-att-disabled="state.running"
+                >
+          <i class="fa fa-play" /> Run All Tests
         </button>
-      </div>
-
-      <!-- Summary Statistics -->
-      <div class="ltp-summary" t-if="props.tests.length">
-        <t t-set="summary" t-value="getSummary()"/>
-        <div class="ltp-summary-item">
-          <div class="ltp-summary-value passed" t-esc="summary.passed"/>
-          <div class="ltp-summary-label">Passed</div>
-        </div>
-        <div class="ltp-summary-item">
-          <div class="ltp-summary-value failed" t-esc="summary.failed"/>
-          <div class="ltp-summary-label">Failed</div>
-        </div>
-        <div class="ltp-summary-item">
-          <div class="ltp-summary-value total" t-esc="summary.total"/>
-          <div class="ltp-summary-label">Total</div>
-        </div>
-        <div class="ltp-summary-item">
-          <div class="ltp-summary-value" t-esc="summary.pending"/>
-          <div class="ltp-summary-label">Pending</div>
-        </div>
-      </div>
-
-      <!-- Test List -->
-      <div class="ltp-tests" t-if="props.tests.length">
-        <t t-foreach="props.tests" t-as="test" t-key="test.id">
-          <div class="ltp-test-row" t-att-class="getTestRowClass(test)">
-            <!-- Status Icon -->
-            <i t-att-class="'fa ' + getStatusIcon(test)"/>
-
-            <!-- Test Content -->
-            <div class="ltp-test-content">
-              <!-- Test Name and Status -->
-              <div class="ltp-test-name">
-                <span t-esc="test.name"/>
-                <small class="text-muted ms-2">
-                  [<t t-esc="getTestStatus(test)"/>]
-                </small>
-              </div>
-
-              <!-- Description -->
-              <div class="ltp-test-description text-muted" t-if="test.description">
-                <small t-esc="test.description"/>
-              </div>
-
-              <!-- Expected Result -->
-              <div class="ltp-expected">
-                <strong>Expected:</strong>
-                <code t-esc="test.expected_result"/>
-              </div>
-
-              <!-- Actual Result (if test has run) -->
-              <div class="ltp-actual" t-if="test.actual_result !== undefined">
-                <strong>Actual:</strong>
-                <code t-esc="test.actual_result"/>
-              </div>
-
-              <!-- Error Message -->
-              <div class="ltp-error" t-if="test.error_message">
-                <i class="fa fa-exclamation-triangle me-1"/>
-                <t t-esc="test.error_message"/>
-              </div>
-
-              <!-- Execution Time -->
-              <div class="ltp-execution-time text-muted" t-if="test.execution_time_ms">
-                <small>
-                  <i class="fa fa-clock-o me-1"/>
-                  Execution time: <t t-esc="formatExecutionTime(test.execution_time_ms)"/>
-                </small>
-              </div>
-
-              <!-- Test Details (expandable) -->
-              <div class="ltp-test-details mt-2" t-if="isTestExpanded(test.id)">
-                <!-- Input Context -->
-                <div class="ltp-detail-section" t-if="test.input_context">
-                  <strong>Input Context:</strong>
-                  <pre class="mt-1 p-2 bg-light border rounded">
-                    <code t-esc="JSON.stringify(test.input_context, null, 2)"/>
-                  </pre>
-                </div>
-
-                <!-- Execution Log -->
-                <div class="ltp-detail-section" t-if="test.execution_log">
-                  <strong>Execution Log:</strong>
-                  <div class="ltp-execution-log mt-1">
-                    <t t-foreach="test.execution_log" t-as="logEntry" t-key="logEntry_index">
-                      <div class="log-entry">
-                        <span class="log-timestamp" t-if="logEntry.timestamp">
-                          [<t t-esc="logEntry.timestamp"/>]
-                        </span>
-                        <span class="log-level" t-att-class="logEntry.level">
-                          <t t-esc="logEntry.level"/>
-                        </span>
-                        <span class="log-message" t-esc="logEntry.message"/>
-                      </div>
-                    </t>
-                  </div>
-                </div>
-              </div>
             </div>
 
-            <!-- Test Actions -->
-            <div class="ltp-test-actions">
-              <!-- Run Single Test Button -->
-              <button class="btn btn-link btn-sm"
-                      t-on-click="() => runTest(test)"
-                      t-att-disabled="state.running"
-                      title="Run this test">
-                <i class="fa fa-play"/>
-              </button>
-
-              <!-- Expand/Collapse Details Button -->
-              <button class="btn btn-link btn-sm"
-                      t-on-click="() => toggleTestExpansion(test.id)"
-                      t-if="test.input_context || test.execution_log"
-                      title="Show/hide details">
-                <i t-att-class="isTestExpanded(test.id) ? 'fa fa-chevron-up' : 'fa fa-chevron-down'"/>
-              </button>
+            <!-- Summary Statistics -->
+            <div class="ltp-summary" t-if="props.tests.length">
+                <t t-set="summary" t-value="getSummary()" />
+                <div class="ltp-summary-item">
+                    <div class="ltp-summary-value passed" t-esc="summary.passed" />
+                    <div class="ltp-summary-label">Passed</div>
+                </div>
+                <div class="ltp-summary-item">
+                    <div class="ltp-summary-value failed" t-esc="summary.failed" />
+                    <div class="ltp-summary-label">Failed</div>
+                </div>
+                <div class="ltp-summary-item">
+                    <div class="ltp-summary-value total" t-esc="summary.total" />
+                    <div class="ltp-summary-label">Total</div>
+                </div>
+                <div class="ltp-summary-item">
+                    <div class="ltp-summary-value" t-esc="summary.pending" />
+                    <div class="ltp-summary-label">Pending</div>
+                </div>
             </div>
-          </div>
-        </t>
-      </div>
 
-      <!-- Empty State -->
-      <div class="ltp-empty" t-if="!props.tests.length">
-        <i class="fa fa-flask"/>
-        <p>No tests defined yet.</p>
-        <p>
+            <!-- Test List -->
+            <div class="ltp-tests" t-if="props.tests.length">
+                <t t-foreach="props.tests" t-as="test" t-key="test.id">
+                    <div class="ltp-test-row" t-att-class="getTestRowClass(test)">
+                        <!-- Status Icon -->
+                        <i t-att-class="'fa ' + getStatusIcon(test)" />
+
+                        <!-- Test Content -->
+                        <div class="ltp-test-content">
+                            <!-- Test Name and Status -->
+                            <div class="ltp-test-name">
+                                <span t-esc="test.name" />
+                                <small class="text-muted ms-2">
+                  [<t t-esc="getTestStatus(test)" />]
+                </small>
+                            </div>
+
+                            <!-- Description -->
+                            <div
+                                class="ltp-test-description text-muted"
+                                t-if="test.description"
+                            >
+                                <small t-esc="test.description" />
+                            </div>
+
+                            <!-- Expected Result -->
+                            <div class="ltp-expected">
+                                <strong>Expected:</strong>
+                                <code t-esc="test.expected_result" />
+                            </div>
+
+                            <!-- Actual Result (if test has run) -->
+                            <div
+                                class="ltp-actual"
+                                t-if="test.actual_result !== undefined"
+                            >
+                                <strong>Actual:</strong>
+                                <code t-esc="test.actual_result" />
+                            </div>
+
+                            <!-- Error Message -->
+                            <div class="ltp-error" t-if="test.error_message">
+                                <i class="fa fa-exclamation-triangle me-1" />
+                                <t t-esc="test.error_message" />
+                            </div>
+
+                            <!-- Execution Time -->
+                            <div
+                                class="ltp-execution-time text-muted"
+                                t-if="test.execution_time_ms"
+                            >
+                                <small>
+                  <i class="fa fa-clock-o me-1" />
+                  Execution time: <t
+                                    t-esc="formatExecutionTime(test.execution_time_ms)"
+                                />
+                </small>
+                            </div>
+
+                            <!-- Test Details (expandable) -->
+                            <div
+                                class="ltp-test-details mt-2"
+                                t-if="isTestExpanded(test.id)"
+                            >
+                                <!-- Input Context -->
+                                <div
+                                    class="ltp-detail-section"
+                                    t-if="test.input_context"
+                                >
+                                    <strong>Input Context:</strong>
+                                    <pre class="mt-1 p-2 bg-light border rounded">
+                                        <code
+                                            t-esc="JSON.stringify(test.input_context, null, 2)"
+                                        />
+                                    </pre>
+                                </div>
+
+                                <!-- Execution Log -->
+                                <div
+                                    class="ltp-detail-section"
+                                    t-if="test.execution_log"
+                                >
+                                    <strong>Execution Log:</strong>
+                                    <div class="ltp-execution-log mt-1">
+                                        <t
+                                            t-foreach="test.execution_log"
+                                            t-as="logEntry"
+                                            t-key="logEntry_index"
+                                        >
+                                            <div class="log-entry">
+                                                <span
+                                                    class="log-timestamp"
+                                                    t-if="logEntry.timestamp"
+                                                >
+                          [<t t-esc="logEntry.timestamp" />]
+                        </span>
+                                                <span
+                                                    class="log-level"
+                                                    t-att-class="logEntry.level"
+                                                >
+                                                    <t t-esc="logEntry.level" />
+                                                </span>
+                                                <span
+                                                    class="log-message"
+                                                    t-esc="logEntry.message"
+                                                />
+                                            </div>
+                                        </t>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Test Actions -->
+                        <div class="ltp-test-actions">
+                            <!-- Run Single Test Button -->
+                            <button
+                                class="btn btn-link btn-sm"
+                                t-on-click="() => runTest(test)"
+                                t-att-disabled="state.running"
+                                title="Run this test"
+                            >
+                                <i class="fa fa-play" />
+                            </button>
+
+                            <!-- Expand/Collapse Details Button -->
+                            <button
+                                class="btn btn-link btn-sm"
+                                t-on-click="() => toggleTestExpansion(test.id)"
+                                t-if="test.input_context || test.execution_log"
+                                title="Show/hide details"
+                            >
+                                <i
+                                    t-att-class="isTestExpanded(test.id) ? 'fa fa-chevron-up' : 'fa fa-chevron-down'"
+                                />
+                            </button>
+                        </div>
+                    </div>
+                </t>
+            </div>
+
+            <!-- Empty State -->
+            <div class="ltp-empty" t-if="!props.tests.length">
+                <i class="fa fa-flask" />
+                <p>No tests defined yet.</p>
+                <p>
           <a href="#" class="text-primary">Add a test case</a>
           to validate this logic.
         </p>
-      </div>
-    </div>
-  </t>
+            </div>
+        </div>
+    </t>
 
   <!-- Test Summary Badge (for use in forms) -->
   <t t-name="spp_studio.TestSummaryBadge">
-    <t t-set="summary" t-value="getSummary()"/>
-    <div class="logic-test-summary-badge">
-      <span class="badge" t-att-class="{
+        <t t-set="summary" t-value="getSummary()" />
+        <div class="logic-test-summary-badge">
+            <span
+                class="badge"
+                t-att-class="{
         'bg-success': summary.failed === 0 and summary.total > 0,
         'bg-danger': summary.failed > 0,
         'bg-secondary': summary.total === 0
-      }">
-        <i class="fa fa-flask me-1"/>
-        <t t-if="summary.total === 0">No tests</t>
-        <t t-else="">
-          <t t-esc="summary.passed"/>/<t t-esc="summary.total"/> passed
+      }"
+            >
+                <i class="fa fa-flask me-1" />
+                <t t-if="summary.total === 0">No tests</t>
+                <t t-else="">
+          <t t-esc="summary.passed" />/<t t-esc="summary.total" /> passed
         </t>
-      </span>
-    </div>
-  </t>
+            </span>
+        </div>
+    </t>
 
   <!-- Test Result Indicator (for use in kanban) -->
   <t t-name="spp_studio.TestResultIndicator">
-    <div class="logic-test-results">
-      <t t-set="summary" t-value="getSummary()"/>
-      <t t-if="summary.total > 0">
-        <span class="test-count" t-att-class="{
+        <div class="logic-test-results">
+            <t t-set="summary" t-value="getSummary()" />
+            <t t-if="summary.total > 0">
+                <span
+                    class="test-count"
+                    t-att-class="{
           'has-failures': summary.failed > 0,
           'all-passed': summary.failed === 0 and summary.passed === summary.total
-        }">
-          <i t-att-class="{
+        }"
+                >
+          <i
+                    t-att-class="{
             'fa fa-check-circle': summary.failed === 0 and summary.passed === summary.total,
             'fa fa-times-circle': summary.failed > 0,
             'fa fa-circle-o': summary.passed === 0
-          }"/>
-          <t t-esc="summary.passed"/>/<t t-esc="summary.total"/>
+          }"
+                />
+          <t t-esc="summary.passed" />/<t t-esc="summary.total" />
         </span>
-      </t>
-      <t t-else="">
-        <span class="test-count text-muted">
-          <i class="fa fa-flask"/>
+            </t>
+            <t t-else="">
+                <span class="test-count text-muted">
+          <i class="fa fa-flask" />
           No tests
         </span>
-      </t>
-    </div>
-  </t>
+            </t>
+        </div>
+    </t>
 </templates>

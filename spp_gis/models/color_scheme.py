@@ -61,7 +61,7 @@ class GisColorScheme(models.Model):
     default_steps = fields.Integer(
         "Default Steps",
         default=5,
-        help="Number of discrete color steps when classifying data. " "Used as default for reports using this scheme.",
+        help="Number of discrete color steps when classifying data. Used as default for reports using this scheme.",
     )
 
     # Accessibility

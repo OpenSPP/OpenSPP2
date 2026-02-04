@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
-    <record id="create_program_wizard_form_view_inherit_spp_programs_compliance_criteria" model="ir.ui.view">
+    <record
+        id="create_program_wizard_form_view_inherit_spp_programs_compliance_criteria"
+        model="ir.ui.view"
+    >
         <field name="name">spp.program.create.wizard.view.form.inherit</field>
         <field name="model">spp.program.create.wizard</field>
         <field name="inherit_id" ref="spp_programs.create_program_wizard_form_view" />
@@ -14,5 +16,4 @@
             </xpath>
         </field>
     </record>
-
 </odoo>

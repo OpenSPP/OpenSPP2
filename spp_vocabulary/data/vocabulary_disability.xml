@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
     <!--
         Disability Vocabulary based on Washington Group Short Set on Functioning (WG-SS)
@@ -28,8 +28,12 @@
         <field name="name">Disability Domain (Washington Group)</field>
         <field name="namespace_uri">urn:wg:disability:domain</field>
         <field name="version">2024</field>
-        <field name="description">Washington Group Short Set on Functioning (WG-SS) domains. Six core functional domains for identifying persons with disabilities in census and survey data. Internationally comparable disability statistics.</field>
-        <field name="reference_url">https://www.washingtongroup-disability.com/question-sets/wg-short-set-on-functioning-wg-ss/</field>
+        <field
+            name="description"
+        >Washington Group Short Set on Functioning (WG-SS) domains. Six core functional domains for identifying persons with disabilities in census and survey data. Internationally comparable disability statistics.</field>
+        <field
+            name="reference_url"
+        >https://www.washingtongroup-disability.com/question-sets/wg-short-set-on-functioning-wg-ss/</field>
         <field name="is_system">True</field>
         <field name="is_hierarchical">False</field>
         <field name="domain">health</field>
@@ -37,55 +41,67 @@
 
     <!-- Domain 1: Seeing -->
     <record id="disability_seeing" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_disability_domain"/>
+        <field name="vocabulary_id" ref="vocab_disability_domain" />
         <field name="code">seeing</field>
         <field name="display">Seeing</field>
-        <field name="definition">Difficulty seeing, even if wearing glasses. Assesses vision impairment that affects daily functioning.</field>
+        <field
+            name="definition"
+        >Difficulty seeing, even if wearing glasses. Assesses vision impairment that affects daily functioning.</field>
         <field name="sequence">10</field>
     </record>
 
     <!-- Domain 2: Hearing -->
     <record id="disability_hearing" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_disability_domain"/>
+        <field name="vocabulary_id" ref="vocab_disability_domain" />
         <field name="code">hearing</field>
         <field name="display">Hearing</field>
-        <field name="definition">Difficulty hearing, even if using a hearing aid. Assesses hearing impairment that affects daily functioning.</field>
+        <field
+            name="definition"
+        >Difficulty hearing, even if using a hearing aid. Assesses hearing impairment that affects daily functioning.</field>
         <field name="sequence">20</field>
     </record>
 
     <!-- Domain 3: Walking -->
     <record id="disability_walking" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_disability_domain"/>
+        <field name="vocabulary_id" ref="vocab_disability_domain" />
         <field name="code">walking</field>
         <field name="display">Walking / Climbing</field>
-        <field name="definition">Difficulty walking or climbing steps. Assesses mobility impairment that affects daily functioning.</field>
+        <field
+            name="definition"
+        >Difficulty walking or climbing steps. Assesses mobility impairment that affects daily functioning.</field>
         <field name="sequence">30</field>
     </record>
 
     <!-- Domain 4: Remembering -->
     <record id="disability_remembering" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_disability_domain"/>
+        <field name="vocabulary_id" ref="vocab_disability_domain" />
         <field name="code">remembering</field>
         <field name="display">Remembering / Concentrating</field>
-        <field name="definition">Difficulty remembering or concentrating. Assesses cognitive impairment that affects daily functioning.</field>
+        <field
+            name="definition"
+        >Difficulty remembering or concentrating. Assesses cognitive impairment that affects daily functioning.</field>
         <field name="sequence">40</field>
     </record>
 
     <!-- Domain 5: Self-Care -->
     <record id="disability_selfcare" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_disability_domain"/>
+        <field name="vocabulary_id" ref="vocab_disability_domain" />
         <field name="code">selfcare</field>
         <field name="display">Self-Care</field>
-        <field name="definition">Difficulty with self-care (such as washing all over or dressing). Assesses personal care limitations that affect daily functioning.</field>
+        <field
+            name="definition"
+        >Difficulty with self-care (such as washing all over or dressing). Assesses personal care limitations that affect daily functioning.</field>
         <field name="sequence">50</field>
     </record>
 
     <!-- Domain 6: Communicating -->
     <record id="disability_communicating" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_disability_domain"/>
+        <field name="vocabulary_id" ref="vocab_disability_domain" />
         <field name="code">communicating</field>
         <field name="display">Communicating</field>
-        <field name="definition">Difficulty communicating (understanding or being understood) using usual language. Assesses communication limitations that affect daily functioning.</field>
+        <field
+            name="definition"
+        >Difficulty communicating (understanding or being understood) using usual language. Assesses communication limitations that affect daily functioning.</field>
         <field name="sequence">60</field>
     </record>
 
@@ -96,8 +112,12 @@
         <field name="name">Disability Severity (Washington Group)</field>
         <field name="namespace_uri">urn:wg:disability:severity</field>
         <field name="version">2024</field>
-        <field name="description">Washington Group four-level severity scale. Used to assess degree of difficulty in each functional domain. Persons with level 3 or 4 in any domain are identified as having a disability.</field>
-        <field name="reference_url">https://www.washingtongroup-disability.com/implementation/implementationresources/</field>
+        <field
+            name="description"
+        >Washington Group four-level severity scale. Used to assess degree of difficulty in each functional domain. Persons with level 3 or 4 in any domain are identified as having a disability.</field>
+        <field
+            name="reference_url"
+        >https://www.washingtongroup-disability.com/implementation/implementationresources/</field>
         <field name="is_system">True</field>
         <field name="is_hierarchical">False</field>
         <field name="domain">health</field>
@@ -105,43 +125,51 @@
 
     <!-- Level 1: No difficulty -->
     <record id="severity_1" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_disability_severity"/>
+        <field name="vocabulary_id" ref="vocab_disability_severity" />
         <field name="code">1</field>
         <field name="display">No Difficulty</field>
-        <field name="definition">No difficulty performing the function. Not considered as having a disability in this domain.</field>
+        <field
+            name="definition"
+        >No difficulty performing the function. Not considered as having a disability in this domain.</field>
         <field name="sequence">10</field>
     </record>
 
     <!-- Level 2: Some difficulty -->
     <record id="severity_2" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_disability_severity"/>
+        <field name="vocabulary_id" ref="vocab_disability_severity" />
         <field name="code">2</field>
         <field name="display">Some Difficulty</field>
-        <field name="definition">Some difficulty performing the function. Not typically classified as having a disability using WG methodology.</field>
+        <field
+            name="definition"
+        >Some difficulty performing the function. Not typically classified as having a disability using WG methodology.</field>
         <field name="sequence">20</field>
     </record>
 
     <!-- Level 3: A lot of difficulty -->
     <record id="severity_3" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_disability_severity"/>
+        <field name="vocabulary_id" ref="vocab_disability_severity" />
         <field name="code">3</field>
         <field name="display">A Lot of Difficulty</field>
-        <field name="definition">A lot of difficulty performing the function. Classified as having a disability using WG methodology.</field>
+        <field
+            name="definition"
+        >A lot of difficulty performing the function. Classified as having a disability using WG methodology.</field>
         <field name="sequence">30</field>
     </record>
 
     <!-- Level 4: Cannot do at all -->
     <record id="severity_4" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_disability_severity"/>
+        <field name="vocabulary_id" ref="vocab_disability_severity" />
         <field name="code">4</field>
         <field name="display">Cannot Do At All</field>
-        <field name="definition">Cannot perform the function at all. Classified as having a disability using WG methodology.</field>
+        <field
+            name="definition"
+        >Cannot perform the function at all. Classified as having a disability using WG methodology.</field>
         <field name="sequence">40</field>
     </record>
 
     <!-- Special: Unknown/Not Stated -->
     <record id="severity_unknown" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_disability_severity"/>
+        <field name="vocabulary_id" ref="vocab_disability_severity" />
         <field name="code">9</field>
         <field name="display">Not Stated / Unknown</field>
         <field name="definition">Severity level not stated, refused, or unknown.</field>
@@ -155,31 +183,39 @@
         <field name="name">Disability Status</field>
         <field name="namespace_uri">urn:openspp:vocab:disability-status</field>
         <field name="version">2024</field>
-        <field name="description">Summary disability status based on Washington Group methodology. A person is identified as having a disability if they have 'a lot of difficulty' or 'cannot do at all' in at least one domain.</field>
-        <field name="reference_url">https://www.washingtongroup-disability.com/implementation/implementationresources/</field>
+        <field
+            name="description"
+        >Summary disability status based on Washington Group methodology. A person is identified as having a disability if they have 'a lot of difficulty' or 'cannot do at all' in at least one domain.</field>
+        <field
+            name="reference_url"
+        >https://www.washingtongroup-disability.com/implementation/implementationresources/</field>
         <field name="is_system">True</field>
         <field name="is_hierarchical">False</field>
         <field name="domain">health</field>
     </record>
 
     <record id="disability_yes" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_disability_status"/>
+        <field name="vocabulary_id" ref="vocab_disability_status" />
         <field name="code">Y</field>
         <field name="display">Has Disability</field>
-        <field name="definition">Person has a disability (at least one domain with severity level 3 or 4 using WG methodology).</field>
+        <field
+            name="definition"
+        >Person has a disability (at least one domain with severity level 3 or 4 using WG methodology).</field>
         <field name="sequence">10</field>
     </record>
 
     <record id="disability_no" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_disability_status"/>
+        <field name="vocabulary_id" ref="vocab_disability_status" />
         <field name="code">N</field>
         <field name="display">No Disability</field>
-        <field name="definition">Person does not have a disability (all domains at severity level 1 or 2 using WG methodology).</field>
+        <field
+            name="definition"
+        >Person does not have a disability (all domains at severity level 1 or 2 using WG methodology).</field>
         <field name="sequence">20</field>
     </record>
 
     <record id="disability_unknown" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_disability_status"/>
+        <field name="vocabulary_id" ref="vocab_disability_status" />
         <field name="code">U</field>
         <field name="display">Unknown / Not Assessed</field>
         <field name="definition">Disability status unknown or not assessed.</field>

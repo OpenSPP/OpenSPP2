@@ -68,7 +68,7 @@ class GISReportTemplate(models.Model):
     )
     requires_reference_data = fields.Char(
         "Required Reference Data",
-        help="Comma-separated list of required reference data: " "population, household_count, eligible_count",
+        help="Comma-separated list of required reference data: population, household_count, eligible_count",
     )
 
     # Preview

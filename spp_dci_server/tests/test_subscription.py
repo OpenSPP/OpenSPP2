@@ -140,7 +140,7 @@ class TestDCISubscription(DCIServerCommon):
             self.Subscription.create(
                 {
                     "sender_id": self.test_sender.id,
-                    "callback_uri": f"https://callback.example.com/notify{i+2}",
+                    "callback_uri": f"https://callback.example.com/notify{i + 2}",
                     "event_type": "registration",
                     "reg_type": "SOCIAL_REGISTRY",
                 }

@@ -124,7 +124,7 @@ class DCISigningKey(models.Model):
 
         if self.private_key or self.public_key:
             raise UserError(
-                _("Keys already exist for this record. " "Please create a new key record to generate a new keypair.")
+                _("Keys already exist for this record. Please create a new key record to generate a new keypair.")
             )
 
         _logger.info("Generating %s keypair for key_id: %s", self.algorithm, self.key_id)

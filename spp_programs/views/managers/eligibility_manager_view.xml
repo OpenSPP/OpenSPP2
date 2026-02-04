@@ -3,7 +3,6 @@
 Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 -->
 <odoo>
-
     <!-- Eligibility Manager (wrapper) -->
     <record id="view_eligibility_manager_tree" model="ir.ui.view">
         <field name="name">view_eligibility_manager_tree</field>
@@ -62,12 +61,21 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     <div class="oe_title mb24">
                         <label for="name" string="Name:" />
                         <h1>
-                            <field id="name" name="name" placeholder="Enter the Manager Name..." />
+                            <field
+                                id="name"
+                                name="name"
+                                placeholder="Enter the Manager Name..."
+                            />
                         </h1>
                         <field name="program_id" invisible="1" />
                     </div>
 
-                    <group string="Geographic Targeting" name="geographic_targeting" colspan="4" col="4">
+                    <group
+                        string="Geographic Targeting"
+                        name="geographic_targeting"
+                        colspan="4"
+                        col="4"
+                    >
                         <field
                             name="admin_area_ids"
                             widget="many2many_tags"
@@ -77,7 +85,12 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         />
                     </group>
 
-                    <group string="Eligibility Criteria" name="eligibility_criteria" colspan="2" col="1">
+                    <group
+                        string="Eligibility Criteria"
+                        name="eligibility_criteria"
+                        colspan="2"
+                        col="1"
+                    >
                         <field name="target_type" invisible="1" />
                         <field
                             name="eligibility_domain"
@@ -100,7 +113,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                 <field name="name" />
                 <field name="program_id" />
                 <separator />
-                <filter string="Program" name="grp_program_id" context="{'group_by': 'program_id'}" />
+                <filter
+                    string="Program"
+                    name="grp_program_id"
+                    context="{'group_by': 'program_id'}"
+                />
             </search>
         </field>
     </record>
@@ -117,10 +134,10 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Add an Eligibility Manager!
-            </p><p>
+            </p>
+            <p>
                 Click the create button to enter a new eligibility manager.
             </p>
         </field>
     </record>
-
 </odoo>

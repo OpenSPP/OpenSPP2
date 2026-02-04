@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Create Return Wizard Form (GAP-RET-001) -->
     <record id="spp_drims_create_return_wizard_form" model="ir.ui.view">
@@ -9,31 +9,42 @@
                 <sheet>
                     <group>
                         <group string="Dispatch Details">
-                            <field name="picking_id" readonly="1"/>
-                            <field name="incident_id" readonly="1"/>
+                            <field name="picking_id" readonly="1" />
+                            <field name="incident_id" readonly="1" />
                         </group>
                         <group string="Return Details">
-                            <field name="warehouse_id" options="{'no_create': True}"/>
-                            <field name="returned_by"/>
+                            <field name="warehouse_id" options="{'no_create': True}" />
+                            <field name="returned_by" />
                         </group>
                     </group>
 
                     <group>
-                        <field name="return_reason" placeholder="Explain why items are being returned..."
-                               nolabel="1" colspan="2"/>
+                        <field
+                            name="return_reason"
+                            placeholder="Explain why items are being returned..."
+                            nolabel="1"
+                            colspan="2"
+                        />
                     </group>
 
                     <notebook>
                         <page string="Items" name="items">
                             <field name="line_ids">
                                 <list editable="bottom">
-                                    <field name="product_id" readonly="1"/>
-                                    <field name="uom_id" readonly="1"/>
-                                    <field name="quantity_dispatched"/>
-                                    <field name="quantity_to_return"/>
-                                    <field name="condition_id" options="{'no_create': True}"/>
-                                    <field name="is_return_this" widget="boolean_toggle" readonly="1"/>
-                                    <field name="move_id" column_invisible="True"/>
+                                    <field name="product_id" readonly="1" />
+                                    <field name="uom_id" readonly="1" />
+                                    <field name="quantity_dispatched" />
+                                    <field name="quantity_to_return" />
+                                    <field
+                                        name="condition_id"
+                                        options="{'no_create': True}"
+                                    />
+                                    <field
+                                        name="is_return_this"
+                                        widget="boolean_toggle"
+                                        readonly="1"
+                                    />
+                                    <field name="move_id" column_invisible="True" />
                                 </list>
                             </field>
                         </page>
@@ -41,11 +52,13 @@
                 </sheet>
 
                 <footer>
-                    <button name="action_create_return"
-                            string="Create Return"
-                            type="object"
-                            class="btn-primary"/>
-                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    <button
+                        name="action_create_return"
+                        string="Create Return"
+                        type="object"
+                        class="btn-primary"
+                    />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
                 </footer>
             </form>
         </field>

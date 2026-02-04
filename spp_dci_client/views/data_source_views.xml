@@ -8,7 +8,14 @@
             <list>
                 <field name="name" />
                 <field name="code" />
-                <field name="state" decoration-success="state == 'active'" decoration-danger="state == 'error'" decoration-warning="state == 'testing'" decoration-muted="state == 'draft'" widget="badge" />
+                <field
+                    name="state"
+                    decoration-success="state == 'active'"
+                    decoration-danger="state == 'error'"
+                    decoration-warning="state == 'testing'"
+                    decoration-muted="state == 'draft'"
+                    widget="badge"
+                />
                 <field name="registry_type" />
                 <field name="base_url" widget="url" />
                 <field name="auth_type" />
@@ -24,7 +31,11 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,testing,active,error" />
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="draft,testing,active,error"
+                    />
                     <button
                         name="action_test_connection"
                         string="Test Connection"
@@ -42,40 +53,73 @@
                     <!-- Basic Information -->
                     <group string="Basic Information">
                         <group>
-                            <field name="code" help="Unique identifier for this data source" />
-                            <field name="registry_type" help="Type of registry: DR Client or Indicator" />
+                            <field
+                                name="code"
+                                help="Unique identifier for this data source"
+                            />
+                            <field
+                                name="registry_type"
+                                help="Type of registry: DR Client or Indicator"
+                            />
                         </group>
                         <group>
-                            <field name="active" widget="boolean_toggle" help="Inactive sources will not be used for data retrieval" />
+                            <field
+                                name="active"
+                                widget="boolean_toggle"
+                                help="Inactive sources will not be used for data retrieval"
+                            />
                         </group>
                     </group>
 
                     <!-- Connection Settings -->
                     <group string="Connection Settings">
                         <group>
-                            <field name="base_url" widget="url" help="Base URL of the DCI registry API" />
-                            <field name="verify_ssl" help="Verify SSL certificates for HTTPS connections" />
+                            <field
+                                name="base_url"
+                                widget="url"
+                                help="Base URL of the DCI registry API"
+                            />
+                            <field
+                                name="verify_ssl"
+                                help="Verify SSL certificates for HTTPS connections"
+                            />
                         </group>
                         <group>
-                            <field name="timeout" help="Connection timeout in seconds" />
+                            <field
+                                name="timeout"
+                                help="Connection timeout in seconds"
+                            />
                         </group>
                     </group>
 
                     <!-- DCI Protocol Configuration -->
                     <group string="DCI Protocol Configuration">
                         <group>
-                            <field name="our_sender_id" help="Our sender ID for DCI messaging protocol" />
-                            <field name="our_callback_uri" widget="url" help="URI where we receive callbacks from the remote system" />
+                            <field
+                                name="our_sender_id"
+                                help="Our sender ID for DCI messaging protocol"
+                            />
+                            <field
+                                name="our_callback_uri"
+                                widget="url"
+                                help="URI where we receive callbacks from the remote system"
+                            />
                         </group>
                         <group>
-                            <field name="receiver_id" help="Receiver ID of the remote DCI system" />
+                            <field
+                                name="receiver_id"
+                                help="Receiver ID of the remote DCI system"
+                            />
                         </group>
                     </group>
 
                     <!-- Authentication -->
                     <group string="Authentication">
                         <group>
-                            <field name="auth_type" help="Authentication method to use with this data source" />
+                            <field
+                                name="auth_type"
+                                help="Authentication method to use with this data source"
+                            />
                             <field
                                 name="oauth2_token_url"
                                 widget="url"
@@ -109,18 +153,33 @@
                     <!-- Message Signing -->
                     <group string="Message Signing">
                         <group>
-                            <field name="signing_key_id" help="Key ID used for signing DCI messages" />
+                            <field
+                                name="signing_key_id"
+                                help="Key ID used for signing DCI messages"
+                            />
                         </group>
                     </group>
 
                     <!-- API Endpoints -->
-                    <group string="API Endpoints (Optional Overrides)" name="api_endpoints">
+                    <group
+                        string="API Endpoints (Optional Overrides)"
+                        name="api_endpoints"
+                    >
                         <group>
-                            <field name="search_endpoint" help="Custom search endpoint (if different from base_url/search)" />
-                            <field name="subscribe_endpoint" help="Custom subscribe endpoint (if different from base_url/subscribe)" />
+                            <field
+                                name="search_endpoint"
+                                help="Custom search endpoint (if different from base_url/search)"
+                            />
+                            <field
+                                name="subscribe_endpoint"
+                                help="Custom subscribe endpoint (if different from base_url/subscribe)"
+                            />
                         </group>
                         <group>
-                            <field name="auth_endpoint" help="Custom auth endpoint (if different from base_url/auth)" />
+                            <field
+                                name="auth_endpoint"
+                                help="Custom auth endpoint (if different from base_url/auth)"
+                            />
                         </group>
                     </group>
 
@@ -128,15 +187,26 @@
                         <page string="Connection Status" name="connection_status">
                             <group>
                                 <group>
-                                    <field name="last_test_date" readonly="1" help="Last time connection was tested" />
+                                    <field
+                                        name="last_test_date"
+                                        readonly="1"
+                                        help="Last time connection was tested"
+                                    />
                                 </group>
                                 <group>
-                                    <field name="last_error" readonly="1" help="Last error message from connection test" />
+                                    <field
+                                        name="last_error"
+                                        readonly="1"
+                                        help="Last error message from connection test"
+                                    />
                                 </group>
                             </group>
                         </page>
                         <page string="Notes" name="notes">
-                            <field name="notes" placeholder="Additional notes about this data source..." />
+                            <field
+                                name="notes"
+                                placeholder="Additional notes about this data source..."
+                            />
                         </page>
                     </notebook>
                 </sheet>
@@ -153,22 +223,82 @@
                 <field name="name" />
                 <field name="code" />
                 <field name="base_url" />
-                <filter string="Active" name="filter_active" domain="[('active', '=', True)]" />
-                <filter string="Inactive" name="filter_inactive" domain="[('active', '=', False)]" />
-                <filter string="Draft" name="filter_state_draft" domain="[('state', '=', 'draft')]" />
-                <filter string="Testing" name="filter_state_testing" domain="[('state', '=', 'testing')]" />
-                <filter string="Active Connection" name="filter_state_active" domain="[('state', '=', 'active')]" />
-                <filter string="Error" name="filter_state_error" domain="[('state', '=', 'error')]" />
-                <filter string="DR Client" name="filter_registry_dr_client" domain="[('registry_type', '=', 'dr_client')]" />
-                <filter string="Indicator Registry" name="filter_registry_indicator" domain="[('registry_type', '=', 'indicator')]" />
-                <filter string="OAuth2" name="filter_auth_oauth2" domain="[('auth_type', '=', 'oauth2')]" />
-                <filter string="API Key" name="filter_auth_api_key" domain="[('auth_type', '=', 'api_key')]" />
-                <filter string="No Auth" name="filter_auth_none" domain="[('auth_type', '=', 'none')]" />
+                <filter
+                    string="Active"
+                    name="filter_active"
+                    domain="[('active', '=', True)]"
+                />
+                <filter
+                    string="Inactive"
+                    name="filter_inactive"
+                    domain="[('active', '=', False)]"
+                />
+                <filter
+                    string="Draft"
+                    name="filter_state_draft"
+                    domain="[('state', '=', 'draft')]"
+                />
+                <filter
+                    string="Testing"
+                    name="filter_state_testing"
+                    domain="[('state', '=', 'testing')]"
+                />
+                <filter
+                    string="Active Connection"
+                    name="filter_state_active"
+                    domain="[('state', '=', 'active')]"
+                />
+                <filter
+                    string="Error"
+                    name="filter_state_error"
+                    domain="[('state', '=', 'error')]"
+                />
+                <filter
+                    string="DR Client"
+                    name="filter_registry_dr_client"
+                    domain="[('registry_type', '=', 'dr_client')]"
+                />
+                <filter
+                    string="Indicator Registry"
+                    name="filter_registry_indicator"
+                    domain="[('registry_type', '=', 'indicator')]"
+                />
+                <filter
+                    string="OAuth2"
+                    name="filter_auth_oauth2"
+                    domain="[('auth_type', '=', 'oauth2')]"
+                />
+                <filter
+                    string="API Key"
+                    name="filter_auth_api_key"
+                    domain="[('auth_type', '=', 'api_key')]"
+                />
+                <filter
+                    string="No Auth"
+                    name="filter_auth_none"
+                    domain="[('auth_type', '=', 'none')]"
+                />
                 <group>
-                    <filter string="State" name="group_by_state" context="{'group_by': 'state'}" />
-                    <filter string="Registry Type" name="group_by_registry_type" context="{'group_by': 'registry_type'}" />
-                    <filter string="Authentication Type" name="group_by_auth_type" context="{'group_by': 'auth_type'}" />
-                    <filter string="Active Status" name="group_by_active" context="{'group_by': 'active'}" />
+                    <filter
+                        string="State"
+                        name="group_by_state"
+                        context="{'group_by': 'state'}"
+                    />
+                    <filter
+                        string="Registry Type"
+                        name="group_by_registry_type"
+                        context="{'group_by': 'registry_type'}"
+                    />
+                    <filter
+                        string="Authentication Type"
+                        name="group_by_auth_type"
+                        context="{'group_by': 'auth_type'}"
+                    />
+                    <filter
+                        string="Active Status"
+                        name="group_by_active"
+                        context="{'group_by': 'active'}"
+                    />
                 </group>
             </search>
         </field>

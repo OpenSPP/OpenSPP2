@@ -1,24 +1,38 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Alert List View -->
     <record id="spp_alert_view_list" model="ir.ui.view">
         <field name="name">spp.alert.list</field>
         <field name="model">spp.alert</field>
         <field name="arch" type="xml">
-            <list string="Alerts" decoration-danger="priority=='critical'" decoration-warning="priority=='high'">
-                <field name="reference"/>
-                <field name="title"/>
-                <field name="alert_type_id"/>
-                <field name="priority" widget="badge"
-                       decoration-danger="priority == 'critical'"
-                       decoration-warning="priority == 'high'"
-                       decoration-info="priority == 'medium'"/>
-                <field name="state" widget="badge"
-                       decoration-danger="state == 'active'"
-                       decoration-warning="state == 'acknowledged'"
-                       decoration-success="state == 'resolved'"/>
-                <field name="create_date" optional="hide"/>
-                <field name="company_id" optional="hide" groups="base.group_multi_company"/>
+            <list
+                string="Alerts"
+                decoration-danger="priority=='critical'"
+                decoration-warning="priority=='high'"
+            >
+                <field name="reference" />
+                <field name="title" />
+                <field name="alert_type_id" />
+                <field
+                    name="priority"
+                    widget="badge"
+                    decoration-danger="priority == 'critical'"
+                    decoration-warning="priority == 'high'"
+                    decoration-info="priority == 'medium'"
+                />
+                <field
+                    name="state"
+                    widget="badge"
+                    decoration-danger="state == 'active'"
+                    decoration-warning="state == 'acknowledged'"
+                    decoration-success="state == 'resolved'"
+                />
+                <field name="create_date" optional="hide" />
+                <field
+                    name="company_id"
+                    optional="hide"
+                    groups="base.group_multi_company"
+                />
             </list>
         </field>
     </record>
@@ -30,48 +44,73 @@
         <field name="arch" type="xml">
             <form string="Alert">
                 <header>
-                    <button name="action_acknowledge" type="object" string="Acknowledge"
-                            class="btn-primary" invisible="state != 'active'"/>
-                    <button name="action_resolve" type="object" string="Resolve"
-                            class="btn-success" invisible="state == 'resolved'"/>
-                    <field name="state" widget="statusbar" statusbar_visible="active,acknowledged,resolved"/>
+                    <button
+                        name="action_acknowledge"
+                        type="object"
+                        string="Acknowledge"
+                        class="btn-primary"
+                        invisible="state != 'active'"
+                    />
+                    <button
+                        name="action_resolve"
+                        type="object"
+                        string="Resolve"
+                        class="btn-success"
+                        invisible="state == 'resolved'"
+                    />
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="active,acknowledged,resolved"
+                    />
                 </header>
                 <sheet>
-                    <div class="oe_button_box" name="button_box"/>
+                    <div class="oe_button_box" name="button_box" />
                     <div class="oe_title">
                         <h1>
-                            <field name="reference" readonly="1"/>
+                            <field name="reference" readonly="1" />
                         </h1>
-                        <field name="title" placeholder="Alert Title" class="oe_inline"/>
+                        <field
+                            name="title"
+                            placeholder="Alert Title"
+                            class="oe_inline"
+                        />
                     </div>
                     <group>
                         <group>
-                            <field name="alert_type_id"/>
-                            <field name="priority"/>
-                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="alert_type_id" />
+                            <field name="priority" />
+                            <field
+                                name="company_id"
+                                groups="base.group_multi_company"
+                            />
                         </group>
                         <group>
-                            <field name="current_value" readonly="1"/>
-                            <field name="threshold_value" readonly="1"/>
-                            <field name="days_until" readonly="1"/>
+                            <field name="current_value" readonly="1" />
+                            <field name="threshold_value" readonly="1" />
+                            <field name="days_until" readonly="1" />
                         </group>
                     </group>
                     <notebook>
                         <page string="Details" name="details">
-                            <separator string="Description"/>
-                            <field name="description"/>
+                            <separator string="Description" />
+                            <field name="description" />
                         </page>
-                        <page string="Resolution" name="resolution" invisible="state == 'active'">
+                        <page
+                            string="Resolution"
+                            name="resolution"
+                            invisible="state == 'active'"
+                        >
                             <group>
-                                <field name="resolved_by_id" readonly="1"/>
-                                <field name="resolved_at" readonly="1"/>
+                                <field name="resolved_by_id" readonly="1" />
+                                <field name="resolved_at" readonly="1" />
                             </group>
-                            <separator string="Resolution Notes"/>
-                            <field name="resolution_notes"/>
+                            <separator string="Resolution Notes" />
+                            <field name="resolution_notes" />
                         </page>
                     </notebook>
                 </sheet>
-                <chatter/>
+                <chatter />
             </form>
         </field>
     </record>
@@ -84,25 +123,72 @@
             <search string="Search Alerts">
                 <!-- Searchpanel for quick filtering -->
                 <searchpanel>
-                    <field name="state" select="multi" icon="fa-tasks" enable_counters="1"/>
-                    <field name="priority" select="multi" icon="fa-flag" enable_counters="1"/>
-                    <field name="alert_type" select="multi" icon="fa-bell" enable_counters="1"/>
+                    <field
+                        name="state"
+                        select="multi"
+                        icon="fa-tasks"
+                        enable_counters="1"
+                    />
+                    <field
+                        name="priority"
+                        select="multi"
+                        icon="fa-flag"
+                        enable_counters="1"
+                    />
+                    <field
+                        name="alert_type"
+                        select="multi"
+                        icon="fa-bell"
+                        enable_counters="1"
+                    />
                 </searchpanel>
 
-                <field name="reference"/>
-                <field name="title"/>
-                <field name="alert_type_id"/>
-                <separator/>
-                <filter name="filter_active" string="Active" domain="[('state', '=', 'active')]"/>
-                <filter name="filter_acknowledged" string="Acknowledged" domain="[('state', '=', 'acknowledged')]"/>
-                <filter name="filter_resolved" string="Resolved" domain="[('state', '=', 'resolved')]"/>
-                <separator/>
-                <filter name="filter_critical" string="Critical" domain="[('priority', '=', 'critical')]"/>
-                <filter name="filter_high" string="High Priority" domain="[('priority', '=', 'high')]"/>
-                <separator/>
-                <filter name="groupby_state" string="State" context="{'group_by': 'state'}"/>
-                <filter name="groupby_priority" string="Priority" context="{'group_by': 'priority'}"/>
-                <filter name="groupby_type" string="Type" context="{'group_by': 'alert_type_id'}"/>
+                <field name="reference" />
+                <field name="title" />
+                <field name="alert_type_id" />
+                <separator />
+                <filter
+                    name="filter_active"
+                    string="Active"
+                    domain="[('state', '=', 'active')]"
+                />
+                <filter
+                    name="filter_acknowledged"
+                    string="Acknowledged"
+                    domain="[('state', '=', 'acknowledged')]"
+                />
+                <filter
+                    name="filter_resolved"
+                    string="Resolved"
+                    domain="[('state', '=', 'resolved')]"
+                />
+                <separator />
+                <filter
+                    name="filter_critical"
+                    string="Critical"
+                    domain="[('priority', '=', 'critical')]"
+                />
+                <filter
+                    name="filter_high"
+                    string="High Priority"
+                    domain="[('priority', '=', 'high')]"
+                />
+                <separator />
+                <filter
+                    name="groupby_state"
+                    string="State"
+                    context="{'group_by': 'state'}"
+                />
+                <filter
+                    name="groupby_priority"
+                    string="Priority"
+                    context="{'group_by': 'priority'}"
+                />
+                <filter
+                    name="groupby_type"
+                    string="Type"
+                    context="{'group_by': 'alert_type_id'}"
+                />
             </search>
         </field>
     </record>

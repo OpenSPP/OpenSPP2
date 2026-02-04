@@ -1,20 +1,23 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <record id="res_config_settings_sp_mis_view_form" model="ir.ui.view">
         <field name="name">res.config.settings.view.form.inherit.sp_mis</field>
         <field name="model">res.config.settings</field>
-        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form" />
         <field name="arch" type="xml">
             <xpath expr="//form" position="inside">
-                <app string="SP-MIS Settings" name="spp_starter_sp_mis" logo="/spp_starter_sp_mis/static/description/icon.png">
+                <app
+                    string="SP-MIS Settings"
+                    name="spp_starter_sp_mis"
+                    logo="/spp_starter_sp_mis/static/description/icon.png"
+                >
                     <block title="Registry Access Control" name="registry_access_block">
                         <setting
                             string="Restrict Registry Edits to Admin Only"
                             help="Only administrators can add, modify, or remove registrants.
                                   Other users can still view all registry data but cannot make changes."
                         >
-                            <field name="is_registry_admin_only_crud"/>
+                            <field name="is_registry_admin_only_crud" />
                         </setting>
                     </block>
                 </app>
@@ -26,10 +29,9 @@
         <field name="name">SP-MIS Settings</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">res.config.settings</field>
-        <field name="view_id" ref="res_config_settings_sp_mis_view_form"/>
+        <field name="view_id" ref="res_config_settings_sp_mis_view_form" />
         <field name="view_mode">form</field>
         <field name="target">current</field>
         <field name="context">{'module': 'spp_starter_sp_mis'}</field>
     </record>
-
 </odoo>

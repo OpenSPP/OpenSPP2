@@ -1,7 +1,7 @@
 # DRIMS Security Model
 
-DRIMS implements a three-tier security architecture with role-based access control, area/warehouse scoping, and
-multi-company isolation.
+DRIMS implements a three-tier security architecture with role-based access control,
+area/warehouse scoping, and multi-company isolation.
 
 ## Security Architecture
 
@@ -79,7 +79,8 @@ graph TD
 
 ## Record Rules (Row-Level Security)
 
-Record rules restrict which records users can access based on their role and assignments.
+Record rules restrict which records users can access based on their role and
+assignments.
 
 ### Request Scoping
 

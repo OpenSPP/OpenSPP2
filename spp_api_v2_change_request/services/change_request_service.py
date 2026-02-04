@@ -451,5 +451,5 @@ class ChangeRequestService:
     def reset_to_draft(self, cr):
         """Reset rejected/revision CR to draft."""
         if cr.approval_state not in ("rejected", "revision"):
-            raise UserError("Only rejected or revision-requested change requests " "can be reset to draft")
+            raise UserError("Only rejected or revision-requested change requests can be reset to draft")
         cr.action_reset_to_draft()

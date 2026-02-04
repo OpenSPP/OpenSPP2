@@ -8,59 +8,85 @@
         <field name="model">spp.change.request</field>
         <field name="priority">5</field>
         <field name="arch" type="xml">
-            <list decoration-muted="display_state == 'rejected'"
-                  decoration-success="display_state == 'applied'"
-                  decoration-warning="display_state == 'revision'"
-                  multi_edit="1"
-                  sample="1">
+            <list
+                decoration-muted="display_state == 'rejected'"
+                decoration-success="display_state == 'applied'"
+                decoration-warning="display_state == 'revision'"
+                multi_edit="1"
+                sample="1"
+            >
                 <!-- SLA indicator column -->
-                <field name="pending_since" column_invisible="1"/>
-                <field name="display_state" column_invisible="1"/>
-                <button name="action_approve" type="object"
-                        icon="fa-clock-o text-warning"
-                        title="SLA Warning - Due soon"
-                        invisible="display_state != 'pending'"
-                        class="text-warning"/>
+                <field name="pending_since" column_invisible="1" />
+                <field name="display_state" column_invisible="1" />
+                <button
+                    name="action_approve"
+                    type="object"
+                    icon="fa-clock-o text-warning"
+                    title="SLA Warning - Due soon"
+                    invisible="display_state != 'pending'"
+                    class="text-warning"
+                />
 
                 <!-- Main info -->
-                <field name="name" decoration-bf="1"/>
-                <field name="request_type_id" optional="show"/>
-                <field name="registrant_id"/>
+                <field name="name" decoration-bf="1" />
+                <field name="request_type_id" optional="show" />
+                <field name="registrant_id" />
 
                 <!-- Status with user-friendly labels -->
-                <field name="display_state" widget="badge"
-                       decoration-muted="display_state == 'draft'"
-                       decoration-warning="display_state in ('pending', 'revision')"
-                       decoration-info="display_state == 'approved'"
-                       decoration-success="display_state == 'applied'"
-                       decoration-danger="display_state == 'rejected'"/>
+                <field
+                    name="display_state"
+                    widget="badge"
+                    decoration-muted="display_state == 'draft'"
+                    decoration-warning="display_state in ('pending', 'revision')"
+                    decoration-info="display_state == 'approved'"
+                    decoration-success="display_state == 'applied'"
+                    decoration-danger="display_state == 'rejected'"
+                />
 
                 <!-- Documents indicator -->
-                <field name="document_ids" widget="many2many_tags"
-                       optional="show" string="Documents"/>
+                <field
+                    name="document_ids"
+                    widget="many2many_tags"
+                    optional="show"
+                    string="Documents"
+                />
 
                 <!-- Metadata -->
-                <field name="create_uid" string="Submitted By"
-                       widget="many2one_avatar_user" optional="show"/>
-                <field name="create_date" string="Submitted" widget="datetime"/>
-                <field name="submitted_date" optional="hide"/>
+                <field
+                    name="create_uid"
+                    string="Submitted By"
+                    widget="many2one_avatar_user"
+                    optional="show"
+                />
+                <field name="create_date" string="Submitted" widget="datetime" />
+                <field name="submitted_date" optional="hide" />
 
                 <!-- Approval info -->
-                <field name="approved_by_id" optional="hide" widget="many2one_avatar_user"/>
-                <field name="approved_date" optional="hide"/>
-                <field name="applied_date" optional="hide" widget="datetime"/>
+                <field
+                    name="approved_by_id"
+                    optional="hide"
+                    widget="many2one_avatar_user"
+                />
+                <field name="approved_date" optional="hide" />
+                <field name="applied_date" optional="hide" widget="datetime" />
 
                 <!-- Quick actions -->
-                <button name="action_approve" type="object"
-                        icon="fa-check"
-                        title="Approve"
-                        invisible="display_state != 'pending'"
-                        groups="spp_change_request_v2.group_cr_validator"/>
-                <button name="action_reject" type="object"
-                        icon="fa-times"
-                        title="Decline"
-                        invisible="display_state != 'pending'"
-                        groups="spp_change_request_v2.group_cr_validator"/>
+                <button
+                    name="action_approve"
+                    type="object"
+                    icon="fa-check"
+                    title="Approve"
+                    invisible="display_state != 'pending'"
+                    groups="spp_change_request_v2.group_cr_validator"
+                />
+                <button
+                    name="action_reject"
+                    type="object"
+                    icon="fa-times"
+                    title="Decline"
+                    invisible="display_state != 'pending'"
+                    groups="spp_change_request_v2.group_cr_validator"
+                />
             </list>
         </field>
     </record>
@@ -74,62 +100,113 @@
         <field name="priority">5</field>
         <field name="arch" type="xml">
             <search>
-                <field name="name"/>
-                <field name="registrant_id"/>
-                <field name="request_type_id"/>
-                <field name="create_uid" string="Submitted By"/>
-                <separator/>
+                <field name="name" />
+                <field name="registrant_id" />
+                <field name="request_type_id" />
+                <field name="create_uid" string="Submitted By" />
+                <separator />
 
                 <!-- User-friendly status filters -->
-                <filter name="draft" string="Draft"
-                        domain="[('display_state', '=', 'draft')]"/>
-                <filter name="under_review" string="Under Review"
-                        domain="[('display_state', '=', 'pending')]"/>
-                <filter name="needs_changes" string="Needs Changes"
-                        domain="[('display_state', '=', 'revision')]"/>
-                <filter name="approved" string="Approved"
-                        domain="[('display_state', '=', 'approved')]"/>
-                <filter name="completed" string="Completed"
-                        domain="[('display_state', '=', 'applied')]"/>
-                <filter name="declined" string="Declined"
-                        domain="[('display_state', '=', 'rejected')]"/>
-                <separator/>
+                <filter
+                    name="draft"
+                    string="Draft"
+                    domain="[('display_state', '=', 'draft')]"
+                />
+                <filter
+                    name="under_review"
+                    string="Under Review"
+                    domain="[('display_state', '=', 'pending')]"
+                />
+                <filter
+                    name="needs_changes"
+                    string="Needs Changes"
+                    domain="[('display_state', '=', 'revision')]"
+                />
+                <filter
+                    name="approved"
+                    string="Approved"
+                    domain="[('display_state', '=', 'approved')]"
+                />
+                <filter
+                    name="completed"
+                    string="Completed"
+                    domain="[('display_state', '=', 'applied')]"
+                />
+                <filter
+                    name="declined"
+                    string="Declined"
+                    domain="[('display_state', '=', 'rejected')]"
+                />
+                <separator />
 
                 <!-- Ownership filters -->
-                <filter name="my_requests" string="My Requests"
-                        domain="[('create_uid', '=', uid)]"/>
-                <separator/>
+                <filter
+                    name="my_requests"
+                    string="My Requests"
+                    domain="[('create_uid', '=', uid)]"
+                />
+                <separator />
 
                 <!-- SLA filters -->
-                <filter name="sla_warning" string="SLA Warning (24h)"
-                        domain="[('pending_since', '&lt;', (datetime.datetime.now() - datetime.timedelta(days=1)))]"
-                        groups="spp_change_request_v2.group_cr_validator"/>
-                <filter name="sla_exceeded" string="SLA Exceeded (48h)"
-                        domain="[('pending_since', '&lt;', (datetime.datetime.now() - datetime.timedelta(days=2)))]"
-                        groups="spp_change_request_v2.group_cr_validator"/>
-                <separator/>
+                <filter
+                    name="sla_warning"
+                    string="SLA Warning (24h)"
+                    domain="[('pending_since', '&lt;', (datetime.datetime.now() - datetime.timedelta(days=1)))]"
+                    groups="spp_change_request_v2.group_cr_validator"
+                />
+                <filter
+                    name="sla_exceeded"
+                    string="SLA Exceeded (48h)"
+                    domain="[('pending_since', '&lt;', (datetime.datetime.now() - datetime.timedelta(days=2)))]"
+                    groups="spp_change_request_v2.group_cr_validator"
+                />
+                <separator />
 
                 <!-- Date filters -->
-                <filter name="today" string="Today"
-                        domain="[('create_date', '&gt;=', datetime.datetime.now().replace(hour=0, minute=0, second=0))]"/>
-                <filter name="this_week" string="This Week"
-                        domain="[('create_date', '&gt;=', (datetime.datetime.now() - datetime.timedelta(days=7)))]"/>
-                <filter name="this_month" string="This Month"
-                        domain="[('create_date', '&gt;=', datetime.datetime.now().replace(day=1, hour=0, minute=0, second=0))]"/>
-                <separator/>
+                <filter
+                    name="today"
+                    string="Today"
+                    domain="[('create_date', '&gt;=', datetime.datetime.now().replace(hour=0, minute=0, second=0))]"
+                />
+                <filter
+                    name="this_week"
+                    string="This Week"
+                    domain="[('create_date', '&gt;=', (datetime.datetime.now() - datetime.timedelta(days=7)))]"
+                />
+                <filter
+                    name="this_month"
+                    string="This Month"
+                    domain="[('create_date', '&gt;=', datetime.datetime.now().replace(day=1, hour=0, minute=0, second=0))]"
+                />
+                <separator />
 
                 <!-- Group by options -->
                 <group>
-                    <filter name="group_type" string="Type"
-                            context="{'group_by': 'request_type_id'}"/>
-                    <filter name="group_state" string="Status"
-                            context="{'group_by': 'display_state'}"/>
-                    <filter name="group_registrant" string="Registrant"
-                            context="{'group_by': 'registrant_id'}"/>
-                    <filter name="group_submitter" string="Submitted By"
-                            context="{'group_by': 'create_uid'}"/>
-                    <filter name="group_date" string="Submission Date"
-                            context="{'group_by': 'create_date:day'}"/>
+                    <filter
+                        name="group_type"
+                        string="Type"
+                        context="{'group_by': 'request_type_id'}"
+                    />
+                    <filter
+                        name="group_state"
+                        string="Status"
+                        context="{'group_by': 'display_state'}"
+                    />
+                    <filter
+                        name="group_registrant"
+                        string="Registrant"
+                        context="{'group_by': 'registrant_id'}"
+                    />
+                    <filter
+                        name="group_submitter"
+                        string="Submitted By"
+                        context="{'group_by': 'create_uid'}"
+                    />
+                    <filter
+                        name="group_date"
+                        string="Submission Date"
+                        context="{'group_by': 'create_date:day'}"
+                    />
                 </group>
             </search>
         </field>
@@ -143,11 +220,14 @@
         <field name="path">approval-queue</field>
         <field name="res_model">spp.change.request</field>
         <field name="view_mode">list,kanban,form</field>
-        <field name="view_ids" eval="[(5, 0, 0),
+        <field
+            name="view_ids"
+            eval="[(5, 0, 0),
             (0, 0, {'view_mode': 'list', 'view_id': ref('spp_change_request_queue_list')}),
             (0, 0, {'view_mode': 'kanban', 'view_id': ref('spp_change_request_kanban')}),
-            (0, 0, {'view_mode': 'form', 'view_id': ref('spp_change_request_form')})]"/>
-        <field name="search_view_id" ref="spp_change_request_queue_search"/>
+            (0, 0, {'view_mode': 'form', 'view_id': ref('spp_change_request_form')})]"
+        />
+        <field name="search_view_id" ref="spp_change_request_queue_search" />
         <field name="domain">[('display_state', '=', 'pending')]</field>
         <field name="context">{}</field>
         <field name="help" type="html">
@@ -168,11 +248,16 @@
         <field name="path">sla-warning</field>
         <field name="res_model">spp.change.request</field>
         <field name="view_mode">list,form</field>
-        <field name="view_ids" eval="[(5, 0, 0),
+        <field
+            name="view_ids"
+            eval="[(5, 0, 0),
             (0, 0, {'view_mode': 'list', 'view_id': ref('spp_change_request_queue_list')}),
-            (0, 0, {'view_mode': 'form', 'view_id': ref('spp_change_request_form')})]"/>
-        <field name="search_view_id" ref="spp_change_request_queue_search"/>
-        <field name="context">{'search_default_sla_warning': 1, 'search_default_under_review': 1}</field>
+            (0, 0, {'view_mode': 'form', 'view_id': ref('spp_change_request_form')})]"
+        />
+        <field name="search_view_id" ref="spp_change_request_queue_search" />
+        <field
+            name="context"
+        >{'search_default_sla_warning': 1, 'search_default_under_review': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 No SLA warnings
@@ -182,5 +267,4 @@
             </p>
         </field>
     </record>
-
 </odoo>

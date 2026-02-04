@@ -227,7 +227,8 @@ rules:
           - pattern: _logger.$METHOD(..., $RECORD.national_id, ...)
           - pattern: _logger.$METHOD(..., $RECORD.tax_id, ...)
           - pattern: _logger.$METHOD(..., $RECORD.vat, ...)
-    message: "Potential PII (national/tax ID) in log message - CRITICAL privacy violation."
+    message:
+      "Potential PII (national/tax ID) in log message - CRITICAL privacy violation."
     severity: ERROR
     languages: [python]
     metadata:

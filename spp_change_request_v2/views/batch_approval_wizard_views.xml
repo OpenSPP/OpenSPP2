@@ -21,7 +21,13 @@
                         <div class="col-4">
                             <div class="card text-center">
                                 <div class="card-body py-2">
-                                    <h3 class="mb-0"><field name="total_count" readonly="1" nolabel="1"/></h3>
+                                    <h3 class="mb-0">
+                                        <field
+                                            name="total_count"
+                                            readonly="1"
+                                            nolabel="1"
+                                        />
+                                    </h3>
                                     <small class="text-muted">Total Selected</small>
                                 </div>
                             </div>
@@ -29,7 +35,13 @@
                         <div class="col-4">
                             <div class="card text-center bg-success-subtle">
                                 <div class="card-body py-2">
-                                    <h3 class="mb-0 text-success"><field name="valid_count" readonly="1" nolabel="1"/></h3>
+                                    <h3 class="mb-0 text-success">
+                                        <field
+                                            name="valid_count"
+                                            readonly="1"
+                                            nolabel="1"
+                                        />
+                                    </h3>
                                     <small class="text-muted">Can Process</small>
                                 </div>
                             </div>
@@ -37,7 +49,13 @@
                         <div class="col-4">
                             <div class="card text-center bg-warning-subtle">
                                 <div class="card-body py-2">
-                                    <h3 class="mb-0 text-warning"><field name="invalid_count" readonly="1" nolabel="1"/></h3>
+                                    <h3 class="mb-0 text-warning">
+                                        <field
+                                            name="invalid_count"
+                                            readonly="1"
+                                            nolabel="1"
+                                        />
+                                    </h3>
                                     <small class="text-muted">Cannot Process</small>
                                 </div>
                             </div>
@@ -46,51 +64,75 @@
 
                     <!-- Action selection -->
                     <group>
-                        <field name="action_type" widget="radio" options="{'horizontal': true}"/>
+                        <field
+                            name="action_type"
+                            widget="radio"
+                            options="{'horizontal': true}"
+                        />
                     </group>
 
                     <!-- Comment -->
                     <group>
-                        <field name="comment"
-                               placeholder="Optional comment (applies to all selected requests)..."
-                               invisible="action_type == 'approve'"/>
-                        <field name="comment"
-                               placeholder="Reason for declining (required)..."
-                               invisible="action_type != 'reject'"
-                               required="action_type == 'reject'"/>
-                        <field name="comment"
-                               placeholder="What changes are needed? (required)..."
-                               invisible="action_type != 'revision'"
-                               required="action_type == 'revision'"/>
+                        <field
+                            name="comment"
+                            placeholder="Optional comment (applies to all selected requests)..."
+                            invisible="action_type == 'approve'"
+                        />
+                        <field
+                            name="comment"
+                            placeholder="Reason for declining (required)..."
+                            invisible="action_type != 'reject'"
+                            required="action_type == 'reject'"
+                        />
+                        <field
+                            name="comment"
+                            placeholder="What changes are needed? (required)..."
+                            invisible="action_type != 'revision'"
+                            required="action_type == 'revision'"
+                        />
                     </group>
 
                     <!-- Selected requests -->
                     <notebook>
                         <page string="Selected Requests" name="requests">
                             <field name="line_ids" nolabel="1">
-                                <list decoration-muted="not can_process"
-                                      decoration-danger="not can_process" editable="bottom">
-                                    <field name="cr_name" string="Reference"/>
-                                    <field name="cr_type" string="Type"/>
-                                    <field name="registrant_name" string="Registrant"/>
-                                    <field name="document_count" string="Docs"/>
-                                    <field name="can_process" column_invisible="1"/>
-                                    <field name="error_message" string="Status"
-                                           invisible="can_process"/>
-                                    <button icon="fa-check text-success" invisible="not can_process"
-                                            title="Ready to process"/>
+                                <list
+                                    decoration-muted="not can_process"
+                                    decoration-danger="not can_process"
+                                    editable="bottom"
+                                >
+                                    <field name="cr_name" string="Reference" />
+                                    <field name="cr_type" string="Type" />
+                                    <field name="registrant_name" string="Registrant" />
+                                    <field name="document_count" string="Docs" />
+                                    <field name="can_process" column_invisible="1" />
+                                    <field
+                                        name="error_message"
+                                        string="Status"
+                                        invisible="can_process"
+                                    />
+                                    <button
+                                        icon="fa-check text-success"
+                                        invisible="not can_process"
+                                        title="Ready to process"
+                                    />
                                 </list>
                             </field>
                         </page>
                     </notebook>
 
                     <!-- Hidden -->
-                    <field name="show_results" invisible="1"/>
+                    <field name="show_results" invisible="1" />
                 </sheet>
                 <footer>
-                    <button string="Confirm" name="action_confirm" type="object"
-                            class="btn-primary" invisible="valid_count == 0"/>
-                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    <button
+                        string="Confirm"
+                        name="action_confirm"
+                        type="object"
+                        class="btn-primary"
+                        invisible="valid_count == 0"
+                    />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
                 </footer>
             </form>
         </field>
@@ -115,7 +157,11 @@
                             <div class="card text-center bg-success-subtle">
                                 <div class="card-body py-2">
                                     <h3 class="mb-0 text-success">
-                                        <field name="success_count" readonly="1" nolabel="1"/>
+                                        <field
+                                            name="success_count"
+                                            readonly="1"
+                                            nolabel="1"
+                                        />
                                     </h3>
                                     <small class="text-muted">Successful</small>
                                 </div>
@@ -125,7 +171,11 @@
                             <div class="card text-center bg-danger-subtle">
                                 <div class="card-body py-2">
                                     <h3 class="mb-0 text-danger">
-                                        <field name="failed_count" readonly="1" nolabel="1"/>
+                                        <field
+                                            name="failed_count"
+                                            readonly="1"
+                                            nolabel="1"
+                                        />
                                     </h3>
                                     <small class="text-muted">Failed</small>
                                 </div>
@@ -135,12 +185,21 @@
 
                     <!-- Results table -->
                     <group>
-                        <field name="result_html" nolabel="1" readonly="1" colspan="2"/>
+                        <field
+                            name="result_html"
+                            nolabel="1"
+                            readonly="1"
+                            colspan="2"
+                        />
                     </group>
                 </sheet>
                 <footer>
-                    <button string="Done" name="action_done" type="object"
-                            class="btn-primary"/>
+                    <button
+                        string="Done"
+                        name="action_done"
+                        type="object"
+                        class="btn-primary"
+                    />
                 </footer>
             </form>
         </field>
@@ -154,9 +213,9 @@
         <field name="name">Batch Approve</field>
         <field name="res_model">spp.cr.batch.approval.wizard</field>
         <field name="view_mode">form</field>
-        <field name="view_id" ref="view_batch_approval_wizard_form"/>
+        <field name="view_id" ref="view_batch_approval_wizard_form" />
         <field name="target">new</field>
-        <field name="binding_model_id" ref="model_spp_change_request"/>
+        <field name="binding_model_id" ref="model_spp_change_request" />
         <field name="binding_view_types">list</field>
         <field name="context">{'default_action_type': 'approve'}</field>
     </record>
@@ -165,9 +224,9 @@
         <field name="name">Batch Decline</field>
         <field name="res_model">spp.cr.batch.approval.wizard</field>
         <field name="view_mode">form</field>
-        <field name="view_id" ref="view_batch_approval_wizard_form"/>
+        <field name="view_id" ref="view_batch_approval_wizard_form" />
         <field name="target">new</field>
-        <field name="binding_model_id" ref="model_spp_change_request"/>
+        <field name="binding_model_id" ref="model_spp_change_request" />
         <field name="binding_view_types">list</field>
         <field name="context">{'default_action_type': 'reject'}</field>
     </record>
@@ -176,11 +235,10 @@
         <field name="name">Batch Request Changes</field>
         <field name="res_model">spp.cr.batch.approval.wizard</field>
         <field name="view_mode">form</field>
-        <field name="view_id" ref="view_batch_approval_wizard_form"/>
+        <field name="view_id" ref="view_batch_approval_wizard_form" />
         <field name="target">new</field>
-        <field name="binding_model_id" ref="model_spp_change_request"/>
+        <field name="binding_model_id" ref="model_spp_change_request" />
         <field name="binding_view_types">list</field>
         <field name="context">{'default_action_type': 'revision'}</field>
     </record>
-
 </odoo>

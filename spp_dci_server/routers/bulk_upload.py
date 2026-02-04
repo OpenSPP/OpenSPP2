@@ -222,7 +222,7 @@ async def _read_file_with_limit(file: UploadFile, max_size: int) -> bytes:
         if len(content) > max_size:
             raise HTTPException(
                 status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-                detail=f"File exceeds maximum size of {max_size // (1024*1024)}MB",
+                detail=f"File exceeds maximum size of {max_size // (1024 * 1024)}MB",
             )
 
     return content

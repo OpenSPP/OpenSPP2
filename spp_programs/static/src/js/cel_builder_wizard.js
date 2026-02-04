@@ -91,17 +91,8 @@ patch(FormController.prototype, {
      */
     _watchForExamples() {
         // Use MutationObserver to detect when examples are loaded
-        this._examplesObserver = new MutationObserver((mutations) => {
-            for (const mutation of mutations) {
-                if (mutation.addedNodes.length) {
-                    const hasExamples = Array.from(mutation.addedNodes).some((node) => {
-                        return (
-                            node.nodeType === 1 &&
-                            (node.classList?.contains("cel-examples") || node.querySelector?.(".cel-clickable"))
-                        );
-                    });
-                }
-            }
+        this._examplesObserver = new MutationObserver(() => {
+            // Observer is set up to watch for DOM changes when examples are loaded
         });
 
         // Start observing
@@ -144,17 +135,20 @@ patch(FormController.prototype, {
             // Determine new value:
             // - If field is empty, just set the expression
             // - If field has content, combine with AND operator
-            let newValue;
+            let newValue = null;
             if (currentValue.trim()) {
                 // Wrap existing expression in parentheses if it doesn't have them
                 const wrappedCurrent =
-                    currentValue.trim().startsWith("(") && currentValue.trim().endsWith(")")
+                    currentValue.trim().startsWith("(") &&
+                    currentValue.trim().endsWith(")")
                         ? currentValue.trim()
                         : `(${currentValue.trim()})`;
 
                 // Wrap new expression in parentheses
                 const wrappedNew =
-                    expression.startsWith("(") && expression.endsWith(")") ? expression : `(${expression})`;
+                    expression.startsWith("(") && expression.endsWith(")")
+                        ? expression
+                        : `(${expression})`;
 
                 newValue = `${wrappedCurrent} && ${wrappedNew}`;
             } else {
@@ -183,11 +177,11 @@ patch(FormController.prototype, {
                     await this.model.root.update({
                         cel_expression: newValue,
                     });
-                } catch (e) {
+                } catch {
                     // Model update not needed
                 }
             }
-        } catch (error) {
+        } catch {
             // Silently handle errors
         }
     },

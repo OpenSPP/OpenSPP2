@@ -104,8 +104,7 @@ class Claim169IssuerConfig(models.Model):
             )
             if duplicate:
                 raise ValidationError(
-                    _("Only one default issuer allowed per company. " "'%s' is already set as default.")
-                    % duplicate.name
+                    _("Only one default issuer allowed per company. '%s' is already set as default.") % duplicate.name
                 )
 
     def action_view_credentials(self):

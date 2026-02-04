@@ -10,7 +10,11 @@
         <field name="arch" type="xml">
             <list editable="top">
                 <field name="name" required="1" />
-                <field name="namespace_uri" placeholder="urn:gov:xx:agency:id-type" optional="show" />
+                <field
+                    name="namespace_uri"
+                    placeholder="urn:gov:xx:agency:id-type"
+                    optional="show"
+                />
                 <field name="id_validation" string="ID Type Validation" />
             </list>
         </field>
@@ -25,7 +29,10 @@
                 <sheet>
                     <group>
                         <field name="name" required="1" />
-                        <field name="namespace_uri" placeholder="urn:gov:xx:agency:id-type" />
+                        <field
+                            name="namespace_uri"
+                            placeholder="urn:gov:xx:agency:id-type"
+                        />
                         <field name="id_validation" string="ID Type Validation" />
                     </group>
                 </sheet>
@@ -44,7 +51,8 @@
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Add an ID Type!
-            </p><p>
+            </p>
+            <p>
                 Click the create button to enter a new ID type.
             </p>
         </field>
@@ -63,5 +71,4 @@
         <field name="view_id" ref="view_id_type_form" />
         <field name="act_window_id" ref="action_id_type" />
     </record>
-
 </odoo>

@@ -5,7 +5,12 @@
         <field name="name">spp.dci.crvs.event.tree</field>
         <field name="model">spp.dci.crvs.event</field>
         <field name="arch" type="xml">
-            <list decoration-info="state == 'received'" decoration-warning="state == 'processing'" decoration-success="state == 'processed'" decoration-danger="state == 'error'">
+            <list
+                decoration-info="state == 'received'"
+                decoration-warning="state == 'processing'"
+                decoration-success="state == 'processed'"
+                decoration-danger="state == 'error'"
+            >
                 <field name="name" />
                 <field name="event_type" />
                 <field name="person_id" />
@@ -13,7 +18,14 @@
                 <field name="identifier_value" />
                 <field name="event_date" />
                 <field name="received_date" />
-                <field name="state" widget="badge" decoration-info="state == 'received'" decoration-warning="state == 'processing'" decoration-success="state == 'processed'" decoration-danger="state == 'error'" />
+                <field
+                    name="state"
+                    widget="badge"
+                    decoration-info="state == 'received'"
+                    decoration-warning="state == 'processing'"
+                    decoration-success="state == 'processed'"
+                    decoration-danger="state == 'error'"
+                />
             </list>
         </field>
     </record>
@@ -25,7 +37,11 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <field name="state" widget="statusbar" statusbar_visible="received,processing,processed" />
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="received,processing,processed"
+                    />
                     <button
                         name="process_event"
                         string="Process Event"
@@ -49,7 +65,11 @@
                             class="oe_stat_button"
                             icon="fa-archive"
                         >
-                            <field name="active" widget="boolean_button" options="{'terminology': 'archive'}" />
+                            <field
+                                name="active"
+                                widget="boolean_button"
+                                options="{'terminology': 'archive'}"
+                            />
                         </button>
                     </div>
                     <div class="oe_title">
@@ -84,10 +104,17 @@
                     </group>
                     <notebook>
                         <page string="Raw Data" name="raw_data">
-                            <field name="raw_data" widget="ace" options="{'mode': 'javascript'}" />
+                            <field
+                                name="raw_data"
+                                widget="ace"
+                                options="{'mode': 'javascript'}"
+                            />
                         </page>
                         <page string="Notes" name="notes">
-                            <field name="notes" placeholder="Additional notes about this event..." />
+                            <field
+                                name="notes"
+                                placeholder="Additional notes about this event..."
+                            />
                         </page>
                     </notebook>
                 </sheet>

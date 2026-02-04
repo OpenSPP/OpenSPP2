@@ -1,23 +1,29 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Hazard Management Security Groups -->
 
     <!-- Technical Groups (Tier 3) -->
     <record id="group_hazard_read" model="res.groups">
         <field name="name">Hazard: Read</field>
-        <field name="comment">Technical group for read access to hazard management models.</field>
+        <field
+            name="comment"
+        >Technical group for read access to hazard management models.</field>
     </record>
 
     <record id="group_hazard_write" model="res.groups">
         <field name="name">Hazard: Write</field>
-        <field name="comment">Technical group for write access to hazard management models.</field>
-        <field name="implied_ids" eval="[Command.link(ref('group_hazard_read'))]"/>
+        <field
+            name="comment"
+        >Technical group for write access to hazard management models.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_hazard_read'))]" />
     </record>
 
     <record id="group_hazard_create" model="res.groups">
         <field name="name">Hazard: Create</field>
-        <field name="comment">Technical group for create access to hazard management models.</field>
-        <field name="implied_ids" eval="[Command.link(ref('group_hazard_write'))]"/>
+        <field
+            name="comment"
+        >Technical group for create access to hazard management models.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_hazard_write'))]" />
     </record>
 
     <!-- User-Facing Groups (Tier 2) -->
@@ -25,48 +31,56 @@
     <!-- Viewer: Read-only access -->
     <record id="privilege_hazard_viewer" model="res.groups.privilege">
         <field name="name">Viewer</field>
-        <field name="category_id" ref="spp_security.category_spp_hazard"/>
+        <field name="category_id" ref="spp_security.category_spp_hazard" />
     </record>
 
     <record id="group_hazard_viewer" model="res.groups">
         <field name="name">Viewer</field>
-        <field name="privilege_id" ref="privilege_hazard_viewer"/>
-        <field name="comment">Can view hazard incidents, categories, and impacts but cannot modify.</field>
-        <field name="implied_ids" eval="[Command.link(ref('group_hazard_read'))]"/>
+        <field name="privilege_id" ref="privilege_hazard_viewer" />
+        <field
+            name="comment"
+        >Can view hazard incidents, categories, and impacts but cannot modify.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_hazard_read'))]" />
     </record>
 
     <!-- Officer: Read, Write, Create access -->
     <record id="privilege_hazard_officer" model="res.groups.privilege">
         <field name="name">Officer</field>
-        <field name="category_id" ref="spp_security.category_spp_hazard"/>
+        <field name="category_id" ref="spp_security.category_spp_hazard" />
     </record>
 
     <record id="group_hazard_officer" model="res.groups">
         <field name="name">Officer</field>
-        <field name="privilege_id" ref="privilege_hazard_officer"/>
-        <field name="comment">Can create and manage hazard incidents and impacts.</field>
-        <field name="implied_ids" eval="[
+        <field name="privilege_id" ref="privilege_hazard_officer" />
+        <field
+            name="comment"
+        >Can create and manage hazard incidents and impacts.</field>
+        <field
+            name="implied_ids"
+            eval="[
             Command.link(ref('group_hazard_create')),
             Command.link(ref('group_hazard_viewer')),
-        ]"/>
+        ]"
+        />
     </record>
 
     <!-- Manager: Full CRUD + Admin functions -->
     <record id="privilege_hazard_manager" model="res.groups.privilege">
         <field name="name">Manager</field>
-        <field name="category_id" ref="spp_security.category_spp_hazard"/>
+        <field name="category_id" ref="spp_security.category_spp_hazard" />
     </record>
 
     <record id="group_hazard_manager" model="res.groups">
         <field name="name">Manager</field>
-        <field name="privilege_id" ref="privilege_hazard_manager"/>
-        <field name="comment">Full access to hazard management including configuration.</field>
-        <field name="implied_ids" eval="[Command.link(ref('group_hazard_officer'))]"/>
+        <field name="privilege_id" ref="privilege_hazard_manager" />
+        <field
+            name="comment"
+        >Full access to hazard management including configuration.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_hazard_officer'))]" />
     </record>
 
     <!-- Link Manager to SPP Admin -->
     <record id="spp_security.group_spp_admin" model="res.groups">
-        <field name="implied_ids" eval="[Command.link(ref('group_hazard_manager'))]"/>
+        <field name="implied_ids" eval="[Command.link(ref('group_hazard_manager'))]" />
     </record>
-
 </odoo>

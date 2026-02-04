@@ -84,7 +84,7 @@ class Claim169AttributeMapping(models.Model):
                 )
                 if duplicate:
                     raise ValidationError(
-                        _("Only one active mapping allowed per claim number. " "Claim %s is already mapped by '%s'")
+                        _("Only one active mapping allowed per claim number. Claim %s is already mapped by '%s'")
                         % (record.claim_number, duplicate.name)
                     )
 
@@ -250,7 +250,7 @@ class Claim169AttributeMapping(models.Model):
         CelService = self.env.get("spp.cel.service")
         if not CelService:
             _logger.warning(
-                "CEL service not available (spp_cel_domain not installed), " "returning raw value for expression: %s",
+                "CEL service not available (spp_cel_domain not installed), returning raw value for expression: %s",
                 self.cel_expression,
             )
             return value

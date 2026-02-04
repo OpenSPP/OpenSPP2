@@ -1,15 +1,15 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
-        <!-- Approval Domain Record Rules -->
-        <!-- Following ADR-004 naming convention: rule_{model}_{purpose} -->
+    <!-- Approval Domain Record Rules -->
+    <!-- Following ADR-004 naming convention: rule_{model}_{purpose} -->
 
-        <!-- Approvers can see reviews they requested, are assigned to via user list, or via group membership -->
+    <!-- Approvers can see reviews they requested, are assigned to via user list, or via group membership -->
     <!-- Managers can see all reviews -->
     <record id="rule_spp_approval_review_manager" model="ir.rule">
         <field name="name">Approval Review: Manager All Reviews</field>
-        <field name="model_id" ref="model_spp_approval_review"/>
+        <field name="model_id" ref="model_spp_approval_review" />
         <field name="domain_force">[(1, '=', 1)]</field>
-        <field name="groups" eval="[Command.link(ref('group_approval_manager'))]"/>
+        <field name="groups" eval="[Command.link(ref('group_approval_manager'))]" />
         <field name="perm_read">1</field>
         <field name="perm_write">1</field>
         <field name="perm_create">1</field>
@@ -19,7 +19,7 @@
     <!-- Multi-company rule for approval definitions -->
     <record id="rule_spp_approval_definition_company" model="ir.rule">
         <field name="name">Approval Definition: Multi-Company Access</field>
-        <field name="model_id" ref="model_spp_approval_definition"/>
+        <field name="model_id" ref="model_spp_approval_definition" />
         <field name="domain_force">[
             '|',
             ('company_id', '=', False),
@@ -31,7 +31,7 @@
     <!-- Multi-company rule for freeze periods -->
     <record id="rule_spp_approval_freeze_company" model="ir.rule">
         <field name="name">Approval Freeze: Multi-Company Access</field>
-        <field name="model_id" ref="model_spp_approval_freeze"/>
+        <field name="model_id" ref="model_spp_approval_freeze" />
         <field name="domain_force">[
             '|',
             ('company_id', '=', False),

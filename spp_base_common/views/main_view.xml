@@ -1,5 +1,4 @@
 <odoo>
-
     <menuitem
         id="spp_registry.spp_main_menu_root"
         name="Registry"
@@ -18,5 +17,4 @@
         name="Settings"
         web_icon="spp_base_common,static/description/OpenSPP-Icons-Setting.png"
     />
-
 </odoo>

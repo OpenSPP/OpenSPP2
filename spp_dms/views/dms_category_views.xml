@@ -1,5 +1,4 @@
 <odoo>
-
     <record id="view_spp_dms_category_search" model="ir.ui.view">
         <field name="name">view_spp_dms_category_search</field>
         <field name="model">spp.dms.category</field>
@@ -35,9 +34,15 @@
                     </div>
                     <group>
                         <group string="File Type Restrictions">
-                            <field name="allowed_extensions" placeholder="e.g., pdf,jpg,png,docx" />
+                            <field
+                                name="allowed_extensions"
+                                placeholder="e.g., pdf,jpg,png,docx"
+                            />
                             <field name="blocked_extensions" />
-                            <field name="allowed_mimetypes" placeholder="e.g., application/pdf,image/*" />
+                            <field
+                                name="allowed_mimetypes"
+                                placeholder="e.g., application/pdf,image/*"
+                            />
                         </group>
                         <group string="Size Limits">
                             <field name="max_file_size_mb" />
@@ -69,5 +74,4 @@
         parent="menu_spp_dms_config"
         action="action_spp_dms_category"
     />
-
 </odoo>

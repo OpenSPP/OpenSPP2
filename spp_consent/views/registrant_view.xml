@@ -27,7 +27,7 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
             </xpath>
 
             <xpath expr="//div[@name='button_box']" position="inside">
-              <button
+                <button
                     type="object"
                     class="oe_stat_button"
                     icon="fa-sticky-note-o"
@@ -35,13 +35,12 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     invisible="is_group"
                     groups="spp_registry.group_registry_officer,spp_registry.group_registry_manager"
                 >
-                      <div class="o_form_field o_stat_info">
-                          <span class="o_stat_text">Record</span>
-                          <span class="o_stat_text">Consent</span>
-                      </div>
-              </button>
+                    <div class="o_form_field o_stat_info">
+                        <span class="o_stat_text">Record</span>
+                        <span class="o_stat_text">Consent</span>
+                    </div>
+                </button>
             </xpath>
-
         </field>
     </record>
 
@@ -51,7 +50,10 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         <field name="inherit_id" ref="spp_registry.view_individuals_form" />
         <field name="arch" type="xml">
             <!-- Make verification section visible -->
-            <xpath expr="//group[@name='group_verification_section']" position="attributes">
+            <xpath
+                expr="//group[@name='group_verification_section']"
+                position="attributes"
+            >
                 <attribute name="invisible">0</attribute>
             </xpath>
 
@@ -67,7 +69,7 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
             </xpath>
 
             <xpath expr="//div[@name='button_box']" position="inside">
-              <button
+                <button
                     type="object"
                     class="oe_stat_button"
                     icon="fa-sticky-note-o"
@@ -75,14 +77,12 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     invisible="not is_group"
                     groups="spp_registry.group_registry_officer,spp_registry.group_registry_manager"
                 >
-                      <div class="o_form_field o_stat_info">
-                          <span class="o_stat_text">Record</span>
-                          <span class="o_stat_text">Consent</span>
-                      </div>
-              </button>
+                    <div class="o_form_field o_stat_info">
+                        <span class="o_stat_text">Record</span>
+                        <span class="o_stat_text">Consent</span>
+                    </div>
+                </button>
             </xpath>
-
         </field>
     </record>
-
 </odoo>

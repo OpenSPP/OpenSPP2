@@ -20,7 +20,7 @@ const symbolCache = new Map();
 export const celSymbolService = {
     dependencies: [],
 
-    start(env) {
+    start() {
         return {
             /**
              * Get symbols for a profile
@@ -94,7 +94,10 @@ export const celSymbolService = {
                     const result = await rpc("/spp_cel/profiles", {});
                     return result;
                 } catch (error) {
-                    console.error("[CelSymbolService] Failed to fetch profiles:", error);
+                    console.error(
+                        "[CelSymbolService] Failed to fetch profiles:",
+                        error
+                    );
                     return [];
                 }
             },

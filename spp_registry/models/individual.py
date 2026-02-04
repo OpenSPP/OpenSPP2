@@ -170,7 +170,7 @@ class SPPIndividual(models.Model):
             groups.invalidate_group_metrics()
 
             _logger.debug(
-                "[spp.registry] Individual demographic change triggered " "invalidation for %d groups",
+                "[spp.registry] Individual demographic change triggered invalidation for %d groups",
                 len(groups),
             )
 

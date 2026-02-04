@@ -1,7 +1,8 @@
 # DRIMS UX Gap Analysis Specification
 
-This document identifies missing views, actions, buttons, and wizards required for complete end-to-end (E2E) operations
-in the DRIMS module. Each gap is categorized by severity and includes implementation recommendations.
+This document identifies missing views, actions, buttons, and wizards required for
+complete end-to-end (E2E) operations in the DRIMS module. Each gap is categorized by
+severity and includes implementation recommendations.
 
 ## Document Info
 
@@ -35,15 +36,20 @@ in the DRIMS module. Each gap is categorized by severity and includes implementa
 | Component | `views/donation_views.xml` |
 | Model     | `spp.drims.donation`       |
 
-**Problem:** The donation form has a "Mark Received" button but no buttons for `action_inspect()` or `action_stock()`.
-Users cannot progress donations beyond the "received" state.
+**Problem:** The donation form has a "Mark Received" button but no buttons for
+`action_inspect()` or `action_stock()`. Users cannot progress donations beyond the
+"received" state.
 
 **Current State:**
 
 ```xml
-<button name="action_mark_received" string="Mark Received"
-        type="object" class="btn-primary"
-        invisible="state != 'announced'"/>
+<button
+  name="action_mark_received"
+  string="Mark Received"
+  type="object"
+  class="btn-primary"
+  invisible="state != 'announced'"
+/>
 <!-- No inspect or stock buttons exist -->
 ```
 
@@ -83,8 +89,8 @@ Users cannot progress donations beyond the "received" state.
 | Component | `views/donation_views.xml`, `models/donation.py` |
 | Model     | `spp.drims.donation`                             |
 
-**Problem:** `DONATION_STATE_CANCELLED` exists in state transitions but there is no UI button or method to cancel a
-donation.
+**Problem:** `DONATION_STATE_CANCELLED` exists in state transitions but there is no UI
+button or method to cancel a donation.
 
 **Required Implementation:**
 
@@ -108,9 +114,13 @@ def action_cancel(self):
 2. Add button to `views/donation_views.xml`:
 
 ```xml
-<button name="action_cancel" string="Cancel"
-        type="object" class="btn-secondary"
-        invisible="state in ('stocked', 'rejected', 'cancelled')"/>
+<button
+  name="action_cancel"
+  string="Cancel"
+  type="object"
+  class="btn-secondary"
+  invisible="state in ('stocked', 'rejected', 'cancelled')"
+/>
 ```
 
 **Acceptance Criteria:**
@@ -129,16 +139,18 @@ def action_cancel(self):
 | Component | `views/donation_views.xml`                      |
 | Model     | `spp.drims.donation`, `spp.drims.donation.line` |
 
-**Problem:** When donations arrive partially (e.g., 80 of 100 pledged items), users cannot edit received quantities per
-line item. The `quantity_received` field exists but is not visible or editable in the form view.
+**Problem:** When donations arrive partially (e.g., 80 of 100 pledged items), users
+cannot edit received quantities per line item. The `quantity_received` field exists but
+is not visible or editable in the form view.
 
 **Current State:** Donation line list in form does not show `quantity_received`:
 
 ```xml
 <list editable="bottom">
-    <field name="product_id"/>
-    <field name="quantity"/>  <!-- This is pledged quantity -->
-    <!-- quantity_received not shown -->
+  <field name="product_id" />
+  <field name="quantity" />
+  <!-- This is pledged quantity -->
+  <!-- quantity_received not shown -->
 </list>
 ```
 
@@ -148,13 +160,16 @@ line item. The `quantity_received` field exists but is not visible or editable i
 
 ```xml
 <list editable="bottom">
-    <field name="product_id" readonly="parent.state != 'announced'"/>
-    <field name="quantity_pledged" string="Pledged"/>
-    <field name="quantity_received" string="Received"
-           readonly="parent.state not in ('announced', 'received')"/>
-    <field name="uom_id"/>
-    <field name="condition_id" readonly="parent.state != 'inspected'"/>
-    <!-- ... -->
+  <field name="product_id" readonly="parent.state != 'announced'" />
+  <field name="quantity_pledged" string="Pledged" />
+  <field
+    name="quantity_received"
+    string="Received"
+    readonly="parent.state not in ('announced', 'received')"
+  />
+  <field name="uom_id" />
+  <field name="condition_id" readonly="parent.state != 'inspected'" />
+  <!-- ... -->
 </list>
 ```
 
@@ -185,10 +200,11 @@ receipt_variance = fields.Float(
 | Component | `views/donation_views.xml` |
 | Model     | `spp.drims.donation`       |
 
-**Problem:** Donations have list, form, graph, and pivot views but no kanban view for visual state tracking.
+**Problem:** Donations have list, form, graph, and pivot views but no kanban view for
+visual state tracking.
 
-**Required Implementation:** Add kanban view grouped by state with visual cards showing donor, warehouse, expected date,
-and item count.
+**Required Implementation:** Add kanban view grouped by state with visual cards showing
+donor, warehouse, expected date, and item count.
 
 **Acceptance Criteria:**
 
@@ -201,7 +217,8 @@ and item count.
 
 ## 2. Request Lifecycle Gaps
 
-**Current Workflow:** Draft → Submitted → Pending → Approved/Rejected → Allocated → Dispatched → Delivered
+**Current Workflow:** Draft → Submitted → Pending → Approved/Rejected → Allocated →
+Dispatched → Delivered
 
 ### GAP-REQ-001: Missing Source Warehouse Field in Form
 
@@ -211,8 +228,9 @@ and item count.
 | Component | `views/request_views.xml` |
 | Model     | `spp.drims.request`       |
 
-**Problem:** The `source_warehouse_id` field exists in the model but is not displayed in the request form view. Users
-cannot select a source warehouse, which is required for allocation.
+**Problem:** The `source_warehouse_id` field exists in the model but is not displayed in
+the request form view. Users cannot select a source warehouse, which is required for
+allocation.
 
 **Required Implementation:**
 
@@ -220,9 +238,11 @@ Add field to request form in the "Request Details" group (visible after approval
 
 ```xml
 <group string="Fulfillment" invisible="approval_state != 'approved'">
-    <field name="source_warehouse_id"
-           options="{'no_create': True}"
-           required="approval_state == 'approved'"/>
+  <field
+    name="source_warehouse_id"
+    options="{'no_create': True}"
+    required="approval_state == 'approved'"
+  />
 </group>
 ```
 
@@ -242,19 +262,22 @@ Add field to request form in the "Request Details" group (visible after approval
 | Component | `views/request_views.xml` |
 | Model     | `spp.drims.request`       |
 
-**Problem:** The `action_allocate()` method exists but there is no button in the form view to trigger it.
+**Problem:** The `action_allocate()` method exists but there is no button in the form
+view to trigger it.
 
 **Required Implementation:**
 
 Add button to form header:
 
 ```xml
-<button name="action_allocate"
-        string="Allocate Stock"
-        type="object"
-        class="btn-primary"
-        invisible="approval_state != 'approved' or state == 'allocated'"
-        data-hotkey="l"/>
+<button
+  name="action_allocate"
+  string="Allocate Stock"
+  type="object"
+  class="btn-primary"
+  invisible="approval_state != 'approved' or state == 'allocated'"
+  data-hotkey="l"
+/>
 ```
 
 **Acceptance Criteria:**
@@ -275,8 +298,9 @@ Add button to form header:
 | Component | `views/request_views.xml`, `models/request.py` |
 | Model     | `spp.drims.request`                            |
 
-**Problem:** After allocation, there is no way to create the dispatch (stock.picking) from the request. The workflow
-documentation shows this step but no method or button exists.
+**Problem:** After allocation, there is no way to create the dispatch (stock.picking)
+from the request. The workflow documentation shows this step but no method or button
+exists.
 
 **Required Implementation:**
 
@@ -343,12 +367,14 @@ def action_create_dispatch(self):
 2. Add button to `views/request_views.xml`:
 
 ```xml
-<button name="action_create_dispatch"
-        string="Create Dispatch"
-        type="object"
-        class="btn-primary"
-        invisible="state != 'allocated'"
-        data-hotkey="d"/>
+<button
+  name="action_create_dispatch"
+  string="Create Dispatch"
+  type="object"
+  class="btn-primary"
+  invisible="state != 'allocated'"
+  data-hotkey="d"
+/>
 ```
 
 **Acceptance Criteria:**
@@ -369,7 +395,8 @@ def action_create_dispatch(self):
 | Component | `wizard/` (new), `views/request_template_views.xml` |
 | Model     | `spp.drims.request.template`                        |
 
-**Problem:** Request templates exist and have an `action_create_request()` method, but there's no wizard to:
+**Problem:** Request templates exist and have an `action_create_request()` method, but
+there's no wizard to:
 
 - Select incident context
 - Adjust quantities before creation
@@ -423,10 +450,12 @@ class RequestFromTemplateWizard(models.TransientModel):
 | Model     | `spp.drims.request`                            |
 | Status    | ✅ **IMPLEMENTED**                             |
 
-**Problem:** Approval SLA definitions exist (Fast-Track: 0 days, Standard: 1 day, etc.) but there is no visual indicator
-showing whether a pending request is on-time, at-risk, or breached.
+**Problem:** Approval SLA definitions exist (Fast-Track: 0 days, Standard: 1 day, etc.)
+but there is no visual indicator showing whether a pending request is on-time, at-risk,
+or breached.
 
-**Implementation:** SLA status is now computed based on priority level and configurable thresholds.
+**Implementation:** SLA status is now computed based on priority level and configurable
+thresholds.
 
 **Configurable System Parameters:**
 
@@ -457,8 +486,9 @@ Administrators can adjust these via Settings → Technical → System Parameters
 | Component | `views/request_views.xml`                     |
 | Model     | `spp.drims.request`, `spp.drims.request.line` |
 
-**Problem:** Request lines have `quantity_allocated`, `quantity_dispatched`, `quantity_delivered` fields but there's no
-summary view showing fulfillment progress across all lines.
+**Problem:** Request lines have `quantity_allocated`, `quantity_dispatched`,
+`quantity_delivered` fields but there's no summary view showing fulfillment progress
+across all lines.
 
 **Required Implementation:**
 
@@ -466,16 +496,16 @@ summary view showing fulfillment progress across all lines.
 
 ```xml
 <group string="Fulfillment Progress" invisible="approval_state not in ('approved',)">
-    <group>
-        <field name="total_requested" string="Requested"/>
-        <field name="total_allocated" string="Allocated"/>
-        <field name="allocation_pct" widget="progressbar"/>
-    </group>
-    <group>
-        <field name="total_dispatched" string="Dispatched"/>
-        <field name="total_delivered" string="Delivered"/>
-        <field name="fulfillment_pct" widget="progressbar"/>
-    </group>
+  <group>
+    <field name="total_requested" string="Requested" />
+    <field name="total_allocated" string="Allocated" />
+    <field name="allocation_pct" widget="progressbar" />
+  </group>
+  <group>
+    <field name="total_dispatched" string="Dispatched" />
+    <field name="total_delivered" string="Delivered" />
+    <field name="fulfillment_pct" widget="progressbar" />
+  </group>
 </group>
 ```
 
@@ -500,8 +530,9 @@ summary view showing fulfillment progress across all lines.
 | Component | `wizard/` (new)      |
 | Model     | `spp.drims.request`  |
 
-**Problem:** The FEFO allocation logic runs immediately when `action_allocate()` is called. Users cannot preview what
-will be allocated or see stock availability before committing.
+**Problem:** The FEFO allocation logic runs immediately when `action_allocate()` is
+called. Users cannot preview what will be allocated or see stock availability before
+committing.
 
 **Required Implementation:**
 
@@ -551,19 +582,21 @@ class AllocationPreviewWizard(models.TransientModel):
 | Component | `views/stock_picking_views.xml` |
 | Model     | `stock.picking`                 |
 
-**Problem:** `waybill_template.xml` exists as a report template but there's no button in the stock picking form to print
-the waybill.
+**Problem:** `waybill_template.xml` exists as a report template but there's no button in
+the stock picking form to print the waybill.
 
 **Required Implementation:**
 
 Add print button to picking form header:
 
 ```xml
-<button name="action_print_waybill"
-        string="Print Waybill"
-        type="object"
-        class="btn-secondary"
-        invisible="drims_type != 'request_dispatch'"/>
+<button
+  name="action_print_waybill"
+  string="Print Waybill"
+  type="object"
+  class="btn-secondary"
+  invisible="drims_type != 'request_dispatch'"
+/>
 ```
 
 **Acceptance Criteria:**
@@ -582,7 +615,8 @@ Add print button to picking form header:
 | Component | `views/stock_picking_views.xml` |
 | Model     | `stock.picking`                 |
 
-**Problem:** No calendar or timeline view to plan dispatches based on `date_needed` from linked requests.
+**Problem:** No calendar or timeline view to plan dispatches based on `date_needed` from
+linked requests.
 
 **Required Implementation:**
 
@@ -590,18 +624,20 @@ Add calendar view for dispatch planning:
 
 ```xml
 <record id="view_picking_calendar_drims" model="ir.ui.view">
-    <field name="name">stock.picking.calendar.drims</field>
-    <field name="model">stock.picking</field>
-    <field name="arch" type="xml">
-        <calendar string="Dispatch Planning"
-                  date_start="scheduled_date"
-                  color="beneficiary_area_id"
-                  mode="month">
-            <field name="name"/>
-            <field name="beneficiary_area_id"/>
-            <field name="state"/>
-        </calendar>
-    </field>
+  <field name="name">stock.picking.calendar.drims</field>
+  <field name="model">stock.picking</field>
+  <field name="arch" type="xml">
+    <calendar
+      string="Dispatch Planning"
+      date_start="scheduled_date"
+      color="beneficiary_area_id"
+      mode="month"
+    >
+      <field name="name" />
+      <field name="beneficiary_area_id" />
+      <field name="state" />
+    </calendar>
+  </field>
 </record>
 ```
 
@@ -624,13 +660,12 @@ Add calendar view for dispatch planning:
 | Component | `models/stock_picking.py`           |
 | Model     | `stock.picking`, `spp.drims.return` |
 
-**Problem:** The "Create Return" button exists on completed dispatches but the logic may not properly populate return
-lines from the original dispatch quantities.
+**Problem:** The "Create Return" button exists on completed dispatches but the logic may
+not properly populate return lines from the original dispatch quantities.
 
 **Required Verification and Fix:**
 
 1. Verify `action_create_drims_return()` method:
-
    - Creates return record linked to original picking
    - Populates return lines with dispatched quantities
    - Sets correct condition defaults
@@ -665,8 +700,8 @@ class CreateReturnWizard(models.TransientModel):
 | Component | `views/return_views.xml`, `models/returns.py` |
 | Model     | `spp.drims.return.line`                       |
 
-**Problem:** Return lines have `condition_id` but there's no clear workflow for what happens to items based on condition
-(good → restock, damaged → dispose, etc.)
+**Problem:** Return lines have `condition_id` but there's no clear workflow for what
+happens to items based on condition (good → restock, damaged → dispose, etc.)
 
 **Required Implementation:**
 
@@ -705,8 +740,9 @@ def _compute_disposition(self):
 
 ## 5. Alert Management Gaps
 
-> **REVIEW NOTE (2026-01-01):** GAP-ALT-001 and GAP-ALT-002 were initially flagged as critical gaps. Upon deeper review,
-> these are **NOT GAPS** - the base `spp_alerts` module provides:
+> **REVIEW NOTE (2026-01-01):** GAP-ALT-001 and GAP-ALT-002 were initially flagged as
+> critical gaps. Upon deeper review, these are **NOT GAPS** - the base `spp_alerts`
+> module provides:
 >
 > - `action_acknowledge()` method with button in form header
 > - `action_resolve()` method with button in form header
@@ -721,8 +757,9 @@ def _compute_disposition(self):
 | Severity | ~~:red_circle: Critical~~ ✅ Not a gap   |
 | Status   | **RESOLVED - Inherited from spp_alerts** |
 
-The base `spp.alert` model in `spp_alerts` module provides `action_acknowledge()` method and the button is defined in
-`spp_alerts/views/alert_views.xml`. DRIMS alerts inherit this via view inheritance.
+The base `spp.alert` model in `spp_alerts` module provides `action_acknowledge()` method
+and the button is defined in `spp_alerts/views/alert_views.xml`. DRIMS alerts inherit
+this via view inheritance.
 
 ---
 
@@ -761,27 +798,33 @@ Add smart buttons based on alert type:
 
 ```xml
 <div class="oe_button_box" name="button_box">
-    <button name="action_view_product_stock"
-            type="object"
-            class="oe_stat_button"
-            icon="fa-cubes"
-            invisible="alert_type != 'low_stock'">
-        <span>View Stock</span>
-    </button>
-    <button name="action_create_transfer"
-            type="object"
-            class="oe_stat_button"
-            icon="fa-exchange"
-            invisible="alert_type != 'low_stock'">
-        <span>Request Transfer</span>
-    </button>
-    <button name="action_view_request"
-            type="object"
-            class="oe_stat_button"
-            icon="fa-list-alt"
-            invisible="request_id == False">
-        <span>View Request</span>
-    </button>
+  <button
+    name="action_view_product_stock"
+    type="object"
+    class="oe_stat_button"
+    icon="fa-cubes"
+    invisible="alert_type != 'low_stock'"
+  >
+    <span>View Stock</span>
+  </button>
+  <button
+    name="action_create_transfer"
+    type="object"
+    class="oe_stat_button"
+    icon="fa-exchange"
+    invisible="alert_type != 'low_stock'"
+  >
+    <span>Request Transfer</span>
+  </button>
+  <button
+    name="action_view_request"
+    type="object"
+    class="oe_stat_button"
+    icon="fa-list-alt"
+    invisible="request_id == False"
+  >
+    <span>View Request</span>
+  </button>
 </div>
 ```
 
@@ -804,8 +847,8 @@ Add smart buttons based on alert type:
 | Component | `wizard/` (new)        |
 | Model     | `stock.quant` (extend) |
 
-**Problem:** No DRIMS-specific way to adjust stock with incident tracking. Standard Odoo inventory adjustment doesn't
-capture DRIMS context (incident, reason, authorization).
+**Problem:** No DRIMS-specific way to adjust stock with incident tracking. Standard Odoo
+inventory adjustment doesn't capture DRIMS context (incident, reason, authorization).
 
 **Required Implementation:**
 
@@ -853,8 +896,8 @@ class DrimsStockAdjustmentWizard(models.TransientModel):
 | Component | `wizard/` (new)       |
 | Model     | `stock.picking`       |
 
-**Problem:** No easy way to transfer stock between DRIMS warehouses. Standard Odoo internal transfers don't have DRIMS
-context.
+**Problem:** No easy way to transfer stock between DRIMS warehouses. Standard Odoo
+internal transfers don't have DRIMS context.
 
 **Required Implementation:**
 
@@ -894,7 +937,8 @@ class DrimsInterWarehouseTransfer(models.TransientModel):
 | Component | `wizard/` (new)      |
 | Model     | `stock.lot`          |
 
-**Problem:** Expiry alerts fire but there's no wizard to dispose of expired items properly.
+**Problem:** Expiry alerts fire but there's no wizard to dispose of expired items
+properly.
 
 **Required Implementation:**
 
@@ -924,8 +968,8 @@ Create disposal workflow:
 | Component | `views/personnel_views.xml` |
 | Model     | `spp.drims.personnel`       |
 
-**Problem:** Personnel can be "deployed", "standby", or "returned" via buttons but there's no button to mark someone as
-"on_leave".
+**Problem:** Personnel can be "deployed", "standby", or "returned" via buttons but
+there's no button to mark someone as "on_leave".
 
 **Required Implementation:**
 
@@ -939,11 +983,13 @@ def action_mark_on_leave(self):
 2. Add button to form:
 
 ```xml
-<button name="action_mark_on_leave"
-        string="On Leave"
-        type="object"
-        class="btn-secondary"
-        invisible="status in ('returned', 'on_leave')"/>
+<button
+  name="action_mark_on_leave"
+  string="On Leave"
+  type="object"
+  class="btn-secondary"
+  invisible="status in ('returned', 'on_leave')"
+/>
 ```
 
 **Acceptance Criteria:**
@@ -970,19 +1016,21 @@ Add calendar view:
 
 ```xml
 <record id="spp_drims_personnel_calendar" model="ir.ui.view">
-    <field name="name">spp.drims.personnel.calendar</field>
-    <field name="model">spp.drims.personnel</field>
-    <field name="arch" type="xml">
-        <calendar string="Personnel Roster"
-                  date_start="deployment_date"
-                  date_stop="expected_return_date"
-                  color="organization_id"
-                  mode="month">
-            <field name="name"/>
-            <field name="role_id"/>
-            <field name="deployment_area_id"/>
-        </calendar>
-    </field>
+  <field name="name">spp.drims.personnel.calendar</field>
+  <field name="model">spp.drims.personnel</field>
+  <field name="arch" type="xml">
+    <calendar
+      string="Personnel Roster"
+      date_start="deployment_date"
+      date_stop="expected_return_date"
+      color="organization_id"
+      mode="month"
+    >
+      <field name="name" />
+      <field name="role_id" />
+      <field name="deployment_area_id" />
+    </calendar>
+  </field>
 </record>
 ```
 
@@ -1005,7 +1053,8 @@ Add calendar view:
 | Component | `views/dashboard_views.xml` |
 | Model     | `spp.hazard.incident`       |
 
-**Problem:** The incident kanban shows KPIs but there's no single-page executive summary for coordination meetings.
+**Problem:** The incident kanban shows KPIs but there's no single-page executive summary
+for coordination meetings.
 
 **Required Implementation:**
 
@@ -1061,7 +1110,8 @@ Create pipeline report showing:
 
 ## Implementation Priority Matrix
 
-> **Updated 2026-01-01:** Removed GAP-ALT-001, GAP-ALT-002 (not gaps - inherited from spp_alerts)
+> **Updated 2026-01-01:** Removed GAP-ALT-001, GAP-ALT-002 (not gaps - inherited from
+> spp_alerts)
 
 | Priority | Gap ID          | Description                      | Effort  | Status       |
 | -------- | --------------- | -------------------------------- | ------- | ------------ |
@@ -1132,12 +1182,10 @@ The following workflows are **COMPLETE** and require no changes:
 These 4 gaps **MUST** be fixed before the system can be used in emergencies:
 
 1. **GAP-DON-001** - Donation workflow blocked at 50%
-
    - Users can receive donations but cannot inspect or stock them
    - Methods exist (`action_inspect`, `action_stock`) but no buttons in view
 
 2. **GAP-REQ-001** + **GAP-REQ-002** - Request workflow blocked after approval
-
    - No source warehouse field visible
    - No allocate button despite method existing
 

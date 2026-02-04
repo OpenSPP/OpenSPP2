@@ -26,11 +26,11 @@
     <record id="view_product_template_tree_drims" model="ir.ui.view">
         <field name="name">product.template.tree.drims</field>
         <field name="model">product.template</field>
-        <field name="inherit_id" ref="product.product_template_tree_view"/>
+        <field name="inherit_id" ref="product.product_template_tree_view" />
         <field name="arch" type="xml">
             <xpath expr="//field[@name='name']" position="after">
-                <field name="categ_id" optional="show"/>
-                <field name="tracking" optional="show"/>
+                <field name="categ_id" optional="show" />
+                <field name="tracking" optional="show" />
             </xpath>
         </field>
     </record>
@@ -39,20 +39,32 @@
     <record id="view_product_template_search_drims" model="ir.ui.view">
         <field name="name">product.template.search.drims</field>
         <field name="model">product.template</field>
-        <field name="inherit_id" ref="product.product_template_search_view"/>
+        <field name="inherit_id" ref="product.product_template_search_view" />
         <field name="arch" type="xml">
             <xpath expr="//search" position="inside">
-                <separator/>
-                <filter string="Storable" name="storable"
-                        domain="[('is_storable', '=', True)]"/>
-                <filter string="Lot Tracked" name="lot_tracked"
-                        domain="[('tracking', '=', 'lot')]"/>
-                <separator/>
+                <separator />
+                <filter
+                    string="Storable"
+                    name="storable"
+                    domain="[('is_storable', '=', True)]"
+                />
+                <filter
+                    string="Lot Tracked"
+                    name="lot_tracked"
+                    domain="[('tracking', '=', 'lot')]"
+                />
+                <separator />
                 <group>
-                    <filter string="Category" name="group_category"
-                            context="{'group_by': 'categ_id'}"/>
-                    <filter string="Tracking" name="group_tracking"
-                            context="{'group_by': 'tracking'}"/>
+                    <filter
+                        string="Category"
+                        name="group_category"
+                        context="{'group_by': 'categ_id'}"
+                    />
+                    <filter
+                        string="Tracking"
+                        name="group_tracking"
+                        context="{'group_by': 'tracking'}"
+                    />
                 </group>
             </xpath>
         </field>

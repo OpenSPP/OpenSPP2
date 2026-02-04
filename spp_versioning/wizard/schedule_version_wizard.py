@@ -122,7 +122,7 @@ class ScheduleVersionWizard(models.TransientModel):
                 record.has_conflict = True
                 record.conflict_severity = "warning"
                 record.conflict_message = _(
-                    "Other versions are scheduled: %(versions)s. " "Your version will activate in sequence."
+                    "Other versions are scheduled: %(versions)s. Your version will activate in sequence."
                 ) % {
                     "versions": ", ".join(
                         f"v{s.version} ({s.effective_date})" for s in scheduled.sorted("effective_date")

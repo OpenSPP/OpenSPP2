@@ -463,7 +463,7 @@ class DrimsAlert(models.Model):
                     "alert_type_id": expiry_type.id,
                     "priority": priority,
                     "title": _("Expiring: %s (Lot %s)") % (product_name, lot_name),
-                    "description": _("Lot %s of %s will expire on %s (%d days).\n" "Current quantity: %.2f")
+                    "description": _("Lot %s of %s will expire on %s (%d days).\nCurrent quantity: %.2f")
                     % (lot_name, product_name, expiration_date, days_until, total_qty),
                     "warehouse_id": warehouse_id,
                     "product_id": product_id,
@@ -576,8 +576,7 @@ class DrimsAlert(models.Model):
                             "priority": "high" if days_until <= 1 else "medium",
                             "title": _("SLA Warning: %s") % request.reference,
                             "description": _(
-                                "Request %s is due in %d day(s) and is not yet dispatched.\n"
-                                "Destination: %s\nState: %s"
+                                "Request %s is due in %d day(s) and is not yet dispatched.\nDestination: %s\nState: %s"
                             )
                             % (
                                 request.reference,

@@ -19,7 +19,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     invisible="not is_registrant"
                     groups="spp_programs.group_programs_viewer"
                 >
-                    <field name="program_membership_count" widget="statinfo" string="Programs" />
+                    <field
+                        name="program_membership_count"
+                        widget="statinfo"
+                        string="Programs"
+                    />
                 </button>
                 <button
                     name="action_view_all_entitlements"
@@ -29,7 +33,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     invisible="not is_registrant or total_entitlements_count == 0"
                     groups="spp_programs.group_programs_viewer"
                 >
-                    <field name="total_entitlements_count" widget="statinfo" string="Entitlements" />
+                    <field
+                        name="total_entitlements_count"
+                        widget="statinfo"
+                        string="Entitlements"
+                    />
                 </button>
             </xpath>
 
@@ -101,14 +109,26 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                 <h4>Entitlements</h4>
 
                 <!-- Cash Entitlements -->
-                <field name="entitlement_ids" nolabel="1" readonly="1" invisible="entitlements_count == 0">
+                <field
+                    name="entitlement_ids"
+                    nolabel="1"
+                    readonly="1"
+                    invisible="entitlements_count == 0"
+                >
                     <list
                         decoration-muted="state in ('cancelled', 'expired')"
                         decoration-success="state == 'rdpd2ben'"
                     >
                         <field name="cycle_id" />
-                        <field name="initial_amount" groups="spp_programs.group_programs_manager" />
-                        <field name="currency_id" groups="spp_programs.group_programs_manager" optional="show" />
+                        <field
+                            name="initial_amount"
+                            groups="spp_programs.group_programs_manager"
+                        />
+                        <field
+                            name="currency_id"
+                            groups="spp_programs.group_programs_manager"
+                            optional="show"
+                        />
                         <field name="state" widget="badge" />
                         <field name="valid_from" optional="show" />
                         <field name="valid_until" optional="hide" />
@@ -202,21 +222,36 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
             </xpath>
 
             <!-- Entitlements Section for Groups -->
-            <xpath expr="//div[@name='group_entitlements_section']" position="attributes">
+            <xpath
+                expr="//div[@name='group_entitlements_section']"
+                position="attributes"
+            >
                 <attribute name="invisible">0</attribute>
             </xpath>
             <xpath expr="//div[@name='group_entitlements_section']" position="inside">
                 <h4>Entitlements</h4>
 
                 <!-- Cash Entitlements -->
-                <field name="entitlement_ids" nolabel="1" readonly="1" invisible="entitlements_count == 0">
+                <field
+                    name="entitlement_ids"
+                    nolabel="1"
+                    readonly="1"
+                    invisible="entitlements_count == 0"
+                >
                     <list
                         decoration-muted="state in ('cancelled', 'expired')"
                         decoration-success="state == 'rdpd2ben'"
                     >
                         <field name="cycle_id" />
-                        <field name="initial_amount" groups="spp_programs.group_programs_manager" />
-                        <field name="currency_id" groups="spp_programs.group_programs_manager" optional="show" />
+                        <field
+                            name="initial_amount"
+                            groups="spp_programs.group_programs_manager"
+                        />
+                        <field
+                            name="currency_id"
+                            groups="spp_programs.group_programs_manager"
+                            optional="show"
+                        />
                         <field name="state" widget="badge" />
                         <field name="valid_from" optional="show" />
                         <field name="valid_until" optional="hide" />

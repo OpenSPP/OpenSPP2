@@ -2,18 +2,20 @@
 
 ## Executive Summary
 
-This demo showcases a **Disaster Response Inventory Management System (DRIMS)** for Sri Lanka, demonstrating how
-government agencies can manage relief goods during disasters with full traceability from donor to beneficiary.
+This demo showcases a **Disaster Response Inventory Management System (DRIMS)** for Sri
+Lanka, demonstrating how government agencies can manage relief goods during disasters
+with full traceability from donor to beneficiary.
 
-**Demo Duration:** 20-30 minutes **Target Audience:** DMC leadership, provincial/district coordinators, warehouse
-managers
+**Demo Duration:** 20-30 minutes **Target Audience:** DMC leadership,
+provincial/district coordinators, warehouse managers
 
 ---
 
 ## Demo Users
 
-The demo module creates role-specific users to showcase access control. You can use **admin** for all steps if you want
-a simplified demo, or switch users to show role-based access.
+The demo module creates role-specific users to showcase access control. You can use
+**admin** for all steps if you want a simplified demo, or switch users to show
+role-based access.
 
 | Login       | Password              | Role            | Use For                                  |
 | ----------- | --------------------- | --------------- | ---------------------------------------- |
@@ -25,7 +27,8 @@ a simplified demo, or switch users to show role-based access.
 | `fernando`  | `demo`                | Coordinator     | District-level coordination              |
 | `secretary` | `demo`                | Viewer          | Dashboard and reports only               |
 
-**Tip:** For a realistic multi-role demo, open separate browser windows/incognito tabs for each user.
+**Tip:** For a realistic multi-role demo, open separate browser windows/incognito tabs
+for each user.
 
 ---
 
@@ -33,8 +36,9 @@ a simplified demo, or switch users to show role-based access.
 
 ### Setting the Scene
 
-_"It's late May 2025. Heavy monsoon rains have caused severe flooding in the Western and Southern provinces. Colombo,
-Gampaha, and Galle districts are heavily affected. Over 50,000 families need immediate assistance."_
+_"It's late May 2025. Heavy monsoon rains have caused severe flooding in the Western and
+Southern provinces. Colombo, Gampaha, and Galle districts are heavily affected. Over
+50,000 families need immediate assistance."_
 
 The Disaster Management Centre (DMC) activates DRIMS to coordinate the response.
 
@@ -62,7 +66,8 @@ The Disaster Management Centre (DMC) activates DRIMS to coordinate the response.
 
 **Talking Points:**
 
-- _"At a glance, leadership can see which disasters are active and their resource status"_
+- _"At a glance, leadership can see which disasters are active and their resource
+  status"_
 - _"The pending request count alerts us to bottlenecks in the approval workflow"_
 
 ---
@@ -73,11 +78,11 @@ The Disaster Management Centre (DMC) activates DRIMS to coordinate the response.
 
 **Goal:** Show donation workflow from announcement to stock
 
-**Scenario:** _"UNICEF has announced a donation of 1,000 hygiene kits and 500 family tents for flood victims."_
+**Scenario:** _"UNICEF has announced a donation of 1,000 hygiene kits and 500 family
+tents for flood victims."_
 
 1. **Navigate to:** DRIMS → Operations → Donations
 2. **Create new donation:**
-
    - Donor: UNICEF
    - Donor Type: UN Agency
    - Incident: 2025 Southwest Monsoon Floods
@@ -85,12 +90,10 @@ The Disaster Management Centre (DMC) activates DRIMS to coordinate the response.
    - Expected arrival: Tomorrow
 
 3. **Add donation lines:**
-
    - Hygiene Kit (Family): 1,000 units @ LKR 2,000 each
    - Family Tent (4-6 persons): 500 units @ LKR 35,000 each
 
 4. **Walk through state transitions:**
-
    - **Announced** → Show the pending donation
    - **Mark Received** → Creates stock picking automatically
    - **Mark Inspected** → Quality check step (button now available)
@@ -117,23 +120,21 @@ The Disaster Management Centre (DMC) activates DRIMS to coordinate the response.
 
 **Goal:** Show request submission and approval process
 
-**Scenario:** _"The Galle District Disaster Management office needs urgent supplies for 3 newly established welfare
-centres housing 500 families."_
+**Scenario:** _"The Galle District Disaster Management office needs urgent supplies for
+3 newly established welfare centres housing 500 families."_
 
 1. **Navigate to:** DRIMS → Operations → Requests
 2. **Create new request:**
-
    - Incident: 2025 Southwest Monsoon Floods
    - Destination: Galle District
    - Priority: **High**
    - Date Needed: Tomorrow
    - Affected Population: 500 families
    - Life Threatening: No (checkbox)
-   - Justification: "Three welfare centres established in Hikkaduwa, Ambalangoda, and Karandeniya with 500 displaced
-     families requiring immediate assistance"
+   - Justification: "Three welfare centres established in Hikkaduwa, Ambalangoda, and
+     Karandeniya with 500 displaced families requiring immediate assistance"
 
 3. **Add request lines:**
-
    - Rice (25kg sack): 200 units
    - Bottled Water (1.5L): 1,000 units
    - Sleeping Mat: 500 units
@@ -142,7 +143,6 @@ centres housing 500 families."_
 4. **Submit for approval** → Status changes to "Pending"
 
 5. **Switch to Approver view:**
-
    - Navigate to: DRIMS → Operations → Pending Approval
    - Review the request
    - **Approve** (can also reject or request revision)
@@ -173,14 +173,12 @@ centres housing 500 families."_
    - This creates a stock picking linked to the request
    - Opens the dispatch form automatically
 2. **Fill dispatch details:**
-
    - Transport Mode: Road
    - Vehicle Registration: WP-CAB-1234
    - Driver Name: K. Perera
    - Driver Phone: +94 77 123 4567
 
 3. **Generate Waybill Report:**
-
    - Show the PDF with:
      - Unique waybill number
      - Item list with lot numbers
@@ -204,7 +202,6 @@ centres housing 500 families."_
 
 1. **Navigate to:** DRIMS → Operations → Alerts
 2. **Show different alert types:**
-
    - **Low Stock Alert** - Rice below 50% of pending requests
    - **Expiry Alert** - Medicine expiring in 14 days
    - **SLA Warning** - Request deadline approaching
@@ -229,7 +226,6 @@ centres housing 500 families."_
 **Goal:** Show data availability for decision-making
 
 1. **From Dashboard**, show KPI totals:
-
    - Total stock value across all warehouses
    - Total distributed value
    - Pending vs completed requests
@@ -261,7 +257,8 @@ centres housing 500 families."_
    - Confirm → Receive → Inspect → Restock
    - Items in good condition go back to inventory
 
-**Talking Point:** _"Non-consumables like tents and generators can be recovered and reused"_
+**Talking Point:** _"Non-consumables like tents and generators can be recovered and
+reused"_
 
 #### Stock Adjustments
 
@@ -344,18 +341,20 @@ During the demo:
 
 ## Frequently Asked Questions
 
-**Q: Can field officers use this on mobile?** A: The system is web-based with responsive design. Full mobile app is
-Phase 2.
+**Q: Can field officers use this on mobile?** A: The system is web-based with responsive
+design. Full mobile app is Phase 2.
 
-**Q: How do we handle offline scenarios?** A: Current version requires connectivity. Offline capability planned for
-Phase 2.
+**Q: How do we handle offline scenarios?** A: Current version requires connectivity.
+Offline capability planned for Phase 2.
 
-**Q: Can we track distribution to individual beneficiaries?** A: Current version tracks distribution to areas/welfare
-centres. Individual beneficiary registration integrates with OpenSPP's registry module.
+**Q: Can we track distribution to individual beneficiaries?** A: Current version tracks
+distribution to areas/welfare centres. Individual beneficiary registration integrates
+with OpenSPP's registry module.
 
-**Q: How do we handle returns of non-consumable items?** A: Use DRIMS → Operations → Returns. You can create a return
-directly from any completed dispatch using the "Create Return" wizard. The system tracks item conditions (good, damaged,
-unusable) and automatically restocks items based on their disposition.
+**Q: How do we handle returns of non-consumable items?** A: Use DRIMS → Operations →
+Returns. You can create a return directly from any completed dispatch using the "Create
+Return" wizard. The system tracks item conditions (good, damaged, unusable) and
+automatically restocks items based on their disposition.
 
-**Q: Can multiple disasters be managed simultaneously?** A: Yes, each incident is tracked separately with its own
-inventory and requests.
+**Q: Can multiple disasters be managed simultaneously?** A: Yes, each incident is
+tracked separately with its own inventory and requests.

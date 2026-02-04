@@ -4,7 +4,9 @@ Track data provenance and merge history for registrants and related records.
 
 ## Overview
 
-This module implements [ADR-005](../docs/architecture/decisions/ADR-005-source-tracking-provenance.md) to provide:
+This module implements
+[ADR-005](../docs/architecture/decisions/ADR-005-source-tracking-provenance.md) to
+provide:
 
 - **Source tracking**: Know where data originated (system, reference, collection method)
 - **Update tracking**: Track which system last modified a record

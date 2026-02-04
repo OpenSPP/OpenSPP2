@@ -1489,7 +1489,7 @@ class GISReport(models.Model):
                     feature["geometry"] = shape.__geo_interface__
                 except ImportError:
                     _logger.warning(
-                        "shapely not available, geometry export limited. " "Install shapely for full geometry support."
+                        "shapely not available, geometry export limited. Install shapely for full geometry support."
                     )
                     feature["geometry"] = None
                 except Exception as e:

@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-
     <!-- Extend Default Eligibility Manager Form to add CEL support -->
     <record id="view_eligibility_manager_default_form_cel" model="ir.ui.view">
         <field name="name">spp.program.membership.manager.default.form.cel</field>
         <field name="model">spp.program.membership.manager.default</field>
-        <field name="inherit_id" ref="spp_programs.view_eligibility_manager_default_form" />
+        <field
+            name="inherit_id"
+            ref="spp_programs.view_eligibility_manager_default_form"
+        />
         <field name="arch" type="xml">
-
             <!-- Replace the eligibility_domain field with CEL expression -->
             <xpath expr="//field[@name='eligibility_domain']" position="replace">
                 <group col="1" name="cel_expression_section">
@@ -30,12 +31,20 @@
                             readonly="1"
                         />
                         <!-- Lock indicator -->
-                        <div colspan="1" invisible="not is_eligibility_locked" class="text-warning">
+                        <div
+                            colspan="1"
+                            invisible="not is_eligibility_locked"
+                            class="text-warning"
+                        >
                             <i class="fa fa-lock" />
                             <span class="ms-1 fw-bold">Locked</span>
                         </div>
                         <!-- Drift indicator -->
-                        <div colspan="1" invisible="not has_drifted_from_template" class="text-info">
+                        <div
+                            colspan="1"
+                            invisible="not has_drifted_from_template"
+                            class="text-info"
+                        >
                             <i class="fa fa-code-fork" />
                             <span class="ms-1">Modified</span>
                         </div>
@@ -58,7 +67,8 @@
                         invisible="not is_eligibility_locked"
                     >
                         <i class="fa fa-lock me-1" />
-                        This eligibility criteria is <strong>locked</strong> and cannot be modified.
+                        This eligibility criteria is <strong
+                    >locked</strong> and cannot be modified.
                         The expression is standardized for compliance purposes.
                         Contact an administrator to unlock if changes are required.
                     </div>
@@ -97,21 +107,34 @@
                         </div>
 
                         <!-- Validation alerts -->
-                        <div class="alert alert-success" role="status" invisible="not cel_is_valid or not cel_expression">
+                        <div
+                            class="alert alert-success"
+                            role="status"
+                            invisible="not cel_is_valid or not cel_expression"
+                        >
                             <i class="fa fa-check-circle" title="Success" />
                             Expression is valid.
-                            <strong><field name="cel_preview_count" class="oe_inline" /></strong>
+                            <strong>
+                            <field name="cel_preview_count" class="oe_inline" />
+                        </strong>
                             beneficiaries match this criteria.
                         </div>
 
-                        <div class="alert alert-danger" role="alert" invisible="not cel_preview_error">
+                        <div
+                            class="alert alert-danger"
+                            role="alert"
+                            invisible="not cel_preview_error"
+                        >
                             <i class="fa fa-exclamation-triangle" title="Warning" />
-                            <field name="cel_preview_error" nolabel="1" class="oe_inline" />
+                            <field
+                                name="cel_preview_error"
+                                nolabel="1"
+                                class="oe_inline"
+                            />
                         </div>
                     </div>
                 </group>
             </xpath>
-
         </field>
     </record>
 
@@ -124,5 +147,4 @@
         sequence="200"
         groups="spp_security.group_spp_admin"
     />
-
 </odoo>

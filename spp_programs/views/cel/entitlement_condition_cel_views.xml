@@ -3,14 +3,15 @@
 Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 -->
 <odoo>
-
     <!-- Extend Cash Entitlement Manager Form to add CEL support for items -->
     <record id="view_entitlement_item_form_cel" model="ir.ui.view">
         <field name="name">spp.program.entitlement.manager.cash.form.cel</field>
         <field name="model">spp.program.entitlement.manager.cash</field>
-        <field name="inherit_id" ref="spp_programs.view_entitlement_manager_cash_form" />
+        <field
+            name="inherit_id"
+            ref="spp_programs.view_entitlement_manager_cash_form"
+        />
         <field name="arch" type="xml">
-
             <!-- Replace the condition field with our enhanced version -->
             <xpath expr="//field[@name='condition']" position="replace">
                 <group col="4" colspan="4">
@@ -23,7 +24,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     />
 
                     <!-- Domain Mode (existing behavior) -->
-                    <div invisible="condition_mode != 'domain'" class="w-100" colspan="4">
+                    <div
+                        invisible="condition_mode != 'domain'"
+                        class="w-100"
+                        colspan="4"
+                    >
                         <field
                             name="condition"
                             widget="domain"
@@ -64,22 +69,34 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         </div>
 
                         <!-- Validation Status -->
-                        <div class="alert alert-success" role="status" invisible="not cel_is_valid or not cel_condition">
+                        <div
+                            class="alert alert-success"
+                            role="status"
+                            invisible="not cel_is_valid or not cel_condition"
+                        >
                             <i class="fa fa-check-circle" title="Success" />
                             Expression is valid.
-                            <strong><field name="cel_preview_count" class="oe_inline" /></strong>
+                            <strong>
+                            <field name="cel_preview_count" class="oe_inline" />
+                        </strong>
                             beneficiaries match this criteria.
                         </div>
 
-                        <div class="alert alert-danger" role="alert" invisible="not cel_preview_error">
+                        <div
+                            class="alert alert-danger"
+                            role="alert"
+                            invisible="not cel_preview_error"
+                        >
                             <i class="fa fa-exclamation-triangle" title="Warning" />
-                            <field name="cel_preview_error" nolabel="1" class="oe_inline" />
+                            <field
+                                name="cel_preview_error"
+                                nolabel="1"
+                                class="oe_inline"
+                            />
                         </div>
                     </div>
                 </group>
             </xpath>
-
         </field>
     </record>
-
 </odoo>

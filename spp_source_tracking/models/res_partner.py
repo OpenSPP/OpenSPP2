@@ -249,7 +249,7 @@ class ResPartner(models.Model):
         # Warn if final partner is inactive (corrupted chain)
         if not partner.active:
             _logger.warning(
-                "resolve_partner found inactive partner_id=%s at end of merge chain " "starting from partner_id=%s",
+                "resolve_partner found inactive partner_id=%s at end of merge chain starting from partner_id=%s",
                 partner.id,
                 partner_id,
             )

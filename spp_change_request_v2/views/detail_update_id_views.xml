@@ -17,9 +17,15 @@
                     </group>
                     <group invisible="operation == 'add'">
                         <group string="Existing ID">
-                            <field name="existing_id_record_id" options="{'no_create': True}"
-                                   required="operation in ['update', 'remove']" />
-                            <field name="current_id_value" invisible="not existing_id_record_id" />
+                            <field
+                                name="existing_id_record_id"
+                                options="{'no_create': True}"
+                                required="operation in ['update', 'remove']"
+                            />
+                            <field
+                                name="current_id_value"
+                                invisible="not existing_id_record_id"
+                            />
                         </group>
                     </group>
                     <group invisible="operation == 'remove'">
@@ -28,14 +34,20 @@
                             <field name="id_value" required="operation == 'add'" />
                             <field name="expiry_date" />
                         </group>
-                        <separator string="Description"/>
-                        <field name="description" nolabel="1" class="oe_inline"/>
+                        <separator string="Description" />
+                        <field name="description" nolabel="1" class="oe_inline" />
                     </group>
                     <group string="Supporting Documents">
-                        <field name="document_attachment_ids" widget="many2many_binary" />
+                        <field
+                            name="document_attachment_ids"
+                            widget="many2many_binary"
+                        />
                     </group>
                     <group string="Additional Information">
-                        <field name="remarks" placeholder="Enter any additional notes..." />
+                        <field
+                            name="remarks"
+                            placeholder="Enter any additional notes..."
+                        />
                     </group>
                 </sheet>
             </form>

@@ -1221,7 +1221,7 @@ class SPPMISDemoGenerator(models.TransientModel):
             # Check if the model supports CEL mode (spp_programs CEL features)
             if "eligibility_mode" not in eligibility_manager._fields:
                 _logger.info(
-                    "CEL mode not available (spp_programs CEL not configured) " "for program (program_id=%s)",
+                    "CEL mode not available (spp_programs CEL not configured) for program (program_id=%s)",
                     program.id,
                 )
                 return

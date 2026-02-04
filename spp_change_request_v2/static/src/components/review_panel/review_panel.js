@@ -130,7 +130,11 @@ export class CRReviewPanel extends Component {
 
     async loadPreviewData() {
         try {
-            const result = await this.orm.call("spp.change.request", "action_preview_changes", [[this.props.crId]]);
+            const result = await this.orm.call(
+                "spp.change.request",
+                "action_preview_changes",
+                [[this.props.crId]]
+            );
             this.state.previewData = result;
         } catch (error) {
             console.warn("Could not load preview data:", error);
@@ -141,11 +145,11 @@ export class CRReviewPanel extends Component {
         try {
             // Get approval reviews to determine current tier
             if (this.state.crData.approval_review_ids?.length > 0) {
-                const reviews = await this.orm.read("spp.approval.review", this.state.crData.approval_review_ids, [
-                    "status",
-                    "current_tier",
-                    "tier_review_ids",
-                ]);
+                const reviews = await this.orm.read(
+                    "spp.approval.review",
+                    this.state.crData.approval_review_ids,
+                    ["status", "current_tier", "tier_review_ids"]
+                );
                 const pendingReview = reviews.find((r) => r.status === "pending");
                 if (pendingReview) {
                     this.state.tierInfo = {
@@ -205,9 +209,14 @@ export class CRReviewPanel extends Component {
         if (this.state.showApproveComment) {
             // Submit approval with comment
             try {
-                await this.orm.call("spp.change.request", "action_approve", [[this.props.crId]], {
-                    comment: this.state.approveComment,
-                });
+                await this.orm.call(
+                    "spp.change.request",
+                    "action_approve",
+                    [[this.props.crId]],
+                    {
+                        comment: this.state.approveComment,
+                    }
+                );
                 this.notification.add(_t("Request approved"), {type: "success"});
                 this.state.showApproveComment = false;
                 this.onNext();
@@ -244,7 +253,10 @@ export class CRReviewPanel extends Component {
     async onDecline() {
         if (this.state.showRejectReason && this.state.rejectReason) {
             try {
-                await this.orm.call("spp.change.request", "_do_reject", [[this.props.crId], this.state.rejectReason]);
+                await this.orm.call("spp.change.request", "_do_reject", [
+                    [this.props.crId],
+                    this.state.rejectReason,
+                ]);
                 this.notification.add(_t("Request declined"), {type: "warning"});
                 this.state.showRejectReason = false;
                 this.onNext();

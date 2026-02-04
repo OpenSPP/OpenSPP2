@@ -666,7 +666,7 @@ class CelTranslator(models.AbstractModel):
             )
         # Fallback: reject unrecognized expressions instead of silently matching everything
         raise NotImplementedError(
-            f"Unrecognized expression in CEL: {type(node).__name__}. " f"Please check your expression syntax."
+            f"Unrecognized expression in CEL: {type(node).__name__}. Please check your expression syntax."
         )
 
     def _cmp_to_leaf(self, model: str, cmp: P.Compare, cfg: dict[str, Any], ctx: dict[str, Any]):  # noqa: C901
@@ -703,13 +703,13 @@ class CelTranslator(models.AbstractModel):
                 cutoff_high = years_ago(n)
                 cutoff_low = years_ago(n + 1)
                 domain = ["&", (fld, ">", cutoff_low), (fld, "<=", cutoff_high)]
-                explain = f"{fld} in (today - {n+1}y, today - {n}y]"
+                explain = f"{fld} in (today - {n + 1}y, today - {n}y]"
             elif op == "NE":
                 # age != n => birthdate <= today-(n+1)y OR birthdate > today-n y
                 cutoff_high = years_ago(n)
                 cutoff_low = years_ago(n + 1)
                 domain = ["|", (fld, "<=", cutoff_low), (fld, ">", cutoff_high)]
-                explain = f"{fld} <= today - {n+1}y OR {fld} > today - {n}y"
+                explain = f"{fld} <= today - {n + 1}y OR {fld} > today - {n}y"
             return LeafDomain(mdl or model, domain), explain
         # Method-style count comparison: members.count(m, pred) >= 2
         # Method-style field aggregation comparison: members.sum(m, m.income) >= 10000, etc.

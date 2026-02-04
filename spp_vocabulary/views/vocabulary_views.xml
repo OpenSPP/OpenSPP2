@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Vocabulary List View -->
     <record id="view_vocabulary_list" model="ir.ui.view">
@@ -6,14 +6,14 @@
         <field name="model">spp.vocabulary</field>
         <field name="arch" type="xml">
             <list string="Vocabularies" default_order="name">
-                <field name="name"/>
-                <field name="namespace_uri" optional="show"/>
-                <field name="domain" optional="show"/>
-                <field name="version" optional="hide"/>
-                <field name="code_count" string="Codes"/>
-                <field name="is_system" widget="boolean_toggle"/>
-                <field name="is_hierarchical" optional="hide"/>
-                <field name="active" widget="boolean_toggle"/>
+                <field name="name" />
+                <field name="namespace_uri" optional="show" />
+                <field name="domain" optional="show" />
+                <field name="version" optional="hide" />
+                <field name="code_count" string="Codes" />
+                <field name="is_system" widget="boolean_toggle" />
+                <field name="is_hierarchical" optional="hide" />
+                <field name="active" widget="boolean_toggle" />
             </list>
         </field>
     </record>
@@ -26,26 +26,45 @@
             <form string="Vocabulary">
                 <header>
                     <!-- Header area for workflow buttons - extension point -->
-                    <div name="header_buttons" invisible="1"/>
+                    <div name="header_buttons" invisible="1" />
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button type="object" name="action_view_codes" class="oe_stat_button" icon="fa-code">
+                        <button
+                            type="object"
+                            name="action_view_codes"
+                            class="oe_stat_button"
+                            icon="fa-code"
+                        >
                             <div class="o_field_widget o_stat_info">
                                 <span class="o_stat_value">
-                                    <field name="code_count"/>
+                                    <field name="code_count" />
                                 </span>
                                 <span class="o_stat_text">Codes</span>
                             </div>
                         </button>
                         <!-- Extension point for additional stat buttons -->
-                        <div name="stat_buttons_extension" invisible="1"/>
+                        <div name="stat_buttons_extension" invisible="1" />
                     </div>
-                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
-                    <widget name="web_ribbon" title="System" bg_color="text-bg-warning" invisible="not is_system"/>
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="text-bg-danger"
+                        invisible="active"
+                    />
+                    <widget
+                        name="web_ribbon"
+                        title="System"
+                        bg_color="text-bg-warning"
+                        invisible="not is_system"
+                    />
                     <div class="oe_title">
                         <h1>
-                            <field name="name" placeholder="Vocabulary Name" required="1"/>
+                            <field
+                                name="name"
+                                placeholder="Vocabulary Name"
+                                required="1"
+                            />
                         </h1>
                     </div>
 
@@ -53,58 +72,83 @@
                         <page string="Details" name="details">
                             <group name="details_section">
                                 <group name="basic_info" string="Basic Information">
-                                    <field name="namespace_uri" required="1"/>
-                                    <field name="domain" required="1"/>
-                                    <field name="version"/>
+                                    <field name="namespace_uri" required="1" />
+                                    <field name="domain" required="1" />
+                                    <field name="version" />
                                 </group>
                                 <group name="settings" string="Settings">
-                                    <field name="is_system"/>
-                                    <field name="is_hierarchical"/>
-                                    <field name="active"/>
+                                    <field name="is_system" />
+                                    <field name="is_hierarchical" />
+                                    <field name="active" />
                                 </group>
                             </group>
                             <group name="reference_section" string="Reference">
-                                <field name="reference_url" widget="url" placeholder="https://..."/>
+                                <field
+                                    name="reference_url"
+                                    widget="url"
+                                    placeholder="https://..."
+                                />
                             </group>
-                            <separator string="Description"/>
-                            <field name="description" nolabel="1" placeholder="Description of this vocabulary..." class="oe_inline"/>
+                            <separator string="Description" />
+                            <field
+                                name="description"
+                                nolabel="1"
+                                placeholder="Description of this vocabulary..."
+                                class="oe_inline"
+                            />
                             <!-- Extension point for additional details -->
-                            <group name="details_extension" invisible="1"/>
+                            <group name="details_extension" invisible="1" />
                         </page>
 
                         <page string="Codes" name="codes">
-                            <field name="code_ids" nolabel="1" context="{'default_vocabulary_id': id}" readonly="is_system">
+                            <field
+                                name="code_ids"
+                                nolabel="1"
+                                context="{'default_vocabulary_id': id}"
+                                readonly="is_system"
+                            >
                                 <list editable="bottom" default_order="sequence,code">
-                                    <field name="sequence" widget="handle"/>
-                                    <field name="code"/>
-                                    <field name="display"/>
-                                    <field name="definition" optional="hide"/>
-                                    <field name="parent_id" optional="hide"
-                                           invisible="not parent.is_hierarchical"
-                                           domain="[('vocabulary_id', '=', parent.id)]"/>
-                                    <field name="deprecated" widget="boolean_toggle" optional="hide"/>
-                                    <field name="active" widget="boolean_toggle"/>
+                                    <field name="sequence" widget="handle" />
+                                    <field name="code" />
+                                    <field name="display" />
+                                    <field name="definition" optional="hide" />
+                                    <field
+                                        name="parent_id"
+                                        optional="hide"
+                                        invisible="not parent.is_hierarchical"
+                                        domain="[('vocabulary_id', '=', parent.id)]"
+                                    />
+                                    <field
+                                        name="deprecated"
+                                        widget="boolean_toggle"
+                                        optional="hide"
+                                    />
+                                    <field name="active" widget="boolean_toggle" />
                                 </list>
                             </field>
                         </page>
 
-                        <page string="Technical" name="technical" groups="base.group_no_one">
+                        <page
+                            string="Technical"
+                            name="technical"
+                            groups="base.group_no_one"
+                        >
                             <group name="technical_section" col="4">
                                 <group>
-                                    <field name="create_uid" readonly="1"/>
-                                    <field name="create_date" readonly="1"/>
+                                    <field name="create_uid" readonly="1" />
+                                    <field name="create_date" readonly="1" />
                                 </group>
                                 <group>
-                                    <field name="write_uid" readonly="1"/>
-                                    <field name="write_date" readonly="1"/>
+                                    <field name="write_uid" readonly="1" />
+                                    <field name="write_date" readonly="1" />
                                 </group>
                             </group>
                             <!-- Extension point for technical info -->
-                            <group name="technical_extension" invisible="1"/>
+                            <group name="technical_extension" invisible="1" />
                         </page>
                     </notebook>
                 </sheet>
-                <chatter/>
+                <chatter />
             </form>
         </field>
     </record>
@@ -115,28 +159,87 @@
         <field name="model">spp.vocabulary</field>
         <field name="arch" type="xml">
             <search string="Search Vocabularies">
-                <field name="name"/>
-                <field name="namespace_uri"/>
-                <field name="domain"/>
-                <field name="description" filter_domain="[('description', 'ilike', self)]"/>
-                <separator/>
-                <filter string="System" name="filter_system" domain="[('is_system', '=', True)]"/>
-                <filter string="Custom" name="filter_custom" domain="[('is_system', '=', False)]"/>
-                <filter string="Hierarchical" name="filter_hierarchical" domain="[('is_hierarchical', '=', True)]"/>
-                <separator/>
-                <filter string="Archived" name="filter_archived" domain="[('active', '=', False)]"/>
-                <separator/>
-                <filter string="Core" name="filter_domain_core" domain="[('domain', '=', 'core')]"/>
-                <filter string="Social Assistance" name="filter_domain_social_assistance" domain="[('domain', '=', 'social_assistance')]"/>
-                <filter string="Social Insurance" name="filter_domain_social_insurance" domain="[('domain', '=', 'social_insurance')]"/>
-                <filter string="Labor" name="filter_domain_labor" domain="[('domain', '=', 'labor')]"/>
-                <filter string="Disability" name="filter_domain_disability" domain="[('domain', '=', 'disability')]"/>
-                <filter string="Agriculture" name="filter_domain_agriculture" domain="[('domain', '=', 'agriculture')]"/>
-                <filter string="Health" name="filter_domain_health" domain="[('domain', '=', 'health')]"/>
-                <filter string="Education" name="filter_domain_education" domain="[('domain', '=', 'education')]"/>
+                <field name="name" />
+                <field name="namespace_uri" />
+                <field name="domain" />
+                <field
+                    name="description"
+                    filter_domain="[('description', 'ilike', self)]"
+                />
+                <separator />
+                <filter
+                    string="System"
+                    name="filter_system"
+                    domain="[('is_system', '=', True)]"
+                />
+                <filter
+                    string="Custom"
+                    name="filter_custom"
+                    domain="[('is_system', '=', False)]"
+                />
+                <filter
+                    string="Hierarchical"
+                    name="filter_hierarchical"
+                    domain="[('is_hierarchical', '=', True)]"
+                />
+                <separator />
+                <filter
+                    string="Archived"
+                    name="filter_archived"
+                    domain="[('active', '=', False)]"
+                />
+                <separator />
+                <filter
+                    string="Core"
+                    name="filter_domain_core"
+                    domain="[('domain', '=', 'core')]"
+                />
+                <filter
+                    string="Social Assistance"
+                    name="filter_domain_social_assistance"
+                    domain="[('domain', '=', 'social_assistance')]"
+                />
+                <filter
+                    string="Social Insurance"
+                    name="filter_domain_social_insurance"
+                    domain="[('domain', '=', 'social_insurance')]"
+                />
+                <filter
+                    string="Labor"
+                    name="filter_domain_labor"
+                    domain="[('domain', '=', 'labor')]"
+                />
+                <filter
+                    string="Disability"
+                    name="filter_domain_disability"
+                    domain="[('domain', '=', 'disability')]"
+                />
+                <filter
+                    string="Agriculture"
+                    name="filter_domain_agriculture"
+                    domain="[('domain', '=', 'agriculture')]"
+                />
+                <filter
+                    string="Health"
+                    name="filter_domain_health"
+                    domain="[('domain', '=', 'health')]"
+                />
+                <filter
+                    string="Education"
+                    name="filter_domain_education"
+                    domain="[('domain', '=', 'education')]"
+                />
                 <group>
-                    <filter string="Domain" name="group_domain" context="{'group_by': 'domain'}"/>
-                    <filter string="System/Custom" name="group_system" context="{'group_by': 'is_system'}"/>
+                    <filter
+                        string="Domain"
+                        name="group_domain"
+                        context="{'group_by': 'domain'}"
+                    />
+                    <filter
+                        string="System/Custom"
+                        name="group_system"
+                        context="{'group_by': 'is_system'}"
+                    />
                 </group>
             </search>
         </field>

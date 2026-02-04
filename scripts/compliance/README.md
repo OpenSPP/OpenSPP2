@@ -1,12 +1,14 @@
 # OpenSPP Access Management Compliance Framework
 
-A declarative framework for enforcing and verifying access control compliance across all OpenSPP modules.
+A declarative framework for enforcing and verifying access control compliance across all
+OpenSPP modules.
 
 ## Overview
 
 This framework provides:
 
-1. **Declarative Specifications** (`compliance.yaml`) - Define expected access control in YAML
+1. **Declarative Specifications** (`compliance.yaml`) - Define expected access control
+   in YAML
 2. **Static Checker** (`checker.py`) - Validate module configuration against specs
 3. **Test Generator** (`test_generator.py`) - Generate runtime tests from specs
 4. **CI Integration** - Fail builds on compliance violations
@@ -239,8 +241,8 @@ jobs:
 
 ### 1. Start with the Spec
 
-Before implementing access control, write the `compliance.yaml` first. This ensures you think through the security
-model.
+Before implementing access control, write the `compliance.yaml` first. This ensures you
+think through the security model.
 
 ### 2. Use Standard Patterns
 
@@ -252,7 +254,8 @@ Follow ADR-004 three-tier architecture:
 
 ### 3. Document Restrictions
 
-Use the `reason` and `comment` fields to explain why restrictions exist. This helps future maintainers.
+Use the `reason` and `comment` fields to explain why restrictions exist. This helps
+future maintainers.
 
 ### 4. Test Critical Paths
 
@@ -284,13 +287,15 @@ The group defined in compliance.yaml doesn't exist in `security/groups.xml`.
 
 ### "Missing ACL entry"
 
-The model defined in compliance.yaml doesn't have a corresponding entry in `ir.model.access.csv`.
+The model defined in compliance.yaml doesn't have a corresponding entry in
+`ir.model.access.csv`.
 
 **Fix**: Add the ACL entry to ir.model.access.csv.
 
 ### "Empty domain with write permissions"
 
-A record rule has `domain_force="[]"` with write permissions, which is a security anti-pattern.
+A record rule has `domain_force="[]"` with write permissions, which is a security
+anti-pattern.
 
 **Fix**: Use `[(1, '=', 1)]` for "see all" pattern, never empty `[]`.
 

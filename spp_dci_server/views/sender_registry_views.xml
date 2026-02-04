@@ -39,7 +39,11 @@
                             class="oe_stat_button"
                             icon="fa-archive"
                         >
-                            <field name="active" widget="boolean_button" options="{'terminology': 'archive'}" />
+                            <field
+                                name="active"
+                                widget="boolean_button"
+                                options="{'terminology': 'archive'}"
+                            />
                         </button>
                     </div>
                     <div class="oe_title">
@@ -51,50 +55,112 @@
                     <!-- DCI Protocol Settings -->
                     <group string="DCI Protocol Settings">
                         <group>
-                            <field name="sender_id" help="DCI sender identifier (e.g., 'crvs.national.gov')" />
-                            <field name="algorithm" help="Cryptographic signature algorithm" />
-                            <field name="auto_approve" help="Automatically confirm subscriptions from this sender" />
+                            <field
+                                name="sender_id"
+                                help="DCI sender identifier (e.g., 'crvs.national.gov')"
+                            />
+                            <field
+                                name="algorithm"
+                                help="Cryptographic signature algorithm"
+                            />
+                            <field
+                                name="auto_approve"
+                                help="Automatically confirm subscriptions from this sender"
+                            />
                         </group>
                         <group>
-                            <field name="jwks_url" widget="url" help="URL to sender's JWKS endpoint (/.well-known/jwks.json)" />
-                            <field name="last_key_fetch" readonly="1" help="When we last fetched their JWKS" />
+                            <field
+                                name="jwks_url"
+                                widget="url"
+                                help="URL to sender's JWKS endpoint (/.well-known/jwks.json)"
+                            />
+                            <field
+                                name="last_key_fetch"
+                                readonly="1"
+                                help="When we last fetched their JWKS"
+                            />
                         </group>
                     </group>
 
                     <!-- Organization and Consent (inherited from spp.api.client) -->
                     <group string="Organization &amp; Consent">
                         <group>
-                            <field name="partner_id" help="Organization this DCI sender represents" />
-                            <field name="organization_type_id" help="Classification for category-based consent matching" />
+                            <field
+                                name="partner_id"
+                                help="Organization this DCI sender represents"
+                            />
+                            <field
+                                name="organization_type_id"
+                                help="Classification for category-based consent matching"
+                            />
                             <field name="is_organization_type_verified" readonly="1" />
                         </group>
                         <group>
-                            <field name="legal_basis" help="Legal basis for data processing per GDPR Article 6" />
-                            <field name="legal_basis_reference" help="Reference to authorizing law or MOU" />
-                            <field name="is_require_consent" help="Whether explicit individual consent is required" />
+                            <field
+                                name="legal_basis"
+                                help="Legal basis for data processing per GDPR Article 6"
+                            />
+                            <field
+                                name="legal_basis_reference"
+                                help="Reference to authorizing law or MOU"
+                            />
+                            <field
+                                name="is_require_consent"
+                                help="Whether explicit individual consent is required"
+                            />
                         </group>
                     </group>
 
                     <!-- Rate Limiting and API Usage -->
                     <group string="Rate Limiting &amp; API Usage">
                         <group>
-                            <field name="rate_limit_per_minute" help="Maximum requests allowed per minute" />
-                            <field name="rate_limit_per_day" help="Maximum requests allowed per day" />
+                            <field
+                                name="rate_limit_per_minute"
+                                help="Maximum requests allowed per minute"
+                            />
+                            <field
+                                name="rate_limit_per_day"
+                                help="Maximum requests allowed per day"
+                            />
                         </group>
                         <group>
-                            <field name="request_count_minute" readonly="1" help="Current requests in this minute" />
-                            <field name="request_count_today" readonly="1" help="Requests made today" />
-                            <field name="last_request_minute" readonly="1" help="Timestamp of last request" />
-                            <field name="last_request_reset" readonly="1" help="Last daily counter reset" />
+                            <field
+                                name="request_count_minute"
+                                readonly="1"
+                                help="Current requests in this minute"
+                            />
+                            <field
+                                name="request_count_today"
+                                readonly="1"
+                                help="Requests made today"
+                            />
+                            <field
+                                name="last_request_minute"
+                                readonly="1"
+                                help="Timestamp of last request"
+                            />
+                            <field
+                                name="last_request_reset"
+                                readonly="1"
+                                help="Last daily counter reset"
+                            />
                         </group>
                     </group>
 
                     <notebook>
                         <page string="Public Key" name="public_key">
-                            <field name="public_key" widget="ace" options="{'mode': 'text'}" placeholder="PEM-encoded public key for signature verification" />
+                            <field
+                                name="public_key"
+                                widget="ace"
+                                options="{'mode': 'text'}"
+                                placeholder="PEM-encoded public key for signature verification"
+                            />
                         </page>
                         <page string="Notes" name="notes">
-                            <field name="notes" placeholder="Additional notes about this sender..." />
+                            <field
+                                name="notes"
+                                placeholder="Additional notes about this sender..."
+                            />
                         </page>
                     </notebook>
                 </sheet>
@@ -111,16 +177,52 @@
                 <field name="name" />
                 <field name="sender_id" />
                 <field name="organization_type_id" />
-                <filter string="Active" name="filter_active" domain="[('active', '=', True)]" />
-                <filter string="Inactive" name="filter_inactive" domain="[('active', '=', False)]" />
-                <filter string="Government" name="filter_government" domain="[('organization_type_id.code', '=', 'government')]" />
-                <filter string="NGO" name="filter_ngo" domain="[('organization_type_id.code', 'in', ['ngo', 'ingo'])]" />
-                <filter string="Ed25519" name="filter_ed25519" domain="[('algorithm', '=', 'ed25519')]" />
-                <filter string="RSA-256" name="filter_rs256" domain="[('algorithm', '=', 'rs256')]" />
+                <filter
+                    string="Active"
+                    name="filter_active"
+                    domain="[('active', '=', True)]"
+                />
+                <filter
+                    string="Inactive"
+                    name="filter_inactive"
+                    domain="[('active', '=', False)]"
+                />
+                <filter
+                    string="Government"
+                    name="filter_government"
+                    domain="[('organization_type_id.code', '=', 'government')]"
+                />
+                <filter
+                    string="NGO"
+                    name="filter_ngo"
+                    domain="[('organization_type_id.code', 'in', ['ngo', 'ingo'])]"
+                />
+                <filter
+                    string="Ed25519"
+                    name="filter_ed25519"
+                    domain="[('algorithm', '=', 'ed25519')]"
+                />
+                <filter
+                    string="RSA-256"
+                    name="filter_rs256"
+                    domain="[('algorithm', '=', 'rs256')]"
+                />
                 <group>
-                    <filter string="Organization Type" name="group_by_org_type" context="{'group_by': 'organization_type_id'}" />
-                    <filter string="Algorithm" name="group_by_algorithm" context="{'group_by': 'algorithm'}" />
-                    <filter string="Active Status" name="group_by_active" context="{'group_by': 'active'}" />
+                    <filter
+                        string="Organization Type"
+                        name="group_by_org_type"
+                        context="{'group_by': 'organization_type_id'}"
+                    />
+                    <filter
+                        string="Algorithm"
+                        name="group_by_algorithm"
+                        context="{'group_by': 'algorithm'}"
+                    />
+                    <filter
+                        string="Active Status"
+                        name="group_by_active"
+                        context="{'group_by': 'active'}"
+                    />
                 </group>
             </search>
         </field>

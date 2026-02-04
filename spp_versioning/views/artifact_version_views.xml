@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <!-- Artifact Version Form View -->
     <record id="view_spp_artifact_version_form" model="ir.ui.view">
         <field name="name">spp.artifact.version.form</field>
@@ -8,83 +7,102 @@
         <field name="arch" type="xml">
             <form string="Artifact Version">
                 <header>
-                    <button name="action_submit_for_approval"
-                            string="Submit for Approval"
-                            type="object"
-                            class="btn-primary"
-                            invisible="state != 'draft'"/>
-                    <button name="action_approve"
-                            string="Approve"
-                            type="object"
-                            class="btn-primary"
-                            invisible="state != 'pending'"
-                            groups="spp_security.group_spp_admin"/>
-                    <button name="action_reject"
-                            string="Reject"
-                            type="object"
-                            class="btn-secondary"
-                            invisible="state != 'pending'"
-                            groups="spp_security.group_spp_admin"/>
-                    <button name="action_activate_now"
-                            string="Activate Now"
-                            type="object"
-                            class="btn-primary"
-                            invisible="state not in ('draft', 'approved')"/>
-                    <button name="action_cancel_scheduled"
-                            string="Cancel"
-                            type="object"
-                            class="btn-secondary"
-                            invisible="state != 'scheduled'"/>
-                    <button name="action_restore_as_new"
-                            string="Restore as New"
-                            type="object"
-                            invisible="state == 'current'"/>
-                    <field name="state" widget="statusbar"
-                           statusbar_visible="draft,scheduled,current"/>
+                    <button
+                        name="action_submit_for_approval"
+                        string="Submit for Approval"
+                        type="object"
+                        class="btn-primary"
+                        invisible="state != 'draft'"
+                    />
+                    <button
+                        name="action_approve"
+                        string="Approve"
+                        type="object"
+                        class="btn-primary"
+                        invisible="state != 'pending'"
+                        groups="spp_security.group_spp_admin"
+                    />
+                    <button
+                        name="action_reject"
+                        string="Reject"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="state != 'pending'"
+                        groups="spp_security.group_spp_admin"
+                    />
+                    <button
+                        name="action_activate_now"
+                        string="Activate Now"
+                        type="object"
+                        class="btn-primary"
+                        invisible="state not in ('draft', 'approved')"
+                    />
+                    <button
+                        name="action_cancel_scheduled"
+                        string="Cancel"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="state != 'scheduled'"
+                    />
+                    <button
+                        name="action_restore_as_new"
+                        string="Restore as New"
+                        type="object"
+                        invisible="state == 'current'"
+                    />
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="draft,scheduled,current"
+                    />
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button name="action_view_artifact"
-                                type="object"
-                                class="oe_stat_button"
-                                icon="fa-external-link">
+                        <button
+                            name="action_view_artifact"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-external-link"
+                        >
                             <span>View Artifact</span>
                         </button>
                     </div>
                     <div class="oe_title">
                         <h1>
-                            <field name="artifact_name" readonly="1"/>
+                            <field name="artifact_name" readonly="1" />
                             <span class="text-muted"> v</span>
-                            <field name="version" readonly="1" class="oe_inline"/>
+                            <field name="version" readonly="1" class="oe_inline" />
                         </h1>
                     </div>
                     <group col="2">
                         <group string="Version Info">
-                            <field name="model" readonly="1"/>
-                            <field name="res_id" readonly="1"/>
-                            <field name="version" readonly="1"/>
-                            <field name="change_summary"/>
+                            <field name="model" readonly="1" />
+                            <field name="res_id" readonly="1" />
+                            <field name="version" readonly="1" />
+                            <field name="change_summary" />
                         </group>
                         <group string="Timing">
-                            <field name="effective_date"/>
-                            <field name="end_date" readonly="1"/>
-                            <field name="days_until_active"
-                                   invisible="state != 'scheduled'"/>
+                            <field name="effective_date" />
+                            <field name="end_date" readonly="1" />
+                            <field
+                                name="days_until_active"
+                                invisible="state != 'scheduled'"
+                            />
                         </group>
                     </group>
                     <group col="2">
                         <group string="Audit">
-                            <field name="published_by" readonly="1"/>
-                            <field name="published_date" readonly="1"/>
-                            <field name="supersedes_id" readonly="1"/>
-                            <field name="superseded_by_id"/>
+                            <field name="published_by" readonly="1" />
+                            <field name="published_date" readonly="1" />
+                            <field name="supersedes_id" readonly="1" />
+                            <field name="superseded_by_id" />
                         </group>
                         <group string="Data">
-                            <field name="data_snapshot" readonly="1" widget="json"/>
+                            <field name="data_snapshot" readonly="1" widget="json" />
                         </group>
                     </group>
                 </sheet>
-                <chatter/>
+                <chatter />
             </form>
         </field>
     </record>
@@ -94,26 +112,38 @@
         <field name="name">spp.artifact.version.list</field>
         <field name="model">spp.artifact.version</field>
         <field name="arch" type="xml">
-            <list default_order="model, res_id, version desc"
-                  decoration-success="state == 'current'"
-                  decoration-info="state == 'scheduled'"
-                  decoration-warning="state == 'pending'"
-                  decoration-muted="state in ('superseded', 'archived', 'cancelled')">
-                <field name="artifact_name"/>
-                <field name="version" string="#"/>
-                <field name="state" widget="badge"
-                       decoration-success="state == 'current'"
-                       decoration-info="state == 'scheduled'"
-                       decoration-warning="state == 'pending'"
-                       decoration-muted="state in ('superseded', 'archived', 'cancelled')"/>
-                <field name="effective_date"/>
-                <field name="end_date"/>
-                <field name="change_summary"/>
-                <field name="published_by"/>
-                <field name="days_until_active" string="Days"
-                       invisible="state != 'scheduled'"/>
-                <button name="action_view_artifact" type="object"
-                        string="View" icon="fa-external-link"/>
+            <list
+                default_order="model, res_id, version desc"
+                decoration-success="state == 'current'"
+                decoration-info="state == 'scheduled'"
+                decoration-warning="state == 'pending'"
+                decoration-muted="state in ('superseded', 'archived', 'cancelled')"
+            >
+                <field name="artifact_name" />
+                <field name="version" string="#" />
+                <field
+                    name="state"
+                    widget="badge"
+                    decoration-success="state == 'current'"
+                    decoration-info="state == 'scheduled'"
+                    decoration-warning="state == 'pending'"
+                    decoration-muted="state in ('superseded', 'archived', 'cancelled')"
+                />
+                <field name="effective_date" />
+                <field name="end_date" />
+                <field name="change_summary" />
+                <field name="published_by" />
+                <field
+                    name="days_until_active"
+                    string="Days"
+                    invisible="state != 'scheduled'"
+                />
+                <button
+                    name="action_view_artifact"
+                    type="object"
+                    string="View"
+                    icon="fa-external-link"
+                />
             </list>
         </field>
     </record>
@@ -124,32 +154,62 @@
         <field name="model">spp.artifact.version</field>
         <field name="arch" type="xml">
             <search>
-                <field name="artifact_name"/>
-                <field name="model"/>
-                <field name="change_summary"/>
-                <field name="published_by"/>
-                <filter name="filter_draft" string="Draft"
-                        domain="[('state', '=', 'draft')]"/>
-                <filter name="filter_pending" string="Pending Approval"
-                        domain="[('state', '=', 'pending')]"/>
-                <filter name="filter_scheduled" string="Scheduled"
-                        domain="[('state', '=', 'scheduled')]"/>
-                <filter name="filter_current" string="Current"
-                        domain="[('state', '=', 'current')]"/>
-                <filter name="filter_superseded" string="Superseded"
-                        domain="[('state', '=', 'superseded')]"/>
-                <separator/>
-                <filter name="upcoming" string="Upcoming (7 days)"
-                        domain="[('state', '=', 'scheduled'), ('effective_date', '&lt;=', (context_today() + relativedelta(days=7)).strftime('%Y-%m-%d'))]"/>
+                <field name="artifact_name" />
+                <field name="model" />
+                <field name="change_summary" />
+                <field name="published_by" />
+                <filter
+                    name="filter_draft"
+                    string="Draft"
+                    domain="[('state', '=', 'draft')]"
+                />
+                <filter
+                    name="filter_pending"
+                    string="Pending Approval"
+                    domain="[('state', '=', 'pending')]"
+                />
+                <filter
+                    name="filter_scheduled"
+                    string="Scheduled"
+                    domain="[('state', '=', 'scheduled')]"
+                />
+                <filter
+                    name="filter_current"
+                    string="Current"
+                    domain="[('state', '=', 'current')]"
+                />
+                <filter
+                    name="filter_superseded"
+                    string="Superseded"
+                    domain="[('state', '=', 'superseded')]"
+                />
+                <separator />
+                <filter
+                    name="upcoming"
+                    string="Upcoming (7 days)"
+                    domain="[('state', '=', 'scheduled'), ('effective_date', '&lt;=', (context_today() + relativedelta(days=7)).strftime('%Y-%m-%d'))]"
+                />
                 <group>
-                    <filter name="group_model" string="Model"
-                            context="{'group_by': 'model'}"/>
-                    <filter name="group_state" string="State"
-                            context="{'group_by': 'state'}"/>
-                    <filter name="group_effective_date" string="Effective Date"
-                            context="{'group_by': 'effective_date:month'}"/>
-                    <filter name="group_published_by" string="Published By"
-                            context="{'group_by': 'published_by'}"/>
+                    <filter
+                        name="group_model"
+                        string="Model"
+                        context="{'group_by': 'model'}"
+                    />
+                    <filter
+                        name="group_state"
+                        string="State"
+                        context="{'group_by': 'state'}"
+                    />
+                    <filter
+                        name="group_effective_date"
+                        string="Effective Date"
+                        context="{'group_by': 'effective_date:month'}"
+                    />
+                    <filter
+                        name="group_published_by"
+                        string="Published By"
+                        context="{'group_by': 'published_by'}"
+                    />
                 </group>
             </search>
         </field>
@@ -160,14 +220,16 @@
         <field name="name">spp.artifact.version.calendar</field>
         <field name="model">spp.artifact.version</field>
         <field name="arch" type="xml">
-            <calendar string="Scheduled Activations"
-                      date_start="effective_date"
-                      color="model"
-                      mode="month"
-                      quick_create="0">
-                <field name="artifact_name"/>
-                <field name="version"/>
-                <field name="change_summary"/>
+            <calendar
+                string="Scheduled Activations"
+                date_start="effective_date"
+                color="model"
+                mode="month"
+                quick_create="0"
+            >
+                <field name="artifact_name" />
+                <field name="version" />
+                <field name="change_summary" />
             </calendar>
         </field>
     </record>
@@ -211,15 +273,23 @@
         <field name="model">spp.artifact.usage</field>
         <field name="arch" type="xml">
             <list>
-                <field name="artifact_name"/>
-                <field name="artifact_model"/>
-                <field name="usage_type"/>
-                <field name="consumer_name"/>
-                <field name="consumer_model"/>
-                <button name="action_view_artifact" type="object"
-                        string="Artifact" icon="fa-cube"/>
-                <button name="action_view_consumer" type="object"
-                        string="Consumer" icon="fa-link"/>
+                <field name="artifact_name" />
+                <field name="artifact_model" />
+                <field name="usage_type" />
+                <field name="consumer_name" />
+                <field name="consumer_model" />
+                <button
+                    name="action_view_artifact"
+                    type="object"
+                    string="Artifact"
+                    icon="fa-cube"
+                />
+                <button
+                    name="action_view_consumer"
+                    type="object"
+                    string="Consumer"
+                    icon="fa-link"
+                />
             </list>
         </field>
     </record>
@@ -238,5 +308,4 @@
             </p>
         </field>
     </record>
-
 </odoo>

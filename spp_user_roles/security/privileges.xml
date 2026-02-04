@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Local Registrar Privilege -->
     <record id="privilege_local_registrar" model="res.groups.privilege">
         <field name="name">Local Registrar</field>
-        <field name="category_id" ref="spp_security.category_spp_registry"/>
+        <field name="category_id" ref="spp_security.category_spp_registry" />
         <field name="sequence">40</field>
     </record>
 </odoo>

@@ -13,20 +13,31 @@
         <field name="name">Browse All Individuals</field>
         <field name="res_model">res.partner</field>
         <field name="view_mode">list,form</field>
-        <field name="search_view_id" ref="spp_registry.view_registry_individuals_filter" />
-        <field name="context">{'default_is_registrant': True, 'default_is_group': False}</field>
+        <field
+            name="search_view_id"
+            ref="spp_registry.view_registry_individuals_filter"
+        />
+        <field
+            name="context"
+        >{'default_is_registrant': True, 'default_is_group': False}</field>
         <field name="domain">[('is_registrant','=',True),('is_group','=',False)]</field>
         <field name="path">browse-all-individuals</field>
     </record>
 
-    <record id="action_res_partner_individuals_list_view" model="ir.actions.act_window.view">
+    <record
+        id="action_res_partner_individuals_list_view"
+        model="ir.actions.act_window.view"
+    >
         <field name="sequence" eval="1" />
         <field name="view_mode">list</field>
         <field name="view_id" ref="spp_registry.view_individuals_list_tree" />
         <field name="act_window_id" ref="action_browse_all_individuals" />
     </record>
 
-    <record id="action_res_partner_individuals_form_view" model="ir.actions.act_window.view">
+    <record
+        id="action_res_partner_individuals_form_view"
+        model="ir.actions.act_window.view"
+    >
         <field name="sequence" eval="2" />
         <field name="view_mode">form</field>
         <field name="view_id" ref="spp_registry.view_individuals_form" />
@@ -39,7 +50,9 @@
         <field name="res_model">res.partner</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="spp_registry.view_registry_groups_filter" />
-        <field name="context">{'default_is_registrant': True, 'default_is_group': True}</field>
+        <field
+            name="context"
+        >{'default_is_registrant': True, 'default_is_group': True}</field>
         <field name="domain">[('is_registrant','=',True),('is_group','=',True)]</field>
         <field name="path">browse-all-groups</field>
     </record>

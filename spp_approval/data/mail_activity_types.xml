@@ -1,35 +1,35 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
-        <!-- Activity type for approval requests -->
-        <record id="mail_activity_approval_required" model="mail.activity.type">
-            <field name="name">Approval Required</field>
-            <field name="summary">Approval Required</field>
-            <field name="icon">fa-check-circle</field>
-            <field name="delay_count">0</field>
-            <field name="delay_unit">days</field>
-            <field name="res_model">False</field>
-            <field name="decoration_type">warning</field>
-        </record>
+    <!-- Activity type for approval requests -->
+    <record id="mail_activity_approval_required" model="mail.activity.type">
+        <field name="name">Approval Required</field>
+        <field name="summary">Approval Required</field>
+        <field name="icon">fa-check-circle</field>
+        <field name="delay_count">0</field>
+        <field name="delay_unit">days</field>
+        <field name="res_model">False</field>
+        <field name="decoration_type">warning</field>
+    </record>
 
-        <!-- Activity type for approval pending notification -->
-        <record id="mail_activity_approval_pending" model="mail.activity.type">
-            <field name="name">Approval Pending</field>
-            <field name="summary">Waiting for Approval</field>
-            <field name="icon">fa-clock-o</field>
-            <field name="delay_count">0</field>
-            <field name="delay_unit">days</field>
-            <field name="res_model">False</field>
-            <field name="decoration_type">warning</field>
-        </record>
+    <!-- Activity type for approval pending notification -->
+    <record id="mail_activity_approval_pending" model="mail.activity.type">
+        <field name="name">Approval Pending</field>
+        <field name="summary">Waiting for Approval</field>
+        <field name="icon">fa-clock-o</field>
+        <field name="delay_count">0</field>
+        <field name="delay_unit">days</field>
+        <field name="res_model">False</field>
+        <field name="decoration_type">warning</field>
+    </record>
 
-        <!-- Activity type for SLA exceeded -->
-        <record id="mail_activity_sla_exceeded" model="mail.activity.type">
-            <field name="name">SLA Exceeded</field>
-            <field name="summary">Approval SLA Exceeded</field>
-            <field name="icon">fa-exclamation-triangle</field>
-            <field name="delay_count">0</field>
-            <field name="delay_unit">days</field>
-            <field name="res_model">False</field>
-            <field name="decoration_type">danger</field>
-        </record>
+    <!-- Activity type for SLA exceeded -->
+    <record id="mail_activity_sla_exceeded" model="mail.activity.type">
+        <field name="name">SLA Exceeded</field>
+        <field name="summary">Approval SLA Exceeded</field>
+        <field name="icon">fa-exclamation-triangle</field>
+        <field name="delay_count">0</field>
+        <field name="delay_unit">days</field>
+        <field name="res_model">False</field>
+        <field name="decoration_type">danger</field>
+    </record>
 </odoo>

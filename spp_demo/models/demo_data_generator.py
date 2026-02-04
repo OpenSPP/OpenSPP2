@@ -160,8 +160,7 @@ class SPPDemoDataGenerator(models.Model):
             self.members_range_from = self._default_members_range_from()
             self.members_range_to = self._default_members_range_to()
             raise ValidationError(
-                "Members per Group (From) cannot be greater than Members per Group (To)."
-                " Resetting to default values."
+                "Members per Group (From) cannot be greater than Members per Group (To). Resetting to default values."
             )
 
         self.state = "in_progress"

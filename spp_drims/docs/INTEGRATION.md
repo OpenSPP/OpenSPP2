@@ -1,7 +1,7 @@
 # DRIMS Module Integration
 
-DRIMS integrates with multiple OpenSPP and Odoo modules to provide a complete disaster response inventory management
-solution.
+DRIMS integrates with multiple OpenSPP and Odoo modules to provide a complete disaster
+response inventory management solution.
 
 ## Dependency Graph
 
@@ -271,9 +271,9 @@ Create XML data files:
 
 ```xml
 <record id="my_vocab_code" model="spp.vocabulary.code">
-    <field name="code">my_code</field>
-    <field name="display">{"en_US": "My Code"}</field>
-    <field name="vocabulary_id" ref="spp_drims.vocab_drims_priority"/>
+  <field name="code">my_code</field>
+  <field name="display">{"en_US": "My Code"}</field>
+  <field name="vocabulary_id" ref="spp_drims.vocab_drims_priority" />
 </record>
 ```
 
@@ -283,7 +283,8 @@ Add to `urn:openspp:vocab:drims:alert-types` vocabulary and implement cron check
 
 ### Custom Approval Rules
 
-Use CEL expressions in `spp_approval` to define custom approval workflows based on request values.
+Use CEL expressions in `spp_approval` to define custom approval workflows based on
+request values.
 
 ## API Integration
 

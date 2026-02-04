@@ -1,30 +1,38 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
-        <record id="pack_pmt_targeting" model="spp.studio.pack">
-            <field name="name">PMT Targeting</field>
-            <field name="code">pmt_targeting</field>
-            <field name="description">Proxy Means Test based targeting with tiered benefit amounts</field>
-            <field name="category">cash_transfer</field>
-            <field name="version">1.0</field>
-            <field name="author">OpenSPP</field>
-            <field name="state">available</field>
-        </record>
+    <record id="pack_pmt_targeting" model="spp.studio.pack">
+        <field name="name">PMT Targeting</field>
+        <field name="code">pmt_targeting</field>
+        <field
+            name="description"
+        >Proxy Means Test based targeting with tiered benefit amounts</field>
+        <field name="category">cash_transfer</field>
+        <field name="version">1.0</field>
+        <field name="author">OpenSPP</field>
+        <field name="state">available</field>
+    </record>
 
-        <record id="pack_pmt_targeting_item_1" model="spp.studio.pack.item">
-            <field name="pack_id" ref="pack_pmt_targeting"/>
-            <field name="name">PMT Eligibility</field>
-            <field name="context_type">group</field>
-            <field name="expression_type">filter</field>
-            <field name="description">Checks if PMT score is 25 or below (registrant selection is handled at registry level)</field>
-            <field name="logic_data">{"cel_expression": "pmt_score &lt;= 25"}</field>
-        </record>
+    <record id="pack_pmt_targeting_item_1" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_pmt_targeting" />
+        <field name="name">PMT Eligibility</field>
+        <field name="context_type">group</field>
+        <field name="expression_type">filter</field>
+        <field
+            name="description"
+        >Checks if PMT score is 25 or below (registrant selection is handled at registry level)</field>
+        <field name="logic_data">{"cel_expression": "pmt_score &lt;= 25"}</field>
+    </record>
 
-        <record id="pack_pmt_targeting_item_2" model="spp.studio.pack.item">
-            <field name="pack_id" ref="pack_pmt_targeting"/>
-            <field name="name">PMT Tiered Benefit</field>
-            <field name="context_type">group</field>
-            <field name="expression_type">formula</field>
-            <field name="description">Provides tiered benefit amounts based on PMT score (15 or below: 2000, 16-25: 1500, above 25: 1000)</field>
-            <field name="logic_data">{"cel_expression": "pmt_score &lt;= 15 ? 2000 : pmt_score &lt;= 25 ? 1500 : 1000"}</field>
-        </record>
+    <record id="pack_pmt_targeting_item_2" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_pmt_targeting" />
+        <field name="name">PMT Tiered Benefit</field>
+        <field name="context_type">group</field>
+        <field name="expression_type">formula</field>
+        <field
+            name="description"
+        >Provides tiered benefit amounts based on PMT score (15 or below: 2000, 16-25: 1500, above 25: 1000)</field>
+        <field
+            name="logic_data"
+        >{"cel_expression": "pmt_score &lt;= 15 ? 2000 : pmt_score &lt;= 25 ? 1500 : 1000"}</field>
+    </record>
 </odoo>

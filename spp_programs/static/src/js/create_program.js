@@ -14,7 +14,9 @@ patch(ListController.prototype, {
             // Check if user has permission to create programs
             // Groups: spp_security.group_spp_admin OR spp_programs.group_programs_manager
             const is_admin = await user.hasGroup("spp_security.group_spp_admin");
-            const is_program_manager = await user.hasGroup("spp_programs.group_programs_manager");
+            const is_program_manager = await user.hasGroup(
+                "spp_programs.group_programs_manager"
+            );
             this.canCreateProgram = is_admin || is_program_manager;
         });
     },

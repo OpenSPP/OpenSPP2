@@ -21,10 +21,13 @@
         <field name="login">kumari</field>
         <field name="password">demo</field>
         <field name="email">kumari@demo.openspp.org</field>
-        <field name="group_ids" eval="[Command.set([
+        <field
+            name="group_ids"
+            eval="[Command.set([
             ref('base.group_user'),
             ref('spp_drims.group_drims_field_officer'),
-        ])]"/>
+        ])]"
+        />
     </record>
 
     <!-- APPROVER - rajitha -->
@@ -34,10 +37,13 @@
         <field name="login">rajitha</field>
         <field name="password">demo</field>
         <field name="email">rajitha@demo.openspp.org</field>
-        <field name="group_ids" eval="[Command.set([
+        <field
+            name="group_ids"
+            eval="[Command.set([
             ref('base.group_user'),
             ref('spp_drims.group_drims_approver'),
-        ])]"/>
+        ])]"
+        />
     </record>
 
     <!-- MANAGER - silva -->
@@ -47,10 +53,13 @@
         <field name="login">silva</field>
         <field name="password">demo</field>
         <field name="email">silva@demo.openspp.org</field>
-        <field name="group_ids" eval="[Command.set([
+        <field
+            name="group_ids"
+            eval="[Command.set([
             ref('base.group_user'),
             ref('spp_drims.group_drims_manager'),
-        ])]"/>
+        ])]"
+        />
     </record>
 
     <!-- WAREHOUSE STAFF - perera -->
@@ -60,10 +69,13 @@
         <field name="login">perera</field>
         <field name="password">demo</field>
         <field name="email">perera@demo.openspp.org</field>
-        <field name="group_ids" eval="[Command.set([
+        <field
+            name="group_ids"
+            eval="[Command.set([
             ref('base.group_user'),
             ref('spp_drims.group_drims_warehouse_worker'),
-        ])]"/>
+        ])]"
+        />
     </record>
 
     <!-- COORDINATOR - fernando -->
@@ -73,10 +85,13 @@
         <field name="login">fernando</field>
         <field name="password">demo</field>
         <field name="email">fernando@demo.openspp.org</field>
-        <field name="group_ids" eval="[Command.set([
+        <field
+            name="group_ids"
+            eval="[Command.set([
             ref('base.group_user'),
             ref('spp_drims.group_drims_coordinator_supervisor'),
-        ])]"/>
+        ])]"
+        />
     </record>
 
     <!-- VIEWER - secretary -->
@@ -86,10 +101,12 @@
         <field name="login">secretary</field>
         <field name="password">demo</field>
         <field name="email">secretary@demo.openspp.org</field>
-        <field name="group_ids" eval="[Command.set([
+        <field
+            name="group_ids"
+            eval="[Command.set([
             ref('base.group_user'),
             ref('spp_drims.group_drims_viewer'),
-        ])]"/>
+        ])]"
+        />
     </record>
-
 </odoo>

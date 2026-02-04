@@ -235,7 +235,7 @@ class StudioField(models.Model):
                 if set(vals.keys()) - allowed_fields:
                     raise UserError(
                         _(
-                            "Cannot modify active field '%(name)s'. " "Deactivate it first to make changes.",
+                            "Cannot modify active field '%(name)s'. Deactivate it first to make changes.",
                             name=record.label,
                         )
                     )

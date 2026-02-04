@@ -16,7 +16,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                 <field name="target_type" />
                 <field name="eligible_beneficiaries_count" string="Beneficiaries" />
                 <field name="cycles_count" string="Cycles" />
-                <field name="company_id" groups="base.group_multi_company" optional="hide" />
+                <field
+                    name="company_id"
+                    groups="base.group_multi_company"
+                    optional="hide"
+                />
                 <field
                     name="state"
                     decoration-success="state == 'active'"
@@ -40,14 +44,39 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                 <field name="name" />
                 <field name="target_type" />
                 <separator />
-                <filter string="Active" name="active_programs" domain="[('state', '=', 'active')]" />
-                <filter string="Ended" name="ended_programs" domain="[('state', '=', 'ended')]" />
+                <filter
+                    string="Active"
+                    name="active_programs"
+                    domain="[('state', '=', 'active')]"
+                />
+                <filter
+                    string="Ended"
+                    name="ended_programs"
+                    domain="[('state', '=', 'ended')]"
+                />
                 <separator />
-                <filter string="Archived" name="inactive" domain="[('active', '=', False)]" />
+                <filter
+                    string="Archived"
+                    name="inactive"
+                    domain="[('active', '=', False)]"
+                />
                 <separator />
-                <filter string="Target Type" name="group_by_target" context="{'group_by': 'target_type'}" />
-                <filter string="State" name="group_by_state" context="{'group_by': 'state'}" />
-                <filter string="Company" name="group_by_company" context="{'group_by': 'company_id'}" groups="base.group_multi_company" />
+                <filter
+                    string="Target Type"
+                    name="group_by_target"
+                    context="{'group_by': 'target_type'}"
+                />
+                <filter
+                    string="State"
+                    name="group_by_state"
+                    context="{'group_by': 'state'}"
+                />
+                <filter
+                    string="Company"
+                    name="group_by_company"
+                    context="{'group_by': 'company_id'}"
+                    groups="base.group_multi_company"
+                />
             </search>
         </field>
     </record>
@@ -113,39 +142,45 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         invisible="state != 'active'"
                         groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_officer"
                     />
-                    <field name="state" widget="statusbar" statusbar_visible="active,ended" />
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="active,ended"
+                    />
                 </header>
 
                 <!-- Alerts -->
-                <div
-                    class="alert alert-danger"
-                    role="alert"
-                    invisible="journal_id"
-                >
-                    <i class="fa fa-exclamation-triangle" title="Warning" /> A journal must be defined for this program.
+                <div class="alert alert-danger" role="alert" invisible="journal_id">
+                    <i
+                    class="fa fa-exclamation-triangle"
+                    title="Warning"
+                /> A journal must be defined for this program.
                     Configure it in the <strong>Configuration</strong> tab or
                     <button
-                        type="object"
-                        class="btn btn-sm btn-danger"
-                        icon="fa-plus"
-                        name="create_journal"
-                        string="Create New Journal"
-                    />
+                    type="object"
+                    class="btn btn-sm btn-danger"
+                    icon="fa-plus"
+                    name="create_journal"
+                    string="Create New Journal"
+                />
                 </div>
                 <div
                     class="alert alert-warning text-center"
                     role="status"
                     invisible="not is_locked"
                 >
-                    <i class="fa fa-spinner fa-spin" title="Loading" /> Operation in progress:
+                    <i
+                    class="fa fa-spinner fa-spin"
+                    title="Loading"
+                /> Operation in progress:
                     <field name="locked_reason" class="fw-bold" />
                     <button
-                        name="refresh_page"
-                        type="object"
-                        class="btn btn-sm btn-warning ms-2"
-                        icon="fa-refresh"
-                        string="Refresh"
-                    />
+                    name="refresh_page"
+                    type="object"
+                    class="btn btn-sm btn-warning ms-2"
+                    icon="fa-refresh"
+                    string="Refresh"
+                />
                 </div>
 
                 <sheet>
@@ -157,7 +192,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                             icon="fa-users"
                             name="open_eligible_beneficiaries_form"
                         >
-                            <field name="eligible_beneficiaries_count" widget="statinfo" string="Beneficiaries" />
+                            <field
+                                name="eligible_beneficiaries_count"
+                                widget="statinfo"
+                                string="Beneficiaries"
+                            />
                         </button>
                         <button
                             type="object"
@@ -165,7 +204,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                             icon="fa-refresh"
                             name="open_cycles_form"
                         >
-                            <field name="cycles_count" widget="statinfo" string="Cycles" />
+                            <field
+                                name="cycles_count"
+                                widget="statinfo"
+                                string="Cycles"
+                            />
                         </button>
                         <button
                             type="object"
@@ -174,18 +217,37 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                             name="open_duplicate_membership_form"
                             invisible="duplicate_membership_count == 0"
                         >
-                            <field name="duplicate_membership_count" widget="statinfo" string="Duplicates" />
+                            <field
+                                name="duplicate_membership_count"
+                                widget="statinfo"
+                                string="Duplicates"
+                            />
                         </button>
                     </div>
 
                     <!-- Ribbons -->
-                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" invisible="active" />
-                    <widget name="web_ribbon" title="Ended" bg_color="bg-warning" invisible="state != 'ended'" />
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="bg-danger"
+                        invisible="active"
+                    />
+                    <widget
+                        name="web_ribbon"
+                        title="Ended"
+                        bg_color="bg-warning"
+                        invisible="state != 'ended'"
+                    />
 
                     <!-- Title Section - Minimal header -->
                     <div class="oe_title">
                         <h1>
-                            <field name="name" placeholder="Program Name" required="1" readonly="state == 'ended'" />
+                            <field
+                                name="name"
+                                placeholder="Program Name"
+                                required="1"
+                                readonly="state == 'ended'"
+                            />
                         </h1>
                     </div>
 
@@ -201,12 +263,24 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                             <!-- Basic Info Section - 2 columns -->
                             <group name="basic_info_section" col="2">
                                 <group name="program_info">
-                                    <field name="target_type" widget="radio" readonly="state == 'ended' or has_members" />
-                                    <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}" readonly="state == 'ended'" />
+                                    <field
+                                        name="target_type"
+                                        widget="radio"
+                                        readonly="state == 'ended' or has_members"
+                                    />
+                                    <field
+                                        name="company_id"
+                                        groups="base.group_multi_company"
+                                        options="{'no_create': True}"
+                                        readonly="state == 'ended'"
+                                    />
                                 </group>
                                 <group name="program_stats">
                                     <field name="beneficiaries_count" readonly="1" />
-                                    <field name="eligible_beneficiaries_count" readonly="1" />
+                                    <field
+                                        name="eligible_beneficiaries_count"
+                                        readonly="1"
+                                    />
                                 </group>
                             </group>
 
@@ -217,8 +291,19 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 
                             <!-- Recent Cycles Summary -->
                             <separator string="Recent Cycles" />
-                            <field name="cycle_ids" nolabel="1" readonly="1" mode="list">
-                                <list create="0" delete="0" edit="0" limit="10" decoration-muted="state in ('ended', 'cancelled')">
+                            <field
+                                name="cycle_ids"
+                                nolabel="1"
+                                readonly="1"
+                                mode="list"
+                            >
+                                <list
+                                    create="0"
+                                    delete="0"
+                                    edit="0"
+                                    limit="10"
+                                    decoration-muted="state in ('ended', 'cancelled')"
+                                >
                                     <field name="name" />
                                     <field name="start_date" />
                                     <field name="end_date" />
@@ -235,9 +320,13 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         </page>
 
                         <!-- ==================== CONFIGURATION TAB ==================== -->
-                        <page name="configuration" string="Configuration" groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_validator">
+                        <page
+                            name="configuration"
+                            string="Configuration"
+                            groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_validator"
+                        >
                             <!-- Hidden field for access control -->
-                            <field name="can_edit_configuration" invisible="1"/>
+                            <field name="can_edit_configuration" invisible="1" />
 
                             <!-- Core Managers Section - Single instance only -->
                             <separator string="Core Managers" />
@@ -248,30 +337,90 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 
                             <group name="core_managers_section" col="2">
                                 <group>
-                                    <field name="program_manager_ids" readonly="state == 'ended' or not can_edit_configuration" context="{'default_program_id': id}">
+                                    <field
+                                        name="program_manager_ids"
+                                        readonly="state == 'ended' or not can_edit_configuration"
+                                        context="{'default_program_id': id}"
+                                    >
                                         <list editable="bottom" create="1" delete="1">
-                                            <field name="manager_ref_id" string="Manager" options="{'no_quick_create':True}" context="{'default_program_id': parent.id}" />
-                                            <button name="open_manager_form" type="object" class="btn-link p-0" icon="fa-cog" title="Configure manager settings" />
+                                            <field
+                                                name="manager_ref_id"
+                                                string="Manager"
+                                                options="{'no_quick_create':True}"
+                                                context="{'default_program_id': parent.id}"
+                                            />
+                                            <button
+                                                name="open_manager_form"
+                                                type="object"
+                                                class="btn-link p-0"
+                                                icon="fa-cog"
+                                                title="Configure manager settings"
+                                            />
                                         </list>
                                     </field>
-                                    <field name="cycle_manager_ids" readonly="state == 'ended' or not can_edit_configuration" context="{'default_program_id': id}">
+                                    <field
+                                        name="cycle_manager_ids"
+                                        readonly="state == 'ended' or not can_edit_configuration"
+                                        context="{'default_program_id': id}"
+                                    >
                                         <list editable="bottom" create="1" delete="1">
-                                            <field name="manager_ref_id" string="Manager" options="{'no_quick_create':True}" context="{'default_program_id': parent.id}" />
-                                            <button name="open_manager_form" type="object" class="btn-link p-0" icon="fa-cog" title="Configure manager settings" />
+                                            <field
+                                                name="manager_ref_id"
+                                                string="Manager"
+                                                options="{'no_quick_create':True}"
+                                                context="{'default_program_id': parent.id}"
+                                            />
+                                            <button
+                                                name="open_manager_form"
+                                                type="object"
+                                                class="btn-link p-0"
+                                                icon="fa-cog"
+                                                title="Configure manager settings"
+                                            />
                                         </list>
                                     </field>
                                 </group>
                                 <group>
-                                    <field name="entitlement_manager_ids" readonly="state == 'ended' or not can_edit_configuration" context="{'default_program_id': id}">
+                                    <field
+                                        name="entitlement_manager_ids"
+                                        readonly="state == 'ended' or not can_edit_configuration"
+                                        context="{'default_program_id': id}"
+                                    >
                                         <list editable="bottom" create="1" delete="1">
-                                            <field name="manager_ref_id" string="Manager" options="{'no_quick_create':True}" context="{'default_program_id': parent.id}" />
-                                            <button name="open_manager_form" type="object" class="btn-link p-0" icon="fa-cog" title="Configure manager settings" />
+                                            <field
+                                                name="manager_ref_id"
+                                                string="Manager"
+                                                options="{'no_quick_create':True}"
+                                                context="{'default_program_id': parent.id}"
+                                            />
+                                            <button
+                                                name="open_manager_form"
+                                                type="object"
+                                                class="btn-link p-0"
+                                                icon="fa-cog"
+                                                title="Configure manager settings"
+                                            />
                                         </list>
                                     </field>
-                                    <field name="payment_manager_ids" readonly="state == 'ended' or not can_edit_configuration" context="{'default_program_id': id}">
+                                    <field
+                                        name="payment_manager_ids"
+                                        readonly="state == 'ended' or not can_edit_configuration"
+                                        context="{'default_program_id': id}"
+                                    >
                                         <list editable="bottom" create="1" delete="1">
-                                            <field name="manager_ref_id" string="Manager" options="{'no_quick_create':True}" context="{'default_program_id': parent.id}" />
-                                            <button name="open_manager_form" type="object" class="btn-link p-0" icon="fa-cog" title="Configure manager settings" />
+                                            <field
+                                                name="manager_ref_id"
+                                                string="Manager"
+                                                options="{'no_quick_create':True}"
+                                                context="{'default_program_id': parent.id}"
+                                            />
+                                            <button
+                                                name="open_manager_form"
+                                                type="object"
+                                                class="btn-link p-0"
+                                                icon="fa-cog"
+                                                title="Configure manager settings"
+                                            />
                                         </list>
                                     </field>
                                 </group>
@@ -279,16 +428,38 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 
                             <!-- Eligibility Manager Section - Critical for beneficiary selection -->
                             <separator string="Eligibility Manager" />
-                            <div class="alert alert-warning small mb-3 py-2" role="alert">
-                                <i class="fa fa-exclamation-triangle me-2" title="Warning" />
+                            <div
+                                class="alert alert-warning small mb-3 py-2"
+                                role="alert"
+                            >
+                                <i
+                                class="fa fa-exclamation-triangle me-2"
+                                title="Warning"
+                            />
                                 Eligibility managers determine who qualifies for the program. Multiple managers can be configured and will run in sequence.
                             </div>
 
                             <group name="eligibility_manager_section" col="1">
-                                <field name="eligibility_manager_ids" nolabel="1" readonly="state == 'ended' or not can_edit_configuration" context="{'default_program_id': id}">
+                                <field
+                                    name="eligibility_manager_ids"
+                                    nolabel="1"
+                                    readonly="state == 'ended' or not can_edit_configuration"
+                                    context="{'default_program_id': id}"
+                                >
                                     <list editable="bottom" create="1" delete="1">
-                                        <field name="manager_ref_id" string="Eligibility Manager" options="{'no_quick_create':True}" context="{'default_program_id': parent.id}" />
-                                        <button name="open_manager_form" type="object" class="btn-link p-0" icon="fa-cog" title="Configure manager settings" />
+                                        <field
+                                            name="manager_ref_id"
+                                            string="Eligibility Manager"
+                                            options="{'no_quick_create':True}"
+                                            context="{'default_program_id': parent.id}"
+                                        />
+                                        <button
+                                            name="open_manager_form"
+                                            type="object"
+                                            class="btn-link p-0"
+                                            icon="fa-cog"
+                                            title="Configure manager settings"
+                                        />
                                     </list>
                                 </field>
                             </group>
@@ -301,16 +472,46 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                             </div>
 
                             <group name="optional_managers_section" col="1">
-                                <field name="deduplication_manager_ids" readonly="state == 'ended' or not can_edit_configuration" context="{'default_program_id': id}">
+                                <field
+                                    name="deduplication_manager_ids"
+                                    readonly="state == 'ended' or not can_edit_configuration"
+                                    context="{'default_program_id': id}"
+                                >
                                     <list editable="bottom" create="1" delete="1">
-                                        <field name="manager_ref_id" string="Deduplication Manager" options="{'no_quick_create':True}" context="{'default_program_id': parent.id}" />
-                                        <button name="open_manager_form" type="object" class="btn-link p-0" icon="fa-cog" title="Configure manager settings" />
+                                        <field
+                                            name="manager_ref_id"
+                                            string="Deduplication Manager"
+                                            options="{'no_quick_create':True}"
+                                            context="{'default_program_id': parent.id}"
+                                        />
+                                        <button
+                                            name="open_manager_form"
+                                            type="object"
+                                            class="btn-link p-0"
+                                            icon="fa-cog"
+                                            title="Configure manager settings"
+                                        />
                                     </list>
                                 </field>
-                                <field name="notification_manager_ids" readonly="state == 'ended' or not can_edit_configuration" context="{'default_program_id': id}">
+                                <field
+                                    name="notification_manager_ids"
+                                    readonly="state == 'ended' or not can_edit_configuration"
+                                    context="{'default_program_id': id}"
+                                >
                                     <list editable="bottom" create="1" delete="1">
-                                        <field name="manager_ref_id" string="Notification Manager" options="{'no_quick_create':True}" context="{'default_program_id': parent.id}" />
-                                        <button name="open_manager_form" type="object" class="btn-link p-0" icon="fa-cog" title="Configure manager settings" />
+                                        <field
+                                            name="manager_ref_id"
+                                            string="Notification Manager"
+                                            options="{'no_quick_create':True}"
+                                            context="{'default_program_id': parent.id}"
+                                        />
+                                        <button
+                                            name="open_manager_form"
+                                            type="object"
+                                            class="btn-link p-0"
+                                            icon="fa-cog"
+                                            title="Configure manager settings"
+                                        />
                                     </list>
                                 </field>
                             </group>
@@ -333,7 +534,10 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                                     />
                                 </group>
                                 <group>
-                                    <field name="is_one_time_distribution" readonly="state == 'ended' or not can_edit_configuration" />
+                                    <field
+                                        name="is_one_time_distribution"
+                                        readonly="state == 'ended' or not can_edit_configuration"
+                                    />
                                 </group>
                             </group>
 
@@ -427,5 +631,4 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         sequence="10"
         groups="spp_programs.group_programs_viewer,spp_programs.group_programs_manager,spp_security.group_spp_admin"
     />
-
 </odoo>

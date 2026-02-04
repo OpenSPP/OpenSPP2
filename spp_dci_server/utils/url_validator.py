@@ -106,7 +106,7 @@ def validate_callback_url(url: str, require_https: bool = True, skip_ip_check: b
     # Check scheme
     if require_https:
         if parsed.scheme != "https":
-            raise ValidationError("Callback URL must use HTTPS protocol for security. " f"Got: {parsed.scheme}://")
+            raise ValidationError(f"Callback URL must use HTTPS protocol for security. Got: {parsed.scheme}://")
     else:
         if parsed.scheme not in ("http", "https"):
             raise ValidationError(f"Callback URL must use HTTP or HTTPS protocol. Got: {parsed.scheme}://")
@@ -155,7 +155,7 @@ def validate_callback_url(url: str, require_https: bool = True, skip_ip_check: b
             # DNS resolution failed - this could be legitimate (DNS not available)
             # or could be an attack. Log and allow with warning.
             _logger.warning(
-                "Could not resolve callback URL hostname %s: %s. " "Proceeding with caution.",
+                "Could not resolve callback URL hostname %s: %s. Proceeding with caution.",
                 hostname,
                 str(e),
             )

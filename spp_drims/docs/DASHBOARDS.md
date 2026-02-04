@@ -1,7 +1,8 @@
 # DRIMS Dashboards & KPIs
 
-The DRIMS dashboard provides real-time visibility into disaster response operations through Key Performance Indicators
-(KPIs) displayed on incident cards and warehouse views.
+The DRIMS dashboard provides real-time visibility into disaster response operations
+through Key Performance Indicators (KPIs) displayed on incident cards and warehouse
+views.
 
 ## Dashboard Views
 
@@ -128,7 +129,8 @@ Expensive KPIs are cached in `spp.data.value` to avoid real-time computation:
 
 ### Cache Refresh
 
-**Cron Job**: `DRIMS: Refresh KPI Cache` **Frequency**: Every 15 minutes **Method**: `_cron_refresh_drims_kpis()`
+**Cron Job**: `DRIMS: Refresh KPI Cache` **Frequency**: Every 15 minutes **Method**:
+`_cron_refresh_drims_kpis()`
 
 The cron job:
 
@@ -240,7 +242,7 @@ def _compute_drims_new_kpi(self):
 3. Add to dashboard view:
 
 ```xml
-<field name="drims_new_kpi"/>
+<field name="drims_new_kpi" />
 ```
 
 4. (Optional) Add to cache refresh in `_refresh_incident_kpi_cache()`

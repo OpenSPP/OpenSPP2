@@ -4,13 +4,15 @@
     <!-- Audit Groups -->
     <record id="group_audit_manager" model="res.groups">
         <field name="name">Manager</field>
-        <field name="privilege_id" ref="privilege_audit_manager"/>
-        <field name="comment">Full audit log management including configuration and log viewing.</field>
+        <field name="privilege_id" ref="privilege_audit_manager" />
+        <field
+            name="comment"
+        >Full audit log management including configuration and log viewing.</field>
         <field name="implied_ids" eval="[Command.link(ref('base.group_user'))]" />
     </record>
 
     <!-- Link manager group to admin -->
     <record id="spp_security.group_spp_admin" model="res.groups">
-        <field name="implied_ids" eval="[Command.link(ref('group_audit_manager'))]"/>
+        <field name="implied_ids" eval="[Command.link(ref('group_audit_manager'))]" />
     </record>
 </odoo>

@@ -18,10 +18,14 @@
                                 required="1"
                             />
                             <field name="member_name" />
-                            <field name="membership_id" invisible="1" force_save="1"/>
+                            <field name="membership_id" invisible="1" force_save="1" />
                         </group>
                         <group string="Target">
-                            <field name="target_group_id" options="{'no_create': True}" required="1"/>
+                            <field
+                                name="target_group_id"
+                                options="{'no_create': True}"
+                                required="1"
+                            />
                             <field name="new_role_id" options="{'no_create': True}" />
                         </group>
                     </group>
@@ -32,7 +36,10 @@
                         </group>
                     </group>
                     <group string="Additional Information">
-                        <field name="remarks" placeholder="Enter any additional notes..." />
+                        <field
+                            name="remarks"
+                            placeholder="Enter any additional notes..."
+                        />
                     </group>
                 </sheet>
             </form>

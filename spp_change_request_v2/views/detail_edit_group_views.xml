@@ -12,39 +12,38 @@
                     </div>
 
                     <group string="Group">
-                        <field name="registrant_id" readonly="1"/>
-                        <field name="change_request_id" invisible="1"/>
+                        <field name="registrant_id" readonly="1" />
+                        <field name="change_request_id" invisible="1" />
                     </group>
 
                     <notebook>
                         <page string="Group Information">
                             <group>
                                 <group>
-                                    <field name="group_name" required="1"/>
+                                    <field name="group_name" required="1" />
                                 </group>
                                 <group>
-                                    <field name="phone"/>
-                                    <field name="email"/>
+                                    <field name="phone" />
+                                    <field name="email" />
                                 </group>
                             </group>
                         </page>
                         <page string="Address">
                             <group>
                                 <group>
-                                    <field name="address_line1"/>
-                                    <field name="address_line2"/>
+                                    <field name="address_line1" />
+                                    <field name="address_line2" />
                                 </group>
                                 <group>
-                                    <field name="city"/>
-                                    <field name="postal_code"/>
+                                    <field name="city" />
+                                    <field name="postal_code" />
                                 </group>
                             </group>
                         </page>
                     </notebook>
                 </sheet>
-                <chatter/>
+                <chatter />
             </form>
         </field>
     </record>
-
 </odoo>
