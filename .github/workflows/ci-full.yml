@@ -1,0 +1,417 @@
+name: Full Test Suite
+
+on:
+  schedule:
+    # Run weekly on Sunday at 03:00 UTC
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Test mode'
+        required: false
+        default: 'per-demo'
+        type: choice
+        options:
+          - per-demo
+          - per-module
+      demo:
+        description: 'Demo module to test (per-demo mode only)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - spp_mis_demo_v2
+          - spp_drims_sl_demo
+          - spp_grm_demo
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  ODOO_ADDONS_PATH: /opt/odoo/odoo/addons,/opt/odoo/odoo/odoo/addons,/mnt/extra-addons/openspp,/mnt/extra-addons/server-ux,/mnt/extra-addons/server-tools,/mnt/extra-addons/queue,/mnt/extra-addons/server-backend,/mnt/extra-addons/rest-framework,/mnt/extra-addons/muk-it
+
+jobs:
+  # ============================================================================
+  # Build Docker image (warms cache for test jobs)
+  # ============================================================================
+  build:
+    runs-on: [self-hosted, linux, x64, openspp]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          buildkitd-config-inline: |
+            [registry."docker.io"]
+              mirrors = ["172.17.0.1:5000"]
+            [registry."172.17.0.1:5000"]
+              http = true
+
+      - name: Build and cache image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/Dockerfile
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ============================================================================
+  # Discover modules (per-module mode only)
+  # ============================================================================
+  discover:
+    if: github.event.inputs.mode == 'per-module'
+    runs-on: [self-hosted, linux, x64, openspp]
+    outputs:
+      modules: ${{ steps.detect.outputs.modules }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detect all testable modules
+        id: detect
+        run: |
+          modules=$(python3 scripts/detect_modules.py --all --output=matrix)
+          echo "modules=$modules" >> "$GITHUB_OUTPUT"
+          echo "Discovered modules: $modules"
+
+  # ============================================================================
+  # Full test suite per demo module (per-demo mode or schedule)
+  # ============================================================================
+  test:
+    needs: build
+    if: github.event.inputs.mode != 'per-module'
+    runs-on: [self-hosted, linux, x64, openspp]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - demo: spp_mis_demo_v2
+            name: "SP-MIS Demo"
+          - demo: spp_drims_sl_demo
+            name: "DRIMS Sri Lanka Demo"
+          - demo: spp_grm_demo
+            name: "GRM Demo"
+
+    name: ${{ matrix.name }}
+    timeout-minutes: 60
+
+    services:
+      db:
+        image: postgis/postgis:18-3.6-alpine
+        env:
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: odoo
+          POSTGRES_DB: postgres
+        ports:
+          - 5432
+        options: >-
+          --health-cmd "pg_isready -U odoo -d postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Check if should run
+        id: check
+        run: |
+          demo_input="${{ github.event.inputs.demo }}"
+          if [ -z "$demo_input" ] || [ "$demo_input" = "all" ] || [ "$demo_input" = "${{ matrix.demo }}" ]; then
+            echo "should_run=true" >> $GITHUB_OUTPUT
+          else
+            echo "should_run=false" >> $GITHUB_OUTPUT
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.check.outputs.should_run == 'true'
+
+      - name: Set up Docker Buildx
+        if: steps.check.outputs.should_run == 'true'
+        uses: docker/setup-buildx-action@v3
+        with:
+          buildkitd-config-inline: |
+            [registry."docker.io"]
+              mirrors = ["172.17.0.1:5000"]
+            [registry."172.17.0.1:5000"]
+              http = true
+
+      - name: Build test image (from cache)
+        if: steps.check.outputs.should_run == 'true'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/Dockerfile
+          load: true
+          tags: openspp-test:${{ github.sha }}
+          cache-from: type=gha
+
+      - name: Discover service network
+        if: steps.check.outputs.should_run == 'true'
+        id: net
+        env:
+          DB_PORT: ${{ job.services.db.ports[5432] }}
+        run: |
+          DB_CONTAINER=$(docker ps --filter "publish=$DB_PORT" --format '{{.ID}}' | head -1)
+          JOB_NETWORK=$(docker inspect "$DB_CONTAINER" --format '{{range $net, $_ := .NetworkSettings.Networks}}{{$net}} {{end}}' | tr ' ' '\n' | grep github_network | head -1)
+          echo "name=$JOB_NETWORK" >> "$GITHUB_OUTPUT"
+          echo "Using network: $JOB_NETWORK"
+
+      - name: Create test database
+        if: steps.check.outputs.should_run == 'true'
+        env:
+          DB_PORT: ${{ job.services.db.ports[5432] }}
+        run: |
+          PGPASSWORD=odoo psql -h localhost -p "$DB_PORT" -U odoo -d postgres -c "CREATE DATABASE test_${{ matrix.demo }};"
+
+      - name: Compute spp_* test tags
+        if: steps.check.outputs.should_run == 'true'
+        id: tags
+        run: |
+          # Build --test-tags for all spp_* modules that have tests
+          tags=""
+          for dir in spp_*/; do
+            module="${dir%/}"
+            if [ -f "$module/__manifest__.py" ] && [ -d "$module/tests" ]; then
+              if [ -n "$tags" ]; then
+                tags="$tags,/$module"
+              else
+                tags="/$module"
+              fi
+            fi
+          done
+          echo "test_tags=$tags" >> $GITHUB_OUTPUT
+          echo "Found test tags: $tags"
+
+      - name: Install demo and run all spp_* tests
+        if: steps.check.outputs.should_run == 'true'
+        id: test
+        run: |
+          # Run tests and capture output - don't fail on exit code
+          # (shutdown race conditions can cause exit code 1 even when tests pass)
+          set +e
+          docker run --rm \
+            --network ${{ steps.net.outputs.name }} \
+            -e DB_HOST=db \
+            -e DB_PORT=5432 \
+            -e DB_USER=odoo \
+            -e DB_PASSWORD=odoo \
+            -v ${{ github.workspace }}:/mnt/extra-addons/openspp:rw \
+            --user $(id -u):$(id -g) \
+            --entrypoint "" \
+            openspp-test:${{ github.sha }} \
+            /opt/odoo/odoo/odoo-bin \
+            --addons-path=${ODOO_ADDONS_PATH} \
+            -d test_${{ matrix.demo }} \
+            --db_host=db \
+            --db_port=5432 \
+            --db_user=odoo \
+            --db_password=odoo \
+            --stop-after-init \
+            --no-http \
+            --data-dir /tmp/odoo-data \
+            -i ${{ matrix.demo }} \
+            --test-tags=${{ steps.tags.outputs.test_tags }} \
+            --log-level=test \
+            2>&1 | tee test_output_${{ matrix.demo }}.log
+          DOCKER_EXIT=${PIPESTATUS[0]}
+          set -e
+
+          # Parse test results from output
+          RESULT_LINE=$(grep "failed.*error(s).*tests" test_output_${{ matrix.demo }}.log | tail -1 || true)
+          echo "Test result: $RESULT_LINE"
+
+          if [ -z "$RESULT_LINE" ]; then
+            echo "test_passed=false" >> $GITHUB_OUTPUT
+            echo "::error::Could not find test results in output for ${{ matrix.demo }}"
+          else
+            # Extract failed and error counts
+            FAILED=$(echo "$RESULT_LINE" | sed -E 's/.*([0-9]+) failed.*/\1/')
+            ERRORS=$(echo "$RESULT_LINE" | sed -E 's/.*([0-9]+) error.*/\1/')
+            echo "Failed: $FAILED, Errors: $ERRORS"
+
+            if [ "$FAILED" -gt 0 ] || [ "$ERRORS" -gt 0 ]; then
+              echo "test_passed=false" >> $GITHUB_OUTPUT
+              echo "::error::Tests failed for ${{ matrix.demo }}: $FAILED failed, $ERRORS errors"
+            else
+              echo "test_passed=true" >> $GITHUB_OUTPUT
+              echo "Tests passed (exit code $DOCKER_EXIT may be non-zero due to shutdown race conditions)"
+            fi
+          fi
+        timeout-minutes: 45
+
+      - name: Check test result
+        if: steps.check.outputs.should_run == 'true' && steps.test.outputs.test_passed != 'true'
+        run: |
+          echo "Tests failed for ${{ matrix.demo }}"
+          exit 1
+
+      - name: Cleanup database
+        if: always() && steps.check.outputs.should_run == 'true'
+        env:
+          DB_PORT: ${{ job.services.db.ports[5432] }}
+        run: |
+          PGPASSWORD=odoo psql -h localhost -p "$DB_PORT" -U odoo -d postgres -c "DROP DATABASE IF EXISTS test_${{ matrix.demo }};" || true
+
+  # ============================================================================
+  # Per-module test (per-module mode only)
+  # ============================================================================
+  test-per-module:
+    needs: [build, discover]
+    if: github.event.inputs.mode == 'per-module' && needs.discover.outputs.modules != '[]'
+    runs-on: [self-hosted, linux, x64, openspp]
+    strategy:
+      fail-fast: false
+      matrix:
+        module: ${{ fromJson(needs.discover.outputs.modules) }}
+
+    name: ${{ matrix.module }}
+    timeout-minutes: 30
+
+    services:
+      db:
+        image: postgis/postgis:18-3.6-alpine
+        env:
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: odoo
+          POSTGRES_DB: postgres
+        ports:
+          - 5432
+        options: >-
+          --health-cmd "pg_isready -U odoo -d postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          buildkitd-config-inline: |
+            [registry."docker.io"]
+              mirrors = ["172.17.0.1:5000"]
+            [registry."172.17.0.1:5000"]
+              http = true
+
+      - name: Build test image (from cache)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/Dockerfile
+          load: true
+          tags: openspp-test:${{ github.sha }}
+          cache-from: type=gha
+
+      - name: Discover service network
+        id: net
+        env:
+          DB_PORT: ${{ job.services.db.ports[5432] }}
+        run: |
+          DB_CONTAINER=$(docker ps --filter "publish=$DB_PORT" --format '{{.ID}}' | head -1)
+          JOB_NETWORK=$(docker inspect "$DB_CONTAINER" --format '{{range $net, $_ := .NetworkSettings.Networks}}{{$net}} {{end}}' | tr ' ' '\n' | grep github_network | head -1)
+          echo "name=$JOB_NETWORK" >> "$GITHUB_OUTPUT"
+          echo "Using network: $JOB_NETWORK"
+
+      - name: Create test database
+        env:
+          DB_PORT: ${{ job.services.db.ports[5432] }}
+        run: |
+          PGPASSWORD=odoo psql -h localhost -p "$DB_PORT" -U odoo -d postgres -c "CREATE DATABASE test_${{ matrix.module }};"
+
+      - name: Install and test ${{ matrix.module }}
+        id: test
+        run: |
+          # Run tests and capture output - don't fail on exit code
+          # (shutdown race conditions can cause exit code 1 even when tests pass)
+          set +e
+          docker run --rm \
+            --network ${{ steps.net.outputs.name }} \
+            -e DB_HOST=db \
+            -e DB_PORT=5432 \
+            -e DB_USER=odoo \
+            -e DB_PASSWORD=odoo \
+            -v ${{ github.workspace }}:/mnt/extra-addons/openspp:rw \
+            --user $(id -u):$(id -g) \
+            --entrypoint "" \
+            openspp-test:${{ github.sha }} \
+            /opt/odoo/odoo/odoo-bin \
+            --addons-path=${ODOO_ADDONS_PATH} \
+            -d test_${{ matrix.module }} \
+            --db_host=db \
+            --db_port=5432 \
+            --db_user=odoo \
+            --db_password=odoo \
+            --stop-after-init \
+            --no-http \
+            --data-dir /tmp/odoo-data \
+            -i ${{ matrix.module }} \
+            --test-tags=/${{ matrix.module }} \
+            --log-level=test \
+            2>&1 | tee test_output_${{ matrix.module }}.log
+          DOCKER_EXIT=${PIPESTATUS[0]}
+          set -e
+
+          # Parse test results from output
+          RESULT_LINE=$(grep "failed.*error(s).*tests" test_output_${{ matrix.module }}.log | tail -1 || true)
+          echo "Test result: $RESULT_LINE"
+
+          if [ -z "$RESULT_LINE" ]; then
+            echo "test_passed=false" >> $GITHUB_OUTPUT
+            echo "::error::Could not find test results in output for ${{ matrix.module }}"
+          else
+            # Extract failed and error counts
+            FAILED=$(echo "$RESULT_LINE" | sed -E 's/.*([0-9]+) failed.*/\1/')
+            ERRORS=$(echo "$RESULT_LINE" | sed -E 's/.*([0-9]+) error.*/\1/')
+            echo "Failed: $FAILED, Errors: $ERRORS"
+
+            if [ "$FAILED" -gt 0 ] || [ "$ERRORS" -gt 0 ]; then
+              echo "test_passed=false" >> $GITHUB_OUTPUT
+              echo "::error::Tests failed for ${{ matrix.module }}: $FAILED failed, $ERRORS errors"
+            else
+              echo "test_passed=true" >> $GITHUB_OUTPUT
+              echo "Tests passed (exit code $DOCKER_EXIT may be non-zero due to shutdown race conditions)"
+            fi
+          fi
+        timeout-minutes: 20
+
+      - name: Check test result
+        if: steps.test.outputs.test_passed != 'true'
+        run: |
+          echo "Tests failed for ${{ matrix.module }}"
+          exit 1
+
+      - name: Cleanup database
+        if: always()
+        env:
+          DB_PORT: ${{ job.services.db.ports[5432] }}
+        run: |
+          PGPASSWORD=odoo psql -h localhost -p "$DB_PORT" -U odoo -d postgres -c "DROP DATABASE IF EXISTS test_${{ matrix.module }};" || true
+
+  # ============================================================================
+  # Summary
+  # ============================================================================
+  summary:
+    needs: [test, test-per-module]
+    if: always()
+    runs-on: [self-hosted, linux, x64, openspp]
+    steps:
+      - name: Test results
+        run: |
+          test_result="${{ needs.test.result }}"
+          per_module_result="${{ needs.test-per-module.result }}"
+
+          echo "per-demo result: $test_result"
+          echo "per-module result: $per_module_result"
+
+          # Check whichever job actually ran (the other will be 'skipped')
+          if [ "$test_result" = "failure" ] || [ "$per_module_result" = "failure" ]; then
+            echo "::error::Test suite failed!"
+            exit 1
+          elif [ "$test_result" = "success" ] || [ "$per_module_result" = "success" ]; then
+            echo "All tests passed!"
+          else
+            echo "Results - per-demo: $test_result, per-module: $per_module_result"
+          fi
