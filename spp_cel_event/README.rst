@@ -14,9 +14,9 @@ OpenSPP CEL Event Data Integration
    !! source digest: sha256:e2f2bc40368e1bb65ac6336eec7a46ff133360ef67c8283271317282c593c0df
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/maturity-Alpha-red.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Beta-yellow.png
     :target: https://odoo-community.org/page/development-status
-    :alt: Alpha
+    :alt: Beta
 .. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
@@ -35,15 +35,15 @@ with Python fallback for complex cases.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  Query event field values with temporal filtering (within_days,
-   within_months, named periods) and selection modes (active, latest,
-   latest_active, first, any)
--  Check event existence with date-based filtering
--  Aggregate event data using count, sum, avg, min, max functions
--  Generate period strings using helper functions (this_year,
-   this_quarter, etc.)
--  Optimize queries using SQL fast paths with automatic fallback to
-   Python evaluation
+- Query event field values with temporal filtering (within_days,
+  within_months, named periods) and selection modes (active, latest,
+  latest_active, first, any)
+- Check event existence with date-based filtering
+- Aggregate event data using count, sum, avg, min, max functions
+- Generate period strings using helper functions (this_year,
+  this_quarter, etc.)
+- Optimize queries using SQL fast paths with automatic fallback to
+  Python evaluation
 
 Key Models
 ~~~~~~~~~~
@@ -74,9 +74,9 @@ optimal query performance.
 UI Location
 ~~~~~~~~~~~
 
--  **Menu**: Studio > Rules > Variables > All Variables
--  **Form**: Event aggregation fields appear in the Source Configuration
-   section when **Aggregate Target** is set to "Events"
+- **Menu**: Studio > Rules > Variables > All Variables
+- **Form**: Event aggregation fields appear in the Source Configuration
+  section when **Aggregate Target** is set to "Events"
 
 Security
 ~~~~~~~~
@@ -87,23 +87,18 @@ No module-specific security. Access control inherits from
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Override ``spp.cel.translator._to_plan()`` to add custom event query
-   plan nodes
--  Override ``spp.cel.executor._exec_event_value_sql()`` to customize
-   SQL execution logic
--  Extend period helper functions in ``models/cel_event_functions.py``
--  Implement custom aggregation functions following the
-   events_count/sum/avg pattern
+- Override ``spp.cel.translator._to_plan()`` to add custom event query
+  plan nodes
+- Override ``spp.cel.executor._exec_event_value_sql()`` to customize SQL
+  execution logic
+- Extend period helper functions in ``models/cel_event_functions.py``
+- Implement custom aggregation functions following the
+  events_count/sum/avg pattern
 
 Dependencies
 ~~~~~~~~~~~~
 
 ``spp_cel_domain``, ``spp_event_data``, ``spp_studio``
-
-.. IMPORTANT::
-   This is an alpha version, the data model and design can change at any time without warning.
-   Only for development or testing purpose, do not use in production.
-   `More details on development status <https://odoo-community.org/page/development-status>`_
 
 **Table of contents**
 
