@@ -429,6 +429,8 @@ class SPPCreateNewProgramWiz(models.TransientModel):
             "tag": "open_program_close_modal",
             "params": {
                 "program_id": program_id,
+                "name": _("Program"),
+                "view_id": view_id.id,
             },
         }
 

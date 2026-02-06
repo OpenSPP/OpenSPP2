@@ -15,6 +15,8 @@ import {useService} from "@web/core/utils/hooks";
 async function openProgramCloseModal(env, action) {
     const actionService = env.services.action;
     const programId = action.params?.program_id;
+    const programName = action.params?.name || "Program";
+    const viewId = action.params?.view_id || false;
 
     await actionService.doAction(
         {type: "ir.actions.act_window_close"},
@@ -24,10 +26,10 @@ async function openProgramCloseModal(env, action) {
     if (programId) {
         await actionService.doAction({
             type: "ir.actions.act_window",
-            name: "Program",
+            name: programName,
             res_model: "spp.program",
             res_id: programId,
-            views: [[false, "form"]],
+            views: [[viewId, "form"]],
             target: "current",
         });
     }
