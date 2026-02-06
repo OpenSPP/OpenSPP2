@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <!--
+        DCI Demo System Parameters
+
+        These parameters control the auto-approval and auto-enrollment features.
+    -->
+
+    <!-- Auto-approve CR when DCI birth verification data matches CR detail -->
+    <record id="param_auto_approve_on_match" model="ir.config_parameter">
+        <field name="key">spp_dci_demo.auto_approve_on_match</field>
+        <field name="value">True</field>
+    </record>
+
+    <!--
+        Program ID for auto-enrollment is set by post_init_hook
+        since programs are created via wizard, not XML data.
+        The hook finds the first available program.
+
+        To manually override, set:
+        spp_dci_demo.enrollment_program_id = <program_id>
+    -->
+</odoo>

@@ -169,6 +169,7 @@ class DCIClient:
         page: int = 1,
         page_size: int = 10,
         async_mode: bool = False,
+        registry_event_type: str | None = None,
     ) -> dict:
         """Search by identifier type and value (convenience method).
 
@@ -179,6 +180,7 @@ class DCIClient:
             page: Page number (1-indexed)
             page_size: Records per page
             async_mode: If True, use async endpoint
+            registry_event_type: Event type filter (BIRTH, DEATH, etc.)
 
         Returns:
             SearchResponse or ACK dict
@@ -191,7 +193,55 @@ class DCIClient:
             record_type=record_type,
             page=page,
             page_size=page_size,
+            registry_event_type=registry_event_type,
         )
+
+    def search_by_id_opencrvs(
+        self,
+        identifier_type: str,
+        identifier_value: str,
+        event_type: str = "birth",
+        page: int = 1,
+        page_size: int = 10,
+        async_mode: bool = False,
+    ) -> dict:
+        """Search by identifier using OpenCRVS's non-standard format.
+
+        OpenCRVS doesn't support the standard DCI idtype-value query format.
+        Instead, it requires an expression query with the identifier nested.
+
+        Args:
+            identifier_type: Identifier type (UIN, BRN, MRN, DRN, etc.)
+            identifier_value: Identifier value
+            event_type: Registry event type (birth, death, etc.) - lowercase
+            page: Page number (1-indexed)
+            page_size: Records per page
+            async_mode: If True, use async endpoint
+
+        Returns:
+            SearchResponse or ACK dict
+        """
+        # Build OpenCRVS-style query for ID lookup
+        # Format: { type: "BRN"|"UIN"|"DRN", value: "<identifier>" }
+        query = {
+            "type": identifier_type,
+            "value": identifier_value,
+        }
+
+        # Build envelope in OpenCRVS format
+        envelope = self._build_search_envelope_opencrvs(
+            query=query,
+            query_type="idtype-value",
+            event_type=event_type,
+            page=page,
+            page_size=page_size,
+        )
+
+        if async_mode:
+            return self._make_request(ENDPOINT_ASYNC_SEARCH, envelope)
+        else:
+            endpoint = self.data_source.search_endpoint or ENDPOINT_SYNC_SEARCH
+            return self._make_request(endpoint, envelope)
 
     def search_by_predicate(
         self,
@@ -231,49 +281,57 @@ class DCIClient:
         registry_type: str | None = None,
         registry_event_type: str | None = None,
         async_mode: bool = False,
+        use_opencrvs_format: bool = False,
     ) -> dict:
         """Search using expression query (e.g., date range filters).
 
-        This supports DCI-compliant expression queries using ExpPredicate format.
+        This supports both DCI-compliant expression queries and OpenCRVS's
+        non-standard format.
 
         Args:
-            expression: DCI ExpPredicateWithCondition list, e.g.:
-                [
-                    {
-                        "seq_num": 1,
-                        "expression1": {
-                            "attribute_name": "dateOfEvent",
-                            "operator": "ge",
-                            "attribute_value": "2020-01-01"
-                        },
-                        "condition": "and",
-                        "expression2": {
-                            "attribute_name": "dateOfEvent",
-                            "operator": "le",
-                            "attribute_value": "2026-02-10"
-                        }
-                    }
-                ]
+            expression: Query expression. For standard DCI, a list of
+                ExpPredicateWithCondition dicts. For OpenCRVS format, a dict
+                of attribute filters (e.g., {"birthDate": {"type": "range", ...}}).
             record_type: PERSON, GROUP, etc.
             page: Page number (1-indexed)
             page_size: Records per page
             registry_type: Registry type (defaults to data source registry type)
             registry_event_type: Optional event type filter (e.g., "BIRTH", "DEATH")
             async_mode: If True, use async endpoint
+            use_opencrvs_format: If True, wrap expression in OpenCRVS query
+                structure and use OpenCRVS envelope format.
 
         Returns:
             SearchResponse or ACK dict
         """
-        # Build envelope directly with expression query (bypass _parse_query)
-        envelope = self._build_search_envelope(
-            query_type=QueryType.EXPRESSION,
-            query=expression,
-            registry_type=registry_type or self._get_registry_type(),
-            registry_event_type=registry_event_type,
-            record_type=record_type,
-            page=page,
-            page_size=page_size,
-        )
+        if use_opencrvs_format:
+            # Wrap the caller's expression in OpenCRVS query structure
+            opencrvs_query = {
+                "type": "ns:org:QueryType:expression",
+                "value": {
+                    "expression": {
+                        "query": expression,
+                    }
+                },
+            }
+            envelope = self._build_search_envelope_opencrvs(
+                query=opencrvs_query,
+                query_type="expression",
+                event_type=registry_event_type,
+                page=page,
+                page_size=page_size,
+            )
+        else:
+            # Standard DCI path (unchanged)
+            envelope = self._build_search_envelope(
+                query_type=QueryType.EXPRESSION,
+                query=expression,
+                registry_type=registry_type or self._get_registry_type(),
+                registry_event_type=registry_event_type,
+                record_type=record_type,
+                page=page,
+                page_size=page_size,
+            )
 
         if async_mode:
             return self._make_request(ENDPOINT_ASYNC_SEARCH, envelope)
@@ -379,14 +437,10 @@ class DCIClient:
     ) -> dict:
         """Search by date range using OpenCRVS's non-standard envelope format.
 
-        OpenCRVS uses a custom format that differs from DCI spec:
-        - reg_type: lowercase event type (e.g., "birth") instead of registry type
-        - No reg_event_type field
-        - Requires consent object and locale field
-        - Expression query format: { type: "ns:org:QueryType:expression", value: { <attr>: { type: "range", ... } } }
+        Builds an expression query with the correct OpenCRVS nesting:
+        { type, value: { expression: { query: { <attr>: { type: "range", ... } } } } }
 
-        This method exists for interoperability with OpenCRVS servers that don't
-        follow the standard DCI envelope format.
+        Then delegates to _build_search_envelope_opencrvs for the envelope wrapper.
 
         Args:
             start_date: Start date in ISO format (YYYY-MM-DD or YYYY-MM-DDTHH:MM:SSZ)
@@ -401,11 +455,26 @@ class DCIClient:
         Returns:
             SearchResponse or ACK dict
         """
-        # Build envelope directly in OpenCRVS format (bypassing standard _build_search_envelope)
+        # Build OpenCRVS-style expression query with correct nesting
+        expression_query = {
+            "type": "ns:org:QueryType:expression",
+            "value": {
+                "expression": {
+                    "query": {
+                        attribute_name: {
+                            "type": "range",
+                            "gte": start_date,
+                            "lte": end_date,
+                        }
+                    }
+                }
+            },
+        }
+
+        # Build envelope in OpenCRVS format (bypassing standard _build_search_envelope)
         envelope = self._build_search_envelope_opencrvs(
-            start_date=start_date,
-            end_date=end_date,
-            attribute_name=attribute_name,
+            query=expression_query,
+            query_type="expression",
             event_type=event_type,
             page=page,
             page_size=page_size,
@@ -419,9 +488,8 @@ class DCIClient:
 
     def _build_search_envelope_opencrvs(
         self,
-        start_date: str,
-        end_date: str,
-        attribute_name: str,
+        query: dict,
+        query_type: str,
         event_type: str | None,
         page: int,
         page_size: int,
@@ -429,49 +497,34 @@ class DCIClient:
         """Build search envelope in OpenCRVS's non-standard format.
 
         OpenCRVS expects:
-        - reg_type: lowercase event type (e.g., "birth"), NOT registry type
-        - No reg_event_type field
+        - reg_type: "ns:org:RegistryType:Civil"
+        - reg_event_type: lowercase event type (e.g., "birth")
         - Required consent object
         - Required locale field
-        - Expression query with range syntax
+        - Pre-built query object (e.g., expression with nested query structure)
 
         Args:
-            start_date: Start date
-            end_date: End date
-            attribute_name: Attribute to filter on
+            query: Pre-built query object (e.g., expression query dict)
+            query_type: Query type string (e.g., "expression", "idtype-value")
             event_type: Event type (BIRTH, DEATH, etc.)
             page: Page number
             page_size: Page size
 
         Returns:
-            Envelope dict in OpenCRVS format
+            Envelope dict in OpenCRVS format (no signature wrapper)
         """
         now = datetime.now(UTC)
         transaction_id = str(uuid.uuid4())
         reference_id = str(uuid.uuid4())
         message_id = str(uuid.uuid4())
 
-        # OpenCRVS uses lowercase event type for reg_type (e.g., "birth" not "BIRTH" or "CRVS")
-        reg_type = (event_type or "birth").lower()
-
-        # Build OpenCRVS-style expression query
-        expression_query = {
-            "type": "ns:org:QueryType:expression",
-            "value": {
-                attribute_name: {
-                    "type": "range",
-                    "gte": start_date,
-                    "lte": end_date,
-                }
-            },
-        }
-
-        # Build search criteria in OpenCRVS format (no reg_event_type)
+        # Build search criteria in OpenCRVS format
         search_criteria = {
             "version": "1.0.0",
-            "reg_type": reg_type,
-            "query_type": "expression",
-            "query": expression_query,
+            "reg_type": RegistryType.CRVS.value,
+            "reg_event_type": (event_type or "birth").lower(),
+            "query_type": query_type,
+            "query": query,
             "sort": [
                 {
                     "attribute_name": "createdAt",

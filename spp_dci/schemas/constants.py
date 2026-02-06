@@ -4,13 +4,17 @@ from enum import Enum, StrEnum
 
 
 class RegistryType(StrEnum):
-    """DCI Registry types."""
+    """DCI Registry types (SPDCI spec compliant).
 
-    SOCIAL_REGISTRY = "SOCIAL_REGISTRY"
-    IBR = "IBR"
-    CRVS = "CRVS"
-    DISABILITY_REGISTRY = "DR"
-    FUNCTIONAL_REGISTRY = "FR"
+    Values use the namespaced format as specified in SPDCI API Standards.
+    Reference: src/registry/*/RegistryType.yaml
+    """
+
+    SOCIAL_REGISTRY = "ns:org:RegistryType:Social"
+    CRVS = "ns:org:RegistryType:Civil"
+    IBR = "ns:org:RegistryType:IBR"
+    DISABILITY_REGISTRY = "ns:org:RegistryType:DR"
+    FUNCTIONAL_REGISTRY = "ns:org:RegistryType:FR"
 
 
 class RegistryEventType(StrEnum):

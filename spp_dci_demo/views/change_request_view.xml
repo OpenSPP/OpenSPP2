@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Extend CR Form with DCI Birth Verification Banner for Reviewers -->
+    <record id="spp_change_request_form_dci" model="ir.ui.view">
+        <field name="name">spp.change.request.form.dci</field>
+        <field name="model">spp.change.request</field>
+        <field name="inherit_id" ref="spp_change_request_v2.spp_change_request_form" />
+        <field name="arch" type="xml">
+            <!-- Inject DCI verification banner before the notebook -->
+            <xpath expr="//notebook" position="before">
+                <div
+                    class="alert alert-light border py-3 mx-0"
+                    role="status"
+                    invisible="not dci_verification_status or dci_verification_status == 'unverified' or approval_state == 'draft'"
+                >
+                    <div class="d-flex align-items-start">
+                        <i
+                            class="fa fa-certificate fa-2x me-3 mt-1"
+                            title="DCI Verification"
+                        />
+                        <div class="flex-grow-1">
+                            <h5 class="alert-heading mb-2">
+                                DCI Birth Verification
+                            </h5>
+                            <field name="dci_verification_html" nolabel="1" />
+                        </div>
+                    </div>
+                </div>
+                <!-- Hidden computed fields for domain evaluation -->
+                <field name="dci_verification_status" invisible="1" />
+                <field name="dci_data_match" invisible="1" />
+            </xpath>
+        </field>
+    </record>
+</odoo>
