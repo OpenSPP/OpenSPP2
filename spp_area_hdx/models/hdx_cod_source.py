@@ -50,7 +50,7 @@ class HdxCodSource(models.Model):
         """
         for record in self:
             if record.hdx_dataset_id and record.hdx_dataset_id.startswith("cod-ab-"):
-                record.country_iso3 = record.hdx_dataset_id[7:].upper()
+                record.country_iso3 = record.hdx_dataset_id[len("cod-ab-"):].upper()
             elif record.country_id:
                 record.country_iso3 = record.country_id.code
             else:
