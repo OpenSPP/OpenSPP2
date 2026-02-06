@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_dci_demo_add_child_wizard,access.spp.dci.demo.add.child.wizard,model_spp_dci_demo_add_child_wizard,base.group_user,1,1,1,1
