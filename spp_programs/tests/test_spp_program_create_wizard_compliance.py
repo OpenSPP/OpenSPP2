@@ -12,7 +12,7 @@ class TestSppProgramCreateWiz(common.Common):
         wizard = self.program_create_wizard({})
         wizard._check_compliance_manager_info()
         action = wizard.create_program()
-        program = self.env["spp.program"].browse(action["res_id"])
+        program = self.env["spp.program"].browse(action["params"]["program_id"])
         self.assertFalse(
             bool(program.compliance_manager_ids),
             "Should not create compliance manager for new program!",
@@ -38,7 +38,7 @@ class TestSppProgramCreateWiz(common.Common):
             }
         )
         action = wizard.create_program()
-        program = self.env["spp.program"].browse(action["res_id"])
+        program = self.env["spp.program"].browse(action["params"]["program_id"])
         self.assertTrue(
             bool(program.compliance_manager_ids),
             "Should create compliance manager for new program!",

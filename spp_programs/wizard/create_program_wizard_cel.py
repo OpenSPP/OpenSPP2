@@ -289,7 +289,7 @@ class SPPCreateProgramWizardCEL(models.TransientModel):
 
         # Create dedicated compliance manager if CEL compliance is enabled
         if self.enable_compliance_cel and self.compliance_cel_expression:
-            program = self.env["spp.program"].browse(action["res_id"])
+            program = self.env["spp.program"].browse(action["params"]["program_id"])
             self._create_cel_compliance_manager(program)
 
         return action

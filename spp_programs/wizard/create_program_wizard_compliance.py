@@ -30,7 +30,7 @@ class SppProgramCreateWizard(models.TransientModel):
     def create_program(self):
         action = super().create_program()
         if self.enable_compliance_verification:
-            program = self.env["spp.program"].browse(action["res_id"])
+            program = self.env["spp.program"].browse(action["params"]["program_id"])
             self._create_compliance_manager(program)
         return action
 
