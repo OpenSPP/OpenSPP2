@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Alert Rule List View -->
     <record id="spp_alert_rule_view_list" model="ir.ui.view">
@@ -6,16 +6,20 @@
         <field name="model">spp.alert.rule</field>
         <field name="arch" type="xml">
             <list string="Alert Rules">
-                <field name="sequence" widget="handle"/>
-                <field name="name"/>
-                <field name="alert_type_id"/>
-                <field name="model_id"/>
-                <field name="rule_type" optional="show"/>
-                <field name="priority"/>
-                <field name="threshold_value" optional="show"/>
-                <field name="days_before" optional="show"/>
-                <field name="active"/>
-                <field name="company_id" optional="hide" groups="base.group_multi_company"/>
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="alert_type_id" />
+                <field name="model_id" />
+                <field name="rule_type" optional="show" />
+                <field name="priority" />
+                <field name="threshold_value" optional="show" />
+                <field name="days_before" optional="show" />
+                <field name="active" />
+                <field
+                    name="company_id"
+                    optional="hide"
+                    groups="base.group_multi_company"
+                />
             </list>
         </field>
     </record>
@@ -27,50 +31,82 @@
         <field name="arch" type="xml">
             <form string="Alert Rule">
                 <header>
-                    <button name="action_evaluate" type="object" string="Run Now"
-                            class="btn-primary"
-                            invisible="not rule_type or not model_id"
-                            groups="group_alerts_manager,base.group_system"/>
+                    <button
+                        name="action_evaluate"
+                        type="object"
+                        string="Run Now"
+                        class="btn-primary"
+                        invisible="not rule_type or not model_id"
+                        groups="group_alerts_manager,base.group_system"
+                    />
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                        <widget
+                            name="web_ribbon"
+                            title="Archived"
+                            bg_color="text-bg-danger"
+                            invisible="active"
+                        />
                     </div>
                     <group>
                         <group>
-                            <field name="name" placeholder="e.g., Low Stock Warning"/>
-                            <field name="alert_type_id"/>
-                            <field name="model_id"/>
-                            <field name="rule_type"/>
-                            <field name="active"/>
+                            <field name="name" placeholder="e.g., Low Stock Warning" />
+                            <field name="alert_type_id" />
+                            <field name="model_id" />
+                            <field name="rule_type" />
+                            <field name="active" />
                         </group>
                         <group>
-                            <field name="priority"/>
-                            <field name="sequence"/>
-                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="priority" />
+                            <field name="sequence" />
+                            <field
+                                name="company_id"
+                                groups="base.group_multi_company"
+                            />
                         </group>
                     </group>
                     <notebook>
-                        <page string="Evaluation" name="evaluation" invisible="not rule_type">
+                        <page
+                            string="Evaluation"
+                            name="evaluation"
+                            invisible="not rule_type"
+                        >
                             <group>
-                                <group string="Threshold Settings" invisible="rule_type != 'threshold'">
-                                    <field name="monitored_field_id"
-                                           required="rule_type == 'threshold'"/>
-                                    <field name="comparison"/>
-                                    <field name="threshold_value"/>
+                                <group
+                                    string="Threshold Settings"
+                                    invisible="rule_type != 'threshold'"
+                                >
+                                    <field
+                                        name="monitored_field_id"
+                                        required="rule_type == 'threshold'"
+                                    />
+                                    <field name="comparison" />
+                                    <field name="threshold_value" />
                                 </group>
-                                <group string="Date Settings" invisible="rule_type != 'date'">
-                                    <field name="date_field_id"
-                                           required="rule_type == 'date'"/>
-                                    <field name="days_before"/>
+                                <group
+                                    string="Date Settings"
+                                    invisible="rule_type != 'date'"
+                                >
+                                    <field
+                                        name="date_field_id"
+                                        required="rule_type == 'date'"
+                                    />
+                                    <field name="days_before" />
                                 </group>
                             </group>
-                            <separator string="Record Filter"/>
-                            <field name="domain_filter"
-                                   placeholder='[("active", "=", True)]'/>
+                            <separator string="Record Filter" />
+                            <field
+                                name="domain_filter"
+                                placeholder='[("active", "=", True)]'
+                            />
                         </page>
                         <page string="Description" name="description">
-                            <field name="description" placeholder="Describe when this rule triggers and what it monitors..."/>
+                            <field
+                                name="description"
+                                placeholder="Describe when this rule triggers and what it monitors..."
+                            />
+                            <group name="additional_description" invisible="1" />
                         </page>
                     </notebook>
                 </sheet>
@@ -84,20 +120,52 @@
         <field name="model">spp.alert.rule</field>
         <field name="arch" type="xml">
             <search string="Search Alert Rules">
-                <field name="name"/>
-                <field name="alert_type_id"/>
-                <field name="model_id"/>
-                <separator/>
-                <filter name="filter_active" string="Active" domain="[('active', '=', True)]"/>
-                <filter name="filter_inactive" string="Inactive" domain="[('active', '=', False)]"/>
-                <separator/>
-                <filter name="filter_critical" string="Critical Priority" domain="[('priority', '=', 'critical')]"/>
-                <filter name="filter_high" string="High Priority" domain="[('priority', '=', 'high')]"/>
-                <separator/>
-                <filter name="groupby_type" string="Alert Type" context="{'group_by': 'alert_type_id'}"/>
-                <filter name="groupby_model" string="Model" context="{'group_by': 'model_id'}"/>
-                <filter name="groupby_priority" string="Priority" context="{'group_by': 'priority'}"/>
-                <filter name="groupby_rule_type" string="Rule Type" context="{'group_by': 'rule_type'}"/>
+                <field name="name" />
+                <field name="alert_type_id" />
+                <field name="model_id" />
+                <separator />
+                <filter
+                    name="filter_active"
+                    string="Active"
+                    domain="[('active', '=', True)]"
+                />
+                <filter
+                    name="filter_inactive"
+                    string="Inactive"
+                    domain="[('active', '=', False)]"
+                />
+                <separator />
+                <filter
+                    name="filter_critical"
+                    string="Critical Priority"
+                    domain="[('priority', '=', 'critical')]"
+                />
+                <filter
+                    name="filter_high"
+                    string="High Priority"
+                    domain="[('priority', '=', 'high')]"
+                />
+                <separator />
+                <filter
+                    name="groupby_type"
+                    string="Alert Type"
+                    context="{'group_by': 'alert_type_id'}"
+                />
+                <filter
+                    name="groupby_model"
+                    string="Model"
+                    context="{'group_by': 'model_id'}"
+                />
+                <filter
+                    name="groupby_priority"
+                    string="Priority"
+                    context="{'group_by': 'priority'}"
+                />
+                <filter
+                    name="groupby_rule_type"
+                    string="Rule Type"
+                    context="{'group_by': 'rule_type'}"
+                />
             </search>
         </field>
     </record>

@@ -1,6 +1,7 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 import logging
 import operator as op
+from datetime import datetime
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
@@ -231,7 +232,7 @@ class AlertRule(models.Model):
             _logger.error("Alert rule '%s': invalid domain filter '%s': %s", self.name, self.domain_filter, e)
             return 0
 
-        records = Model.sudo().search(domain)
+        records = Model.search(domain)
         if not records:
             return 0
 
@@ -266,12 +267,10 @@ class AlertRule(models.Model):
             current_value = record[field_name]
             if compare(current_value, self.threshold_value):
                 existing.add(record.id)
-                alerts_to_create.append(
-                    self._prepare_alert_vals(record, model_name, current_value=current_value)
-                )
+                alerts_to_create.append(self._prepare_alert_vals(record, model_name, current_value=current_value))
 
         if alerts_to_create:
-            self.env["spp.alert"].sudo().create(alerts_to_create)
+            self.env["spp.alert"].create(alerts_to_create)
 
         return len(alerts_to_create)
 
@@ -301,19 +300,17 @@ class AlertRule(models.Model):
                 continue
 
             # Handle datetime fields by converting to date
-            if hasattr(date_value, "date"):
+            if isinstance(date_value, datetime):
                 date_value = date_value.date()
 
             days_until = (date_value - today).days
 
             if days_until <= self.days_before:
                 existing.add(record.id)
-                alerts_to_create.append(
-                    self._prepare_alert_vals(record, model_name, days_until=days_until)
-                )
+                alerts_to_create.append(self._prepare_alert_vals(record, model_name, days_until=days_until))
 
         if alerts_to_create:
-            self.env["spp.alert"].sudo().create(alerts_to_create)
+            self.env["spp.alert"].create(alerts_to_create)
 
         return len(alerts_to_create)
 
@@ -330,7 +327,7 @@ class AlertRule(models.Model):
         if not record_ids:
             return set()
 
-        existing_alerts = self.env["spp.alert"].sudo().search(
+        existing_alerts = self.env["spp.alert"].search(
             [
                 ("rule_id", "=", self.id),
                 ("res_model", "=", res_model),

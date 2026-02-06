@@ -170,7 +170,9 @@ class Alert(models.Model):
         for vals in vals_list:
             if vals.get("reference", _("New")) == _("New"):
                 # Use sudo to access sequence (users may not have ir.sequence access)
-                vals["reference"] = self.env["ir.sequence"].sudo().next_by_code("spp.alert") or _("New")
+                # nosemgrep: odoo-sudo-without-context - Standard sequence access
+                Sequence = self.env["ir.sequence"].sudo()
+                vals["reference"] = Sequence.next_by_code("spp.alert") or _("New")
         return super().create(vals_list)
 
     def action_acknowledge(self):

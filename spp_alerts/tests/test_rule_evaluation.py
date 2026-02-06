@@ -1,7 +1,5 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
-from datetime import timedelta
 
-from odoo import fields
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests import tagged
 
@@ -60,9 +58,7 @@ class TestRuleEvaluation(AlertsTestCommon):
         )
 
         # Domain that only matches our test partners
-        cls.test_domain = (
-            f'[("id", "in", [{cls.partner_low.id}, {cls.partner_mid.id}, {cls.partner_high.id}])]'
-        )
+        cls.test_domain = f'[("id", "in", [{cls.partner_low.id}, {cls.partner_mid.id}, {cls.partner_high.id}])]'
 
     def _create_threshold_rule(self, **kwargs):
         """Helper to create a threshold rule for res.partner using color field."""

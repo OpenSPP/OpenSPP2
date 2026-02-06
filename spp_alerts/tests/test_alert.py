@@ -409,9 +409,7 @@ class TestAlert(AlertsTestCommon):
         alert.write({"priority": "critical"})
 
         # Should have message tracking (inherited from mail.thread)
-        messages = alert.message_ids
-        # Note: Actual message content depends on mail configuration
-        # We just verify the tracking mechanism exists
+        # We verify the tracking mechanism exists
         self.assertTrue(hasattr(alert, "message_ids"))
         self.assertTrue(hasattr(alert, "message_post"))
 
