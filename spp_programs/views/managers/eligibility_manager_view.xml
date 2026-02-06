@@ -67,7 +67,7 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         <field name="program_id" invisible="1" />
                     </div>
 
-                    <group string="Geographic Targeting" name="geographic_targeting" colspan="4" col="4">
+                    <group string="Geographic Targeting" name="geographic_targeting" colspan="4" col="4" invisible="1">
                         <field
                             name="admin_area_ids"
                             widget="many2many_tags"
