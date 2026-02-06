@@ -14,9 +14,9 @@ OpenSPP HDX COD Integration
    !! source digest: sha256:cf138e08394d940c78e288afd34fd606ac55ac16203d679b29c392b02aa4bdae
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/maturity-Alpha-red.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Beta-yellow.png
     :target: https://odoo-community.org/page/development-status
-    :alt: Alpha
+    :alt: Beta
 .. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
@@ -35,17 +35,17 @@ area lookup using PostGIS spatial queries.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  Sync COD dataset metadata from HDX API by country
--  Auto-detect field mappings from GeoJSON (P-code, name, parent P-code)
-   using HXL tags
--  Import admin boundaries with polygons from HDX or manually uploaded
-   GeoJSON files
--  Match imported features to existing areas by P-code or create new
-   areas
--  GPS-based area lookup using PostGIS ``ST_Contains`` for
-   point-in-polygon queries
--  Standardize area identification with HDX P-codes for inter-agency
-   coordination
+- Sync COD dataset metadata from HDX API by country
+- Auto-detect field mappings from GeoJSON (P-code, name, parent P-code)
+  using HXL tags
+- Import admin boundaries with polygons from HDX or manually uploaded
+  GeoJSON files
+- Match imported features to existing areas by P-code or create new
+  areas
+- GPS-based area lookup using PostGIS ``ST_Contains`` for
+  point-in-polygon queries
+- Standardize area identification with HDX P-codes for inter-agency
+  coordination
 
 Key Models
 ~~~~~~~~~~
@@ -83,10 +83,10 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
--  **Menu**: Area > Areas > HDX Integration > COD Sources
--  **Import**: Area > Areas > HDX Integration > Import COD
--  **Area Records**: Extended with HDX P-code field visible in area form
-   view
+- **Menu**: Area > Areas > HDX Integration > COD Sources
+- **Import**: Area > Areas > HDX Integration > Import COD
+- **Area Records**: Extended with HDX P-code field visible in area form
+  view
 
 Security
 ~~~~~~~~
@@ -103,26 +103,21 @@ Security
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  ``spp.area.find_by_coordinates(latitude, longitude, level=None)`` -
-   Find area containing GPS point
--  ``spp.area.find_all_containing(latitude, longitude)`` - Find all
-   areas in hierarchy containing point
--  ``spp.area.find_by_pcode(pcode)`` - Find area by HDX P-code or
-   fallback to code field
--  Inherit ``spp.hdx.cod.source`` to add country-specific dataset
-   discovery logic
--  Inherit ``spp.hdx.cod.import.wizard._process_features()`` to
-   customize import behavior
+- ``spp.area.find_by_coordinates(latitude, longitude, level=None)`` -
+  Find area containing GPS point
+- ``spp.area.find_all_containing(latitude, longitude)`` - Find all areas
+  in hierarchy containing point
+- ``spp.area.find_by_pcode(pcode)`` - Find area by HDX P-code or
+  fallback to code field
+- Inherit ``spp.hdx.cod.source`` to add country-specific dataset
+  discovery logic
+- Inherit ``spp.hdx.cod.import.wizard._process_features()`` to customize
+  import behavior
 
 Dependencies
 ~~~~~~~~~~~~
 
 ``spp_area``, ``spp_gis``
-
-.. IMPORTANT::
-   This is an alpha version, the data model and design can change at any time without warning.
-   Only for development or testing purpose, do not use in production.
-   `More details on development status <https://odoo-community.org/page/development-status>`_
 
 **Table of contents**
 
@@ -149,6 +144,23 @@ Authors
 
 Maintainers
 -----------
+
+.. |maintainer-jeremi| image:: https://github.com/jeremi.png?size=40px
+    :target: https://github.com/jeremi
+    :alt: jeremi
+.. |maintainer-gonzalesedwin1123| image:: https://github.com/gonzalesedwin1123.png?size=40px
+    :target: https://github.com/gonzalesedwin1123
+    :alt: gonzalesedwin1123
+.. |maintainer-reichie020212| image:: https://github.com/reichie020212.png?size=40px
+    :target: https://github.com/reichie020212
+    :alt: reichie020212
+.. |maintainer-emjay0921| image:: https://github.com/emjay0921.png?size=40px
+    :target: https://github.com/emjay0921
+    :alt: emjay0921
+
+Current maintainers:
+
+|maintainer-jeremi| |maintainer-gonzalesedwin1123| |maintainer-reichie020212| |maintainer-emjay0921| 
 
 This module is part of the `OpenSPP/OpenSPP2 <https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_area_hdx>`_ project on GitHub.
 

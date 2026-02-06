@@ -100,8 +100,9 @@ class HdxCodSource(models.Model):
                 admin_level = client.detect_admin_level(resource_name)
 
                 # Check if resource already exists
+                _rid, _lvl = resource_id, admin_level
                 existing_resource = self.resource_ids.filtered(
-                    lambda r: r.hdx_resource_id == resource_id or r.admin_level == admin_level
+                    lambda r, rid=_rid, lvl=_lvl: r.hdx_resource_id == rid or r.admin_level == lvl
                 )
 
                 resource_vals = {
