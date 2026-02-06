@@ -14,6 +14,10 @@ class TestRuleEvaluation(AlertsTestCommon):
 
     Covers threshold rules, date rules, duplicate prevention,
     cron evaluation, validation constraints, and error handling.
+
+    Uses `color` (integer, base res.partner) for threshold tests and
+    `write_date` (datetime, always available) for date tests to avoid
+    dependencies on optional modules like `account`.
     """
 
     @classmethod
@@ -23,38 +27,35 @@ class TestRuleEvaluation(AlertsTestCommon):
         # Get ir.model for res.partner (always available)
         cls.partner_model = cls.env["ir.model"].search([("model", "=", "res.partner")], limit=1)
 
-        # Get numeric field: credit_limit on res.partner
-        cls.field_credit_limit = cls.env["ir.model.fields"].search(
-            [("model_id", "=", cls.partner_model.id), ("name", "=", "credit_limit")],
+        # Get numeric field: color (integer) on res.partner — always available from base
+        cls.field_color = cls.env["ir.model.fields"].search(
+            [("model_id", "=", cls.partner_model.id), ("name", "=", "color")],
             limit=1,
         )
 
-        # Get date field: date on res.partner
-        cls.field_date = cls.env["ir.model.fields"].search(
-            [("model_id", "=", cls.partner_model.id), ("name", "=", "date")],
+        # Get date field: write_date (datetime) on res.partner — always available
+        cls.field_write_date = cls.env["ir.model.fields"].search(
+            [("model_id", "=", cls.partner_model.id), ("name", "=", "write_date")],
             limit=1,
         )
 
-        # Create test partners with known values
+        # Create test partners with known color values
         cls.partner_low = cls.env["res.partner"].create(
             {
-                "name": "Test Partner Low Credit",
-                "credit_limit": 10.0,
-                "date": fields.Date.today() + timedelta(days=5),
+                "name": "Test Partner Low Color",
+                "color": 1,
             }
         )
         cls.partner_mid = cls.env["res.partner"].create(
             {
-                "name": "Test Partner Mid Credit",
-                "credit_limit": 50.0,
-                "date": fields.Date.today() + timedelta(days=30),
+                "name": "Test Partner Mid Color",
+                "color": 5,
             }
         )
         cls.partner_high = cls.env["res.partner"].create(
             {
-                "name": "Test Partner High Credit",
-                "credit_limit": 200.0,
-                "date": fields.Date.today() + timedelta(days=90),
+                "name": "Test Partner High Color",
+                "color": 10,
             }
         )
 
@@ -64,15 +65,15 @@ class TestRuleEvaluation(AlertsTestCommon):
         )
 
     def _create_threshold_rule(self, **kwargs):
-        """Helper to create a threshold rule for res.partner."""
+        """Helper to create a threshold rule for res.partner using color field."""
         vals = {
             "name": "Test Threshold Rule",
             "alert_type_id": self.alert_type_threshold.id,
             "model_id": self.partner_model.id,
             "rule_type": "threshold",
-            "monitored_field_id": self.field_credit_limit.id,
+            "monitored_field_id": self.field_color.id,
             "comparison": "lt",
-            "threshold_value": 100.0,
+            "threshold_value": 8.0,
             "domain_filter": self.test_domain,
             "priority": "medium",
         }
@@ -80,13 +81,13 @@ class TestRuleEvaluation(AlertsTestCommon):
         return self.env["spp.alert.rule"].create(vals)
 
     def _create_date_rule(self, **kwargs):
-        """Helper to create a date rule for res.partner."""
+        """Helper to create a date rule for res.partner using write_date field."""
         vals = {
             "name": "Test Date Rule",
             "alert_type_id": self.alert_type_deadline.id,
             "model_id": self.partner_model.id,
             "rule_type": "date",
-            "date_field_id": self.field_date.id,
+            "date_field_id": self.field_write_date.id,
             "days_before": 14,
             "domain_filter": self.test_domain,
             "priority": "high",
@@ -103,10 +104,10 @@ class TestRuleEvaluation(AlertsTestCommon):
         if not self.alert_type_threshold:
             self.skipTest("Alert type threshold not found")
 
-        rule = self._create_threshold_rule(threshold_value=100.0, comparison="lt")
+        rule = self._create_threshold_rule(threshold_value=8.0, comparison="lt")
         count = rule._evaluate_rule()
 
-        # partner_low (10) and partner_mid (50) are < 100, partner_high (200) is not
+        # partner_low (1) and partner_mid (5) are < 8, partner_high (10) is not
         self.assertEqual(count, 2)
 
         alerts = self.env["spp.alert"].search([("rule_id", "=", rule.id)])
@@ -117,10 +118,10 @@ class TestRuleEvaluation(AlertsTestCommon):
         if not self.alert_type_threshold:
             self.skipTest("Alert type threshold not found")
 
-        rule = self._create_threshold_rule(threshold_value=100.0, comparison="gt")
+        rule = self._create_threshold_rule(threshold_value=8.0, comparison="gt")
         count = rule._evaluate_rule()
 
-        # Only partner_high (200) is > 100
+        # Only partner_high (10) is > 8
         self.assertEqual(count, 1)
 
     def test_threshold_rule_eq_comparison(self):
@@ -128,10 +129,10 @@ class TestRuleEvaluation(AlertsTestCommon):
         if not self.alert_type_threshold:
             self.skipTest("Alert type threshold not found")
 
-        rule = self._create_threshold_rule(threshold_value=50.0, comparison="eq")
+        rule = self._create_threshold_rule(threshold_value=5.0, comparison="eq")
         count = rule._evaluate_rule()
 
-        # Only partner_mid (50) equals 50
+        # Only partner_mid (5) equals 5
         self.assertEqual(count, 1)
 
     def test_threshold_rule_lte_comparison(self):
@@ -139,10 +140,10 @@ class TestRuleEvaluation(AlertsTestCommon):
         if not self.alert_type_threshold:
             self.skipTest("Alert type threshold not found")
 
-        rule = self._create_threshold_rule(threshold_value=50.0, comparison="lte")
+        rule = self._create_threshold_rule(threshold_value=5.0, comparison="lte")
         count = rule._evaluate_rule()
 
-        # partner_low (10) and partner_mid (50) are <= 50
+        # partner_low (1) and partner_mid (5) are <= 5
         self.assertEqual(count, 2)
 
     def test_threshold_rule_gte_comparison(self):
@@ -150,10 +151,10 @@ class TestRuleEvaluation(AlertsTestCommon):
         if not self.alert_type_threshold:
             self.skipTest("Alert type threshold not found")
 
-        rule = self._create_threshold_rule(threshold_value=50.0, comparison="gte")
+        rule = self._create_threshold_rule(threshold_value=5.0, comparison="gte")
         count = rule._evaluate_rule()
 
-        # partner_mid (50) and partner_high (200) are >= 50
+        # partner_mid (5) and partner_high (10) are >= 5
         self.assertEqual(count, 2)
 
     def test_threshold_alert_values(self):
@@ -161,7 +162,7 @@ class TestRuleEvaluation(AlertsTestCommon):
         if not self.alert_type_threshold:
             self.skipTest("Alert type threshold not found")
 
-        rule = self._create_threshold_rule(threshold_value=15.0, comparison="lt")
+        rule = self._create_threshold_rule(threshold_value=2.0, comparison="lt")
         rule._evaluate_rule()
 
         alert = self.env["spp.alert"].search([("rule_id", "=", rule.id)])
@@ -169,8 +170,8 @@ class TestRuleEvaluation(AlertsTestCommon):
         self.assertEqual(alert.rule_id, rule)
         self.assertEqual(alert.res_model, "res.partner")
         self.assertEqual(alert.res_id, self.partner_low.id)
-        self.assertEqual(alert.current_value, 10.0)
-        self.assertEqual(alert.threshold_value, 15.0)
+        self.assertEqual(alert.current_value, 1.0)
+        self.assertEqual(alert.threshold_value, 2.0)
         self.assertEqual(alert.priority, "medium")
         self.assertEqual(alert.alert_type_id, self.alert_type_threshold)
 
@@ -179,45 +180,31 @@ class TestRuleEvaluation(AlertsTestCommon):
     # -------------------------------------------------------------------------
 
     def test_date_rule_creates_alerts(self):
-        """Test that date rule creates alerts for records within days_before."""
-        if not self.alert_type_deadline or not self.field_date:
+        """Test that date rule creates alerts for records with write_date within window.
+
+        write_date is today (just created), so days_until=0 which is <= any positive days_before.
+        """
+        if not self.alert_type_deadline or not self.field_write_date:
             self.skipTest("Required alert type or field not found")
 
+        # All 3 partners were just created, so write_date is today.
+        # days_until = 0, which is <= 14
         rule = self._create_date_rule(days_before=14)
         count = rule._evaluate_rule()
 
-        # partner_low date is 5 days out (<= 14), others are 30 and 90 days out
-        self.assertEqual(count, 1)
+        self.assertEqual(count, 3)
 
-        alert = self.env["spp.alert"].search([("rule_id", "=", rule.id)])
-        self.assertEqual(alert.res_id, self.partner_low.id)
-        self.assertEqual(alert.days_until, 5)
-
-    def test_date_rule_wide_window(self):
-        """Test date rule with a wide window that catches more records."""
-        if not self.alert_type_deadline or not self.field_date:
+    def test_date_rule_negative_window(self):
+        """Test date rule with negative days_before only catches past dates."""
+        if not self.alert_type_deadline or not self.field_write_date:
             self.skipTest("Required alert type or field not found")
 
-        rule = self._create_date_rule(days_before=60)
+        # write_date is today (days_until=0), -1 means only overdue (negative days_until)
+        rule = self._create_date_rule(days_before=-1)
         count = rule._evaluate_rule()
 
-        # partner_low (5 days) and partner_mid (30 days) are <= 60
-        self.assertEqual(count, 2)
-
-    def test_date_rule_alert_values(self):
-        """Test that date alerts have correct days_until value."""
-        if not self.alert_type_deadline or not self.field_date:
-            self.skipTest("Required alert type or field not found")
-
-        rule = self._create_date_rule(days_before=100)
-        rule._evaluate_rule()
-
-        alerts = self.env["spp.alert"].search([("rule_id", "=", rule.id)], order="days_until asc")
-        # All 3 partners should match (5, 30, 90 days <= 100)
-        self.assertEqual(len(alerts), 3)
-        self.assertEqual(alerts[0].days_until, 5)
-        self.assertEqual(alerts[1].days_until, 30)
-        self.assertEqual(alerts[2].days_until, 90)
+        # days_until=0 is NOT <= -1
+        self.assertEqual(count, 0)
 
     # -------------------------------------------------------------------------
     # Duplicate Prevention Tests
@@ -228,7 +215,7 @@ class TestRuleEvaluation(AlertsTestCommon):
         if not self.alert_type_threshold:
             self.skipTest("Alert type threshold not found")
 
-        rule = self._create_threshold_rule(threshold_value=100.0, comparison="lt")
+        rule = self._create_threshold_rule(threshold_value=8.0, comparison="lt")
 
         count1 = rule._evaluate_rule()
         count2 = rule._evaluate_rule()
@@ -244,15 +231,15 @@ class TestRuleEvaluation(AlertsTestCommon):
         if not self.alert_type_threshold:
             self.skipTest("Alert type threshold not found")
 
-        rule = self._create_threshold_rule(threshold_value=15.0, comparison="lt")
+        rule = self._create_threshold_rule(threshold_value=2.0, comparison="lt")
 
-        # First run creates 1 alert (partner_low)
+        # First run creates 1 alert (partner_low, color=1)
         count1 = rule._evaluate_rule()
         self.assertEqual(count1, 1)
 
-        # Resolve the alert
+        # Acknowledge then resolve the alert
         alert = self.env["spp.alert"].search([("rule_id", "=", rule.id)])
-        alert.write({"resolution_notes": "Test resolution"})
+        alert.action_acknowledge()
         alert.action_resolve(notes="Test resolution")
 
         # Second run should create a new alert (old one is resolved)
@@ -272,7 +259,7 @@ class TestRuleEvaluation(AlertsTestCommon):
             self.skipTest("Alert type threshold not found")
 
         # Active rule with type — should be evaluated
-        active_rule = self._create_threshold_rule(name="Active Rule", threshold_value=15.0)
+        active_rule = self._create_threshold_rule(name="Active Rule", threshold_value=2.0)
 
         # Inactive rule — should be skipped
         self._create_threshold_rule(name="Inactive Rule", active=False)
@@ -307,7 +294,7 @@ class TestRuleEvaluation(AlertsTestCommon):
         # Valid rule — should still succeed
         good_rule = self._create_threshold_rule(
             name="Good Rule",
-            threshold_value=15.0,
+            threshold_value=2.0,
         )
 
         self.env["spp.alert.rule"]._cron_evaluate_rules()
@@ -362,7 +349,7 @@ class TestRuleEvaluation(AlertsTestCommon):
                     "name": "No Model Rule",
                     "alert_type_id": self.alert_type_threshold.id,
                     "rule_type": "threshold",
-                    "monitored_field_id": self.field_credit_limit.id,
+                    "monitored_field_id": self.field_color.id,
                     "priority": "medium",
                 }
             )
@@ -376,7 +363,7 @@ class TestRuleEvaluation(AlertsTestCommon):
         if not self.alert_type_threshold:
             self.skipTest("Alert type threshold not found")
 
-        rule = self._create_threshold_rule(threshold_value=15.0)
+        rule = self._create_threshold_rule(threshold_value=2.0)
         result = rule.action_evaluate()
 
         self.assertEqual(result["type"], "ir.actions.client")
@@ -444,7 +431,7 @@ class TestRuleEvaluation(AlertsTestCommon):
             self.skipTest("Alert type threshold not found")
 
         rule = self._create_threshold_rule(
-            threshold_value=15.0,
+            threshold_value=2.0,
             company_id=self.company_main.id,
         )
         rule._evaluate_rule()

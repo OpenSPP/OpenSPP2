@@ -123,19 +123,17 @@ class TestAlert(AlertsTestCommon):
         time_diff = fields.Datetime.now() - alert.resolved_at
         self.assertLess(time_diff.total_seconds(), 60)
 
-    def test_action_resolve_without_notes(self):
-        """Test that action_resolve works without providing notes."""
+    def test_action_resolve_without_notes_raises(self):
+        """Test that action_resolve raises UserError when no notes provided."""
         if not self.alert_type_threshold:
             self.skipTest("Alert type threshold not found")
 
         alert = self._create_test_alert()
-        alert.action_resolve()
 
-        self.assertEqual(alert.state, "resolved")
-        self.assertEqual(alert.resolved_by_id, self.env.user)
-        self.assertTrue(alert.resolved_at)
-        # resolution_notes should be empty/false
-        self.assertFalse(alert.resolution_notes)
+        from odoo.exceptions import UserError
+
+        with self.assertRaises(UserError):
+            alert.action_resolve()
 
     def test_priority_levels_all_valid(self):
         """Test that all priority levels can be set correctly."""
