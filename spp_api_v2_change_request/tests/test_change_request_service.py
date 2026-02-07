@@ -1,8 +1,7 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """Tests for ChangeRequestService."""
 
-from odoo.exceptions import ValidationError
-from odoo.tests import TransactionCase
+from odoo.exceptions import UserError, ValidationError
 
 from ..schemas.change_request import (
     ChangeRequestCreate,
@@ -10,99 +9,11 @@ from ..schemas.change_request import (
     RegistrantRef,
 )
 from ..services.change_request_service import ChangeRequestService
+from .common import ChangeRequestTestCase
 
 
-class TestChangeRequestService(TransactionCase):
+class TestChangeRequestService(ChangeRequestTestCase):
     """Tests for ChangeRequestService."""
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.partner_model = cls.env["res.partner"]
-        cls.cr_model = cls.env["spp.change.request"]
-
-        # Get or create ID Type vocabulary
-        id_type_vocab = cls.env["spp.vocabulary"].search([("namespace_uri", "=", "urn:openspp:vocab:id-type")], limit=1)
-        if not id_type_vocab:
-            id_type_vocab = cls.env["spp.vocabulary"].create(
-                {
-                    "name": "ID Type",
-                    "namespace_uri": "urn:openspp:vocab:id-type",
-                }
-            )
-
-        # Create ID type as vocabulary code
-        cls.id_type = cls.env["spp.vocabulary.code"].search(
-            [
-                ("vocabulary_id", "=", id_type_vocab.id),
-                ("code", "=", "test_national_id"),
-            ],
-            limit=1,
-        )
-        if not cls.id_type:
-            cls.id_type = cls.env["spp.vocabulary.code"].create(
-                {
-                    "vocabulary_id": id_type_vocab.id,
-                    "code": "test_national_id",
-                    "display": "Test National ID",
-                    "is_local": True,
-                    "target_type": "individual",
-                }
-            )
-
-        # Create test registrant with identifier
-        cls.registrant = cls.partner_model.create(
-            {
-                "name": "Test Registrant",
-                "is_registrant": True,
-                "is_group": False,
-            }
-        )
-        cls.env["spp.registry.id"].create(
-            {
-                "partner_id": cls.registrant.id,
-                "id_type_id": cls.id_type.id,
-                "value": "TEST-123",
-            }
-        )
-
-        # Create test group
-        cls.group = cls.partner_model.create(
-            {
-                "name": "Test Group",
-                "is_registrant": True,
-                "is_group": True,
-            }
-        )
-        cls.env["spp.registry.id"].create(
-            {
-                "partner_id": cls.group.id,
-                "id_type_id": cls.id_type.id,
-                "value": "GROUP-123",
-            }
-        )
-
-        # Get or create CR type
-        cls.cr_type_edit = cls.env.ref(
-            "spp_change_request_v2.cr_type_edit_individual",
-            raise_if_not_found=False,
-        )
-        if not cls.cr_type_edit:
-            cls.cr_type_edit = cls.env.ref(
-                "spp_cr_types_base.cr_type_edit_individual",
-                raise_if_not_found=False,
-            )
-        if not cls.cr_type_edit:
-            cls.cr_type_edit = cls.env["spp.change.request.type"].search([("code", "=", "edit_individual")], limit=1)
-        if not cls.cr_type_edit:
-            cls.cr_type_edit = cls.env["spp.change.request.type"].create(
-                {
-                    "name": "Edit Individual",
-                    "code": "edit_individual",
-                    "target_type": "individual",
-                    "detail_model": "spp.cr.detail.edit_individual",
-                }
-            )
 
     def test_find_registrant_by_identifier(self):
         """Test finding registrant by external identifier."""
@@ -249,3 +160,88 @@ class TestChangeRequestService(TransactionCase):
         # Search by status
         records, total = service.search({"status": "draft"})
         self.assertGreaterEqual(total, 2)
+
+    # ──────────────────────────────────────────────────────────────────────
+    # State validation tests
+    # ──────────────────────────────────────────────────────────────────────
+
+    def test_reject_non_pending_raises(self):
+        """Rejecting a non-pending CR raises UserError."""
+        service = ChangeRequestService(self.env)
+        cr = self.cr_model.create(
+            {
+                "request_type_id": self.cr_type_edit.id,
+                "registrant_id": self.registrant.id,
+            }
+        )
+        with self.assertRaises(UserError):
+            service.reject(cr, reason="test rejection")
+
+    def test_approve_non_pending_raises(self):
+        """Approving a non-pending CR raises UserError."""
+        service = ChangeRequestService(self.env)
+        cr = self.cr_model.create(
+            {
+                "request_type_id": self.cr_type_edit.id,
+                "registrant_id": self.registrant.id,
+            }
+        )
+        with self.assertRaises(UserError):
+            service.approve(cr, comment="looks good")
+
+    # ──────────────────────────────────────────────────────────────────────
+    # Detail validation tests
+    # ──────────────────────────────────────────────────────────────────────
+
+    def test_update_detail_unknown_field_raises(self):
+        """Unknown fields in detail data raise ValidationError."""
+        service = ChangeRequestService(self.env)
+        cr = self.cr_model.create(
+            {
+                "request_type_id": self.cr_type_edit.id,
+                "registrant_id": self.registrant.id,
+            }
+        )
+        with self.assertRaises(ValidationError):
+            service.update_detail(cr, {"nonexistent_field_xyz": "value"})
+
+    def test_update_detail_unresolved_vocabulary_raises(self):
+        """Unresolved vocabulary code in detail data raises ValidationError."""
+        service = ChangeRequestService(self.env)
+        cr = self.cr_model.create(
+            {
+                "request_type_id": self.cr_type_edit.id,
+                "registrant_id": self.registrant.id,
+            }
+        )
+        with self.assertRaises(ValidationError):
+            service.update_detail(
+                cr,
+                {
+                    "gender_id": {
+                        "system": "urn:iso:std:iso:5218",
+                        "code": "nonexistent_code",
+                    },
+                },
+            )
+
+    def test_update_detail_readonly_field_raises(self):
+        """Sending a readonly/computed field in detail data raises ValidationError."""
+        service = ChangeRequestService(self.env)
+        cr = self.cr_model.create(
+            {
+                "request_type_id": self.cr_type_edit.id,
+                "registrant_id": self.registrant.id,
+            }
+        )
+        # Find a computed/readonly field from the schema
+        detail = cr.get_detail()
+        field_defs = service._build_field_definitions(self.cr_type_edit, detail)
+        readonly_fields = [f["name"] for f in field_defs if f["readonly"]]
+        if readonly_fields:
+            with self.assertRaises(ValidationError):
+                service.update_detail(cr, {readonly_fields[0]: "value"})
+        else:
+            # No readonly fields on this detail model; verify validation
+            # still passes for valid fields
+            service.update_detail(cr, {"given_name": "Valid Name"})

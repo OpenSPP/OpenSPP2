@@ -1,7 +1,7 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """Pydantic schemas for Change Request API."""
 
-from datetime import date, datetime
+from datetime import datetime
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field
@@ -161,19 +161,6 @@ class ChangeRequestUpdate(BaseModel):
         }
 
 
-class ChangeRequestAction(BaseModel):
-    """Schema for CR action requests (submit, approve, reject)."""
-
-    reason: str | None = Field(
-        None,
-        description="Reason for rejection or revision notes",
-    )
-    comment: str | None = Field(
-        None,
-        description="Optional comment for approval",
-    )
-
-
 class ApproveActionData(BaseModel):
     """Data for approve action."""
 
@@ -203,31 +190,61 @@ class RequestRevisionActionData(BaseModel):
     )
 
 
-class ChangeRequestSearchParams(BaseModel):
-    """Search parameters for change requests."""
+class FieldChoice(BaseModel):
+    """Value/label pair for selection choices, vocabulary codes, and documents."""
 
-    registrant: str | None = Field(
-        None,
-        description="Registrant identifier (system|value)",
+    value: str = Field(..., description="Machine-readable value or code")
+    label: str = Field(..., description="Human-readable display label")
+
+
+class VocabularyInfo(BaseModel):
+    """Vocabulary namespace and available codes for a vocabulary field."""
+
+    namespace_uri: str = Field(..., alias="namespaceUri", description="Vocabulary namespace URI")
+    codes: list[FieldChoice] = Field(default_factory=list, description="Available codes")
+
+    class Config:
+        populate_by_name = True
+
+
+class FieldDefinition(BaseModel):
+    """Schema definition for a single field on a CR detail model."""
+
+    name: str = Field(..., description="Field name")
+    label: str = Field(..., description="Human-readable field label")
+    type: str = Field(
+        ...,
+        description="Field type (string, text, integer, float, boolean, date, datetime, selection, code, reference)",
     )
-    request_type: str | None = Field(
-        None,
-        alias="requestType",
-        description="Type code to filter by",
+    required: bool = Field(False, description="Whether the field is required")
+    readonly: bool = Field(False, description="Whether the field is read-only or computed")
+    help: str | None = Field(None, description="Help text for the field")
+    choices: list[FieldChoice] | None = Field(None, description="Available choices for selection fields")
+    vocabulary: VocabularyInfo | None = Field(None, description="Vocabulary info for code fields")
+
+
+class ChangeRequestTypeInfo(BaseModel):
+    """Summary info for a CR type."""
+
+    code: str = Field(..., description="Type code (e.g., add_member)")
+    name: str = Field(..., description="Human-readable type name")
+    target_type: str = Field(..., alias="targetType", description="Target registrant type (individual, group, both)")
+    requires_applicant: bool = Field(False, alias="requiresApplicant", description="Whether an applicant is required")
+
+    class Config:
+        populate_by_name = True
+
+
+class ChangeRequestTypeSchema(BaseModel):
+    """Full schema for a CR type including field definitions."""
+
+    type_info: ChangeRequestTypeInfo = Field(..., alias="typeInfo", description="Type summary")
+    fields: list[FieldDefinition] = Field(default_factory=list, description="Available detail fields")
+    available_documents: list[FieldChoice] = Field(
+        default_factory=list, alias="availableDocuments", description="Documents that can be attached"
     )
-    status: str | None = Field(
-        None,
-        description="Status to filter by",
-    )
-    created_after: date | None = Field(
-        None,
-        alias="createdAfter",
-        description="Created on or after this date",
-    )
-    created_before: date | None = Field(
-        None,
-        alias="createdBefore",
-        description="Created on or before this date",
+    required_documents: list[FieldChoice] = Field(
+        default_factory=list, alias="requiredDocuments", description="Documents that must be attached"
     )
 
     class Config:
