@@ -83,7 +83,11 @@ def extract_person_from_dci_response(response):
                     if isinstance(data, list):
                         person_data = data[0]  # First matching record
                     elif isinstance(data, dict):
-                        person_data = data  # Direct dict response
+                        # Check for reg_records (OpenCRVS SPDCI format)
+                        if "reg_records" in data and data["reg_records"]:
+                            person_data = data["reg_records"][0]
+                        else:
+                            person_data = data  # Direct dict response
 
     # OpenCRVS direct response format
     if not person_data and ("identifier" in response or "name" in response):
