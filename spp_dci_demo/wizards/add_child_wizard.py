@@ -181,6 +181,26 @@ class SPPDCIDemoAddChildWizard(models.TransientModel):
             else:
                 rec.member_name = False
 
+    @api.onchange("given_name", "family_name", "birthdate", "gender_id", "birth_registration_number")
+    def _onchange_invalidate_verification(self):
+        """Reset verification status when verified fields are edited.
+
+        This is a security control: if the user changes name, DOB, gender, or BRN
+        after verification, the verification is no longer valid and must be re-done.
+        """
+        if self.birth_verification_status == "verified":
+            self.birth_verification_status = "unverified"
+            self.dci_data_match = False
+            self.birth_verification_date = False
+            self.birth_verification_response = False
+            return {
+                "warning": {
+                    "title": _("Verification Invalidated"),
+                    "message": _("Verification has been reset because you modified verified data. "
+                                 "Please verify again after making changes."),
+                }
+            }
+
     @api.depends("registrant_id")
     def _compute_registrant_info_html(self):
         for rec in self:
@@ -613,7 +633,7 @@ class SPPDCIDemoAddChildWizard(models.TransientModel):
             return
 
         try:
-            cr.action_approve(comment="Auto-approved: DCI birth verification matched")
-            _logger.info("Auto-approved change request %s due to DCI data match", cr.name)
+            # Use action_approve_system() for system-initiated approval
+            cr.action_approve_system(comment="Auto-approved: DCI birth verification matched")
         except Exception as e:
             _logger.warning("Failed to auto-approve change request %s: %s", cr.name, str(e))
