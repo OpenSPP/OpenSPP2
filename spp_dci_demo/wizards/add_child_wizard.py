@@ -565,6 +565,10 @@ class SPPDCIDemoAddChildWizard(models.TransientModel):
                 self.registrant_id.name,
             )
 
+            # Step 4: Auto-approve if verified and data matches
+            if self.birth_verification_status == "verified" and self.dci_data_match:
+                self._try_auto_approve_cr(cr)
+
             # Return action to open the CR form
             cr_id = cr.id
             return {
@@ -584,3 +588,32 @@ class SPPDCIDemoAddChildWizard(models.TransientModel):
         except Exception as e:
             _logger.exception("Wizard create and submit failed")
             raise UserError(f"Failed to create change request: {e}") from e
+
+    def _try_auto_approve_cr(self, cr):
+        """Try to auto-approve the change request if enabled.
+
+        Args:
+            cr: The change request to approve
+        """
+        # Check system parameter
+        auto_approve_enabled = (
+            self.env["ir.config_parameter"].sudo().get_param("spp_dci_demo.auto_approve_on_match", "False")
+        )
+        if auto_approve_enabled.lower() not in ("true", "1", "yes"):
+            _logger.info("Auto-approval disabled by system parameter")
+            return
+
+        # Check if CR can be approved (must be pending/under review)
+        if cr.display_state != "pending":
+            _logger.info(
+                "Change request %s is in state '%s', cannot auto-approve",
+                cr.name,
+                cr.display_state,
+            )
+            return
+
+        try:
+            cr.action_approve(comment="Auto-approved: DCI birth verification matched")
+            _logger.info("Auto-approved change request %s due to DCI data match", cr.name)
+        except Exception as e:
+            _logger.warning("Failed to auto-approve change request %s: %s", cr.name, str(e))
