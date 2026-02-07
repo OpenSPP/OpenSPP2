@@ -11,7 +11,7 @@ import logging
 
 from markupsafe import Markup, escape
 
-from odoo import api, fields, models
+from odoo import _, api, fields, models
 
 _logger = logging.getLogger(__name__)
 
@@ -136,3 +136,45 @@ class SPPChangeRequestDCI(models.Model):
                 )
 
             rec.dci_verification_html = Markup("").join(parts)
+
+    def _after_submit(self):
+        """Check for auto-approval after submission if DCI verified.
+
+        If the CR detail has birth_verification_status='verified' and
+        dci_data_match=True, auto-approve the CR.
+        """
+        super()._after_submit()
+
+        # Check system parameter
+        auto_approve_enabled = (
+            self.env["ir.config_parameter"].sudo().get_param("spp_dci_demo.auto_approve_on_match", "False")
+        )
+        if auto_approve_enabled.lower() not in ("true", "1", "yes"):
+            return
+
+        for record in self:
+            # Get the detail record
+            detail = record.get_detail()
+            if not detail:
+                continue
+
+            # Check if it's an add_member detail with DCI verification
+            if not hasattr(detail, "birth_verification_status"):
+                continue
+
+            # Check if verified and data matches
+            if detail.birth_verification_status == "verified" and detail.dci_data_match:
+                _logger.info(
+                    "CR %s has DCI verified detail with data match, attempting auto-approve on submit",
+                    record.name,
+                )
+                try:
+                    record.action_approve_system(
+                        comment=_("Auto-approved: DCI birth verification matched")
+                    )
+                except Exception as e:
+                    _logger.warning(
+                        "Failed to auto-approve CR %s after submit: %s",
+                        record.name,
+                        str(e),
+                    )
