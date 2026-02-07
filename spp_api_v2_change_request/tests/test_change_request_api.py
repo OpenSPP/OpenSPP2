@@ -1,88 +1,15 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """Tests for Change Request API endpoints."""
 
-from odoo.tests import TransactionCase
+from .common import ChangeRequestTestCase
 
 
-class TestChangeRequestAPI(TransactionCase):
+class TestChangeRequestAPI(ChangeRequestTestCase):
     """Tests for Change Request API endpoints.
 
     These tests verify the API endpoint logic.
     Full integration tests require FastAPI test client setup.
     """
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.partner_model = cls.env["res.partner"]
-        cls.cr_model = cls.env["spp.change.request"]
-
-        # Get or create ID Type vocabulary
-        id_type_vocab = cls.env["spp.vocabulary"].search([("namespace_uri", "=", "urn:openspp:vocab:id-type")], limit=1)
-        if not id_type_vocab:
-            id_type_vocab = cls.env["spp.vocabulary"].create(
-                {
-                    "name": "ID Type",
-                    "namespace_uri": "urn:openspp:vocab:id-type",
-                }
-            )
-
-        # Create ID type as vocabulary code
-        cls.id_type = cls.env["spp.vocabulary.code"].search(
-            [
-                ("vocabulary_id", "=", id_type_vocab.id),
-                ("code", "=", "test_national_id"),
-            ],
-            limit=1,
-        )
-        if not cls.id_type:
-            cls.id_type = cls.env["spp.vocabulary.code"].create(
-                {
-                    "vocabulary_id": id_type_vocab.id,
-                    "code": "test_national_id",
-                    "display": "Test National ID",
-                    "is_local": True,
-                    "target_type": "individual",
-                }
-            )
-
-        # Create test registrant
-        cls.registrant = cls.partner_model.create(
-            {
-                "name": "Test Registrant",
-                "is_registrant": True,
-                "is_group": False,
-            }
-        )
-        cls.env["spp.registry.id"].create(
-            {
-                "partner_id": cls.registrant.id,
-                "id_type_id": cls.id_type.id,
-                "value": "TEST-123",
-            }
-        )
-
-        # Get or create CR type
-        cls.cr_type_edit = cls.env.ref(
-            "spp_change_request_v2.cr_type_edit_individual",
-            raise_if_not_found=False,
-        )
-        if not cls.cr_type_edit:
-            cls.cr_type_edit = cls.env.ref(
-                "spp_cr_types_base.cr_type_edit_individual",
-                raise_if_not_found=False,
-            )
-        if not cls.cr_type_edit:
-            cls.cr_type_edit = cls.env["spp.change.request.type"].search([("code", "=", "edit_individual")], limit=1)
-        if not cls.cr_type_edit:
-            cls.cr_type_edit = cls.env["spp.change.request.type"].create(
-                {
-                    "name": "Edit Individual",
-                    "code": "edit_individual",
-                    "target_type": "individual",
-                    "detail_model": "spp.cr.detail.edit_individual",
-                }
-            )
 
     def test_router_included(self):
         """Test that CR router is included in API V2."""
