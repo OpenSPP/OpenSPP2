@@ -104,6 +104,9 @@ class SPPDCIDemoAddChildWizard(models.TransientModel):
         string="DCI Data Source",
         domain="[('registry_type', '=', 'ns:org:RegistryType:Civil'), ('active', '=', True)]",
     )
+    single_dci_data_source = fields.Boolean(
+        compute="_compute_single_dci_data_source",
+    )
     birth_verification_status = fields.Selection(
         [
             ("unverified", "Unverified"),
@@ -164,6 +167,14 @@ class SPPDCIDemoAddChildWizard(models.TransientModel):
     # ==================
     # Computed Fields
     # ==================
+
+    def _compute_single_dci_data_source(self):
+        count = self.env["spp.dci.data.source"].search_count(
+            [("registry_type", "=", "ns:org:RegistryType:Civil"), ("active", "=", True)],
+        )
+        is_single = count <= 1
+        for rec in self:
+            rec.single_dci_data_source = is_single
 
     @api.depends("given_name", "family_name")
     def _compute_member_name(self):

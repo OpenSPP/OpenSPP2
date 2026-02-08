@@ -91,10 +91,12 @@
 
                         <group string="Birth Verification">
                             <group>
+                                <field name="single_dci_data_source" invisible="1" />
                                 <field
                                     name="dci_data_source_id"
                                     placeholder="Select CRVS registry..."
                                     options="{'no_create': True, 'no_open': True}"
+                                    invisible="single_dci_data_source"
                                 />
                                 <field
                                     name="birth_registration_number"

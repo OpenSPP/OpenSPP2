@@ -69,6 +69,17 @@ class SPPCRDetailAddMemberDCI(models.Model):
         domain="[('registry_type', '=', 'ns:org:RegistryType:Civil'), ('active', '=', True)]",
         help="DCI data source (CRVS registry) to use for birth verification",
     )
+    single_dci_data_source = fields.Boolean(
+        compute="_compute_single_dci_data_source",
+    )
+
+    def _compute_single_dci_data_source(self):
+        count = self.env["spp.dci.data.source"].search_count(
+            [("registry_type", "=", "ns:org:RegistryType:Civil"), ("active", "=", True)],
+        )
+        is_single = count <= 1
+        for rec in self:
+            rec.single_dci_data_source = is_single
 
     @api.onchange("birth_registration_number")
     def _onchange_birth_registration_number(self):
