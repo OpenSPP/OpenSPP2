@@ -18,7 +18,6 @@
         "data/dci_data_source.xml",
         "data/system_parameters.xml",
         "views/cr_detail_add_member_view.xml",
-        "views/add_child_wizard_view.xml",
         "views/change_request_view.xml",
     ],
     "demo": [],
@@ -40,9 +39,9 @@ A parent comes to a service point to add their newborn to their household.
 They have the Birth Registration Number (BRN) from OpenCRVS. The social worker:
 
 1. Creates an "Add Child" change request on the household
-2. Enters child details (name, DOB, gender) + BRN
+2. Enters child details (name, DOB, gender) + BRN on the detail form
 3. Clicks "Verify Birth" -> DCI query to OpenCRVS -> birth verified
-4. CR approved -> child added to household with verified BRN identity document
-5. Registry ID shows verification_method=dci_api, is_verified=True
+4. Clicks "Submit" -> CR auto-approved if verification matched
+5. Child added to household with verified BRN identity document
 """,
 }
