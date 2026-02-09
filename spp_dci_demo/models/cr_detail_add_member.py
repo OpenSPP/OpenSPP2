@@ -89,6 +89,28 @@ class SPPCRDetailAddMemberDCI(models.Model):
             if stripped != self.birth_registration_number:
                 self.birth_registration_number = stripped
 
+    @api.onchange("given_name", "family_name", "birthdate", "gender_id", "birth_registration_number")
+    def _onchange_invalidate_verification(self):
+        """Reset verification status when verified fields are edited.
+
+        This is a security control: if the user changes name, DOB, gender, or BRN
+        after verification, the verification is no longer valid and must be re-done.
+        """
+        if self.birth_verification_status == "verified":
+            self.birth_verification_status = "unverified"
+            self.dci_data_match = False
+            self.birth_verification_date = False
+            self.birth_verification_response = False
+            return {
+                "warning": {
+                    "title": _("Verification Invalidated"),
+                    "message": _(
+                        "Verification has been reset because you modified verified data. "
+                        "Please verify again after making changes."
+                    ),
+                }
+            }
+
     @api.model
     def _get_default_dci_data_source(self):
         """Get the default DCI data source for birth verification.
@@ -180,16 +202,9 @@ class SPPCRDetailAddMemberDCI(models.Model):
                 data_matches,
             )
 
-            # Auto-approve if verified and data matches
-            auto_approved = False
-            if verification_status == "verified" and data_matches:
-                auto_approved = self._try_auto_approve()
-
             # Return notification
             if verification_status == "verified":
-                if auto_approved:
-                    message = _("Birth registration verified and CR auto-approved!")
-                elif data_matches:
+                if data_matches:
                     message = _("Birth registration verified and data matches!")
                 else:
                     message = _("Birth registration verified (data mismatch - manual review required).")
@@ -289,52 +304,3 @@ class SPPCRDetailAddMemberDCI(models.Model):
             )
 
         return matches
-
-    def _try_auto_approve(self):
-        """Try to auto-approve the change request.
-
-        Only auto-approves if:
-        - System parameter spp_dci_demo.auto_approve_on_match is True
-        - The change request is in a state that can be approved
-
-        Returns:
-            Boolean indicating if auto-approval was successful
-        """
-        # Check system parameter
-        auto_approve_enabled = (
-            self.env["ir.config_parameter"].sudo().get_param("spp_dci_demo.auto_approve_on_match", "False")
-        )
-        if auto_approve_enabled.lower() not in ("true", "1", "yes"):
-            _logger.info("Auto-approval disabled by system parameter")
-            return False
-
-        # Get the change request
-        cr = self.change_request_id
-        if not cr:
-            _logger.warning("No change request linked to detail, cannot auto-approve")
-            return False
-
-        # Check if CR can be approved (must be in pending state)
-        if cr.display_state != "pending":
-            _logger.info(
-                "Change request %s is in state '%s', cannot auto-approve",
-                cr.name,
-                cr.display_state,
-            )
-            return False
-
-        try:
-            # Auto-approve with comment
-            cr.action_approve(comment=_("Auto-approved: DCI birth verification matched"))
-            _logger.info(
-                "Auto-approved change request %s due to DCI data match",
-                cr.name,
-            )
-            return True
-        except Exception as e:
-            _logger.warning(
-                "Failed to auto-approve change request %s: %s",
-                cr.name,
-                str(e),
-            )
-            return False
