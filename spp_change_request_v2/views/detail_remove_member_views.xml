@@ -6,6 +6,27 @@
         <field name="model">spp.cr.detail.remove_member</field>
         <field name="arch" type="xml">
             <form string="Remove Member Details">
+                <header>
+                    <button
+                        name="action_submit_for_approval"
+                        string="Submit for Approval"
+                        type="object"
+                        class="btn-primary"
+                        invisible="approval_state != 'draft'"
+                    />
+                    <button
+                        name="action_submit_for_approval"
+                        string="Resubmit for Review"
+                        type="object"
+                        class="btn-primary"
+                        invisible="approval_state != 'revision'"
+                    />
+                    <field
+                        name="approval_state"
+                        widget="statusbar"
+                        statusbar_visible="draft,pending,approved,applied"
+                    />
+                </header>
                 <sheet>
                     <group>
                         <group string="Member Selection">
@@ -25,7 +46,10 @@
                         </group>
                     </group>
                     <group string="Additional Information">
-                        <field name="remarks" placeholder="Enter any additional notes..." />
+                        <field
+                            name="remarks"
+                            placeholder="Enter any additional notes..."
+                        />
                     </group>
                 </sheet>
             </form>

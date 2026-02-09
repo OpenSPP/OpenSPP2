@@ -6,6 +6,27 @@
         <field name="model">spp.cr.detail.transfer_member</field>
         <field name="arch" type="xml">
             <form string="Transfer Member Details">
+                <header>
+                    <button
+                        name="action_submit_for_approval"
+                        string="Submit for Approval"
+                        type="object"
+                        class="btn-primary"
+                        invisible="approval_state != 'draft'"
+                    />
+                    <button
+                        name="action_submit_for_approval"
+                        string="Resubmit for Review"
+                        type="object"
+                        class="btn-primary"
+                        invisible="approval_state != 'revision'"
+                    />
+                    <field
+                        name="approval_state"
+                        widget="statusbar"
+                        statusbar_visible="draft,pending,approved,applied"
+                    />
+                </header>
                 <sheet>
                     <group>
                         <group string="Source">
@@ -18,10 +39,14 @@
                                 required="1"
                             />
                             <field name="member_name" />
-                            <field name="membership_id" invisible="1" force_save="1"/>
+                            <field name="membership_id" invisible="1" force_save="1" />
                         </group>
                         <group string="Target">
-                            <field name="target_group_id" options="{'no_create': True}" required="1"/>
+                            <field
+                                name="target_group_id"
+                                options="{'no_create': True}"
+                                required="1"
+                            />
                             <field name="new_role_id" options="{'no_create': True}" />
                         </group>
                     </group>
@@ -32,7 +57,10 @@
                         </group>
                     </group>
                     <group string="Additional Information">
-                        <field name="remarks" placeholder="Enter any additional notes..." />
+                        <field
+                            name="remarks"
+                            placeholder="Enter any additional notes..."
+                        />
                     </group>
                 </sheet>
             </form>

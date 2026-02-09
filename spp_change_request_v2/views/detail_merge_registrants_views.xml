@@ -6,19 +6,44 @@
         <field name="model">spp.cr.detail.merge_registrants</field>
         <field name="arch" type="xml">
             <form string="Merge Registrants Details">
+                <header>
+                    <button
+                        name="action_submit_for_approval"
+                        string="Submit for Approval"
+                        type="object"
+                        class="btn-primary"
+                        invisible="approval_state != 'draft'"
+                    />
+                    <button
+                        name="action_submit_for_approval"
+                        string="Resubmit for Review"
+                        type="object"
+                        class="btn-primary"
+                        invisible="approval_state != 'revision'"
+                    />
+                    <field
+                        name="approval_state"
+                        widget="statusbar"
+                        statusbar_visible="draft,pending,approved,applied"
+                    />
+                </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
                         <button class="oe_stat_button" icon="fa-users">
-                            <field name="duplicate_count" widget="statinfo" string="Duplicates" />
+                            <field
+                                name="duplicate_count"
+                                widget="statinfo"
+                                string="Duplicates"
+                            />
                         </button>
                     </div>
 
                     <group>
                         <group string="Primary Registrant (Keep)">
-                            <field name="primary_registrant_id" required="1"/>
+                            <field name="primary_registrant_id" required="1" />
                             <field name="primary_name" invisible="1" />
                             <field name="is_group_merge" invisible="1" />
-                            <field name="available_duplicate_ids" invisible="1"/>
+                            <field name="available_duplicate_ids" invisible="1" />
                         </group>
                         <group string="Merge Details">
                             <field name="reason" />
@@ -29,13 +54,17 @@
                     <separator string="Duplicates to Merge" />
                     <p class="text-muted">
                         Select duplicate registrants to merge into the primary.
-                        Only <span invisible="not is_group_merge">groups</span><span invisible="is_group_merge">individuals</span> can be selected.
+                        Only <span invisible="not is_group_merge">groups</span><span
+                        invisible="is_group_merge"
+                    >individuals</span> can be selected.
                     </p>
-                    <field name="duplicate_registrant_ids"
-                           widget="many2many_tags"
-                           domain="[('id', 'in', available_duplicate_ids)]"
-                           options="{'no_create': True}"
-                           required="1"/>
+                    <field
+                        name="duplicate_registrant_ids"
+                        widget="many2many_tags"
+                        domain="[('id', 'in', available_duplicate_ids)]"
+                        options="{'no_create': True}"
+                        required="1"
+                    />
 
                     <separator string="Merge Options" />
                     <group>
@@ -49,7 +78,10 @@
                     </group>
 
                     <group string="Additional Information">
-                        <field name="remarks" placeholder="Enter any additional notes..." />
+                        <field
+                            name="remarks"
+                            placeholder="Enter any additional notes..."
+                        />
                     </group>
                 </sheet>
             </form>

@@ -6,12 +6,36 @@
         <field name="model">spp.cr.detail.exit_registrant</field>
         <field name="arch" type="xml">
             <form string="Exit Registrant Details">
+                <header>
+                    <button
+                        name="action_submit_for_approval"
+                        string="Submit for Approval"
+                        type="object"
+                        class="btn-primary"
+                        invisible="approval_state != 'draft'"
+                    />
+                    <button
+                        name="action_submit_for_approval"
+                        string="Resubmit for Review"
+                        type="object"
+                        class="btn-primary"
+                        invisible="approval_state != 'revision'"
+                    />
+                    <field
+                        name="approval_state"
+                        widget="statusbar"
+                        statusbar_visible="draft,pending,approved,applied"
+                    />
+                </header>
                 <sheet>
                     <group>
                         <group string="Registrant">
                             <field name="registrant_name" />
-                            <field name="is_group" invisible="1"/>
-                            <field name="active_membership_count" invisible="is_group" />
+                            <field name="is_group" invisible="1" />
+                            <field
+                                name="active_membership_count"
+                                invisible="is_group"
+                            />
                         </group>
                         <group string="Exit Details">
                             <field name="exit_reason" />
@@ -19,16 +43,29 @@
                         </group>
                     </group>
                     <group>
-                        <group string="Additional Details" invisible="exit_reason not in ['deceased', 'emigrated']">
-                            <field name="death_date" invisible="exit_reason != 'deceased'" required="exit_reason == 'deceased'" />
-                            <field name="destination_country_id" invisible="exit_reason != 'emigrated'" />
+                        <group
+                            string="Additional Details"
+                            invisible="exit_reason not in ['deceased', 'emigrated']"
+                        >
+                            <field
+                                name="death_date"
+                                invisible="exit_reason != 'deceased'"
+                                required="exit_reason == 'deceased'"
+                            />
+                            <field
+                                name="destination_country_id"
+                                invisible="exit_reason != 'emigrated'"
+                            />
                         </group>
                         <group string="Options">
                             <field name="is_end_active_memberships" />
                         </group>
                     </group>
                     <group string="Additional Information">
-                        <field name="remarks" placeholder="Enter any additional notes..." />
+                        <field
+                            name="remarks"
+                            placeholder="Enter any additional notes..."
+                        />
                     </group>
                 </sheet>
             </form>
