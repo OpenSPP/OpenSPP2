@@ -54,7 +54,7 @@ class SPPCRApplyAddMember(models.AbstractModel):
         membership_vals = {
             "group": group.id,
             "individual": individual.id,
-            "start_date": fields.Date.today(),
+            "start_date": fields.Datetime.now(),
         }
 
         # Handle relationship/membership type
