@@ -14,7 +14,7 @@
 websocket-client~=0.56
 pyOpenSSL
 geoip2
-git-aggregator==4.0
+git-aggregator==4.1
 
 # PDF processing (reportlab uses these)
 pdfminer.six
