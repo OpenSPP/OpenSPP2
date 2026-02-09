@@ -62,6 +62,8 @@
     "assets": {
         "web.assets_backend": [
             "spp_change_request_v2/static/src/components/**/*",
+            "spp_change_request_v2/static/src/js/create_change_request.js",
+            "spp_change_request_v2/static/src/xml/create_change_request_template.xml",
         ],
     },
     "installable": True,

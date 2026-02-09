@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+    <t t-inherit="web.ListView" t-inherit-mode="extension">
+        <xpath expr="//Layout/t[@t-set-slot='control-panel-create-button']" position="replace">
+            <t t-set-slot="control-panel-create-button">
+                <t t-if="model.root.resModel == 'spp.change.request'">
+                    <button
+                        t-if="!editedRecord and activeActions.create and props.showButtons and canCreateChangeRequest"
+                        type="button"
+                        class="btn btn-primary o_list_button_add_cr"
+                        accesskey="c"
+                        title="Create a New Change Request"
+                        t-on-click="loadChangeRequestWizard"
+                    >New Request</button>
+                </t>
+                <t t-else="">
+                    <button
+                        t-if="!editedRecord and activeActions.create and props.showButtons"
+                        type="button"
+                        class="btn btn-primary o_list_button_add"
+                        data-hotkey="c"
+                        t-on-click="onClickCreate"
+                        data-bounce-button=""
+                    >New</button>
+                    <t t-if="props.showButtons and !env.inDialog" t-call="web.ListView.EditableButtons" />
+                </t>
+            </t>
+        </xpath>
+    </t>
+
+    <t t-inherit="web.FormView" t-inherit-mode="extension">
+        <xpath expr="//button[hasclass('o_form_button_create')]" position="attributes">
+            <attribute name="t-if">model.root.resModel != 'spp.change.request'</attribute>
+        </xpath>
+    </t>
+
+</templates>
