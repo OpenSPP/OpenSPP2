@@ -43,6 +43,7 @@
         "data/audit_rules.xml",
         "data/config_defaults.xml",
         "data/gis_report_templates.xml",
+        "data/approval_definitions.xml",
         # Reports (before views, as views may reference report actions)
         "report/waybill_template.xml",
         "views/dashboard_views.xml",

@@ -289,17 +289,17 @@
                 <filter
                     name="filter_low_stock"
                     string="Low Stock"
-                    domain="[('alert_type', '=', 'low_stock')]"
+                    domain="[('alert_type_id.code', '=', 'low_stock')]"
                 />
                 <filter
                     name="filter_expiry"
                     string="Expiry"
-                    domain="[('alert_type', '=', 'expiry')]"
+                    domain="[('alert_type_id.code', '=', 'expiry')]"
                 />
                 <filter
                     name="filter_sla"
                     string="SLA"
-                    domain="[('alert_type', 'in', ['sla_warning', 'sla_breach'])]"
+                    domain="[('alert_type_id.code', 'in', ['sla_warning', 'sla_breach'])]"
                 />
                 <separator />
 
