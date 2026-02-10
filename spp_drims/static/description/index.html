@@ -388,10 +388,10 @@ breaches.</p>
 inspected, stocked) and inspection workflow</li>
 <li>Submit supply requests for affected areas with approval workflow, SLA
 tracking, and priority handling</li>
-<li>Allocate stock using FIFO/FEFO logic and create dispatch pickings
-with beneficiary area tracking</li>
-<li>Track returned items with condition assessment and disposition
-routing (restock, repair, dispose)</li>
+<li>Allocate stock using FIFO/FEFO logic and create dispatch pickings with
+beneficiary area tracking</li>
+<li>Track returned items with condition assessment and disposition routing
+(restock, repair, dispose)</li>
 <li>Generate alerts automatically for low stock thresholds, expiring
 inventory, and overdue requests</li>
 <li>Create request templates for rapid response to recurring emergency
@@ -490,16 +490,15 @@ approvals)</li>
 <li><strong>Returns</strong>: DRIMS &gt; Receive Supplies &gt; Returns</li>
 <li><strong>Alerts</strong>: DRIMS &gt; Monitoring &gt; Alerts</li>
 <li><strong>Personnel</strong>: DRIMS &gt; Monitoring &gt; Personnel</li>
-<li><strong>Inventory</strong>: DRIMS &gt; Inventory &gt; Stock On Hand, Warehouses,
-Products</li>
+<li><strong>Inventory</strong>: DRIMS &gt; Inventory &gt; Stock On Hand, Warehouses, Products</li>
 </ul>
 </div>
 <div class="section" id="security">
 <h2>Security</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="60%" />
+<col width="40%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Group</th>
@@ -511,33 +510,27 @@ Products</li>
 <td>Read-only access to donations,
 requests, dispatches</td>
 </tr>
-<tr><td>`
-<cite>spp_drims.group_drims_officer`</cite></td>
+<tr><td><tt class="docutils literal">spp_drims.group_drims_officer</tt></td>
 <td>Create and edit donations,
 requests, returns (no delete)</td>
 </tr>
-<tr><td>``
-spp_drims.group_drims_approver``</td>
+<tr><td><tt class="docutils literal">spp_drims.group_drims_approver</tt></td>
 <td>Approve or reject supply
 requests</td>
 </tr>
-<tr><td>`
-<cite>spp_drims.group_drims_manager`</cite></td>
+<tr><td><tt class="docutils literal">spp_drims.group_drims_manager</tt></td>
 <td>Full CRUD including deletion and
 configuration</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_drim
-s.group_drims_warehouse_worker</tt></td>
+<tr><td><tt class="docutils literal">spp_drims.group_drims_warehouse_worker</tt></td>
 <td>Receive donations, manage stock,
 process dispatches</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_d
-rims.group_drims_field_officer</tt></td>
+<tr><td><tt class="docutils literal">spp_drims.group_drims_field_officer</tt></td>
 <td>Create requests and confirm
 deliveries in the field</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_drims.grou
-p_drims_coordinator_supervisor</tt></td>
+<tr><td><tt class="docutils literal">spp_drims.group_drims_coordinator_supervisor</tt></td>
 <td>Coordinate requests and
 distributions within assigned
 areas</td>

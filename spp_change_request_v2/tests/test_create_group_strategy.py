@@ -4,6 +4,8 @@
 from odoo.exceptions import UserError
 from odoo.tests import TransactionCase
 
+from .common import get_or_create_cr_type
+
 
 class TestCreateGroupStrategy(TransactionCase):
     """Tests for Create Group custom strategy."""
@@ -39,15 +41,10 @@ class TestCreateGroupStrategy(TransactionCase):
             }
         )
 
-        cls.cr_type = cls.env.ref(
-            "spp_change_request_v2.cr_type_create_group",
-            raise_if_not_found=False,
-        )
+        cls.cr_type = get_or_create_cr_type(cls.env, "create_group")
 
     def test_create_group_basic(self):
         """Test creating new group."""
-        if not self.cr_type:
-            self.skipTest("Create group CR type not found")
 
         cr = self.cr_model.create(
             {
@@ -83,8 +80,6 @@ class TestCreateGroupStrategy(TransactionCase):
 
     def test_create_group_with_existing_head(self):
         """Test creating group with existing individual as head."""
-        if not self.cr_type:
-            self.skipTest("Create group CR type not found")
 
         cr = self.cr_model.create(
             {
@@ -126,8 +121,6 @@ class TestCreateGroupStrategy(TransactionCase):
 
     def test_create_group_with_new_head(self):
         """Test creating group with new individual as head."""
-        if not self.cr_type:
-            self.skipTest("Create group CR type not found")
 
         cr = self.cr_model.create(
             {
@@ -165,7 +158,7 @@ class TestCreateGroupStrategy(TransactionCase):
         self.assertTrue(membership)
 
         new_head = membership.individual
-        self.assertEqual(new_head.name, "Juan Dela Cruz")
+        self.assertEqual(new_head.name, "DELA CRUZ, JUAN")
         self.assertEqual(new_head.given_name, "Juan")
         self.assertEqual(new_head.family_name, "Dela Cruz")
         self.assertTrue(new_head.is_registrant)
@@ -173,8 +166,6 @@ class TestCreateGroupStrategy(TransactionCase):
 
     def test_create_group_without_name_fails(self):
         """Test creating group without name fails."""
-        if not self.cr_type:
-            self.skipTest("Create group CR type not found")
 
         cr = self.cr_model.create(
             {
@@ -200,8 +191,6 @@ class TestCreateGroupStrategy(TransactionCase):
 
     def test_create_group_new_head_requires_name(self):
         """Test creating new head requires name."""
-        if not self.cr_type:
-            self.skipTest("Create group CR type not found")
 
         cr = self.cr_model.create(
             {
@@ -228,8 +217,6 @@ class TestCreateGroupStrategy(TransactionCase):
 
     def test_create_group_preview(self):
         """Test preview returns expected structure."""
-        if not self.cr_type:
-            self.skipTest("Create group CR type not found")
 
         cr = self.cr_model.create(
             {

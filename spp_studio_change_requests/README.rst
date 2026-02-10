@@ -32,38 +32,38 @@ access rights for each CR type.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  Create custom change request types through a three-step wizard
-   (naming, field selection, approval configuration)
--  Dynamically generate ``x_spp_cr_detail_*`` models and
-   ``ir.model.fields`` records at runtime when activating a CR type
--  Map fields from ``res.partner`` to detail model fields, supporting
-   char, text, date, selection, many2one, and other types
--  Manage lifecycle through draft/active/inactive states with validation
-   checks and deactivation impact warnings
--  Configure approval groups and auto-apply settings per CR type
--  Add or modify field mappings on active types; changes sync to detail
-   models and form views automatically
+- Create custom change request types through a three-step wizard
+  (naming, field selection, approval configuration)
+- Dynamically generate ``x_spp_cr_detail_*`` models and
+  ``ir.model.fields`` records at runtime when activating a CR type
+- Map fields from ``res.partner`` to detail model fields, supporting
+  char, text, date, selection, many2one, and other types
+- Manage lifecycle through draft/active/inactive states with validation
+  checks and deactivation impact warnings
+- Configure approval groups and auto-apply settings per CR type
+- Add or modify field mappings on active types; changes sync to detail
+  models and form views automatically
 
 Key Models
 ~~~~~~~~~~
 
-+----------------------------------+----------------------------------+
-| Model                            | Description                      |
-+==================================+==================================+
-| ``                               | Studio-created CR type           |
-| spp.studio.change.request.type`` | definition with lifecycle        |
-|                                  | tracking                         |
-+----------------------------------+----------------------------------+
-| ``spp.studio.cr.field.mapping``  | Field mapping from               |
-|                                  | ``res.partner`` to CR detail     |
-|                                  | model                            |
-+----------------------------------+----------------------------------+
-| ``spp.cr.detail.generic``        | Generic detail template model    |
-|                                  | (unused; types generate x\_\*)   |
-+----------------------------------+----------------------------------+
-| ``x_spp_cr_detail_*``            | Auto-generated detail models for |
-| (dynamically)                    | each activated CR type           |
-+----------------------------------+----------------------------------+
++------------------------------------+----------------------------------+
+| Model                              | Description                      |
++====================================+==================================+
+| ``spp.studio.change.request.type`` | Studio-created CR type           |
+|                                    | definition with lifecycle        |
+|                                    | tracking                         |
++------------------------------------+----------------------------------+
+| ``spp.studio.cr.field.mapping``    | Field mapping from               |
+|                                    | ``res.partner`` to CR detail     |
+|                                    | model                            |
++------------------------------------+----------------------------------+
+| ``spp.cr.detail.generic``          | Generic detail template model    |
+|                                    | (unused; types generate x\_\*)   |
++------------------------------------+----------------------------------+
+| ``x_spp_cr_detail_*``              | Auto-generated detail models for |
+| (dynamically)                      | each activated CR type           |
++------------------------------------+----------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -81,27 +81,25 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
--  **Menu**: Studio > Forms & Fields > Change Requests
--  **Wizard**: Three-step builder for guided CR type creation
--  **Detail Forms**: Generated dynamically at
-   ``/web#model=x_spp_cr_detail_*``
+- **Menu**: Studio > Forms & Fields > Change Requests
+- **Wizard**: Three-step builder for guided CR type creation
+- **Detail Forms**: Generated dynamically at
+  ``/web#model=x_spp_cr_detail_*``
 
 Security
 ~~~~~~~~
 
-+----------------------------------+----------------------------------+
-| Group                            | Access                           |
-+==================================+==================================+
-| ``                               | Read CR types and mappings       |
-| spp_studio.group_studio_viewer`` |                                  |
-+----------------------------------+----------------------------------+
-| ``spp_stud                       | Read/Write/Create on CR types    |
-| io.group_studio_editor_officer`` | and mappings (no delete on CR    |
-|                                  | types)                           |
-+----------------------------------+----------------------------------+
-| ``s                              | Full CRUD                        |
-| pp_studio.group_studio_manager`` |                                  |
-+----------------------------------+----------------------------------+
++--------------------------------------------+----------------------------------+
+| Group                                      | Access                           |
++============================================+==================================+
+| ``spp_studio.group_studio_viewer``         | Read CR types and mappings       |
++--------------------------------------------+----------------------------------+
+| ``spp_studio.group_studio_editor_officer`` | Read/Write/Create on CR types    |
+|                                            | and mappings (no delete on CR    |
+|                                            | types)                           |
++--------------------------------------------+----------------------------------+
+| ``spp_studio.group_studio_manager``        | Full CRUD                        |
++--------------------------------------------+----------------------------------+
 
 Detail models use ``spp_change_request_v2`` groups (user, validator,
 manager) with create disabled to prevent manual record creation.
@@ -109,13 +107,13 @@ manager) with create disabled to prevent manual record creation.
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Inherit ``spp.studio.change.request.type`` and override
-   ``_prepare_cr_type_vals()`` to customize generated CR type
-   configuration
--  Override ``_build_detail_form_arch()`` to customize the generated
-   form view XML structure
--  Extend ``spp.studio.cr.field.mapping._prepare_detail_field_vals()``
-   to add custom field properties or domain filters
+- Inherit ``spp.studio.change.request.type`` and override
+  ``_prepare_cr_type_vals()`` to customize generated CR type
+  configuration
+- Override ``_build_detail_form_arch()`` to customize the generated form
+  view XML structure
+- Extend ``spp.studio.cr.field.mapping._prepare_detail_field_vals()`` to
+  add custom field properties or domain filters
 
 Dependencies
 ~~~~~~~~~~~~

@@ -35,27 +35,27 @@ domain-specific conditions.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  Track alert lifecycle through state machine: active → acknowledged →
-   resolved
--  Record resolution details including user, timestamp, and notes
--  Classify alerts by type using ``spp.vocabulary`` codes (threshold,
-   expiry, deadline, manual, system)
--  Prioritize alerts as low, medium, high, or critical
--  Send mail notifications via ``mail.thread`` integration
--  Auto-generate alert references in ALR-YYYY-NNNNN format
+- Track alert lifecycle through state machine: active → acknowledged →
+  resolved
+- Record resolution details including user, timestamp, and notes
+- Classify alerts by type using ``spp.vocabulary`` codes (threshold,
+  expiry, deadline, manual, system)
+- Prioritize alerts as low, medium, high, or critical
+- Send mail notifications via ``mail.thread`` integration
+- Auto-generate alert references in ALR-YYYY-NNNNN format
 
 Key Models
 ~~~~~~~~~~
 
-+--------------------+------------------------------------------------+
-| Model              | Description                                    |
-+====================+================================================+
-| ``spp.alert``      | Alert instance with state tracking and         |
-|                    | resolution workflow                            |
-+--------------------+------------------------------------------------+
-| ``spp.alert.rule`` | Rule configuration for monitoring criteria and |
-|                    | thresholds                                     |
-+--------------------+------------------------------------------------+
++--------------------+-------------------------------------------------+
+| Model              | Description                                     |
++====================+=================================================+
+| ``spp.alert``      | Alert instance with state tracking and          |
+|                    | resolution workflow                             |
++--------------------+-------------------------------------------------+
+| ``spp.alert.rule`` | Rule configuration for monitoring criteria and  |
+|                    | thresholds                                      |
++--------------------+-------------------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -71,9 +71,9 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
--  **Menu**: Settings > Technical > Alerts > Alerts
--  **Configuration**: Settings > Technical > Alerts > Alert Rules
--  **Form Tabs**: Details, Resolution (alerts); Thresholds (rules)
+- **Menu**: Settings > Technical > Alerts > Alerts
+- **Configuration**: Settings > Technical > Alerts > Alert Rules
+- **Form Tabs**: Details, Resolution (alerts); Thresholds (rules)
 
 Security
 ~~~~~~~~
@@ -89,14 +89,14 @@ Group                               Access
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Inherit ``spp.alert`` to add domain-specific fields (e.g., stock
-   levels, document references)
--  Inherit ``spp.alert.rule`` to add custom threshold or evaluation
-   criteria
--  Override ``action_acknowledge()`` or ``action_resolve()`` to add
-   custom workflow steps
--  Consumer modules implement alert checking via cron jobs or event
-   handlers that evaluate rules and call ``create()`` on ``spp.alert``
+- Inherit ``spp.alert`` to add domain-specific fields (e.g., stock
+  levels, document references)
+- Inherit ``spp.alert.rule`` to add custom threshold or evaluation
+  criteria
+- Override ``action_acknowledge()`` or ``action_resolve()`` to add
+  custom workflow steps
+- Consumer modules implement alert checking via cron jobs or event
+  handlers that evaluate rules and call ``create()`` on ``spp.alert``
 
 Dependencies
 ~~~~~~~~~~~~

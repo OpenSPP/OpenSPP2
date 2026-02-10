@@ -35,44 +35,44 @@ JWKS-based public key distribution.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  **FastAPI Endpoints**: Exposes DCI-compliant REST API at
-   ``/dci_api/v1`` with automatic OpenAPI documentation
--  **HTTP Signature Verification**: Validates inbound requests using
-   Ed25519/RSA signatures against sender public keys
--  **Async Transaction Processing**: Queues search, subscribe, and
-   unsubscribe operations for background processing with automatic
-   callbacks
--  **Event Subscriptions**: Manages external system subscriptions to
-   registry events (registration, update, delete) with notification
-   delivery
--  **JWKS Distribution**: Publishes server public keys at
-   ``/.well-known/jwks.json`` for signature verification by clients
--  **Rate Limiting**: Enforces per-sender request limits (per-minute and
-   per-day) with automatic counter resets
--  **Callback Retry**: Retries failed callbacks with exponential backoff
-   (3 attempts) and SSRF protection
+- **FastAPI Endpoints**: Exposes DCI-compliant REST API at
+  ``/dci_api/v1`` with automatic OpenAPI documentation
+- **HTTP Signature Verification**: Validates inbound requests using
+  Ed25519/RSA signatures against sender public keys
+- **Async Transaction Processing**: Queues search, subscribe, and
+  unsubscribe operations for background processing with automatic
+  callbacks
+- **Event Subscriptions**: Manages external system subscriptions to
+  registry events (registration, update, delete) with notification
+  delivery
+- **JWKS Distribution**: Publishes server public keys at
+  ``/.well-known/jwks.json`` for signature verification by clients
+- **Rate Limiting**: Enforces per-sender request limits (per-minute and
+  per-day) with automatic counter resets
+- **Callback Retry**: Retries failed callbacks with exponential backoff
+  (3 attempts) and SSRF protection
 
 Key Models
 ~~~~~~~~~~
 
-+------------------------------+--------------------------------------+
-| Model                        | Description                          |
-+==============================+======================================+
-| ``spp.dci.sender.registry``  | External DCI senders with public     |
-|                              | keys for signature verification      |
-+------------------------------+--------------------------------------+
-| ``spp.dci.transaction``      | Async DCI request tracking (search,  |
-|                              | subscribe, unsubscribe)              |
-+------------------------------+--------------------------------------+
-| ``spp.dci.subscription``     | Event subscriptions with callback    |
-|                              | URIs and filter expressions          |
-+------------------------------+--------------------------------------+
-| ``spp.dci.notification.log`` | Audit trail of sent notifications    |
-|                              | with receipt tracking                |
-+------------------------------+--------------------------------------+
-| ``spp.dci.server.key``       | Server signing keys for outbound     |
-|                              | responses and notifications          |
-+------------------------------+--------------------------------------+
++------------------------------+---------------------------------------+
+| Model                        | Description                           |
++==============================+=======================================+
+| ``spp.dci.sender.registry``  | External DCI senders with public keys |
+|                              | for signature verification            |
++------------------------------+---------------------------------------+
+| ``spp.dci.transaction``      | Async DCI request tracking (search,   |
+|                              | subscribe, unsubscribe)               |
++------------------------------+---------------------------------------+
+| ``spp.dci.subscription``     | Event subscriptions with callback     |
+|                              | URIs and filter expressions           |
++------------------------------+---------------------------------------+
+| ``spp.dci.notification.log`` | Audit trail of sent notifications     |
+|                              | with receipt tracking                 |
++------------------------------+---------------------------------------+
+| ``spp.dci.server.key``       | Server signing keys for outbound      |
+|                              | responses and notifications           |
++------------------------------+---------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -93,11 +93,11 @@ installation. To manage keys manually, use the technical interface for
 UI Location
 ~~~~~~~~~~~
 
--  **Menu**: Settings > DCI > Configuration > Sender Registry
--  **Menu**: Settings > DCI > Configuration > Transactions
--  **Menu**: Settings > DCI > Configuration > Subscriptions
--  **API**: ``/dci_api/v1`` (OpenAPI docs at ``/dci_api/v1/docs``)
--  **JWKS**: ``/dci_api/v1/.well-known/jwks.json``
+- **Menu**: Settings > DCI > Configuration > Sender Registry
+- **Menu**: Settings > DCI > Configuration > Transactions
+- **Menu**: Settings > DCI > Configuration > Subscriptions
+- **API**: ``/dci_api/v1`` (OpenAPI docs at ``/dci_api/v1/docs``)
+- **JWKS**: ``/dci_api/v1/.well-known/jwks.json``
 
 Security
 ~~~~~~~~
@@ -115,14 +115,14 @@ public keys.
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Override ``DCIErrorResponseMiddleware.dispatch()`` to customize error
-   response formatting
--  Inherit ``fastapi.endpoint`` with ``app='dci_api'`` to add custom
-   routers via ``_get_fastapi_routers()``
--  Override ``spp.dci.transaction.process_async_*()`` methods to
-   customize async processing logic
--  Inherit ``spp.dci.subscription._build_notification()`` to add custom
-   notification fields
+- Override ``DCIErrorResponseMiddleware.dispatch()`` to customize error
+  response formatting
+- Inherit ``fastapi.endpoint`` with ``app='dci_api'`` to add custom
+  routers via ``_get_fastapi_routers()``
+- Override ``spp.dci.transaction.process_async_*()`` methods to
+  customize async processing logic
+- Inherit ``spp.dci.subscription._build_notification()`` to add custom
+  notification fields
 
 Dependencies
 ~~~~~~~~~~~~

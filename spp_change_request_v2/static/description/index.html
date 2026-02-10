@@ -385,8 +385,8 @@ group/household registrant data, with validation and audit trails.</p>
 <ul class="simple">
 <li>Create change requests using configurable request types with custom
 detail models</li>
-<li>Multi-tier approval workflows with automatic routing based on
-approval definitions</li>
+<li>Multi-tier approval workflows with automatic routing based on approval
+definitions</li>
 <li>Detect conflicting change requests (same registrant, same group, or
 same field)</li>
 <li>Prevent duplicate submissions with configurable similarity thresholds</li>
@@ -401,8 +401,8 @@ same field)</li>
 <h2>Key Models</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="52%" />
+<col width="48%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Model</th>
@@ -418,8 +418,7 @@ approval workflow</td>
 <td>Configuration for CR types:
 target, detail model, workflow</td>
 </tr>
-<tr><td><tt class="docutils literal">s
-pp.change.request.type.mapping</tt></td>
+<tr><td><tt class="docutils literal">spp.change.request.type.mapping</tt></td>
 <td>Field mappings for automatic
 application</td>
 </tr>
@@ -443,8 +442,7 @@ request detail types</td>
 <td>Detail model for adding members
 to groups</td>
 </tr>
-<tr><td>`
-<cite>spp.cr.detail.edit_individual`</cite></td>
+<tr><td><tt class="docutils literal">spp.cr.detail.edit_individual</tt></td>
 <td>Detail model for editing
 individual registrant data</td>
 </tr>
@@ -460,13 +458,11 @@ members from groups</td>
 <td>Detail model for changing head
 of household</td>
 </tr>
-<tr><td>`
-<cite>spp.cr.detail.exit_registrant`</cite></td>
+<tr><td><tt class="docutils literal">spp.cr.detail.exit_registrant</tt></td>
 <td>Detail model for marking
 registrants as exited</td>
 </tr>
-<tr><td>`
-<cite>spp.cr.detail.transfer_member`</cite></td>
+<tr><td><tt class="docutils literal">spp.cr.detail.transfer_member</tt></td>
 <td>Detail model for transferring
 members between groups</td>
 </tr>
@@ -478,13 +474,11 @@ registrant ID numbers</td>
 <td>Detail model for creating new
 groups/households</td>
 </tr>
-<tr><td><tt class="docutils literal">s
-pp.cr.detail.merge_registrants</tt></td>
+<tr><td><tt class="docutils literal">spp.cr.detail.merge_registrants</tt></td>
 <td>Detail model for merging
 duplicate registrant records</td>
 </tr>
-<tr><td>`
-<cite>spp.cr.detail.split_household`</cite></td>
+<tr><td><tt class="docutils literal">spp.cr.detail.split_household</tt></td>
 <td>Detail model for splitting
 households into separate groups</td>
 </tr>
@@ -502,8 +496,7 @@ integration</li>
 <li><strong>Notes</strong>: Description and internal notes fields</li>
 <li><strong>Revision Requested</strong>: Feedback from reviewers (visible when changes
 requested)</li>
-<li><strong>Status History</strong>: Timeline of approval reviews and state
-transitions</li>
+<li><strong>Status History</strong>: Timeline of approval reviews and state transitions</li>
 </ul>
 </div>
 <div class="section" id="configuration">
@@ -531,24 +524,24 @@ Manager</li>
 <li><strong>New Request</strong>: Launch wizard to create change request</li>
 <li><strong>Pending Approval</strong>: Queue of requests awaiting validator action
 (validators only)</li>
-<li><strong>Reporting &gt; Analytics</strong>: Pivot and graph views for change
-request analysis (managers only)</li>
+<li><strong>Reporting &gt; Analytics</strong>: Pivot and graph views for change request
+analysis (managers only)</li>
 <li><strong>Configuration</strong>: Change request types, conflict rules, duplicate
 detection (managers only)</li>
 </ul>
 </li>
 <li><strong>Registrant Profile</strong>: Change requests appear in registrant form
 under smart buttons and related tabs</li>
-<li><strong>Wizards</strong>: New Request wizard for guided CR creation, batch
-approval for validators</li>
+<li><strong>Wizards</strong>: New Request wizard for guided CR creation, batch approval
+for validators</li>
 </ul>
 </div>
 <div class="section" id="security">
 <h2>Security</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="61%" />
+<col width="39%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Group</th>
@@ -556,28 +549,23 @@ approval for validators</li>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td><tt class="docutils literal">spp_c
-hange_request_v2.group_cr_user</tt></td>
+<tr><td><tt class="docutils literal">spp_change_request_v2.group_cr_user</tt></td>
 <td>Create and submit change
 requests (read/write/create)</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_change
-_request_v2.group_cr_validator</tt></td>
+<tr><td><tt class="docutils literal">spp_change_request_v2.group_cr_validator</tt></td>
 <td>Approve/reject, field-level
 validation (read/write/create)</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_change_re
-quest_v2.group_cr_validator_hq</tt></td>
+<tr><td><tt class="docutils literal">spp_change_request_v2.group_cr_validator_hq</tt></td>
 <td>HQ-level approval with registry
 write (read/write/create)</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_chan
-ge_request_v2.group_cr_manager</tt></td>
+<tr><td><tt class="docutils literal">spp_change_request_v2.group_cr_manager</tt></td>
 <td>Full CRUD including
 configuration</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_change_request
-_v2.group_cr_conflict_approver</tt></td>
+<tr><td><tt class="docutils literal">spp_change_request_v2.group_cr_conflict_approver</tt></td>
 <td>Override blocking conflict
 detections
 (specialized/functional)</td>

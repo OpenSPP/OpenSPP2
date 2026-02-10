@@ -400,8 +400,8 @@ admin)</li>
 <h2>Key Models</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="49%" />
+<col width="51%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Model</th>
@@ -410,8 +410,8 @@ admin)</li>
 </thead>
 <tbody valign="top">
 <tr><td><tt class="docutils literal">spp.demo.data.generator</tt></td>
-<td>Main generator with
-configuration and batch controls</td>
+<td>Main generator with configuration
+and batch controls</td>
 </tr>
 <tr><td><tt class="docutils literal">spp.demo.data.generation.log</tt></td>
 <td>Logs failed generation attempts
@@ -461,16 +461,16 @@ Settings</strong> to set defaults:<ul>
 menu item)</li>
 <li><strong>Configuration</strong>: Settings &gt; General Settings &gt; SPP Demo Data
 Generator Settings</li>
-<li><strong>Form tabs</strong>: Generated Groups, Generated Individuals, ID Types,
-Bank Types, Generation Logs</li>
+<li><strong>Form tabs</strong>: Generated Groups, Generated Individuals, ID Types, Bank
+Types, Generation Logs</li>
 </ul>
 </div>
 <div class="section" id="security">
 <h2>Security</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="54%" />
+<col width="46%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Group</th>
@@ -481,17 +481,14 @@ Bank Types, Generation Logs</li>
 <tr><td><tt class="docutils literal">base.group_system</tt></td>
 <td>Full CRUD on all models</td>
 </tr>
-<tr><td><tt class="docutils literal">sp
-p_registry.group_registry_read</tt></td>
+<tr><td><tt class="docutils literal">spp_registry.group_registry_read</tt></td>
 <td>Read access to all models</td>
 </tr>
-<tr><td><tt class="docutils literal">spp
-_registry.group_registry_write</tt></td>
+<tr><td><tt class="docutils literal">spp_registry.group_registry_write</tt></td>
 <td>Read/Write on generator and logs
 (delete ID/Bank types)</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_
-registry.group_registry_create</tt></td>
+<tr><td><tt class="docutils literal">spp_registry.group_registry_create</tt></td>
 <td>Read/Create access (delete
 ID/Bank types)</td>
 </tr>

@@ -32,46 +32,46 @@ request generation when event data differs from registrant records.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  Configure event types with categories (survey, visit, sync, manual),
-   target types, and storage modes
--  Record events with collection metadata (date, collector, source
-   reference) and expiry tracking
--  Store event data in JSON, define custom fields, or link to dedicated
-   Odoo models
--  Automatically supersede previous active events when new ones arrive
-   for the same registrant
--  Auto-expire events after a configurable number of days via scheduled
-   cron
--  Require approval for new events before activation using configurable
-   workflows
--  Integrate with external sources (ODK Central, KoBoToolbox, APIs) with
-   field mapping and transformations
--  Generate change requests when event data differs from registrant
-   fields (requires ``spp_change_request``)
--  Track event history with state transitions: draft → pending → active
-   → superseded/expired/cancelled
+- Configure event types with categories (survey, visit, sync, manual),
+  target types, and storage modes
+- Record events with collection metadata (date, collector, source
+  reference) and expiry tracking
+- Store event data in JSON, define custom fields, or link to dedicated
+  Odoo models
+- Automatically supersede previous active events when new ones arrive
+  for the same registrant
+- Auto-expire events after a configurable number of days via scheduled
+  cron
+- Require approval for new events before activation using configurable
+  workflows
+- Integrate with external sources (ODK Central, KoBoToolbox, APIs) with
+  field mapping and transformations
+- Generate change requests when event data differs from registrant
+  fields (requires ``spp_change_request``)
+- Track event history with state transitions: draft → pending → active →
+  superseded/expired/cancelled
 
 Key Models
 ~~~~~~~~~~
 
-+-----------------------------+---------------------------------------+
-| Model                       | Description                           |
-+=============================+=======================================+
-| ``spp.event.data``          | Event record with registrant link,    |
-|                             | collection metadata                   |
-+-----------------------------+---------------------------------------+
-| ``spp.event.type``          | Event type configuration (category,   |
-|                             | lifecycle, source)                    |
-+-----------------------------+---------------------------------------+
-| ``spp.event.field``         | Custom field definition for           |
-|                             | JSON-based event types                |
-+-----------------------------+---------------------------------------+
-| ``spp.event.type.mapping``  | Field mapping for external source     |
-|                             | data transformation                   |
-+-----------------------------+---------------------------------------+
-| ``spp.create.event.wizard`` | Wizard to create new event records    |
-|                             | from registrant form                  |
-+-----------------------------+---------------------------------------+
++-----------------------------+----------------------------------------+
+| Model                       | Description                            |
++=============================+========================================+
+| ``spp.event.data``          | Event record with registrant link,     |
+|                             | collection metadata                    |
++-----------------------------+----------------------------------------+
+| ``spp.event.type``          | Event type configuration (category,    |
+|                             | lifecycle, source)                     |
++-----------------------------+----------------------------------------+
+| ``spp.event.field``         | Custom field definition for JSON-based |
+|                             | event types                            |
++-----------------------------+----------------------------------------+
+| ``spp.event.type.mapping``  | Field mapping for external source data |
+|                             | transformation                         |
++-----------------------------+----------------------------------------+
+| ``spp.create.event.wizard`` | Wizard to create new event records     |
+|                             | from registrant form                   |
++-----------------------------+----------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -94,14 +94,14 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
--  **Registrant Form**: "Event Data" stat button in button box opens
-   create wizard
--  **Registrant Form**: Events section displays event history list with
-   state badges
--  **Event Data**: Access via window action ``action_spp_event_data``
-   (no menu defined in this module)
--  **Event Form Tabs**: Event Data, Source, History, Legacy Data,
-   Approval
+- **Registrant Form**: "Event Data" stat button in button box opens
+  create wizard
+- **Registrant Form**: Events section displays event history list with
+  state badges
+- **Event Data**: Access via window action ``action_spp_event_data`` (no
+  menu defined in this module)
+- **Event Form Tabs**: Event Data, Source, History, Legacy Data,
+  Approval
 
 Security
 ~~~~~~~~
@@ -121,15 +121,15 @@ Group                                   Access
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Inherit ``spp.event.type`` and override ``get_connector()`` to add
-   custom external source connectors
--  Inherit ``spp.event.data`` and override ``_create_change_requests()``
-   to customize change request logic
--  Use ``_get_active_event_id()``, ``get_active_event()``, and
-   ``get_event_data_value()`` methods on ``res.partner`` for O(1) event
-   lookup
--  Call ``_refresh_active_event_cache()`` on registrants when events are
-   activated/deactivated for cache consistency
+- Inherit ``spp.event.type`` and override ``get_connector()`` to add
+  custom external source connectors
+- Inherit ``spp.event.data`` and override ``_create_change_requests()``
+  to customize change request logic
+- Use ``_get_active_event_id()``, ``get_active_event()``, and
+  ``get_event_data_value()`` methods on ``res.partner`` for O(1) event
+  lookup
+- Call ``_refresh_active_event_cache()`` on registrants when events are
+  activated/deactivated for cache consistency
 
 Dependencies
 ~~~~~~~~~~~~

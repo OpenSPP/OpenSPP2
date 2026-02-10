@@ -1,10 +1,10 @@
-/** @odoo-module **/
+/* @odoo-module */
 
 import {ListController} from "@web/views/list/list_controller";
 import {onWillStart} from "@odoo/owl";
 import {patch} from "@web/core/utils/patch";
-import {user} from "@web/core/user";
 import {useService} from "@web/core/utils/hooks";
+import {user} from "@web/core/user";
 
 patch(ListController.prototype, {
     setup() {

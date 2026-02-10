@@ -383,10 +383,10 @@ operations.</p>
 <div class="section" id="key-capabilities">
 <h2>Key Capabilities</h2>
 <ul class="simple">
-<li>Track menu visibility state and preserve original group assignments
-in configuration records</li>
-<li>Hide menus by replacing group_ids with <tt class="docutils literal">group_hide_menus_user</tt>
-(only users in this group see hidden menus)</li>
+<li>Track menu visibility state and preserve original group assignments in
+configuration records</li>
+<li>Hide menus by replacing group_ids with <tt class="docutils literal">group_hide_menus_user</tt> (only
+users in this group see hidden menus)</li>
 <li>Restore menus by reverting to original group_ids</li>
 <li>Auto-hide 15 predefined menus during module installation via
 <tt class="docutils literal">ir.module.module.next()</tt> hook</li>
@@ -437,8 +437,8 @@ Technical Features group)</li>
 <h2>Security</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="58%" />
+<col width="42%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Group</th>
@@ -449,8 +449,7 @@ Technical Features group)</li>
 <tr><td><tt class="docutils literal">base.group_system</tt></td>
 <td>Full CRUD</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_hide_me
-nus_base.group_hide_menus_user</tt></td>
+<tr><td><tt class="docutils literal">spp_hide_menus_base.group_hide_menus_user</tt></td>
 <td>See menus hidden from other
 users (assigned via privilege
 system)</td>
@@ -461,8 +460,8 @@ system)</td>
 <div class="section" id="extension-points">
 <h2>Extension Points</h2>
 <ul class="simple">
-<li>Inherit <tt class="docutils literal">ir.module.module</tt> and extend <tt class="docutils literal">MENU_APP</tt> dictionary to
-add custom menus to auto-hide list</li>
+<li>Inherit <tt class="docutils literal">ir.module.module</tt> and extend <tt class="docutils literal">MENU_APP</tt> dictionary to add
+custom menus to auto-hide list</li>
 <li>Inherit <tt class="docutils literal">spp.hide.menu</tt> to add custom metadata or hide/show logic</li>
 </ul>
 </div>

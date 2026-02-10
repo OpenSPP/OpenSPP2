@@ -399,8 +399,8 @@ predicate, expression, date range)</li>
 <h2>Key Models</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="37%" />
-<col width="63%" />
+<col width="36%" />
+<col width="64%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Model</th>
@@ -418,9 +418,9 @@ registries</td>
 <div class="section" id="python-service-classes">
 <h2>Python Service Classes</h2>
 <ul class="simple">
-<li><strong>``DCIClient(data_source, env)``</strong>: Main API client for executing
-DCI protocol operations (search, subscribe, txn_status). Instantiate
-with a data source record and environment.</li>
+<li><strong>``DCIClient(data_source, env)``</strong>: Main API client for executing DCI
+protocol operations (search, subscribe, txn_status). Instantiate with
+a data source record and environment.</li>
 </ul>
 </div>
 <div class="section" id="configuration">
@@ -470,12 +470,12 @@ groups, and two notebook tabs (“Connection Status” and “Notes”)</li>
 <div class="section" id="extension-points">
 <h2>Extension Points</h2>
 <ul class="simple">
-<li>Inherit <tt class="docutils literal">spp.dci.data.source</tt> to add registry-specific
-configuration fields</li>
+<li>Inherit <tt class="docutils literal">spp.dci.data.source</tt> to add registry-specific configuration
+fields</li>
 <li>Instantiate <tt class="docutils literal">DCIClient(data_source, env)</tt> from custom code to
 execute DCI operations</li>
-<li>Override <tt class="docutils literal">_get_registry_type()</tt> or <tt class="docutils literal">_get_receiver_id()</tt> for
-custom registry routing</li>
+<li>Override <tt class="docutils literal">_get_registry_type()</tt> or <tt class="docutils literal">_get_receiver_id()</tt> for custom
+registry routing</li>
 <li>Use <tt class="docutils literal">format_http_error()</tt> and <tt class="docutils literal">format_connection_error()</tt> for
 consistent error handling</li>
 </ul>

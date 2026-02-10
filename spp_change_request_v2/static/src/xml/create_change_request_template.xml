@@ -2,7 +2,10 @@
 <templates xml:space="preserve">
 
     <t t-inherit="web.ListView" t-inherit-mode="extension">
-        <xpath expr="//Layout/t[@t-set-slot='control-panel-create-button']" position="replace">
+        <xpath
+            expr="//Layout/t[@t-set-slot='control-panel-create-button']"
+            position="replace"
+        >
             <t t-set-slot="control-panel-create-button">
                 <t t-if="model.root.resModel == 'spp.change.request'">
                     <button
@@ -23,7 +26,10 @@
                         t-on-click="onClickCreate"
                         data-bounce-button=""
                     >New</button>
-                    <t t-if="props.showButtons and !env.inDialog" t-call="web.ListView.EditableButtons" />
+                    <t
+                        t-if="props.showButtons and !env.inDialog"
+                        t-call="web.ListView.EditableButtons"
+                    />
                 </t>
             </t>
         </xpath>
@@ -31,7 +37,9 @@
 
     <t t-inherit="web.FormView" t-inherit-mode="extension">
         <xpath expr="//button[hasclass('o_form_button_create')]" position="attributes">
-            <attribute name="t-if">model.root.resModel != 'spp.change.request'</attribute>
+            <attribute
+                name="t-if"
+            >model.root.resModel != 'spp.change.request'</attribute>
         </xpath>
     </t>
 

@@ -85,5 +85,5 @@ class SPPCRApplyAddMember(models.AbstractModel):
             "_action": "create_member",
             "member_name": detail.member_name,
             "group": change_request.registrant_id.name,
-            "relationship": detail.relationship_id.name if detail.relationship_id else None,
+            "relationship": detail.relationship_id.display if detail.relationship_id else None,
         }

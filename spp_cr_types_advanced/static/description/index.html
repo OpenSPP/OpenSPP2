@@ -404,9 +404,9 @@ cannot be modified via Studio</li>
 defined in <tt class="docutils literal">spp_change_request_v2</tt>:</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="33%" />
-<col width="33%" />
-<col width="33%" />
+<col width="39%" />
+<col width="38%" />
+<col width="23%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Detail Model</th>
@@ -415,59 +415,43 @@ defined in <tt class="docutils literal">spp_change_request_v2</tt>:</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td><tt class="docutils literal">spp.cr
-.detail.add_member</tt></td>
-<td><tt class="docutils literal">spp.c
-r.apply.add_member</tt></td>
+<tr><td><tt class="docutils literal">spp.cr.detail.add_member</tt></td>
+<td><tt class="docutils literal">spp.cr.apply.add_member</tt></td>
 <td>Add new member to
 group</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.cr.de
-tail.remove_member</tt></td>
-<td><tt class="docutils literal">spp.cr.a
-pply.remove_member</tt></td>
+<tr><td><tt class="docutils literal">spp.cr.detail.remove_member</tt></td>
+<td><tt class="docutils literal">spp.cr.apply.remove_member</tt></td>
 <td>Remove member from
 group</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.cr
-.detail.change_hoh</tt></td>
-<td><tt class="docutils literal">spp.c
-r.apply.change_hoh</tt></td>
+<tr><td><tt class="docutils literal">spp.cr.detail.change_hoh</tt></td>
+<td><tt class="docutils literal">spp.cr.apply.change_hoh</tt></td>
 <td>Change head of
 household</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.cr.deta
-il.transfer_member</tt></td>
-<td><tt class="docutils literal">spp.cr.app
-ly.transfer_member</tt></td>
+<tr><td><tt class="docutils literal">spp.cr.detail.transfer_member</tt></td>
+<td><tt class="docutils literal">spp.cr.apply.transfer_member</tt></td>
 <td>Transfer member
 between groups</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.cr.deta
-il.exit_registrant</tt></td>
-<td><tt class="docutils literal">spp.cr.app
-ly.exit_registrant</tt></td>
+<tr><td><tt class="docutils literal">spp.cr.detail.exit_registrant</tt></td>
+<td><tt class="docutils literal">spp.cr.apply.exit_registrant</tt></td>
 <td>Deactivate
 registrant</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.cr.d
-etail.create_group</tt></td>
-<td><tt class="docutils literal">spp.cr.
-apply.create_group</tt></td>
+<tr><td><tt class="docutils literal">spp.cr.detail.create_group</tt></td>
+<td><tt class="docutils literal">spp.cr.apply.create_group</tt></td>
 <td>Create new
 group/household</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.cr.deta
-il.split_household</tt></td>
-<td><tt class="docutils literal">spp.cr.app
-ly.split_household</tt></td>
+<tr><td><tt class="docutils literal">spp.cr.detail.split_household</tt></td>
+<td><tt class="docutils literal">spp.cr.apply.split_household</tt></td>
 <td>Split household into
 two groups</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.cr.detail
-.merge_registrants</tt></td>
-<td><tt class="docutils literal">spp.cr.apply
-.merge_registrants</tt></td>
+<tr><td><tt class="docutils literal">spp.cr.detail.merge_registrants</tt></td>
+<td><tt class="docutils literal">spp.cr.apply.merge_registrants</tt></td>
 <td>Merge duplicate
 registrant records</td>
 </tr>
@@ -524,12 +508,12 @@ on <tt class="docutils literal">target_type</tt> (individual/group/both)</li>
 <div class="section" id="extension-points">
 <h2>Extension Points</h2>
 <ul class="simple">
-<li>Override apply strategies in
-<tt class="docutils literal"><span class="pre">spp_change_request_v2/strategies/*.py</span></tt> to customize behavior</li>
-<li>Inherit detail models in <tt class="docutils literal"><span class="pre">spp_change_request_v2/details/*.py</span></tt> to
-add fields</li>
-<li>Clone type definitions if <tt class="docutils literal">is_studio_cloneable</tt> is enabled to
-create variants</li>
+<li>Override apply strategies in <tt class="docutils literal"><span class="pre">spp_change_request_v2/strategies/*.py</span></tt>
+to customize behavior</li>
+<li>Inherit detail models in <tt class="docutils literal"><span class="pre">spp_change_request_v2/details/*.py</span></tt> to add
+fields</li>
+<li>Clone type definitions if <tt class="docutils literal">is_studio_cloneable</tt> is enabled to create
+variants</li>
 </ul>
 </div>
 <div class="section" id="dependencies">
