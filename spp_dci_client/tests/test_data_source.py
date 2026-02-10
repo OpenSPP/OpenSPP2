@@ -14,6 +14,7 @@ class TestDataSource(TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.DataSource = cls.env["spp.dci.data.source"]
+        cls.SECRET_MASK = cls.DataSource._SECRET_MASK
 
     def test_create_data_source(self):
         """Test creating a data source with required fields"""
@@ -645,7 +646,7 @@ class TestDataSource(TransactionCase):
             }
         )
         # Display field should show mask, stored field should have real value
-        self.assertEqual(ds.oauth2_client_secret_display, "********")
+        self.assertEqual(ds.oauth2_client_secret_display, self.SECRET_MASK)
         self.assertEqual(ds.oauth2_client_secret, "secret456")
 
     def test_secret_display_field_empty_when_no_secret(self):
@@ -680,7 +681,7 @@ class TestDataSource(TransactionCase):
         self.assertEqual(ds.oauth2_client_secret, "brand_new_secret")
         # Invalidate cache to force recomputation of the display field
         ds.invalidate_recordset(["oauth2_client_secret_display"])
-        self.assertEqual(ds.oauth2_client_secret_display, "********")
+        self.assertEqual(ds.oauth2_client_secret_display, self.SECRET_MASK)
 
     def test_secret_display_mask_value_does_not_overwrite(self):
         """Test that writing the mask value does not overwrite the real secret"""
@@ -697,7 +698,7 @@ class TestDataSource(TransactionCase):
             }
         )
         # Writing the mask value should not change the stored secret
-        ds.write({"oauth2_client_secret_display": "********"})
+        ds.write({"oauth2_client_secret_display": self.SECRET_MASK})
         self.assertEqual(ds.oauth2_client_secret, "real_secret_value")
 
     def test_secret_display_clear_removes_secret(self):
