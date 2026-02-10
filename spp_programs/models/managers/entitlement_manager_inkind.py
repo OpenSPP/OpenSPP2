@@ -467,7 +467,7 @@ class SPPInKindEntitlementItem(models.Model):
     sequence = fields.Integer(default=1000)
     entitlement_id = fields.Many2one("spp.program.entitlement.manager.inkind", "In-kind Entitlement", required=True)
 
-    product_id = fields.Many2one("product.product", "Product", domain=[("type", "=", "product")], required=True)
+    product_id = fields.Many2one("product.product", "Product", domain=[("type", "=", "consu")], required=True)
 
     # non-mandatory field to store a domain that is used to verify if this item is valid for a beneficiary
     # For example, it could be: [('is_woman_headed_household, '=', True)]
