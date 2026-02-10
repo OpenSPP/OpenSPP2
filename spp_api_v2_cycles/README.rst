@@ -31,18 +31,18 @@ and requires OAuth 2.0 authentication with resource-based scopes.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  **Read Cycle**: Retrieve cycle details by name via
-   ``GET /Cycle/{identifier}``
--  **Search Cycles**: Filter cycles by program, state, start/end dates,
-   or last updated timestamp
--  **Pagination**: Support for offset-based pagination with configurable
-   page size (max 100)
--  **Statistics**: Expose beneficiary count, entitlement count, payment
-   count, and total amounts
--  **Cycle Navigation**: Reference to previous and next cycles in
-   sequence
--  **OAuth Scopes**: Extend API client scopes with ``cycle`` resource
-   type for read operations
+- **Read Cycle**: Retrieve cycle details by name via
+  ``GET /Cycle/{identifier}``
+- **Search Cycles**: Filter cycles by program, state, start/end dates,
+  or last updated timestamp
+- **Pagination**: Support for offset-based pagination with configurable
+  page size (max 100)
+- **Statistics**: Expose beneficiary count, entitlement count, payment
+  count, and total amounts
+- **Cycle Navigation**: Reference to previous and next cycles in
+  sequence
+- **OAuth Scopes**: Extend API client scopes with ``cycle`` resource
+  type for read operations
 
 Key Models
 ~~~~~~~~~~
@@ -71,8 +71,8 @@ UI Location
 
 No standalone menu. API endpoints are available at:
 
--  ``/api/v2/spp/Cycle`` - Search cycles
--  ``/api/v2/spp/Cycle/{identifier}`` - Read cycle by name
+- ``/api/v2/spp/Cycle`` - Search cycles
+- ``/api/v2/spp/Cycle/{identifier}`` - Read cycle by name
 
 Security
 ~~~~~~~~
@@ -88,12 +88,12 @@ existing models.
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Override ``CycleService.to_api_schema()`` to add custom fields to the
-   API response
--  Inherit ``Cycle`` schema to add domain-specific attributes in the
-   ``extension`` field
--  Add search filters by extending ``CycleService.search()`` to support
-   additional query parameters
+- Override ``CycleService.to_api_schema()`` to add custom fields to the
+  API response
+- Inherit ``Cycle`` schema to add domain-specific attributes in the
+  ``extension`` field
+- Add search filters by extending ``CycleService.search()`` to support
+  additional query parameters
 
 Dependencies
 ~~~~~~~~~~~~

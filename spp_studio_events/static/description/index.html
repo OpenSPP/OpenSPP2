@@ -392,8 +392,8 @@ patterns for text</li>
 <li>Configure conditional field visibility based on other field values</li>
 <li>Group fields into tabs for organized data entry forms</li>
 <li>Apply reusable field templates to accelerate event type creation</li>
-<li>Generate dynamic data entry wizards with proper widgets for each
-field type</li>
+<li>Generate dynamic data entry wizards with proper widgets for each field
+type</li>
 <li>Target events to individuals, groups, or both</li>
 <li>Draft/Active lifecycle prevents editing active event types</li>
 <li>Optional Kobo form integration for external data collection</li>
@@ -404,8 +404,8 @@ field type</li>
 <h2>Key Models</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="55%" />
+<col width="45%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Model</th>
@@ -425,13 +425,11 @@ validation, and visibility</td>
 <td>Groups fields into tabs in the
 data entry wizard</td>
 </tr>
-<tr><td><tt class="docutils literal">s
-pp.studio.event.field.template</tt></td>
+<tr><td><tt class="docutils literal">spp.studio.event.field.template</tt></td>
 <td>Reusable template containing
 field definitions</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.st
-udio.event.field.template.line</tt></td>
+<tr><td><tt class="docutils literal">spp.studio.event.field.template.line</tt></td>
 <td>Field definition within a
 template</td>
 </tr>
@@ -472,8 +470,8 @@ launched from event type form or registrant profile</li>
 <h2>Security</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="56%" />
+<col width="44%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Group</th>
@@ -481,19 +479,16 @@ launched from event type form or registrant profile</li>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td>``
-spp_studio.group_studio_viewer``</td>
+<tr><td><tt class="docutils literal">spp_studio.group_studio_viewer</tt></td>
 <td>Read event types and templates</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_stud
-io.group_studio_editor_officer</tt></td>
+<tr><td><tt class="docutils literal">spp_studio.group_studio_editor_officer</tt></td>
 <td>Read/Write/Create on event
 types, fields, and templates (no
 delete on event
 types/fields/templates)</td>
 </tr>
-<tr><td><tt class="docutils literal">s
-pp_studio.group_studio_manager</tt></td>
+<tr><td><tt class="docutils literal">spp_studio.group_studio_manager</tt></td>
 <td>Full CRUD</td>
 </tr>
 </tbody>
@@ -506,8 +501,8 @@ pp_studio.group_studio_manager</tt></td>
 customize generated wizard form layout</li>
 <li>Inherit <tt class="docutils literal">spp.studio.event.field</tt> and override <tt class="docutils literal">validate_value()</tt>
 to add custom validation logic</li>
-<li>Extend <tt class="docutils literal">spp.event.data.entry.wizard</tt> to add pre-save hooks for
-event data processing</li>
+<li>Extend <tt class="docutils literal">spp.event.data.entry.wizard</tt> to add pre-save hooks for event
+data processing</li>
 <li>Create predefined field templates via data files in
 <tt class="docutils literal">data/event_field_templates.xml</tt></li>
 </ul>

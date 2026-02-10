@@ -32,14 +32,14 @@ identifiers for subject resolution and provider-based access control.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  **Push values**: Bulk upsert variable values from external systems
-   with validation and error reporting
--  **Pull values**: Retrieve cached variable values by subject external
-   IDs and period keys
--  **Invalidate cache**: Mark cached values as stale to force refresh on
-   next computation
--  **List variables**: Query available variables with provider and
-   source type filtering
+- **Push values**: Bulk upsert variable values from external systems
+  with validation and error reporting
+- **Pull values**: Retrieve cached variable values by subject external
+  IDs and period keys
+- **Invalidate cache**: Mark cached values as stale to force refresh on
+  next computation
+- **List variables**: Query available variables with provider and source
+  type filtering
 
 Key Models
 ~~~~~~~~~~
@@ -73,13 +73,13 @@ No standalone menus (API-only module).
 
 **API Endpoints**:
 
--  ``POST /api/v2/Data/push`` - Push variable values from external
-   systems
--  ``GET /api/v2/Data/pull`` - Pull cached variable values for subjects
--  ``POST /api/v2/Data/invalidate`` - Invalidate cached values to force
-   refresh
--  ``GET /api/v2/Data/variables`` - List available variables with
-   filtering
+- ``POST /api/v2/Data/push`` - Push variable values from external
+  systems
+- ``GET /api/v2/Data/pull`` - Pull cached variable values for subjects
+- ``POST /api/v2/Data/invalidate`` - Invalidate cached values to force
+  refresh
+- ``GET /api/v2/Data/variables`` - List available variables with
+  filtering
 
 Security
 ~~~~~~~~
@@ -100,12 +100,12 @@ operations.
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Override ``_resolve_subject_id()`` in ``routers/data.py`` to
-   customize external identifier resolution
--  Extend Pydantic schemas in ``schemas/data.py`` to add metadata fields
-   for domain-specific use cases
--  Inherit ``DataValueInput`` or ``DataValueOutput`` for additional
-   validation logic
+- Override ``_resolve_subject_id()`` in ``routers/data.py`` to customize
+  external identifier resolution
+- Extend Pydantic schemas in ``schemas/data.py`` to add metadata fields
+  for domain-specific use cases
+- Inherit ``DataValueInput`` or ``DataValueOutput`` for additional
+  validation logic
 
 Dependencies
 ~~~~~~~~~~~~

@@ -6,10 +6,31 @@
         <field name="model">spp.cr.detail.create_group</field>
         <field name="arch" type="xml">
             <form string="Create New Group Details">
+                <header>
+                    <button
+                        name="action_submit_for_approval"
+                        string="Submit for Approval"
+                        type="object"
+                        class="btn-primary"
+                        invisible="approval_state != 'draft'"
+                    />
+                    <button
+                        name="action_submit_for_approval"
+                        string="Resubmit for Review"
+                        type="object"
+                        class="btn-primary"
+                        invisible="approval_state != 'revision'"
+                    />
+                    <field
+                        name="approval_state"
+                        widget="statusbar"
+                        statusbar_visible="draft,pending,approved,applied"
+                    />
+                </header>
                 <sheet>
                     <group>
                         <group string="Group Information">
-                            <field name="group_name" required="1"/>
+                            <field name="group_name" required="1" />
                             <field name="group_type_id" options="{'no_create': True}" />
                         </group>
                         <group string="Contact">
@@ -26,16 +47,22 @@
                     </group>
                     <group invisible="create_new_head">
                         <group string="Select Existing Individual">
-                            <field name="head_individual_id" options="{'no_create': True}" />
+                            <field
+                                name="head_individual_id"
+                                options="{'no_create': True}"
+                            />
                         </group>
                     </group>
                     <group invisible="not create_new_head">
                         <group string="New Head Information">
-                            <field name="head_given_name" required="create_new_head"/>
-                            <field name="head_family_name" required="create_new_head"/>
-                            <field name="head_name" readonly="1" force_save="1"/>
+                            <field name="head_given_name" required="create_new_head" />
+                            <field name="head_family_name" required="create_new_head" />
+                            <field name="head_name" readonly="1" force_save="1" />
                             <field name="head_birthdate" />
-                            <field name="head_gender_id" options="{'no_create': True}" />
+                            <field
+                                name="head_gender_id"
+                                options="{'no_create': True}"
+                            />
                             <field name="head_phone" />
                         </group>
                     </group>

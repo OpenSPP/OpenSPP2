@@ -32,44 +32,44 @@ area types.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  Define hierarchical area structures with up to 10 levels (country,
-   province, district, etc.)
--  Assign unique codes and multi-language names to each area
--  Import bulk area data from Excel files in COD (Common Operational
-   Dataset) format from HDX
--  Tag areas with classifications (urban, remote, priority) for
-   filtering and reporting
--  Link registrants and groups to their geographical areas
--  Restrict user access to specific geographic areas via role-based area
-   assignments
--  Automatically detect and activate required languages during import
+- Define hierarchical area structures with up to 10 levels (country,
+  province, district, etc.)
+- Assign unique codes and multi-language names to each area
+- Import bulk area data from Excel files in COD (Common Operational
+  Dataset) format from HDX
+- Tag areas with classifications (urban, remote, priority) for filtering
+  and reporting
+- Link registrants and groups to their geographical areas
+- Restrict user access to specific geographic areas via role-based area
+  assignments
+- Automatically detect and activate required languages during import
 
 Key Models
 ~~~~~~~~~~
 
-+----------------------------------+----------------------------------+
-| Model                            | Description                      |
-+==================================+==================================+
-| ``spp.area``                     | Hierarchical geographical area   |
-|                                  | with code and name               |
-+----------------------------------+----------------------------------+
-| ``spp.area.kind``                | Area type definition (country,   |
-|                                  | province, district, etc.)        |
-+----------------------------------+----------------------------------+
-| ``spp.area.tag``                 | Classification tags for areas    |
-+----------------------------------+----------------------------------+
-| ``spp.area.import``              | Excel import wizard with         |
-|                                  | validation and bulk processing   |
-+----------------------------------+----------------------------------+
-| ``spp.area.import.raw``          | Staging table for import         |
-|                                  | validation                       |
-+----------------------------------+----------------------------------+
-| ``spp.area.import.json``         | Parsed JSON storage from Excel   |
-|                                  | files                            |
-+----------------------------------+----------------------------------+
-| ``s                              | Wizard for activating languages  |
-| pp.area.import.language.wizard`` | during import                    |
-+----------------------------------+----------------------------------+
++-------------------------------------+----------------------------------+
+| Model                               | Description                      |
++=====================================+==================================+
+| ``spp.area``                        | Hierarchical geographical area   |
+|                                     | with code and name               |
++-------------------------------------+----------------------------------+
+| ``spp.area.kind``                   | Area type definition (country,   |
+|                                     | province, district, etc.)        |
++-------------------------------------+----------------------------------+
+| ``spp.area.tag``                    | Classification tags for areas    |
++-------------------------------------+----------------------------------+
+| ``spp.area.import``                 | Excel import wizard with         |
+|                                     | validation and bulk processing   |
++-------------------------------------+----------------------------------+
+| ``spp.area.import.raw``             | Staging table for import         |
+|                                     | validation                       |
++-------------------------------------+----------------------------------+
+| ``spp.area.import.json``            | Parsed JSON storage from Excel   |
+|                                     | files                            |
++-------------------------------------+----------------------------------+
+| ``spp.area.import.language.wizard`` | Wizard for activating languages  |
+|                                     | during import                    |
++-------------------------------------+----------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -87,12 +87,12 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
--  **Area Menu**: Area > Areas > Area
--  **Area Type Menu**: Area > Areas > Area Type
--  **Area Tags Menu**: Area > Areas > Area Tags
--  **Import Menu**: Area > Areas > Area Import
--  **Registrant Form**: Area field appears on registrant and group
-   profile forms
+- **Area Menu**: Area > Areas > Area
+- **Area Type Menu**: Area > Areas > Area Type
+- **Area Tags Menu**: Area > Areas > Area Tags
+- **Import Menu**: Area > Areas > Area Import
+- **Registrant Form**: Area field appears on registrant and group
+  profile forms
 
 Views and Tabs
 ~~~~~~~~~~~~~~
@@ -120,13 +120,12 @@ Group                            Access
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Inherit ``spp.area`` to add custom fields or computed attributes
--  Override ``_prepare_domain()`` in models to customize area-based
-   filtering logic
--  Extend ``spp.area.import.raw`` to add custom validation rules for
-   imports
--  Inherit ``spp.area.tag`` to add domain-specific classification
-   schemes
+- Inherit ``spp.area`` to add custom fields or computed attributes
+- Override ``_prepare_domain()`` in models to customize area-based
+  filtering logic
+- Extend ``spp.area.import.raw`` to add custom validation rules for
+  imports
+- Inherit ``spp.area.tag`` to add domain-specific classification schemes
 
 Dependencies
 ~~~~~~~~~~~~

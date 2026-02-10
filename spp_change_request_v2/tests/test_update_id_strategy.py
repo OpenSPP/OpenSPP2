@@ -5,6 +5,8 @@ from odoo import fields
 from odoo.exceptions import UserError
 from odoo.tests import TransactionCase
 
+from .common import get_or_create_cr_type
+
 
 class TestUpdateIDStrategy(TransactionCase):
     """Tests for Update ID Document custom strategy."""
@@ -55,16 +57,11 @@ class TestUpdateIDStrategy(TransactionCase):
             }
         )
 
-        # Get CR type
-        cls.cr_type = cls.env.ref(
-            "spp_change_request_v2.cr_type_update_id",
-            raise_if_not_found=False,
-        )
+        # Get or create CR type
+        cls.cr_type = get_or_create_cr_type(cls.env, "update_id")
 
     def test_add_new_id(self):
         """Test adding new ID document."""
-        if not self.cr_type:
-            self.skipTest("Update ID CR type not found")
 
         cr = self.cr_model.create(
             {
@@ -101,8 +98,6 @@ class TestUpdateIDStrategy(TransactionCase):
 
     def test_add_duplicate_id_type_fails(self):
         """Test adding duplicate ID type fails."""
-        if not self.cr_type:
-            self.skipTest("Update ID CR type not found")
 
         cr = self.cr_model.create(
             {
@@ -129,8 +124,6 @@ class TestUpdateIDStrategy(TransactionCase):
 
     def test_update_existing_id(self):
         """Test updating existing ID document."""
-        if not self.cr_type:
-            self.skipTest("Update ID CR type not found")
 
         cr = self.cr_model.create(
             {
@@ -159,8 +152,6 @@ class TestUpdateIDStrategy(TransactionCase):
 
     def test_remove_id(self):
         """Test removing (invalidating) ID document."""
-        if not self.cr_type:
-            self.skipTest("Update ID CR type not found")
 
         # Create ID to remove
         id_to_remove = self.id_model.create(
@@ -197,8 +188,6 @@ class TestUpdateIDStrategy(TransactionCase):
 
     def test_update_without_existing_id_fails(self):
         """Test update operation requires existing ID."""
-        if not self.cr_type:
-            self.skipTest("Update ID CR type not found")
 
         cr = self.cr_model.create(
             {
@@ -226,8 +215,6 @@ class TestUpdateIDStrategy(TransactionCase):
 
     def test_add_requires_value(self):
         """Test add operation requires ID value."""
-        if not self.cr_type:
-            self.skipTest("Update ID CR type not found")
 
         cr = self.cr_model.create(
             {
@@ -254,8 +241,6 @@ class TestUpdateIDStrategy(TransactionCase):
 
     def test_update_id_preview(self):
         """Test preview returns expected structure."""
-        if not self.cr_type:
-            self.skipTest("Update ID CR type not found")
 
         cr = self.cr_model.create(
             {

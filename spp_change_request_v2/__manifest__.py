@@ -56,12 +56,12 @@
         "data/sequences.xml",
         "data/event_types.xml",
         "data/user_roles.xml",
-        # Note: Default CR types are now provided by spp_cr_types_base and spp_cr_types_advanced
-        # "data/default_types.xml",
     ],
     "assets": {
         "web.assets_backend": [
             "spp_change_request_v2/static/src/components/**/*",
+            "spp_change_request_v2/static/src/js/create_change_request.js",
+            "spp_change_request_v2/static/src/xml/create_change_request_template.xml",
         ],
     },
     "installable": True,

@@ -32,24 +32,24 @@ operations.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  Track menu visibility state and preserve original group assignments
-   in configuration records
--  Hide menus by replacing group_ids with ``group_hide_menus_user``
-   (only users in this group see hidden menus)
--  Restore menus by reverting to original group_ids
--  Auto-hide 15 predefined menus during module installation via
-   ``ir.module.module.next()`` hook
--  Manual toggle via list view with hide/show action buttons
+- Track menu visibility state and preserve original group assignments in
+  configuration records
+- Hide menus by replacing group_ids with ``group_hide_menus_user`` (only
+  users in this group see hidden menus)
+- Restore menus by reverting to original group_ids
+- Auto-hide 15 predefined menus during module installation via
+  ``ir.module.module.next()`` hook
+- Manual toggle via list view with hide/show action buttons
 
 Key Models
 ~~~~~~~~~~
 
-+-------------------+-------------------------------------------------+
-| Model             | Description                                     |
-+===================+=================================================+
-| ``spp.hide.menu`` | Stores menu reference, state (show/hide), and   |
-|                   | original group_ids                              |
-+-------------------+-------------------------------------------------+
++-------------------+--------------------------------------------------+
+| Model             | Description                                      |
++===================+==================================================+
+| ``spp.hide.menu`` | Stores menu reference, state (show/hide), and    |
+|                   | original group_ids                               |
++-------------------+--------------------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -68,28 +68,28 @@ To manually configure:
 UI Location
 ~~~~~~~~~~~
 
--  **Menu**: Settings > Users & Companies > Hidden Menus (requires
-   Technical Features group)
+- **Menu**: Settings > Users & Companies > Hidden Menus (requires
+  Technical Features group)
 
 Security
 ~~~~~~~~
 
-+----------------------------------+----------------------------------+
-| Group                            | Access                           |
-+==================================+==================================+
-| ``base.group_system``            | Full CRUD                        |
-+----------------------------------+----------------------------------+
-| ``spp_hide_me                    | See menus hidden from other      |
-| nus_base.group_hide_menus_user`` | users (assigned via privilege    |
-|                                  | system)                          |
-+----------------------------------+----------------------------------+
++-----------------------------------------------+----------------------------------+
+| Group                                         | Access                           |
++===============================================+==================================+
+| ``base.group_system``                         | Full CRUD                        |
++-----------------------------------------------+----------------------------------+
+| ``spp_hide_menus_base.group_hide_menus_user`` | See menus hidden from other      |
+|                                               | users (assigned via privilege    |
+|                                               | system)                          |
++-----------------------------------------------+----------------------------------+
 
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Inherit ``ir.module.module`` and extend ``MENU_APP`` dictionary to
-   add custom menus to auto-hide list
--  Inherit ``spp.hide.menu`` to add custom metadata or hide/show logic
+- Inherit ``ir.module.module`` and extend ``MENU_APP`` dictionary to add
+  custom menus to auto-hide list
+- Inherit ``spp.hide.menu`` to add custom metadata or hide/show logic
 
 Dependencies
 ~~~~~~~~~~~~

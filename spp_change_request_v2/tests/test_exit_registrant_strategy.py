@@ -4,6 +4,8 @@
 from odoo import fields
 from odoo.tests import TransactionCase
 
+from .common import get_or_create_cr_type
+
 
 class TestExitRegistrantStrategy(TransactionCase):
     """Tests for Exit Registrant custom strategy."""
@@ -49,16 +51,11 @@ class TestExitRegistrantStrategy(TransactionCase):
             }
         )
 
-        # Get CR type
-        cls.cr_type = cls.env.ref(
-            "spp_change_request_v2.cr_type_exit_registrant",
-            raise_if_not_found=False,
-        )
+        # Get or create CR type
+        cls.cr_type = get_or_create_cr_type(cls.env, "exit_registrant")
 
     def test_exit_individual_deactivates(self):
         """Test exiting individual sets disabled date."""
-        if not self.cr_type:
-            self.skipTest("Exit registrant CR type not found")
 
         cr = self.cr_model.create(
             {
@@ -85,8 +82,6 @@ class TestExitRegistrantStrategy(TransactionCase):
 
     def test_exit_individual_ends_memberships(self):
         """Test exiting individual ends active memberships."""
-        if not self.cr_type:
-            self.skipTest("Exit registrant CR type not found")
 
         cr = self.cr_model.create(
             {
@@ -114,8 +109,6 @@ class TestExitRegistrantStrategy(TransactionCase):
 
     def test_exit_group_deactivates(self):
         """Test exiting group sets disabled date."""
-        if not self.cr_type:
-            self.skipTest("Exit registrant CR type not found")
 
         # Create new group to test
         group = self.partner_model.create(
@@ -151,8 +144,6 @@ class TestExitRegistrantStrategy(TransactionCase):
 
     def test_exit_group_ends_all_memberships(self):
         """Test exiting group ends all member memberships."""
-        if not self.cr_type:
-            self.skipTest("Exit registrant CR type not found")
 
         # Create group with members
         group = self.partner_model.create(
@@ -217,8 +208,6 @@ class TestExitRegistrantStrategy(TransactionCase):
 
     def test_exit_all_reasons(self):
         """Test all exit reasons work correctly."""
-        if not self.cr_type:
-            self.skipTest("Exit registrant CR type not found")
 
         reasons = [
             "deceased",
@@ -263,8 +252,6 @@ class TestExitRegistrantStrategy(TransactionCase):
 
     def test_exit_preview(self):
         """Test preview returns expected structure."""
-        if not self.cr_type:
-            self.skipTest("Exit registrant CR type not found")
 
         cr = self.cr_model.create(
             {

@@ -392,18 +392,17 @@ overrides</li>
 social) and damage level</li>
 <li>Verify impact records with workflow states (reported, verified,
 disputed, closed)</li>
-<li>Bulk-create impact records for all registrants in an affected area
-via <tt class="docutils literal">bulk_create_impacts()</tt></li>
-<li>Identify potentially affected registrants based on geographic
-location</li>
+<li>Bulk-create impact records for all registrants in an affected area via
+<tt class="docutils literal">bulk_create_impacts()</tt></li>
+<li>Identify potentially affected registrants based on geographic location</li>
 </ul>
 </div>
 <div class="section" id="key-models">
 <h2>Key Models</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="44%" />
-<col width="56%" />
+<col width="43%" />
+<col width="57%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Model</th>
@@ -412,8 +411,8 @@ location</li>
 </thead>
 <tbody valign="top">
 <tr><td><tt class="docutils literal">spp.hazard.category</tt></td>
-<td>Hierarchical classification of
-hazard types</td>
+<td>Hierarchical classification of hazard
+types</td>
 </tr>
 <tr><td><tt class="docutils literal">spp.hazard.incident</tt></td>
 <td>Specific disaster event with dates,
@@ -424,16 +423,16 @@ severity, and affected areas</td>
 area-specific details</td>
 </tr>
 <tr><td><tt class="docutils literal">spp.hazard.impact</tt></td>
-<td>Records impact on a registrant
-(type, damage level, verification)</td>
+<td>Records impact on a registrant (type,
+damage level, verification)</td>
 </tr>
 <tr><td><tt class="docutils literal">spp.hazard.impact.type</tt></td>
 <td>Classification of impact types by
 category</td>
 </tr>
 <tr><td><tt class="docutils literal">res.partner</tt> (extended)</td>
-<td>Adds hazard impact tracking fields
-to registrants</td>
+<td>Adds hazard impact tracking fields to
+registrants</td>
 </tr>
 </tbody>
 </table>
@@ -467,8 +466,8 @@ Response” tab displays impact records list</li>
 <h2>Security</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="49%" />
+<col width="51%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Group</th>
@@ -498,8 +497,8 @@ configuration</td>
 <h2>Extension Points</h2>
 <ul class="simple">
 <li>Inherit <tt class="docutils literal">spp.hazard.incident</tt> and override
-<tt class="docutils literal">identify_potentially_affected_registrants()</tt> to customize
-targeting logic</li>
+<tt class="docutils literal">identify_potentially_affected_registrants()</tt> to customize targeting
+logic</li>
 <li>Inherit <tt class="docutils literal">spp.hazard.impact</tt> to add domain-specific impact fields
 (e.g., crop damage for farmer registries)</li>
 <li>Override <tt class="docutils literal">bulk_create_impacts()</tt> to customize mass impact record

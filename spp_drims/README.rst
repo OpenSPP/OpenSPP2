@@ -36,22 +36,22 @@ breaches.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  Record incoming donations with state machine (announced, received,
-   inspected, stocked) and inspection workflow
--  Submit supply requests for affected areas with approval workflow, SLA
-   tracking, and priority handling
--  Allocate stock using FIFO/FEFO logic and create dispatch pickings
-   with beneficiary area tracking
--  Track returned items with condition assessment and disposition
-   routing (restock, repair, dispose)
--  Generate alerts automatically for low stock thresholds, expiring
-   inventory, and overdue requests
--  Create request templates for rapid response to recurring emergency
-   scenarios
--  Monitor fulfillment progress with allocation percentage, dispatch
-   status, and delivery tracking
--  Assign personnel to warehouses and service points with role and
-   cluster tracking
+- Record incoming donations with state machine (announced, received,
+  inspected, stocked) and inspection workflow
+- Submit supply requests for affected areas with approval workflow, SLA
+  tracking, and priority handling
+- Allocate stock using FIFO/FEFO logic and create dispatch pickings with
+  beneficiary area tracking
+- Track returned items with condition assessment and disposition routing
+  (restock, repair, dispose)
+- Generate alerts automatically for low stock thresholds, expiring
+  inventory, and overdue requests
+- Create request templates for rapid response to recurring emergency
+  scenarios
+- Monitor fulfillment progress with allocation percentage, dispatch
+  status, and delivery tracking
+- Assign personnel to warehouses and service points with role and
+  cluster tracking
 
 Key Models
 ~~~~~~~~~~
@@ -102,9 +102,9 @@ After installing:
 4. Verify scheduled actions are active under **Settings > Technical >
    Scheduled Actions**:
 
-   -  DRIMS: Check Low Stock (daily)
-   -  DRIMS: Check Expiry Dates (daily)
-   -  DRIMS: Check SLA Breaches (hourly)
+   - DRIMS: Check Low Stock (daily)
+   - DRIMS: Check Expiry Dates (daily)
+   - DRIMS: Check SLA Breaches (hourly)
 
 5. Create request templates under **DRIMS > Configuration > Request
    Templates** for common scenarios
@@ -114,59 +114,58 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
--  **Dashboard**: DRIMS > Dashboard (KPIs, recent activity, pending
-   approvals)
--  **Donations**: DRIMS > Receive Supplies > Donations
--  **Requests**: DRIMS > Fulfill Requests > All Requests
--  **Dispatches**: DRIMS > Fulfill Requests > Dispatches
--  **Returns**: DRIMS > Receive Supplies > Returns
--  **Alerts**: DRIMS > Monitoring > Alerts
--  **Personnel**: DRIMS > Monitoring > Personnel
--  **Inventory**: DRIMS > Inventory > Stock On Hand, Warehouses,
-   Products
+- **Dashboard**: DRIMS > Dashboard (KPIs, recent activity, pending
+  approvals)
+- **Donations**: DRIMS > Receive Supplies > Donations
+- **Requests**: DRIMS > Fulfill Requests > All Requests
+- **Dispatches**: DRIMS > Fulfill Requests > Dispatches
+- **Returns**: DRIMS > Receive Supplies > Returns
+- **Alerts**: DRIMS > Monitoring > Alerts
+- **Personnel**: DRIMS > Monitoring > Personnel
+- **Inventory**: DRIMS > Inventory > Stock On Hand, Warehouses, Products
 
 Security
 ~~~~~~~~
 
-+----------------------------------+----------------------------------+
-| Group                            | Access                           |
-+==================================+==================================+
-| ``spp_drims.group_drims_viewer`` | Read-only access to donations,   |
-|                                  | requests, dispatches             |
-+----------------------------------+----------------------------------+
-| `                                | Create and edit donations,       |
-| `spp_drims.group_drims_officer`` | requests, returns (no delete)    |
-+----------------------------------+----------------------------------+
-| ``                               | Approve or reject supply         |
-| spp_drims.group_drims_approver`` | requests                         |
-+----------------------------------+----------------------------------+
-| `                                | Full CRUD including deletion and |
-| `spp_drims.group_drims_manager`` | configuration                    |
-+----------------------------------+----------------------------------+
-| ``spp_drim                       | Receive donations, manage stock, |
-| s.group_drims_warehouse_worker`` | process dispatches               |
-+----------------------------------+----------------------------------+
-| ``spp_d                          | Create requests and confirm      |
-| rims.group_drims_field_officer`` | deliveries in the field          |
-+----------------------------------+----------------------------------+
-| ``spp_drims.grou                 | Coordinate requests and          |
-| p_drims_coordinator_supervisor`` | distributions within assigned    |
-|                                  | areas                            |
-+----------------------------------+----------------------------------+
++--------------------------------------------------+----------------------------------+
+| Group                                            | Access                           |
++==================================================+==================================+
+| ``spp_drims.group_drims_viewer``                 | Read-only access to donations,   |
+|                                                  | requests, dispatches             |
++--------------------------------------------------+----------------------------------+
+| ``spp_drims.group_drims_officer``                | Create and edit donations,       |
+|                                                  | requests, returns (no delete)    |
++--------------------------------------------------+----------------------------------+
+| ``spp_drims.group_drims_approver``               | Approve or reject supply         |
+|                                                  | requests                         |
++--------------------------------------------------+----------------------------------+
+| ``spp_drims.group_drims_manager``                | Full CRUD including deletion and |
+|                                                  | configuration                    |
++--------------------------------------------------+----------------------------------+
+| ``spp_drims.group_drims_warehouse_worker``       | Receive donations, manage stock, |
+|                                                  | process dispatches               |
++--------------------------------------------------+----------------------------------+
+| ``spp_drims.group_drims_field_officer``          | Create requests and confirm      |
+|                                                  | deliveries in the field          |
++--------------------------------------------------+----------------------------------+
+| ``spp_drims.group_drims_coordinator_supervisor`` | Coordinate requests and          |
+|                                                  | distributions within assigned    |
+|                                                  | areas                            |
++--------------------------------------------------+----------------------------------+
 
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Inherit ``spp.drims.alert`` and override ``_cron_check_*`` methods to
-   add custom alert types
--  Extend ``spp.drims.request`` and override ``_allocate_stock_fifo()``
-   to customize allocation logic
--  Add fields to ``stock.warehouse`` to track additional warehouse
-   metadata for DRIMS operations
--  Inherit ``spp.drims.donation`` and override
-   ``_create_receipt_picking()`` to customize stock receipt behavior
--  Override ``spp.drims.request._on_approve()`` and ``_on_reject()``
-   hooks to add custom approval actions
+- Inherit ``spp.drims.alert`` and override ``_cron_check_*`` methods to
+  add custom alert types
+- Extend ``spp.drims.request`` and override ``_allocate_stock_fifo()``
+  to customize allocation logic
+- Add fields to ``stock.warehouse`` to track additional warehouse
+  metadata for DRIMS operations
+- Inherit ``spp.drims.donation`` and override
+  ``_create_receipt_picking()`` to customize stock receipt behavior
+- Override ``spp.drims.request._on_approve()`` and ``_on_reject()``
+  hooks to add custom approval actions
 
 Dependencies
 ~~~~~~~~~~~~

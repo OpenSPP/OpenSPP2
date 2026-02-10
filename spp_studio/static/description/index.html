@@ -389,11 +389,11 @@ scheduled activation.</p>
 validation</li>
 <li>Add custom fields to Individual and Group registries through a guided
 builder</li>
-<li>Install pre-built logic packs for cash transfers, PMT targeting,
-child benefits, social pensions, and other programs</li>
+<li>Install pre-built logic packs for cash transfers, PMT targeting, child
+benefits, social pensions, and other programs</li>
 <li>Test expressions using personas with example data before deployment</li>
-<li>Manage lifecycle through governance workflow: draft, pending
-approval, published, archived</li>
+<li>Manage lifecycle through governance workflow: draft, pending approval,
+published, archived</li>
 <li>Track version history with scheduled activation for future changes</li>
 <li>Monitor where logic and fields are used across programs</li>
 </ul>
@@ -402,8 +402,8 @@ approval, published, archived</li>
 <h2>Key Models</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="46%" />
-<col width="54%" />
+<col width="45%" />
+<col width="55%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Model</th>
@@ -485,8 +485,8 @@ Personas</li>
 <h2>Security</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="56%" />
+<col width="44%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Group</th>
@@ -494,17 +494,14 @@ Personas</li>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td>``
-spp_studio.group_studio_viewer``</td>
+<tr><td><tt class="docutils literal">spp_studio.group_studio_viewer</tt></td>
 <td>Read</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_stud
-io.group_studio_editor_officer</tt></td>
+<tr><td><tt class="docutils literal">spp_studio.group_studio_editor_officer</tt></td>
 <td>Read/Write/Create on logic and
 fields (no delete on fields)</td>
 </tr>
-<tr><td><tt class="docutils literal">s
-pp_studio.group_studio_manager</tt></td>
+<tr><td><tt class="docutils literal">spp_studio.group_studio_manager</tt></td>
 <td>Full CRUD</td>
 </tr>
 </tbody>

@@ -5,6 +5,8 @@ from odoo import fields
 from odoo.exceptions import UserError
 from odoo.tests import TransactionCase
 
+from .common import get_or_create_cr_type, get_or_create_membership_kind
+
 
 class TestTransferMemberStrategy(TransactionCase):
     """Tests for Transfer Member custom strategy."""
@@ -16,8 +18,8 @@ class TestTransferMemberStrategy(TransactionCase):
         cls.membership_model = cls.env["spp.group.membership"]
         cls.cr_model = cls.env["spp.change.request"]
 
-        # Get membership kind from vocabulary
-        cls.member_kind = cls.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:group-membership-type", "other")
+        # Get or create membership kind from vocabulary
+        cls.member_kind = get_or_create_membership_kind(cls.env, "other")
 
         # Create source group
         cls.source_group = cls.partner_model.create(
@@ -55,16 +57,11 @@ class TestTransferMemberStrategy(TransactionCase):
             }
         )
 
-        # Get CR type
-        cls.cr_type = cls.env.ref(
-            "spp_change_request_v2.cr_type_transfer_member",
-            raise_if_not_found=False,
-        )
+        # Get or create CR type
+        cls.cr_type = get_or_create_cr_type(cls.env, "transfer_member")
 
     def test_transfer_member_creates_new_membership(self):
         """Test transferring member creates membership in target group."""
-        if not self.cr_type:
-            self.skipTest("Transfer member CR type not found")
 
         cr = self.cr_model.create(
             {
@@ -105,8 +102,6 @@ class TestTransferMemberStrategy(TransactionCase):
 
     def test_transfer_member_with_role(self):
         """Test transferring member assigns new role."""
-        if not self.cr_type:
-            self.skipTest("Transfer member CR type not found")
 
         # Create new member
         individual = self.partner_model.create(
@@ -157,8 +152,6 @@ class TestTransferMemberStrategy(TransactionCase):
 
     def test_transfer_to_same_group_fails(self):
         """Test cannot transfer to same group."""
-        if not self.cr_type:
-            self.skipTest("Transfer member CR type not found")
 
         cr = self.cr_model.create(
             {
@@ -181,8 +174,6 @@ class TestTransferMemberStrategy(TransactionCase):
 
     def test_transfer_existing_member_fails(self):
         """Test cannot transfer if already member of target group."""
-        if not self.cr_type:
-            self.skipTest("Transfer member CR type not found")
 
         # Create individual already in target group
         individual = self.partner_model.create(
@@ -235,8 +226,6 @@ class TestTransferMemberStrategy(TransactionCase):
 
     def test_transfer_inactive_membership_fails(self):
         """Test cannot transfer inactive membership."""
-        if not self.cr_type:
-            self.skipTest("Transfer member CR type not found")
 
         # Create and end membership
         individual = self.partner_model.create(
@@ -281,8 +270,6 @@ class TestTransferMemberStrategy(TransactionCase):
 
     def test_transfer_all_reasons(self):
         """Test all transfer reasons work."""
-        if not self.cr_type:
-            self.skipTest("Transfer member CR type not found")
 
         reasons = [
             "marriage",
@@ -340,8 +327,6 @@ class TestTransferMemberStrategy(TransactionCase):
 
     def test_transfer_preview(self):
         """Test preview returns expected structure."""
-        if not self.cr_type:
-            self.skipTest("Transfer member CR type not found")
 
         cr = self.cr_model.create(
             {

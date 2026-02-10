@@ -405,8 +405,8 @@ version-based locking</li>
 <h2>Key Models</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="44%" />
-<col width="56%" />
+<col width="43%" />
+<col width="57%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Model</th>
@@ -419,8 +419,8 @@ version-based locking</li>
 workflow to inheriting models</td>
 </tr>
 <tr><td><tt class="docutils literal">spp.approval.definition</tt></td>
-<td>Configures approval rules,
-approvers, and conditions per model</td>
+<td>Configures approval rules, approvers,
+and conditions per model</td>
 </tr>
 <tr><td><tt class="docutils literal">spp.approval.tier</tt></td>
 <td>Individual tier in a multi-tier
@@ -483,8 +483,8 @@ notifications)</li>
 <h2>Security</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="55%" />
+<col width="45%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Group</th>
@@ -492,23 +492,19 @@ notifications)</li>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td><tt class="docutils literal">spp_
-approval.group_approval_viewer</tt></td>
+<tr><td><tt class="docutils literal">spp_approval.group_approval_viewer</tt></td>
 <td>Read approval records</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_a
-pproval.group_approval_officer</tt></td>
+<tr><td><tt class="docutils literal">spp_approval.group_approval_officer</tt></td>
 <td>Read/Write/Create (no delete)</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_a
-pproval.group_approval_manager</tt></td>
+<tr><td><tt class="docutils literal">spp_approval.group_approval_manager</tt></td>
 <td>Read/Write/Create on all models
 (delete only for reviews/config;
 definitions and freezes require
 admin)</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_ap
-proval.group_approval_approver</tt></td>
+<tr><td><tt class="docutils literal">spp_approval.group_approval_approver</tt></td>
 <td>Approve/reject assigned reviews</td>
 </tr>
 </tbody>

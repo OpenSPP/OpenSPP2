@@ -4,6 +4,8 @@
 from odoo.exceptions import UserError
 from odoo.tests import TransactionCase
 
+from .common import get_or_create_cr_type
+
 
 class TestAddMemberStrategy(TransactionCase):
     """Tests for Add Member custom strategy."""
@@ -32,17 +34,11 @@ class TestAddMemberStrategy(TransactionCase):
             }
         )
 
-        # Get CR type
-        cls.cr_type = cls.env.ref(
-            "spp_change_request_v2.cr_type_add_member",
-            raise_if_not_found=False,
-        )
+        # Get or create CR type
+        cls.cr_type = get_or_create_cr_type(cls.env, "add_member")
 
     def test_add_member_creates_individual(self):
         """Test adding member creates individual registrant."""
-        if not self.cr_type:
-            self.skipTest("Add member CR type not found")
-
         cr = self.cr_model.create(
             {
                 "request_type_id": self.cr_type.id,
@@ -76,9 +72,6 @@ class TestAddMemberStrategy(TransactionCase):
 
     def test_add_member_creates_membership(self):
         """Test membership link created."""
-        if not self.cr_type:
-            self.skipTest("Add member CR type not found")
-
         cr = self.cr_model.create(
             {
                 "request_type_id": self.cr_type.id,
@@ -110,9 +103,6 @@ class TestAddMemberStrategy(TransactionCase):
 
     def test_add_member_to_individual_fails(self):
         """Test adding member to individual registrant fails."""
-        if not self.cr_type:
-            self.skipTest("Add member CR type not found")
-
         cr = self.cr_model.create(
             {
                 "request_type_id": self.cr_type.id,
@@ -138,9 +128,6 @@ class TestAddMemberStrategy(TransactionCase):
 
     def test_add_member_preview(self):
         """Test preview returns expected structure."""
-        if not self.cr_type:
-            self.skipTest("Add member CR type not found")
-
         cr = self.cr_model.create(
             {
                 "request_type_id": self.cr_type.id,

@@ -32,50 +32,50 @@ submit/approve/reject actions with audit trails and optimistic locking.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  **Approval Mixin**: Add ``spp.approval.mixin`` to any model to enable
-   approval workflow with state tracking (``draft``, ``pending``,
-   ``approved``, ``rejected``, ``revision``)
--  **Multi-Tier Workflows**: Define sequential approval tiers with
-   configurable approver types (security group, specific users,
-   submitter's manager, or dynamic field)
--  **CEL Rules**: Conditional approval routing using Common Expression
-   Language domain filters
--  **Freeze Periods**: System-wide approval suspension during election
-   bans, audits, or maintenance windows
--  **SLA Tracking**: Track approval deadlines per tier with escalation
-   support
--  **Revision Requests**: Approvers can request revisions instead of
-   outright rejection
--  **Optimistic Locking**: Prevents concurrent approval conflicts via
-   version-based locking
+- **Approval Mixin**: Add ``spp.approval.mixin`` to any model to enable
+  approval workflow with state tracking (``draft``, ``pending``,
+  ``approved``, ``rejected``, ``revision``)
+- **Multi-Tier Workflows**: Define sequential approval tiers with
+  configurable approver types (security group, specific users,
+  submitter's manager, or dynamic field)
+- **CEL Rules**: Conditional approval routing using Common Expression
+  Language domain filters
+- **Freeze Periods**: System-wide approval suspension during election
+  bans, audits, or maintenance windows
+- **SLA Tracking**: Track approval deadlines per tier with escalation
+  support
+- **Revision Requests**: Approvers can request revisions instead of
+  outright rejection
+- **Optimistic Locking**: Prevents concurrent approval conflicts via
+  version-based locking
 
 Key Models
 ~~~~~~~~~~
 
-+------------------------------+--------------------------------------+
-| Model                        | Description                          |
-+==============================+======================================+
-| ``spp.approval.mixin``       | Abstract mixin providing approval    |
-|                              | workflow to inheriting models        |
-+------------------------------+--------------------------------------+
-| ``spp.approval.definition``  | Configures approval rules,           |
-|                              | approvers, and conditions per model  |
-+------------------------------+--------------------------------------+
-| ``spp.approval.tier``        | Individual tier in a multi-tier      |
-|                              | approval sequence                    |
-+------------------------------+--------------------------------------+
-| ``spp.approval.review``      | Tracks individual approval/rejection |
-|                              | actions                              |
-+------------------------------+--------------------------------------+
-| ``spp.approval.tier.review`` | Tracks progress through multi-tier   |
-|                              | workflows                            |
-+------------------------------+--------------------------------------+
-| ``spp.approval.freeze``      | Defines system-wide freeze periods   |
-|                              | blocking approvals                   |
-+------------------------------+--------------------------------------+
-| ``spp.approval.config``      | System-wide approval configuration   |
-|                              | settings                             |
-+------------------------------+--------------------------------------+
++------------------------------+---------------------------------------+
+| Model                        | Description                           |
++==============================+=======================================+
+| ``spp.approval.mixin``       | Abstract mixin providing approval     |
+|                              | workflow to inheriting models         |
++------------------------------+---------------------------------------+
+| ``spp.approval.definition``  | Configures approval rules, approvers, |
+|                              | and conditions per model              |
++------------------------------+---------------------------------------+
+| ``spp.approval.tier``        | Individual tier in a multi-tier       |
+|                              | approval sequence                     |
++------------------------------+---------------------------------------+
+| ``spp.approval.review``      | Tracks individual approval/rejection  |
+|                              | actions                               |
++------------------------------+---------------------------------------+
+| ``spp.approval.tier.review`` | Tracks progress through multi-tier    |
+|                              | workflows                             |
++------------------------------+---------------------------------------+
+| ``spp.approval.freeze``      | Defines system-wide freeze periods    |
+|                              | blocking approvals                    |
++------------------------------+---------------------------------------+
+| ``spp.approval.config``      | System-wide approval configuration    |
+|                              | settings                              |
++------------------------------+---------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -93,43 +93,40 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
--  **Menu**: Approvals > My Approvals > Pending Approvals
--  **Configuration**: Approvals > Configuration > Approval Definitions
--  **Freeze Periods**: Approvals > Configuration > Freeze Periods
--  **Mixin Integration**: Approval buttons appear on forms of models
-   inheriting the mixin
+- **Menu**: Approvals > My Approvals > Pending Approvals
+- **Configuration**: Approvals > Configuration > Approval Definitions
+- **Freeze Periods**: Approvals > Configuration > Freeze Periods
+- **Mixin Integration**: Approval buttons appear on forms of models
+  inheriting the mixin
 
 Tabs
 ~~~~
 
 On **Approval Definition** forms:
 
--  **Conditions**: Domain filter to determine which records require this
-   approval
--  **Behavior**: Approval settings (require comment, auto-approve,
-   notifications)
--  **SLA & Escalation**: SLA tracking and escalation rules
+- **Conditions**: Domain filter to determine which records require this
+  approval
+- **Behavior**: Approval settings (require comment, auto-approve,
+  notifications)
+- **SLA & Escalation**: SLA tracking and escalation rules
 
 Security
 ~~~~~~~~
 
-+----------------------------------+----------------------------------+
-| Group                            | Access                           |
-+==================================+==================================+
-| ``spp_                           | Read approval records            |
-| approval.group_approval_viewer`` |                                  |
-+----------------------------------+----------------------------------+
-| ``spp_a                          | Read/Write/Create (no delete)    |
-| pproval.group_approval_officer`` |                                  |
-+----------------------------------+----------------------------------+
-| ``spp_a                          | Read/Write/Create on all models  |
-| pproval.group_approval_manager`` | (delete only for reviews/config; |
-|                                  | definitions and freezes require  |
-|                                  | admin)                           |
-+----------------------------------+----------------------------------+
-| ``spp_ap                         | Approve/reject assigned reviews  |
-| proval.group_approval_approver`` |                                  |
-+----------------------------------+----------------------------------+
++------------------------------------------+----------------------------------+
+| Group                                    | Access                           |
++==========================================+==================================+
+| ``spp_approval.group_approval_viewer``   | Read approval records            |
++------------------------------------------+----------------------------------+
+| ``spp_approval.group_approval_officer``  | Read/Write/Create (no delete)    |
++------------------------------------------+----------------------------------+
+| ``spp_approval.group_approval_manager``  | Read/Write/Create on all models  |
+|                                          | (delete only for reviews/config; |
+|                                          | definitions and freezes require  |
+|                                          | admin)                           |
++------------------------------------------+----------------------------------+
+| ``spp_approval.group_approval_approver`` | Approve/reject assigned reviews  |
++------------------------------------------+----------------------------------+
 
 Note: ``approval_definition`` and ``approval_freeze`` models block
 deletion for managers via Python override - only system administrators
@@ -138,14 +135,14 @@ can delete these records.
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Inherit ``spp.approval.mixin`` to add approval workflow to any model
-   inheriting ``mail.thread``
--  Override ``_on_submit()``, ``_on_approve()``, ``_on_reject()``,
-   ``_on_request_revision()`` hooks for custom logic
--  Override ``_get_approval_definition()`` to provide record-specific
-   approval rules (e.g., from a type field)
--  Extend ``spp.approval.definition`` to add custom approver types or
-   matching logic
+- Inherit ``spp.approval.mixin`` to add approval workflow to any model
+  inheriting ``mail.thread``
+- Override ``_on_submit()``, ``_on_approve()``, ``_on_reject()``,
+  ``_on_request_revision()`` hooks for custom logic
+- Override ``_get_approval_definition()`` to provide record-specific
+  approval rules (e.g., from a type field)
+- Extend ``spp.approval.definition`` to add custom approver types or
+  matching logic
 
 Dependencies
 ~~~~~~~~~~~~
