@@ -18,12 +18,24 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                 <separator string="Reference Data for GIS Reports" />
                 <group name="gis_reference_data" col="2">
                     <group name="population_group">
-                        <field name="population" />
-                        <field name="population_date" />
-                        <field name="population_source" />
+                        <field
+                            name="population"
+                            help="Total population from census or official estimate. Used for per-capita normalization in GIS reports."
+                        />
+                        <field
+                            name="population_date"
+                            help="Date when the population data was collected or published."
+                        />
+                        <field
+                            name="population_source"
+                            help="Source of the population data, e.g., 'National Census 2020' or 'UNFPA Estimate'."
+                        />
                     </group>
                     <group name="household_group">
-                        <field name="household_count" />
+                        <field
+                            name="household_count"
+                            help="Number of households in this area. Used for per-household normalization in GIS reports."
+                        />
                     </group>
                 </group>
             </xpath>

@@ -5,15 +5,20 @@
         <field name="priority">1</field>
         <field name="arch" type="xml">
             <list>
-                <field name="name" column_invisible="1"/>
-                <field name="draft_name" string="Name"/>
+                <field name="name" column_invisible="1" />
+                <field name="draft_name" string="Name" />
                 <field name="altnames" />
                 <field name="code" />
                 <field name="parent_id" />
                 <field name="complete_name" string="Complete Name" />
                 <field name="area_level" />
                 <field name="area_type_id" string="Area Type" />
-                <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}" optional="hide" />
+                <field
+                    name="tag_ids"
+                    widget="many2many_tags"
+                    options="{'color_field': 'color'}"
+                    optional="hide"
+                />
             </list>
         </field>
     </record>
@@ -27,56 +32,74 @@
                 <sheet>
                     <!-- Title Section -->
                     <div class="oe_title">
-                        <label for="parent_id" class="oe_edit_only"/>
+                        <label for="parent_id" class="oe_edit_only" />
                         <h3 class="text-muted mb-2">
                             <field
                                 name="parent_id"
                                 placeholder="Select Parent Area..."
-                                options="{'no_open':True,'no_create_edit':True,'no_create':True}"/>
+                                options="{'no_open':True,'no_create_edit':True,'no_create':True}"
+                            />
                         </h3>
-                        <label for="name" class="oe_edit_only"/>
+                        <label for="name" class="oe_edit_only" />
                         <h1>
                             <field
                                 name="name"
                                 placeholder="Area Name..."
                                 readonly="1"
                                 force_save="1"
-                                class="oe_read_only"/>
+                                class="oe_read_only"
+                            />
                             <field
                                 name="draft_name"
                                 placeholder="Enter Area Name..."
-                                class="oe_edit_only"/>
+                                class="oe_edit_only"
+                            />
                         </h1>
                     </div>
 
                     <!-- Hidden Fields -->
-                    <field name="level" invisible="1"/>
+                    <field name="level" invisible="1" />
 
                     <!-- Main Information -->
                     <group>
                         <group string="Basic Information">
-                            <field name="code" placeholder="Area Code..."/>
-                            <field name="altnames"
-                                   string="Alternate Names"
-                                   placeholder="Alternative names for this area..."/>
-                            <field name="complete_name" readonly="1"/>
+                            <field name="code" placeholder="Area Code..." />
+                            <field
+                                name="altnames"
+                                string="Alternate Names"
+                                placeholder="Alternative names for this area..."
+                            />
+                            <field name="complete_name" readonly="1" />
                         </group>
                         <group string="Classification">
-                            <field name="area_level"/>
-                            <field name="area_type_id"
-                                   options="{'no_open': True, 'no_create': True}"/>
-                            <field name="area_sqkm"
-                                   string="Area (sq/km)"
-                                   widget="float"/>
+                            <field
+                                name="area_level"
+                                string="Admin Level"
+                                help="Hierarchical level of this area, automatically computed from its position in the area tree (0 = top-level)."
+                            />
+                            <field
+                                name="area_type_id"
+                                string="Area Type"
+                                help="Classification type for this area (e.g., Province, Municipality, Barangay)."
+                                options="{'no_open': True, 'no_create': True}"
+                            />
+                            <field
+                                name="area_sqkm"
+                                string="Area (sq km)"
+                                help="Geographic size of this area in square kilometers."
+                                widget="float"
+                            />
                         </group>
                     </group>
 
                     <!-- Tags Section -->
                     <group string="Tags">
-                        <field name="tag_ids"
-                               widget="many2many_tags"
-                               placeholder="Add tags..."
-                               options="{'color_field': 'color', 'no_create_edit': True}"/>
+                        <field
+                            name="tag_ids"
+                            widget="many2many_tags"
+                            placeholder="Add tags..."
+                            options="{'color_field': 'color', 'no_create_edit': True}"
+                        />
                     </group>
 
                     <!-- Child Areas -->
@@ -84,10 +107,14 @@
                         <page name="child" string="Child Areas">
                             <field name="child_ids" nolabel="1">
                                 <list>
-                                    <field name="name"/>
-                                    <field name="code" optional="show"/>
-                                    <field name="area_type_id" string="Type" optional="show"/>
-                                    <field name="area_level" optional="hide"/>
+                                    <field name="name" />
+                                    <field name="code" optional="show" />
+                                    <field
+                                        name="area_type_id"
+                                        string="Type"
+                                        optional="show"
+                                    />
+                                    <field name="area_level" optional="hide" />
                                 </list>
                             </field>
                         </page>
@@ -106,8 +133,16 @@
                 <field name="name" />
                 <field name="parent_id" />
                 <field name="tag_ids" />
-                <filter name="grp_parent" string="Parent" context="{'group_by': 'parent_id'}" />
-                <filter name="grp_level" string="Level" context="{'group_by': 'area_level'}" />
+                <filter
+                    name="grp_parent"
+                    string="Parent"
+                    context="{'group_by': 'parent_id'}"
+                />
+                <filter
+                    name="grp_level"
+                    string="Level"
+                    context="{'group_by': 'area_level'}"
+                />
             </search>
         </field>
     </record>
@@ -123,7 +158,8 @@
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Create a new Area!
-            </p><p>
+            </p>
+            <p>
                 Click the create button to enter the information of the Area.
             </p>
         </field>
@@ -151,7 +187,12 @@
         sequence="0"
     />
 
-    <menuitem id="area_main_top_menu" name="Areas" parent="area_main_menu_root" sequence="10" />
+    <menuitem
+        id="area_main_top_menu"
+        name="Areas"
+        parent="area_main_menu_root"
+        sequence="10"
+    />
 
     <menuitem
         id="menu_spparea"
