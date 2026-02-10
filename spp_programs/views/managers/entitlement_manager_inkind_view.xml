@@ -86,14 +86,13 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                                                 />
                                             </group>
                                         </group>
-                                        <group colspan="4" col="4">
-                                            <field
-                                                name="condition"
-                                                colspan="4"
-                                                widget="domain"
-                                                options="{'model': 'res.partner'}"
-                                            />
-                                        </group>
+                                        <separator string="Condition (Optional)" />
+                                        <field
+                                            name="condition"
+                                            nolabel="1"
+                                            widget="domain"
+                                            options="{'model': 'res.partner'}"
+                                        />
                                         <group colspan="4" col="4">
                                             <group colspan="2">
                                                 <field
