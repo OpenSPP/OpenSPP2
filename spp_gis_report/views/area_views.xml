@@ -22,28 +22,12 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                 </div>
                 <group name="gis_reference_data" col="2">
                     <group name="population_group">
-                        <field
-                            name="population"
-                            readonly="1"
-                            help="Total population from census or official estimate. Used for per-capita normalization in GIS reports."
-                        />
-                        <field
-                            name="population_date"
-                            readonly="1"
-                            help="Date when the population data was collected or published."
-                        />
-                        <field
-                            name="population_source"
-                            readonly="1"
-                            help="Source of the population data, e.g., 'National Census 2020' or 'UNFPA Estimate'."
-                        />
+                        <field name="population" readonly="1" />
+                        <field name="population_date" readonly="1" />
+                        <field name="population_source" readonly="1" />
                     </group>
                     <group name="household_group">
-                        <field
-                            name="household_count"
-                            readonly="1"
-                            help="Number of households in this area. Used for per-household normalization in GIS reports."
-                        />
+                        <field name="household_count" readonly="1" />
                     </group>
                 </group>
             </xpath>

@@ -85,7 +85,7 @@
                             />
                             <field
                                 name="area_sqkm"
-                                string="Area (sq km)"
+                                string="Area (km²)"
                                 help="Geographic size of this area in square kilometers."
                                 widget="float"
                             />
