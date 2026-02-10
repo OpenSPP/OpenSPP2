@@ -30,21 +30,35 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     <div class="oe_title mb24">
                         <label for="name" string="Name:" />
                         <h1>
-                            <field id="name" name="name" placeholder="Enter the Manager Name..." />
+                            <field
+                                id="name"
+                                name="name"
+                                placeholder="Enter the Manager Name..."
+                            />
                         </h1>
                     </div>
                     <div colspan="2">
                         <field name="manage_inventory" />
-                        <label for="manage_inventory" string="Manage stock movements (inventory)" />
+                        <label
+                            for="manage_inventory"
+                            string="Manage stock movements (inventory)"
+                        />
                     </div>
                     <div colspan="2">
                         <field name="is_evaluate_single_item" />
-                        <label for="is_evaluate_single_item" string="Evaluate one item" />
+                        <label
+                            for="is_evaluate_single_item"
+                            string="Evaluate one item"
+                        />
                     </div>
                     <notebook>
                         <page string="Items">
                             <group colspan="4" col="4">
-                                <field name="entitlement_item_ids" nolabel="1" colspan="4">
+                                <field
+                                    name="entitlement_item_ids"
+                                    nolabel="1"
+                                    colspan="4"
+                                >
                                     <list>
                                         <field name='sequence' widget='handle' />
                                         <field name="product_id" />
@@ -60,22 +74,36 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                                                 options="{'no_open':True,'no_create':True,'no_create_edit':True}"
                                                 colspan="4"
                                             />
-                                            <field name="quantity" />
-                                            <field
-                                                name="uom_id"
-                                                options="{'no_open':True,'no_create':True,'no_create_edit':True}"
-                                            />
+                                        </group>
+                                        <group colspan="4" col="4">
+                                            <group colspan="2">
+                                                <field name="quantity" />
+                                            </group>
+                                            <group colspan="2">
+                                                <field
+                                                    name="uom_id"
+                                                    options="{'no_open':True,'no_create':True,'no_create_edit':True}"
+                                                />
+                                            </group>
+                                        </group>
+                                        <group colspan="4" col="4">
                                             <field
                                                 name="condition"
                                                 colspan="4"
                                                 widget="domain"
                                                 options="{'model': 'res.partner'}"
                                             />
-                                            <field
-                                                name="multiplier_field"
-                                                options="{'no_open':True,'no_create':True,'no_create_edit':True}"
-                                            />
-                                            <field name="max_multiplier" />
+                                        </group>
+                                        <group colspan="4" col="4">
+                                            <group colspan="2">
+                                                <field
+                                                    name="multiplier_field"
+                                                    options="{'no_open':True,'no_create':True,'no_create_edit':True}"
+                                                />
+                                            </group>
+                                            <group colspan="2">
+                                                <field name="max_multiplier" />
+                                            </group>
                                         </group>
                                     </form>
                                 </field>
@@ -96,13 +124,20 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                                 />
                             </group>
                         </page>
-                        <page string="Inventory Settings" invisible="not manage_inventory">
+                        <page
+                            string="Inventory Settings"
+                            invisible="not manage_inventory"
+                        >
                             <group colspan="4" col="4">
                                 <field
                                     name="warehouse_id"
                                     options="{'no_open':True,'no_create':True,'no_create_edit':True}"
                                 />
-                                <field name="company_id" invisible="1" options="{'no_open':True}" />
+                                <field
+                                    name="company_id"
+                                    invisible="1"
+                                    options="{'no_open':True}"
+                                />
                             </group>
                         </page>
                     </notebook>
@@ -120,7 +155,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                 <field name="name" />
                 <field name="program_id" />
                 <group>
-                    <filter string="Program" name="grp_program_id" context="{'group_by': 'program_id'}" />
+                    <filter
+                        string="Program"
+                        name="grp_program_id"
+                        context="{'group_by': 'program_id'}"
+                    />
                 </group>
                 <!--<searchpanel>
                     <field name="group" icon="fa-users"/>
@@ -140,24 +179,30 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Add an Entitlement Manager!
-            </p><p>
+            </p>
+            <p>
                 Click the create button to enter a new in-kind entitlement manager.
             </p>
         </field>
     </record>
 
-    <record id="action_entitlement_manager_inkind_tree_view" model="ir.actions.act_window.view">
+    <record
+        id="action_entitlement_manager_inkind_tree_view"
+        model="ir.actions.act_window.view"
+    >
         <field name="sequence" eval="1" />
         <field name="view_mode">list</field>
         <field name="view_id" ref="view_entitlement_manager_inkind_tree" />
         <field name="act_window_id" ref="action_entitlement_manager_inkind" />
     </record>
 
-    <record id="action_entitlement_manager_inkind_form_view" model="ir.actions.act_window.view">
+    <record
+        id="action_entitlement_manager_inkind_form_view"
+        model="ir.actions.act_window.view"
+    >
         <field name="sequence" eval="1" />
         <field name="view_mode">form</field>
         <field name="view_id" ref="view_entitlement_manager_inkind_form" />
         <field name="act_window_id" ref="action_entitlement_manager_inkind" />
     </record>
-
 </odoo>
