@@ -90,14 +90,14 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                                             string="Condition (Optional)"
                                             class="mt-3"
                                         />
-                                        <div name="condition_section">
+                                        <group name="condition_section" col="1">
                                             <field
                                                 name="condition"
                                                 nolabel="1"
                                                 widget="domain"
                                                 options="{'model': 'res.partner'}"
                                             />
-                                        </div>
+                                        </group>
                                         <group colspan="4" col="4">
                                             <group colspan="2">
                                                 <field

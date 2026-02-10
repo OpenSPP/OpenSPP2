@@ -1,56 +1,102 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Extend In-Kind Entitlement Item Form (inline form within manager) -->
     <record id="view_inkind_entitlement_item_cel_form" model="ir.ui.view">
         <field name="name">spp.program.entitlement.manager.inkind.item.cel.form</field>
         <field name="model">spp.program.entitlement.manager.inkind</field>
-        <field name="inherit_id" ref="spp_programs.view_entitlement_manager_inkind_form"/>
+        <field
+            name="inherit_id"
+            ref="spp_programs.view_entitlement_manager_inkind_form"
+        />
         <field name="arch" type="xml">
             <!-- Add quantity mode selection to inline form -->
-            <xpath expr="//field[@name='entitlement_item_ids']/form//field[@name='quantity']" position="before">
-                <field name="quantity_mode" widget="radio" options="{'horizontal': true}"/>
+            <xpath
+                expr="//field[@name='entitlement_item_ids']/form//field[@name='quantity']"
+                position="before"
+            >
+                <field
+                    name="quantity_mode"
+                    widget="radio"
+                    options="{'horizontal': true}"
+                />
             </xpath>
 
             <!-- Make quantity field conditional -->
-            <xpath expr="//field[@name='entitlement_item_ids']/form//field[@name='quantity']" position="attributes">
+            <xpath
+                expr="//field[@name='entitlement_item_ids']/form//field[@name='quantity']"
+                position="attributes"
+            >
                 <attribute name="invisible">quantity_mode == 'cel'</attribute>
             </xpath>
 
             <!-- Add CEL quantity formula after quantity -->
-            <xpath expr="//field[@name='entitlement_item_ids']/form//field[@name='quantity']" position="after">
-                <field name="quantity_cel_expression"
-                       widget="cel_expression"
-                       cel_profile="registry_groups"
-                       show_symbol_browser="true"
-                       show_validation_count="false"
-                       invisible="quantity_mode != 'cel'"
-                       placeholder="e.g., hh_size * 2"/>
-                <div invisible="quantity_mode != 'cel' or not quantity_cel_expression" class="small">
-                    <field name="quantity_cel_preview" invisible="not quantity_cel_preview" class="text-success"/>
-                    <field name="quantity_cel_error" invisible="not quantity_cel_error" class="text-danger"/>
+            <xpath
+                expr="//field[@name='entitlement_item_ids']/form//field[@name='quantity']"
+                position="after"
+            >
+                <field
+                    name="quantity_cel_expression"
+                    widget="cel_expression"
+                    cel_profile="registry_groups"
+                    show_symbol_browser="true"
+                    show_validation_count="false"
+                    invisible="quantity_mode != 'cel'"
+                    placeholder="e.g., hh_size * 2"
+                />
+                <div
+                    invisible="quantity_mode != 'cel' or not quantity_cel_expression"
+                    class="small"
+                >
+                    <field
+                        name="quantity_cel_preview"
+                        invisible="not quantity_cel_preview"
+                        class="text-success"
+                    />
+                    <field
+                        name="quantity_cel_error"
+                        invisible="not quantity_cel_error"
+                        class="text-danger"
+                    />
                 </div>
-                <field name="quantity_cel_is_valid" invisible="1"/>
+                <field name="quantity_cel_is_valid" invisible="1" />
             </xpath>
 
             <!-- Add condition mode selection -->
-            <xpath expr="//field[@name='entitlement_item_ids']/form//field[@name='condition']" position="before">
-                <field name="condition_mode" widget="radio" options="{'horizontal': true}"/>
+            <xpath
+                expr="//field[@name='entitlement_item_ids']/form//field[@name='condition']"
+                position="before"
+            >
+                <field
+                    name="condition_mode"
+                    nolabel="1"
+                    widget="radio"
+                    options="{'horizontal': true}"
+                />
             </xpath>
 
             <!-- Make condition field conditional -->
-            <xpath expr="//field[@name='entitlement_item_ids']/form//field[@name='condition']" position="attributes">
+            <xpath
+                expr="//field[@name='entitlement_item_ids']/form//field[@name='condition']"
+                position="attributes"
+            >
                 <attribute name="invisible">condition_mode == 'cel'</attribute>
             </xpath>
 
             <!-- Add CEL condition expression after condition -->
-            <xpath expr="//field[@name='entitlement_item_ids']/form//field[@name='condition']" position="after">
-                <field name="condition_cel_expression"
-                       widget="cel_expression"
-                       cel_profile="registry_groups"
-                       show_symbol_browser="true"
-                       show_validation_count="true"
-                       invisible="condition_mode != 'cel'"
-                       placeholder="e.g., hh_size >= 4 and child_count > 0"/>
+            <xpath
+                expr="//field[@name='entitlement_item_ids']/form//field[@name='condition']"
+                position="after"
+            >
+                <field
+                    name="condition_cel_expression"
+                    nolabel="1"
+                    widget="cel_expression"
+                    cel_profile="registry_groups"
+                    show_symbol_browser="true"
+                    show_validation_count="true"
+                    invisible="condition_mode != 'cel'"
+                    placeholder="e.g., hh_size >= 4 and child_count > 0"
+                />
             </xpath>
         </field>
     </record>
@@ -59,14 +105,23 @@
     <record id="view_inkind_entitlement_manager_cel_form" model="ir.ui.view">
         <field name="name">spp.program.entitlement.manager.inkind.cel.form</field>
         <field name="model">spp.program.entitlement.manager.inkind</field>
-        <field name="inherit_id" ref="spp_programs.view_entitlement_manager_inkind_form"/>
+        <field
+            name="inherit_id"
+            ref="spp_programs.view_entitlement_manager_inkind_form"
+        />
         <field name="arch" type="xml">
             <!-- Update the tree view inside the form to show quantity and condition modes -->
-            <xpath expr="//field[@name='entitlement_item_ids']/list/field[@name='quantity']" position="before">
-                <field name="quantity_mode" optional="show"/>
+            <xpath
+                expr="//field[@name='entitlement_item_ids']/list/field[@name='quantity']"
+                position="before"
+            >
+                <field name="quantity_mode" optional="show" />
             </xpath>
-            <xpath expr="//field[@name='entitlement_item_ids']/list/field[@name='multiplier_field']" position="before">
-                <field name="condition_mode" optional="hide"/>
+            <xpath
+                expr="//field[@name='entitlement_item_ids']/list/field[@name='multiplier_field']"
+                position="before"
+            >
+                <field name="condition_mode" optional="hide" />
             </xpath>
         </field>
     </record>
