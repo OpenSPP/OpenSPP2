@@ -61,7 +61,7 @@
                     <field name="level" invisible="1" />
 
                     <!-- Main Information -->
-                    <group>
+                    <group name="main_info">
                         <group string="Basic Information">
                             <field name="code" placeholder="Area Code..." />
                             <field
