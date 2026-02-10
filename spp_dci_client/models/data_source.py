@@ -22,6 +22,8 @@ class DCIDataSource(models.Model):
     _description = "DCI Data Source"
     _order = "name"
 
+    _SECRET_MASK = "********"
+
     name = fields.Char(
         required=True,
         string="Name",
@@ -70,7 +72,15 @@ class DCIDataSource(models.Model):
     oauth2_client_secret = fields.Char(
         string="OAuth2 Client Secret",
         groups="base.group_system",
-        help="OAuth2 client secret (visible only to system administrators)",
+        copy=False,
+        help="OAuth2 client secret (internal storage, not displayed in UI)",
+    )
+    oauth2_client_secret_display = fields.Char(
+        string="OAuth2 Client Secret",
+        compute="_compute_oauth2_client_secret_display",
+        inverse="_inverse_oauth2_client_secret_display",
+        groups="base.group_system",
+        help="OAuth2 client secret (write-only for security - value is masked after saving)",
     )
     oauth2_scope = fields.Char(
         string="OAuth2 Scope",
@@ -176,6 +186,19 @@ class DCIDataSource(models.Model):
         string="Token Expiry",
         help="Cached token expiration timestamp (internal use only)",
     )
+
+    @api.depends("oauth2_client_secret")
+    def _compute_oauth2_client_secret_display(self):
+        for record in self:
+            record.oauth2_client_secret_display = self._SECRET_MASK if record.oauth2_client_secret else False
+
+    def _inverse_oauth2_client_secret_display(self):
+        for record in self:
+            value = record.oauth2_client_secret_display
+            if value and value != self._SECRET_MASK:
+                record.oauth2_client_secret = value
+            elif not value:
+                record.oauth2_client_secret = False
 
     @api.constrains("code")
     def _check_code_unique(self):
