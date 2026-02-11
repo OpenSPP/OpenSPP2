@@ -14,6 +14,10 @@
         <field name="active">True</field>
         <field name="sla_days">0</field>
         <field name="sequence">1</field>
+        <field name="approval_type">group</field>
+        <field name="approval_group_id" ref="group_drims_manager"/>
+        <field name="is_emergency_bypass_allowed">True</field>
+        <field name="notify_on_submit">True</field>
     </record>
 
     <!-- Standard Approval (Small Value) -->
@@ -23,6 +27,9 @@
         <field name="active">True</field>
         <field name="sla_days">1</field>
         <field name="sequence">10</field>
+        <field name="approval_type">group</field>
+        <field name="approval_group_id" ref="group_drims_approver"/>
+        <field name="notify_on_submit">True</field>
     </record>
 
     <!-- Medium Value Approval -->
@@ -32,6 +39,10 @@
         <field name="active">True</field>
         <field name="sla_days">2</field>
         <field name="sequence">20</field>
+        <field name="approval_type">group</field>
+        <field name="approval_group_id" ref="group_drims_approver"/>
+        <field name="is_require_comment">True</field>
+        <field name="notify_on_submit">True</field>
     </record>
 
     <!-- Large Value Approval -->
@@ -41,5 +52,9 @@
         <field name="active">True</field>
         <field name="sla_days">3</field>
         <field name="sequence">30</field>
+        <field name="approval_type">group</field>
+        <field name="approval_group_id" ref="group_drims_manager"/>
+        <field name="is_require_comment">True</field>
+        <field name="notify_on_submit">True</field>
     </record>
 </odoo>
