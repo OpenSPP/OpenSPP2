@@ -232,35 +232,38 @@ class SPPCRCreateWizard(models.TransientModel):
             }
         )
 
-        # Open the detail form directly for editing
+        # Close wizard modal and open detail form using client action
+        # The client action ensures the modal is fully closed before navigating
         detail = cr.get_detail()
         if detail:
             view_id = self.request_type_id.get_detail_form_view_id()
             return {
-                "type": "ir.actions.act_window",
-                "name": "Change Request Details",
-                "res_model": cr.detail_res_model,
-                "res_id": detail.id,
-                "view_mode": "form",
-                "view_id": view_id,
-                "target": "current",
-                "context": {
-                    "create": False,
-                    "delete": False,
-                    "form_view_initial_mode": "edit",
+                "type": "ir.actions.client",
+                "tag": "open_cr_close_modal",
+                "params": {
+                    "name": _("Change Request Details"),
+                    "res_model": cr.detail_res_model,
+                    "res_id": detail.id,
+                    "view_id": view_id,
+                    "context": {
+                        "create": False,
+                        "delete": False,
+                        "form_view_initial_mode": "edit",
+                    },
                 },
             }
 
         # Fallback: open CR form if no detail model configured
         return {
-            "type": "ir.actions.act_window",
-            "name": "Change Request",
-            "res_model": "spp.change.request",
-            "res_id": cr.id,
-            "view_mode": "form",
-            "target": "current",
-            "context": {
-                "form_view_initial_mode": "edit",
+            "type": "ir.actions.client",
+            "tag": "open_cr_close_modal",
+            "params": {
+                "name": _("Change Request"),
+                "res_model": "spp.change.request",
+                "res_id": cr.id,
+                "context": {
+                    "form_view_initial_mode": "edit",
+                },
             },
         }
 
