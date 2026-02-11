@@ -18,7 +18,8 @@ class ChangeRequestService:
     """Service for Change Request resource CRUD and mapping."""
 
     def __init__(self, env: Environment):
-        self.env = env
+        ctx = dict(env.context, mail_create_nolog=True, tracking_disable=True)
+        self.env = env(context=ctx)
 
     def find_by_reference(self, reference: str):
         """
@@ -161,7 +162,7 @@ class ChangeRequestService:
         # Get fields from the model
         model_fields = detail._fields
 
-        # Skip internal and computed fields
+        # Skip internal, computed, and mail.thread fields
         skip_fields = {
             "id",
             "create_uid",
@@ -175,6 +176,20 @@ class ChangeRequestService:
             "registrant_id",
             "approval_state",
             "is_applied",
+            # mail.thread fields
+            "message_ids",
+            "message_follower_ids",
+            "message_partner_ids",
+            "message_is_follower",
+            "has_message",
+            "message_needaction",
+            "message_needaction_counter",
+            "message_has_error",
+            "message_has_error_counter",
+            "message_attachment_count",
+            "message_has_sms_error",
+            "message_main_attachment_id",
+            "website_message_ids",
         }
 
         for field_name, field in model_fields.items():
@@ -451,5 +466,5 @@ class ChangeRequestService:
     def reset_to_draft(self, cr):
         """Reset rejected/revision CR to draft."""
         if cr.approval_state not in ("rejected", "revision"):
-            raise UserError("Only rejected or revision-requested change requests " "can be reset to draft")
+            raise UserError("Only rejected or revision-requested change requests can be reset to draft")
         cr.action_reset_to_draft()

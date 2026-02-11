@@ -14,9 +14,9 @@ OpenSPP API V2 - Change Request
    !! source digest: sha256:ac0243c931848a9215f89c328fce09d312e30b92ac9c3c1f141bfe26b4fef453
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/maturity-Alpha-red.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Beta-yellow.png
     :target: https://odoo-community.org/page/development-status
-    :alt: Alpha
+    :alt: Beta
 .. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
@@ -128,11 +128,6 @@ Dependencies
 
 ``spp_api_v2``, ``spp_change_request_v2``
 
-.. IMPORTANT::
-   This is an alpha version, the data model and design can change at any time without warning.
-   Only for development or testing purpose, do not use in production.
-   `More details on development status <https://odoo-community.org/page/development-status>`_
-
 **Table of contents**
 
 .. contents::
@@ -168,10 +163,13 @@ Maintainers
 .. |maintainer-reichie020212| image:: https://github.com/reichie020212.png?size=40px
     :target: https://github.com/reichie020212
     :alt: reichie020212
+.. |maintainer-emjay0921| image:: https://github.com/emjay0921.png?size=40px
+    :target: https://github.com/emjay0921
+    :alt: emjay0921
 
 Current maintainers:
 
-|maintainer-jeremi| |maintainer-gonzalesedwin1123| |maintainer-reichie020212| 
+|maintainer-jeremi| |maintainer-gonzalesedwin1123| |maintainer-reichie020212| |maintainer-emjay0921| 
 
 This module is part of the `OpenSPP/OpenSPP2 <https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_api_v2_change_request>`_ project on GitHub.
 
