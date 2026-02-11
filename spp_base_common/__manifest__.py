@@ -34,6 +34,8 @@
     "assets": {
         "web.assets_backend": [
             "spp_base_common/static/src/scss/navbar.scss",
+            "spp_base_common/static/src/js/custom_list_create.js",
+            "spp_base_common/static/src/xml/custom_list_create_template.xml",
         ],
         "web._assets_primary_variables": [
             "spp_base_common/static/src/scss/colors.scss",
