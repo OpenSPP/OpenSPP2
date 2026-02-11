@@ -1,40 +1,86 @@
 /** @odoo-module **/
 
+import {FormController} from "@web/views/form/form_controller";
 import {ListController} from "@web/views/list/list_controller";
 import {onWillStart} from "@odoo/owl";
 import {patch} from "@web/core/utils/patch";
+import {registry} from "@web/core/registry";
 import {user} from "@web/core/user";
 import {useService} from "@web/core/utils/hooks";
+
+/**
+ * Client action to close modal and then open program form.
+ * This ensures proper sequencing with async/await.
+ */
+async function openProgramCloseModal(env, action) {
+    const actionService = env.services.action;
+    const programId = action.params?.program_id;
+
+    await actionService.doAction(
+        {type: "ir.actions.act_window_close"},
+        {clearBreadcrumbs: true}
+    );
+
+    if (programId) {
+        await actionService.doAction({
+            type: "ir.actions.act_window",
+            name: "Program",
+            res_model: "spp.program",
+            res_id: programId,
+            views: [[false, "form"]],
+            target: "current",
+        });
+    }
+}
+
+registry.category("actions").add("open_program_close_modal", openProgramCloseModal);
 
 patch(ListController.prototype, {
     setup() {
         super.setup();
         this.actionService = useService("action");
         onWillStart(async () => {
-            // Check if user has permission to create programs
-            // Groups: spp_security.group_spp_admin OR spp_programs.group_programs_manager
+            if (this.model.root.resModel !== "spp.program") {
+                return;
+            }
             const is_admin = await user.hasGroup("spp_security.group_spp_admin");
-            const is_program_manager = await user.hasGroup("spp_programs.group_programs_manager");
-            this.canCreateProgram = is_admin || is_program_manager;
+            const is_program_manager = await user.hasGroup(
+                "spp_programs.group_programs_manager"
+            );
+            if (is_admin || is_program_manager) {
+                this.customListCreateButton = {
+                    label: "Create Program",
+                    title: "Create a New Program",
+                    className: "o_list_button_add_program",
+                };
+            }
         });
     },
 
     /**
-     * Opens the Create Program wizard when the "Create Program" button is clicked.
-     * This is called from the custom button in the Programs list view.
+     * Opens the Create Program wizard when the custom button is clicked.
      */
-    async load_wizard() {
-        // Only proceed if we're on the spp.program model
-        if (this.model.root.resModel !== "spp.program") {
+    async onCustomListCreate() {
+        if (this.model.root.resModel === "spp.program") {
+            await this.actionService.doAction(
+                "spp_programs.action_create_program_wizard",
+                {
+                    onClose: async () => {
+                        await this.model.root.load();
+                    },
+                }
+            );
             return;
         }
+        return super.onCustomListCreate(...arguments);
+    },
+});
 
-        // Open the create program wizard action
-        await this.actionService.doAction("spp_programs.action_create_program_wizard", {
-            onClose: async () => {
-                // Refresh the list after the wizard closes
-                await this.model.root.load();
-            },
-        });
+patch(FormController.prototype, {
+    setup() {
+        super.setup();
+        if (this.props.resModel === "spp.program") {
+            this.hideFormCreateButton = true;
+        }
     },
 });
