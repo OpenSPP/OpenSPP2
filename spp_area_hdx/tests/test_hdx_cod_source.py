@@ -18,8 +18,8 @@ class TestHdxCodSource(common.TransactionCase):
         self.source = self.env.ref("spp_area_hdx.cod_source_lka")
 
     def test_compute_country_iso3(self):
-        """Test ISO3 code computation."""
-        self.assertEqual(self.source.country_iso3, "LK")
+        """Test ISO3 code computation from hdx_dataset_id."""
+        self.assertEqual(self.source.country_iso3, "LKA")
 
     def test_unique_country_constraint(self):
         """Test that only one source per country is allowed."""
@@ -31,13 +31,13 @@ class TestHdxCodSource(common.TransactionCase):
                 }
             )
 
-    @patch("odoo.addons.spp_area_hdx.services.hdx_client.HdxClient.search_cod_datasets")
+    @patch("odoo.addons.spp_area_hdx.services.hdx_client.HdxClient.get_dataset")
     @patch("odoo.addons.spp_area_hdx.services.hdx_client.HdxClient.get_geojson_resources")
     @patch("odoo.addons.spp_area_hdx.services.hdx_client.HdxClient.detect_admin_level")
-    def test_action_sync_from_hdx(self, mock_detect_level, mock_get_resources, mock_search):
+    def test_action_sync_from_hdx(self, mock_detect_level, mock_get_resources, mock_get_dataset):
         """Test syncing resources from HDX."""
-        # Mock HDX API responses
-        mock_search.return_value = {
+        # Mock HDX API responses — source has hdx_dataset_id set, so get_dataset is called
+        mock_get_dataset.return_value = {
             "name": "cod-ab-lka",
             "title": "Sri Lanka Administrative Boundaries",
         }
