@@ -1,0 +1,7 @@
+/* Force the search results widget to take full width in the form */
+.o_field_cr_search_results,
+.o_field_widget:has(.o_field_cr_search_results) {
+    width: 100% !important;
+    max-width: 100% !important;
+    display: block !important;
+}

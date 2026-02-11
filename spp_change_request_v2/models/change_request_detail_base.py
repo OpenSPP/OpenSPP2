@@ -1,4 +1,5 @@
-from odoo import fields, models
+from odoo import _, api, fields, models
+from odoo.exceptions import UserError
 
 
 class SPPCRDetailBase(models.AbstractModel):
@@ -10,6 +11,14 @@ class SPPCRDetailBase(models.AbstractModel):
 
     _name = "spp.cr.detail.base"
     _description = "Change Request Detail Base"
+
+    @api.depends("change_request_id.name")
+    def _compute_display_name(self):
+        for rec in self:
+            if rec.change_request_id and rec.change_request_id.name:
+                rec.display_name = rec.change_request_id.name
+            else:
+                super(SPPCRDetailBase, rec)._compute_display_name()
 
     change_request_id = fields.Many2one(
         "spp.change.request",
@@ -32,6 +41,23 @@ class SPPCRDetailBase(models.AbstractModel):
     is_applied = fields.Boolean(
         related="change_request_id.is_applied",
     )
+
+    def action_proceed_to_cr(self):
+        """Navigate to the parent Change Request form if there are proposed changes."""
+        self.ensure_one()
+        cr = self.change_request_id
+        if not cr.has_proposed_changes:
+            raise UserError(
+                _("No proposed changes detected. Please make changes before proceeding.")
+            )
+        return {
+            "type": "ir.actions.act_window",
+            "name": cr.name,
+            "res_model": "spp.change.request",
+            "res_id": cr.id,
+            "view_mode": "form",
+            "target": "current",
+        }
 
     def action_submit_for_approval(self):
         """Submit the parent CR for approval."""

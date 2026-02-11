@@ -20,13 +20,6 @@
               action="action_change_request"
               sequence="5"/>
 
-    <!-- New Change Request (Wizard) -->
-    <menuitem id="menu_new_change_request"
-              name="New Request"
-              parent="menu_change_request_root"
-              action="action_cr_create_wizard"
-              sequence="8"/>
-
     <!-- Pending Approval (Validators only) -->
     <menuitem id="menu_pending_change_requests"
               name="Pending Approval"

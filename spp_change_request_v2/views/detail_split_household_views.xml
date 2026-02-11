@@ -8,15 +8,15 @@
             <form string="Split Household Details">
                 <header>
                     <button
-                        name="action_submit_for_approval"
-                        string="Submit for Approval"
+                        name="action_proceed_to_cr"
+                        string="Proceed"
                         type="object"
                         class="btn-primary"
                         invisible="approval_state != 'draft'"
                     />
                     <button
-                        name="action_submit_for_approval"
-                        string="Resubmit for Review"
+                        name="action_proceed_to_cr"
+                        string="Proceed"
                         type="object"
                         class="btn-primary"
                         invisible="approval_state != 'revision'"

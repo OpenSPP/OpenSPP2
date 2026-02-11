@@ -60,8 +60,13 @@
     "assets": {
         "web.assets_backend": [
             "spp_change_request_v2/static/src/components/**/*",
+            "spp_change_request_v2/static/src/css/cr_search_results.css",
             "spp_change_request_v2/static/src/js/create_change_request.js",
+            "spp_change_request_v2/static/src/js/search_delay_field.js",
+            "spp_change_request_v2/static/src/js/cr_search_results_field.js",
             "spp_change_request_v2/static/src/xml/create_change_request_template.xml",
+            "spp_change_request_v2/static/src/xml/search_delay_field.xml",
+            "spp_change_request_v2/static/src/xml/cr_search_results_field.xml",
         ],
     },
     "installable": True,

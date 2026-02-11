@@ -1,13 +1,31 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """Extend res.partner for better registrant display in CR wizard."""
 
-from odoo import api, models
+from odoo import api, fields, models
 
 
 class ResPartner(models.Model):
     """Extend res.partner to show more info when searching for registrants."""
 
     _inherit = "res.partner"
+
+    reg_id_display = fields.Char(
+        string="Registrant ID",
+        compute="_compute_reg_id_display",
+    )
+
+    @api.depends("reg_ids.value", "reg_ids.id_type_id")
+    def _compute_reg_id_display(self):
+        for rec in self:
+            if rec.reg_ids:
+                parts = []
+                for rid in rec.reg_ids:
+                    if rid.value:
+                        label = rid.id_type_as_str or "ID"
+                        parts.append(f"{label} ({rid.value})")
+                rec.reg_id_display = ", ".join(parts) if parts else ""
+            else:
+                rec.reg_id_display = ""
 
     def _compute_display_name(self):
         """Add registrant ID to display name when in CR wizard context."""
