@@ -47,8 +47,14 @@
                         </group>
                         <group>
                             <field name="birthdate" />
-                            <field name="gender_id" />
-                            <field name="relationship_id" />
+                            <field
+                                name="gender_id"
+                                options="{'no_create': True, 'no_open': True}"
+                            />
+                            <field
+                                name="relationship_id"
+                                options="{'no_create': True, 'no_open': True}"
+                            />
                         </group>
                     </group>
 
