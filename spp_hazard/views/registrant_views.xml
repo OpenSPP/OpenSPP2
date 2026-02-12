@@ -24,6 +24,9 @@
                     <div class="alert alert-warning" role="alert" invisible="not has_active_impact">
                         <span class="fw-bold">Active incident impacts recorded</span>
                     </div>
+                    <p class="text-muted" invisible="hazard_impact_count != 0">
+                        No emergency response records yet. Impact records will appear here when this registrant is affected by a hazard incident.
+                    </p>
                     <group name="hazard_impacts_section" string="Incident Impacts"
                         invisible="hazard_impact_count == 0">
                         <field name="hazard_impact_ids" nolabel="1" readonly="1" colspan="2">
