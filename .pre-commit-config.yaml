@@ -56,6 +56,7 @@ repos:
           - --branch=19.0
           - --org-name=OpenSPP
           - --repo-name=OpenSPP2
+          - --template-filename=tools/readme_template.rst.jinja
           - --if-source-changed
           - --keep-source-digest
           - --convert-fragments-to-markdown
