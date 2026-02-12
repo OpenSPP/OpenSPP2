@@ -222,7 +222,7 @@
                                     <field name="birthdate" readonly="disabled" help="Date of Birth - mm/dd/yyyy" />
                                 </group>
                                 <group>
-                                    <field name="gender_id" readonly="disabled" />
+                                    <field name="gender_id" readonly="disabled" options="{'no_create': True, 'no_open': True}" />
                                 </group>
                                 <group>
                                     <field name="age" />
