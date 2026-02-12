@@ -47,7 +47,11 @@
 
                     <group>
                         <group string="Source Household">
-                            <field name="source_group_id" required="1" />
+                            <field
+                                name="source_group_id"
+                                required="1"
+                                options="{'no_create': True, 'no_open': True}"
+                            />
                             <field name="source_group_name" invisible="1" />
                             <field name="available_member_ids" invisible="1" />
                             <field name="members_to_split_ids" invisible="1" />
@@ -89,7 +93,7 @@
                             <field name="new_group_name" required="1" />
                             <field
                                 name="new_group_type_id"
-                                options="{'no_create': True}"
+                                options="{'no_create': True, 'no_open': True}"
                             />
                         </group>
                         <group>
@@ -104,9 +108,9 @@
                             <field name="city" />
                         </group>
                         <group string="Location">
-                            <field name="state_id" options="{'no_create': True}" />
+                            <field name="state_id" options="{'no_create': True, 'no_open': True}" />
                             <field name="postal_code" />
-                            <field name="country_id" options="{'no_create': True}" />
+                            <field name="country_id" options="{'no_create': True, 'no_open': True}" />
                         </group>
                         <group string="Contact">
                             <field name="phone" />
