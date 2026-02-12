@@ -1,7 +1,3 @@
-.. image:: https://odoo-community.org/readme-banner-image
-   :target: https://odoo-community.org/get-involved?utm_source=readme
-   :alt: Odoo Community Association
-
 =====================================
 OpenSPP Hazard & Emergency Management
 =====================================
@@ -14,9 +10,9 @@ OpenSPP Hazard & Emergency Management
    !! source digest: sha256:55e519b15a45175a4e6fc1033b24a2abcde053ea3f81a873af733d967618d343
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/maturity-Alpha-red.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Beta-yellow.png
     :target: https://odoo-community.org/page/development-status
-    :alt: Alpha
+    :alt: Beta
 .. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
@@ -171,10 +167,13 @@ Maintainers
 .. |maintainer-reichie020212| image:: https://github.com/reichie020212.png?size=40px
     :target: https://github.com/reichie020212
     :alt: reichie020212
+.. |maintainer-emjay0921| image:: https://github.com/emjay0921.png?size=40px
+    :target: https://github.com/emjay0921
+    :alt: emjay0921
 
 Current maintainers:
 
-|maintainer-jeremi| |maintainer-gonzalesedwin1123| |maintainer-reichie020212| 
+|maintainer-jeremi| |maintainer-gonzalesedwin1123| |maintainer-reichie020212| |maintainer-emjay0921|
 
 This module is part of the `OpenSPP/OpenSPP2 <https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_hazard>`_ project on GitHub.
 

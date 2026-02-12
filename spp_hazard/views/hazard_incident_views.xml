@@ -63,28 +63,35 @@
                     <div class="oe_title">
                         <label for="name"/>
                         <h1>
-                            <field name="name" placeholder="e.g., Typhoon Yolanda"/>
+                            <field name="name" placeholder="e.g., Typhoon Yolanda"
+                                readonly="status == 'closed'"/>
                         </h1>
                     </div>
                     <group>
                         <group name="main_info">
-                            <field name="code" placeholder="e.g., 2013-YOLANDA"/>
-                            <field name="category_id" options="{'no_create': True}"/>
-                            <field name="severity"/>
+                            <field name="code" placeholder="e.g., 2013-YOLANDA"
+                                readonly="status == 'closed'"/>
+                            <field name="category_id" options="{'no_create': True}"
+                                readonly="status == 'closed'"/>
+                            <field name="severity"
+                                readonly="status == 'closed'"/>
                         </group>
                         <group name="dates">
-                            <field name="start_date"/>
-                            <field name="end_date"/>
+                            <field name="start_date"
+                                readonly="status == 'closed'"/>
+                            <field name="end_date"
+                                readonly="status == 'closed'"/>
                             <field name="is_ongoing" invisible="1"/>
                         </group>
                     </group>
                     <notebook>
                         <page string="Description" name="description">
-                            <field name="description" placeholder="Describe the incident in detail..."/>
+                            <field name="description" placeholder="Describe the incident in detail..."
+                                readonly="status == 'closed'"/>
                         </page>
                         <page string="Affected Areas" name="areas">
-                            <p class="text-muted">Add areas affected by this incident. Specify severity and population estimates for each area.</p>
-                            <field name="incident_area_ids">
+                            <p class="text-muted" invisible="status == 'closed'">Add areas affected by this incident. Specify severity and population estimates for each area.</p>
+                            <field name="incident_area_ids" readonly="status == 'closed'">
                                 <list editable="bottom">
                                     <field name="area_id" options="{'no_create': True}"/>
                                     <field name="severity_override"/>
@@ -94,7 +101,7 @@
                             </field>
                         </page>
                         <page string="Impacts" name="impacts">
-                            <field name="impact_ids">
+                            <field name="impact_ids" readonly="status == 'closed'">
                                 <list>
                                     <field name="registrant_id"/>
                                     <field name="impact_type_id"/>

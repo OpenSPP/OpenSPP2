@@ -51,11 +51,15 @@
                     <div class="oe_title">
                         <label for="registrant_id"/>
                         <h1>
-                            <field name="registrant_id" placeholder="Select Registrant..." options="{'no_create': True}"/>
+                            <field name="registrant_id" placeholder="Select Registrant..."
+                                options="{'no_create': True}"
+                                readonly="verification_status == 'closed'"/>
                         </h1>
                         <label for="incident_id"/>
                         <h2>
-                            <field name="incident_id" placeholder="Select Incident..." options="{'no_create': True}"/>
+                            <field name="incident_id" placeholder="Select Incident..."
+                                options="{'no_create': True}"
+                                readonly="verification_status == 'closed'"/>
                         </h2>
                     </div>
                     <group>
@@ -63,9 +67,12 @@
                             <field name="incident_status" invisible="1"/>
                         </group>
                         <group name="impact_details">
-                            <field name="impact_type_id" options="{'no_create': True}"/>
-                            <field name="damage_level"/>
-                            <field name="impact_date"/>
+                            <field name="impact_type_id" options="{'no_create': True}"
+                                readonly="verification_status == 'closed'"/>
+                            <field name="damage_level"
+                                readonly="verification_status == 'closed'"/>
+                            <field name="impact_date"
+                                readonly="verification_status == 'closed'"/>
                         </group>
                     </group>
                     <group name="verification_info" string="Verification Information"
@@ -77,7 +84,8 @@
                     </group>
                     <notebook>
                         <page string="Notes" name="notes">
-                            <field name="notes" placeholder="Additional details about the impact..."/>
+                            <field name="notes" placeholder="Additional details about the impact..."
+                                readonly="verification_status == 'closed'"/>
                         </page>
                     </notebook>
                 </sheet>
