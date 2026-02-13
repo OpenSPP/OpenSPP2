@@ -17,6 +17,7 @@
         "data/vocabulary_data.xml",
         "data/dci_data_source.xml",
         "data/system_parameters.xml",
+        "data/demo_household.xml",
         "views/cr_detail_add_member_view.xml",
         "views/change_request_view.xml",
     ],

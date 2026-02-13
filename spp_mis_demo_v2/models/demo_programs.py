@@ -10,13 +10,14 @@ Each program is designed to:
 2. Demonstrate different CEL expression patterns
 3. Link to existing Logic Packs from spp_studio
 
-Program Catalog (6 programs):
+Program Catalog (7 programs):
 1. Universal Child Grant - Member aggregation (child_benefit pack)
-2. Elderly Social Pension - Age + constants (social_pension pack)
-3. Emergency Relief Fund - Cached metrics (vulnerability_assessment pack)
-4. Cash Transfer Program - Poverty threshold (cash_transfer_basic pack)
-5. Disability Support Grant - Member existence (disability_assistance pack)
-6. Food Assistance - Basic active check (no pack, simple CEL)
+2. Conditional Child Grant - First 1,000 days with compliance (child_benefit pack)
+3. Elderly Social Pension - Age + constants (social_pension pack)
+4. Emergency Relief Fund - Cached metrics (vulnerability_assessment pack)
+5. Cash Transfer Program - Poverty threshold (cash_transfer_basic pack)
+6. Disability Support Grant - Member existence (disability_assistance pack)
+7. Food Assistance - Basic active check (no pack, simple CEL)
 
 CEL Expression Patterns Demonstrated:
 - Field comparison: r.active == true
@@ -24,6 +25,7 @@ CEL Expression Patterns Demonstrated:
 - Aggregate variables: hh_total_income < poverty_line, child_count > 0
 - Compound conditions: dependency_ratio >= 1.5 or (is_female_headed and elderly_count > 0)
 - Arithmetic with variables: base_child_grant * child_count, disabled_count * disability_grant_per_member
+- Compliance criteria: members.exists(m, age_years(m.birthdate) < 5)
 """
 
 # Demo programs aligned with spec and Logic Packs
@@ -52,6 +54,37 @@ DEMO_PROGRAMS = [
             "Child-focused eligibility",
             "Dynamic entitlement (per-child calculation)",
             "CEL: Uses child_count variable",
+            "Logic Pack: child_benefit",
+        ],
+    },
+    {
+        "id": "conditional_child_grant",
+        "name": "Conditional Child Grant",
+        "description": "Monthly grant for households with pregnant women and children aged 0-2. "
+        "Targets the critical first 1,000 days of life to support nutrition and "
+        "health-seeking behavior. Compliance requires prenatal visits, health "
+        "checkups, and immunizations.",
+        "target_type": "group",
+        "entitlement_amount": 10.0,
+        "entitlement_formula": "first_1000_days_grant",
+        "cycle_duration": 30,  # Monthly
+        # CEL: Households with children under 2 (first 1,000 days)
+        # Pattern: Member age check via members.exists()
+        "cel_expression": "r.is_group == true and members.exists(m, age_years(m.birthdate) < 2)",
+        # Compliance: prenatal visits, health checkups, immunizations
+        "compliance_cel_expression": "members.exists(m, age_years(m.birthdate) <= 2)",
+        # Link to Logic Pack
+        "logic_pack": "child_benefit",
+        "use_logic_studio": True,
+        "logic_name": "Conditional Child Grant Eligibility",
+        "expression_type": "filter",
+        "stories": [],
+        "demo_points": [
+            "Conditional cash transfer",
+            "First 1,000 days targeting (0-2 years)",
+            "Health visit and immunization compliance",
+            "Compliance manager with CEL expression",
+            "CEL: members.exists() for eligibility and compliance",
             "Logic Pack: child_benefit",
         ],
     },
