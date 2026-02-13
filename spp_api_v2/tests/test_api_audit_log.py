@@ -1,6 +1,9 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """Tests for spp.api.audit.log model"""
 
+from odoo import Command
+from odoo.exceptions import AccessError
+
 from .common import ApiV2TestCase
 
 
@@ -508,3 +511,117 @@ class TestApiAuditLog(ApiV2TestCase):
         self.assertFalse(audit_log.model_name)
         self.assertFalse(audit_log.res_id)
         self.assertFalse(audit_log.error_detail)
+
+
+class TestAuditLogAuditorSecurity(ApiV2TestCase):
+    """Test field-level security for auditor group on spp.api.audit.log"""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.auditor_group = cls.env.ref("spp_api_v2.group_api_v2_auditor")
+        cls.viewer_group = cls.env.ref("spp_api_v2.group_api_v2_viewer")
+
+        # Create user with auditor group
+        cls.auditor_user = cls.env["res.users"].create(
+            {
+                "name": "Test Auditor",
+                "login": "test_auditor_audit",
+                "group_ids": [
+                    Command.link(cls.env.ref("base.group_user").id),
+                    Command.link(cls.auditor_group.id),
+                ],
+            }
+        )
+
+        # Create user with viewer group only (no auditor)
+        cls.viewer_user = cls.env["res.users"].create(
+            {
+                "name": "Test Viewer",
+                "login": "test_viewer_audit",
+                "group_ids": [
+                    Command.link(cls.env.ref("base.group_user").id),
+                    Command.link(cls.viewer_group.id),
+                ],
+            }
+        )
+
+    def setUp(self):
+        super().setUp()
+        self.individual = self.create_test_individual(
+            name="Jane Doe",
+            identifier_value="IND-SEC-001",
+        )
+        self.api_client = self.create_api_client(
+            name="Security Test Client",
+            scopes=[{"resource": "individual", "action": "read"}],
+        )
+
+        # Create a log record with sensitive data
+        self.log_record = (
+            self.env["spp.api.audit.log"]
+            .sudo()
+            .log_operation(
+                api_client=self.api_client,
+                operation="search",
+                resource_type="individual",
+                resource_identifier="search",
+                status="error",
+                search_parameters={"birthDate[gte]": "1990-01-01", "national_id": "999888777"},
+                fields_returned=["name", "birthDate", "gender"],
+                extensions_returned=["farmer", "disability"],
+                ip_address="192.168.1.100",
+                user_agent="MaliciousBot/1.0",
+                error_detail="Internal DB error: host=10.0.0.5 port=5432",
+            )
+        )
+
+    def test_auditor_can_read_sensitive_fields(self):
+        """User with auditor group can read all sensitive fields"""
+        log = self.log_record.with_user(self.auditor_user)
+        self.assertTrue(log.search_parameters)
+        self.assertEqual(log.search_parameters["national_id"], "999888777")
+        self.assertEqual(log.fields_returned, ["name", "birthDate", "gender"])
+        self.assertEqual(log.extensions_returned, ["farmer", "disability"])
+        self.assertEqual(log.ip_address, "192.168.1.100")
+        self.assertEqual(log.user_agent, "MaliciousBot/1.0")
+        self.assertIn("10.0.0.5", log.error_detail)
+
+    def test_non_auditor_cannot_read_sensitive_fields(self):
+        """User without auditor group gets AccessError for sensitive fields"""
+        log = self.log_record.with_user(self.viewer_user)
+        with self.assertRaises(AccessError):
+            _ = log.search_parameters
+        with self.assertRaises(AccessError):
+            _ = log.fields_returned
+        with self.assertRaises(AccessError):
+            _ = log.extensions_returned
+        with self.assertRaises(AccessError):
+            _ = log.ip_address
+        with self.assertRaises(AccessError):
+            _ = log.user_agent
+        with self.assertRaises(AccessError):
+            _ = log.error_detail
+
+    def test_non_auditor_can_read_metadata_fields(self):
+        """User without auditor group can still read non-sensitive metadata"""
+        log = self.log_record.with_user(self.viewer_user)
+        self.assertEqual(log.operation, "search")
+        self.assertEqual(log.resource_type, "individual")
+        self.assertEqual(log.status, "error")
+        self.assertTrue(log.timestamp)
+        self.assertTrue(log.api_client_id)
+
+    def test_sensitive_fields_hidden_in_fields_get(self):
+        """fields_get for non-auditor user excludes sensitive fields"""
+        sensitive_fields = [
+            "search_parameters",
+            "fields_returned",
+            "extensions_returned",
+            "ip_address",
+            "user_agent",
+            "error_detail",
+        ]
+        fields_info = self.env["spp.api.audit.log"].with_user(self.viewer_user).fields_get(sensitive_fields)
+        for field_name in sensitive_fields:
+            self.assertNotIn(field_name, fields_info)
