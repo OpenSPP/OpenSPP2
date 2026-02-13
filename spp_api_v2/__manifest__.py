@@ -37,6 +37,7 @@
         "views/api_extension_views.xml",
         "views/api_path_views.xml",
         "views/consent_views.xml",
+        "views/api_outgoing_log_views.xml",
         "views/menu.xml",
     ],
     "assets": {},
