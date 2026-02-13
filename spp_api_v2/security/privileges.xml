@@ -8,4 +8,11 @@
         <field name="category_id" ref="spp_security.category_spp_api" />
         <field name="description">Access to API V2 management system</field>
     </record>
+
+    <!-- Standalone privilege for auditor (renders as checkbox since only one group) -->
+    <record id="privilege_api_v2_auditor" model="res.groups.privilege">
+        <field name="name">API V2 Auditor</field>
+        <field name="category_id" ref="spp_security.category_spp_api" />
+        <field name="description">View sensitive payload data in API logs</field>
+    </record>
 </odoo>
