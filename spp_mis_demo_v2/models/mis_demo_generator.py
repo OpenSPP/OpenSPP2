@@ -1095,6 +1095,10 @@ class SPPMISDemoGenerator(models.TransientModel):
                 if program_def.get("cycle_duration"):
                     self._configure_cycle_manager(program, program_def)
 
+                # Configure compliance manager if compliance CEL expression specified
+                if program_def.get("compliance_cel_expression"):
+                    self._configure_compliance_manager(program, program_def)
+
             except Exception as e:
                 _logger.error(
                     "Error creating program (program_id=%s): %s",
@@ -1195,6 +1199,50 @@ class SPPMISDemoGenerator(models.TransientModel):
         except Exception as e:
             _logger.warning(
                 "Could not configure cycle manager for program (program_id=%s): %s",
+                program.id,
+                e,
+            )
+
+    def _configure_compliance_manager(self, program, program_def):
+        """Configure the compliance manager with a CEL expression.
+
+        Sets the compliance CEL expression for ongoing beneficiary verification.
+        """
+        try:
+            compliance_manager = program.get_manager(program.MANAGER_COMPLIANCE)
+            if not compliance_manager:
+                _logger.warning(
+                    "No compliance manager found for program (program_id=%s)",
+                    program.id,
+                )
+                return
+
+            cel_expression = program_def.get("compliance_cel_expression")
+            if not cel_expression:
+                return
+
+            if "compliance_cel_expression" not in compliance_manager._fields:
+                _logger.info(
+                    "Compliance CEL not available for program (program_id=%s)",
+                    program.id,
+                )
+                return
+
+            compliance_manager.write(
+                {
+                    "compliance_cel_mode": "cel",
+                    "compliance_cel_expression": cel_expression,
+                }
+            )
+            _logger.info(
+                "Configured compliance CEL for program (program_id=%s): %s",
+                program.id,
+                cel_expression,
+            )
+
+        except Exception as e:
+            _logger.warning(
+                "Could not configure compliance manager for program (program_id=%s): %s",
                 program.id,
                 e,
             )

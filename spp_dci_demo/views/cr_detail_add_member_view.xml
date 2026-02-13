@@ -9,6 +9,19 @@
             ref="spp_change_request_v2.spp_cr_detail_add_member_form"
         />
         <field name="arch" type="xml">
+            <!-- Hide Contact Information section for demo -->
+            <xpath
+                expr="//field[@name='phone']/parent::group/parent::group"
+                position="attributes"
+            >
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- Hide Relationship to Head for demo -->
+            <xpath expr="//field[@name='relationship_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
             <!-- Add Birth Verification section before the Result group -->
             <xpath expr="//field[@name='created_individual_id']/.." position="before">
                 <group string="Birth Verification" name="birth_verification">

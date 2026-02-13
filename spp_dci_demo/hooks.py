@@ -18,8 +18,11 @@ def post_init_hook(env):
         _logger.info("spp.program model not available, skipping enrollment program setup")
         return
 
-    # Find the first program
-    program = env["spp.program"].search([], limit=1)
+    # Find the Conditional Child Grant program (the target for DCI demo enrollment)
+    program = env["spp.program"].search([("name", "=", "Conditional Child Grant")], limit=1)
+    if not program:
+        # Fall back to any program if not found
+        program = env["spp.program"].search([], limit=1)
     if not program:
         _logger.info("No programs found, enrollment_program_id not configured")
         return
