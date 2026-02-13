@@ -3,3 +3,4 @@
 
 from . import test_data_source
 from . import test_client_service
+from . import test_outgoing_log_integration

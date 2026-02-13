@@ -1,6 +1,7 @@
 """DCI Client Service for making signed API requests."""
 
 import logging
+import time
 import uuid
 from datetime import UTC, datetime
 from typing import Any
@@ -904,6 +905,13 @@ class DCIClient:
         # Get headers from data source (includes auth)
         headers = self.data_source.get_headers()
 
+        # Track timing and result for outgoing log
+        start_time = time.monotonic()
+        log_status = "success"
+        log_status_code = None
+        log_response_data = None
+        log_error_detail = None
+
         try:
             _logger.info(
                 "Making DCI request to %s (action: %s)",
@@ -930,6 +938,13 @@ class DCIClient:
                 # Handle 401 Unauthorized - try refreshing token once
                 if response.status_code == 401 and _retry_auth and self.data_source.auth_type == "oauth2":
                     _logger.warning("Got 401 Unauthorized, clearing OAuth2 token cache and retrying with fresh token")
+                    log_status = "http_error"
+                    log_status_code = 401
+                    log_error_detail = "401 Unauthorized - retrying with fresh token"
+                    try:
+                        log_response_data = response.json()
+                    except Exception:
+                        log_response_data = None
                     self.data_source.clear_oauth2_token_cache()
                     return self._make_request(endpoint, envelope, _retry_auth=False)
 
@@ -938,6 +953,8 @@ class DCIClient:
 
                 # Parse response
                 response_data = response.json()
+                log_status_code = response.status_code
+                log_response_data = response_data
 
                 _logger.info(
                     "DCI request successful (status: %s, message_id: %s)",
@@ -949,11 +966,15 @@ class DCIClient:
                 return response_data
 
         except httpx.HTTPStatusError as e:
+            log_status = "http_error"
+            log_status_code = e.response.status_code
+
             # Log technical details for troubleshooting
             technical_detail = f"DCI request failed with status {e.response.status_code}"
             response_text = e.response.text
             try:
                 error_data = e.response.json()
+                log_response_data = error_data
                 if "header" in error_data and "status_reason_message" in error_data["header"]:
                     technical_detail += f": {error_data['header']['status_reason_message']}"
                 else:
@@ -961,6 +982,7 @@ class DCIClient:
             except Exception:
                 technical_detail += f": {response_text}"
 
+            log_error_detail = technical_detail
             _logger.error(technical_detail)
             _logger.error("Full response body: %s", response_text)
             _logger.error("Request envelope was: %s", envelope)
@@ -978,25 +1000,125 @@ class DCIClient:
             error_str = str(e).lower()
             if "timeout" in error_str or "timed out" in error_str:
                 connection_type = "timeout"
+                log_status = "timeout"
             elif "ssl" in error_str or "certificate" in error_str:
                 connection_type = "ssl"
+                log_status = "connection_error"
             elif "name or service not known" in error_str or "nodename nor servname" in error_str:
                 connection_type = "dns"
+                log_status = "connection_error"
             else:
                 connection_type = "connection"
+                log_status = "connection_error"
+
+            log_error_detail = technical_detail
 
             # Show user-friendly message
             user_msg = format_connection_error(connection_type, technical_detail)
             raise UserError(user_msg) from e
 
         except Exception as e:
+            log_status = "error"
+
             # Log technical details for troubleshooting
             technical_detail = f"Unexpected error during DCI request: {str(e)}"
+            log_error_detail = technical_detail
             _logger.error(technical_detail, exc_info=True)
 
             # Show generic user-friendly message
             user_msg = _("An unexpected error occurred. Please contact your administrator.")
             raise UserError(user_msg) from e
+
+        finally:
+            duration_ms = int((time.monotonic() - start_time) * 1000)
+            self._log_outgoing_call(
+                url=url,
+                endpoint=endpoint,
+                envelope=envelope,
+                response_data=log_response_data,
+                status_code=log_status_code,
+                duration_ms=duration_ms,
+                status=log_status,
+                error_detail=log_error_detail,
+            )
+
+    # =========================================================================
+    # OUTGOING LOG
+    # =========================================================================
+
+    def _log_outgoing_call(
+        self,
+        url: str,
+        endpoint: str,
+        envelope: dict,
+        response_data: dict | None,
+        status_code: int | None,
+        duration_ms: int,
+        status: str,
+        error_detail: str | None,
+    ):
+        """Log an outgoing API call to spp.api.outgoing.log (soft dependency).
+
+        Uses runtime check to avoid hard manifest dependency on spp_api_v2.
+        Uses a separate database cursor so log entries persist even when the
+        caller's transaction is rolled back (e.g., on UserError).
+        Logging failures are swallowed so they never block the actual request.
+        """
+        try:
+            if "spp.api.outgoing.log" not in self.env:
+                return
+
+            from odoo.addons.spp_api_v2.services.outgoing_api_log_service import OutgoingApiLogService
+
+            # Capture values from the current env before opening a new cursor,
+            # since self.data_source won't be accessible from the new cursor's env.
+            service_code = getattr(self.data_source, "code", None) or "dci"
+            origin_record_id = self.data_source.id if hasattr(self.data_source, "id") else None
+            user_id = self.env.uid
+            sanitized_envelope = self._copy_envelope_for_log(envelope)
+
+            # Use a separate cursor so log entries survive transaction rollback.
+            with self.env.registry.cursor() as new_cr:
+                new_env = self.env(cr=new_cr)
+                service = OutgoingApiLogService(
+                    new_env,
+                    service_name="DCI Client",
+                    service_code=service_code,
+                    user_id=user_id,
+                )
+
+                service.log_call(
+                    url=url,
+                    endpoint=endpoint,
+                    http_method="POST",
+                    request_summary=sanitized_envelope,
+                    response_summary=response_data,
+                    response_status_code=status_code,
+                    duration_ms=duration_ms,
+                    origin_model="spp.dci.data.source",
+                    origin_record_id=origin_record_id,
+                    status=status,
+                    error_detail=error_detail,
+                )
+        except Exception:
+            _logger.warning("Failed to log outgoing API call (non-blocking)", exc_info=True)
+
+    def _copy_envelope_for_log(self, envelope: dict) -> dict | None:
+        """Copy the request envelope for audit log storage.
+
+        Returns a shallow copy suitable for JSON storage. The cryptographic
+        signature is preserved for auditability (non-repudiation).
+
+        Args:
+            envelope: Request envelope dict
+
+        Returns:
+            Copy of the envelope, or None if input is falsy
+        """
+        if not envelope:
+            return None
+
+        return dict(envelope)
 
     # =========================================================================
     # HELPER METHODS
