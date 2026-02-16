@@ -144,44 +144,15 @@ class SPPCRCreateWizard(models.TransientModel):
                 # Line 1: Name + Type
                 name = escape(reg.name or "Unknown")
                 if reg.is_group:
-                    member_count = (
-                        len(reg.group_membership_ids)
-                        if hasattr(reg, "group_membership_ids")
-                        else 0
-                    )
+                    member_count = len(reg.group_membership_ids) if hasattr(reg, "group_membership_ids") else 0
                     type_badge = Markup(
-                        "<span class='text-muted ms-2'>"
-                        "<i class='fa fa-users me-1'></i>{} members</span>"
+                        "<span class='text-muted ms-2'><i class='fa fa-users me-1'></i>{} members</span>"
                     ).format(member_count)
                 else:
                     type_badge = Markup(
-                        "<span class='text-muted ms-2'>"
-                        "<i class='fa fa-user me-1'></i>Individual</span>"
+                        "<span class='text-muted ms-2'><i class='fa fa-user me-1'></i>Individual</span>"
                     )
-                lines.append(
-                    Markup("<div><strong>{}</strong>{}</div>").format(
-                        name, type_badge
-                    )
-                )
-
-                # Line 2: All IDs
-                if hasattr(reg, "reg_ids") and reg.reg_ids:
-                    id_parts = []
-                    for rid in reg.reg_ids:
-                        if rid.value:
-                            label = rid.id_type_as_str or "ID"
-                            id_parts.append(
-                                Markup(
-                                    "<span class='badge text-bg-light border me-1'>"
-                                    "{}: {}</span>"
-                                ).format(escape(label), escape(rid.value))
-                            )
-                    if id_parts:
-                        lines.append(
-                            Markup("<div class='mt-1'>{}</div>").format(
-                                Markup("").join(id_parts)
-                            )
-                        )
+                lines.append(Markup("<div><strong>{}</strong>{}</div>").format(name, type_badge))
 
                 rec.registrant_info_html = Markup("").join(lines)
             else:
@@ -220,9 +191,7 @@ class SPPCRCreateWizard(models.TransientModel):
     def _onchange_selected_partner(self):
         """Convert the bridge integer to a Many2one registrant_id."""
         if self._selected_partner_id:
-            self.registrant_id = self.env["res.partner"].browse(
-                self._selected_partner_id
-            )
+            self.registrant_id = self.env["res.partner"].browse(self._selected_partner_id)
 
     _SEARCH_PAGE_SIZE = 10
 
@@ -256,7 +225,7 @@ class SPPCRCreateWizard(models.TransientModel):
         return domain + [
             "|",
             ("name", "ilike", self.search_text),
-            ("reg_ids.value", "ilike", self.search_text),
+            ("reg_ids.value", "=", self.search_text),
         ]
 
     def _render_search_results(self):
@@ -265,9 +234,7 @@ class SPPCRCreateWizard(models.TransientModel):
         total = self.env["res.partner"].search_count(search_domain)
 
         if not total:
-            self.search_results_html = Markup(
-                "<p class='text-muted'>No registrants found.</p>"
-            )
+            self.search_results_html = Markup("<p class='text-muted'>No registrants found.</p>")
             return
 
         page = self._search_page or 0
@@ -276,58 +243,28 @@ class SPPCRCreateWizard(models.TransientModel):
         page = min(page, max_page)
 
         offset = page * page_size
-        partners = self.env["res.partner"].search(
-            search_domain, limit=page_size, offset=offset
-        )
+        partners = self.env["res.partner"].search(search_domain, limit=page_size, offset=offset)
 
         rows = []
         for p in partners:
-            # Build ALL IDs in "TypeName (value)" format, show max 2
-            id_parts = []
-            if p.reg_ids:
-                for rid in p.reg_ids:
-                    if rid.value:
-                        label = rid.id_type_as_str or "ID"
-                        id_parts.append(f"{label} ({rid.value})")
-            if not id_parts:
-                id_html = Markup("")
-                id_title = ""
-            elif len(id_parts) <= 2:
-                id_html = escape(", ".join(id_parts))
-                id_title = ""
-            else:
-                visible = escape(", ".join(id_parts[:2]))
-                extra = len(id_parts) - 2
-                id_html = Markup(
-                    '{} <span class="badge text-bg-secondary ms-1">'
-                    "+{} <i class='fa fa-info-circle'></i></span>"
-                ).format(visible, extra)
-                id_title = ", ".join(id_parts)
-            ptype = (
-                '<i class="fa fa-users"></i> Group'
-                if p.is_group
-                else '<i class="fa fa-user"></i> Individual'
-            )
+            ptype = '<i class="fa fa-users"></i> Group' if p.is_group else '<i class="fa fa-user"></i> Individual'
             rows.append(
                 Markup(
                     '<tr class="o_cr_search_result" style="cursor:pointer"'
                     ' data-partner-id="{}" data-partner-name="{}">'
                     "<td>{}</td>"
-                    '<td title="{}">{}</td>'
                     "<td>{}</td></tr>"
                 ).format(
                     p.id,
                     escape(p.name or ""),
                     escape(p.name or ""),
-                    escape(id_title),
-                    id_html,
                     Markup(ptype),
                 )
             )
 
         table = Markup(
             '<table class="table table-hover table-sm mb-0 w-100">'
-            "<thead><tr><th>Name</th><th>ID</th><th>Type</th></tr></thead>"
+            "<thead><tr><th>Name</th><th>Type</th></tr></thead>"
             "<tbody>{}</tbody></table>"
         ).format(Markup("").join(rows))
 
