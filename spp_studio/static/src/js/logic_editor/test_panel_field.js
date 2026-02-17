@@ -74,9 +74,7 @@ export class TestPanelField extends Component {
         this.state.loading = true;
         try {
             // Call the action_run_test method on the test record
-            await this.orm.call("spp.studio.test", "action_run_test", [
-                [testId],
-            ]);
+            await this.orm.call("spp.studio.test", "action_run_test", [[testId]]);
 
             // Reload the record to get updated test results
             await this.props.record.load();
@@ -106,9 +104,7 @@ export class TestPanelField extends Component {
         this.state.loading = true;
         try {
             // Call the action_test_all method on the logic record
-            await this.orm.call("spp.logic", "action_test_all", [
-                [this.logicId],
-            ]);
+            await this.orm.call("spp.logic", "action_test_all", [[this.logicId]]);
 
             // Reload the record to get updated test results
             await this.props.record.load();
