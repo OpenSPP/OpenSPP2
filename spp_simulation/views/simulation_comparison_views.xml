@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Comparison List View -->
+    <record id="view_simulation_comparison_list" model="ir.ui.view">
+        <field name="name">spp.simulation.comparison.list</field>
+        <field name="model">spp.simulation.comparison</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="run_ids" widget="many2many_tags"/>
+                <field name="create_date"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Comparison Form View -->
+    <record id="view_simulation_comparison_form" model="ir.ui.view">
+        <field name="name">spp.simulation.comparison.form</field>
+        <field name="model">spp.simulation.comparison</field>
+        <field name="arch" type="xml">
+            <form string="Simulation Comparison">
+                <header>
+                    <button
+                        name="action_compute_comparison"
+                        type="object"
+                        string="Recompute"
+                        class="btn-secondary"
+                    />
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    <div class="alert alert-info" role="status" invisible="not staleness_warning">
+                        <i class="fa fa-info-circle me-2" title="Information"/>
+                        <field name="staleness_warning"/>
+                    </div>
+                    <group>
+                        <field name="run_ids" widget="many2many_tags"/>
+                    </group>
+
+                    <notebook>
+                        <page name="parameters" string="Parameters Comparison">
+                            <field name="parameters_comparison_html" readonly="1" nolabel="1"/>
+                        </page>
+
+                        <page name="results" string="Results Comparison">
+                            <field name="comparison_json" widget="simulation_comparison_table" readonly="1"/>
+                        </page>
+
+                        <page name="overlap" string="Population Overlap">
+                            <field name="overlap_count_json" widget="simulation_overlap_table" readonly="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Comparison Action -->
+    <record id="action_simulation_comparison" model="ir.actions.act_window">
+        <field name="name">Scenario Comparisons</field>
+        <field name="res_model">spp.simulation.comparison</field>
+        <field name="view_mode">list,form</field>
+        <field name="path">scenario-comparisons</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No comparisons yet
+            </p>
+            <p>
+                Compare simulation runs to find the best targeting strategy.
+            </p>
+        </field>
+    </record>
+</odoo>

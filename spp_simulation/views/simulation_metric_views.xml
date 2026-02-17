@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Metric List View -->
+    <record id="view_simulation_metric_list" model="ir.ui.view">
+        <field name="name">spp.simulation.metric.list</field>
+        <field name="model">spp.simulation.metric</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="metric_type"/>
+                <field name="aggregation" invisible="metric_type != 'aggregate'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Metric Form View -->
+    <record id="view_simulation_metric_form" model="ir.ui.view">
+        <field name="name">spp.simulation.metric.form</field>
+        <field name="model">spp.simulation.metric</field>
+        <field name="arch" type="xml">
+            <form string="Custom Metric">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="metric_type"/>
+                            <field name="aggregation" invisible="metric_type != 'aggregate'"/>
+                        </group>
+                        <group>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <group invisible="metric_type != 'aggregate' and metric_type != 'coverage'">
+                        <field name="cel_expression"/>
+                    </group>
+                    <group invisible="metric_type != 'ratio'">
+                        <field name="numerator_expression"/>
+                        <field name="denominator_expression"/>
+                    </group>
+                    <field name="description"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Metric Action -->
+    <record id="action_simulation_metric" model="ir.actions.act_window">
+        <field name="name">Custom Metrics</field>
+        <field name="res_model">spp.simulation.metric</field>
+        <field name="view_mode">list,form</field>
+        <field name="path">simulation-metrics</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Define custom evaluation metrics
+            </p>
+            <p>
+                Create custom metrics using CEL expressions to evaluate targeting scenarios.
+            </p>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_simulation_run" model="ir.actions.report">
+        <field name="name">Simulation Report</field>
+        <field name="model">spp.simulation.run</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">spp_simulation.report_simulation_run</field>
+        <field name="report_file">spp_simulation.report_simulation_run</field>
+        <field name="binding_model_id" ref="model_spp_simulation_run"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

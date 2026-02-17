@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Simulation Domain Category (defined in spp_security) -->
+    <!-- We add our own since spp_security doesn't have a simulation category -->
+    <record id="category_spp_simulation" model="ir.module.category">
+        <field name="name">Targeting Simulation</field>
+        <field name="description">Targeting simulation and fairness analysis</field>
+        <field name="parent_id" ref="spp_security.category_spp"/>
+        <field name="sequence">35</field>
+    </record>
+
+    <!-- Simulation Privilege -->
+    <record id="privilege_simulation" model="res.groups.privilege">
+        <field name="name">Simulation</field>
+        <field name="category_id" ref="category_spp_simulation"/>
+        <field name="description">Access to targeting simulation and analysis</field>
+    </record>
+
+    <!-- Tier 3: Technical base groups -->
+    <record id="group_simulation_read" model="res.groups">
+        <field name="name">Simulation: Read</field>
+        <field name="comment">Technical group for read access to simulation models.</field>
+    </record>
+
+    <record id="group_simulation_write" model="res.groups">
+        <field name="name">Simulation: Write</field>
+        <field name="comment">Technical group for write access to simulation models.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_simulation_read'))]"/>
+    </record>
+
+    <record id="group_simulation_validate" model="res.groups">
+        <field name="name">Simulation: Validate</field>
+        <field name="comment">Technical group for validation operations on simulation models.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_simulation_write'))]"/>
+    </record>
+
+    <!-- Tier 2: User-facing groups -->
+    <record id="group_simulation_viewer" model="res.groups">
+        <field name="name">Viewer</field>
+        <field name="privilege_id" ref="privilege_simulation"/>
+        <field name="comment">Can view simulation scenarios, runs, and comparisons. Cannot modify data.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_simulation_read'))]"/>
+    </record>
+
+    <record id="group_simulation_officer" model="res.groups">
+        <field name="name">Officer</field>
+        <field name="privilege_id" ref="privilege_simulation"/>
+        <field name="comment">Can create/edit scenarios, run simulations, and view results.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_simulation_viewer')), Command.link(ref('group_simulation_write'))]"/>
+    </record>
+
+    <record id="group_simulation_manager" model="res.groups">
+        <field name="name">Manager</field>
+        <field name="privilege_id" ref="privilege_simulation"/>
+        <field name="comment">Full simulation management including comparisons and archiving.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_simulation_officer')), Command.link(ref('group_simulation_validate'))]"/>
+    </record>
+
+    <!-- Link manager to admin -->
+    <record id="spp_security.group_spp_admin" model="res.groups">
+        <field name="implied_ids" eval="[Command.link(ref('group_simulation_manager'))]"/>
+    </record>
+</odoo>

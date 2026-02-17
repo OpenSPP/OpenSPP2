@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="spp_simulation.SimulationOverlapTable">
+        <div class="o_simulation_overlap_table">
+            <div t-if="state.overlaps.length === 0" class="text-muted text-center py-3">
+                No overlap data available. Click "Recompute" to generate.
+            </div>
+            <div t-else="">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Scenario A</th>
+                            <th>Scenario B</th>
+                            <th class="text-center">Overlap</th>
+                            <th class="text-center">Union</th>
+                            <th class="text-center">Similarity (Jaccard)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="state.overlaps" t-as="overlap" t-key="overlap.run_a_id + '_' + overlap.run_b_id">
+                            <tr>
+                                <td t-esc="overlap.run_a_name"/>
+                                <td t-esc="overlap.run_b_name"/>
+                                <td class="text-center" t-esc="formatNumber(overlap.overlap_count)"/>
+                                <td class="text-center" t-esc="formatNumber(overlap.union_count)"/>
+                                <td class="text-center" t-esc="formatPercent(overlap.jaccard_index)"/>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+                <div class="text-muted small mt-2">
+                    <strong>Jaccard Similarity Index:</strong> Measures how similar the beneficiary populations are.
+                    100% = identical populations, 0% = no overlap.
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>
