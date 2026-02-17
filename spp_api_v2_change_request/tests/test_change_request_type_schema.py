@@ -45,7 +45,7 @@ class TestChangeRequestTypeSchema(ChangeRequestTestCase):
 
         self.assertIsNotNone(result)
         self.assertIn("typeInfo", result)
-        self.assertIn("fields", result)
+        self.assertIn("detailSchema", result)
         self.assertIn("availableDocuments", result)
         self.assertIn("requiredDocuments", result)
 
@@ -61,116 +61,161 @@ class TestChangeRequestTypeSchema(ChangeRequestTestCase):
         self.assertIsNone(result)
 
     # ──────────────────────────────────────────────────────────────────────
-    # Field definition tests
+    # JSON Schema structure tests
     # ──────────────────────────────────────────────────────────────────────
 
-    def test_field_definitions_include_expected_fields(self):
-        """given_name, family_name, birthdate are present in the schema."""
+    def test_detail_schema_is_valid_json_schema(self):
+        """detailSchema has $schema, type=object, and properties."""
         service = self._get_service()
         result = service.get_type_schema("edit_individual")
+        schema = result["detailSchema"]
 
-        field_names = [f["name"] for f in result["fields"]]
-        self.assertIn("given_name", field_names)
-        self.assertIn("family_name", field_names)
-        self.assertIn("birthdate", field_names)
+        self.assertEqual(schema["$schema"], "https://json-schema.org/draft/2020-12/schema")
+        self.assertEqual(schema["type"], "object")
+        self.assertIn("properties", schema)
+        self.assertIsInstance(schema["properties"], dict)
 
-    def test_field_definitions_exclude_internal_fields(self):
+    def test_detail_schema_has_title(self):
+        """detailSchema has a title derived from the CR type name."""
+        service = self._get_service()
+        result = service.get_type_schema("edit_individual")
+        schema = result["detailSchema"]
+
+        self.assertEqual(schema["title"], "Edit Individual Detail")
+
+    # ──────────────────────────────────────────────────────────────────────
+    # Field property tests
+    # ──────────────────────────────────────────────────────────────────────
+
+    def test_properties_include_expected_fields(self):
+        """given_name, family_name, birthdate are present in the schema properties."""
+        service = self._get_service()
+        result = service.get_type_schema("edit_individual")
+        properties = result["detailSchema"]["properties"]
+
+        self.assertIn("given_name", properties)
+        self.assertIn("family_name", properties)
+        self.assertIn("birthdate", properties)
+
+    def test_properties_exclude_internal_fields(self):
         """Internal fields like id, create_uid, message_ids, change_request_id are absent."""
         service = self._get_service()
         result = service.get_type_schema("edit_individual")
+        properties = result["detailSchema"]["properties"]
 
-        field_names = {f["name"] for f in result["fields"]}
-        self.assertNotIn("id", field_names)
-        self.assertNotIn("create_uid", field_names)
-        self.assertNotIn("message_ids", field_names)
-        self.assertNotIn("change_request_id", field_names)
-        self.assertNotIn("registrant_id", field_names)
-        self.assertNotIn("approval_state", field_names)
-        self.assertNotIn("is_applied", field_names)
+        self.assertNotIn("id", properties)
+        self.assertNotIn("create_uid", properties)
+        self.assertNotIn("message_ids", properties)
+        self.assertNotIn("change_request_id", properties)
+        self.assertNotIn("registrant_id", properties)
+        self.assertNotIn("approval_state", properties)
+        self.assertNotIn("is_applied", properties)
 
     def test_field_types_mapped_correctly(self):
-        """Odoo field types map to the correct API types."""
+        """Odoo field types map to the correct JSON Schema types."""
         service = self._get_service()
         result = service.get_type_schema("edit_individual")
+        properties = result["detailSchema"]["properties"]
 
-        fields_by_name = {f["name"]: f for f in result["fields"]}
-
-        # char -> string
-        self.assertEqual(fields_by_name["given_name"]["type"], "string")
-        # date -> date
-        self.assertEqual(fields_by_name["birthdate"]["type"], "date")
-        # many2one vocabulary -> code
-        self.assertEqual(fields_by_name["gender_id"]["type"], "code")
+        # char -> {"type": "string"}
+        self.assertEqual(properties["given_name"]["type"], "string")
+        # date -> {"type": "string", "format": "date"}
+        self.assertEqual(properties["birthdate"]["type"], "string")
+        self.assertEqual(properties["birthdate"]["format"], "date")
+        # many2one vocabulary -> {"type": "object", "x-field-type": "vocabulary"}
+        self.assertEqual(properties["gender_id"]["type"], "object")
+        self.assertEqual(properties["gender_id"]["x-field-type"], "vocabulary")
 
     def test_vocabulary_field_includes_namespace(self):
-        """A vocabulary many2one field has vocabulary with namespaceUri and codes."""
+        """A vocabulary field has system const and oneOf codes."""
         service = self._get_service()
         result = service.get_type_schema("edit_individual")
+        properties = result["detailSchema"]["properties"]
+        gender_prop = properties["gender_id"]
 
-        fields_by_name = {f["name"]: f for f in result["fields"]}
-        gender_field = fields_by_name["gender_id"]
+        self.assertEqual(gender_prop.get("x-vocabulary-uri"), "urn:iso:std:iso:5218")
 
-        self.assertIsNotNone(gender_field.get("vocabulary"))
-        vocab = gender_field["vocabulary"]
-        self.assertEqual(vocab["namespaceUri"], "urn:iso:std:iso:5218")
-        self.assertIsInstance(vocab["codes"], list)
-        self.assertTrue(len(vocab["codes"]) > 0)
+        # system property should have const with the namespace URI
+        system_prop = gender_prop["properties"]["system"]
+        self.assertEqual(system_prop["const"], "urn:iso:std:iso:5218")
 
-        # Check code structure
-        code_values = [c["value"] for c in vocab["codes"]]
+        # code property should have oneOf with vocabulary codes
+        code_prop = gender_prop["properties"]["code"]
+        self.assertIn("oneOf", code_prop)
+        code_values = [entry["const"] for entry in code_prop["oneOf"]]
         self.assertIn("1", code_values)
         self.assertIn("2", code_values)
 
     def test_selection_field_includes_choices(self):
-        """Selection fields have a choices array (if any exist on the model)."""
+        """Selection fields have oneOf with const/title entries (if any exist on the model)."""
         service = self._get_service()
         result = service.get_type_schema("edit_individual")
+        properties = result["detailSchema"]["properties"]
 
-        # edit_individual may not have selection fields, so just verify the
-        # structure: if any field has type "selection", it must have choices
-        for field_def in result["fields"]:
-            if field_def["type"] == "selection":
-                self.assertIsNotNone(field_def.get("choices"))
-                self.assertIsInstance(field_def["choices"], list)
-                if field_def["choices"]:
-                    self.assertIn("value", field_def["choices"][0])
-                    self.assertIn("label", field_def["choices"][0])
+        # Check any selection-type Odoo field on the detail model
+        detail_model = self.env["spp.cr.detail.edit_individual"]
+        for field_name, field in detail_model._fields.items():
+            if field.type == "selection" and field_name in properties:
+                prop = properties[field_name]
+                if "oneOf" in prop:
+                    for entry in prop["oneOf"]:
+                        self.assertIn("const", entry)
+                        self.assertIn("title", entry)
 
     def test_computed_stored_field_is_readonly(self):
-        """Fields with a compute method are marked readonly."""
+        """Fields with a compute method are marked readOnly in the schema."""
         service = self._get_service()
-        # Test the logic directly via _build_field_definitions to check
-        # that computed fields are marked as readonly.
-        detail_model = self.env["spp.cr.detail.edit_individual"]
-        field_defs = service._build_field_definitions(self.cr_type_edit, detail_model)
+        result = service.get_type_schema("edit_individual")
+        properties = result["detailSchema"]["properties"]
 
-        for field_def in field_defs:
-            field_name = field_def["name"]
+        detail_model = self.env["spp.cr.detail.edit_individual"]
+        for field_name, prop in properties.items():
             odoo_field = detail_model._fields.get(field_name)
             if odoo_field and odoo_field.compute:
                 self.assertTrue(
-                    field_def["readonly"],
-                    f"Computed field {field_name} should be readonly",
+                    prop.get("readOnly"),
+                    f"Computed field {field_name} should have readOnly=true",
                 )
+
+    def test_required_fields_in_required_array(self):
+        """Required Odoo fields appear in the schema's required array."""
+        service = self._get_service()
+        result = service.get_type_schema("edit_individual")
+        schema = result["detailSchema"]
+
+        required = schema.get("required", [])
+        detail_model = self.env["spp.cr.detail.edit_individual"]
+        for field_name in required:
+            odoo_field = detail_model._fields.get(field_name)
+            self.assertTrue(
+                odoo_field and odoo_field.required,
+                f"Field {field_name} is in 'required' but Odoo field is not required",
+            )
+
+    def test_field_property_has_title(self):
+        """All field properties have a non-empty title."""
+        service = self._get_service()
+        result = service.get_type_schema("edit_individual")
+        properties = result["detailSchema"]["properties"]
+
+        for field_name, prop in properties.items():
+            self.assertTrue(
+                prop.get("title"),
+                f"Property {field_name} should have a non-empty title",
+            )
+
+    # ──────────────────────────────────────────────────────────────────────
+    # Vocabulary extraction edge cases
+    # ──────────────────────────────────────────────────────────────────────
 
     def test_dynamic_domain_does_not_crash(self):
         """A domain containing Python name references does not crash vocabulary extraction."""
-        service = self._get_service()
-        # Simulate a domain string with a Python variable reference
-        info = service._extract_vocabulary_info_from_domain(
+        from odoo.addons.spp_api_v2.services.schema_builder import OdooModelSchemaBuilder
+
+        builder = OdooModelSchemaBuilder(self.env)
+        info = builder._extract_vocabulary_info_from_domain(
             "[('id', '!=', registrant_id)]",
             "spp.vocabulary.code",
         )
         # Should return None gracefully, not crash
         self.assertIsNone(info)
-
-    def test_field_definition_has_label(self):
-        """All field definitions have a non-empty label."""
-        service = self._get_service()
-        result = service.get_type_schema("edit_individual")
-
-        for field_def in result["fields"]:
-            self.assertTrue(
-                field_def.get("label"),
-                f"Field {field_def['name']} should have a non-empty label",
-            )

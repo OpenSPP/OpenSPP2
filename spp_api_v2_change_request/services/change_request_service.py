@@ -1,12 +1,13 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """Service for Change Request API operations."""
 
-import ast
 import logging
 from typing import Any
 
 from odoo.api import Environment
 from odoo.exceptions import UserError, ValidationError
+
+from odoo.addons.spp_api_v2.services.schema_builder import OdooModelSchemaBuilder
 
 from ..schemas.change_request import (
     ChangeRequestCreate,
@@ -52,23 +53,6 @@ DETAIL_SKIP_FIELDS = {
     "has_message",
     "rating_ids",
 }
-
-# Mapping from Odoo field types to API field types
-ODOO_TYPE_MAP = {
-    "char": "string",
-    "text": "text",
-    "html": "text",
-    "integer": "integer",
-    "float": "float",
-    "monetary": "float",
-    "boolean": "boolean",
-    "date": "date",
-    "datetime": "datetime",
-    "selection": "selection",
-}
-
-# Field types that are skipped entirely in field definitions
-SKIP_FIELD_TYPES = {"binary", "many2many", "one2many"}
 
 
 class ChangeRequestService:
@@ -341,8 +325,8 @@ class ChangeRequestService:
         if not detail:
             raise ValidationError("Change request has no detail record")
 
-        # Validate fields against the type schema
-        self._validate_detail_input(cr.request_type_id, detail, detail_data)
+        # Validate fields against the detail model
+        self._validate_detail_input(detail, detail_data)
 
         # Convert API data to Odoo vals
         vals = self._deserialize_detail(detail, detail_data)
@@ -413,25 +397,39 @@ class ChangeRequestService:
 
         return vals
 
-    def _validate_detail_input(self, cr_type, detail_model, data: dict[str, Any]):
+    def _validate_detail_input(self, detail_model, data: dict[str, Any]):
         """
-        Validate detail input data against the type's field schema.
+        Validate detail input data against the detail model's fields.
 
         Rejects unknown fields and read-only fields so external consumers
         get immediate feedback rather than silent data loss.
 
         Args:
-            cr_type: spp.change.request.type record
             detail_model: The Odoo model instance for the detail
             data: Dictionary of field values from API input
         """
+        from odoo.addons.spp_api_v2.services.schema_builder import SKIP_FIELD_TYPES
+
         errors = []
         model_fields = detail_model._fields
 
-        # Build the set of valid writable field names from the schema
-        field_defs = self._build_field_definitions(cr_type, detail_model)
-        valid_fields = {f["name"] for f in field_defs}
-        readonly_fields = {f["name"] for f in field_defs if f["readonly"]}
+        # Determine valid and readonly fields by inspecting Odoo fields directly,
+        # avoiding an expensive build_schema call (which triggers DB queries for
+        # vocabulary codes that are unnecessary for input validation).
+        valid_fields: set[str] = set()
+        readonly_fields: set[str] = set()
+        for field_name, field in model_fields.items():
+            if field_name.startswith("_"):
+                continue
+            if field_name in DETAIL_SKIP_FIELDS:
+                continue
+            if not field.store:
+                continue
+            if field.type in SKIP_FIELD_TYPES:
+                continue
+            valid_fields.add(field_name)
+            if field.readonly or field.compute:
+                readonly_fields.add(field_name)
 
         for field_name in data:
             if field_name not in model_fields:
@@ -591,7 +589,12 @@ class ChangeRequestService:
             return None
 
         detail_model = self.env[cr_type.detail_model]
-        field_defs = self._build_field_definitions(cr_type, detail_model)
+        builder = OdooModelSchemaBuilder(self.env)
+        detail_schema = builder.build_schema(
+            detail_model,
+            skip_fields=DETAIL_SKIP_FIELDS,
+            title=f"{cr_type.name} Detail",
+        )
 
         # Documents
         available_documents = [
@@ -608,136 +611,7 @@ class ChangeRequestService:
                 "targetType": cr_type.target_type or "both",
                 "requiresApplicant": cr_type.is_requires_applicant,
             },
-            "fields": field_defs,
+            "detailSchema": detail_schema,
             "availableDocuments": available_documents,
             "requiredDocuments": required_documents,
-        }
-
-    def _build_field_definitions(self, cr_type, detail_model) -> list[dict[str, Any]]:
-        """
-        Build field definition dicts for all user-facing fields on a detail model.
-
-        Args:
-            cr_type: spp.change.request.type record
-            detail_model: The Odoo model class for the detail
-
-        Returns:
-            List of dicts matching FieldDefinition schema.
-        """
-        result = []
-        for field_name, field in detail_model._fields.items():
-            if field_name.startswith("_"):
-                continue
-            if field_name in DETAIL_SKIP_FIELDS:
-                continue
-            if not field.store:
-                continue
-            if field.type in SKIP_FIELD_TYPES:
-                continue
-
-            # Map Odoo type to API type
-            api_type = ODOO_TYPE_MAP.get(field.type)
-            if api_type is None and field.type == "many2one":
-                # Detect vocabulary vs generic reference
-                if field.comodel_name == "spp.vocabulary.code":
-                    api_type = "code"
-                else:
-                    api_type = "reference"
-            if api_type is None:
-                continue
-
-            # Determine readonly: explicitly readonly OR has a compute method
-            is_readonly = bool(field.readonly) or bool(field.compute)
-
-            field_def = {
-                "name": field_name,
-                "label": field.string or field_name,
-                "type": api_type,
-                "required": bool(field.required),
-                "readonly": is_readonly,
-            }
-
-            if field.help:
-                field_def["help"] = field.help
-
-            # Selection choices
-            if api_type == "selection":
-                field_def["choices"] = self._extract_selection_choices(field)
-
-            # Vocabulary info for code fields
-            if api_type == "code":
-                domain_str = field.domain or ""
-                vocab_info = self._extract_vocabulary_info_from_domain(
-                    str(domain_str) if domain_str else "",
-                    field.comodel_name,
-                )
-                field_def["vocabulary"] = vocab_info
-
-            result.append(field_def)
-
-        return result
-
-    def _extract_selection_choices(self, field) -> list[dict[str, str]]:
-        """
-        Extract selection choices from an Odoo field.
-
-        Handles both list-of-tuples and callable selections.
-        """
-        selection = field.selection
-        if callable(selection):
-            try:
-                selection = selection(self.env[field.model_name])
-            except Exception:
-                _logger.debug("Could not evaluate callable selection for %s", field.name)
-                return []
-        if not selection:
-            return []
-        return [{"value": str(val), "label": label} for val, label in selection]
-
-    def _extract_vocabulary_info_from_domain(self, domain_str: str, comodel_name: str) -> dict[str, Any] | None:
-        """
-        Parse a domain string to extract vocabulary namespace and load codes.
-
-        Args:
-            domain_str: String representation of an Odoo domain (e.g.
-                "[('namespace_uri', '=', 'urn:iso:std:iso:5218')]")
-            comodel_name: The comodel (expected to be 'spp.vocabulary.code')
-
-        Returns:
-            Dict with namespaceUri and codes, or None if unparseable.
-        """
-        if not domain_str:
-            return None
-
-        try:
-            domain = ast.literal_eval(domain_str)
-        except (ValueError, SyntaxError):
-            # Domain contains Python name references (e.g., registrant_id)
-            return None
-
-        if not isinstance(domain, list):
-            return None
-
-        namespace_uri = None
-        for leaf in domain:
-            if not isinstance(leaf, (list, tuple)) or len(leaf) != 3:
-                continue
-            field_path, operator, value = leaf
-            if operator != "=":
-                continue
-            if field_path in ("namespace_uri", "vocabulary_id.namespace_uri"):
-                namespace_uri = value
-                break
-
-        if not namespace_uri:
-            return None
-
-        # Load codes from the vocabulary
-        codes = self.env[comodel_name].search(
-            [("namespace_uri", "=", namespace_uri)],
-            order="sequence, code",
-        )
-        return {
-            "namespaceUri": namespace_uri,
-            "codes": [{"value": code.code, "label": code.display or code.code} for code in codes],
         }
