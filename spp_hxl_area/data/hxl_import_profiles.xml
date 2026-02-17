@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
         <!-- Sri Lanka Damage Assessment Profile -->
         <record id="profile_sl_damage" model="spp.hxl.import.profile">
             <field name="name">Sri Lanka Damage Assessment</field>
@@ -138,5 +137,4 @@
             <field name="output_hxl_tag">#meta+count</field>
             <field name="sequence">10</field>
         </record>
-    </data>
 </odoo>

@@ -262,7 +262,7 @@ class HxlImportBatch(models.Model):
             from ..services.aggregation_engine import AggregationEngine
             from ..services.area_matcher import AreaMatcher
 
-            _logger.info("Starting HXL import batch: %s", self.name)
+            _logger.info("Starting HXL import batch: %s", self.id)
 
             # Decode file
             file_content = base64.b64decode(self.file_data)
@@ -350,7 +350,7 @@ class HxlImportBatch(models.Model):
                 % (len(created_indicators), areas_updated),
             )
 
-            _logger.info("HXL import batch completed: %s", self.name)
+            _logger.info("HXL import batch completed: %s", self.id)
 
         except Exception as e:
             error_msg = _("Import failed: %s") % str(e)
@@ -377,7 +377,7 @@ class HxlImportBatch(models.Model):
             "type": "ir.actions.act_window",
             "name": _("Generated Indicators"),
             "res_model": "spp.hxl.area.indicator",
-            "view_mode": "tree,form",
+            "view_mode": "list,form",
             "domain": [("batch_id", "=", self.id)],
             "context": {"default_batch_id": self.id},
         }

@@ -55,11 +55,12 @@
                             <field name="active" widget="boolean_toggle" />
                         </group>
                     </group>
-                    <separator string="Description"/>
-                    <field name="description" nolabel="1" placeholder="Description of this export profile..." class="oe_inline"/>
+                    <group colspan="2">
+                        <field name="description" placeholder="Description of this export profile..." />
+                    </group>
                     <notebook>
                         <page string="Columns" name="columns">
-                            <field name="column_ids" widget="one2many" mode="tree">
+                            <field name="column_ids" widget="one2many" mode="list">
                                 <form>
                                     <group>
                                         <group>

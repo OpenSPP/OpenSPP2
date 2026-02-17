@@ -42,13 +42,6 @@
                         class="oe_highlight"
                     />
                     <button
-                        name="action_view_indicators"
-                        type="object"
-                        string="View Indicators"
-                        invisible="state != 'done' or indicators_created == 0"
-                        class="btn-primary"
-                    />
-                    <button
                         name="action_reset"
                         type="object"
                         string="Reset"
@@ -72,21 +65,21 @@
                     </div>
                     <group>
                         <group>
-                            <field name="name" />
-                            <field name="profile_id" />
-                            <field name="period_key" />
+                            <field name="name" readonly="state in ('done', 'failed')" />
+                            <field name="profile_id" readonly="state in ('done', 'failed')" />
+                            <field name="period_key" readonly="state in ('done', 'failed')" />
                         </group>
                         <group>
-                            <field name="incident_id" />
-                            <field name="source_url" />
+                            <field name="incident_id" readonly="state in ('done', 'failed')" />
+                            <field name="source_url" readonly="state in ('done', 'failed')" />
                         </group>
                     </group>
                     <notebook>
                         <page string="File" name="file">
                             <group>
                                 <group>
-                                    <field name="file_data" filename="file_name" />
-                                    <field name="file_name" />
+                                    <field name="file_data" filename="file_name" readonly="state in ('done', 'failed')" />
+                                    <field name="file_name" readonly="state in ('done', 'failed')" />
                                 </group>
                                 <group>
                                     <field name="hxl_row_number" readonly="1" />
@@ -95,7 +88,7 @@
                             </group>
                         </page>
                         <page string="Column Mapping" name="mapping" invisible="state == 'draft'">
-                            <field name="mapping_ids">
+                            <field name="mapping_ids" readonly="state in ('done', 'failed')">
                                 <list editable="bottom">
                                     <field name="sequence" />
                                     <field name="source_column" readonly="1" />

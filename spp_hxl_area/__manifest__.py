@@ -9,7 +9,8 @@
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Alpha",
+    "maintainers": ["jeremi", "gonzalesedwin1123", "emjay0921"],
+    "development_status": "Beta",
     "depends": [
         "spp_hxl",
         "spp_area",

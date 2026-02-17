@@ -97,7 +97,7 @@ class HxlImportProfile(models.Model):
             "type": "ir.actions.act_window",
             "name": _("Import Batches"),
             "res_model": "spp.hxl.import.batch",
-            "view_mode": "tree,form",
+            "view_mode": "list,form",
             "domain": [("profile_id", "=", self.id)],
             "context": {"default_profile_id": self.id},
         }
