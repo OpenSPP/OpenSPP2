@@ -157,57 +157,28 @@ class SQLBuilder:
         """Generate SELECT id FROM model WHERE domain.
 
         Uses expression.expression() to include record rules.
+        Uses Query.select() to include all necessary JOINs (e.g. for
+        related field lookups like gender_id.uri).
         Returns None if domain cannot be converted.
 
         This is the PRIMARY method for generating subqueries.
         All other methods should use this for model references.
         """
-        if not domain:
-            # Empty domain selects all IDs (respecting record rules)
-            Model = self.env[model]
-            table = Model._table
-            # Still need to apply record rules even for empty domain
-            try:
-                from odoo.osv import expression as osv_expression
-
-                expr = osv_expression.expression(model=Model, domain=[])
-                query = expr.query
-                where_clause = query.where_clause
-                if where_clause:
-                    return SQL(
-                        "(SELECT %s.id FROM %s WHERE %s)",
-                        SQL.identifier(table),
-                        SQL.identifier(table),
-                        where_clause,
-                    )
-                return SQL("(SELECT id FROM %s)", SQL.identifier(table))
-            except Exception as e:
-                _logger.debug("[SQLBuilder] Failed for empty domain: %s", e)
-                return SQL("(SELECT id FROM %s)", SQL.identifier(table))
-
         try:
             from odoo.osv import expression as osv_expression
 
             Model = self.env[model]
             table = Model._table
 
-            # Build the expression and extract query
-            expr = osv_expression.expression(model=Model, domain=domain)
+            # Build the expression (applies record rules even for empty domain)
+            expr = osv_expression.expression(model=Model, domain=domain or [])
             query = expr.query
 
-            # Get the WHERE clause
-            where_clause = query.where_clause
-            if not where_clause:
-                # No WHERE clause means all records
-                return SQL("(SELECT id FROM %s)", SQL.identifier(table))
+            # Use query.select() to get the full SQL including FROM clause
+            # with all JOINs (needed for related field domains like gender_id.uri)
+            select_sql = query.select(SQL.identifier(table, "id"))
 
-            # Build the full SELECT query
-            return SQL(
-                "(SELECT %s.id FROM %s WHERE %s)",
-                SQL.identifier(table),
-                SQL.identifier(table),
-                where_clause,
-            )
+            return SQL("(%s)", select_sql)
         except Exception as e:
             _logger.debug("[SQLBuilder] Failed to convert domain to SQL: %s", e)
             return None

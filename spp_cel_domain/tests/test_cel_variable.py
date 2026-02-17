@@ -785,3 +785,282 @@ class TestCELServiceVariableIntegration(TransactionCase):
         # This shouldn't crash
         result = self.Service.invalidate_caches()
         self.assertTrue(result)
+
+
+@tagged("post_install", "-at_install")
+class TestCELVariableCacheInvalidation(TransactionCase):
+    """Test automatic cache invalidation when variables change."""
+
+    def setUp(self):
+        super().setUp()
+        self.Service = self.env["spp.cel.service"]
+        self.Variable = self.env["spp.cel.variable"]
+        self.Resolver = self.env["spp.cel.variable.resolver"]
+        self.Registry = self.env["spp.cel.registry"]
+        self.Translator = self.env["spp.cel.translator"]
+
+        # Import cache modules for direct inspection
+        from ..models import cel_registry, cel_translator
+
+        self.cel_registry = cel_registry
+        self.cel_translator = cel_translator
+
+        # Clear all caches before each test
+        self.Service.invalidate_caches()
+
+        # Create test variable with unique name
+        self.test_accessor = _unique("cache_test_var")
+        self.test_var = self.Variable.create(
+            {
+                "name": _unique("cache_test_variable"),
+                "cel_accessor": self.test_accessor,
+                "source_type": "constant",
+                "value_type": "number",
+                "default_value": "100",
+                "applies_to": "both",
+            }
+        )
+
+    def test_variable_write_invalidates_all_caches(self):
+        """Test that modifying a variable invalidates all CEL caches."""
+        # Step 1: Compile an expression using the variable with a valid field comparison
+        # Use an expression that makes sense: r.id > constant_value
+        expr = f"r.id > {self.test_accessor}"
+        result1 = self.Service.compile_expression(expr, "registry_individuals")
+        self.assertTrue(result1["valid"], f"Initial compilation failed: {result1.get('error')}")
+
+        # Step 2: Populate caches by resolving the expression
+        resolution1 = self.Resolver.resolve_for_evaluation(expr, context_type="individual")
+        self.assertIn("100", resolution1["expression"], "Should expand to r.id > 100")
+
+        # Verify caches are populated
+        profile_cache_size_before = len(self.cel_registry._profile_cache)
+        translation_cache_size_before = len(self.cel_translator._translation_cache)
+        resolver_cache_size_before = len(self.Resolver._variable_cache)
+
+        # At least one cache should have content
+        self.assertGreater(
+            profile_cache_size_before + translation_cache_size_before + resolver_cache_size_before,
+            0,
+            "Caches should be populated after compilation",
+        )
+
+        # Step 3: Modify the variable's expression
+        self.test_var.write({"default_value": "200"})
+
+        # Step 4: Verify all caches were invalidated
+        profile_cache_size_after = len(self.cel_registry._profile_cache)
+        translation_cache_size_after = len(self.cel_translator._translation_cache)
+        resolver_cache_size_after = len(self.Resolver._variable_cache)
+
+        # Caches should be cleared
+        self.assertEqual(profile_cache_size_after, 0, "Profile cache should be cleared")
+        self.assertEqual(translation_cache_size_after, 0, "Translation cache should be cleared")
+        self.assertEqual(resolver_cache_size_after, 0, "Resolver cache should be cleared")
+
+        # Step 5: Compile again and verify new value is used
+        resolution2 = self.Resolver.resolve_for_evaluation(expr, context_type="individual")
+        self.assertIn("200", resolution2["expression"], "Should use new value after cache invalidation")
+        self.assertNotIn("100", resolution2["expression"], "Should not contain old value")
+
+    def test_variable_unlink_invalidates_caches(self):
+        """Test that deleting a variable invalidates all caches."""
+        # Step 1: Compile expression using the variable with valid field comparison
+        expr = f"r.id > {self.test_accessor}"
+        result1 = self.Service.compile_expression(expr, "registry_individuals")
+        self.assertTrue(result1["valid"], f"Initial compilation failed: {result1.get('error')}")
+
+        # Populate resolver cache
+        resolution1 = self.Resolver.resolve_for_evaluation(expr, context_type="individual")
+        self.assertIn("100", resolution1["expression"])
+
+        # Verify caches are populated
+        cache_sizes_before = (
+            len(self.cel_registry._profile_cache)
+            + len(self.cel_translator._translation_cache)
+            + len(self.Resolver._variable_cache)
+        )
+        self.assertGreater(cache_sizes_before, 0, "Caches should be populated")
+
+        # Step 2: Delete the variable
+        self.test_var.unlink()
+
+        # Step 3: Verify all caches were cleared
+        profile_cache_size = len(self.cel_registry._profile_cache)
+        translation_cache_size = len(self.cel_translator._translation_cache)
+        resolver_cache_size = len(self.Resolver._variable_cache)
+
+        self.assertEqual(profile_cache_size, 0, "Profile cache should be cleared")
+        self.assertEqual(translation_cache_size, 0, "Translation cache should be cleared")
+        self.assertEqual(resolver_cache_size, 0, "Resolver cache should be cleared")
+
+        # Step 4: Compile again - should find variable missing
+        resolution2 = self.Resolver.resolve_for_evaluation(expr, context_type="individual")
+        self.assertIn(self.test_accessor, resolution2["missing_variables"], "Variable should be missing after unlink")
+
+    def test_non_relevant_field_changes_do_not_invalidate(self):
+        """Test that changing non-cache-relevant fields doesn't invalidate caches."""
+        # Compile expression to populate caches - use valid field comparison
+        expr = f"r.id > {self.test_accessor}"
+        result = self.Service.compile_expression(expr, "registry_individuals")
+        self.assertTrue(result["valid"], f"Compilation failed: {result.get('error')}")
+        self.Resolver.resolve_for_evaluation(expr, context_type="individual")
+
+        # Record cache sizes
+        profile_cache_size_before = len(self.cel_registry._profile_cache)
+        translation_cache_size_before = len(self.cel_translator._translation_cache)
+        resolver_cache_size_before = len(self.Resolver._variable_cache)
+
+        # Verify caches are populated
+        self.assertGreater(profile_cache_size_before, 0, "Profile cache should be populated")
+        self.assertGreater(translation_cache_size_before, 0, "Translation cache should be populated")
+        self.assertGreater(resolver_cache_size_before, 0, "Resolver cache should be populated")
+
+        # Change a non-relevant field (e.g., sequence)
+        # sequence is NOT in cache_invalidating_fields, so no invalidation should occur
+        self.test_var.write({"sequence": 999})
+
+        # Caches should remain unchanged (current behavior: selective invalidation)
+        profile_cache_size_after = len(self.cel_registry._profile_cache)
+        translation_cache_size_after = len(self.cel_translator._translation_cache)
+        resolver_cache_size_after = len(self.Resolver._variable_cache)
+
+        # Verify caches were NOT invalidated for non-relevant field changes
+        self.assertEqual(profile_cache_size_after, profile_cache_size_before, "Profile cache should not be cleared")
+        self.assertEqual(
+            translation_cache_size_after,
+            translation_cache_size_before,
+            "Translation cache should not be cleared",
+        )
+        self.assertEqual(resolver_cache_size_after, resolver_cache_size_before, "Resolver cache should not be cleared")
+
+    def test_variable_create_invalidates_caches(self):
+        """Test that creating a new variable invalidates caches."""
+        # Compile expression to populate caches - use valid field comparison
+        expr = f"r.id > {self.test_accessor}"
+        result = self.Service.compile_expression(expr, "registry_individuals")
+        self.assertTrue(result["valid"], f"Compilation failed: {result.get('error')}")
+        self.Resolver.resolve_for_evaluation(expr, context_type="individual")
+
+        # Verify caches are populated
+        cache_sizes_before = (
+            len(self.cel_registry._profile_cache)
+            + len(self.cel_translator._translation_cache)
+            + len(self.Resolver._variable_cache)
+        )
+        self.assertGreater(cache_sizes_before, 0)
+
+        # Create a new variable
+        new_accessor = _unique("new_var")
+        self.Variable.create(
+            {
+                "name": _unique("new_variable"),
+                "cel_accessor": new_accessor,
+                "source_type": "constant",
+                "value_type": "number",
+                "default_value": "50",
+                "applies_to": "both",
+            }
+        )
+
+        # Caches should be cleared
+        self.assertEqual(len(self.cel_registry._profile_cache), 0)
+        self.assertEqual(len(self.cel_translator._translation_cache), 0)
+        self.assertEqual(len(self.Resolver._variable_cache), 0)
+
+    def test_multiple_write_invalidations_safe(self):
+        """Test that multiple sequential writes don't cause errors."""
+        # Use valid field comparison expression
+        expr = f"r.id > {self.test_accessor}"
+
+        # Write multiple times in sequence
+        for i in range(5):
+            self.test_var.write({"default_value": str(100 + i * 10)})
+
+            # Should compile successfully after each write
+            result = self.Service.compile_expression(expr, "registry_individuals")
+            self.assertTrue(result["valid"], f"Compilation should succeed after write {i}: {result.get('error')}")
+
+            # Resolver should use new value
+            resolution = self.Resolver.resolve_for_evaluation(expr, context_type="individual")
+            expected_value = str(100 + i * 10)
+            self.assertIn(
+                expected_value, resolution["expression"], f"Should use value {expected_value} after write {i}"
+            )
+
+    def test_cache_invalidation_with_aggregate_variable(self):
+        """Test cache invalidation when modifying aggregate variables."""
+        # Create an aggregate variable
+        agg_accessor = _unique("test_agg")
+        agg_var = self.Variable.create(
+            {
+                "name": _unique("test_aggregate"),
+                "cel_accessor": agg_accessor,
+                "source_type": "aggregate",
+                "value_type": "number",
+                "aggregate_type": "count",
+                "aggregate_target": "members",
+                "aggregate_filter": "true",
+                "applies_to": "group",
+            }
+        )
+
+        # Compile expression using aggregate - this is already a valid expression
+        # because aggregate variables expand to members.count(...) which is valid
+        expr = f"{agg_accessor} >= 3"
+        result1 = self.Service.compile_expression(expr, "registry_groups")
+        self.assertTrue(result1["valid"], f"Initial compilation failed: {result1.get('error')}")
+
+        # Populate caches
+        self.Resolver.resolve_for_evaluation(expr, context_type="group")
+
+        # Verify caches populated
+        cache_sizes = (
+            len(self.cel_registry._profile_cache)
+            + len(self.cel_translator._translation_cache)
+            + len(self.Resolver._variable_cache)
+        )
+        self.assertGreater(cache_sizes, 0)
+
+        # Modify the aggregate filter
+        agg_var.write({"aggregate_filter": "age_years(m.birthdate) < 18"})
+
+        # All caches should be cleared
+        self.assertEqual(len(self.cel_registry._profile_cache), 0)
+        self.assertEqual(len(self.cel_translator._translation_cache), 0)
+        self.assertEqual(len(self.Resolver._variable_cache), 0)
+
+        # Compile again - should use new filter
+        resolution = self.Resolver.resolve_for_evaluation(expr, context_type="group")
+        self.assertIn("age_years", resolution["expression"], "Should use new aggregate filter")
+
+    def test_cache_invalidation_cascades_properly(self):
+        """Test that cache invalidation cascades through all three caches."""
+        # This is a comprehensive test to ensure all caches are cleared together
+
+        # Step 1: Populate all caches
+        # Use valid field comparison expression
+        expr = f"r.id > {self.test_accessor}"
+
+        # Populate profile cache
+        self.Registry.load_profile("registry_individuals")
+
+        # Populate translation cache
+        cfg = self.Registry.load_profile("registry_individuals")
+        self.Translator.translate("res.partner", "r.id > 0", cfg)
+
+        # Populate resolver cache
+        self.Resolver.resolve_for_evaluation(expr, context_type="individual")
+
+        # Verify all caches have content
+        self.assertGreater(len(self.cel_registry._profile_cache), 0, "Profile cache should be populated")
+        self.assertGreater(len(self.cel_translator._translation_cache), 0, "Translation cache should be populated")
+        self.assertGreater(len(self.Resolver._variable_cache), 0, "Resolver cache should be populated")
+
+        # Step 2: Modify variable
+        self.test_var.write({"default_value": "150"})
+
+        # Step 3: Verify ALL caches cleared in one operation
+        self.assertEqual(len(self.cel_registry._profile_cache), 0, "Profile cache should be cleared")
+        self.assertEqual(len(self.cel_translator._translation_cache), 0, "Translation cache should be cleared")
+        self.assertEqual(len(self.Resolver._variable_cache), 0, "Resolver cache should be cleared")

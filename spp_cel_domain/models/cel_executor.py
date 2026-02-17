@@ -85,20 +85,11 @@ class CelExecutor(models.AbstractModel):
             expr = osv_expression.expression(model=Model, domain=domain)
             query = expr.query
 
-            # Get the WHERE clause
-            where_clause = query.where_clause
-            if not where_clause:
-                # No WHERE clause means all records
-                return SQL("(SELECT id FROM %s)", SQL.identifier(table))
+            # Use query.select() to get the full SQL including FROM clause
+            # with all JOINs (needed for related field domains like gender_id.uri)
+            select_sql = query.select(SQL.identifier(table, "id"))
 
-            # Build the full SELECT query
-            # Note: where_clause is already a SQL object in Odoo 19
-            return SQL(
-                "(SELECT %s.id FROM %s WHERE %s)",
-                SQL.identifier(table),
-                SQL.identifier(table),
-                where_clause,
-            )
+            return SQL("(%s)", select_sql)
         except Exception as e:
             self._logger.debug("[CEL SQL] Failed to convert domain to SQL: %s", e)
             return None
