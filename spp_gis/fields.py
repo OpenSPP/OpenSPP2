@@ -142,7 +142,7 @@ class GeoField(fields.Field):
         # Check if this is a GIS operator
         if operator in self._gis_operators:
             try:
-                operator_obj = Operator(self)
+                operator_obj = Operator(self, table_alias=alias)
                 return operator_obj.domain_query(operator, value)
             except Exception as e:
                 _logger.error(f"Failed to generate GIS SQL for operator {operator}: {e}")

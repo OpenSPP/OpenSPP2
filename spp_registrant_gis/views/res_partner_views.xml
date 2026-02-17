@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Add coordinates field to Individual Profile tab -->
+    <record id="view_individuals_form_gis" model="ir.ui.view">
+        <field name="name">spp_registrant_gis.view_individuals_form_gis</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="spp_registry.view_individuals_form" />
+        <field name="arch" type="xml">
+            <!-- Add GPS coordinates after phone numbers section -->
+            <xpath expr="//page[@name='profile']//group[@name='phone_section']" position="after">
+                <separator string="Location" />
+                <group name="gis_section">
+                    <field name="coordinates" readonly="disabled" widget="geo_point" />
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add coordinates field to Group Profile tab -->
+    <record id="view_groups_form_gis" model="ir.ui.view">
+        <field name="name">spp_registrant_gis.view_groups_form_gis</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="spp_registry.view_individuals_form" />
+        <field name="arch" type="xml">
+            <!-- Add GPS coordinates after phone numbers section -->
+            <xpath expr="//page[@name='group_profile']//group[@name='group_phone_section']" position="after">
+                <separator string="Location" />
+                <group name="group_gis_section">
+                    <field name="coordinates" readonly="disabled" widget="geo_point" />
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -467,8 +467,25 @@ class GISReport(models.Model):
             _logger.info("No areas at level %s found", self.base_area_level)
             return {}
 
-        # Add area filter to domain
-        domain.append((area_field, "in", base_areas.ids))
+        # Build mapping from descendant areas to their base-level ancestor.
+        # Registrants may be assigned to areas more granular than base_area_level
+        # (e.g., barangays when base level is municipality). We include all
+        # descendant areas in the query and aggregate results back to the
+        # base-level parent.
+        child_to_base = {}
+        for base_area in base_areas:
+            child_to_base[base_area.id] = base_area.id
+            descendants = self.env["spp.area"].search(
+                [
+                    ("id", "child_of", base_area.id),
+                    ("id", "!=", base_area.id),
+                ]
+            )
+            for desc in descendants:
+                child_to_base[desc.id] = base_area.id
+
+        # Add area filter to domain (base areas + all descendants)
+        domain.append((area_field, "in", list(child_to_base.keys())))
 
         # Initialize results for all base areas with 0
         # This ensures areas with no matching records get 0 instead of being missing
@@ -484,12 +501,11 @@ class GISReport(models.Model):
             for group in groups:
                 if group[area_field]:
                     area_id = group[area_field][0]
+                    base_id = child_to_base.get(area_id, area_id)
                     count = group[f"{area_field}_count"]
-                    results[area_id] = {
-                        "raw": count,
-                        "count": count,
-                        "weight": count,
-                    }
+                    results[base_id]["raw"] += count
+                    results[base_id]["count"] += count
+                    results[base_id]["weight"] += count
 
         elif self.aggregation_method in ("sum", "avg", "min", "max"):
             if not self.aggregation_field:
@@ -506,13 +522,19 @@ class GISReport(models.Model):
             for group in groups:
                 if group[area_field]:
                     area_id = group[area_field][0]
+                    base_id = child_to_base.get(area_id, area_id)
                     value = group.get(self.aggregation_field) or 0
                     count = group[f"{area_field}_count"]
-                    results[area_id] = {
-                        "raw": value,
-                        "count": count,
-                        "weight": count,
-                    }
+                    # Accumulate weighted values for proper re-aggregation
+                    results[base_id]["raw"] += value * count
+                    results[base_id]["count"] += count
+                    results[base_id]["weight"] += count
+
+            # For avg: convert accumulated (value*count) back to weighted average
+            if agg_func == "avg":
+                for data in results.values():
+                    if data["count"] > 0:
+                        data["raw"] = data["raw"] / data["count"]
 
         # Fill in None for areas with no data (distinguishes "no data" from "zero count")
         for area in base_areas:
@@ -1478,14 +1500,17 @@ class GISReport(models.Model):
 
             # Add geometry if requested
             if include_geometry and data.area_id.geo_polygon:
-                # TODO: Use PostGIS ST_AsGeoJSON for performance
-                # For now, use Odoo's geometry field (WKT format)
                 try:
-                    from shapely import wkt
+                    geo = data.area_id.geo_polygon
+                    # GeoPolygonField may return a Shapely geometry object
+                    # or a WKT/WKB string depending on the spp_gis version.
+                    if hasattr(geo, "__geo_interface__"):
+                        feature["geometry"] = geo.__geo_interface__
+                    else:
+                        from shapely import wkt
 
-                    shape = wkt.loads(data.area_id.geo_polygon)
-                    # __geo_interface__ returns a dict that's already JSON-serializable
-                    feature["geometry"] = shape.__geo_interface__
+                        shape = wkt.loads(geo)
+                        feature["geometry"] = shape.__geo_interface__
                 except ImportError:
                     _logger.warning(
                         "shapely not available, geometry export limited. Install shapely for full geometry support."
