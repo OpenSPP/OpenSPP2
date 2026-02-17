@@ -398,10 +398,7 @@ class SPPGRMTicket(models.Model):
                     # For now, only supervisors/managers can move to approval-required stages
                     if not self.env.user.has_group("spp_grm.group_grm_supervisor"):
                         raise UserError(
-                            _(
-                                "Stage '%s' requires supervisor approval. "
-                                "Please request approval from your supervisor."
-                            )
+                            _("Stage '%s' requires supervisor approval. Please request approval from your supervisor.")
                             % new_stage.name
                         )
 

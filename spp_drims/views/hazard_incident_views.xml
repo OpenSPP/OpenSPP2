@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Extend Hazard Incident Form View with DRIMS Alert Thresholds -->
     <record id="view_hazard_incident_form_drims" model="ir.ui.view">
         <field name="name">view.hazard.incident.form.drims</field>
         <field name="model">spp.hazard.incident</field>
-        <field name="inherit_id" ref="spp_hazard.view_hazard_incident_form"/>
+        <field name="inherit_id" ref="spp_hazard.view_hazard_incident_form" />
         <field name="arch" type="xml">
             <!-- Add Alert Thresholds page to notebook -->
             <xpath expr="//notebook" position="inside">
@@ -18,22 +18,30 @@
                     </group>
                     <group name="alert_thresholds_main">
                         <group name="stock_thresholds" string="Stock Thresholds">
-                            <field name="drims_low_stock_threshold_override"
-                                placeholder="Leave empty for global setting"/>
+                            <field
+                                name="drims_low_stock_threshold_override"
+                                placeholder="Leave empty for global setting"
+                            />
                         </group>
                         <group name="expiry_thresholds" string="Expiry Thresholds">
-                            <field name="drims_expiry_warning_override"
-                                placeholder="Leave empty for global setting"/>
-                            <field name="drims_expiry_critical_override"
-                                placeholder="Leave empty for global setting"/>
+                            <field
+                                name="drims_expiry_warning_override"
+                                placeholder="Leave empty for global setting"
+                            />
+                            <field
+                                name="drims_expiry_critical_override"
+                                placeholder="Leave empty for global setting"
+                            />
                         </group>
                     </group>
                     <group name="alert_thresholds_sla">
                         <group name="sla_thresholds" string="SLA Thresholds">
-                            <field name="drims_sla_warning_override"
-                                placeholder="Leave empty for global setting"/>
+                            <field
+                                name="drims_sla_warning_override"
+                                placeholder="Leave empty for global setting"
+                            />
                         </group>
-                        <group/>
+                        <group />
                     </group>
                 </page>
             </xpath>

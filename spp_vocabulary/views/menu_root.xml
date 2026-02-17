@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Vocabulary Root Menu under Configuration -->
     <!-- This file must be loaded BEFORE view files that reference menu_vocabulary_root -->

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <record model="ir.ui.view" id="spp_gis_data_layer_form">
         <field name="name">spp.gis.data.layer.form</field>
         <field name="model">spp.gis.data.layer</field>
@@ -26,23 +25,60 @@
                             options="{'model': 'model_name'}"
                         />
                     </group>
-                    <group string="Colors" name="colors" col="4" colspan="4" invisible="geo_repr == 'choropleth'">
+                    <group
+                        string="Colors"
+                        name="colors"
+                        col="4"
+                        colspan="4"
+                        invisible="geo_repr == 'choropleth'"
+                    >
                         <field name="begin_color" widget="color" />
                     </group>
-                    <group string="Choropleth Configuration" name="choropleth_config" col="4" colspan="4" invisible="geo_repr != 'choropleth'">
-                        <field name="choropleth_field_id" required="geo_repr == 'choropleth'" />
+                    <group
+                        string="Choropleth Configuration"
+                        name="choropleth_config"
+                        col="4"
+                        colspan="4"
+                        invisible="geo_repr != 'choropleth'"
+                    >
+                        <field
+                            name="choropleth_field_id"
+                            required="geo_repr == 'choropleth'"
+                        />
                         <field name="choropleth_color_ramp" />
-                        <field name="choropleth_color_low" widget="color" invisible="choropleth_color_ramp != 'custom'" />
-                        <field name="choropleth_color_high" widget="color" invisible="choropleth_color_ramp != 'custom'" />
+                        <field
+                            name="choropleth_color_low"
+                            widget="color"
+                            invisible="choropleth_color_ramp != 'custom'"
+                        />
+                        <field
+                            name="choropleth_color_high"
+                            widget="color"
+                            invisible="choropleth_color_ramp != 'custom'"
+                        />
                         <field name="choropleth_classification" />
-                        <field name="choropleth_class_count" invisible="choropleth_classification == 'linear'" />
-                        <field name="choropleth_manual_breaks" invisible="choropleth_classification != 'manual'" />
+                        <field
+                            name="choropleth_class_count"
+                            invisible="choropleth_classification == 'linear'"
+                        />
+                        <field
+                            name="choropleth_manual_breaks"
+                            invisible="choropleth_classification != 'manual'"
+                        />
                         <field name="choropleth_min_value" />
                         <field name="choropleth_max_value" />
                     </group>
-                    <group string="Legend" col="4" colspan="4" invisible="geo_repr != 'choropleth'">
+                    <group
+                        string="Legend"
+                        col="4"
+                        colspan="4"
+                        invisible="geo_repr != 'choropleth'"
+                    >
                         <field name="choropleth_show_legend" />
-                        <field name="choropleth_legend_title" invisible="not choropleth_show_legend" />
+                        <field
+                            name="choropleth_legend_title"
+                            invisible="not choropleth_show_legend"
+                        />
                     </group>
                 </sheet>
             </form>
@@ -72,23 +108,60 @@
                             options="{'model': 'model_name'}"
                         />
                     </group>
-                    <group string="Colors" name="colors" col="4" colspan="4" invisible="geo_repr == 'choropleth'">
+                    <group
+                        string="Colors"
+                        name="colors"
+                        col="4"
+                        colspan="4"
+                        invisible="geo_repr == 'choropleth'"
+                    >
                         <field name="begin_color" widget="color" />
                     </group>
-                    <group string="Choropleth Configuration" name="choropleth_config" col="4" colspan="4" invisible="geo_repr != 'choropleth'">
-                        <field name="choropleth_field_id" required="geo_repr == 'choropleth'" />
+                    <group
+                        string="Choropleth Configuration"
+                        name="choropleth_config"
+                        col="4"
+                        colspan="4"
+                        invisible="geo_repr != 'choropleth'"
+                    >
+                        <field
+                            name="choropleth_field_id"
+                            required="geo_repr == 'choropleth'"
+                        />
                         <field name="choropleth_color_ramp" />
-                        <field name="choropleth_color_low" widget="color" invisible="choropleth_color_ramp != 'custom'" />
-                        <field name="choropleth_color_high" widget="color" invisible="choropleth_color_ramp != 'custom'" />
+                        <field
+                            name="choropleth_color_low"
+                            widget="color"
+                            invisible="choropleth_color_ramp != 'custom'"
+                        />
+                        <field
+                            name="choropleth_color_high"
+                            widget="color"
+                            invisible="choropleth_color_ramp != 'custom'"
+                        />
                         <field name="choropleth_classification" />
-                        <field name="choropleth_class_count" invisible="choropleth_classification == 'linear'" />
-                        <field name="choropleth_manual_breaks" invisible="choropleth_classification != 'manual'" />
+                        <field
+                            name="choropleth_class_count"
+                            invisible="choropleth_classification == 'linear'"
+                        />
+                        <field
+                            name="choropleth_manual_breaks"
+                            invisible="choropleth_classification != 'manual'"
+                        />
                         <field name="choropleth_min_value" />
                         <field name="choropleth_max_value" />
                     </group>
-                    <group string="Legend" col="4" colspan="4" invisible="geo_repr != 'choropleth'">
+                    <group
+                        string="Legend"
+                        col="4"
+                        colspan="4"
+                        invisible="geo_repr != 'choropleth'"
+                    >
                         <field name="choropleth_show_legend" />
-                        <field name="choropleth_legend_title" invisible="not choropleth_show_legend" />
+                        <field
+                            name="choropleth_legend_title"
+                            invisible="not choropleth_show_legend"
+                        />
                     </group>
                 </sheet>
             </form>
@@ -102,7 +175,6 @@
         <field name="target">new</field>
         <field name="view_id" ref="spp_gis_data_layer_view_form" />
     </record>
-
 
     <record model="ir.ui.view" id="spp_gis_data_layer_view_tree">
         <field name="name">spp.gis.data.layer.tree</field>
@@ -124,5 +196,4 @@
         <field name="res_model">spp.gis.data.layer</field>
         <field name="view_id" ref="spp_gis_data_layer_view_tree" />
     </record>
-
 </odoo>

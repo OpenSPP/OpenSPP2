@@ -30,7 +30,8 @@ groups:
     tier: 3
     implied_ids: [group_service_points_read]
     comment:
-      "Technical group for service point create access. Grants permission to create new service points and types."
+      "Technical group for service point create access. Grants permission to create new
+      service points and types."
 
   # --- Tier 2: User-facing groups ---
   - id: group_service_points_viewer
@@ -38,23 +39,29 @@ groups:
     privilege_id: privilege_service_points_viewer
     implied_ids: [group_service_points_read]
     comment:
-      "Can view service points and types. Cannot modify data. Useful for users who need to reference service points."
+      "Can view service points and types. Cannot modify data. Useful for users who need
+      to reference service points."
 
   - id: group_service_points_officer
     tier: 2
     privilege_id: privilege_service_points_officer
-    implied_ids: [group_service_points_viewer, group_service_points_write, group_service_points_create]
+    implied_ids:
+      [
+        group_service_points_viewer,
+        group_service_points_write,
+        group_service_points_create,
+      ]
     comment:
-      "Can view and edit service points and types. Can create new service points. Cannot delete. Standard role for
-      service point coordinators."
+      "Can view and edit service points and types. Can create new service points. Cannot
+      delete. Standard role for service point coordinators."
 
   - id: group_service_points_manager
     tier: 2
     privilege_id: privilege_service_points_manager
     implied_ids: [group_service_points_officer]
     comment:
-      "Full service point management including delete operations and configuration access. For service point
-      administrators."
+      "Full service point management including delete operations and configuration
+      access. For service point administrators."
 
   # Note: Existing group_service_points_user should be deprecated in favor of group_service_points_officer
   # service_point_users is already marked as deprecated
@@ -104,7 +111,8 @@ menus:
     name: "Service Point"
     groups: [group_service_points_viewer]
     comment:
-      "Main service points menu. Currently restricted to admin only, should be accessible to all service points users."
+      "Main service points menu. Currently restricted to admin only, should be
+      accessible to all service points users."
 
   # Service Points list menu - Access to service points management
   - id: menu_service_points
@@ -112,7 +120,8 @@ menus:
     parent: service_points_main_menu_root
     action: action_service_points
     groups: [group_service_points_viewer]
-    comment: "Currently restricted to admin. Should be visible to viewers (read-only via ACL)."
+    comment:
+      "Currently restricted to admin. Should be visible to viewers (read-only via ACL)."
 
   # Configuration menu - For service types and settings
   - id: service_points_configuration_menu_root
@@ -176,54 +185,63 @@ issues:
   - issue: "Missing tier 3 technical groups"
     severity: medium
     description:
-      "Module lacks group_service_points_read, group_service_points_write, and group_service_points_create technical
-      groups."
+      "Module lacks group_service_points_read, group_service_points_write, and
+      group_service_points_create technical groups."
     fix: "Add tier 3 groups to security/security_group.xml"
 
   - issue: "Missing viewer and manager groups"
     severity: medium
     description:
-      "Only group_service_points_user exists. Missing group_service_points_viewer and group_service_points_manager."
+      "Only group_service_points_user exists. Missing group_service_points_viewer and
+      group_service_points_manager."
     fix: "Add missing tier 2 groups with appropriate privileges."
 
   - issue: "Missing privileges"
     severity: medium
     description:
-      "Only privilege_service_points_user exists. Need privilege_service_points_viewer and
-      privilege_service_points_manager."
+      "Only privilege_service_points_user exists. Need privilege_service_points_viewer
+      and privilege_service_points_manager."
     fix: "Add missing privileges to security/privileges.xml"
 
   - issue: "Menu restricted to admin only"
     severity: high
     description:
-      "menu_service_points currently restricted to spp_security.group_spp_admin. Should be accessible to service points
-      users."
+      "menu_service_points currently restricted to spp_security.group_spp_admin. Should
+      be accessible to service points users."
     fix: "Change menu groups to group_service_points_viewer"
 
   - issue: "No record rules"
     severity: medium
-    description: "Module has no record rules. Service points should have global read access as reference data."
+    description:
+      "Module has no record rules. Service points should have global read access as
+      reference data."
     fix: "Add record rules for global read access to both models."
 
   - issue: "ACL references external groups"
     severity: low
     description:
-      "ir.model.access.csv includes entries for spp_registry.group_registry_officer, creating tight coupling."
+      "ir.model.access.csv includes entries for spp_registry.group_registry_officer,
+      creating tight coupling."
     recommendation:
-      "Registry officers needing service point access should be granted group_service_points_officer via role
-      composition or explicit assignment."
+      "Registry officers needing service point access should be granted
+      group_service_points_officer via role composition or explicit assignment."
 
   - issue: "Deprecated group still referenced"
     severity: low
-    description: "service_point_users deprecated group is still referenced in registrant.py:213"
-    fix: "Update code reference to use group_service_points_user (or new group_service_points_officer)"
+    description:
+      "service_point_users deprecated group is still referenced in registrant.py:213"
+    fix:
+      "Update code reference to use group_service_points_user (or new
+      group_service_points_officer)"
 
   - issue: "Button actions lack group restrictions"
     severity: medium
     description:
-      "disable_service_point, enable_service_point, and create_user buttons in form view lack explicit group
-      restrictions in Python methods."
-    fix: "Add @api.depends or security checks to these methods, or restrict via view groups attribute."
+      "disable_service_point, enable_service_point, and create_user buttons in form view
+      lack explicit group restrictions in Python methods."
+    fix:
+      "Add @api.depends or security checks to these methods, or restrict via view groups
+      attribute."
 
 # =============================================================================
 # MIGRATION NOTES

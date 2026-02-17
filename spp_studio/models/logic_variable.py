@@ -360,7 +360,7 @@ class LogicVariable(models.Model):
                 if record.state == "active":
                     raise UserError(
                         _(
-                            "Cannot delete active variable '%(name)s'. " "Deactivate it first.",
+                            "Cannot delete active variable '%(name)s'. Deactivate it first.",
                             name=record.label or record.name,
                         )
                     )
@@ -637,7 +637,7 @@ class LogicVariable(models.Model):
         # Check if Studio Fields feature is available
         if "spp.studio.field" not in self.env or "spp.studio.field.builder.wizard" not in self.env:
             raise ValidationError(
-                _("The Custom Fields feature is not available. " "Please ensure spp_studio is properly installed.")
+                _("The Custom Fields feature is not available. Please ensure spp_studio is properly installed.")
             )
 
         # Determine target registry from variable scope

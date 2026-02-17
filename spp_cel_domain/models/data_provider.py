@@ -172,7 +172,7 @@ class DataProvider(models.Model):
         for rec in self:
             if not pattern.match(rec.code):
                 raise ValidationError(
-                    _("Provider code must be lowercase alphanumeric with underscores, " "starting with a letter.")
+                    _("Provider code must be lowercase alphanumeric with underscores, starting with a letter.")
                 )
 
     @api.constrains("default_ttl_seconds")

@@ -94,7 +94,10 @@ export const celSymbolService = {
                     const result = await rpc("/spp_cel/profiles", {});
                     return result;
                 } catch (error) {
-                    console.error("[CelSymbolService] Failed to fetch profiles:", error);
+                    console.error(
+                        "[CelSymbolService] Failed to fetch profiles:",
+                        error
+                    );
                     return [];
                 }
             },

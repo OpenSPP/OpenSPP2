@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
     <!--
         Economic Activity Status Vocabulary based on ILO Standards
@@ -10,8 +10,12 @@
         <field name="name">Economic Activity Status (ILO)</field>
         <field name="namespace_uri">urn:ilo:economic-activity-status</field>
         <field name="version">2018</field>
-        <field name="description">Economic activity and employment status classification based on ILO standards including ICSE-18. Combines labour force status (19th ICLS) and status in employment (ICSE-18).</field>
-        <field name="reference_url">https://ilostat.ilo.org/methods/concepts-and-definitions/classification-status-employment/</field>
+        <field
+            name="description"
+        >Economic activity and employment status classification based on ILO standards including ICSE-18. Combines labour force status (19th ICLS) and status in employment (ICSE-18).</field>
+        <field
+            name="reference_url"
+        >https://ilostat.ilo.org/methods/concepts-and-definitions/classification-status-employment/</field>
         <field name="is_system">True</field>
         <field name="is_hierarchical">True</field>
         <field name="domain">labor</field>
@@ -21,71 +25,85 @@
          1. EMPLOYED (Work for Pay or Profit)
          ========================================================= -->
     <record id="econ_employed" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_economic_activity"/>
+        <field name="vocabulary_id" ref="vocab_economic_activity" />
         <field name="code">employed</field>
         <field name="display">Employed</field>
-        <field name="definition">Persons of working age who, during a short reference period, were engaged in any activity to produce goods or provide services for pay or profit.</field>
+        <field
+            name="definition"
+        >Persons of working age who, during a short reference period, were engaged in any activity to produce goods or provide services for pay or profit.</field>
         <field name="sequence">10</field>
     </record>
 
     <!-- 1.1 Employees (ICSE-18 Group 4) -->
     <record id="econ_employee" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_economic_activity"/>
+        <field name="vocabulary_id" ref="vocab_economic_activity" />
         <field name="code">employee</field>
         <field name="display">Employee</field>
-        <field name="definition">Persons who work for a public or private employer and receive remuneration in wages, salary, or payment in kind. Includes permanent, fixed-term, and casual employees.</field>
-        <field name="parent_id" ref="econ_employed"/>
+        <field
+            name="definition"
+        >Persons who work for a public or private employer and receive remuneration in wages, salary, or payment in kind. Includes permanent, fixed-term, and casual employees.</field>
+        <field name="parent_id" ref="econ_employed" />
         <field name="sequence">11</field>
     </record>
 
-        <!-- Sub-category: Casual is a type of Employee in ICSE-18 -->
-        <record id="econ_casual" model="spp.vocabulary.code">
-            <field name="vocabulary_id" ref="vocab_economic_activity"/>
-            <field name="code">casual</field>
-            <field name="display">Casual / Short-term Employee</field>
-            <field name="definition">Employees with short-term, discontinuous, or casual work arrangements without a guaranteed minimum amount of work.</field>
-            <field name="parent_id" ref="econ_employee"/>
-            <field name="sequence">111</field>
-        </record>
+    <!-- Sub-category: Casual is a type of Employee in ICSE-18 -->
+    <record id="econ_casual" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_economic_activity" />
+        <field name="code">casual</field>
+        <field name="display">Casual / Short-term Employee</field>
+        <field
+            name="definition"
+        >Employees with short-term, discontinuous, or casual work arrangements without a guaranteed minimum amount of work.</field>
+        <field name="parent_id" ref="econ_employee" />
+        <field name="sequence">111</field>
+    </record>
 
     <!-- 1.2 Employers (ICSE-18 Group 1) -->
     <record id="econ_employer" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_economic_activity"/>
+        <field name="vocabulary_id" ref="vocab_economic_activity" />
         <field name="code">employer</field>
         <field name="display">Employer</field>
-        <field name="definition">Independent workers who operate their own economic enterprise and hire one or more employees on a regular basis.</field>
-        <field name="parent_id" ref="econ_employed"/>
+        <field
+            name="definition"
+        >Independent workers who operate their own economic enterprise and hire one or more employees on a regular basis.</field>
+        <field name="parent_id" ref="econ_employed" />
         <field name="sequence">12</field>
     </record>
 
     <!-- 1.3 Own-Account Workers (ICSE-18 Group 2) -->
     <record id="econ_own_account" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_economic_activity"/>
+        <field name="vocabulary_id" ref="vocab_economic_activity" />
         <field name="code">own_account</field>
         <field name="display">Own-Account Worker</field>
-        <field name="definition">Independent workers who operate their own economic enterprise and do NOT hire employees on a regular basis.</field>
-        <field name="parent_id" ref="econ_employed"/>
+        <field
+            name="definition"
+        >Independent workers who operate their own economic enterprise and do NOT hire employees on a regular basis.</field>
+        <field name="parent_id" ref="econ_employed" />
         <field name="sequence">13</field>
     </record>
 
     <!-- 1.4 Dependent Contractors (NEW in ICSE-18 - Group 3) -->
     <!-- This is vital for "gig economy" or dependent freelancers -->
     <record id="econ_dependent_contractor" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_economic_activity"/>
+        <field name="vocabulary_id" ref="vocab_economic_activity" />
         <field name="code">dependent_contractor</field>
         <field name="display">Dependent Contractor</field>
-        <field name="definition">Workers who have contractual arrangements of a commercial nature (not employment contracts) but are dependent on another entity for organization of work, income, or access to the market.</field>
-        <field name="parent_id" ref="econ_employed"/>
+        <field
+            name="definition"
+        >Workers who have contractual arrangements of a commercial nature (not employment contracts) but are dependent on another entity for organization of work, income, or access to the market.</field>
+        <field name="parent_id" ref="econ_employed" />
         <field name="sequence">14</field>
     </record>
 
     <!-- 1.5 Contributing Family Workers (ICSE-18 Group 5) -->
     <record id="econ_contributing_family" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_economic_activity"/>
+        <field name="vocabulary_id" ref="vocab_economic_activity" />
         <field name="code">contributing_family</field>
         <field name="display">Contributing Family Worker</field>
-        <field name="definition">Persons who assist a family member in a market-oriented enterprise but do not make the important decisions and do not receive regular pay.</field>
-        <field name="parent_id" ref="econ_employed"/>
+        <field
+            name="definition"
+        >Persons who assist a family member in a market-oriented enterprise but do not make the important decisions and do not receive regular pay.</field>
+        <field name="parent_id" ref="econ_employed" />
         <field name="sequence">15</field>
     </record>
 
@@ -93,10 +111,12 @@
          2. UNEMPLOYED
          ========================================================= -->
     <record id="econ_unemployed" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_economic_activity"/>
+        <field name="vocabulary_id" ref="vocab_economic_activity" />
         <field name="code">unemployed</field>
         <field name="display">Unemployed</field>
-        <field name="definition">Persons of working age who are: (a) without work; (b) currently available for work; AND (c) actively seeking work.</field>
+        <field
+            name="definition"
+        >Persons of working age who are: (a) without work; (b) currently available for work; AND (c) actively seeking work.</field>
         <field name="sequence">20</field>
     </record>
 
@@ -104,67 +124,81 @@
          3. OUTSIDE LABOUR FORCE (Inactive)
          ========================================================= -->
     <record id="econ_outside_labour_force" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_economic_activity"/>
+        <field name="vocabulary_id" ref="vocab_economic_activity" />
         <field name="code">outside_labour_force</field>
         <field name="display">Outside Labour Force</field>
-        <field name="definition">Persons of working age who are neither employed nor unemployed.</field>
+        <field
+            name="definition"
+        >Persons of working age who are neither employed nor unemployed.</field>
         <field name="sequence">30</field>
     </record>
 
     <!-- 3.1 Potential Labour Force (Includes Discouraged Workers) -->
     <!-- This is the correct ILO location for Discouraged Workers -->
     <record id="econ_potential_labour_force" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_economic_activity"/>
+        <field name="vocabulary_id" ref="vocab_economic_activity" />
         <field name="code">potential_labour_force</field>
         <field name="display">Potential Labour Force</field>
-        <field name="definition">Persons outside the labour force who have some attachment to the labour market (e.g., available but not seeking, or seeking but not available).</field>
-        <field name="parent_id" ref="econ_outside_labour_force"/>
+        <field
+            name="definition"
+        >Persons outside the labour force who have some attachment to the labour market (e.g., available but not seeking, or seeking but not available).</field>
+        <field name="parent_id" ref="econ_outside_labour_force" />
         <field name="sequence">31</field>
     </record>
 
-        <record id="econ_discouraged_worker" model="spp.vocabulary.code">
-            <field name="vocabulary_id" ref="vocab_economic_activity"/>
-            <field name="code">discouraged_worker</field>
-            <field name="display">Discouraged Worker</field>
-            <field name="definition">Persons available for work but not seeking employment due to labour market-related reasons (e.g., belief that no jobs are available).</field>
-            <field name="parent_id" ref="econ_potential_labour_force"/>
-            <field name="sequence">311</field>
-        </record>
+    <record id="econ_discouraged_worker" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_economic_activity" />
+        <field name="code">discouraged_worker</field>
+        <field name="display">Discouraged Worker</field>
+        <field
+            name="definition"
+        >Persons available for work but not seeking employment due to labour market-related reasons (e.g., belief that no jobs are available).</field>
+        <field name="parent_id" ref="econ_potential_labour_force" />
+        <field name="sequence">311</field>
+    </record>
 
     <!-- 3.2 Other Inactive Groups -->
     <record id="econ_student" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_economic_activity"/>
+        <field name="vocabulary_id" ref="vocab_economic_activity" />
         <field name="code">student</field>
         <field name="display">Student</field>
-        <field name="definition">Persons primarily engaged in education or training and not in the labour force.</field>
-        <field name="parent_id" ref="econ_outside_labour_force"/>
+        <field
+            name="definition"
+        >Persons primarily engaged in education or training and not in the labour force.</field>
+        <field name="parent_id" ref="econ_outside_labour_force" />
         <field name="sequence">32</field>
     </record>
 
     <record id="econ_homemaker" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_economic_activity"/>
+        <field name="vocabulary_id" ref="vocab_economic_activity" />
         <field name="code">homemaker</field>
         <field name="display">Homemaker / Care Provider</field>
-        <field name="definition">Persons primarily engaged in unpaid household duties and care work within their own household.</field>
-        <field name="parent_id" ref="econ_outside_labour_force"/>
+        <field
+            name="definition"
+        >Persons primarily engaged in unpaid household duties and care work within their own household.</field>
+        <field name="parent_id" ref="econ_outside_labour_force" />
         <field name="sequence">33</field>
     </record>
 
     <record id="econ_retired" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_economic_activity"/>
+        <field name="vocabulary_id" ref="vocab_economic_activity" />
         <field name="code">retired</field>
         <field name="display">Retired / Pensioner</field>
-        <field name="definition">Persons who have withdrawn from the labour force due to age or length of service.</field>
-        <field name="parent_id" ref="econ_outside_labour_force"/>
+        <field
+            name="definition"
+        >Persons who have withdrawn from the labour force due to age or length of service.</field>
+        <field name="parent_id" ref="econ_outside_labour_force" />
         <field name="sequence">34</field>
     </record>
 
     <record id="econ_unable_to_work" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_economic_activity"/>
+        <field name="vocabulary_id" ref="vocab_economic_activity" />
         <field name="code">unable_to_work</field>
         <field name="display">Unable to Work (Disability/Illness)</field>
-        <field name="definition">Persons unable to work due to long-term disability or illness.</field>
-        <field name="parent_id" ref="econ_outside_labour_force"/>
+        <field
+            name="definition"
+        >Persons unable to work due to long-term disability or illness.</field>
+        <field name="parent_id" ref="econ_outside_labour_force" />
         <field name="sequence">35</field>
     </record>
 
@@ -172,15 +206,17 @@
          OTHERS
          ========================================================= -->
     <record id="econ_below_working_age" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_economic_activity"/>
+        <field name="vocabulary_id" ref="vocab_economic_activity" />
         <field name="code">below_working_age</field>
         <field name="display">Below Working Age</field>
-        <field name="definition">Persons below the minimum working age as defined by national legislation.</field>
+        <field
+            name="definition"
+        >Persons below the minimum working age as defined by national legislation.</field>
         <field name="sequence">40</field>
     </record>
 
     <record id="econ_unknown" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_economic_activity"/>
+        <field name="vocabulary_id" ref="vocab_economic_activity" />
         <field name="code">unknown</field>
         <field name="display">Not Stated / Unknown</field>
         <field name="sequence">99</field>

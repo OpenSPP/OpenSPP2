@@ -82,7 +82,7 @@ class StudioMixin(models.AbstractModel):
     program_ids = fields.Many2many(
         "spp.program",
         string="Programs",
-        help="If set, this configuration is only visible in these programs. " "Leave empty for global visibility.",
+        help="If set, this configuration is only visible in these programs. Leave empty for global visibility.",
     )
 
     def action_activate(self):

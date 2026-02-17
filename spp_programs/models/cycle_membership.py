@@ -122,7 +122,7 @@ class SPPCycleMembership(models.Model):
             if entitlement:
                 if entitlement.state == "approved":
                     raise ValidationError(
-                        _("Beneficiaries can only be deleted when both the cycle and" "entitlement are unapproved.")
+                        _("Beneficiaries can only be deleted when both the cycle andentitlement are unapproved.")
                     )
                 entitlement.unlink()
 

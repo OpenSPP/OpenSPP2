@@ -1,7 +1,7 @@
 # DRIMS 4W Reporting
 
-The 4W Report is a standard humanitarian coordination tool that answers four key questions about relief operations:
-**Who** is doing **What**, **Where**, and **When**.
+The 4W Report is a standard humanitarian coordination tool that answers four key
+questions about relief operations: **Who** is doing **What**, **Where**, and **When**.
 
 ## Overview
 
@@ -171,9 +171,11 @@ To add custom measures to the pivot view, extend `views/report_4w_wizard_views.x
 Add filters to the search view for additional dimensions:
 
 ```xml
-<filter name="priority_high"
-        string="High Priority"
-        domain="[('priority_id.code', '=', 'high')]"/>
+<filter
+  name="priority_high"
+  string="High Priority"
+  domain="[('priority_id.code', '=', 'high')]"
+/>
 ```
 
 ## Exporting Reports

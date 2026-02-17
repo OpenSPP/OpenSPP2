@@ -1,161 +1,185 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-        <!-- API Client Tree View -->
-        <record id="view_api_client_tree" model="ir.ui.view">
-            <field name="name">spp.api.client.tree</field>
-            <field name="model">spp.api.client</field>
-            <field name="arch" type="xml">
-                <list string="API Clients">
-                    <field name="name" />
-                    <field name="auth_type" />
-                    <field name="client_id" />
-                    <field name="partner_id" />
-                    <field name="organization_type_id" />
-                    <field name="scope_count" />
-                    <field name="last_used_date" />
-                    <field name="active" />
-                </list>
-            </field>
-        </record>
+    <!-- API Client Tree View -->
+    <record id="view_api_client_tree" model="ir.ui.view">
+        <field name="name">spp.api.client.tree</field>
+        <field name="model">spp.api.client</field>
+        <field name="arch" type="xml">
+            <list string="API Clients">
+                <field name="name" />
+                <field name="auth_type" />
+                <field name="client_id" />
+                <field name="partner_id" />
+                <field name="organization_type_id" />
+                <field name="scope_count" />
+                <field name="last_used_date" />
+                <field name="active" />
+            </list>
+        </field>
+    </record>
 
-        <!-- API Client Form View -->
-        <record id="view_api_client_form" model="ir.ui.view">
-            <field name="name">spp.api.client.form</field>
-            <field name="model">spp.api.client</field>
-            <field name="arch" type="xml">
-                <form string="API Client">
-                    <header>
+    <!-- API Client Form View -->
+    <record id="view_api_client_form" model="ir.ui.view">
+        <field name="name">spp.api.client.form</field>
+        <field name="model">spp.api.client</field>
+        <field name="arch" type="xml">
+            <form string="API Client">
+                <header>
+                    <button
+                        name="action_regenerate_secret"
+                        string="Regenerate Secret"
+                        type="object"
+                        class="btn-warning"
+                        groups="spp_api_v2.group_api_v2_manager"
+                    />
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
                         <button
-                            name="action_regenerate_secret"
-                            string="Regenerate Secret"
+                            name="action_view_scopes"
                             type="object"
-                            class="btn-warning"
-                            groups="spp_api_v2.group_api_v2_manager"
-                        />
-                    </header>
-                    <sheet>
-                        <div class="oe_button_box" name="button_box">
-                            <button
-                                name="action_view_scopes"
-                                type="object"
-                                class="oe_stat_button"
-                                icon="fa-lock"
-                            >
-                                <field name="scope_count" widget="statinfo" string="Scopes" />
-                            </button>
-                        </div>
-                        <widget
-                            name="web_ribbon"
-                            title="Archived"
-                            bg_color="bg-danger"
-                            invisible="active"
-                        />
-                        <group>
-                            <group name="basic">
-                                <field name="name" />
-                                <field name="auth_type" />
-                                <field name="client_id" readonly="1" invisible="auth_type != 'oauth2'" />
-                                <field name="client_secret" password="True" invisible="auth_type != 'oauth2'" />
-                                <field name="partner_id" />
-                                <field name="organization_type_id" options="{'no_create': True}" />
-                                <field name="active" invisible="1" />
-                            </group>
-                            <group name="usage">
-                                <field name="last_used_date" />
-                                <field name="request_count" />
-                                <field name="rate_limit_per_minute" />
-                                <field name="rate_limit_per_day" />
-                            </group>
+                            class="oe_stat_button"
+                            icon="fa-lock"
+                        >
+                            <field
+                                name="scope_count"
+                                widget="statinfo"
+                                string="Scopes"
+                            />
+                        </button>
+                    </div>
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="bg-danger"
+                        invisible="active"
+                    />
+                    <group>
+                        <group name="basic">
+                            <field name="name" />
+                            <field name="auth_type" />
+                            <field
+                                name="client_id"
+                                readonly="1"
+                                invisible="auth_type != 'oauth2'"
+                            />
+                            <field
+                                name="client_secret"
+                                password="True"
+                                invisible="auth_type != 'oauth2'"
+                            />
+                            <field name="partner_id" />
+                            <field
+                                name="organization_type_id"
+                                options="{'no_create': True}"
+                            />
+                            <field name="active" invisible="1" />
                         </group>
-                        <notebook>
-                            <page name="consent" string="Consent &amp; Security">
-                                <group string="Consent Settings">
-                                    <field name="is_require_consent" />
-                                    <field name="legal_basis" />
-                                    <field
-                                        name="legal_basis_reference"
-                                        invisible="legal_basis == 'consent'"
-                                    />
-                                </group>
-                                <group string="Organization Type Verification">
-                                    <field name="is_organization_type_verified" readonly="1" />
-                                    <field name="is_organization_type_verified_by" readonly="1" />
-                                    <field name="is_organization_type_verified_date" readonly="1" />
-                                    <button
-                                        name="action_verify_organization_type"
-                                        string="Verify Organization Type"
-                                        type="object"
-                                        class="btn-primary"
-                                        invisible="is_organization_type_verified"
-                                        groups="spp_api_v2.group_api_v2_manager"
-                                    />
-                                </group>
-                            </page>
-                            <page name="scopes" string="Scopes">
-                                <field name="scope_ids">
-                                    <list editable="bottom">
-                                        <field name="resource" />
-                                        <field name="action" />
-                                    </list>
-                                </field>
-                            </page>
-                            <page name="description" string="Description">
-                                <field name="description" />
-                            </page>
-                        </notebook>
-                    </sheet>
-                </form>
-            </field>
-        </record>
+                        <group name="usage">
+                            <field name="last_used_date" />
+                            <field name="request_count" />
+                            <field name="rate_limit_per_minute" />
+                            <field name="rate_limit_per_day" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="consent" string="Consent &amp; Security">
+                            <group string="Consent Settings">
+                                <field name="is_require_consent" />
+                                <field name="legal_basis" />
+                                <field
+                                    name="legal_basis_reference"
+                                    invisible="legal_basis == 'consent'"
+                                />
+                            </group>
+                            <group string="Organization Type Verification">
+                                <field
+                                    name="is_organization_type_verified"
+                                    readonly="1"
+                                />
+                                <field
+                                    name="is_organization_type_verified_by"
+                                    readonly="1"
+                                />
+                                <field
+                                    name="is_organization_type_verified_date"
+                                    readonly="1"
+                                />
+                                <button
+                                    name="action_verify_organization_type"
+                                    string="Verify Organization Type"
+                                    type="object"
+                                    class="btn-primary"
+                                    invisible="is_organization_type_verified"
+                                    groups="spp_api_v2.group_api_v2_manager"
+                                />
+                            </group>
+                        </page>
+                        <page name="scopes" string="Scopes">
+                            <field name="scope_ids">
+                                <list editable="bottom">
+                                    <field name="resource" />
+                                    <field name="action" />
+                                </list>
+                            </field>
+                        </page>
+                        <page name="description" string="Description">
+                            <field name="description" />
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
 
-        <!-- API Client Action -->
-        <record id="action_api_client" model="ir.actions.act_window">
-            <field name="name">API Clients</field>
-            <field name="res_model">spp.api.client</field>
-            <field name="view_mode">list,form</field>
-            <field name="help" type="html">
-                <p class="o_view_nocontent_smiling_face">
+    <!-- API Client Action -->
+    <record id="action_api_client" model="ir.actions.act_window">
+        <field name="name">API Clients</field>
+        <field name="res_model">spp.api.client</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
                     Create an API Client
                 </p>
-                <p>
+            <p>
                     API clients are applications that access OpenSPP data via the V2 API.
                     Each client has OAuth credentials and scopes defining what data it can access.
                 </p>
-            </field>
-        </record>
+        </field>
+    </record>
 
-        <!-- API Client Scope Tree View -->
-        <record id="view_api_client_scope_tree" model="ir.ui.view">
-            <field name="name">spp.api.client.scope.tree</field>
-            <field name="model">spp.api.client.scope</field>
-            <field name="arch" type="xml">
-                <list string="Client Scopes">
-                    <field name="client_id" />
-                    <field name="resource" />
-                    <field name="action" />
-                </list>
-            </field>
-        </record>
+    <!-- API Client Scope Tree View -->
+    <record id="view_api_client_scope_tree" model="ir.ui.view">
+        <field name="name">spp.api.client.scope.tree</field>
+        <field name="model">spp.api.client.scope</field>
+        <field name="arch" type="xml">
+            <list string="Client Scopes">
+                <field name="client_id" />
+                <field name="resource" />
+                <field name="action" />
+            </list>
+        </field>
+    </record>
 
-        <!-- API Client Scope Form View -->
-        <record id="view_api_client_scope_form" model="ir.ui.view">
-            <field name="name">spp.api.client.scope.form</field>
-            <field name="model">spp.api.client.scope</field>
-            <field name="arch" type="xml">
-                <form string="Client Scope">
-                    <sheet>
-                        <group>
-                            <field name="client_id" />
-                            <field name="resource" />
-                            <field name="action" />
-                        </group>
-                        <group string="Restrictions">
-                            <field name="field_filter_ids" widget="many2many_tags" />
-                        </group>
-                        <separator string="Description"/>
-                        <field name="description" nolabel="1" class="oe_inline"/>
-                    </sheet>
-                </form>
-            </field>
-        </record>
+    <!-- API Client Scope Form View -->
+    <record id="view_api_client_scope_form" model="ir.ui.view">
+        <field name="name">spp.api.client.scope.form</field>
+        <field name="model">spp.api.client.scope</field>
+        <field name="arch" type="xml">
+            <form string="Client Scope">
+                <sheet>
+                    <group>
+                        <field name="client_id" />
+                        <field name="resource" />
+                        <field name="action" />
+                    </group>
+                    <group string="Restrictions">
+                        <field name="field_filter_ids" widget="many2many_tags" />
+                    </group>
+                    <separator string="Description" />
+                    <field name="description" nolabel="1" class="oe_inline" />
+                </sheet>
+            </form>
+        </field>
+    </record>
 </odoo>

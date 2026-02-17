@@ -62,15 +62,16 @@ groups:
     privilege_id: privilege_programs_rejector
     implied_ids: [group_programs_read]
     comment:
-      "SPECIALIZED ROLE: Can reject entitlements. This is a functional role (not part of Viewer/Officer/Manager
-      hierarchy)."
+      "SPECIALIZED ROLE: Can reject entitlements. This is a functional role (not part of
+      Viewer/Officer/Manager hierarchy)."
 
   - id: group_programs_cycle_approver
     tier: 2
     privilege_id: privilege_cycle_approver
     implied_ids: [group_programs_read]
     comment:
-      "SPECIALIZED ROLE: Can approve cycles. This is a functional role (not part of Viewer/Officer/Manager hierarchy)."
+      "SPECIALIZED ROLE: Can approve cycles. This is a functional role (not part of
+      Viewer/Officer/Manager hierarchy)."
 
 # Admin linkage - manager group links to spp_security.group_spp_admin
 admin_link_group: group_programs_manager
@@ -280,7 +281,8 @@ record_rules:
   - id: rule_spp_program_membership_disabled_edit
     model: spp.program.membership
     groups: [group_programs_officer, group_programs_manager]
-    domain_description: "Allow officers/managers to manage memberships for active partners"
+    domain_description:
+      "Allow officers/managers to manage memberships for active partners"
     perm_read: true
     perm_write: true
     perm_create: true
@@ -298,7 +300,8 @@ record_rules:
   - id: rule_spp_cycle_membership_disabled_edit
     model: spp.cycle.membership
     groups: [group_programs_officer, group_programs_manager]
-    domain_description: "Allow officers/managers to manage cycle memberships for active partners"
+    domain_description:
+      "Allow officers/managers to manage cycle memberships for active partners"
     perm_read: true
     perm_write: true
     perm_create: true
@@ -307,7 +310,8 @@ record_rules:
   - id: rule_spp_program_company
     model: spp.program
     global: true
-    domain_description: "Multi-company access: programs with no company or user's companies"
+    domain_description:
+      "Multi-company access: programs with no company or user's companies"
     perm_read: true
     perm_write: true
     perm_create: true
@@ -341,27 +345,32 @@ menus:
   - id: spp_programs.menu_program_list
     name: "Programs"
     parent: spp_programs_root
-    groups: [spp_security.group_spp_admin, group_programs_manager, group_programs_validator]
+    groups:
+      [spp_security.group_spp_admin, group_programs_manager, group_programs_validator]
 
   - id: menu_program_fund
     name: "Funds"
     parent: spp_programs_reports_menu_root
-    groups: [spp_security.group_spp_admin, group_programs_manager, group_programs_validator]
+    groups:
+      [spp_security.group_spp_admin, group_programs_manager, group_programs_validator]
 
   - id: menu_program_fund_report
     name: "Fund Reports"
     parent: spp_programs_reports_menu_root
-    groups: [spp_security.group_spp_admin, group_programs_manager, group_programs_validator]
+    groups:
+      [spp_security.group_spp_admin, group_programs_manager, group_programs_validator]
 
   - id: menu_account_journal_prog_benf
     name: "Accounting Journal"
     parent: spp_programs_reports_menu_root
-    groups: [spp_security.group_spp_admin, group_programs_manager, group_programs_validator]
+    groups:
+      [spp_security.group_spp_admin, group_programs_manager, group_programs_validator]
 
   - id: menu_payment_batch
     name: "Payment Batches"
     parent: spp_programs_root
-    groups: [spp_security.group_spp_admin, group_programs_manager, group_programs_validator]
+    groups:
+      [spp_security.group_spp_admin, group_programs_manager, group_programs_validator]
 
   - id: menu_payment_batch_tags
     name: "Payment Batch Tags"
@@ -417,7 +426,8 @@ field_restrictions:
 button_restrictions:
   - model: spp.cycle
     button_name: action_print_summary
-    groups: [group_programs_manager, group_programs_validator, spp_security.group_spp_admin]
+    groups:
+      [group_programs_manager, group_programs_validator, spp_security.group_spp_admin]
     reason: "Only managers, validators, and admins can print cycle summaries"
 
 # =============================================================================

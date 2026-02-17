@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
     <!--
         DRIMS Approval Definitions
@@ -10,12 +10,12 @@
     <!-- Fast-Track Approval (Life-Threatening) -->
     <record id="approval_def_fast_track" model="spp.approval.definition">
         <field name="name">DRIMS: Fast-Track (Life-Threatening)</field>
-        <field name="model_id" ref="model_spp_drims_request"/>
+        <field name="model_id" ref="model_spp_drims_request" />
         <field name="active">True</field>
         <field name="sla_days">0</field>
         <field name="sequence">1</field>
         <field name="approval_type">group</field>
-        <field name="approval_group_id" ref="group_drims_manager"/>
+        <field name="approval_group_id" ref="group_drims_manager" />
         <field name="is_emergency_bypass_allowed">True</field>
         <field name="notify_on_submit">True</field>
     </record>
@@ -23,24 +23,24 @@
     <!-- Standard Approval (Small Value) -->
     <record id="approval_def_standard" model="spp.approval.definition">
         <field name="name">DRIMS: Standard (Small Value)</field>
-        <field name="model_id" ref="model_spp_drims_request"/>
+        <field name="model_id" ref="model_spp_drims_request" />
         <field name="active">True</field>
         <field name="sla_days">1</field>
         <field name="sequence">10</field>
         <field name="approval_type">group</field>
-        <field name="approval_group_id" ref="group_drims_approver"/>
+        <field name="approval_group_id" ref="group_drims_approver" />
         <field name="notify_on_submit">True</field>
     </record>
 
     <!-- Medium Value Approval -->
     <record id="approval_def_medium" model="spp.approval.definition">
         <field name="name">DRIMS: Medium Value</field>
-        <field name="model_id" ref="model_spp_drims_request"/>
+        <field name="model_id" ref="model_spp_drims_request" />
         <field name="active">True</field>
         <field name="sla_days">2</field>
         <field name="sequence">20</field>
         <field name="approval_type">group</field>
-        <field name="approval_group_id" ref="group_drims_approver"/>
+        <field name="approval_group_id" ref="group_drims_approver" />
         <field name="is_require_comment">True</field>
         <field name="notify_on_submit">True</field>
     </record>
@@ -48,12 +48,12 @@
     <!-- Large Value Approval -->
     <record id="approval_def_large" model="spp.approval.definition">
         <field name="name">DRIMS: Large Value</field>
-        <field name="model_id" ref="model_spp_drims_request"/>
+        <field name="model_id" ref="model_spp_drims_request" />
         <field name="active">True</field>
         <field name="sla_days">3</field>
         <field name="sequence">30</field>
         <field name="approval_type">group</field>
-        <field name="approval_group_id" ref="group_drims_manager"/>
+        <field name="approval_group_id" ref="group_drims_manager" />
         <field name="is_require_comment">True</field>
         <field name="notify_on_submit">True</field>
     </record>

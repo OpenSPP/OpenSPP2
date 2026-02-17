@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
     <!--
         Language Vocabulary - Full ISO 639-1 (184 codes)
@@ -20,1289 +20,1297 @@
         <field name="name">Language (ISO 639)</field>
         <field name="namespace_uri">urn:iso:std:iso:639</field>
         <field name="version">2024</field>
-        <field name="description">Complete ISO 639-1 language codes (184 codes). Two-letter codes for major world languages. For languages without ISO 639-1 codes, deployments may extend with ISO 639-2/3 codes.</field>
-        <field name="reference_url">https://www.loc.gov/standards/iso639-2/php/code_list.php</field>
+        <field
+            name="description"
+        >Complete ISO 639-1 language codes (184 codes). Two-letter codes for major world languages. For languages without ISO 639-1 codes, deployments may extend with ISO 639-2/3 codes.</field>
+        <field
+            name="reference_url"
+        >https://www.loc.gov/standards/iso639-2/php/code_list.php</field>
         <field name="is_system">True</field>
         <field name="is_hierarchical">False</field>
         <field name="domain">core</field>
     </record>
 
     <record id="lang_aa" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">aa</field>
         <field name="display">Afar</field>
         <field name="sequence">10</field>
     </record>
 
     <record id="lang_ab" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ab</field>
         <field name="display">Abkhazian</field>
         <field name="sequence">20</field>
     </record>
 
     <record id="lang_ae" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ae</field>
         <field name="display">Avestan</field>
         <field name="sequence">30</field>
     </record>
 
     <record id="lang_af" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">af</field>
         <field name="display">Afrikaans</field>
         <field name="sequence">40</field>
     </record>
 
     <record id="lang_ak" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ak</field>
         <field name="display">Akan</field>
         <field name="sequence">50</field>
     </record>
 
     <record id="lang_am" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">am</field>
         <field name="display">Amharic</field>
         <field name="sequence">60</field>
     </record>
 
     <record id="lang_an" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">an</field>
         <field name="display">Aragonese</field>
         <field name="sequence">70</field>
     </record>
 
     <record id="lang_ar" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ar</field>
         <field name="display">Arabic</field>
         <field name="sequence">80</field>
     </record>
 
     <record id="lang_as" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">as</field>
         <field name="display">Assamese</field>
         <field name="sequence">90</field>
     </record>
 
     <record id="lang_av" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">av</field>
         <field name="display">Avaric</field>
         <field name="sequence">100</field>
     </record>
 
     <record id="lang_ay" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ay</field>
         <field name="display">Aymara</field>
         <field name="sequence">110</field>
     </record>
 
     <record id="lang_az" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">az</field>
         <field name="display">Azerbaijani</field>
         <field name="sequence">120</field>
     </record>
 
     <record id="lang_ba" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ba</field>
         <field name="display">Bashkir</field>
         <field name="sequence">130</field>
     </record>
 
     <record id="lang_be" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">be</field>
         <field name="display">Belarusian</field>
         <field name="sequence">140</field>
     </record>
 
     <record id="lang_bg" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">bg</field>
         <field name="display">Bulgarian</field>
         <field name="sequence">150</field>
     </record>
 
     <record id="lang_bi" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">bi</field>
         <field name="display">Bislama</field>
         <field name="sequence">160</field>
     </record>
 
     <record id="lang_bm" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">bm</field>
         <field name="display">Bambara</field>
         <field name="sequence">170</field>
     </record>
 
     <record id="lang_bn" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">bn</field>
         <field name="display">Bengali</field>
         <field name="sequence">180</field>
     </record>
 
     <record id="lang_bo" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">bo</field>
         <field name="display">Tibetan</field>
         <field name="sequence">190</field>
     </record>
 
     <record id="lang_br" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">br</field>
         <field name="display">Breton</field>
         <field name="sequence">200</field>
     </record>
 
     <record id="lang_bs" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">bs</field>
         <field name="display">Bosnian</field>
         <field name="sequence">210</field>
     </record>
 
     <record id="lang_ca" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ca</field>
         <field name="display">Catalan; Valencian</field>
         <field name="sequence">220</field>
     </record>
 
     <record id="lang_ce" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ce</field>
         <field name="display">Chechen</field>
         <field name="sequence">230</field>
     </record>
 
     <record id="lang_ch" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ch</field>
         <field name="display">Chamorro</field>
         <field name="sequence">240</field>
     </record>
 
     <record id="lang_co" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">co</field>
         <field name="display">Corsican</field>
         <field name="sequence">250</field>
     </record>
 
     <record id="lang_cr" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">cr</field>
         <field name="display">Cree</field>
         <field name="sequence">260</field>
     </record>
 
     <record id="lang_cs" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">cs</field>
         <field name="display">Czech</field>
         <field name="sequence">270</field>
     </record>
 
     <record id="lang_cu" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">cu</field>
-        <field name="display">Church Slavic; Old Slavonic; Church Slavonic; Old Bulgarian; Old Church Slavonic</field>
+        <field
+            name="display"
+        >Church Slavic; Old Slavonic; Church Slavonic; Old Bulgarian; Old Church Slavonic</field>
         <field name="sequence">280</field>
     </record>
 
     <record id="lang_cv" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">cv</field>
         <field name="display">Chuvash</field>
         <field name="sequence">290</field>
     </record>
 
     <record id="lang_cy" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">cy</field>
         <field name="display">Welsh</field>
         <field name="sequence">300</field>
     </record>
 
     <record id="lang_da" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">da</field>
         <field name="display">Danish</field>
         <field name="sequence">310</field>
     </record>
 
     <record id="lang_de" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">de</field>
         <field name="display">German</field>
         <field name="sequence">320</field>
     </record>
 
     <record id="lang_dv" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">dv</field>
         <field name="display">Divehi; Dhivehi; Maldivian</field>
         <field name="sequence">330</field>
     </record>
 
     <record id="lang_dz" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">dz</field>
         <field name="display">Dzongkha</field>
         <field name="sequence">340</field>
     </record>
 
     <record id="lang_ee" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ee</field>
         <field name="display">Ewe</field>
         <field name="sequence">350</field>
     </record>
 
     <record id="lang_el" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">el</field>
         <field name="display">Greek, Modern (1453-)</field>
         <field name="sequence">360</field>
     </record>
 
     <record id="lang_en" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">en</field>
         <field name="display">English</field>
         <field name="sequence">370</field>
     </record>
 
     <record id="lang_eo" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">eo</field>
         <field name="display">Esperanto</field>
         <field name="sequence">380</field>
     </record>
 
     <record id="lang_es" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">es</field>
         <field name="display">Spanish; Castilian</field>
         <field name="sequence">390</field>
     </record>
 
     <record id="lang_et" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">et</field>
         <field name="display">Estonian</field>
         <field name="sequence">400</field>
     </record>
 
     <record id="lang_eu" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">eu</field>
         <field name="display">Basque</field>
         <field name="sequence">410</field>
     </record>
 
     <record id="lang_fa" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">fa</field>
         <field name="display">Persian</field>
         <field name="sequence">420</field>
     </record>
 
     <record id="lang_ff" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ff</field>
         <field name="display">Fulah</field>
         <field name="sequence">430</field>
     </record>
 
     <record id="lang_fi" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">fi</field>
         <field name="display">Finnish</field>
         <field name="sequence">440</field>
     </record>
 
     <record id="lang_fj" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">fj</field>
         <field name="display">Fijian</field>
         <field name="sequence">450</field>
     </record>
 
     <record id="lang_fo" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">fo</field>
         <field name="display">Faroese</field>
         <field name="sequence">460</field>
     </record>
 
     <record id="lang_fr" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">fr</field>
         <field name="display">French</field>
         <field name="sequence">470</field>
     </record>
 
     <record id="lang_fy" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">fy</field>
         <field name="display">Western Frisian</field>
         <field name="sequence">480</field>
     </record>
 
     <record id="lang_ga" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ga</field>
         <field name="display">Irish</field>
         <field name="sequence">490</field>
     </record>
 
     <record id="lang_gd" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">gd</field>
         <field name="display">Gaelic; Scottish Gaelic</field>
         <field name="sequence">500</field>
     </record>
 
     <record id="lang_gl" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">gl</field>
         <field name="display">Galician</field>
         <field name="sequence">510</field>
     </record>
 
     <record id="lang_gn" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">gn</field>
         <field name="display">Guarani</field>
         <field name="sequence">520</field>
     </record>
 
     <record id="lang_gu" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">gu</field>
         <field name="display">Gujarati</field>
         <field name="sequence">530</field>
     </record>
 
     <record id="lang_gv" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">gv</field>
         <field name="display">Manx</field>
         <field name="sequence">540</field>
     </record>
 
     <record id="lang_ha" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ha</field>
         <field name="display">Hausa</field>
         <field name="sequence">550</field>
     </record>
 
     <record id="lang_he" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">he</field>
         <field name="display">Hebrew</field>
         <field name="sequence">560</field>
     </record>
 
     <record id="lang_hi" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">hi</field>
         <field name="display">Hindi</field>
         <field name="sequence">570</field>
     </record>
 
     <record id="lang_ho" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ho</field>
         <field name="display">Hiri Motu</field>
         <field name="sequence">580</field>
     </record>
 
     <record id="lang_hr" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">hr</field>
         <field name="display">Croatian</field>
         <field name="sequence">590</field>
     </record>
 
     <record id="lang_ht" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ht</field>
         <field name="display">Haitian; Haitian Creole</field>
         <field name="sequence">600</field>
     </record>
 
     <record id="lang_hu" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">hu</field>
         <field name="display">Hungarian</field>
         <field name="sequence">610</field>
     </record>
 
     <record id="lang_hy" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">hy</field>
         <field name="display">Armenian</field>
         <field name="sequence">620</field>
     </record>
 
     <record id="lang_hz" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">hz</field>
         <field name="display">Herero</field>
         <field name="sequence">630</field>
     </record>
 
     <record id="lang_ia" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ia</field>
-        <field name="display">Interlingua (International Auxiliary Language Association)</field>
+        <field
+            name="display"
+        >Interlingua (International Auxiliary Language Association)</field>
         <field name="sequence">640</field>
     </record>
 
     <record id="lang_id" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">id</field>
         <field name="display">Indonesian</field>
         <field name="sequence">650</field>
     </record>
 
     <record id="lang_ie" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ie</field>
         <field name="display">Interlingue; Occidental</field>
         <field name="sequence">660</field>
     </record>
 
     <record id="lang_ig" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ig</field>
         <field name="display">Igbo</field>
         <field name="sequence">670</field>
     </record>
 
     <record id="lang_ii" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ii</field>
         <field name="display">Sichuan Yi; Nuosu</field>
         <field name="sequence">680</field>
     </record>
 
     <record id="lang_ik" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ik</field>
         <field name="display">Inupiaq</field>
         <field name="sequence">690</field>
     </record>
 
     <record id="lang_io" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">io</field>
         <field name="display">Ido</field>
         <field name="sequence">700</field>
     </record>
 
     <record id="lang_is" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">is</field>
         <field name="display">Icelandic</field>
         <field name="sequence">710</field>
     </record>
 
     <record id="lang_it" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">it</field>
         <field name="display">Italian</field>
         <field name="sequence">720</field>
     </record>
 
     <record id="lang_iu" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">iu</field>
         <field name="display">Inuktitut</field>
         <field name="sequence">730</field>
     </record>
 
     <record id="lang_ja" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ja</field>
         <field name="display">Japanese</field>
         <field name="sequence">740</field>
     </record>
 
     <record id="lang_jv" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">jv</field>
         <field name="display">Javanese</field>
         <field name="sequence">750</field>
     </record>
 
     <record id="lang_ka" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ka</field>
         <field name="display">Georgian</field>
         <field name="sequence">760</field>
     </record>
 
     <record id="lang_kg" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">kg</field>
         <field name="display">Kongo</field>
         <field name="sequence">770</field>
     </record>
 
     <record id="lang_ki" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ki</field>
         <field name="display">Kikuyu; Gikuyu</field>
         <field name="sequence">780</field>
     </record>
 
     <record id="lang_kj" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">kj</field>
         <field name="display">Kuanyama; Kwanyama</field>
         <field name="sequence">790</field>
     </record>
 
     <record id="lang_kk" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">kk</field>
         <field name="display">Kazakh</field>
         <field name="sequence">800</field>
     </record>
 
     <record id="lang_kl" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">kl</field>
         <field name="display">Kalaallisut; Greenlandic</field>
         <field name="sequence">810</field>
     </record>
 
     <record id="lang_km" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">km</field>
         <field name="display">Central Khmer</field>
         <field name="sequence">820</field>
     </record>
 
     <record id="lang_kn" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">kn</field>
         <field name="display">Kannada</field>
         <field name="sequence">830</field>
     </record>
 
     <record id="lang_ko" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ko</field>
         <field name="display">Korean</field>
         <field name="sequence">840</field>
     </record>
 
     <record id="lang_kr" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">kr</field>
         <field name="display">Kanuri</field>
         <field name="sequence">850</field>
     </record>
 
     <record id="lang_ks" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ks</field>
         <field name="display">Kashmiri</field>
         <field name="sequence">860</field>
     </record>
 
     <record id="lang_ku" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ku</field>
         <field name="display">Kurdish</field>
         <field name="sequence">870</field>
     </record>
 
     <record id="lang_kv" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">kv</field>
         <field name="display">Komi</field>
         <field name="sequence">880</field>
     </record>
 
     <record id="lang_kw" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">kw</field>
         <field name="display">Cornish</field>
         <field name="sequence">890</field>
     </record>
 
     <record id="lang_ky" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ky</field>
         <field name="display">Kirghiz; Kyrgyz</field>
         <field name="sequence">900</field>
     </record>
 
     <record id="lang_la" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">la</field>
         <field name="display">Latin</field>
         <field name="sequence">910</field>
     </record>
 
     <record id="lang_lb" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">lb</field>
         <field name="display">Luxembourgish; Letzeburgesch</field>
         <field name="sequence">920</field>
     </record>
 
     <record id="lang_lg" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">lg</field>
         <field name="display">Ganda</field>
         <field name="sequence">930</field>
     </record>
 
     <record id="lang_li" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">li</field>
         <field name="display">Limburgan; Limburger; Limburgish</field>
         <field name="sequence">940</field>
     </record>
 
     <record id="lang_ln" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ln</field>
         <field name="display">Lingala</field>
         <field name="sequence">950</field>
     </record>
 
     <record id="lang_lo" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">lo</field>
         <field name="display">Lao</field>
         <field name="sequence">960</field>
     </record>
 
     <record id="lang_lt" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">lt</field>
         <field name="display">Lithuanian</field>
         <field name="sequence">970</field>
     </record>
 
     <record id="lang_lu" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">lu</field>
         <field name="display">Luba-Katanga</field>
         <field name="sequence">980</field>
     </record>
 
     <record id="lang_lv" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">lv</field>
         <field name="display">Latvian</field>
         <field name="sequence">990</field>
     </record>
 
     <record id="lang_mg" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">mg</field>
         <field name="display">Malagasy</field>
         <field name="sequence">1000</field>
     </record>
 
     <record id="lang_mh" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">mh</field>
         <field name="display">Marshallese</field>
         <field name="sequence">1010</field>
     </record>
 
     <record id="lang_mi" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">mi</field>
         <field name="display">Maori</field>
         <field name="sequence">1020</field>
     </record>
 
     <record id="lang_mk" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">mk</field>
         <field name="display">Macedonian</field>
         <field name="sequence">1030</field>
     </record>
 
     <record id="lang_ml" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ml</field>
         <field name="display">Malayalam</field>
         <field name="sequence">1040</field>
     </record>
 
     <record id="lang_mn" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">mn</field>
         <field name="display">Mongolian</field>
         <field name="sequence">1050</field>
     </record>
 
     <record id="lang_mr" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">mr</field>
         <field name="display">Marathi</field>
         <field name="sequence">1060</field>
     </record>
 
     <record id="lang_ms" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ms</field>
         <field name="display">Malay</field>
         <field name="sequence">1070</field>
     </record>
 
     <record id="lang_mt" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">mt</field>
         <field name="display">Maltese</field>
         <field name="sequence">1080</field>
     </record>
 
     <record id="lang_my" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">my</field>
         <field name="display">Burmese</field>
         <field name="sequence">1090</field>
     </record>
 
     <record id="lang_na" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">na</field>
         <field name="display">Nauru</field>
         <field name="sequence">1100</field>
     </record>
 
     <record id="lang_nb" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">nb</field>
         <field name="display">Bokmål, Norwegian; Norwegian Bokmål</field>
         <field name="sequence">1110</field>
     </record>
 
     <record id="lang_nd" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">nd</field>
         <field name="display">Ndebele, North; North Ndebele</field>
         <field name="sequence">1120</field>
     </record>
 
     <record id="lang_ne" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ne</field>
         <field name="display">Nepali</field>
         <field name="sequence">1130</field>
     </record>
 
     <record id="lang_ng" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ng</field>
         <field name="display">Ndonga</field>
         <field name="sequence">1140</field>
     </record>
 
     <record id="lang_nl" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">nl</field>
         <field name="display">Dutch; Flemish</field>
         <field name="sequence">1150</field>
     </record>
 
     <record id="lang_nn" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">nn</field>
         <field name="display">Norwegian Nynorsk; Nynorsk, Norwegian</field>
         <field name="sequence">1160</field>
     </record>
 
     <record id="lang_no" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">no</field>
         <field name="display">Norwegian</field>
         <field name="sequence">1170</field>
     </record>
 
     <record id="lang_nr" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">nr</field>
         <field name="display">Ndebele, South; South Ndebele</field>
         <field name="sequence">1180</field>
     </record>
 
     <record id="lang_nv" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">nv</field>
         <field name="display">Navajo; Navaho</field>
         <field name="sequence">1190</field>
     </record>
 
     <record id="lang_ny" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ny</field>
         <field name="display">Chichewa; Chewa; Nyanja</field>
         <field name="sequence">1200</field>
     </record>
 
     <record id="lang_oc" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">oc</field>
         <field name="display">Occitan (post 1500)</field>
         <field name="sequence">1210</field>
     </record>
 
     <record id="lang_oj" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">oj</field>
         <field name="display">Ojibwa</field>
         <field name="sequence">1220</field>
     </record>
 
     <record id="lang_om" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">om</field>
         <field name="display">Oromo</field>
         <field name="sequence">1230</field>
     </record>
 
     <record id="lang_or" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">or</field>
         <field name="display">Oriya</field>
         <field name="sequence">1240</field>
     </record>
 
     <record id="lang_os" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">os</field>
         <field name="display">Ossetian; Ossetic</field>
         <field name="sequence">1250</field>
     </record>
 
     <record id="lang_pa" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">pa</field>
         <field name="display">Panjabi; Punjabi</field>
         <field name="sequence">1260</field>
     </record>
 
     <record id="lang_pi" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">pi</field>
         <field name="display">Pali</field>
         <field name="sequence">1270</field>
     </record>
 
     <record id="lang_pl" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">pl</field>
         <field name="display">Polish</field>
         <field name="sequence">1280</field>
     </record>
 
     <record id="lang_ps" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ps</field>
         <field name="display">Pushto; Pashto</field>
         <field name="sequence">1290</field>
     </record>
 
     <record id="lang_pt" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">pt</field>
         <field name="display">Portuguese</field>
         <field name="sequence">1300</field>
     </record>
 
     <record id="lang_qu" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">qu</field>
         <field name="display">Quechua</field>
         <field name="sequence">1310</field>
     </record>
 
     <record id="lang_rm" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">rm</field>
         <field name="display">Romansh</field>
         <field name="sequence">1320</field>
     </record>
 
     <record id="lang_rn" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">rn</field>
         <field name="display">Rundi</field>
         <field name="sequence">1330</field>
     </record>
 
     <record id="lang_ro" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ro</field>
         <field name="display">Romanian; Moldavian; Moldovan</field>
         <field name="sequence">1340</field>
     </record>
 
     <record id="lang_ru" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ru</field>
         <field name="display">Russian</field>
         <field name="sequence">1350</field>
     </record>
 
     <record id="lang_rw" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">rw</field>
         <field name="display">Kinyarwanda</field>
         <field name="sequence">1360</field>
     </record>
 
     <record id="lang_sa" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">sa</field>
         <field name="display">Sanskrit</field>
         <field name="sequence">1370</field>
     </record>
 
     <record id="lang_sc" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">sc</field>
         <field name="display">Sardinian</field>
         <field name="sequence">1380</field>
     </record>
 
     <record id="lang_sd" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">sd</field>
         <field name="display">Sindhi</field>
         <field name="sequence">1390</field>
     </record>
 
     <record id="lang_se" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">se</field>
         <field name="display">Northern Sami</field>
         <field name="sequence">1400</field>
     </record>
 
     <record id="lang_sg" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">sg</field>
         <field name="display">Sango</field>
         <field name="sequence">1410</field>
     </record>
 
     <record id="lang_si" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">si</field>
         <field name="display">Sinhala; Sinhalese</field>
         <field name="sequence">1420</field>
     </record>
 
     <record id="lang_sk" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">sk</field>
         <field name="display">Slovak</field>
         <field name="sequence">1430</field>
     </record>
 
     <record id="lang_sl" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">sl</field>
         <field name="display">Slovenian</field>
         <field name="sequence">1440</field>
     </record>
 
     <record id="lang_sm" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">sm</field>
         <field name="display">Samoan</field>
         <field name="sequence">1450</field>
     </record>
 
     <record id="lang_sn" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">sn</field>
         <field name="display">Shona</field>
         <field name="sequence">1460</field>
     </record>
 
     <record id="lang_so" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">so</field>
         <field name="display">Somali</field>
         <field name="sequence">1470</field>
     </record>
 
     <record id="lang_sq" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">sq</field>
         <field name="display">Albanian</field>
         <field name="sequence">1480</field>
     </record>
 
     <record id="lang_sr" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">sr</field>
         <field name="display">Serbian</field>
         <field name="sequence">1490</field>
     </record>
 
     <record id="lang_ss" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ss</field>
         <field name="display">Swati</field>
         <field name="sequence">1500</field>
     </record>
 
     <record id="lang_st" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">st</field>
         <field name="display">Sotho, Southern</field>
         <field name="sequence">1510</field>
     </record>
 
     <record id="lang_su" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">su</field>
         <field name="display">Sundanese</field>
         <field name="sequence">1520</field>
     </record>
 
     <record id="lang_sv" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">sv</field>
         <field name="display">Swedish</field>
         <field name="sequence">1530</field>
     </record>
 
     <record id="lang_sw" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">sw</field>
         <field name="display">Swahili</field>
         <field name="sequence">1540</field>
     </record>
 
     <record id="lang_ta" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ta</field>
         <field name="display">Tamil</field>
         <field name="sequence">1550</field>
     </record>
 
     <record id="lang_te" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">te</field>
         <field name="display">Telugu</field>
         <field name="sequence">1560</field>
     </record>
 
     <record id="lang_tg" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">tg</field>
         <field name="display">Tajik</field>
         <field name="sequence">1570</field>
     </record>
 
     <record id="lang_th" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">th</field>
         <field name="display">Thai</field>
         <field name="sequence">1580</field>
     </record>
 
     <record id="lang_ti" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ti</field>
         <field name="display">Tigrinya</field>
         <field name="sequence">1590</field>
     </record>
 
     <record id="lang_tk" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">tk</field>
         <field name="display">Turkmen</field>
         <field name="sequence">1600</field>
     </record>
 
     <record id="lang_tl" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">tl</field>
         <field name="display">Tagalog</field>
         <field name="sequence">1610</field>
     </record>
 
     <record id="lang_tn" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">tn</field>
         <field name="display">Tswana</field>
         <field name="sequence">1620</field>
     </record>
 
     <record id="lang_to" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">to</field>
         <field name="display">Tonga (Tonga Islands)</field>
         <field name="sequence">1630</field>
     </record>
 
     <record id="lang_tr" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">tr</field>
         <field name="display">Turkish</field>
         <field name="sequence">1640</field>
     </record>
 
     <record id="lang_ts" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ts</field>
         <field name="display">Tsonga</field>
         <field name="sequence">1650</field>
     </record>
 
     <record id="lang_tt" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">tt</field>
         <field name="display">Tatar</field>
         <field name="sequence">1660</field>
     </record>
 
     <record id="lang_tw" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">tw</field>
         <field name="display">Twi</field>
         <field name="sequence">1670</field>
     </record>
 
     <record id="lang_ty" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ty</field>
         <field name="display">Tahitian</field>
         <field name="sequence">1680</field>
     </record>
 
     <record id="lang_ug" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ug</field>
         <field name="display">Uighur; Uyghur</field>
         <field name="sequence">1690</field>
     </record>
 
     <record id="lang_uk" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">uk</field>
         <field name="display">Ukrainian</field>
         <field name="sequence">1700</field>
     </record>
 
     <record id="lang_ur" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ur</field>
         <field name="display">Urdu</field>
         <field name="sequence">1710</field>
     </record>
 
     <record id="lang_uz" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">uz</field>
         <field name="display">Uzbek</field>
         <field name="sequence">1720</field>
     </record>
 
     <record id="lang_ve" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">ve</field>
         <field name="display">Venda</field>
         <field name="sequence">1730</field>
     </record>
 
     <record id="lang_vi" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">vi</field>
         <field name="display">Vietnamese</field>
         <field name="sequence">1740</field>
     </record>
 
     <record id="lang_vo" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">vo</field>
         <field name="display">Volapük</field>
         <field name="sequence">1750</field>
     </record>
 
     <record id="lang_wa" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">wa</field>
         <field name="display">Walloon</field>
         <field name="sequence">1760</field>
     </record>
 
     <record id="lang_wo" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">wo</field>
         <field name="display">Wolof</field>
         <field name="sequence">1770</field>
     </record>
 
     <record id="lang_xh" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">xh</field>
         <field name="display">Xhosa</field>
         <field name="sequence">1780</field>
     </record>
 
     <record id="lang_yi" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">yi</field>
         <field name="display">Yiddish</field>
         <field name="sequence">1790</field>
     </record>
 
     <record id="lang_yo" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">yo</field>
         <field name="display">Yoruba</field>
         <field name="sequence">1800</field>
     </record>
 
     <record id="lang_za" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">za</field>
         <field name="display">Zhuang; Chuang</field>
         <field name="sequence">1810</field>
     </record>
 
     <record id="lang_zh" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">zh</field>
         <field name="display">Chinese</field>
         <field name="sequence">1820</field>
     </record>
 
     <record id="lang_zu" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">zu</field>
         <field name="display">Zulu</field>
         <field name="sequence">1830</field>
@@ -1310,26 +1318,32 @@
 
     <!-- SPECIAL CODES (ISO 639-2/3) -->
     <record id="lang_sgn" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">sgn</field>
         <field name="display">Sign Language</field>
-        <field name="definition">Sign languages (macrolanguage). ISO 639-2 code. Specific sign languages may be identified with ISO 639-3 codes.</field>
+        <field
+            name="definition"
+        >Sign languages (macrolanguage). ISO 639-2 code. Specific sign languages may be identified with ISO 639-3 codes.</field>
         <field name="sequence">1840</field>
     </record>
 
     <record id="lang_und" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">und</field>
         <field name="display">Undetermined</field>
-        <field name="definition">Undetermined language. Use when language is unknown or not yet identified.</field>
+        <field
+            name="definition"
+        >Undetermined language. Use when language is unknown or not yet identified.</field>
         <field name="sequence">1850</field>
     </record>
 
     <record id="lang_zxx" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_language"/>
+        <field name="vocabulary_id" ref="vocab_language" />
         <field name="code">zxx</field>
         <field name="display">No Linguistic Content</field>
-        <field name="definition">No linguistic content. Use for content that is not language-based (e.g., instrumental music, non-verbal communication).</field>
+        <field
+            name="definition"
+        >No linguistic content. Use for content that is not language-based (e.g., instrumental music, non-verbal communication).</field>
         <field name="sequence">1860</field>
     </record>
 </odoo>

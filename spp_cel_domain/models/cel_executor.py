@@ -503,7 +503,7 @@ class CelExecutor(models.AbstractModel):
                 parts.append(
                     f"metric={mi.get('metric')} period={mi.get('period_key')} "
                     f"requested={mi.get('requested')} cache_hits={mi.get('cache_hits')} "
-                    f"fresh={mi.get('fresh_fetches')} coverage={round(cov*100,1)}%"
+                    f"fresh={mi.get('fresh_fetches')} coverage={round(cov * 100, 1)}%"
                     + (f" warnings={','.join(mi_warnings)}" if mi_warnings else "")
                 )
             metrics_section = " | Metrics: " + "; ".join(parts)

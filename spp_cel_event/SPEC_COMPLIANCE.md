@@ -2,8 +2,8 @@
 
 ## Overview
 
-This document verifies that the implementation in `cel_event_executor.py` complies with the requirements in
-`CEL_EVENT_DATA_INTEGRATION_SPEC.md`.
+This document verifies that the implementation in `cel_event_executor.py` complies with
+the requirements in `CEL_EVENT_DATA_INTEGRATION_SPEC.md`.
 
 ## Query Plan Node Coverage
 
@@ -54,7 +54,8 @@ WHERE (latest_event.data_json->>'income')::numeric > %s
 
 **Notes:**
 
-- Implementation uses direct selection from event table instead of EXISTS on partner table
+- Implementation uses direct selection from event table instead of EXISTS on partner
+  table
 - This is more efficient as it avoids outer partner table scan
 - Functionally equivalent: both return partner_ids matching the condition
 - Base domain filtering is handled by the CEL executor framework
@@ -203,12 +204,16 @@ HAVING [agg_expr] [op] %s
 
 **Required Indexes (from spec):**
 
-1. ✓ `idx_spp_event_data_cel_lookup` - (partner_id, event_type_code, state, collection_date DESC)
-2. ✓ `idx_spp_event_data_cel_active` - (partner_id, event_type_code) WHERE state = 'active'
-3. ✓ `idx_spp_event_data_cel_temporal` - (event_type_code, collection_date DESC, partner_id)
+1. ✓ `idx_spp_event_data_cel_lookup` - (partner_id, event_type_code, state,
+   collection_date DESC)
+2. ✓ `idx_spp_event_data_cel_active` - (partner_id, event_type_code) WHERE state =
+   'active'
+3. ✓ `idx_spp_event_data_cel_temporal` - (event_type_code, collection_date DESC,
+   partner_id)
 4. ✓ `idx_spp_event_data_json_gin` - GIN index on data_json
 
-**Status:** These indexes must be created in the database for optimal performance. Implementation assumes they exist.
+**Status:** These indexes must be created in the database for optimal performance.
+Implementation assumes they exist.
 
 ## Error Handling
 
@@ -240,19 +245,16 @@ HAVING [agg_expr] [op] %s
 ## Known Limitations
 
 1. **where_predicate in SQL path**
-
    - Status: ✗ Not implemented
    - Impact: EventsAggregate with where_predicate uses Python fallback
    - Plan: Future enhancement to parse simple predicates to SQL
 
 2. **Half-year and ISO week periods**
-
    - Status: ✗ Not implemented
    - Impact: These period formats not recognized
    - Plan: Add to \_parse_period() in future update
 
 3. **Default value handling in SQL**
-
    - Status: ✗ Not implemented
    - Impact: EventValueCompare with default uses Python fallback
    - Plan: Could use COALESCE in future, complex due to type handling

@@ -212,8 +212,7 @@ class SppAuditRule(models.Model):
                             "res_model": "spp.audit.log",
                             "binding_model_id": rec.model_id.id,
                             "binding_view_types": "form",
-                            "domain": "[('model_id','=', {}), "
-                            "('res_id', '=', active_id), ('method', 'in', {})]".format(
+                            "domain": "[('model_id','=', {}), ('res_id', '=', active_id), ('method', 'in', {})]".format(
                                 rec.model_id.id,
                                 [method.replace("_", "") for method in self._methods],
                             ),

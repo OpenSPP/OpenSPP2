@@ -27,7 +27,9 @@ patch(ListRenderer.prototype, {
                 return super.onCellClicked(record, column, ev);
             }
             // Get the stored action from the server (includes action id for proper routing)
-            var action = await this.orm.call("spp.program", "open_program_form", [record.resId]);
+            var action = await this.orm.call("spp.program", "open_program_form", [
+                record.resId,
+            ]);
             this.actionService.doAction(action);
         } else {
             super.onCellClicked(record, column, ev);

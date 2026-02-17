@@ -73,7 +73,6 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         </field>
     </record>
 
-
     <record id="action_program_membership_duplicate" model="ir.actions.act_window">
         <field name="name">Programs Membership Duplicate</field>
         <field name="type">ir.actions.act_window</field>
@@ -84,20 +83,27 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Add a new program membership duplicate!
-            </p><p>
+            </p>
+            <p>
                 Click the create button to enter the program membership duplicate information.
             </p>
         </field>
     </record>
 
-    <record id="action_program_membership_duplicate_tree_view" model="ir.actions.act_window.view">
+    <record
+        id="action_program_membership_duplicate_tree_view"
+        model="ir.actions.act_window.view"
+    >
         <field name="sequence" eval="1" />
         <field name="view_mode">list</field>
         <field name="view_id" ref="view_program_membership_duplicate_tree" />
         <field name="act_window_id" ref="action_program_membership_duplicate" />
     </record>
 
-    <record id="action_program_membership_duplicate_form_view" model="ir.actions.act_window.view">
+    <record
+        id="action_program_membership_duplicate_form_view"
+        model="ir.actions.act_window.view"
+    >
         <field name="sequence" eval="1" />
         <field name="view_mode">form</field>
         <field name="view_id" ref="view_program_membership_duplicate_form" />
@@ -113,6 +119,4 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         sequence="11"
         groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_validator"
     /> -->
-
-
 </odoo>

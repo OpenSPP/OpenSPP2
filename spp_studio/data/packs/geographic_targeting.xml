@@ -1,142 +1,188 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
-        <!-- Geographic Targeting Pack: Location-based eligibility and adjustments -->
-        <record id="pack_geographic_targeting" model="spp.studio.pack">
-            <field name="name">Geographic Targeting</field>
-            <field name="code">geographic_targeting</field>
-            <field name="description">Logic pack for geographic targeting, regional eligibility, and location-based benefit adjustments. Includes area poverty mapping and cost-of-living adjustments.</field>
-            <field name="category">other</field>
-            <field name="version">1.0</field>
-            <field name="author">OpenSPP</field>
-            <field name="state">available</field>
-        </record>
+    <!-- Geographic Targeting Pack: Location-based eligibility and adjustments -->
+    <record id="pack_geographic_targeting" model="spp.studio.pack">
+        <field name="name">Geographic Targeting</field>
+        <field name="code">geographic_targeting</field>
+        <field
+            name="description"
+        >Logic pack for geographic targeting, regional eligibility, and location-based benefit adjustments. Includes area poverty mapping and cost-of-living adjustments.</field>
+        <field name="category">other</field>
+        <field name="version">1.0</field>
+        <field name="author">OpenSPP</field>
+        <field name="state">available</field>
+    </record>
 
-        <!-- Eligibility: Priority Region -->
-        <record id="pack_geo_item_priority_region" model="spp.studio.pack.item">
-            <field name="pack_id" ref="pack_geographic_targeting"/>
-            <field name="name">Priority Region Eligibility</field>
-            <field name="context_type">both</field>
-            <field name="description">Location falls within designated priority/intervention regions (via area tags).</field>
-            <field name="expression_type">filter</field>
-            <!-- Uses spp.area tags and CEL helper has_area_tag().
+    <!-- Eligibility: Priority Region -->
+    <record id="pack_geo_item_priority_region" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_geographic_targeting" />
+        <field name="name">Priority Region Eligibility</field>
+        <field name="context_type">both</field>
+        <field
+            name="description"
+        >Location falls within designated priority/intervention regions (via area tags).</field>
+        <field name="expression_type">filter</field>
+        <!-- Uses spp.area tags and CEL helper has_area_tag().
                  Deployments should configure an area tag with code 'PRIORITY_REGION'. -->
-            <field name="logic_data">{"cel_expression": "has_area_tag('PRIORITY_REGION')"}</field>
-            <field name="sequence">10</field>
-        </record>
+        <field
+            name="logic_data"
+        >{"cel_expression": "has_area_tag('PRIORITY_REGION')"}</field>
+        <field name="sequence">10</field>
+    </record>
 
-        <!-- Eligibility: Rural Area -->
-        <record id="pack_geo_item_rural_area" model="spp.studio.pack.item">
-            <field name="pack_id" ref="pack_geographic_targeting"/>
-            <field name="name">Rural Area Eligibility</field>
-            <field name="context_type">both</field>
-            <field name="description">Location is classified as rural via area tags (for rural-focused programs).</field>
-            <field name="expression_type">filter</field>
-            <!-- Deployments should configure an area tag with code 'RURAL'.
+    <!-- Eligibility: Rural Area -->
+    <record id="pack_geo_item_rural_area" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_geographic_targeting" />
+        <field name="name">Rural Area Eligibility</field>
+        <field name="context_type">both</field>
+        <field
+            name="description"
+        >Location is classified as rural via area tags (for rural-focused programs).</field>
+        <field name="expression_type">filter</field>
+        <!-- Deployments should configure an area tag with code 'RURAL'.
                  We treat areas without 'URBAN' tag as rural by default. -->
-            <field name="logic_data">{"cel_expression": "has_area_tag('RURAL') || !has_area_tag('URBAN')"}</field>
-            <field name="sequence">20</field>
-        </record>
+        <field
+            name="logic_data"
+        >{"cel_expression": "has_area_tag('RURAL') || !has_area_tag('URBAN')"}</field>
+        <field name="sequence">20</field>
+    </record>
 
-        <!-- Eligibility: High Poverty Area -->
-        <record id="pack_geo_item_high_poverty" model="spp.studio.pack.item">
-            <field name="pack_id" ref="pack_geographic_targeting"/>
-            <field name="name">High Poverty Area</field>
-            <field name="context_type">both</field>
-            <field name="description">Location is flagged as high-poverty via area tags.</field>
-            <field name="expression_type">filter</field>
-            <!-- Deployments should configure an area tag with code 'HIGH_POVERTY'. -->
-            <field name="logic_data">{"cel_expression": "has_area_tag('HIGH_POVERTY')"}</field>
-            <field name="sequence">30</field>
-        </record>
+    <!-- Eligibility: High Poverty Area -->
+    <record id="pack_geo_item_high_poverty" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_geographic_targeting" />
+        <field name="name">High Poverty Area</field>
+        <field name="context_type">both</field>
+        <field
+            name="description"
+        >Location is flagged as high-poverty via area tags.</field>
+        <field name="expression_type">filter</field>
+        <!-- Deployments should configure an area tag with code 'HIGH_POVERTY'. -->
+        <field
+            name="logic_data"
+        >{"cel_expression": "has_area_tag('HIGH_POVERTY')"}</field>
+        <field name="sequence">30</field>
+    </record>
 
-        <!-- Eligibility: Disaster-Affected Area -->
-        <record id="pack_geo_item_disaster_area" model="spp.studio.pack.item">
-            <field name="pack_id" ref="pack_geographic_targeting"/>
-            <field name="name">Disaster-Affected Area</field>
-            <field name="context_type">both</field>
-            <field name="description">Location is in declared disaster/emergency zone (via area tags).</field>
-            <field name="expression_type">filter</field>
-            <!-- Deployments should configure an area tag with code 'DISASTER_ACTIVE'. -->
-            <field name="logic_data">{"cel_expression": "has_area_tag('DISASTER_ACTIVE')"}</field>
-            <field name="sequence">40</field>
-        </record>
+    <!-- Eligibility: Disaster-Affected Area -->
+    <record id="pack_geo_item_disaster_area" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_geographic_targeting" />
+        <field name="name">Disaster-Affected Area</field>
+        <field name="context_type">both</field>
+        <field
+            name="description"
+        >Location is in declared disaster/emergency zone (via area tags).</field>
+        <field name="expression_type">filter</field>
+        <!-- Deployments should configure an area tag with code 'DISASTER_ACTIVE'. -->
+        <field
+            name="logic_data"
+        >{"cel_expression": "has_area_tag('DISASTER_ACTIVE')"}</field>
+        <field name="sequence">40</field>
+    </record>
 
-        <!-- Eligibility: Service Access Constraint -->
-        <record id="pack_geo_item_service_access" model="spp.studio.pack.item">
-            <field name="pack_id" ref="pack_geographic_targeting"/>
-            <field name="name">Limited Service Access</field>
-            <field name="context_type">both</field>
-            <field name="description">Location has limited access to basic services (health, education, markets).</field>
-            <field name="expression_type">filter</field>
-            <field name="logic_data">{"cel_expression": "distance_to_health_facility > 10 || distance_to_school > 5"}</field>
-            <field name="sequence">50</field>
-        </record>
+    <!-- Eligibility: Service Access Constraint -->
+    <record id="pack_geo_item_service_access" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_geographic_targeting" />
+        <field name="name">Limited Service Access</field>
+        <field name="context_type">both</field>
+        <field
+            name="description"
+        >Location has limited access to basic services (health, education, markets).</field>
+        <field name="expression_type">filter</field>
+        <field
+            name="logic_data"
+        >{"cel_expression": "distance_to_health_facility > 10 || distance_to_school > 5"}</field>
+        <field name="sequence">50</field>
+    </record>
 
-        <!-- Scoring: Area Poverty Score -->
-        <record id="pack_geo_item_area_poverty_score" model="spp.studio.pack.item">
-            <field name="pack_id" ref="pack_geographic_targeting"/>
-            <field name="name">Area Poverty Score</field>
-            <field name="context_type">both</field>
-            <field name="description">Simple score based on whether the area is tagged as high poverty.</field>
-            <field name="expression_type">scoring</field>
-            <!-- For now, treat high-poverty areas as score 100, others 0. -->
-            <field name="logic_data">{"cel_expression": "has_area_tag('HIGH_POVERTY') ? 100 : 0"}</field>
-            <field name="sequence">60</field>
-        </record>
+    <!-- Scoring: Area Poverty Score -->
+    <record id="pack_geo_item_area_poverty_score" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_geographic_targeting" />
+        <field name="name">Area Poverty Score</field>
+        <field name="context_type">both</field>
+        <field
+            name="description"
+        >Simple score based on whether the area is tagged as high poverty.</field>
+        <field name="expression_type">scoring</field>
+        <!-- For now, treat high-poverty areas as score 100, others 0. -->
+        <field
+            name="logic_data"
+        >{"cel_expression": "has_area_tag('HIGH_POVERTY') ? 100 : 0"}</field>
+        <field name="sequence">60</field>
+    </record>
 
-        <!-- Scoring: Remoteness Index -->
-        <record id="pack_geo_item_remoteness" model="spp.studio.pack.item">
-            <field name="pack_id" ref="pack_geographic_targeting"/>
-            <field name="name">Remoteness Index</field>
-            <field name="context_type">both</field>
-            <field name="description">Score based on distance to services and infrastructure.</field>
-            <field name="expression_type">scoring</field>
-            <field name="logic_data">{"cel_expression": "(distance_to_district_hq / 10) + (distance_to_paved_road / 5) + (distance_to_market / 5) + (!has_electricity_grid ? 20 : 0)"}</field>
-            <field name="sequence">70</field>
-        </record>
+    <!-- Scoring: Remoteness Index -->
+    <record id="pack_geo_item_remoteness" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_geographic_targeting" />
+        <field name="name">Remoteness Index</field>
+        <field name="context_type">both</field>
+        <field
+            name="description"
+        >Score based on distance to services and infrastructure.</field>
+        <field name="expression_type">scoring</field>
+        <field
+            name="logic_data"
+        >{"cel_expression": "(distance_to_district_hq / 10) + (distance_to_paved_road / 5) + (distance_to_market / 5) + (!has_electricity_grid ? 20 : 0)"}</field>
+        <field name="sequence">70</field>
+    </record>
 
-        <!-- Benefit: Cost of Living Adjustment -->
-        <record id="pack_geo_item_col_adjustment" model="spp.studio.pack.item">
-            <field name="pack_id" ref="pack_geographic_targeting"/>
-            <field name="name">Cost of Living Adjustment</field>
-            <field name="context_type">both</field>
-            <field name="description">Adjust benefit amount based on regional cost of living index.</field>
-            <field name="expression_type">formula</field>
-            <field name="logic_data">{"cel_expression": "base_benefit * cost_of_living_index"}</field>
-            <field name="sequence">80</field>
-        </record>
+    <!-- Benefit: Cost of Living Adjustment -->
+    <record id="pack_geo_item_col_adjustment" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_geographic_targeting" />
+        <field name="name">Cost of Living Adjustment</field>
+        <field name="context_type">both</field>
+        <field
+            name="description"
+        >Adjust benefit amount based on regional cost of living index.</field>
+        <field name="expression_type">formula</field>
+        <field
+            name="logic_data"
+        >{"cel_expression": "base_benefit * cost_of_living_index"}</field>
+        <field name="sequence">80</field>
+    </record>
 
-        <!-- Benefit: Urban Premium -->
-        <record id="pack_geo_item_urban_premium" model="spp.studio.pack.item">
-            <field name="pack_id" ref="pack_geographic_targeting"/>
-            <field name="name">Urban Premium</field>
-            <field name="context_type">both</field>
-            <field name="description">Higher benefit for urban areas due to higher living costs.</field>
-            <field name="expression_type">formula</field>
-            <!-- Uses URBAN tag instead of is_urban registry field. -->
-            <field name="logic_data">{"cel_expression": "base_benefit * (has_area_tag('URBAN') ? 1.25 : 1.0)"}</field>
-            <field name="sequence">90</field>
-        </record>
+    <!-- Benefit: Urban Premium -->
+    <record id="pack_geo_item_urban_premium" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_geographic_targeting" />
+        <field name="name">Urban Premium</field>
+        <field name="context_type">both</field>
+        <field
+            name="description"
+        >Higher benefit for urban areas due to higher living costs.</field>
+        <field name="expression_type">formula</field>
+        <!-- Uses URBAN tag instead of is_urban registry field. -->
+        <field
+            name="logic_data"
+        >{"cel_expression": "base_benefit * (has_area_tag('URBAN') ? 1.25 : 1.0)"}</field>
+        <field name="sequence">90</field>
+    </record>
 
-        <!-- Benefit: Remoteness Allowance -->
-        <record id="pack_geo_item_remoteness_allowance" model="spp.studio.pack.item">
-            <field name="pack_id" ref="pack_geographic_targeting"/>
-            <field name="name">Remoteness Allowance</field>
-            <field name="context_type">both</field>
-            <field name="description">Additional allowance for remote areas to cover access costs.</field>
-            <field name="expression_type">formula</field>
-            <field name="logic_data">{"cel_expression": "base_benefit + (remoteness_index &gt; 50 ? 300 : 0)"}</field>
-            <field name="sequence">100</field>
-        </record>
+    <!-- Benefit: Remoteness Allowance -->
+    <record id="pack_geo_item_remoteness_allowance" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_geographic_targeting" />
+        <field name="name">Remoteness Allowance</field>
+        <field name="context_type">both</field>
+        <field
+            name="description"
+        >Additional allowance for remote areas to cover access costs.</field>
+        <field name="expression_type">formula</field>
+        <field
+            name="logic_data"
+        >{"cel_expression": "base_benefit + (remoteness_index &gt; 50 ? 300 : 0)"}</field>
+        <field name="sequence">100</field>
+    </record>
 
-        <!-- Benefit: Regional Poverty Line Adjustment -->
-        <record id="pack_geo_item_regional_poverty" model="spp.studio.pack.item">
-            <field name="pack_id" ref="pack_geographic_targeting"/>
-            <field name="name">Regional Poverty Line Benefit</field>
-            <field name="context_type">both</field>
-            <field name="description">Benefit calibrated to regional poverty line rather than national.</field>
-            <field name="expression_type">formula</field>
-            <field name="logic_data">{"cel_expression": "regional_poverty_line * 0.5"}</field>
-            <field name="sequence">110</field>
-        </record>
+    <!-- Benefit: Regional Poverty Line Adjustment -->
+    <record id="pack_geo_item_regional_poverty" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_geographic_targeting" />
+        <field name="name">Regional Poverty Line Benefit</field>
+        <field name="context_type">both</field>
+        <field
+            name="description"
+        >Benefit calibrated to regional poverty line rather than national.</field>
+        <field name="expression_type">formula</field>
+        <field
+            name="logic_data"
+        >{"cel_expression": "regional_poverty_line * 0.5"}</field>
+        <field name="sequence">110</field>
+    </record>
 </odoo>

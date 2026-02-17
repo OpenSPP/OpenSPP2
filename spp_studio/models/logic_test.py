@@ -172,7 +172,7 @@ class LogicTest(models.Model):
         if self.passed:
             message = "Test passed!"
         else:
-            message = f"Test failed: expected '{self.expected_result}', " f"got '{self.actual_result}'"
+            message = f"Test failed: expected '{self.expected_result}', got '{self.actual_result}'"
         if self.error_message:
             message = f"Test error: {self.error_message}"
 
@@ -272,7 +272,7 @@ class LogicTest(models.Model):
 
         # CEL service is required for evaluation
         error_msg = (
-            "CEL service (spp.cel.service) is not available. " "Please install and configure the spp_cel_domain module."
+            "CEL service (spp.cel.service) is not available. Please install and configure the spp_cel_domain module."
         )
         _logger.error("CEL service not available for test ID %s", self.id)
         steps.append(

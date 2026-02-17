@@ -57,7 +57,7 @@ class Logic(models.Model):
                 if set(vals.keys()) - allowed_fields:
                     raise UserError(
                         _(
-                            "Cannot modify published logic '%(name)s'. " "Create a new draft version to make changes.",
+                            "Cannot modify published logic '%(name)s'. Create a new draft version to make changes.",
                             name=record.name,
                         )
                     )
@@ -574,7 +574,7 @@ class Logic(models.Model):
             if record.usage_count > 0:
                 raise UserError(
                     _(
-                        "Cannot archive logic '%s' because it is used in %s place(s). " "Remove all usages first.",
+                        "Cannot archive logic '%s' because it is used in %s place(s). Remove all usages first.",
                         record.name,
                         record.usage_count,
                     )

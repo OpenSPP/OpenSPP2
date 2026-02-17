@@ -1,55 +1,64 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-        <!-- Extend Consent Form View for API V2 fields -->
-        <record id="view_consent_form_api_v2" model="ir.ui.view">
-            <field name="name">spp.consent.form.api_v2</field>
-            <field name="model">spp.consent</field>
-            <field name="inherit_id" ref="spp_consent.view_spp_consent_form" />
-            <field name="arch" type="xml">
-                <notebook position="inside">
-                    <page name="api_scopes" string="API Scopes">
-                        <field name="api_scope_ids">
-                            <list editable="bottom">
-                                <field name="resource_type" />
-                                <field name="field_access" />
-                                <field name="custom_fields" invisible="field_access != 'custom'" />
-                                <field name="purpose" />
-                                <field name="include_extensions" />
-                                <field
-                                    name="allowed_extensions"
-                                    invisible="not include_extensions"
-                                />
-                            </list>
-                        </field>
-                    </page>
-                </notebook>
-            </field>
-        </record>
-
-        <!-- Consent Scope Form View -->
-        <record id="view_consent_scope_form" model="ir.ui.view">
-            <field name="name">spp.consent.scope.form</field>
-            <field name="model">spp.consent.scope</field>
-            <field name="arch" type="xml">
-                <form string="Consent Scope">
-                    <sheet>
-                        <group>
-                            <field name="consent_id" />
+    <!-- Extend Consent Form View for API V2 fields -->
+    <record id="view_consent_form_api_v2" model="ir.ui.view">
+        <field name="name">spp.consent.form.api_v2</field>
+        <field name="model">spp.consent</field>
+        <field name="inherit_id" ref="spp_consent.view_spp_consent_form" />
+        <field name="arch" type="xml">
+            <notebook position="inside">
+                <page name="api_scopes" string="API Scopes">
+                    <field name="api_scope_ids">
+                        <list editable="bottom">
                             <field name="resource_type" />
-                            <field name="purpose" />
-                        </group>
-                        <group string="Field Access">
                             <field name="field_access" />
-                            <field name="custom_fields" invisible="field_access != 'custom'" />
-                        </group>
-                        <group string="Extensions">
+                            <field
+                                name="custom_fields"
+                                invisible="field_access != 'custom'"
+                            />
+                            <field name="purpose" />
                             <field name="include_extensions" />
-                            <field name="allowed_extensions" invisible="not include_extensions" />
-                        </group>
-                        <separator string="Description"/>
-                        <field name="description" nolabel="1" class="oe_inline"/>
-                    </sheet>
-                </form>
-            </field>
-        </record>
+                            <field
+                                name="allowed_extensions"
+                                invisible="not include_extensions"
+                            />
+                        </list>
+                    </field>
+                </page>
+            </notebook>
+        </field>
+    </record>
+
+    <!-- Consent Scope Form View -->
+    <record id="view_consent_scope_form" model="ir.ui.view">
+        <field name="name">spp.consent.scope.form</field>
+        <field name="model">spp.consent.scope</field>
+        <field name="arch" type="xml">
+            <form string="Consent Scope">
+                <sheet>
+                    <group>
+                        <field name="consent_id" />
+                        <field name="resource_type" />
+                        <field name="purpose" />
+                    </group>
+                    <group string="Field Access">
+                        <field name="field_access" />
+                        <field
+                            name="custom_fields"
+                            invisible="field_access != 'custom'"
+                        />
+                    </group>
+                    <group string="Extensions">
+                        <field name="include_extensions" />
+                        <field
+                            name="allowed_extensions"
+                            invisible="not include_extensions"
+                        />
+                    </group>
+                    <separator string="Description" />
+                    <field name="description" nolabel="1" class="oe_inline" />
+                </sheet>
+            </form>
+        </field>
+    </record>
 </odoo>

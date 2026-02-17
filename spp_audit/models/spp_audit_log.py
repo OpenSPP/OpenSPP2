@@ -167,7 +167,7 @@ class SppAuditLog(models.Model):
                     row += f"<td>{item}</td>"
                 tbody += f"<tr>{row}</tr>"
             tbody = f"<tbody>{tbody}</tbody>"
-            rec.data_html = '<table class="o_list_view table table-condensed ' f'table-striped">{thead}{tbody}</table>'
+            rec.data_html = f'<table class="o_list_view table table-condensed table-striped">{thead}{tbody}</table>'
 
     def _parent_get_content(self):
         """
@@ -210,7 +210,7 @@ class SppAuditLog(models.Model):
                 tbody += f"<tr>{row}</tr>"
             tbody = f"<tbody>{tbody}</tbody>"
             rec.parent_data_html = (
-                '<table class="o_list_view table table-condensed ' f'table-striped">{thead}{tbody}</table>'
+                f'<table class="o_list_view table table-condensed table-striped">{thead}{tbody}</table>'
             )
 
     @api.depends("parent_model_id")

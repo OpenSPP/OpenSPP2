@@ -108,9 +108,15 @@
                             <field name="city" />
                         </group>
                         <group string="Location">
-                            <field name="state_id" options="{'no_create': True, 'no_open': True}" />
+                            <field
+                                name="state_id"
+                                options="{'no_create': True, 'no_open': True}"
+                            />
                             <field name="postal_code" />
-                            <field name="country_id" options="{'no_create': True, 'no_open': True}" />
+                            <field
+                                name="country_id"
+                                options="{'no_create': True, 'no_open': True}"
+                            />
                         </group>
                         <group string="Contact">
                             <field name="phone" />

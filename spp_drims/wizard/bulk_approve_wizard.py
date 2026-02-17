@@ -40,7 +40,7 @@ class DrimsBulkApproveWizard(models.TransientModel):
                 <div>
                     <p><b>{wizard.request_count}</b> requests totaling
                        <b>{wizard.total_value:,.2f}</b></p>
-                    <ul>{''.join(summary_lines)}</ul>
+                    <ul>{"".join(summary_lines)}</ul>
                 </div>
             """
 

@@ -97,7 +97,8 @@ patch(FormController.prototype, {
                     const hasExamples = Array.from(mutation.addedNodes).some((node) => {
                         return (
                             node.nodeType === 1 &&
-                            (node.classList?.contains("cel-examples") || node.querySelector?.(".cel-clickable"))
+                            (node.classList?.contains("cel-examples") ||
+                                node.querySelector?.(".cel-clickable"))
                         );
                     });
                 }
@@ -148,13 +149,16 @@ patch(FormController.prototype, {
             if (currentValue.trim()) {
                 // Wrap existing expression in parentheses if it doesn't have them
                 const wrappedCurrent =
-                    currentValue.trim().startsWith("(") && currentValue.trim().endsWith(")")
+                    currentValue.trim().startsWith("(") &&
+                    currentValue.trim().endsWith(")")
                         ? currentValue.trim()
                         : `(${currentValue.trim()})`;
 
                 // Wrap new expression in parentheses
                 const wrappedNew =
-                    expression.startsWith("(") && expression.endsWith(")") ? expression : `(${expression})`;
+                    expression.startsWith("(") && expression.endsWith(")")
+                        ? expression
+                        : `(${expression})`;
 
                 newValue = `${wrappedCurrent} && ${wrappedNew}`;
             } else {

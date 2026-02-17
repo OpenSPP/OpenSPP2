@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-
     <!-- ============================================================ -->
     <!-- VARIABLE INSTALL WIZARD FORM VIEW                             -->
     <!-- ============================================================ -->
@@ -12,24 +11,42 @@
             <form string="Install Missing Variables">
                 <group>
                     <group>
-                        <field name="logic_id" invisible="1"/>
-                        <field name="logic_name" string="Logic"/>
+                        <field name="logic_id" invisible="1" />
+                        <field name="logic_name" string="Logic" />
                     </group>
                     <group>
                         <div class="d-flex justify-content-around">
                             <div class="text-center">
-                                <span class="badge badge-secondary" style="font-size: 1.2em;">
-                                    <field name="total_missing" class="oe_inline"/> Missing
+                                <span
+                                    class="badge badge-secondary"
+                                    style="font-size: 1.2em;"
+                                >
+                                    <field
+                                    name="total_missing"
+                                    class="oe_inline"
+                                /> Missing
                                 </span>
                             </div>
                             <div class="text-center">
-                                <span class="badge badge-success" style="font-size: 1.2em;">
-                                    <field name="installable_count" class="oe_inline"/> Installable
+                                <span
+                                    class="badge badge-success"
+                                    style="font-size: 1.2em;"
+                                >
+                                    <field
+                                    name="installable_count"
+                                    class="oe_inline"
+                                /> Installable
                                 </span>
                             </div>
                             <div class="text-center">
-                                <span class="badge badge-primary" style="font-size: 1.2em;">
-                                    <field name="selected_count" class="oe_inline"/> Selected
+                                <span
+                                    class="badge badge-primary"
+                                    style="font-size: 1.2em;"
+                                >
+                                    <field
+                                    name="selected_count"
+                                    class="oe_inline"
+                                /> Selected
                                 </span>
                             </div>
                         </div>
@@ -38,61 +55,111 @@
 
                 <!-- Help text -->
                 <div class="alert alert-info" role="alert">
-                    <i class="fa fa-info-circle" title="Info"/> This wizard helps you install variables that are referenced in your logic expression but don't exist yet.
+                    <i
+                    class="fa fa-info-circle"
+                    title="Info"
+                /> This wizard helps you install variables that are referenced in your logic expression but don't exist yet.
                     Variables with a match can be installed automatically. For variables without a match, click "Create" to manually define them.
-                    <br/><small><i class="fa fa-sitemap text-muted"/> Variables marked with a tree icon are <strong>dependencies</strong> - they are required by other variables in the list.</small>
+                    <br /><small><i
+                    class="fa fa-sitemap text-muted"
+                /> Variables marked with a tree icon are <strong
+                >dependencies</strong> - they are required by other variables in the list.</small>
                 </div>
 
                 <!-- Legend (compact, at top for reference) -->
-                <div class="mb-3 p-2 bg-light rounded small" style="border: 1px solid #dee2e6;">
+                <div
+                    class="mb-3 p-2 bg-light rounded small"
+                    style="border: 1px solid #dee2e6;"
+                >
                     <strong class="me-2">Match Types:</strong>
                     <span class="badge badge-success me-1">standard</span> Pre-defined
-                    <span class="ms-2 badge badge-success me-1">field</span> Partner field
-                    <span class="ms-2 badge badge-success me-1">vocabulary</span> Vocabulary
-                    <span class="ms-2 badge badge-success me-1">indicator</span> Indicator
+                    <span
+                    class="ms-2 badge badge-success me-1"
+                >field</span> Partner field
+                    <span
+                    class="ms-2 badge badge-success me-1"
+                >vocabulary</span> Vocabulary
+                    <span
+                    class="ms-2 badge badge-success me-1"
+                >indicator</span> Indicator
                     <span class="ms-2 badge badge-success me-1">scoring</span> Scoring
-                    <span class="ms-2 badge badge-warning me-1">existing_active</span> Already exists
-                    <span class="ms-2 badge badge-danger me-1">none</span> Create manually
+                    <span
+                    class="ms-2 badge badge-warning me-1"
+                >existing_active</span> Already exists
+                    <span
+                    class="ms-2 badge badge-danger me-1"
+                >none</span> Create manually
                 </div>
 
                 <!-- Missing Variables List -->
                 <field name="line_ids" nolabel="1">
-                    <list editable="bottom" create="false" delete="false"
-                          decoration-muted="is_dependency">
-                        <field name="selected" widget="boolean_toggle"
-                               readonly="match_type in ('none', 'existing_active')"/>
-                        <field name="variable_name" string="Variable"/>
-                        <field name="is_dependency" string="" widget="boolean_favorite"
-                               nolabel="1" readonly="1"
-                               options="{'icon_true': 'fa-sitemap', 'icon_false': ''}"
-                               optional="show"/>
-                        <field name="match_type" widget="badge"
-                               decoration-success="match_type in ('standard', 'field', 'vocabulary', 'indicator', 'scoring', 'existing_inactive')"
-                               decoration-warning="match_type == 'existing_active'"
-                               decoration-danger="match_type == 'none'"/>
-                        <field name="match_source" string="Source"/>
-                        <field name="match_details" string="Details" optional="show"/>
-                        <field name="match_data" column_invisible="1"/>
-                        <field name="is_installable" column_invisible="1"/>
-                        <button name="action_create_variable" type="object"
-                                string="Create" icon="fa-plus"
-                                class="btn-link"
-                                invisible="match_type != 'none'"
-                                title="Create variable manually"/>
+                    <list
+                        editable="bottom"
+                        create="false"
+                        delete="false"
+                        decoration-muted="is_dependency"
+                    >
+                        <field
+                            name="selected"
+                            widget="boolean_toggle"
+                            readonly="match_type in ('none', 'existing_active')"
+                        />
+                        <field name="variable_name" string="Variable" />
+                        <field
+                            name="is_dependency"
+                            string=""
+                            widget="boolean_favorite"
+                            nolabel="1"
+                            readonly="1"
+                            options="{'icon_true': 'fa-sitemap', 'icon_false': ''}"
+                            optional="show"
+                        />
+                        <field
+                            name="match_type"
+                            widget="badge"
+                            decoration-success="match_type in ('standard', 'field', 'vocabulary', 'indicator', 'scoring', 'existing_inactive')"
+                            decoration-warning="match_type == 'existing_active'"
+                            decoration-danger="match_type == 'none'"
+                        />
+                        <field name="match_source" string="Source" />
+                        <field name="match_details" string="Details" optional="show" />
+                        <field name="match_data" column_invisible="1" />
+                        <field name="is_installable" column_invisible="1" />
+                        <button
+                            name="action_create_variable"
+                            type="object"
+                            string="Create"
+                            icon="fa-plus"
+                            class="btn-link"
+                            invisible="match_type != 'none'"
+                            title="Create variable manually"
+                        />
                     </list>
                 </field>
 
                 <footer>
-                    <button name="action_install_selected" type="object"
-                            string="Install Selected" class="btn-primary"
-                            invisible="selected_count == 0"/>
-                    <button name="action_select_all" type="object"
-                            string="Select All" class="btn-secondary"
-                            invisible="installable_count == selected_count"/>
-                    <button name="action_deselect_all" type="object"
-                            string="Deselect All" class="btn-secondary"
-                            invisible="selected_count == 0"/>
-                    <button string="Close" class="btn-secondary" special="cancel"/>
+                    <button
+                        name="action_install_selected"
+                        type="object"
+                        string="Install Selected"
+                        class="btn-primary"
+                        invisible="selected_count == 0"
+                    />
+                    <button
+                        name="action_select_all"
+                        type="object"
+                        string="Select All"
+                        class="btn-secondary"
+                        invisible="installable_count == selected_count"
+                    />
+                    <button
+                        name="action_deselect_all"
+                        type="object"
+                        string="Deselect All"
+                        class="btn-secondary"
+                        invisible="selected_count == 0"
+                    />
+                    <button string="Close" class="btn-secondary" special="cancel" />
                 </footer>
             </form>
         </field>
@@ -107,8 +174,7 @@
         <field name="res_model">spp.studio.variable.install.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
-        <field name="binding_model_id" ref="spp_cel_domain.model_spp_cel_expression"/>
+        <field name="binding_model_id" ref="spp_cel_domain.model_spp_cel_expression" />
         <field name="binding_view_types">form</field>
     </record>
-
 </odoo>

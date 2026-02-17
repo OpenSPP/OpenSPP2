@@ -363,7 +363,7 @@ class ApprovalMixin(models.AbstractModel):
                 )
 
                 if not self.env.cr.fetchone():
-                    raise UserError(_("This record was modified by another user. " "Please refresh and try again."))
+                    raise UserError(_("This record was modified by another user. Please refresh and try again."))
         else:
             # ORM approach for computed/non-stored approval_state
             # Verify the record is in pending state (via computed field)
@@ -387,7 +387,7 @@ class ApprovalMixin(models.AbstractModel):
                 )
 
                 if not self.env.cr.fetchone():
-                    raise UserError(_("This record was modified by another user. " "Please refresh and try again."))
+                    raise UserError(_("This record was modified by another user. Please refresh and try again."))
 
         # Invalidate cache
         self.invalidate_recordset()

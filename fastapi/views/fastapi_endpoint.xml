@@ -2,14 +2,12 @@
 <!-- Copyright 2022 ACSONE SA/NV
      License LGPL-3.0 or later (http://www.gnu.org/licenses/LGPL). -->
 <odoo>
-
     <record model="ir.ui.view" id="fastapi_endpoint_form_view">
         <field name="name">fastapi.endpoint.form (in fastapi)</field>
         <field name="model">fastapi.endpoint</field>
         <field name="arch" type="xml">
             <form>
-                <header>
-                </header>
+                <header />
                 <sheet>
                     <field name="active" invisible="1" />
                     <field name="registry_sync" invisible="1" />
@@ -23,7 +21,12 @@
                             invisible="registry_sync"
                         />
                     </div>
-                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" invisible="active" />
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="bg-danger"
+                        invisible="active"
+                    />
                     <widget
                         name="web_ribbon"
                         title="Registry Sync Required"
@@ -32,22 +35,24 @@
                     />
                     <div class="oe_title">
                         <label for="name" />
-                        <h1><field name="name" /></h1>
+                        <h1>
+                            <field name="name" />
+                        </h1>
                     </div>
                     <group>
-                    <group>
-                        <field name="app" />
-                        <field name="root_path" />
-                        <field name="user_id" />
-                        <field name="company_id" />
-                        <field name="description" />
-                        <field name="save_http_session" />
-                    </group>
-                    <group name="resoures">
-                        <field name="docs_url" widget="url" />
-                        <field name="redoc_url" widget="url" />
-                        <field name="openapi_url" widget="url" />
-                    </group>
+                        <group>
+                            <field name="app" />
+                            <field name="root_path" />
+                            <field name="user_id" />
+                            <field name="company_id" />
+                            <field name="description" />
+                            <field name="save_http_session" />
+                        </group>
+                        <group name="resoures">
+                            <field name="docs_url" widget="url" />
+                            <field name="redoc_url" widget="url" />
+                            <field name="openapi_url" widget="url" />
+                        </group>
                     </group>
                     <span name="configuration" />
                 </sheet>
@@ -62,7 +67,11 @@
             <search>
                 <field name="name" />
                 <field name="app" />
-                <filter string="Archived" name="inactive" domain="[('active','=',False)]" />
+                <filter
+                    string="Archived"
+                    name="inactive"
+                    domain="[('active','=',False)]"
+                />
                 <filter string="App" name="groupby_app" context="{'group_by': 'app'}" />
             </search>
         </field>
@@ -118,5 +127,4 @@
         <field name="action" ref="fastapi_endpoint_act_window" />
         <field name="sequence" eval="16" />
     </record>
-
 </odoo>

@@ -657,7 +657,7 @@ class HazardIncident(models.Model):
 
         if threshold_name not in threshold_map:
             raise ValueError(
-                f"Unknown threshold name: {threshold_name}. " f"Valid values: {', '.join(threshold_map.keys())}"
+                f"Unknown threshold name: {threshold_name}. Valid values: {', '.join(threshold_map.keys())}"
             )
 
         config = threshold_map[threshold_name]

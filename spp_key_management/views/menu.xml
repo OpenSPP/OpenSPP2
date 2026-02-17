@@ -6,7 +6,8 @@
         name="Key Management"
         parent="base.menu_administration"
         sequence="760"
-        groups="group_key_admin,base.group_system"/>
+        groups="group_key_admin,base.group_system"
+    />
 
     <!-- Submenu: Key Providers -->
     <menuitem
@@ -14,7 +15,8 @@
         name="Key Providers"
         parent="menu_key_management_root"
         action="action_key_provider_registry"
-        sequence="10"/>
+        sequence="10"
+    />
 
     <!-- Submenu: Encryption Keys -->
     <menuitem
@@ -22,7 +24,8 @@
         name="Encryption Keys"
         parent="menu_key_management_root"
         action="action_encryption_key"
-        sequence="20"/>
+        sequence="20"
+    />
 
     <!-- Submenu: Asymmetric Keys (Signing Keys) -->
     <menuitem
@@ -30,7 +33,8 @@
         name="Asymmetric Keys"
         parent="menu_key_management_root"
         action="action_asymmetric_key"
-        sequence="25"/>
+        sequence="25"
+    />
 
     <!-- Submenu: Key Purposes -->
     <menuitem
@@ -38,6 +42,6 @@
         name="Key Purposes"
         parent="menu_key_management_root"
         action="action_key_purpose"
-        sequence="30"/>
-
+        sequence="30"
+    />
 </odoo>

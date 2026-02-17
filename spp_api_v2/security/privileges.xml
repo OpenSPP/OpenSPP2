@@ -8,5 +8,4 @@
         <field name="category_id" ref="spp_security.category_spp_api" />
         <field name="description">Access to API V2 management system</field>
     </record>
-
 </odoo>

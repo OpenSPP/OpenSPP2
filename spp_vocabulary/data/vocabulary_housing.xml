@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
     <!--
         Housing Type Vocabulary based on UN Principles and Recommendations
@@ -17,8 +17,12 @@
         <field name="name">Housing Type (UN Rev.3)</field>
         <field name="namespace_uri">urn:un:unsd:pop-census:housing-type</field>
         <field name="version">2017</field>
-        <field name="description">Classification of Living Quarters based on UN Principles and Recommendations for Population and Housing Censuses, Revision 3. Distinguishes between Housing Units (Conventional/Other) and Collective Living Quarters.</field>
-        <field name="reference_url">https://unstats.un.org/unsd/publication/seriesM/Series_M67Rev3en.pdf</field>
+        <field
+            name="description"
+        >Classification of Living Quarters based on UN Principles and Recommendations for Population and Housing Censuses, Revision 3. Distinguishes between Housing Units (Conventional/Other) and Collective Living Quarters.</field>
+        <field
+            name="reference_url"
+        >https://unstats.un.org/unsd/publication/seriesM/Series_M67Rev3en.pdf</field>
         <field name="is_system">True</field>
         <field name="is_hierarchical">True</field>
         <field name="domain">core</field>
@@ -30,47 +34,57 @@
          for habitation by a single household.
          ========================================================= -->
     <record id="housing_unit" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_housing"/>
+        <field name="vocabulary_id" ref="vocab_housing" />
         <field name="code">housing_unit</field>
         <field name="display">Housing Unit</field>
-        <field name="definition">A separate and independent place of abode intended for habitation by a single household, or one not intended for habitation but occupied as living quarters by a household at the time of the census.</field>
+        <field
+            name="definition"
+        >A separate and independent place of abode intended for habitation by a single household, or one not intended for habitation but occupied as living quarters by a household at the time of the census.</field>
         <field name="sequence">10</field>
     </record>
 
     <!-- 1.1 Conventional Dwellings (Children of Housing Unit) -->
     <record id="housing_detached" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_housing"/>
+        <field name="vocabulary_id" ref="vocab_housing" />
         <field name="code">detached</field>
         <field name="display">Detached House</field>
-        <field name="definition">A conventional housing unit that is completely separated from other housing units and has direct access to a street or outdoor area.</field>
-        <field name="parent_id" ref="housing_unit"/>
+        <field
+            name="definition"
+        >A conventional housing unit that is completely separated from other housing units and has direct access to a street or outdoor area.</field>
+        <field name="parent_id" ref="housing_unit" />
         <field name="sequence">11</field>
     </record>
 
     <record id="housing_semidetached" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_housing"/>
+        <field name="vocabulary_id" ref="vocab_housing" />
         <field name="code">semi_detached</field>
         <field name="display">Semi-Detached House</field>
-        <field name="definition">A conventional housing unit joined to another housing unit on one side only (sharing a common wall), with direct access to a street or outdoor area.</field>
-        <field name="parent_id" ref="housing_unit"/>
+        <field
+            name="definition"
+        >A conventional housing unit joined to another housing unit on one side only (sharing a common wall), with direct access to a street or outdoor area.</field>
+        <field name="parent_id" ref="housing_unit" />
         <field name="sequence">12</field>
     </record>
 
     <record id="housing_rowhouse" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_housing"/>
+        <field name="vocabulary_id" ref="vocab_housing" />
         <field name="code">row_house</field>
         <field name="display">Row House / Townhouse</field>
-        <field name="definition">A conventional housing unit joined to other housing units on two or more sides, typically in a row, with direct access to a street or outdoor area.</field>
-        <field name="parent_id" ref="housing_unit"/>
+        <field
+            name="definition"
+        >A conventional housing unit joined to other housing units on two or more sides, typically in a row, with direct access to a street or outdoor area.</field>
+        <field name="parent_id" ref="housing_unit" />
         <field name="sequence">13</field>
     </record>
 
     <record id="housing_apartment" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_housing"/>
+        <field name="vocabulary_id" ref="vocab_housing" />
         <field name="code">apartment</field>
         <field name="display">Apartment / Flat</field>
-        <field name="definition">A conventional housing unit in a multi-dwelling building, accessed through common areas such as hallways, stairs, or elevators.</field>
-        <field name="parent_id" ref="housing_unit"/>
+        <field
+            name="definition"
+        >A conventional housing unit in a multi-dwelling building, accessed through common areas such as hallways, stairs, or elevators.</field>
+        <field name="parent_id" ref="housing_unit" />
         <field name="sequence">14</field>
     </record>
 
@@ -79,29 +93,35 @@
          They should be children of 'housing_unit', not siblings. -->
 
     <record id="housing_traditional" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_housing"/>
+        <field name="vocabulary_id" ref="vocab_housing" />
         <field name="code">traditional</field>
         <field name="display">Semi-Permanent / Traditional Dwelling</field>
-        <field name="definition">A structure that has some features of a conventional dwelling but is built of semi-permanent materials (e.g., mud, thatch) or according to traditional local customs. It is not expected to maintain durability as long as a conventional dwelling.</field>
-        <field name="parent_id" ref="housing_unit"/>
+        <field
+            name="definition"
+        >A structure that has some features of a conventional dwelling but is built of semi-permanent materials (e.g., mud, thatch) or according to traditional local customs. It is not expected to maintain durability as long as a conventional dwelling.</field>
+        <field name="parent_id" ref="housing_unit" />
         <field name="sequence">20</field>
     </record>
 
     <record id="housing_mobile" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_housing"/>
+        <field name="vocabulary_id" ref="vocab_housing" />
         <field name="code">mobile</field>
         <field name="display">Mobile Housing Unit</field>
-        <field name="definition">A housing unit made to be transported or is a moving unit (such as a tent, ship, boat, caravan, or trailer) occupied as living quarters at the time of census.</field>
-        <field name="parent_id" ref="housing_unit"/>
+        <field
+            name="definition"
+        >A housing unit made to be transported or is a moving unit (such as a tent, ship, boat, caravan, or trailer) occupied as living quarters at the time of census.</field>
+        <field name="parent_id" ref="housing_unit" />
         <field name="sequence">25</field>
     </record>
 
     <record id="housing_improvised" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_housing"/>
+        <field name="vocabulary_id" ref="vocab_housing" />
         <field name="code">improvised</field>
         <field name="display">Improvised Housing / Slum</field>
-        <field name="definition">An independent makeshift shelter built of waste materials (cardboard, tin, scrap) without a predetermined plan. Includes shanties and squatter settlements.</field>
-        <field name="parent_id" ref="housing_unit"/>
+        <field
+            name="definition"
+        >An independent makeshift shelter built of waste materials (cardboard, tin, scrap) without a predetermined plan. Includes shanties and squatter settlements.</field>
+        <field name="parent_id" ref="housing_unit" />
         <field name="sequence">28</field>
     </record>
 
@@ -109,28 +129,34 @@
          2. COLLECTIVE LIVING QUARTERS
          ========================================================= -->
     <record id="housing_collective" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_housing"/>
+        <field name="vocabulary_id" ref="vocab_housing" />
         <field name="code">collective</field>
         <field name="display">Collective Living Quarters</field>
-        <field name="definition">Premises designed for habitation by large groups of individuals or several households, providing common facilities (institutions, camps, hotels, rooming houses).</field>
+        <field
+            name="definition"
+        >Premises designed for habitation by large groups of individuals or several households, providing common facilities (institutions, camps, hotels, rooming houses).</field>
         <field name="sequence">40</field>
     </record>
 
     <record id="housing_institution" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_housing"/>
+        <field name="vocabulary_id" ref="vocab_housing" />
         <field name="code">institution</field>
         <field name="display">Institution</field>
-        <field name="definition">Collective living quarters for persons requiring care, custody, or common administration (e.g., hospitals, prisons, orphanages, military barracks).</field>
-        <field name="parent_id" ref="housing_collective"/>
+        <field
+            name="definition"
+        >Collective living quarters for persons requiring care, custody, or common administration (e.g., hospitals, prisons, orphanages, military barracks).</field>
+        <field name="parent_id" ref="housing_collective" />
         <field name="sequence">41</field>
     </record>
 
     <record id="housing_hostel" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_housing"/>
+        <field name="vocabulary_id" ref="vocab_housing" />
         <field name="code">hostel</field>
         <field name="display">Hostel / Dormitory / Camp</field>
-        <field name="definition">Collective living quarters providing temporary or semi-permanent accommodation, including student dormitories, worker hostels, and camps for refugees or displaced persons.</field>
-        <field name="parent_id" ref="housing_collective"/>
+        <field
+            name="definition"
+        >Collective living quarters providing temporary or semi-permanent accommodation, including student dormitories, worker hostels, and camps for refugees or displaced persons.</field>
+        <field name="parent_id" ref="housing_collective" />
         <field name="sequence">42</field>
     </record>
 
@@ -138,19 +164,23 @@
          3. PLACES NOT INTENDED FOR HABITATION
          ========================================================= -->
     <record id="housing_homeless" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_housing"/>
+        <field name="vocabulary_id" ref="vocab_housing" />
         <field name="code">homeless</field>
         <field name="display">Place not intended for habitation (Homeless)</field>
-        <field name="definition">Places not designed for human habitation but used as living quarters at the time of census (e.g., streets, bridges, parks, doorways, cars, abandoned non-residential buildings). This category covers primary homelessness.</field>
+        <field
+            name="definition"
+        >Places not designed for human habitation but used as living quarters at the time of census (e.g., streets, bridges, parks, doorways, cars, abandoned non-residential buildings). This category covers primary homelessness.</field>
         <field name="sequence">90</field>
     </record>
 
     <!-- Unknown -->
     <record id="housing_unknown" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_housing"/>
+        <field name="vocabulary_id" ref="vocab_housing" />
         <field name="code">unknown</field>
         <field name="display">Not Stated / Unknown</field>
-        <field name="definition">Housing type not stated, not collected, or unknown.</field>
+        <field
+            name="definition"
+        >Housing type not stated, not collected, or unknown.</field>
         <field name="sequence">99</field>
     </record>
 </odoo>

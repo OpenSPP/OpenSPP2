@@ -4,6 +4,9 @@
 
     <!-- Programs managers should have access to GIS reports for program data visualization -->
     <record id="spp_programs.group_programs_manager" model="res.groups">
-        <field name="implied_ids" eval="[Command.link(ref('spp_gis_report.group_gis_report_user'))]" />
+        <field
+            name="implied_ids"
+            eval="[Command.link(ref('spp_gis_report.group_gis_report_user'))]"
+        />
     </record>
 </odoo>

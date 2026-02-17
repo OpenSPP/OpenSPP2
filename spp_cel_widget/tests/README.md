@@ -55,7 +55,6 @@
 ### Python Tests (Backend)
 
 1. **tests/test_symbol_provider.py** - Symbol provider unit tests
-
    - Profile retrieval
    - Symbol structure validation
    - Expression validation
@@ -234,8 +233,10 @@ If tests are slower, investigate:
 - **Test failures:** Check CI logs and screenshots
 - **Writing tests:** See examples in existing test files
 - **Test infrastructure:** See `/docs/principles/testing.md`
-- **Odoo testing docs:** https://www.odoo.com/documentation/19.0/developer/reference/backend/testing.html
-- **Tour testing:** https://www.odoo.com/documentation/19.0/developer/reference/frontend/javascript_reference.html#tours
+- **Odoo testing docs:**
+  https://www.odoo.com/documentation/19.0/developer/reference/backend/testing.html
+- **Tour testing:**
+  https://www.odoo.com/documentation/19.0/developer/reference/frontend/javascript_reference.html#tours
 
 ## Related Documentation
 

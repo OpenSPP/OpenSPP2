@@ -17,5 +17,4 @@
         sequence="1000"
         groups="spp_service_points.group_service_points_manager"
     />
-
 </odoo>

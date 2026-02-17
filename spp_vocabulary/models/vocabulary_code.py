@@ -412,8 +412,7 @@ class VocabularyCode(models.Model):
         if existing:
             if not existing.active:
                 raise UserError(
-                    f"Code '{code}' exists but is inactive in vocabulary "
-                    f"'{namespace_uri}'. Reactivate it if needed."
+                    f"Code '{code}' exists but is inactive in vocabulary '{namespace_uri}'. Reactivate it if needed."
                 )
             return existing
 
@@ -464,8 +463,7 @@ class VocabularyCode(models.Model):
         if existing:
             if not existing.active:
                 raise UserError(
-                    f"Code '{code}' exists but is inactive in vocabulary "
-                    f"'{namespace_uri}'. Reactivate it if needed."
+                    f"Code '{code}' exists but is inactive in vocabulary '{namespace_uri}'. Reactivate it if needed."
                 )
             return existing
 

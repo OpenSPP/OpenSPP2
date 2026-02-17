@@ -1,95 +1,95 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
-        <!-- GRM Domain Record Rules -->
-        <!-- Following ADR-004 naming convention: rule_{model}_{purpose} -->
+    <!-- GRM Domain Record Rules -->
+    <!-- Following ADR-004 naming convention: rule_{model}_{purpose} -->
 
-        <!-- GRM Viewer: Only see tickets assigned to them -->
-        <record id="rule_spp_grm_ticket_viewer" model="ir.rule">
-            <field name="name">GRM Ticket: Viewer Own Tickets Only</field>
-            <field ref="model_spp_grm_ticket" name="model_id"/>
-            <field name="domain_force">[('user_id', '=', user.id)]</field>
-            <field name="groups" eval="[Command.link(ref('group_grm_viewer'))]"/>
-            <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="False"/>
-            <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
-        </record>
+    <!-- GRM Viewer: Only see tickets assigned to them -->
+    <record id="rule_spp_grm_ticket_viewer" model="ir.rule">
+        <field name="name">GRM Ticket: Viewer Own Tickets Only</field>
+        <field ref="model_spp_grm_ticket" name="model_id" />
+        <field name="domain_force">[('user_id', '=', user.id)]</field>
+        <field name="groups" eval="[Command.link(ref('group_grm_viewer'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="False" />
+        <field name="perm_create" eval="False" />
+        <field name="perm_unlink" eval="False" />
+    </record>
 
-        <!-- GRM Officer: Own tickets or team tickets -->
-        <record id="rule_spp_grm_ticket_officer" model="ir.rule">
-            <field name="name">GRM Ticket: Officer Own and Team Tickets</field>
-            <field ref="model_spp_grm_ticket" name="model_id"/>
-            <field name="domain_force">[
+    <!-- GRM Officer: Own tickets or team tickets -->
+    <record id="rule_spp_grm_ticket_officer" model="ir.rule">
+        <field name="name">GRM Ticket: Officer Own and Team Tickets</field>
+        <field ref="model_spp_grm_ticket" name="model_id" />
+        <field name="domain_force">[
                 '|',
                 ('user_id', '=', user.id),
                 ('team_id.member_ids', 'in', [user.id])
             ]</field>
-            <field name="groups" eval="[Command.link(ref('group_grm_officer'))]"/>
-            <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="True"/>
-            <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="False"/>
-        </record>
+        <field name="groups" eval="[Command.link(ref('group_grm_officer'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
 
-        <!-- GRM Supervisor: Team tickets they supervise -->
-        <record id="rule_spp_grm_ticket_supervisor" model="ir.rule">
-            <field name="name">GRM Ticket: Supervisor Supervised Team Tickets</field>
-            <field ref="model_spp_grm_ticket" name="model_id"/>
-            <field name="domain_force">[
+    <!-- GRM Supervisor: Team tickets they supervise -->
+    <record id="rule_spp_grm_ticket_supervisor" model="ir.rule">
+        <field name="name">GRM Ticket: Supervisor Supervised Team Tickets</field>
+        <field ref="model_spp_grm_ticket" name="model_id" />
+        <field name="domain_force">[
                 '|',
                 ('user_id', '=', user.id),
                 '|',
                 ('team_id.member_ids', 'in', [user.id]),
                 ('team_id.manager_id', '=', user.id)
             ]</field>
-            <field name="groups" eval="[Command.link(ref('group_grm_supervisor'))]"/>
-            <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="True"/>
-            <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="False"/>
-        </record>
+        <field name="groups" eval="[Command.link(ref('group_grm_supervisor'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
 
-        <!-- GRM Manager: Full access to all tickets -->
-        <record id="rule_spp_grm_ticket_manager" model="ir.rule">
-            <field name="name">GRM Ticket: Manager All Tickets</field>
-            <field ref="model_spp_grm_ticket" name="model_id"/>
-            <field name="domain_force">[(1, '=', 1)]</field>
-            <field name="groups" eval="[Command.link(ref('group_grm_manager'))]"/>
-            <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="True"/>
-            <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
-        </record>
+    <!-- GRM Manager: Full access to all tickets -->
+    <record id="rule_spp_grm_ticket_manager" model="ir.rule">
+        <field name="name">GRM Ticket: Manager All Tickets</field>
+        <field ref="model_spp_grm_ticket" name="model_id" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_grm_manager'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
 
-        <!-- Record Rules for Teams - Managers can manage teams -->
-        <record id="rule_spp_grm_team_manager" model="ir.rule">
-            <field name="name">GRM Team: Manager Full Access</field>
-            <field ref="model_spp_grm_team" name="model_id"/>
-            <field name="domain_force">[(1, '=', 1)]</field>
-            <field name="groups" eval="[Command.link(ref('group_grm_manager'))]"/>
-        </record>
+    <!-- Record Rules for Teams - Managers can manage teams -->
+    <record id="rule_spp_grm_team_manager" model="ir.rule">
+        <field name="name">GRM Team: Manager Full Access</field>
+        <field ref="model_spp_grm_team" name="model_id" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_grm_manager'))]" />
+    </record>
 
-        <!-- Record Rules for Categories - Managers only -->
-        <record id="rule_spp_grm_ticket_category_manager" model="ir.rule">
-            <field name="name">GRM Ticket Category: Manager Full Access</field>
-            <field ref="model_spp_grm_ticket_category" name="model_id"/>
-            <field name="domain_force">[(1, '=', 1)]</field>
-            <field name="groups" eval="[Command.link(ref('group_grm_manager'))]"/>
-        </record>
+    <!-- Record Rules for Categories - Managers only -->
+    <record id="rule_spp_grm_ticket_category_manager" model="ir.rule">
+        <field name="name">GRM Ticket Category: Manager Full Access</field>
+        <field ref="model_spp_grm_ticket_category" name="model_id" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_grm_manager'))]" />
+    </record>
 
-        <!-- Record Rules for Stages - Managers only -->
-        <record id="rule_spp_grm_ticket_stage_manager" model="ir.rule">
-            <field name="name">GRM Ticket Stage: Manager Full Access</field>
-            <field ref="model_spp_grm_ticket_stage" name="model_id"/>
-            <field name="domain_force">[(1, '=', 1)]</field>
-            <field name="groups" eval="[Command.link(ref('group_grm_manager'))]"/>
-        </record>
+    <!-- Record Rules for Stages - Managers only -->
+    <record id="rule_spp_grm_ticket_stage_manager" model="ir.rule">
+        <field name="name">GRM Ticket Stage: Manager Full Access</field>
+        <field ref="model_spp_grm_ticket_stage" name="model_id" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_grm_manager'))]" />
+    </record>
 
-        <!-- Record Rules for SLA Rules - Managers only -->
-        <record id="rule_spp_grm_sla_rule_manager" model="ir.rule">
-            <field name="name">GRM SLA Rule: Manager Full Access</field>
-            <field ref="model_spp_grm_sla_rule" name="model_id"/>
-            <field name="domain_force">[(1, '=', 1)]</field>
-            <field name="groups" eval="[Command.link(ref('group_grm_manager'))]"/>
-        </record>
+    <!-- Record Rules for SLA Rules - Managers only -->
+    <record id="rule_spp_grm_sla_rule_manager" model="ir.rule">
+        <field name="name">GRM SLA Rule: Manager Full Access</field>
+        <field ref="model_spp_grm_sla_rule" name="model_id" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_grm_manager'))]" />
+    </record>
 </odoo>

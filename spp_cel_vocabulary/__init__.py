@@ -104,7 +104,7 @@ def _ensure_concept_groups(env):
             "display_name": "Adults",
             "cel_function": None,
             "description": (
-                "Age group codes representing adults. " "Add codes from your age group vocabulary if applicable."
+                "Age group codes representing adults. Add codes from your age group vocabulary if applicable."
             ),
         },
         {

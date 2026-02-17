@@ -4,7 +4,6 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 Filter Templates - Pre-defined eligibility, condition, and compliance expressions
 -->
 <odoo noupdate="1">
-
     <!-- ═══════════════════════════════════════════════════════════════════════ -->
     <!-- CATEGORIES FOR TEMPLATES                                                -->
     <!-- ═══════════════════════════════════════════════════════════════════════ -->
@@ -185,5 +184,4 @@ Filter Templates - Pre-defined eligibility, condition, and compliance expression
         <field name="state">active</field>
         <field name="sequence">60</field>
     </record> -->
-
 </odoo>

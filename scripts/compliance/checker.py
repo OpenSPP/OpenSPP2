@@ -559,7 +559,7 @@ class ComplianceChecker:
                 if f.get("name") == "arch":
                     # Check for field with groups attribute
                     arch_text = ET.tostring(f, encoding="unicode")
-                    pattern = rf'<field[^>]+name=["\']{ field_spec.field_name}["\'][^>]*groups=["\']([^"\']+)["\']'
+                    pattern = rf'<field[^>]+name=["\']{field_spec.field_name}["\'][^>]*groups=["\']([^"\']+)["\']'
                     match = re.search(pattern, arch_text)
 
                     if match:
@@ -588,10 +588,10 @@ class ComplianceChecker:
                                     severity="INFO",
                                     category="VIEW",
                                     message=(
-                                        f"Field '{field_spec.field_name}' missing " f"groups restriction in '{view_id}'"
+                                        f"Field '{field_spec.field_name}' missing groups restriction in '{view_id}'"
                                     ),
                                     expected=str(field_spec.groups),
-                                    suggestion=(f"Add groups=\"{','.join(field_spec.groups)}\" " "to field"),
+                                    suggestion=(f'Add groups="{",".join(field_spec.groups)}" to field'),
                                 )
                             )
 
@@ -669,7 +669,7 @@ class ComplianceChecker:
                 ComplianceIssue(
                     severity="WARNING",
                     category="GROUP",
-                    message=(f"Manager group '{self.spec.admin_link_group}' " "not linked to admin"),
+                    message=(f"Manager group '{self.spec.admin_link_group}' not linked to admin"),
                     suggestion=admin_link_suggestion,
                 )
             )

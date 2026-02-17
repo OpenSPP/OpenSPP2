@@ -72,8 +72,7 @@ class SppApiPathFilter(models.Model):
     )
     field_path = fields.Char(
         required=True,
-        help="Odoo field path. Supports dot notation for related fields "
-        "(e.g., 'partner_id.phone', 'program_id.name')",
+        help="Odoo field path. Supports dot notation for related fields (e.g., 'partner_id.phone', 'program_id.name')",
     )
 
     # Filter type and operators
@@ -108,7 +107,7 @@ class SppApiPathFilter(models.Model):
         help="Whether this filter must be provided in API requests",
     )
     default_value = fields.Char(
-        help="Default value if filter not provided (JSON format). " "Example: '\"active\"' for string, '18' for number",
+        help="Default value if filter not provided (JSON format). Example: '\"active\"' for string, '18' for number",
     )
     max_values = fields.Integer(
         default=100,
@@ -118,10 +117,10 @@ class SppApiPathFilter(models.Model):
     # Performance and security
     is_indexed = fields.Boolean(
         default=False,
-        help="Flag indicating the field has a database index. " "Useful for warning about slow queries.",
+        help="Flag indicating the field has a database index. Useful for warning about slow queries.",
     )
     requires_scope = fields.Char(
-        help="OAuth scope required to use this filter " "(e.g., 'individual:search:advanced')",
+        help="OAuth scope required to use this filter (e.g., 'individual:search:advanced')",
     )
 
     active = fields.Boolean(default=True)
@@ -140,7 +139,7 @@ class SppApiPathFilter(models.Model):
             ]
             if self.search(domain, limit=1):
                 raise ValidationError(
-                    _("Filter name must be unique per API path. " "A filter named '%s' already exists for this path.")
+                    _("Filter name must be unique per API path. A filter named '%s' already exists for this path.")
                     % record.name
                 )
 
@@ -168,7 +167,7 @@ class SppApiPathFilter(models.Model):
                 if i < len(parts) - 1:
                     if not hasattr(field, "comodel_name"):
                         raise ValidationError(
-                            f"Invalid field path '{record.field_path}': " f"field '{part}' is not a relational field"
+                            f"Invalid field path '{record.field_path}': field '{part}' is not a relational field"
                         )
                     model = self.env[field.comodel_name]
 

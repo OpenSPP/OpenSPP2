@@ -17,7 +17,10 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                                 options="{'no_create_edit':True,'no_open':True,'no_create':True}"
                             />
                         </h2>
-                        <label for="internal_batch_ref" string="Internal Batch Reference #" />
+                        <label
+                            for="internal_batch_ref"
+                            string="Internal Batch Reference #"
+                        />
                         <h1>
                             <field name="internal_batch_ref" />
                         </h1>
@@ -31,7 +34,12 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         type="object"
                         class="oe_highlight"
                     />
-                    <button string="Cancel" class="btn-secondary" special="cancel" title="Cancel" />
+                    <button
+                        string="Cancel"
+                        class="btn-secondary"
+                        special="cancel"
+                        title="Cancel"
+                    />
                 </footer>
             </form>
         </field>

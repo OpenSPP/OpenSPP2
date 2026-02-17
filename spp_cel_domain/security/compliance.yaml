@@ -43,21 +43,25 @@ groups:
     tier: 2
     privilege_id: privilege_cel_domain_viewer
     implied_ids: [group_cel_domain_read]
-    comment: "Can view CEL domain query builder configurations including variables, expressions, and data cache."
+    comment:
+      "Can view CEL domain query builder configurations including variables,
+      expressions, and data cache."
 
   - id: group_cel_domain_manager
     tier: 2
     privilege_id: privilege_cel_domain_manager
     implied_ids: [group_cel_domain_viewer]
     comment:
-      "Can manage CEL domain query builder configurations including variables, expressions, providers, and data cache.
-      Cannot manage credentials."
+      "Can manage CEL domain query builder configurations including variables,
+      expressions, providers, and data cache. Cannot manage credentials."
 
   - id: group_cel_domain_admin
     tier: 2
     privilege_id: privilege_cel_domain_admin
     implied_ids: [group_cel_domain_manager]
-    comment: "Can manage credentials and sensitive configurations. Includes all Manager permissions."
+    comment:
+      "Can manage credentials and sensitive configurations. Includes all Manager
+      permissions."
 
 # Admin linkage - admin group links to spp_security.group_spp_admin
 admin_link_group: group_cel_domain_admin
@@ -127,7 +131,8 @@ record_rules:
     model: spp.data.provider
     groups: [] # Global rule
     domain_description:
-      "Users can only access data providers for their company (or global providers without company_id)"
+      "Users can only access data providers for their company (or global providers
+      without company_id)"
     perm_read: true
     perm_write: false
     perm_create: false
@@ -149,7 +154,9 @@ record_rules:
   - id: rule_data_credential_company
     model: spp.data.credential
     groups: [] # Global rule
-    domain_description: "Users can only access credentials for their company (or global credentials without company_id)"
+    domain_description:
+      "Users can only access credentials for their company (or global credentials
+      without company_id)"
     perm_read: true
     perm_write: false
     perm_create: false

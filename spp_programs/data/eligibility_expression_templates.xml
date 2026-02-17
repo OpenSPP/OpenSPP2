@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo noupdate="1">
-
     <!-- ================================================== -->
     <!-- ELIGIBILITY EXPRESSION TEMPLATES                   -->
     <!-- ================================================== -->
@@ -53,7 +52,9 @@
         <field name="code">eligibility_adult_women</field>
         <field name="expression_type">filter</field>
         <field name="context_type">individual</field>
-        <field name="cel_expression">is_female(r.gender_id) and age_years(r.birthdate) >= 18</field>
+        <field
+            name="cel_expression"
+        >is_female(r.gender_id) and age_years(r.birthdate) >= 18</field>
         <field name="output_type">boolean</field>
         <field name="state">active</field>
         <field name="is_template">True</field>
@@ -66,7 +67,9 @@
         <field name="code">eligibility_reproductive_age</field>
         <field name="expression_type">filter</field>
         <field name="context_type">individual</field>
-        <field name="cel_expression">is_female(r.gender_id) and age_years(r.birthdate) >= 15 and age_years(r.birthdate) &lt;= 49</field>
+        <field
+            name="cel_expression"
+        >is_female(r.gender_id) and age_years(r.birthdate) >= 15 and age_years(r.birthdate) &lt;= 49</field>
         <field name="output_type">boolean</field>
         <field name="state">active</field>
         <field name="is_template">True</field>
@@ -93,7 +96,9 @@
         <field name="code">eligibility_children_under_5</field>
         <field name="expression_type">filter</field>
         <field name="context_type">group</field>
-        <field name="cel_expression">members.count(m, age_years(m.birthdate) &lt; 5) >= 1</field>
+        <field
+            name="cel_expression"
+        >members.count(m, age_years(m.birthdate) &lt; 5) >= 1</field>
         <field name="output_type">boolean</field>
         <field name="state">active</field>
         <field name="is_template">True</field>
@@ -106,7 +111,9 @@
         <field name="code">eligibility_school_age</field>
         <field name="expression_type">filter</field>
         <field name="context_type">group</field>
-        <field name="cel_expression">members.count(m, age_years(m.birthdate) >= 6 and age_years(m.birthdate) &lt;= 18) >= 1</field>
+        <field
+            name="cel_expression"
+        >members.count(m, age_years(m.birthdate) >= 6 and age_years(m.birthdate) &lt;= 18) >= 1</field>
         <field name="output_type">boolean</field>
         <field name="state">active</field>
         <field name="is_template">True</field>
@@ -119,7 +126,9 @@
         <field name="code">eligibility_female_headed</field>
         <field name="expression_type">filter</field>
         <field name="context_type">group</field>
-        <field name="cel_expression">members.exists(m, head(m) and is_female(m.gender_id))</field>
+        <field
+            name="cel_expression"
+        >members.exists(m, head(m) and is_female(m.gender_id))</field>
         <field name="output_type">boolean</field>
         <field name="state">active</field>
         <field name="is_template">True</field>
@@ -159,7 +168,9 @@
         <field name="code">eligibility_elderly_headed</field>
         <field name="expression_type">filter</field>
         <field name="context_type">group</field>
-        <field name="cel_expression">members.exists(m, head(m) and age_years(m.birthdate) >= 60)</field>
+        <field
+            name="cel_expression"
+        >members.exists(m, head(m) and age_years(m.birthdate) >= 60)</field>
         <field name="output_type">boolean</field>
         <field name="state">active</field>
         <field name="is_template">True</field>
@@ -186,7 +197,9 @@
         <field name="code">eligibility_high_dependency</field>
         <field name="expression_type">filter</field>
         <field name="context_type">group</field>
-        <field name="cel_expression">members.count(m, age_years(m.birthdate) &lt; 18 or age_years(m.birthdate) >= 60) >= 3</field>
+        <field
+            name="cel_expression"
+        >members.count(m, age_years(m.birthdate) &lt; 18 or age_years(m.birthdate) >= 60) >= 3</field>
         <field name="output_type">boolean</field>
         <field name="state">active</field>
         <field name="is_template">True</field>
@@ -207,5 +220,4 @@
         <field name="is_locked">True</field>
         <field name="sequence">60</field>
     </record> -->
-
 </odoo>

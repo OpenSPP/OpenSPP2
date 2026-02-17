@@ -109,7 +109,8 @@ spp_audit/
 
 ### Field Naming Consistency
 
-Fixed mismatch in `create_rules()` method where parameter names didn't match field names:
+Fixed mismatch in `create_rules()` method where parameter names didn't match field
+names:
 
 - Changed `"view_logs"` to `"is_view_logs"`
 - Changed `"log_create"` to `"is_log_create"`
@@ -136,8 +137,10 @@ All references updated from:
 ### Inheritance Patterns
 
 - spp_audit_post used `_inherit = "spp.audit.log"` → Now merged directly into base model
-- spp_audit_post used `_inherit = "spp.audit.rule"` → Now merged directly into base model
-- spp_audit_config used `_inherit = "spp.audit.rule"` → create_rules() merged into base model
+- spp_audit_post used `_inherit = "spp.audit.rule"` → Now merged directly into base
+  model
+- spp_audit_config used `_inherit = "spp.audit.rule"` → create_rules() merged into base
+  model
 
 ### View Architecture
 
@@ -157,8 +160,8 @@ All references updated from:
 
 ### Depended On By:
 
-Any module that previously depended on spp_audit_log, spp_audit_post, or spp_audit_config will need to update their
-dependencies to `spp_audit`.
+Any module that previously depended on spp_audit_log, spp_audit_post, or
+spp_audit_config will need to update their dependencies to `spp_audit`.
 
 ## Migration Notes
 

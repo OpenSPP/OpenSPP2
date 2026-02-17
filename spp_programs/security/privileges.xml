@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Programs Domain Privilege -->
     <!-- Single consolidated privilege for all programs access levels -->
 
     <record id="privilege_programs_user" model="res.groups.privilege">
         <field name="name">Programs</field>
-        <field name="category_id" ref="spp_security.category_spp_programs"/>
+        <field name="category_id" ref="spp_security.category_spp_programs" />
         <field name="description">Access to program and cycle management</field>
     </record>
 
@@ -14,8 +14,9 @@
 
     <record id="privilege_programs_validator" model="res.groups.privilege">
         <field name="name">Programs: Specialized Roles</field>
-        <field name="category_id" ref="spp_security.category_spp_programs"/>
-        <field name="description">Specialized functional roles for program workflows (Finance Validator, Entitlement Rejector, Cycle Approver)</field>
+        <field name="category_id" ref="spp_security.category_spp_programs" />
+        <field
+            name="description"
+        >Specialized functional roles for program workflows (Finance Validator, Entitlement Rejector, Cycle Approver)</field>
     </record>
-
 </odoo>

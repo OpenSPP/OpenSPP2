@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="0">
     <!--
     Sri Lanka locale configuration for DRIMS
@@ -8,14 +8,14 @@
 
     <!-- Enable Sri Lankan Rupee (LKR) - defined in base Odoo but inactive by default -->
     <record id="base.LKR" model="res.currency">
-        <field name="active" eval="True"/>
+        <field name="active" eval="True" />
     </record>
 
     <!-- Configure main company for Sri Lanka DMC -->
     <record id="base.main_company" model="res.company">
         <field name="name">Disaster Management Centre - Sri Lanka</field>
-        <field name="currency_id" ref="base.LKR"/>
-        <field name="country_id" ref="base.lk"/>
+        <field name="currency_id" ref="base.LKR" />
+        <field name="country_id" ref="base.lk" />
         <field name="phone">+94 11 2136136</field>
         <field name="email">info@dmc.gov.lk</field>
         <field name="website">http://www.dmc.gov.lk</field>
@@ -26,7 +26,7 @@
     <!-- Configure main partner (linked to main company) with same details -->
     <record id="base.main_partner" model="res.partner">
         <field name="name">Disaster Management Centre - Sri Lanka</field>
-        <field name="country_id" ref="base.lk"/>
+        <field name="country_id" ref="base.lk" />
         <field name="phone">+94 11 2136136</field>
         <field name="email">info@dmc.gov.lk</field>
         <field name="website">http://www.dmc.gov.lk</field>

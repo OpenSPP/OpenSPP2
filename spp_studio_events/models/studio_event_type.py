@@ -196,7 +196,7 @@ class StudioEventType(models.Model):
                 if set(vals.keys()) - allowed_fields:
                     raise UserError(
                         _(
-                            "Cannot modify active event type '%(name)s'. " "Deactivate it first to make changes.",
+                            "Cannot modify active event type '%(name)s'. Deactivate it first to make changes.",
                             name=record.name,
                         )
                     )
@@ -247,7 +247,7 @@ class StudioEventType(models.Model):
         self.ensure_one()
 
         if not self.data_fields:
-            raise UserError(_("Cannot activate event type without fields. " "Please add at least one field."))
+            raise UserError(_("Cannot activate event type without fields. Please add at least one field."))
 
         if self.spp_event_type_id:
             # Reactivation - update existing records
@@ -725,7 +725,7 @@ class StudioEventType(models.Model):
         if self.state != "active":
             raise UserError(
                 _(
-                    "Event type '%(name)s' is not active. " "Please activate it first to enter event data.",
+                    "Event type '%(name)s' is not active. Please activate it first to enter event data.",
                     name=self.name,
                 )
             )
@@ -1068,7 +1068,7 @@ class StudioEventField(models.Model):
                 if not record.selection_options:
                     raise ValidationError(
                         _(
-                            "Selection options are required for selection fields " "in field '%(label)s'.",
+                            "Selection options are required for selection fields in field '%(label)s'.",
                             label=record.label,
                         )
                     )

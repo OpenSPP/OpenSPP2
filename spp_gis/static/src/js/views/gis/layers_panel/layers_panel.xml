@@ -26,8 +26,13 @@
             <div t-if="!state.isFolded">
                 <Notebook orientation="'horizontal'">
                     <t t-set-slot="page_1" title="'Raster Layer'" isVisible="true">
-                        <header class="o_search_panel_section_header pt-4 pb-2 text-uppercase cursor-default">
-                            <span class="fs-6 fw-bold" t-on-click="openNewRaster">Create Raster</span>
+                        <header
+                            class="o_search_panel_section_header pt-4 pb-2 text-uppercase cursor-default"
+                        >
+                            <span
+                                class="fs-6 fw-bold"
+                                t-on-click="openNewRaster"
+                            >Create Raster</span>
                             <button
                                 type="button"
                                 t-if="isGisAdmin"
@@ -39,7 +44,11 @@
                             </button>
                         </header>
                         <ul class="raster list-group d-block o_search_panel_field">
-                            <li t-foreach="rasterLayersStore.getLayers" t-as="layer" t-key="layer.id">
+                            <li
+                                t-foreach="rasterLayersStore.getLayers"
+                                t-as="layer"
+                                t-key="layer.id"
+                            >
                                 <div class="d-flex align-items-center">
                                     <button
                                         type="button"
@@ -50,7 +59,10 @@
                                     >
                                         <i class="fa fa-edit text-primary" />
                                     </button>
-                                    <div class="form-check o_radio_item d-flex" aria-atomic="true">
+                                    <div
+                                        class="form-check o_radio_item d-flex"
+                                        aria-atomic="true"
+                                    >
                                         <input
                                             type="radio"
                                             t-att-checked="layer.isVisible"
@@ -80,7 +92,9 @@
                                     class="item d-flex align-items-center"
                                     t-att-data-id="data.id"
                                 >
-                                    <div class="d-flex justify-content-between align-items-center">
+                                    <div
+                                        class="d-flex justify-content-between align-items-center"
+                                    >
                                         <button
                                             type="button"
                                             t-if="isGisAdmin"

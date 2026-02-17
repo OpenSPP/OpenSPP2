@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Request from Template Wizard Form -->
     <record id="spp_drims_request_from_template_wizard_form" model="ir.ui.view">
@@ -9,13 +9,16 @@
                 <sheet>
                     <group>
                         <group string="Template">
-                            <field name="template_id" options="{'no_create': True}"/>
+                            <field name="template_id" options="{'no_create': True}" />
                         </group>
                         <group string="Request Details">
-                            <field name="incident_id" options="{'no_create': True}"/>
-                            <field name="destination_area_id" options="{'no_create': True}"/>
-                            <field name="date_needed"/>
-                            <field name="priority_id" options="{'no_create': True}"/>
+                            <field name="incident_id" options="{'no_create': True}" />
+                            <field
+                                name="destination_area_id"
+                                options="{'no_create': True}"
+                            />
+                            <field name="date_needed" />
+                            <field name="priority_id" options="{'no_create': True}" />
                         </group>
                     </group>
 
@@ -23,25 +26,30 @@
                         <page string="Items" name="items">
                             <field name="line_ids">
                                 <list editable="bottom">
-                                    <field name="product_id"/>
-                                    <field name="quantity"/>
-                                    <field name="uom_id"/>
-                                    <field name="notes"/>
+                                    <field name="product_id" />
+                                    <field name="quantity" />
+                                    <field name="uom_id" />
+                                    <field name="notes" />
                                 </list>
                             </field>
                         </page>
                         <page string="Notes" name="notes">
-                            <field name="notes" placeholder="Additional notes for this request..."/>
+                            <field
+                                name="notes"
+                                placeholder="Additional notes for this request..."
+                            />
                         </page>
                     </notebook>
                 </sheet>
 
                 <footer>
-                    <button name="action_create_request"
-                            string="Create Request"
-                            type="object"
-                            class="btn-primary"/>
-                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    <button
+                        name="action_create_request"
+                        string="Create Request"
+                        type="object"
+                        class="btn-primary"
+                    />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
                 </footer>
             </form>
         </field>
@@ -59,14 +67,16 @@
     <record id="view_spp_drims_request_template_form_use_button" model="ir.ui.view">
         <field name="name">spp.drims.request.template.form.use.button</field>
         <field name="model">spp.drims.request.template</field>
-        <field name="inherit_id" ref="spp_drims.drims_request_template_view_form"/>
+        <field name="inherit_id" ref="spp_drims.drims_request_template_view_form" />
         <field name="arch" type="xml">
             <xpath expr="//sheet" position="before">
                 <header>
-                    <button name="action_use_template"
-                            string="Use Template"
-                            type="object"
-                            class="btn-primary"/>
+                    <button
+                        name="action_use_template"
+                        string="Use Template"
+                        type="object"
+                        class="btn-primary"
+                    />
                 </header>
             </xpath>
         </field>

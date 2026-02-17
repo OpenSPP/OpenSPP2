@@ -1,35 +1,47 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Extend CEL Variable form to add event aggregation fields -->
     <record id="view_cel_variable_form_event_agg" model="ir.ui.view">
         <field name="name">spp.cel.variable.form.event.agg</field>
         <field name="model">spp.cel.variable</field>
-        <field name="inherit_id" ref="spp_studio.view_logic_variable_form"/>
+        <field name="inherit_id" ref="spp_studio.view_logic_variable_form" />
         <field name="arch" type="xml">
             <!-- Add event aggregation fields after aggregate_filter -->
             <xpath expr="//field[@name='aggregate_filter']" position="after">
                 <!-- Event Aggregation Fields -->
-                <separator string="Event Aggregation"
-                           invisible="aggregate_target != 'events'"
-                           colspan="2"/>
-                <field name="event_agg_type_id"
-                       invisible="aggregate_target != 'events'"
-                       options="{'no_create': True}"
-                       help="Event type to aggregate over"/>
-                <field name="event_agg_temporal"
-                       invisible="aggregate_target != 'events'"
-                       help="Time range for the aggregation"/>
-                <field name="event_agg_temporal_value"
-                       invisible="aggregate_target != 'events' or event_agg_temporal not in ('within_days', 'within_months')"
-                       help="Number of days or months"/>
-                <field name="event_agg_field"
-                       invisible="aggregate_target != 'events' or aggregate_type in ('count', 'exists')"
-                       placeholder="e.g., amount, score"
-                       help="JSON field name in event data to aggregate"/>
-                <field name="event_agg_states"
-                       invisible="aggregate_target != 'events'"
-                       widget="radio"
-                       help="Which event states to include"/>
+                <separator
+                    string="Event Aggregation"
+                    invisible="aggregate_target != 'events'"
+                    colspan="2"
+                />
+                <field
+                    name="event_agg_type_id"
+                    invisible="aggregate_target != 'events'"
+                    options="{'no_create': True}"
+                    help="Event type to aggregate over"
+                />
+                <field
+                    name="event_agg_temporal"
+                    invisible="aggregate_target != 'events'"
+                    help="Time range for the aggregation"
+                />
+                <field
+                    name="event_agg_temporal_value"
+                    invisible="aggregate_target != 'events' or event_agg_temporal not in ('within_days', 'within_months')"
+                    help="Number of days or months"
+                />
+                <field
+                    name="event_agg_field"
+                    invisible="aggregate_target != 'events' or aggregate_type in ('count', 'exists')"
+                    placeholder="e.g., amount, score"
+                    help="JSON field name in event data to aggregate"
+                />
+                <field
+                    name="event_agg_states"
+                    invisible="aggregate_target != 'events'"
+                    widget="radio"
+                    help="Which event states to include"
+                />
             </xpath>
         </field>
     </record>

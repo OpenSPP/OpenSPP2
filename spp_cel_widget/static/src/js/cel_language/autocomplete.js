@@ -96,7 +96,8 @@ function getPropertyCompletions(text, from, symbols) {
 
         completions.push({
             label: field.name,
-            type: field.type === "many2one" ? "property" : getCompletionType(field.type),
+            type:
+                field.type === "many2one" ? "property" : getCompletionType(field.type),
             detail: field.type,
             info: field.doc,
             apply: field.name,
@@ -114,7 +115,10 @@ function getPropertyCompletions(text, from, symbols) {
                 label: fn,
                 type: "function",
                 detail: fn === "exists" ? "-> bool" : "-> int",
-                info: fn === "exists" ? "Check if any item matches condition" : "Count items matching condition",
+                info:
+                    fn === "exists"
+                        ? "Check if any item matches condition"
+                        : "Count items matching condition",
                 apply: `${fn}(, )`,
             });
         }

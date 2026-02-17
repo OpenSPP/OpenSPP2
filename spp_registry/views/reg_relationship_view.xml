@@ -100,7 +100,7 @@
                         />
                     </group>
                 </sheet>
-                <chatter/>
+                <chatter />
             </form>
         </field>
     </record>
@@ -117,14 +117,22 @@
                     filter_domain="['|', ('source.name', 'ilike', self), ('destination.name', 'ilike', self)]"
                 />
                 <field name="relation_id" />
-                <separator/>
-                <filter string="Source" name="grp_source" context="{'group_by': 'source'}" />
+                <separator />
+                <filter
+                    string="Source"
+                    name="grp_source"
+                    context="{'group_by': 'source'}"
+                />
                 <filter
                     string="Destination"
                     name="grp_destination"
                     context="{'group_by': 'destination'}"
                 />
-                <filter string="Relation" name="grp_relation" context="{'group_by': 'relation_id'}" />
+                <filter
+                    string="Relation"
+                    name="grp_relation"
+                    context="{'group_by': 'relation_id'}"
+                />
             </search>
         </field>
     </record>
@@ -140,7 +148,8 @@
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Add a Registrant Relationship!
-            </p><p>
+            </p>
+            <p>
                 Click the create button to enter the new registrant's relationship information.
             </p>
         </field>
@@ -159,5 +168,4 @@
         <field name="view_id" ref="view_reg_rel_form" />
         <field name="act_window_id" ref="action_reg_rel" />
     </record>
-
 </odoo>

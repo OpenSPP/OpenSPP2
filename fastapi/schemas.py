@@ -14,7 +14,7 @@ class PagedCollection(BaseModel, Generic[T]):
         int,
         Field(
             ...,
-            description="Count of items into the system.\n " "Replaces the total field which is deprecated",
+            description="Count of items into the system.\n Replaces the total field which is deprecated",
             validation_alias=AliasChoices("count", "total"),
         ),
     ]

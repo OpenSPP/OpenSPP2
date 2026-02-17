@@ -1,7 +1,17 @@
 /** @odoo-module */
 
-import {Component, onMounted, onPatched, onWillStart, reactive, useState} from "@odoo/owl";
-import {addFieldDependencies, extractFieldsFromArchInfo} from "@web/model/relational_model/utils";
+import {
+    Component,
+    onMounted,
+    onPatched,
+    onWillStart,
+    reactive,
+    useState,
+} from "@odoo/owl";
+import {
+    addFieldDependencies,
+    extractFieldsFromArchInfo,
+} from "@web/model/relational_model/utils";
 import {loadCSS, loadJS} from "@web/core/assets";
 import {LayersPanel} from "../layers_panel/layers_panel.esm";
 import {RelationalModel} from "@web/model/relational_model/relational_model";
@@ -33,8 +43,12 @@ export class GisRenderer extends Component {
         this.geoTypes = ["Polygon", "LineString", "Point"];
 
         // Create reactive layer stores with change handlers.
-        this.rasterLayersStore = reactive(rasterLayersStore, () => this.onRasterLayerChanged());
-        this.dataLayersStore = reactive(dataLayersStore, () => this.onDataLayerChanged());
+        this.rasterLayersStore = reactive(rasterLayersStore, () =>
+            this.onRasterLayerChanged()
+        );
+        this.dataLayersStore = reactive(dataLayersStore, () =>
+            this.onDataLayerChanged()
+        );
 
         // Initialize Odoo services.
         this.orm = useService("orm");
@@ -58,13 +72,19 @@ export class GisRenderer extends Component {
             return Promise.all([
                 // Load external JavaScript libraries
                 loadJS("/spp_gis/static/lib/turf-3.0.11/turf.min.js"),
-                loadJS("/spp_gis/static/lib/maptiler-sdk-js-1.2.0/maptiler-sdk.umd.min.js"),
+                loadJS(
+                    "/spp_gis/static/lib/maptiler-sdk-js-1.2.0/maptiler-sdk.umd.min.js"
+                ),
                 loadJS("/spp_gis/static/lib/mapbox-gl-draw-1.2.0/mapbox-gl-draw.js"),
-                loadJS("/spp_gis/static/lib/maptiler-geocoding-control-1.2.0/maptilersdk.umd.js"),
+                loadJS(
+                    "/spp_gis/static/lib/maptiler-geocoding-control-1.2.0/maptilersdk.umd.js"
+                ),
                 // Load external CSS libraries
                 loadCSS("/spp_gis/static/lib/maptiler-sdk-js-1.2.0/maptiler-sdk.css"),
                 loadCSS("/spp_gis/static/lib/mapbox-gl-draw-1.2.0/mapbox-gl-draw.css"),
-                loadCSS("/spp_gis/static/lib/maptiler-geocoding-control-1.2.0/style.css"),
+                loadCSS(
+                    "/spp_gis/static/lib/maptiler-geocoding-control-1.2.0/style.css"
+                ),
                 this.loadDataLayerForm(),
                 (this.isGisAdmin = await this.user.hasGroup("spp_gis.group_gis_admin")),
             ]);
@@ -189,7 +209,9 @@ export class GisRenderer extends Component {
             // Filter out records without geo data (handles computed/related fields)
             return records.filter((r) => r[geoField]);
         } catch (error) {
-            console.warn(`Could not load records for model ${model}: ${error.message || error}`);
+            console.warn(
+                `Could not load records for model ${model}: ${error.message || error}`
+            );
             return [];
         }
     }
@@ -222,11 +244,15 @@ export class GisRenderer extends Component {
                 if (layer.geo_repr === "choropleth" && layer.choropleth_config) {
                     const fieldName = layer.choropleth_config.field_name;
                     const choroplethValue = values[fieldName];
-                    properties.choropleth_value = typeof choroplethValue === "number" ? choroplethValue : 0;
+                    properties.choropleth_value =
+                        typeof choroplethValue === "number" ? choroplethValue : 0;
                 }
 
                 try {
-                    const geometry = typeof jsonGeometry === "string" ? JSON.parse(jsonGeometry) : jsonGeometry;
+                    const geometry =
+                        typeof jsonGeometry === "string"
+                            ? JSON.parse(jsonGeometry)
+                            : jsonGeometry;
                     features.push({
                         type: "Feature",
                         geometry,
@@ -265,7 +291,11 @@ export class GisRenderer extends Component {
 
             // For base model layers, use the already loaded records
             if (!layerModel || layerModel === baseModel) {
-                const layerFeatures = this._buildFeaturesFromRecords(records, layer, geoFieldName);
+                const layerFeatures = this._buildFeaturesFromRecords(
+                    records,
+                    layer,
+                    geoFieldName
+                );
                 features.push(...layerFeatures);
             }
             // For cross-model layers, records are loaded separately in _loadCrossModelData
@@ -314,8 +344,17 @@ export class GisRenderer extends Component {
             }
 
             // Load records for this cross-model layer
-            const records = await this._loadModelRecords(layerModel, geoFieldName, extraFields, layer.domain);
-            const layerFeatures = this._buildFeaturesFromRecords(records, layer, geoFieldName);
+            const records = await this._loadModelRecords(
+                layerModel,
+                geoFieldName,
+                extraFields,
+                layer.domain
+            );
+            const layerFeatures = this._buildFeaturesFromRecords(
+                records,
+                layer,
+                geoFieldName
+            );
             crossModelFeatures.push(...layerFeatures);
         }
 
@@ -347,7 +386,11 @@ export class GisRenderer extends Component {
     async renderMap() {
         let defaultCenter = [124.74037191, 7.83479874];
         let defaultZoom = 6;
-        const editInfo = await this.orm.call(this.props.data._config.resModel, "get_edit_info_for_gis", []);
+        const editInfo = await this.orm.call(
+            this.props.data._config.resModel,
+            "get_edit_info_for_gis",
+            []
+        );
 
         if (editInfo.default_center) {
             defaultCenter = JSON.parse(editInfo.default_center);
@@ -363,7 +406,10 @@ export class GisRenderer extends Component {
                     defaultCenter = centroid.geometry.coordinates;
                 }
             } catch (error) {
-                console.warn("Could not compute centroid for feature collection:", error.message);
+                console.warn(
+                    "Could not compute centroid for feature collection:",
+                    error.message
+                );
                 // Use default center if centroid calculation fails
             }
         }
@@ -372,10 +418,14 @@ export class GisRenderer extends Component {
 
         if (this.defaultRaster) {
             if (this.defaultRaster.raster_style.includes("-")) {
-                const rasterStyleArray = this.defaultRaster.raster_style.toUpperCase().split("-");
-                defaultMapStyle = maptilersdk.MapStyle[rasterStyleArray[0]][rasterStyleArray[1]];
+                const rasterStyleArray = this.defaultRaster.raster_style
+                    .toUpperCase()
+                    .split("-");
+                defaultMapStyle =
+                    maptilersdk.MapStyle[rasterStyleArray[0]][rasterStyleArray[1]];
             } else {
-                defaultMapStyle = maptilersdk.MapStyle[this.defaultRaster.raster_style.toUpperCase()];
+                defaultMapStyle =
+                    maptilersdk.MapStyle[this.defaultRaster.raster_style.toUpperCase()];
             }
         }
 
@@ -419,7 +469,8 @@ export class GisRenderer extends Component {
         if (layer) {
             if (layer.raster_style.includes("-")) {
                 const rasterStyleArray = layer.raster_style.toUpperCase().split("-");
-                mapStyle = maptilersdk.MapStyle[rasterStyleArray[0]][rasterStyleArray[1]];
+                mapStyle =
+                    maptilersdk.MapStyle[rasterStyleArray[0]][rasterStyleArray[1]];
             } else {
                 mapStyle = maptilersdk.MapStyle[layer.raster_style.toUpperCase()];
             }
@@ -570,7 +621,12 @@ export class GisRenderer extends Component {
                 stops.push(minValue + step * index);
                 stops.push(color);
             });
-            return ["interpolate", ["linear"], ["coalesce", ["get", "choropleth_value"], 0], ...stops];
+            return [
+                "interpolate",
+                ["linear"],
+                ["coalesce", ["get", "choropleth_value"], 0],
+                ...stops,
+            ];
         }
 
         if (config.classification === "manual" && config.manual_breaks) {
@@ -602,7 +658,10 @@ export class GisRenderer extends Component {
 
         for (let i = 1; i <= classCount; i++) {
             const breakValue = minValue + stepSize * i;
-            const colorIndex = Math.min(Math.floor((i / classCount) * (colors.length - 1)), colors.length - 1);
+            const colorIndex = Math.min(
+                Math.floor((i / classCount) * (colors.length - 1)),
+                colors.length - 1
+            );
             steps.push(breakValue);
             steps.push(colors[colorIndex]);
         }
@@ -638,7 +697,12 @@ export class GisRenderer extends Component {
                 id: layer.id,
                 type: "fill",
                 source: this.sourceId,
-                filter: ["all", ["==", "$type", "Polygon"], ["!=", "mode", "static"], ["==", "layerId", layer.id]],
+                filter: [
+                    "all",
+                    ["==", "$type", "Polygon"],
+                    ["!=", "mode", "static"],
+                    ["==", "layerId", layer.id],
+                ],
                 layout: {
                     visibility: visibility,
                 },
@@ -654,7 +718,12 @@ export class GisRenderer extends Component {
                     id: `${layer.id}_outline`,
                     type: "line",
                     source: this.sourceId,
-                    filter: ["all", ["==", "$type", "Polygon"], ["!=", "mode", "static"], ["==", "layerId", layer.id]],
+                    filter: [
+                        "all",
+                        ["==", "$type", "Polygon"],
+                        ["!=", "mode", "static"],
+                        ["==", "layerId", layer.id],
+                    ],
                     layout: {
                         visibility: visibility,
                     },
@@ -672,7 +741,12 @@ export class GisRenderer extends Component {
                 id: layer.id,
                 type: "circle",
                 source: this.sourceId,
-                filter: ["all", ["==", "$type", "Point"], ["!=", "mode", "static"], ["==", "layerId", layer.id]],
+                filter: [
+                    "all",
+                    ["==", "$type", "Point"],
+                    ["!=", "mode", "static"],
+                    ["==", "layerId", layer.id],
+                ],
                 layout: {
                     visibility: visibility,
                 },
@@ -691,7 +765,12 @@ export class GisRenderer extends Component {
                 id: layer.id,
                 type: "line",
                 source: this.sourceId,
-                filter: ["all", ["==", "$type", "LineString"], ["!=", "mode", "static"], ["==", "layerId", layer.id]],
+                filter: [
+                    "all",
+                    ["==", "$type", "LineString"],
+                    ["!=", "mode", "static"],
+                    ["==", "layerId", layer.id],
+                ],
                 layout: {
                     visibility: visibility,
                 },
@@ -721,7 +800,15 @@ export class GisRenderer extends Component {
     async loadView(model, view) {
         const viewRegistry = registry.category("views");
         const fields = await this.fields.loadFields(model, {
-            attributes: ["store", "searchable", "type", "string", "relation", "selection", "related"],
+            attributes: [
+                "store",
+                "searchable",
+                "type",
+                "string",
+                "relation",
+                "selection",
+                "related",
+            ],
         });
         const {relatedModels, views} = await this.view.loadViews({
             resModel: model,
@@ -733,14 +820,20 @@ export class GisRenderer extends Component {
         const archInfo = new ArchParser().parse(xmlDoc, relatedModels, model);
 
         if (model === "spp.gis.data.layer") {
-            const notAllowedField = Object.keys(fields).filter((field) => fields[field].relation === "ir.ui.view");
+            const notAllowedField = Object.keys(fields).filter(
+                (field) => fields[field].relation === "ir.ui.view"
+            );
             notAllowedField.forEach((field) => {
                 delete field[field];
             });
         }
 
         const {activeFields, arch_fields} = extractFieldsFromArchInfo(archInfo, fields);
-        addFieldDependencies(activeFields, arch_fields, this.progressBarAggregateFields(archInfo));
+        addFieldDependencies(
+            activeFields,
+            arch_fields,
+            this.progressBarAggregateFields(archInfo)
+        );
 
         const modelConfig = {
             model,
@@ -823,7 +916,11 @@ export class GisRenderer extends Component {
             if (geoType === "geo_polygon") {
                 const outlineLayerId = `${layer.id}_outline`;
                 if (this.map.getLayer(outlineLayerId)) {
-                    this.map.setLayoutProperty(outlineLayerId, "visibility", visibility);
+                    this.map.setLayoutProperty(
+                        outlineLayerId,
+                        "visibility",
+                        visibility
+                    );
                     this.map.setPaintProperty(outlineLayerId, "line-opacity", opacity);
                 }
             }
@@ -840,8 +937,16 @@ export class GisRenderer extends Component {
                 const visibility = layer.isVisible ? "visible" : "none";
                 const opacity = Math.min(1, Math.max(0, layer.opacity));
 
-                this.map.setLayoutProperty(rasterLayerSourceId, "visibility", visibility);
-                this.map.setPaintProperty(rasterLayerSourceId, "raster-opacity", opacity);
+                this.map.setLayoutProperty(
+                    rasterLayerSourceId,
+                    "visibility",
+                    visibility
+                );
+                this.map.setPaintProperty(
+                    rasterLayerSourceId,
+                    "raster-opacity",
+                    opacity
+                );
             } else if (layer.raster_type === "image") {
                 const sourceId = `image_${layer.id}`;
                 const visibility = layer.isVisible ? "visible" : "none";
@@ -880,7 +985,11 @@ export class GisRenderer extends Component {
 
         for (const layer of this.dataLayersStore.getLayers) {
             // Handle report-based choropleth layers
-            if (layer.geo_repr === "choropleth" && layer.report_legend && layer.isVisible) {
+            if (
+                layer.geo_repr === "choropleth" &&
+                layer.report_legend &&
+                layer.isVisible
+            ) {
                 this._renderReportLegend(legendContainer, layer);
                 continue;
             }
@@ -902,7 +1011,8 @@ export class GisRenderer extends Component {
             // Title
             const titleDiv = document.createElement("div");
             titleDiv.className = "choropleth-legend-title";
-            titleDiv.textContent = config.legend_title || config.field_label || layer.name;
+            titleDiv.textContent =
+                config.legend_title || config.field_label || layer.name;
             legendDiv.appendChild(titleDiv);
 
             const colors = config.color_ramp || ["#00ff00", "#ff0000"];

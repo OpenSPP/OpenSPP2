@@ -39,5 +39,4 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
     </record>
 
     <!-- NOTE: SMS Notification Manager views moved to spp_programs_sms bridge module -->
-
 </odoo>

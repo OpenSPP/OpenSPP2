@@ -14,7 +14,14 @@
  * - Symbol browser support
  */
 
-import {Component, onMounted, onWillDestroy, onWillUpdateProps, useRef, useState} from "@odoo/owl";
+import {
+    Component,
+    onMounted,
+    onWillDestroy,
+    onWillUpdateProps,
+    useRef,
+    useState,
+} from "@odoo/owl";
 import {useService} from "@web/core/utils/hooks";
 
 import {celLanguageMode, createCelTokenTable} from "./cel_language/syntax";
@@ -47,7 +54,8 @@ export class CelEditor extends Component {
         value: "",
         profile: "registry_individuals",
         readonly: false,
-        placeholder: "Start typing or press Ctrl+Space for suggestions...\nExample: age_years(r.birthdate) >= 18",
+        placeholder:
+            "Start typing or press Ctrl+Space for suggestions...\nExample: age_years(r.birthdate) >= 18",
         minHeight: "80px",
         showToolbar: true,
         showSymbolBrowser: true,
@@ -204,7 +212,10 @@ export class CelEditor extends Component {
             cm.StreamLanguage.define(celLanguageMode, {tokenTable}),
             createCelHighlightStyle(cm),
             createCelSimpleTheme(cm),
-            createCelAutocomplete(cm, () => this.symbolsPromise || Promise.resolve(this.state.symbols)),
+            createCelAutocomplete(
+                cm,
+                () => this.symbolsPromise || Promise.resolve(this.state.symbols)
+            ),
 
             cm.keymap.of([
                 {
@@ -314,10 +325,14 @@ export class CelEditor extends Component {
         this.state.isValidating = true;
 
         try {
-            const result = await this.celSymbols.validate(expression, this.currentProfile, {
-                expression_type: this.props.expressionType,
-                output_type: this.props.outputType,
-            });
+            const result = await this.celSymbols.validate(
+                expression,
+                this.currentProfile,
+                {
+                    expression_type: this.props.expressionType,
+                    output_type: this.props.outputType,
+                }
+            );
             this.state.validation = result;
             if (this.props.onValidation) {
                 this.props.onValidation(result);
