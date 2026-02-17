@@ -147,7 +147,8 @@ repos:
       # Phase 1: Simple pattern-based checks (pygrep)
       - id: openspp-no-assertraises-tuple
         name: "OpenSPP: No tuple in assertRaises"
-        description: "Odoo's assertRaises doesn't support tuple of exceptions like stdlib unittest"
+        description:
+          "Odoo's assertRaises doesn't support tuple of exceptions like stdlib unittest"
         entry: 'self\.assertRaises\s*\(\s*\('
         language: pygrep
         types: [python]
@@ -202,7 +203,8 @@ repos:
       # Phase 2: Compliance check (security spec validation)
       - id: openspp-compliance-check
         name: "OpenSPP: Security compliance check"
-        description: "Validate modules with compliance.yaml against actual security config"
+        description:
+          "Validate modules with compliance.yaml against actual security config"
         entry: python -m scripts.compliance.checker --all
         language: python
         additional_dependencies:
@@ -236,7 +238,9 @@ repos:
       # Phase 3: UI patterns check (warning only)
       - id: openspp-check-ui
         name: "OpenSPP: UI patterns"
-        description: "Check list limits, sample data, XPath syntax, statusbar location, extension points"
+        description:
+          "Check list limits, sample data, XPath syntax, statusbar location, extension
+          points"
         entry: python scripts/lint/check_ui_patterns.py
         language: python
         additional_dependencies:
@@ -272,7 +276,8 @@ repos:
       # API authentication enforcement
       - id: openspp-check-api-auth
         name: "OpenSPP: API endpoint authentication"
-        description: "Verify all API endpoints require authentication (allowlist for public)"
+        description:
+          "Verify all API endpoints require authentication (allowlist for public)"
         entry: python scripts/audit-api-auth.py --strict
         language: python
         pass_filenames: false
