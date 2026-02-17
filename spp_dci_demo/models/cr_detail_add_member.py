@@ -118,7 +118,9 @@ class SPPCRDetailAddMemberDCI(models.Model):
         Looks for a system parameter or finds the first active CRVS data source.
         """
         # Try system parameter first
-        param_value = self.env["ir.config_parameter"].sudo().get_param("spp_dci_demo.default_crvs_data_source")
+        # sudo() is intentional: system parameters require admin access
+        config_params = self.env["ir.config_parameter"].sudo()  # nosemgrep: odoo-sudo-without-context
+        param_value = config_params.get_param("spp_dci_demo.default_crvs_data_source")
         if param_value:
             try:
                 data_source = self.env["spp.dci.data.source"].browse(int(param_value))

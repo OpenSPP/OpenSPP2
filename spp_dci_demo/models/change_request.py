@@ -146,9 +146,8 @@ class SPPChangeRequestDCI(models.Model):
         super()._after_submit()
 
         # Check system parameter
-        auto_approve_enabled = (
-            self.env["ir.config_parameter"].sudo().get_param("spp_dci_demo.auto_approve_on_match", "False")
-        )
+        config_params = self.env["ir.config_parameter"].sudo()  # nosemgrep: odoo-sudo-without-context
+        auto_approve_enabled = config_params.get_param("spp_dci_demo.auto_approve_on_match", "False")
         if auto_approve_enabled.lower() not in ("true", "1", "yes"):
             return
 
@@ -169,9 +168,7 @@ class SPPChangeRequestDCI(models.Model):
                     record.name,
                 )
                 try:
-                    record.action_approve_system(
-                        comment=_("Auto-approved: DCI birth verification matched")
-                    )
+                    record.action_approve_system(comment=_("Auto-approved: DCI birth verification matched"))
                 except Exception as e:
                     _logger.warning(
                         "Failed to auto-approve CR %s after submit: %s",

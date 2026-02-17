@@ -327,7 +327,7 @@ class DCIDataSource(models.Model):
 
         try:
             # Use sudo() to access OAuth2 credentials which are restricted to administrators
-            sudo_self = self.sudo()
+            sudo_self = self.sudo()  # nosemgrep: odoo-sudo-without-context
             token_data = {
                 "grant_type": "client_credentials",
                 "client_id": sudo_self.oauth2_client_id,

@@ -234,10 +234,20 @@ class TestChangeRequestService(ChangeRequestTestCase):
                 "registrant_id": self.registrant.id,
             }
         )
-        # Find a computed/readonly field from the schema
+        # Find a computed/readonly field by inspecting the detail model directly
         detail = cr.get_detail()
-        field_defs = service._build_field_definitions(self.cr_type_edit, detail)
-        readonly_fields = [f["name"] for f in field_defs if f["readonly"]]
+        from odoo.addons.spp_api_v2.services.schema_builder import SKIP_FIELD_TYPES
+        from odoo.addons.spp_api_v2_change_request.services.change_request_service import DETAIL_SKIP_FIELDS
+
+        readonly_fields = []
+        for field_name, field in detail._fields.items():
+            if field_name.startswith("_") or field_name in DETAIL_SKIP_FIELDS:
+                continue
+            if not field.store or field.type in SKIP_FIELD_TYPES:
+                continue
+            if field.readonly or field.compute:
+                readonly_fields.append(field_name)
+
         if readonly_fields:
             with self.assertRaises(ValidationError):
                 service.update_detail(cr, {readonly_fields[0]: "value"})

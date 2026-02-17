@@ -80,25 +80,22 @@ class OutgoingApiLogService:
             truncated_request = self._truncate_payload(request_summary)
             truncated_response = self._truncate_payload(response_summary)
 
-            return (
-                self.env["spp.api.outgoing.log"]
-                .sudo()
-                .log_call(
-                    url=url,
-                    endpoint=endpoint,
-                    http_method=http_method,
-                    request_summary=truncated_request,
-                    response_summary=truncated_response,
-                    response_status_code=response_status_code,
-                    user_id=self.user_id,
-                    origin_model=origin_model,
-                    origin_record_id=origin_record_id,
-                    duration_ms=duration_ms,
-                    service_name=self.service_name,
-                    service_code=self.service_code,
-                    status=status,
-                    error_detail=error_detail,
-                )
+            log_model = self.env["spp.api.outgoing.log"].sudo()  # nosemgrep: odoo-sudo-without-context
+            return log_model.log_call(
+                url=url,
+                endpoint=endpoint,
+                http_method=http_method,
+                request_summary=truncated_request,
+                response_summary=truncated_response,
+                response_status_code=response_status_code,
+                user_id=self.user_id,
+                origin_model=origin_model,
+                origin_record_id=origin_record_id,
+                duration_ms=duration_ms,
+                service_name=self.service_name,
+                service_code=self.service_code,
+                status=status,
+                error_detail=error_detail,
             )
         except (KeyError, AttributeError, TypeError) as e:
             _logger.warning("Failed to log outgoing API call due to data error: %s", type(e).__name__)

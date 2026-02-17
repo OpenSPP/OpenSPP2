@@ -197,32 +197,6 @@ class FieldChoice(BaseModel):
     label: str = Field(..., description="Human-readable display label")
 
 
-class VocabularyInfo(BaseModel):
-    """Vocabulary namespace and available codes for a vocabulary field."""
-
-    namespace_uri: str = Field(..., alias="namespaceUri", description="Vocabulary namespace URI")
-    codes: list[FieldChoice] = Field(default_factory=list, description="Available codes")
-
-    class Config:
-        populate_by_name = True
-
-
-class FieldDefinition(BaseModel):
-    """Schema definition for a single field on a CR detail model."""
-
-    name: str = Field(..., description="Field name")
-    label: str = Field(..., description="Human-readable field label")
-    type: str = Field(
-        ...,
-        description="Field type (string, text, integer, float, boolean, date, datetime, selection, code, reference)",
-    )
-    required: bool = Field(False, description="Whether the field is required")
-    readonly: bool = Field(False, description="Whether the field is read-only or computed")
-    help: str | None = Field(None, description="Help text for the field")
-    choices: list[FieldChoice] | None = Field(None, description="Available choices for selection fields")
-    vocabulary: VocabularyInfo | None = Field(None, description="Vocabulary info for code fields")
-
-
 class ChangeRequestTypeInfo(BaseModel):
     """Summary info for a CR type."""
 
@@ -236,10 +210,14 @@ class ChangeRequestTypeInfo(BaseModel):
 
 
 class ChangeRequestTypeSchema(BaseModel):
-    """Full schema for a CR type including field definitions."""
+    """Full schema for a CR type including JSON Schema for detail fields."""
 
     type_info: ChangeRequestTypeInfo = Field(..., alias="typeInfo", description="Type summary")
-    fields: list[FieldDefinition] = Field(default_factory=list, description="Available detail fields")
+    detail_schema: dict[str, Any] = Field(
+        ...,
+        alias="detailSchema",
+        description="JSON Schema 2020-12 describing the detail payload",
+    )
     available_documents: list[FieldChoice] = Field(
         default_factory=list, alias="availableDocuments", description="Documents that can be attached"
     )

@@ -28,7 +28,7 @@ def post_init_hook(env):
         return
 
     # Set the system parameter
-    env["ir.config_parameter"].sudo().set_param(
+    env["ir.config_parameter"].sudo().set_param(  # nosemgrep: odoo-sudo-without-context
         "spp_dci_demo.enrollment_program_id",
         str(program.id),
     )

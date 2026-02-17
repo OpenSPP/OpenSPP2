@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
     <!-- Extend CR Form with DCI Birth Verification Banner for Reviewers -->
-    <record id="spp_change_request_form_dci" model="ir.ui.view">
+    <record id="view_spp_change_request_form_dci" model="ir.ui.view">
         <field name="name">spp.change.request.form.dci</field>
         <field name="model">spp.change.request</field>
         <field name="inherit_id" ref="spp_change_request_v2.spp_change_request_form" />

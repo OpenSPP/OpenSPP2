@@ -35,4 +35,5 @@ from . import test_program_membership_api
 from . import test_program_membership_service
 from . import test_program_service
 from . import test_scope_enforcement
+from . import test_schema_builder
 from . import test_search_service

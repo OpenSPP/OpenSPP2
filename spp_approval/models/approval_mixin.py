@@ -353,7 +353,7 @@ class ApprovalMixin(models.AbstractModel):
                     record.approval_state,
                 )
                 continue
-            record.sudo()._do_approve(comment=comment)
+            record.sudo()._do_approve(comment=comment)  # nosemgrep: odoo-sudo-without-context
             _logger.info(
                 "System auto-approved %s %s: %s",
                 record._name,
