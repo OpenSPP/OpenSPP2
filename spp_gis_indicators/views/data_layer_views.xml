@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Extend primary data layer form view to add geo_repr and indicator fields -->
+    <record model="ir.ui.view" id="view_spp_gis_data_layer_form_indicators">
+        <field name="name">spp.gis.data.layer.form.indicators</field>
+        <field name="model">spp.gis.data.layer</field>
+        <field name="inherit_id" ref="spp_gis.spp_gis_data_layer_form"/>
+        <field name="arch" type="xml">
+            <!-- Add geo_repr field to General group -->
+            <field name="name" position="after">
+                <field name="geo_repr"/>
+            </field>
+            <!-- Add indicator layer field after Colors group -->
+            <xpath expr="//group[@name='colors']" position="after">
+                <group string="Choropleth Settings" invisible="geo_repr != 'choropleth'">
+                    <field name="indicator_layer_id" options="{'no_create': True}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend popup form view as well -->
+    <record model="ir.ui.view" id="view_spp_gis_data_layer_form_inherit_indicators">
+        <field name="name">spp.gis.data.layer.popup.form.indicators</field>
+        <field name="model">spp.gis.data.layer</field>
+        <field name="inherit_id" ref="spp_gis.spp_gis_data_layer_view_form"/>
+        <field name="arch" type="xml">
+            <!-- Add geo_repr field to General group -->
+            <field name="name" position="after">
+                <field name="geo_repr"/>
+            </field>
+            <!-- Add indicator layer field after Colors group -->
+            <xpath expr="//group[@name='colors']" position="after">
+                <group string="Choropleth Settings" invisible="geo_repr != 'choropleth'">
+                    <field name="indicator_layer_id" options="{'no_create': True}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

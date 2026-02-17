@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Gender Attributes -->
+    <record id="hxl_attr_f" model="spp.hxl.attribute">
+        <field name="code">+f</field>
+        <field name="name">Female</field>
+        <field name="description">Female gender disaggregation</field>
+        <field name="category">gender</field>
+        <field name="is_standard" eval="True" />
+    </record>
+
+    <record id="hxl_attr_m" model="spp.hxl.attribute">
+        <field name="code">+m</field>
+        <field name="name">Male</field>
+        <field name="description">Male gender disaggregation</field>
+        <field name="category">gender</field>
+        <field name="is_standard" eval="True" />
+    </record>
+
+    <record id="hxl_attr_i" model="spp.hxl.attribute">
+        <field name="code">+i</field>
+        <field name="name">Intersex/Other</field>
+        <field name="description">Intersex or other gender disaggregation</field>
+        <field name="category">gender</field>
+        <field name="is_standard" eval="True" />
+    </record>
+
+    <!-- Age Group Attributes -->
+    <record id="hxl_attr_infants" model="spp.hxl.attribute">
+        <field name="code">+infants</field>
+        <field name="name">Infants</field>
+        <field name="description">Infants (typically 0-1 years)</field>
+        <field name="category">age</field>
+        <field name="is_standard" eval="True" />
+    </record>
+
+    <record id="hxl_attr_children" model="spp.hxl.attribute">
+        <field name="code">+children</field>
+        <field name="name">Children</field>
+        <field name="description">Children (typically 2-11 years)</field>
+        <field name="category">age</field>
+        <field name="is_standard" eval="True" />
+    </record>
+
+    <record id="hxl_attr_adolescents" model="spp.hxl.attribute">
+        <field name="code">+adolescents</field>
+        <field name="name">Adolescents</field>
+        <field name="description">Adolescents (typically 12-17 years)</field>
+        <field name="category">age</field>
+        <field name="is_standard" eval="True" />
+    </record>
+
+    <record id="hxl_attr_adults" model="spp.hxl.attribute">
+        <field name="code">+adults</field>
+        <field name="name">Adults</field>
+        <field name="description">Adults (typically 18-59 years)</field>
+        <field name="category">age</field>
+        <field name="is_standard" eval="True" />
+    </record>
+
+    <record id="hxl_attr_elderly" model="spp.hxl.attribute">
+        <field name="code">+elderly</field>
+        <field name="name">Elderly</field>
+        <field name="description">Elderly (typically 60+ years)</field>
+        <field name="category">age</field>
+        <field name="is_standard" eval="True" />
+    </record>
+
+    <!-- Population Type Attributes -->
+    <record id="hxl_attr_refugees" model="spp.hxl.attribute">
+        <field name="code">+refugees</field>
+        <field name="name">Refugees</field>
+        <field name="description">Refugee population</field>
+        <field name="category">population_type</field>
+        <field name="is_standard" eval="True" />
+    </record>
+
+    <record id="hxl_attr_idps" model="spp.hxl.attribute">
+        <field name="code">+idps</field>
+        <field name="name">IDPs</field>
+        <field name="description">Internally displaced persons</field>
+        <field name="category">population_type</field>
+        <field name="is_standard" eval="True" />
+    </record>
+
+    <record id="hxl_attr_ind" model="spp.hxl.attribute">
+        <field name="code">+ind</field>
+        <field name="name">Individuals</field>
+        <field name="description">Individual persons</field>
+        <field name="category">population_type</field>
+        <field name="is_standard" eval="True" />
+    </record>
+
+    <record id="hxl_attr_hh" model="spp.hxl.attribute">
+        <field name="code">+hh</field>
+        <field name="name">Households</field>
+        <field name="description">Household units</field>
+        <field name="category">population_type</field>
+        <field name="is_standard" eval="True" />
+    </record>
+
+    <!-- Data Type Attributes -->
+    <record id="hxl_attr_code" model="spp.hxl.attribute">
+        <field name="code">+code</field>
+        <field name="name">Code</field>
+        <field name="description">Machine-readable code or identifier</field>
+        <field name="category">data_type</field>
+        <field name="is_standard" eval="True" />
+    </record>
+
+    <record id="hxl_attr_name" model="spp.hxl.attribute">
+        <field name="code">+name</field>
+        <field name="name">Name</field>
+        <field name="description">Human-readable name</field>
+        <field name="category">data_type</field>
+        <field name="is_standard" eval="True" />
+    </record>
+
+    <record id="hxl_attr_num" model="spp.hxl.attribute">
+        <field name="code">+num</field>
+        <field name="name">Number</field>
+        <field name="description">Numeric value</field>
+        <field name="category">data_type</field>
+        <field name="is_standard" eval="True" />
+    </record>
+
+    <record id="hxl_attr_text" model="spp.hxl.attribute">
+        <field name="code">+text</field>
+        <field name="name">Text</field>
+        <field name="description">Free text content</field>
+        <field name="category">data_type</field>
+        <field name="is_standard" eval="True" />
+    </record>
+
+    <record id="hxl_attr_pcode" model="spp.hxl.attribute">
+        <field name="code">+pcode</field>
+        <field name="name">P-Code</field>
+        <field name="description">Place code (administrative code)</field>
+        <field name="category">data_type</field>
+        <field name="is_standard" eval="True" />
+    </record>
+
+    <!-- Geographic Attributes -->
+    <record id="hxl_attr_lat" model="spp.hxl.attribute">
+        <field name="code">+lat</field>
+        <field name="name">Latitude</field>
+        <field name="description">Geographic latitude</field>
+        <field name="category">geographic</field>
+        <field name="is_standard" eval="True" />
+    </record>
+
+    <record id="hxl_attr_lon" model="spp.hxl.attribute">
+        <field name="code">+lon</field>
+        <field name="name">Longitude</field>
+        <field name="description">Geographic longitude</field>
+        <field name="category">geographic</field>
+        <field name="is_standard" eval="True" />
+    </record>
+
+    <record id="hxl_attr_origin" model="spp.hxl.attribute">
+        <field name="code">+origin</field>
+        <field name="name">Origin</field>
+        <field name="description">Origin location</field>
+        <field name="category">geographic</field>
+        <field name="is_standard" eval="True" />
+    </record>
+
+    <record id="hxl_attr_dest" model="spp.hxl.attribute">
+        <field name="code">+dest</field>
+        <field name="name">Destination</field>
+        <field name="description">Destination location</field>
+        <field name="category">geographic</field>
+        <field name="is_standard" eval="True" />
+    </record>
+
+    <!-- Organizational Role Attributes -->
+    <record id="hxl_attr_funder" model="spp.hxl.attribute">
+        <field name="code">+funder</field>
+        <field name="name">Funder</field>
+        <field name="description">Funding organization</field>
+        <field name="category">role</field>
+        <field name="is_standard" eval="True" />
+    </record>
+
+    <record id="hxl_attr_impl" model="spp.hxl.attribute">
+        <field name="code">+impl</field>
+        <field name="name">Implementer</field>
+        <field name="description">Implementing organization</field>
+        <field name="category">role</field>
+        <field name="is_standard" eval="True" />
+    </record>
+
+    <record id="hxl_attr_prog" model="spp.hxl.attribute">
+        <field name="code">+prog</field>
+        <field name="name">Programmer</field>
+        <field name="description">Programming organization</field>
+        <field name="category">role</field>
+        <field name="is_standard" eval="True" />
+    </record>
+
+    <record id="hxl_attr_partner" model="spp.hxl.attribute">
+        <field name="code">+partner</field>
+        <field name="name">Partner</field>
+        <field name="description">Partner organization</field>
+        <field name="category">role</field>
+        <field name="is_standard" eval="True" />
+    </record>
+
+    <!-- Vocabulary Reference Attributes -->
+    <record id="hxl_attr_v_pcode" model="spp.hxl.attribute">
+        <field name="code">+v_pcode</field>
+        <field name="name">P-Code Vocabulary</field>
+        <field name="description">Reference to P-Code vocabulary</field>
+        <field name="category">vocabulary</field>
+        <field name="is_standard" eval="True" />
+    </record>
+
+    <record id="hxl_attr_v_iso3" model="spp.hxl.attribute">
+        <field name="code">+v_iso3</field>
+        <field name="name">ISO3 Vocabulary</field>
+        <field name="description">ISO 3166-1 alpha-3 country codes</field>
+        <field name="category">vocabulary</field>
+        <field name="is_standard" eval="True" />
+    </record>
+
+    <!-- Language Attributes -->
+    <record id="hxl_attr_en" model="spp.hxl.attribute">
+        <field name="code">+en</field>
+        <field name="name">English</field>
+        <field name="description">English language</field>
+        <field name="category">language</field>
+        <field name="is_standard" eval="True" />
+    </record>
+
+    <record id="hxl_attr_fr" model="spp.hxl.attribute">
+        <field name="code">+fr</field>
+        <field name="name">French</field>
+        <field name="description">French language</field>
+        <field name="category">language</field>
+        <field name="is_standard" eval="True" />
+    </record>
+
+    <record id="hxl_attr_es" model="spp.hxl.attribute">
+        <field name="code">+es</field>
+        <field name="name">Spanish</field>
+        <field name="description">Spanish language</field>
+        <field name="category">language</field>
+        <field name="is_standard" eval="True" />
+    </record>
+
+    <record id="hxl_attr_ar" model="spp.hxl.attribute">
+        <field name="code">+ar</field>
+        <field name="name">Arabic</field>
+        <field name="description">Arabic language</field>
+        <field name="category">language</field>
+        <field name="is_standard" eval="True" />
+    </record>
+
+    <!-- OpenSPP Custom Attributes -->
+    <record id="hxl_attr_v_openspp" model="spp.hxl.attribute">
+        <field name="code">+v_openspp</field>
+        <field name="name">OpenSPP Vocabulary</field>
+        <field name="description">OpenSPP vocabulary reference (custom)</field>
+        <field name="category">openspp</field>
+        <field name="is_standard" eval="False" />
+    </record>
+
+    <record id="hxl_attr_v_openspp_sppid" model="spp.hxl.attribute">
+        <field name="code">+v_openspp_sppid</field>
+        <field name="name">OpenSPP ID</field>
+        <field name="description">OpenSPP beneficiary ID (custom)</field>
+        <field name="category">openspp</field>
+        <field name="is_standard" eval="False" />
+    </record>
+
+    <record id="hxl_attr_v_openspp_pcode" model="spp.hxl.attribute">
+        <field name="code">+v_openspp_pcode</field>
+        <field name="name">OpenSPP P-Code</field>
+        <field name="description">OpenSPP place code (custom)</field>
+        <field name="category">openspp</field>
+        <field name="is_standard" eval="False" />
+    </record>
+</odoo>

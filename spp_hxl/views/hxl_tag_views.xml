@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_hxl_tag_tree" model="ir.ui.view">
+        <field name="name">spp.hxl.tag.tree</field>
+        <field name="model">spp.hxl.tag</field>
+        <field name="arch" type="xml">
+            <list string="HXL Hashtags" editable="bottom">
+                <field name="hashtag" />
+                <field name="name" />
+                <field name="category" optional="show" />
+                <field name="data_type" optional="show" />
+                <field name="is_standard" optional="show" />
+                <field name="description" optional="hide" />
+                <field name="active" optional="show" widget="boolean_toggle" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_hxl_tag_form" model="ir.ui.view">
+        <field name="name">spp.hxl.tag.form</field>
+        <field name="model">spp.hxl.tag</field>
+        <field name="arch" type="xml">
+            <form string="HXL Hashtag">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active" />
+                    </div>
+                    <group>
+                        <group>
+                            <field name="hashtag" placeholder="e.g., #affected" />
+                            <field name="name" />
+                            <field name="category" />
+                        </group>
+                        <group>
+                            <field name="data_type" />
+                            <field name="is_standard" />
+                            <field name="active" widget="boolean_toggle" />
+                        </group>
+                    </group>
+                    <separator string="Description"/>
+                    <field name="description" nolabel="1" placeholder="Detailed description of hashtag usage..." class="oe_inline"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_hxl_tag_search" model="ir.ui.view">
+        <field name="name">spp.hxl.tag.search</field>
+        <field name="model">spp.hxl.tag</field>
+        <field name="arch" type="xml">
+            <search string="Search HXL Hashtags">
+                <field name="hashtag" />
+                <field name="name" />
+                <field name="description" />
+                <filter string="Standard" name="filter_standard" domain="[('is_standard', '=', True)]" />
+                <filter string="Custom" name="filter_custom" domain="[('is_standard', '=', False)]" />
+                <separator />
+                <filter string="Active" name="filter_active" domain="[('active', '=', True)]" />
+                <filter string="Archived" name="filter_archived" domain="[('active', '=', False)]" />
+                <filter string="Category" name="group_by_category" context="{'group_by': 'category'}" />
+                <filter string="Data Type" name="group_by_data_type" context="{'group_by': 'data_type'}" />
+                <filter string="Standard" name="group_by_standard" context="{'group_by': 'is_standard'}" />
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_hxl_tag" model="ir.actions.act_window">
+        <field name="name">HXL Hashtags</field>
+        <field name="res_model">spp.hxl.tag</field>
+        <field name="view_mode">list,form</field>
+        <field name="path">hxl-hashtags</field>
+        <field name="context">{'search_default_filter_active': 1, 'search_default_group_by_category': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new HXL hashtag
+            </p>
+            <p>
+                HXL hashtags are the primary classification for humanitarian data fields.
+                Examples include #affected, #adm2, #indicator, etc.
+            </p>
+        </field>
+    </record>
+</odoo>

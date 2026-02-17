@@ -1,0 +1,13 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hxl_import_profile_manager,spp.hxl.import.profile manager,model_spp_hxl_import_profile,spp_security.group_spp_admin,1,1,1,1
+access_hxl_import_profile_user,spp.hxl.import.profile user,model_spp_hxl_import_profile,base.group_user,1,0,0,0
+access_hxl_aggregation_rule_manager,spp.hxl.aggregation.rule manager,model_spp_hxl_aggregation_rule,spp_security.group_spp_admin,1,1,1,1
+access_hxl_aggregation_rule_user,spp.hxl.aggregation.rule user,model_spp_hxl_aggregation_rule,base.group_user,1,0,0,0
+access_hxl_import_batch_manager,spp.hxl.import.batch manager,model_spp_hxl_import_batch,spp_security.group_spp_admin,1,1,1,1
+access_hxl_import_batch_user,spp.hxl.import.batch user,model_spp_hxl_import_batch,base.group_user,1,1,1,0
+access_hxl_import_mapping_manager,spp.hxl.import.mapping manager,model_spp_hxl_import_mapping,spp_security.group_spp_admin,1,1,1,1
+access_hxl_import_mapping_user,spp.hxl.import.mapping user,model_spp_hxl_import_mapping,base.group_user,1,0,0,0
+access_hxl_area_indicator_manager,spp.hxl.area.indicator manager,model_spp_hxl_area_indicator,spp_security.group_spp_admin,1,1,1,1
+access_hxl_area_indicator_user,spp.hxl.area.indicator user,model_spp_hxl_area_indicator,base.group_user,1,0,0,0
+access_hxl_area_import_wizard_manager,spp.hxl.area.import.wizard manager,model_spp_hxl_area_import_wizard,spp_security.group_spp_admin,1,1,1,1
+access_hxl_area_import_wizard_user,spp.hxl.area.import.wizard user,model_spp_hxl_area_import_wizard,base.group_user,1,1,1,1

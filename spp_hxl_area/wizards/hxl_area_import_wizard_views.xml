@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Wizard Form View -->
+    <record id="view_hxl_area_import_wizard_form" model="ir.ui.view">
+        <field name="name">spp.hxl.area.import.wizard.form</field>
+        <field name="model">spp.hxl.area.import.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <!-- Educational header explaining HXL -->
+                    <div class="alert alert-info mb-3" role="alert">
+                        <h5 class="alert-heading">
+                            <i class="fa fa-hashtag" /> HXL Data Import
+                        </h5>
+                        <p class="mb-2">
+                            <strong>HXL (Humanitarian Exchange Language)</strong> uses hashtags to standardize
+                            humanitarian data columns. Tags like <code>#adm2+name</code> (district name) or
+                            <code>#affected+hh</code> (affected households) enable automatic data processing.
+                        </p>
+                        <p class="mb-0">
+                            This wizard imports HXL-tagged data and aggregates it by geographical area,
+                            creating indicators for program targeting and monitoring.
+                        </p>
+                    </div>
+
+                    <group>
+                        <group string="Import Profile">
+                            <field
+                                name="profile_id"
+                                help="Select a profile that defines how to match data rows to areas and which aggregation rules to apply."
+                            />
+                            <field
+                                name="batch_name"
+                                help="A name to identify this import batch for future reference."
+                            />
+                        </group>
+                        <group string="Time Period and Context">
+                            <field
+                                name="period_key"
+                                placeholder="YYYY-MM (e.g., 2024-03)"
+                                help="Period identifier for this data (e.g., 2024-03 for March 2024). Used to track data over time."
+                            />
+                            <field
+                                name="incident_id"
+                                help="Optional: Link this import to a specific disaster or incident for tracking."
+                            />
+                        </group>
+                    </group>
+                    <group string="File Upload">
+                        <field
+                            name="file_data"
+                            filename="file_name"
+                            help="Upload a CSV or Excel file with HXL tags in the second row (row 1 = headers, row 2 = HXL tags, row 3+ = data)."
+                        />
+                        <field name="file_name" />
+                    </group>
+                    <notebook invisible="not file_data or not profile_id">
+                        <page string="Data Preview" name="preview">
+                            <group>
+                                <group>
+                                    <field name="detected_hxl_row" />
+                                    <field name="total_rows" />
+                                </group>
+                                <group>
+                                    <field name="preview_matched" />
+                                    <field name="preview_unmatched" />
+                                </group>
+                            </group>
+                            <separator string="Sample Data" />
+                            <field name="preview_html" />
+                        </page>
+                        <page string="Area Matching Preview" name="matching" invisible="not unmatched_areas">
+                            <group>
+                                <field name="unmatched_areas" />
+                            </group>
+                            <div class="alert alert-warning" role="alert">
+                                <strong>Warning:</strong> Some area values couldn't be matched.
+                                <br />
+                                <strong>How to fix:</strong>
+                                <ul class="mb-0 mt-2">
+                                    <li>Verify the HXL tag in your Import Profile matches your data</li>
+                                    <li>Try changing the matching strategy (e.g., fuzzy matching for names with typos)</li>
+                                    <li>Ensure area records exist with correct codes/names</li>
+                                </ul>
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+                <footer>
+                    <button
+                        name="action_import"
+                        type="object"
+                        string="Import"
+                        class="oe_highlight"
+                    />
+                    <button name="action_cancel" type="object" string="Cancel" class="btn-secondary" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Wizard Action -->
+    <record id="action_hxl_area_import_wizard" model="ir.actions.act_window">
+        <field name="name">Import HXL Data</field>
+        <field name="res_model">spp.hxl.area.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

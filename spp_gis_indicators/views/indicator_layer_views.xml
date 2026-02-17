@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- List View -->
+    <record id="view_gis_indicator_layer_tree" model="ir.ui.view">
+        <field name="name">spp.gis.indicator.layer.tree</field>
+        <field name="model">spp.gis.indicator.layer</field>
+        <field name="arch" type="xml">
+            <list string="Indicator Layers">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="variable_name"/>
+                <field name="period_key"/>
+                <field name="classification_method"/>
+                <field name="num_classes"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_gis_indicator_layer_form" model="ir.ui.view">
+        <field name="name">spp.gis.indicator.layer.form</field>
+        <field name="model">spp.gis.indicator.layer</field>
+        <field name="arch" type="xml">
+            <form string="Indicator Layer">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="sequence"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Data Source" name="data_source">
+                            <group>
+                                <group string="What to Visualize">
+                                    <field name="variable_id" options="{'no_create': True, 'no_open': True}"/>
+                                    <field name="variable_name" invisible="1"/>
+                                    <field name="period_key"/>
+                                    <field name="incident_id"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Visualization" name="visualization">
+                            <group>
+                                <group string="Color Configuration">
+                                    <field name="color_scale_id" options="{'no_create': True}"/>
+                                    <field name="classification_method"/>
+                                    <field name="num_classes" invisible="classification_method == 'manual'"/>
+                                    <field name="manual_breaks" invisible="classification_method != 'manual'"/>
+                                </group>
+                            </group>
+                            <group string="Computed Classification" name="computed">
+                                <field name="break_values" widget="text" readonly="1"/>
+                            </group>
+                        </page>
+
+                        <page string="Legend Preview" name="legend">
+                            <group>
+                                <field name="legend_html" widget="html" readonly="1" nolabel="1"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_gis_indicator_layer_search" model="ir.ui.view">
+        <field name="name">spp.gis.indicator.layer.search</field>
+        <field name="model">spp.gis.indicator.layer</field>
+        <field name="arch" type="xml">
+            <search string="Indicator Layers">
+                <field name="name"/>
+                <field name="variable_id"/>
+                <field name="period_key"/>
+                <separator/>
+                <filter string="Active" name="active" domain="[('active', '=', True)]"/>
+                <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
+                <separator/>
+                <group>
+                    <filter string="Variable" name="group_by_variable" context="{'group_by': 'variable_id'}"/>
+                    <filter string="Period" name="group_by_period" context="{'group_by': 'period_key'}"/>
+                    <filter string="Classification Method" name="group_by_classification" context="{'group_by': 'classification_method'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_gis_indicator_layer" model="ir.actions.act_window">
+        <field name="name">Indicator Layers</field>
+        <field name="path">gis-indicator-layers</field>
+        <field name="res_model">spp.gis.indicator.layer</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new indicator layer configuration
+            </p>
+            <p>
+                Indicator layers define how area-level indicators are visualized as choropleth maps.
+                Configure the data source (variable, period, incident) and visualization settings
+                (color scale, classification method).
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu Item -->
+    <menuitem id="menu_gis_indicator_layer"
+              name="Indicator Layers"
+              parent="menu_gis_config_root"
+              action="action_gis_indicator_layer"
+              sequence="10"/>
+
+</odoo>
