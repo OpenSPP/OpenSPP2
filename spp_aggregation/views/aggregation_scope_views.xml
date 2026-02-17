@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Aggregation Scope Form View -->
+    <record id="view_aggregation_scope_form" model="ir.ui.view">
+        <field name="name">spp.aggregation.scope.form</field>
+        <field name="model">spp.aggregation.scope</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_preview_registrants"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-users">
+                            <field name="registrant_count" widget="statinfo" string="Registrants"/>
+                        </button>
+                        <button name="action_refresh_cache"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-refresh"
+                                string="Refresh Cache"/>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="scope_type"/>
+                            <field name="active"/>
+                        </group>
+                        <group>
+                            <field name="description"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <!-- CEL Tab -->
+                        <page string="CEL Expression" name="cel"
+                              invisible="scope_type != 'cel'">
+                            <group>
+                                <field name="cel_profile"/>
+                                <field name="cel_expression" widget="ace"
+                                       placeholder="r.age >= 18 &amp;&amp; r.gender_id.code == 'M'"/>
+                            </group>
+                        </page>
+
+                        <!-- Spatial Polygon Tab -->
+                        <page string="Spatial Polygon" name="spatial_polygon"
+                              invisible="scope_type != 'spatial_polygon'">
+                            <group>
+                                <field name="geometry_geojson" widget="ace"
+                                       placeholder='{"type": "Polygon", "coordinates": [[[...]]]}' options="{'mode': 'json'}"/>
+                            </group>
+                        </page>
+
+                        <!-- Spatial Buffer Tab -->
+                        <page string="Spatial Buffer" name="spatial_buffer"
+                              invisible="scope_type != 'spatial_buffer'">
+                            <group>
+                                <group>
+                                    <field name="buffer_center_latitude"/>
+                                    <field name="buffer_center_longitude"/>
+                                </group>
+                                <group>
+                                    <field name="buffer_radius_km"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <!-- Area Tab -->
+                        <page string="Administrative Area" name="area"
+                              invisible="scope_type != 'area'">
+                            <group>
+                                <field name="area_id"/>
+                                <field name="include_child_areas"/>
+                            </group>
+                        </page>
+
+                        <!-- Area Tag Tab -->
+                        <page string="Area Tags" name="area_tag"
+                              invisible="scope_type != 'area_tag'">
+                            <group>
+                                <field name="area_tag_ids" widget="many2many_tags"/>
+                                <field name="include_child_areas"/>
+                            </group>
+                        </page>
+
+                        <!-- Simulation Tab: Added by spp_simulation module -->
+
+                        <!-- Explicit IDs Tab -->
+                        <page string="Explicit Registrants" name="explicit"
+                              invisible="scope_type != 'explicit'">
+                            <field name="explicit_partner_ids">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="is_group"/>
+                                    <field name="area_id"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- Cache Settings Tab -->
+                        <page string="Cache Settings" name="cache_settings">
+                            <group>
+                                <group string="Configuration">
+                                    <field name="is_cache_enabled"/>
+                                    <field name="cache_ttl"
+                                           invisible="not is_cache_enabled"
+                                           help="Custom TTL in seconds. 0 = use default for scope type."/>
+                                </group>
+                                <group string="Status">
+                                    <field name="last_cache_refresh" readonly="1"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Aggregation Scope List View -->
+    <record id="view_aggregation_scope_list" model="ir.ui.view">
+        <field name="name">spp.aggregation.scope.list</field>
+        <field name="model">spp.aggregation.scope</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="scope_type"/>
+                <field name="registrant_count"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Aggregation Scope Search View -->
+    <record id="view_aggregation_scope_search" model="ir.ui.view">
+        <field name="name">spp.aggregation.scope.search</field>
+        <field name="model">spp.aggregation.scope</field>
+        <field name="arch" type="xml">
+            <search string="Search Aggregation Scopes">
+                <field name="name"/>
+                <field name="scope_type"/>
+                <separator/>
+                <filter string="CEL" name="filter_cel" domain="[('scope_type', '=', 'cel')]"/>
+                <filter string="Area" name="filter_area" domain="[('scope_type', '=', 'area')]"/>
+                <filter string="Spatial" name="filter_spatial" domain="[('scope_type', 'in', ['spatial_polygon', 'spatial_buffer'])]"/>
+                <separator/>
+                <filter string="Archived" name="filter_archived" domain="[('active', '=', False)]"/>
+                <separator/>
+                <filter string="Scope Type" name="group_by_type" context="{'group_by': 'scope_type'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Aggregation Scope Action -->
+    <record id="action_aggregation_scope" model="ir.actions.act_window">
+        <field name="name">Aggregation Scopes</field>
+        <field name="res_model">spp.aggregation.scope</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first aggregation scope
+            </p>
+            <p>
+                Scopes define what data to aggregate. Use CEL expressions,
+                administrative areas, spatial queries, or explicit registrant lists.
+            </p>
+        </field>
+    </record>
+</odoo>
