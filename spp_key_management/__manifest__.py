@@ -18,6 +18,7 @@
     "external_dependencies": {
         "python": [
             "cryptography",
+            "jwcrypto",
         ],
     },
     "data": [
