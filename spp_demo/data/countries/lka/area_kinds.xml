@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Sri Lanka 4-Level Administrative Hierarchy
+         Province -> District -> Divisional Secretariat (DS) Division -> Grama Niladhari (GN) Division
+    -->
+
+    <record id="area_kind_lka_province" model="spp.area.type">
+        <field name="name">Province</field>
+    </record>
+
+    <record id="area_kind_lka_district" model="spp.area.type">
+        <field name="name">District</field>
+        <field name="parent_id" ref="area_kind_lka_province"/>
+    </record>
+
+    <record id="area_kind_lka_ds_division" model="spp.area.type">
+        <field name="name">DS Division</field>
+        <field name="parent_id" ref="area_kind_lka_district"/>
+    </record>
+
+    <record id="area_kind_lka_gn_division" model="spp.area.type">
+        <field name="name">GN Division</field>
+        <field name="parent_id" ref="area_kind_lka_ds_division"/>
+    </record>
+</odoo>

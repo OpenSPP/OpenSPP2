@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Togo 4-Level Administrative Hierarchy
+         Region -> Prefecture -> Canton -> Village/Quartier
+    -->
+
+    <record id="area_kind_tgo_region" model="spp.area.type">
+        <field name="name">Region</field>
+    </record>
+
+    <record id="area_kind_tgo_prefecture" model="spp.area.type">
+        <field name="name">Prefecture</field>
+        <field name="parent_id" ref="area_kind_tgo_region"/>
+    </record>
+
+    <record id="area_kind_tgo_canton" model="spp.area.type">
+        <field name="name">Canton</field>
+        <field name="parent_id" ref="area_kind_tgo_prefecture"/>
+    </record>
+
+    <record id="area_kind_tgo_village" model="spp.area.type">
+        <field name="name">Village</field>
+        <field name="parent_id" ref="area_kind_tgo_canton"/>
+    </record>
+</odoo>

@@ -61,8 +61,7 @@ class TestDemoStories(TransactionCase):
         tutorial_stories = demo_stories.get_tutorial_stories()
 
         self.assertEqual(
-            len(all_stories),
-            len(main_stories) + len(background_stories) + len(tutorial_stories),
+            len(all_stories), len(main_stories) + len(background_stories) + len(tutorial_stories)
         )
         self.assertGreater(len(main_stories), 0)
 

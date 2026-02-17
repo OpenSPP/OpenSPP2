@@ -24,3 +24,8 @@ access_spp_demo_data_id_types_create,Demo ID Types Create Access,spp_demo.model_
 access_spp_demo_data_bank_types_create,Demo Bank Types Create Access,spp_demo.model_spp_demo_data_bank_types,spp_registry.group_registry_create,1,0,1,1
 access_spp_apps_wizard_create,Apps Wizard Create Access,spp_demo.model_spp_apps_wizard,spp_registry.group_registry_create,1,0,1,0
 access_spp_missing_module_create,Apps Missing Modules Create Access,spp_demo.model_spp_missing_module,spp_registry.group_registry_create,1,0,1,0
+
+access_spp_demo_area_loader_admin,Demo Area Loader Admin Access,spp_demo.model_spp_demo_area_loader,base.group_system,1,1,1,1
+access_spp_demo_area_loader_read,Demo Area Loader Read Access,spp_demo.model_spp_demo_area_loader,spp_registry.group_registry_read,1,0,0,0
+access_spp_demo_area_loader_write,Demo Area Loader Write Access,spp_demo.model_spp_demo_area_loader,spp_registry.group_registry_write,1,1,0,0
+access_spp_demo_area_loader_create,Demo Area Loader Create Access,spp_demo.model_spp_demo_area_loader,spp_registry.group_registry_create,1,0,1,0

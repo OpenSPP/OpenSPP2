@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Demo Area Loader Wizard Form -->
+    <record id="view_demo_area_loader_form" model="ir.ui.view">
+        <field name="name">spp.demo.area.loader.form</field>
+        <field name="model">spp.demo.area.loader</field>
+        <field name="arch" type="xml">
+            <form string="Load Geographic Demo Data">
+                <group>
+                    <group>
+                        <field name="country_code" required="1"/>
+                        <field name="load_shapes"/>
+                    </group>
+                </group>
+                <footer>
+                    <button
+                        name="action_load_areas"
+                        string="Load Areas"
+                        type="object"
+                        class="btn-primary"
+                    />
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action to open the wizard -->
+    <record id="action_demo_area_loader" model="ir.actions.act_window">
+        <field name="name">Load Geographic Data</field>
+        <field name="res_model">spp.demo.area.loader</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{}</field>
+    </record>
+
+    <!-- Menu item under Settings/Demo -->
+    <menuitem
+        id="menu_demo_area_loader"
+        name="Load Geographic Data"
+        parent="spp_registry.spp_configuration_menu_root"
+        action="action_demo_area_loader"
+        sequence="100"
+    />
+</odoo>

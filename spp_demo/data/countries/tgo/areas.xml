@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="0">
+    <!-- Togo Curated Demo Areas
+         Focused on Maritime Region (Lome) and Plateaux Region
+         Based on Togo Administrative Divisions
+
+         Demo data: noupdate="0" means it will be recreated on module reinstall
+    -->
+
+    <!-- ========== REGIONS ========== -->
+    <record id="area_tgo_maritime" model="spp.area">
+        <field name="draft_name">Maritime</field>
+        <field name="code">TG-M</field>
+        <field name="area_type_id" ref="area_kind_tgo_region"/>
+    </record>
+
+    <record id="area_tgo_plateaux" model="spp.area">
+        <field name="draft_name">Plateaux</field>
+        <field name="code">TG-P</field>
+        <field name="area_type_id" ref="area_kind_tgo_region"/>
+    </record>
+
+    <record id="area_tgo_centrale" model="spp.area">
+        <field name="draft_name">Centrale</field>
+        <field name="code">TG-C</field>
+        <field name="area_type_id" ref="area_kind_tgo_region"/>
+    </record>
+
+    <!-- ========== PREFECTURES (Maritime) ========== -->
+    <record id="area_tgo_golfe" model="spp.area">
+        <field name="draft_name">Golfe</field>
+        <field name="code">TG-M-GOL</field>
+        <field name="parent_id" ref="area_tgo_maritime"/>
+        <field name="area_type_id" ref="area_kind_tgo_prefecture"/>
+    </record>
+
+    <record id="area_tgo_lacs" model="spp.area">
+        <field name="draft_name">Lacs</field>
+        <field name="code">TG-M-LAC</field>
+        <field name="parent_id" ref="area_tgo_maritime"/>
+        <field name="area_type_id" ref="area_kind_tgo_prefecture"/>
+    </record>
+
+    <record id="area_tgo_vo" model="spp.area">
+        <field name="draft_name">Vo</field>
+        <field name="code">TG-M-VO</field>
+        <field name="parent_id" ref="area_tgo_maritime"/>
+        <field name="area_type_id" ref="area_kind_tgo_prefecture"/>
+    </record>
+
+    <record id="area_tgo_zio" model="spp.area">
+        <field name="draft_name">Zio</field>
+        <field name="code">TG-M-ZIO</field>
+        <field name="parent_id" ref="area_tgo_maritime"/>
+        <field name="area_type_id" ref="area_kind_tgo_prefecture"/>
+    </record>
+
+    <!-- ========== PREFECTURES (Plateaux) ========== -->
+    <record id="area_tgo_ogou" model="spp.area">
+        <field name="draft_name">Ogou</field>
+        <field name="code">TG-P-OGO</field>
+        <field name="parent_id" ref="area_tgo_plateaux"/>
+        <field name="area_type_id" ref="area_kind_tgo_prefecture"/>
+    </record>
+
+    <record id="area_tgo_kloto" model="spp.area">
+        <field name="draft_name">Kloto</field>
+        <field name="code">TG-P-KLO</field>
+        <field name="parent_id" ref="area_tgo_plateaux"/>
+        <field name="area_type_id" ref="area_kind_tgo_prefecture"/>
+    </record>
+
+    <!-- ========== PREFECTURES (Centrale) ========== -->
+    <record id="area_tgo_tchaoudjo" model="spp.area">
+        <field name="draft_name">Tchaoudjo</field>
+        <field name="code">TG-C-TCH</field>
+        <field name="parent_id" ref="area_tgo_centrale"/>
+        <field name="area_type_id" ref="area_kind_tgo_prefecture"/>
+    </record>
+
+    <!-- ========== CANTONS (Golfe - Lome area) ========== -->
+    <record id="area_tgo_lome" model="spp.area">
+        <field name="draft_name">Lome Commune</field>
+        <field name="code">TG-M-GOL-LOM</field>
+        <field name="parent_id" ref="area_tgo_golfe"/>
+        <field name="area_type_id" ref="area_kind_tgo_canton"/>
+    </record>
+
+    <record id="area_tgo_aflao" model="spp.area">
+        <field name="draft_name">Aflao Sagbado</field>
+        <field name="code">TG-M-GOL-AFL</field>
+        <field name="parent_id" ref="area_tgo_golfe"/>
+        <field name="area_type_id" ref="area_kind_tgo_canton"/>
+    </record>
+
+    <record id="area_tgo_baguida" model="spp.area">
+        <field name="draft_name">Baguida</field>
+        <field name="code">TG-M-GOL-BAG</field>
+        <field name="parent_id" ref="area_tgo_golfe"/>
+        <field name="area_type_id" ref="area_kind_tgo_canton"/>
+    </record>
+
+    <!-- ========== CANTONS (Kloto) ========== -->
+    <record id="area_tgo_kpalime" model="spp.area">
+        <field name="draft_name">Kpalime</field>
+        <field name="code">TG-P-KLO-KPA</field>
+        <field name="parent_id" ref="area_tgo_kloto"/>
+        <field name="area_type_id" ref="area_kind_tgo_canton"/>
+    </record>
+
+    <!-- ========== CANTONS (Tchaoudjo) ========== -->
+    <record id="area_tgo_sokode" model="spp.area">
+        <field name="draft_name">Sokode</field>
+        <field name="code">TG-C-TCH-SOK</field>
+        <field name="parent_id" ref="area_tgo_tchaoudjo"/>
+        <field name="area_type_id" ref="area_kind_tgo_canton"/>
+    </record>
+
+    <!-- ========== VILLAGES (Lome) ========== -->
+    <record id="area_tgo_lome_tokoin" model="spp.area">
+        <field name="draft_name">Tokoin</field>
+        <field name="code">TG-M-GOL-LOM-TOK</field>
+        <field name="parent_id" ref="area_tgo_lome"/>
+        <field name="area_type_id" ref="area_kind_tgo_village"/>
+    </record>
+
+    <record id="area_tgo_lome_be" model="spp.area">
+        <field name="draft_name">Be</field>
+        <field name="code">TG-M-GOL-LOM-BE</field>
+        <field name="parent_id" ref="area_tgo_lome"/>
+        <field name="area_type_id" ref="area_kind_tgo_village"/>
+    </record>
+
+    <record id="area_tgo_lome_nyekonakpoe" model="spp.area">
+        <field name="draft_name">Nyekonakpoe</field>
+        <field name="code">TG-M-GOL-LOM-NYE</field>
+        <field name="parent_id" ref="area_tgo_lome"/>
+        <field name="area_type_id" ref="area_kind_tgo_village"/>
+    </record>
+
+    <record id="area_tgo_lome_adidogome" model="spp.area">
+        <field name="draft_name">Adidogome</field>
+        <field name="code">TG-M-GOL-LOM-ADI</field>
+        <field name="parent_id" ref="area_tgo_lome"/>
+        <field name="area_type_id" ref="area_kind_tgo_village"/>
+    </record>
+
+    <!-- ========== VILLAGES (Baguida) ========== -->
+    <record id="area_tgo_baguida_centre" model="spp.area">
+        <field name="draft_name">Baguida Centre</field>
+        <field name="code">TG-M-GOL-BAG-CEN</field>
+        <field name="parent_id" ref="area_tgo_baguida"/>
+        <field name="area_type_id" ref="area_kind_tgo_village"/>
+    </record>
+
+    <!-- ========== VILLAGES (Kpalime) ========== -->
+    <record id="area_tgo_kpalime_centre" model="spp.area">
+        <field name="draft_name">Kpalime Centre</field>
+        <field name="code">TG-P-KLO-KPA-CEN</field>
+        <field name="parent_id" ref="area_tgo_kpalime"/>
+        <field name="area_type_id" ref="area_kind_tgo_village"/>
+    </record>
+
+    <record id="area_tgo_kpalime_tove" model="spp.area">
+        <field name="draft_name">Tove</field>
+        <field name="code">TG-P-KLO-KPA-TOV</field>
+        <field name="parent_id" ref="area_tgo_kpalime"/>
+        <field name="area_type_id" ref="area_kind_tgo_village"/>
+    </record>
+</odoo>

@@ -100,7 +100,8 @@ DEMO_STORIES = [
             "farm_size_hectares": 2.5,  # CEL: Input Subsidy eligibility
             "farm_type": "crop",
             "main_crop": "rice",
-            "district": "Northern District",
+            "area_ref": "spp_demo.area_phl_quezon_city",
+            "area_kind": "municipality",
             "marital_status": "married",
             "household_size": 5,
         },
@@ -113,30 +114,11 @@ DEMO_STORIES = [
                 "cel_check": "farm_size",
                 "days_back": 152,
             },
-            {
-                "action": "enroll_program",
-                "program": "Input Subsidy Program",
-                "days_back": 150,
-            },
+            {"action": "enroll_program", "program": "Input Subsidy Program", "days_back": 150},
             {"action": "create_event", "event_type": "training", "days_back": 145},
-            {
-                "action": "create_payment",
-                "amount": 200,
-                "status": "paid",
-                "days_back": 120,
-            },
-            {
-                "action": "create_payment",
-                "amount": 200,
-                "status": "paid",
-                "days_back": 90,
-            },
-            {
-                "action": "create_payment",
-                "amount": 200,
-                "status": "paid",
-                "days_back": 60,
-            },
+            {"action": "create_payment", "amount": 200, "status": "paid", "days_back": 120},
+            {"action": "create_payment", "amount": 200, "status": "paid", "days_back": 90},
+            {"action": "create_payment", "amount": 200, "status": "paid", "days_back": 60},
             {"action": "graduate_program", "days_back": 30},
         ],
         "demo_points": [
@@ -165,23 +147,9 @@ DEMO_STORIES = [
         },
         "journey": [
             {"action": "register", "days_back": 120},
-            {
-                "action": "enroll_program",
-                "program": "Cash Transfer Program",
-                "days_back": 100,
-            },
-            {
-                "action": "create_payment",
-                "amount": 150,
-                "status": "paid",
-                "days_back": 70,
-            },
-            {
-                "action": "create_payment",
-                "amount": 150,
-                "status": "failed",
-                "days_back": 40,
-            },
+            {"action": "enroll_program", "program": "Cash Transfer Program", "days_back": 100},
+            {"action": "create_payment", "amount": 150, "status": "paid", "days_back": 70},
+            {"action": "create_payment", "amount": 150, "status": "failed", "days_back": 40},
             {
                 "action": "create_grm_ticket",
                 "title": "Payment not received",
@@ -189,22 +157,9 @@ DEMO_STORIES = [
                 "days_back": 38,
             },
             {"action": "assign_ticket", "days_back": 35},
-            {
-                "action": "add_ticket_note",
-                "note": "Investigation: Bank details were incorrect",
-                "days_back": 32,
-            },
-            {
-                "action": "resolve_ticket",
-                "resolution": "Bank details corrected",
-                "days_back": 30,
-            },
-            {
-                "action": "create_payment",
-                "amount": 150,
-                "status": "paid",
-                "days_back": 25,
-            },
+            {"action": "add_ticket_note", "note": "Investigation: Bank details were incorrect", "days_back": 32},
+            {"action": "resolve_ticket", "resolution": "Bank details corrected", "days_back": 30},
+            {"action": "create_payment", "amount": 150, "status": "paid", "days_back": 25},
         ],
         "demo_points": [
             "GRM ticket with full conversation history",
@@ -237,16 +192,8 @@ DEMO_STORIES = [
                 "cel_check": "age_retirement",
                 "days_back": 182,
             },
-            {
-                "action": "enroll_program",
-                "program": "Elderly Pension",
-                "days_back": 180,
-            },
-            {
-                "action": "enroll_program",
-                "program": "Food Assistance",
-                "days_back": 175,
-            },
+            {"action": "enroll_program", "program": "Elderly Pension", "days_back": 180},
+            {"action": "enroll_program", "program": "Food Assistance", "days_back": 175},
             {
                 "action": "create_payment",
                 "amount": 100,
@@ -297,7 +244,8 @@ DEMO_STORIES = [
             "farm_size_hectares": 8.0,  # CEL: Large livestock farm
             "farm_type": "livestock",
             "main_livestock": "dairy",
-            "district": "Central District",
+            "area_ref": "spp_demo.area_phl_calamba",
+            "area_kind": "municipality",
             "marital_status": "married",
             "household_size": 6,
             "role": "cooperative_chairman",
@@ -306,27 +254,10 @@ DEMO_STORIES = [
             {"action": "register", "days_back": 365},
             {"action": "add_farm_details", "comprehensive": True, "days_back": 360},
             {"action": "register_cooperative_leader", "days_back": 350},
-            {
-                "action": "enroll_program",
-                "program": "Livestock Improvement Program",
-                "days_back": 300,
-            },
-            {
-                "action": "create_event",
-                "event_type": "extension_visit",
-                "days_back": 250,
-            },
-            {
-                "action": "create_event",
-                "event_type": "extension_visit",
-                "days_back": 200,
-            },
-            {
-                "action": "create_in_kind",
-                "item": "Improved Breed Cattle",
-                "quantity": 2,
-                "days_back": 150,
-            },
+            {"action": "enroll_program", "program": "Livestock Improvement Program", "days_back": 300},
+            {"action": "create_event", "event_type": "extension_visit", "days_back": 250},
+            {"action": "create_event", "event_type": "extension_visit", "days_back": 200},
+            {"action": "create_in_kind", "item": "Improved Breed Cattle", "quantity": 2, "days_back": 150},
         ],
         "demo_points": [
             "Detailed farm profile (livestock, assets, land records)",
@@ -349,7 +280,8 @@ DEMO_STORIES = [
             "farm_size_hectares": 3.0,  # CEL: Youth farmer eligibility
             "farm_type": "crop",
             "main_crop": "mixed_vegetables",
-            "district": "Eastern District",
+            "area_ref": "spp_demo.area_phl_antipolo",
+            "area_kind": "municipality",
             "marital_status": "single",
             "household_size": 2,
             "registration_channel": "mobile_app",
@@ -358,17 +290,9 @@ DEMO_STORIES = [
         "journey": [
             {"action": "register", "channel": "mobile_app", "days_back": 90},
             {"action": "add_farm_details", "with_gps": True, "days_back": 85},
-            {
-                "action": "apply_program",
-                "program": "Input Subsidy Program",
-                "days_back": 80,
-            },
+            {"action": "apply_program", "program": "Input Subsidy Program", "days_back": 80},
             {"action": "verify_eligibility", "days_back": 75},
-            {
-                "action": "enroll_program",
-                "program": "Input Subsidy Program",
-                "days_back": 70,
-            },
+            {"action": "enroll_program", "program": "Input Subsidy Program", "days_back": 70},
             {"action": "create_in_kind", "item": "Inputs Package", "days_back": 45},
         ],
         "demo_points": [
@@ -394,7 +318,8 @@ DEMO_STORIES = [
             "farm_size": 2.0,
             "farm_size_hectares": 2.0,  # CEL: Household farm size
             "child_count": 3,  # CEL: Child benefit eligibility
-            "district": "Southern District",
+            "area_ref": "spp_demo.area_phl_santa_rosa",
+            "area_kind": "municipality",
         },
         "journey": [
             {"action": "register_household", "days_back": 150},
@@ -405,23 +330,9 @@ DEMO_STORIES = [
                 "cel_check": "member_count",
                 "days_back": 142,
             },
-            {
-                "action": "enroll_program",
-                "program": "Child Support Grant",
-                "days_back": 140,
-            },
-            {
-                "action": "create_payment",
-                "amount": 300,
-                "status": "paid",
-                "days_back": 100,
-            },
-            {
-                "action": "create_payment",
-                "amount": 300,
-                "status": "paid",
-                "days_back": 10,
-            },
+            {"action": "enroll_program", "program": "Child Support Grant", "days_back": 140},
+            {"action": "create_payment", "amount": 300, "status": "paid", "days_back": 100},
+            {"action": "create_payment", "amount": 300, "status": "paid", "days_back": 10},
         ],
         "demo_points": [
             "Household with multiple members",
@@ -446,7 +357,8 @@ DEMO_STORIES = [
             "vulnerability": ["single_parent", "low_income", "female_headed"],
             "vulnerability_score": 80,  # CEL: High vulnerability - single parent household
             "child_count": 3,  # CEL: Child benefit eligibility
-            "district": "Western District",
+            "area_ref": "spp_demo.area_phl_makati",
+            "area_kind": "municipality",
         },
         "journey": [
             {"action": "register_household", "days_back": 180},
@@ -457,28 +369,10 @@ DEMO_STORIES = [
                 "cel_check": "member_count",
                 "days_back": 162,
             },
-            {
-                "action": "enroll_program",
-                "program": "Child Support Grant",
-                "days_back": 160,
-            },
-            {
-                "action": "enroll_program",
-                "program": "Food Assistance",
-                "days_back": 155,
-            },
-            {
-                "action": "create_payment",
-                "amount": 350,
-                "status": "paid",
-                "days_back": 120,
-            },
-            {
-                "action": "create_payment",
-                "amount": 350,
-                "status": "paid",
-                "days_back": 60,
-            },
+            {"action": "enroll_program", "program": "Child Support Grant", "days_back": 160},
+            {"action": "enroll_program", "program": "Food Assistance", "days_back": 155},
+            {"action": "create_payment", "amount": 350, "status": "paid", "days_back": 120},
+            {"action": "create_payment", "amount": 350, "status": "paid", "days_back": 60},
         ],
         "demo_points": [
             "Female-headed household",
@@ -497,18 +391,8 @@ DEMO_STORIES = [
             "head": {"name": "Jose Reyes Sr", "gender": "male", "age": 72},
             "spouse": {"name": "Carmen Reyes", "gender": "female", "age": 68},
             "adults": [
-                {
-                    "name": "Miguel Reyes",
-                    "gender": "male",
-                    "age": 45,
-                    "relation": "son",
-                },
-                {
-                    "name": "Teresa Reyes",
-                    "gender": "female",
-                    "age": 42,
-                    "relation": "daughter-in-law",
-                },
+                {"name": "Miguel Reyes", "gender": "male", "age": 45, "relation": "son"},
+                {"name": "Teresa Reyes", "gender": "female", "age": 42, "relation": "daughter-in-law"},
             ],
             "children": [
                 {"name": "Jose Reyes Jr", "gender": "male", "age": 18},
@@ -519,7 +403,8 @@ DEMO_STORIES = [
             "farm_size": 5.0,
             "farm_size_hectares": 5.0,  # CEL: Multi-generational household farm
             "child_count": 3,  # CEL: Children under 18 (excluding 18-year-old)
-            "district": "Northern District",
+            "area_ref": "spp_demo.area_phl_quezon_city",
+            "area_kind": "municipality",
             "vulnerability": ["elderly_members"],
         },
         "journey": [
@@ -531,22 +416,14 @@ DEMO_STORIES = [
                 "cel_check": "age_retirement",
                 "days_back": 352,
             },
-            {
-                "action": "enroll_program",
-                "program": "Elderly Pension",
-                "days_back": 350,
-            },
+            {"action": "enroll_program", "program": "Elderly Pension", "days_back": 350},
             {
                 "action": "verify_eligibility",
                 "program": "Child Support Grant",
                 "cel_check": "member_count",
                 "days_back": 342,
             },
-            {
-                "action": "enroll_program",
-                "program": "Child Support Grant",
-                "days_back": 340,
-            },
+            {"action": "enroll_program", "program": "Child Support Grant", "days_back": 340},
             {
                 "action": "create_payment",
                 "amount": 200,
@@ -604,7 +481,8 @@ DEMO_STORIES = [
             "child_count": 3,  # CEL: Children under 18 (Xiao, Yan, Bo)
             "farm_type": "crop",
             "main_crop": "rice",
-            "district": "Eastern District",
+            "area_ref": "spp_demo.area_phl_antipolo",
+            "area_kind": "municipality",
         },
         "journey": [
             {"action": "register_household", "days_back": 200},
@@ -616,35 +494,17 @@ DEMO_STORIES = [
                 "cel_check": "farm_size",
                 "days_back": 182,
             },
-            {
-                "action": "enroll_program",
-                "program": "Input Subsidy Program",
-                "days_back": 180,
-            },
+            {"action": "enroll_program", "program": "Input Subsidy Program", "days_back": 180},
             {
                 "action": "verify_eligibility",
                 "program": "Child Support Grant",
                 "cel_check": "member_count",
                 "days_back": 177,
             },
-            {
-                "action": "enroll_program",
-                "program": "Child Support Grant",
-                "days_back": 175,
-            },
+            {"action": "enroll_program", "program": "Child Support Grant", "days_back": 175},
             {"action": "create_in_kind", "item": "Inputs Package", "days_back": 150},
-            {
-                "action": "create_payment",
-                "amount": 450,
-                "status": "paid",
-                "days_back": 140,
-            },
-            {
-                "action": "create_payment",
-                "amount": 450,
-                "status": "paid",
-                "days_back": 80,
-            },
+            {"action": "create_payment", "amount": 450, "status": "paid", "days_back": 140},
+            {"action": "create_payment", "amount": 450, "status": "paid", "days_back": 80},
         ],
         "demo_points": [
             "Large family (7 members)",
@@ -665,7 +525,8 @@ DEMO_STORIES = [
             "vulnerability": ["elderly", "health_issues", "limited_mobility"],
             "vulnerability_score": 70,  # CEL: Elderly couple vulnerability
             "has_formal_pension": False,  # CEL: Elderly pension eligibility
-            "district": "Central District",
+            "area_ref": "spp_demo.area_phl_calamba",
+            "area_kind": "municipality",
         },
         "journey": [
             {"action": "register_household", "days_back": 250},
@@ -676,41 +537,13 @@ DEMO_STORIES = [
                 "cel_check": "age_retirement",
                 "days_back": 232,
             },
-            {
-                "action": "enroll_program",
-                "program": "Elderly Pension",
-                "days_back": 230,
-            },
-            {
-                "action": "enroll_program",
-                "program": "Food Assistance",
-                "days_back": 220,
-            },
-            {
-                "action": "create_payment",
-                "amount": 200,
-                "status": "paid",
-                "days_back": 200,
-            },
+            {"action": "enroll_program", "program": "Elderly Pension", "days_back": 230},
+            {"action": "enroll_program", "program": "Food Assistance", "days_back": 220},
+            {"action": "create_payment", "amount": 200, "status": "paid", "days_back": 200},
             {"action": "create_in_kind", "item": "Food Basket", "days_back": 195},
-            {
-                "action": "create_payment",
-                "amount": 200,
-                "status": "paid",
-                "days_back": 140,
-            },
-            {
-                "action": "create_payment",
-                "amount": 200,
-                "status": "paid",
-                "days_back": 80,
-            },
-            {
-                "action": "create_payment",
-                "amount": 200,
-                "status": "paid",
-                "days_back": 20,
-            },
+            {"action": "create_payment", "amount": 200, "status": "paid", "days_back": 140},
+            {"action": "create_payment", "amount": 200, "status": "paid", "days_back": 80},
+            {"action": "create_payment", "amount": 200, "status": "paid", "days_back": 20},
         ],
         "demo_points": [
             "Small elderly household",
@@ -728,12 +561,7 @@ DEMO_STORIES = [
         "profile": {
             "head": {"name": "James Nguyen", "gender": "male", "age": 52},
             "adults": [
-                {
-                    "name": "Linda Nguyen",
-                    "gender": "female",
-                    "age": 48,
-                    "relation": "spouse",
-                },
+                {"name": "Linda Nguyen", "gender": "female", "age": 48, "relation": "spouse"},
                 {
                     "name": "Michael Nguyen",
                     "gender": "male",
@@ -741,17 +569,13 @@ DEMO_STORIES = [
                     "relation": "brother",
                     "disability_status": "disabled",
                 },
-                {
-                    "name": "Sarah Nguyen",
-                    "gender": "female",
-                    "age": 44,
-                    "relation": "sister-in-law",
-                },
+                {"name": "Sarah Nguyen", "gender": "female", "age": 44, "relation": "sister-in-law"},
             ],
             "farm_size": 6.0,
             "farm_size_hectares": 6.0,  # CEL: Extended family farm
             "farm_type": "mixed",
-            "district": "Southern District",
+            "area_ref": "spp_demo.area_phl_santa_rosa",
+            "area_kind": "municipality",
             "vulnerability": ["disability"],
             "vulnerability_score": 65,  # CEL: Disability in household
             "disabled_count": 1,  # CEL: Member with disability
@@ -761,35 +585,11 @@ DEMO_STORIES = [
             {"action": "register_household", "days_back": 300},
             {"action": "add_household_members", "days_back": 295},
             {"action": "vulnerability_assessment", "score": "medium", "days_back": 290},
-            {
-                "action": "enroll_program",
-                "program": "Cash Transfer Program",
-                "days_back": 280,
-            },
-            {
-                "action": "create_payment",
-                "amount": 400,
-                "status": "paid",
-                "days_back": 250,
-            },
-            {
-                "action": "create_payment",
-                "amount": 400,
-                "status": "paid",
-                "days_back": 190,
-            },
-            {
-                "action": "create_payment",
-                "amount": 400,
-                "status": "paid",
-                "days_back": 130,
-            },
-            {
-                "action": "create_payment",
-                "amount": 400,
-                "status": "paid",
-                "days_back": 70,
-            },
+            {"action": "enroll_program", "program": "Cash Transfer Program", "days_back": 280},
+            {"action": "create_payment", "amount": 400, "status": "paid", "days_back": 250},
+            {"action": "create_payment", "amount": 400, "status": "paid", "days_back": 190},
+            {"action": "create_payment", "amount": 400, "status": "paid", "days_back": 130},
+            {"action": "create_payment", "amount": 400, "status": "paid", "days_back": 70},
         ],
         "demo_points": [
             "Extended family structure",
@@ -818,34 +618,16 @@ DEMO_STORIES = [
         },
         "journey": [
             {"action": "emergency_register", "days_back": 60},
-            {
-                "action": "vulnerability_assessment",
-                "score": "very_high",
-                "days_back": 58,
-            },
+            {"action": "vulnerability_assessment", "score": "very_high", "days_back": 58},
             {
                 "action": "verify_eligibility",
                 "program": "Emergency Cash Transfer",
                 "cel_check": "vulnerability_metric",
                 "days_back": 56,
             },
-            {
-                "action": "enroll_program",
-                "program": "Emergency Cash Transfer",
-                "days_back": 55,
-            },
-            {
-                "action": "create_payment",
-                "amount": 500,
-                "status": "paid",
-                "days_back": 50,
-            },
-            {
-                "action": "create_payment",
-                "amount": 500,
-                "status": "paid",
-                "days_back": 35,
-            },
+            {"action": "enroll_program", "program": "Emergency Cash Transfer", "days_back": 55},
+            {"action": "create_payment", "amount": 500, "status": "paid", "days_back": 50},
+            {"action": "create_payment", "amount": 500, "status": "paid", "days_back": 35},
             {
                 "action": "create_grm_ticket",
                 "title": "Request for resettlement support",
@@ -883,11 +665,7 @@ DEMO_STORIES = [
                 "ticket_type": "inquiry",
                 "days_back": 45,
             },
-            {
-                "action": "respond_ticket",
-                "response": "Program information provided",
-                "days_back": 43,
-            },
+            {"action": "respond_ticket", "response": "Program information provided", "days_back": 43},
             {"action": "apply_program", "program": "Food Assistance", "days_back": 40},
             {"action": "enroll_program", "program": "Food Assistance", "days_back": 30},
         ],
@@ -906,56 +684,29 @@ DEMO_STORIES = [
             "head": {"name": "David Martinez", "gender": "male", "age": 48},
             "spouse": {"name": "Sofia Martinez", "gender": "female", "age": 45},
             "children": [
-                {
-                    "name": "Miguel Martinez",
-                    "gender": "male",
-                    "age": 12,
-                    "disability_status": "disabled",
-                },
+                {"name": "Miguel Martinez", "gender": "male", "age": 12, "disability_status": "disabled"},
             ],
             "farm_size": 1.5,
             "farm_size_hectares": 1.5,  # CEL: Small farm household
             "disabled_count": 1,  # CEL: Disability Support Grant eligibility
             "child_count": 1,
-            "district": "Western District",
+            "area_ref": "spp_demo.area_phl_makati",
+            "area_kind": "municipality",
         },
         "journey": [
             {"action": "register_household", "days_back": 120},
             {"action": "add_household_members", "days_back": 115},
-            {
-                "action": "disability_assessment",
-                "member": "Miguel Martinez",
-                "days_back": 110,
-            },
+            {"action": "disability_assessment", "member": "Miguel Martinez", "days_back": 110},
             {
                 "action": "verify_eligibility",
                 "program": "Disability Support Grant",
                 "cel_check": "member_exists_disabled",
                 "days_back": 102,
             },
-            {
-                "action": "enroll_program",
-                "program": "Disability Support Grant",
-                "days_back": 100,
-            },
-            {
-                "action": "create_payment",
-                "amount": 175,
-                "status": "paid",
-                "days_back": 90,
-            },
-            {
-                "action": "create_payment",
-                "amount": 175,
-                "status": "paid",
-                "days_back": 60,
-            },
-            {
-                "action": "create_payment",
-                "amount": 175,
-                "status": "paid",
-                "days_back": 30,
-            },
+            {"action": "enroll_program", "program": "Disability Support Grant", "days_back": 100},
+            {"action": "create_payment", "amount": 175, "status": "paid", "days_back": 90},
+            {"action": "create_payment", "amount": 175, "status": "paid", "days_back": 60},
+            {"action": "create_payment", "amount": 175, "status": "paid", "days_back": 30},
         ],
         "demo_points": [
             "Household with disabled member",
@@ -977,12 +728,7 @@ BACKGROUND_STORIES = [
         "profile": {"gender": "male", "age": 40, "farm_size": 1.5},
         "journey": [
             {"action": "register", "days_back": 30},
-            {
-                "action": "apply_program",
-                "program": "Input Subsidy Program",
-                "status": "pending",
-                "days_back": 25,
-            },
+            {"action": "apply_program", "program": "Input Subsidy Program", "status": "pending", "days_back": 25},
         ],
     },
     {
@@ -1012,11 +758,7 @@ BACKGROUND_STORIES = [
         "profile": {"gender": "male", "age": 45, "farm_size": 2.0},
         "journey": [
             {"action": "register", "days_back": 200},
-            {
-                "action": "enroll_program",
-                "program": "Cash Transfer Program",
-                "days_back": 180,
-            },
+            {"action": "enroll_program", "program": "Cash Transfer Program", "days_back": 180},
             {"action": "create_grm_ticket", "title": "Ticket 1", "days_back": 150},
             {"action": "create_grm_ticket", "title": "Ticket 2", "days_back": 100},
             {"action": "create_grm_ticket", "title": "Ticket 3", "days_back": 50},
@@ -1039,12 +781,7 @@ BACKGROUND_STORIES = [
         "type": "farmer",
         "story_title": "Contract Farmer",
         "story_description": "Shows guaranteed market arrangement",
-        "profile": {
-            "gender": "male",
-            "age": 48,
-            "farm_size": 4.0,
-            "contract_farming": True,
-        },
+        "profile": {"gender": "male", "age": 48, "farm_size": 4.0, "contract_farming": True},
         "journey": [
             {"action": "register", "days_back": 300},
             {"action": "add_farm_details", "days_back": 295},
@@ -1066,12 +803,7 @@ TUTORIAL_STORIES = [
         "story_title": "Tutorial: Not Eligible (High Income)",
         "story_description": "Tutorial household with income above threshold - NOT ELIGIBLE",
         "profile": {
-            "head": {
-                "name": "Roberto Garcia",
-                "gender": "male",
-                "age": 42,
-                "income": 15000,
-            },
+            "head": {"name": "Roberto Garcia", "gender": "male", "age": 42, "income": 15000},
             "spouse": {"name": "Maria Garcia", "gender": "female", "age": 38},
             "children": [
                 {"name": "Carlos Garcia", "gender": "male", "age": 12},
@@ -1096,19 +828,10 @@ TUTORIAL_STORIES = [
         "story_title": "Tutorial: Eligible (Low Income + Child Under 5)",
         "story_description": "Tutorial household meeting both criteria - ELIGIBLE",
         "profile": {
-            "head": {
-                "name": "Jose Santos",
-                "gender": "male",
-                "age": 35,
-                "income": 8000,
-            },
+            "head": {"name": "Jose Santos", "gender": "male", "age": 35, "income": 8000},
             "spouse": {"name": "Ana Santos", "gender": "female", "age": 32},
             "children": [
-                {
-                    "name": "Mia Santos",
-                    "gender": "female",
-                    "age": 4,
-                },  # Born ~2021, under 5
+                {"name": "Mia Santos", "gender": "female", "age": 4},  # Born ~2021, under 5
             ],
             "child_count": 1,
             "district": "Northern District",
@@ -1129,12 +852,7 @@ TUTORIAL_STORIES = [
         "story_title": "Tutorial: Not Eligible (Income Above Threshold)",
         "story_description": "Tutorial household with income above threshold - NOT ELIGIBLE",
         "profile": {
-            "head": {
-                "name": "Pedro Cruz",
-                "gender": "male",
-                "age": 45,
-                "income": 12000,
-            },
+            "head": {"name": "Pedro Cruz", "gender": "male", "age": 45, "income": 12000},
             "spouse": {"name": "Teresa Cruz", "gender": "female", "age": 42},
             "children": [
                 {"name": "Juan Cruz", "gender": "male", "age": 15},
@@ -1160,19 +878,10 @@ TUTORIAL_STORIES = [
         "story_title": "Tutorial: Eligible (Low Income + Child Under 5)",
         "story_description": "Tutorial household meeting both criteria - ELIGIBLE",
         "profile": {
-            "head": {
-                "name": "Ramon Reyes",
-                "gender": "male",
-                "age": 30,
-                "income": 6000,
-            },
+            "head": {"name": "Ramon Reyes", "gender": "male", "age": 30, "income": 6000},
             "spouse": {"name": "Elena Reyes", "gender": "female", "age": 28},
             "children": [
-                {
-                    "name": "Lucia Reyes",
-                    "gender": "female",
-                    "age": 2,
-                },  # Born ~2023, under 5
+                {"name": "Lucia Reyes", "gender": "female", "age": 2},  # Born ~2023, under 5
             ],
             "child_count": 1,
             "district": "Southern District",
@@ -1193,12 +902,7 @@ TUTORIAL_STORIES = [
         "story_title": "Tutorial: Not Eligible (High Income)",
         "story_description": "Tutorial household with highest income - NOT ELIGIBLE",
         "profile": {
-            "head": {
-                "name": "Antonio Ramos",
-                "gender": "male",
-                "age": 48,
-                "income": 18000,
-            },
+            "head": {"name": "Antonio Ramos", "gender": "male", "age": 48, "income": 18000},
             "spouse": {"name": "Rosa Ramos", "gender": "female", "age": 45},
             "children": [
                 {"name": "Diego Ramos", "gender": "male", "age": 18},

@@ -209,14 +209,7 @@ class TestResCountry(TransactionCase):
         self.assertIn("code", country._fields)
 
         # Verify our custom fields are there
-        custom_fields = [
-            "lat_min",
-            "lat_max",
-            "lon_min",
-            "lon_max",
-            "faker_locale",
-            "is_faker_locale_available",
-        ]
+        custom_fields = ["lat_min", "lat_max", "lon_min", "lon_max", "faker_locale", "is_faker_locale_available"]
         for field in custom_fields:
             self.assertIn(field, country._fields)
 

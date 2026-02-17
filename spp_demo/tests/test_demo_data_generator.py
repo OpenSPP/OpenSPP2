@@ -612,3 +612,145 @@ class TestDemoDataGenerator(TransactionCase):
         result2 = generator.generate_id_from_regex(pattern2)
         self.assertIsNotNone(result2)
         self.assertEqual(len(result2), 5)
+
+    def test_28_group_gets_area_id(self):
+        """Test that groups are assigned an area_id when areas exist."""
+        # Create area hierarchy
+        area_type_region = self.env["spp.area.type"].create({"name": "Test Region"})
+        area_type_barangay = self.env["spp.area.type"].create(
+            {"name": "Test Barangay", "parent_id": area_type_region.id}
+        )
+
+        region = self.env["spp.area"].create(
+            {
+                "draft_name": "Test Region",
+                "code": "TEST-REG",
+                "area_type_id": area_type_region.id,
+            }
+        )
+        self.env["spp.area"].create(
+            {
+                "draft_name": "Test Barangay",
+                "code": "TEST-BRG",
+                "area_type_id": area_type_barangay.id,
+                "parent_id": region.id,
+            }
+        )
+
+        generator = self.env["spp.demo.data.generator"].create(
+            {
+                "name": "Area Assignment Test",
+                "locale_origin": self.test_country.id,
+            }
+        )
+
+        from faker import Faker
+
+        fake = Faker("en_US")
+        group_vals = generator.get_group_vals(fake)
+
+        # Group should have area_id assigned
+        self.assertIn("area_id", group_vals)
+        self.assertTrue(group_vals["area_id"])
+
+    def test_29_group_prefers_leaf_areas(self):
+        """Test that groups are assigned to leaf-level areas (not regions)."""
+        # Create a hierarchy: region -> province -> barangay
+        area_type_region = self.env["spp.area.type"].create({"name": "Test Region L"})
+        area_type_province = self.env["spp.area.type"].create(
+            {"name": "Test Province L", "parent_id": area_type_region.id}
+        )
+        area_type_leaf = self.env["spp.area.type"].create({"name": "Test Leaf L", "parent_id": area_type_province.id})
+
+        region = self.env["spp.area"].create(
+            {
+                "draft_name": "Region Parent",
+                "code": "TEST-RP",
+                "area_type_id": area_type_region.id,
+            }
+        )
+        province = self.env["spp.area"].create(
+            {
+                "draft_name": "Province Mid",
+                "code": "TEST-PM",
+                "area_type_id": area_type_province.id,
+                "parent_id": region.id,
+            }
+        )
+        leaf1 = self.env["spp.area"].create(
+            {
+                "draft_name": "Leaf One",
+                "code": "TEST-L1",
+                "area_type_id": area_type_leaf.id,
+                "parent_id": province.id,
+            }
+        )
+        leaf2 = self.env["spp.area"].create(
+            {
+                "draft_name": "Leaf Two",
+                "code": "TEST-L2",
+                "area_type_id": area_type_leaf.id,
+                "parent_id": province.id,
+            }
+        )
+
+        generator = self.env["spp.demo.data.generator"].create(
+            {
+                "name": "Leaf Area Test",
+                "locale_origin": self.test_country.id,
+            }
+        )
+
+        from faker import Faker
+
+        fake = Faker("en_US")
+
+        # Generate multiple groups and verify they all get leaf areas
+        leaf_ids = {leaf1.id, leaf2.id}
+        for _ in range(10):
+            group_vals = generator.get_group_vals(fake)
+            self.assertIn(
+                group_vals["area_id"],
+                leaf_ids,
+                "Group should be assigned to a leaf-level area, not a parent area",
+            )
+
+    def test_30_members_inherit_group_area(self):
+        """Test that individual members inherit their group's area_id."""
+        area_type = self.env["spp.area.type"].create({"name": "Test Area MIA"})
+        self.env["spp.area"].create(
+            {
+                "draft_name": "Member Inherit Area",
+                "code": "TEST-MIA",
+                "area_type_id": area_type.id,
+            }
+        )
+
+        generator = self.env["spp.demo.data.generator"].create(
+            {
+                "name": "Member Inherit Test",
+                "number_of_groups": 1,
+                "members_range_from": 3,
+                "members_range_to": 3,
+                "locale_origin": self.test_country.id,
+            }
+        )
+
+        from faker import Faker
+
+        fake = Faker("en_US")
+        generator._generate_demo_data(fake)
+
+        # Find the created group
+        group = self.env["res.partner"].search([("demo_data_group_generator_id", "=", generator.id)], limit=1)
+        self.assertTrue(group.area_id, "Group should have an area_id")
+
+        # All members should share the group's area
+        members = self.env["res.partner"].search([("demo_data_individual_generator_id", "=", generator.id)])
+        self.assertTrue(len(members) >= 3)
+        for member in members:
+            self.assertEqual(
+                member.area_id,
+                group.area_id,
+                f"Member '{member.name}' should inherit group's area_id",
+            )
