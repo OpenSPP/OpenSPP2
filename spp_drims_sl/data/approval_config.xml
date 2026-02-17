@@ -131,15 +131,4 @@
         <field name="approval_user_ids" eval="[(4, ref('user_approver_national'))]" />
         <field name="sla_hours">48</field>
     </record>
-
-    <!-- ==================== ENABLE MULTI-TIER ==================== -->
-    <!-- Second pass: enable multitier now that tiers exist -->
-
-    <record id="approval_def_medium" model="spp.approval.definition">
-        <field name="use_multitier">True</field>
-    </record>
-
-    <record id="approval_def_large" model="spp.approval.definition">
-        <field name="use_multitier">True</field>
-    </record>
 </odoo>

@@ -10,6 +10,7 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         <field name="name">spp.gis.data.layer.form.report.ext</field>
         <field name="model">spp.gis.data.layer</field>
         <field name="inherit_id" ref="spp_gis.spp_gis_data_layer_form" />
+        <field name="priority">99</field>
         <field name="arch" type="xml">
             <!-- Add source type at the top -->
             <xpath expr="//sheet/group[1]" position="before">

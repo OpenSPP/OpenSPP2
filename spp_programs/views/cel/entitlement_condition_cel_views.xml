@@ -11,6 +11,7 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
             name="inherit_id"
             ref="spp_programs.view_entitlement_manager_cash_form"
         />
+        <field name="priority">99</field>
         <field name="arch" type="xml">
             <!-- Replace the condition field with our enhanced version -->
             <xpath expr="//field[@name='condition']" position="replace">

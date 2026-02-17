@@ -8,6 +8,7 @@
             name="inherit_id"
             ref="spp_programs.view_eligibility_manager_default_form"
         />
+        <field name="priority">99</field>
         <field name="arch" type="xml">
             <!-- Replace the eligibility_domain field with CEL expression -->
             <xpath expr="//field[@name='eligibility_domain']" position="replace">

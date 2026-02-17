@@ -19,7 +19,7 @@
         -->
 
     <!-- Grant admin full QR Credentials access -->
-    <record id="base.user_admin" model="res.users">
+    <record id="base.user_admin" model="res.users" context="{'no_reset_password': True}">
         <field
             name="group_ids"
             eval="[
@@ -77,7 +77,7 @@
              ═══════════════════════════════════════════════════════════════════════ -->
 
     <!-- Demo Manager - Registry Manager, Program Manager, Cycle Approver -->
-    <record id="spp_demo.demo_manager" model="res.users">
+    <record id="spp_demo.demo_manager" model="res.users" context="{'no_reset_password': True}">
         <field
             name="role_line_ids"
             eval="[
@@ -89,7 +89,7 @@
     </record>
 
     <!-- Demo Officer - Global Registrar, Program Viewer, CR Requestor -->
-    <record id="spp_demo.demo_officer" model="res.users">
+    <record id="spp_demo.demo_officer" model="res.users" context="{'no_reset_password': True}">
         <field
             name="role_line_ids"
             eval="[
@@ -101,7 +101,7 @@
     </record>
 
     <!-- Demo Supervisor - Global Registrar, Program Manager -->
-    <record id="spp_demo.demo_supervisor" model="res.users">
+    <record id="spp_demo.demo_supervisor" model="res.users" context="{'no_reset_password': True}">
         <field
             name="role_line_ids"
             eval="[
@@ -112,7 +112,7 @@
     </record>
 
     <!-- Demo Viewer - Registry Viewer, Program Viewer -->
-    <record id="spp_demo.demo_viewer" model="res.users">
+    <record id="spp_demo.demo_viewer" model="res.users" context="{'no_reset_password': True}">
         <field
             name="role_line_ids"
             eval="[
@@ -127,7 +127,7 @@
              ═══════════════════════════════════════════════════════════════════════ -->
 
     <!-- Local Registrar - Area-scoped data capture -->
-    <record id="demo_user_local_registrar" model="res.users">
+    <record id="demo_user_local_registrar" model="res.users" context="{'no_reset_password': True}">
         <field name="name">Demo Local Registrar</field>
         <field name="login">demo_local_registrar</field>
         <field name="email">demo_local_registrar@demo.spp</field>
@@ -141,7 +141,7 @@
     </record>
 
     <!-- Global Registrar - Full access to registration across all areas -->
-    <record id="demo_user_global_registrar" model="res.users">
+    <record id="demo_user_global_registrar" model="res.users" context="{'no_reset_password': True}">
         <field name="name">Demo Global Registrar</field>
         <field name="login">demo_global_registrar</field>
         <field name="email">demo_global_registrar@demo.spp</field>
@@ -159,7 +159,7 @@
              ═══════════════════════════════════════════════════════════════════════ -->
 
     <!-- CR Local Validator - Area-scoped change request approval -->
-    <record id="demo_user_cr_local_validator" model="res.users">
+    <record id="demo_user_cr_local_validator" model="res.users" context="{'no_reset_password': True}">
         <field name="name">Demo CR Local Validator</field>
         <field name="login">demo_cr_local_validator</field>
         <field name="email">demo_cr_local_validator@demo.spp</field>
@@ -173,7 +173,7 @@
     </record>
 
     <!-- CR HQ Validator - Headquarters-level change request approval -->
-    <record id="demo_user_cr_hq_validator" model="res.users">
+    <record id="demo_user_cr_hq_validator" model="res.users" context="{'no_reset_password': True}">
         <field name="name">Demo CR HQ Validator</field>
         <field name="login">demo_cr_hq_validator</field>
         <field name="email">demo_cr_hq_validator@demo.spp</field>
@@ -191,7 +191,7 @@
              ═══════════════════════════════════════════════════════════════════════ -->
 
     <!-- Program Manager - Full program management capabilities -->
-    <record id="demo_user_program_manager" model="res.users">
+    <record id="demo_user_program_manager" model="res.users" context="{'no_reset_password': True}">
         <field name="name">Demo Program Manager</field>
         <field name="login">demo_program_manager</field>
         <field name="email">demo_program_manager@demo.spp</field>
@@ -205,7 +205,7 @@
     </record>
 
     <!-- Program Validator - Validates programs and manages cycles -->
-    <record id="demo_user_program_validator" model="res.users">
+    <record id="demo_user_program_validator" model="res.users" context="{'no_reset_password': True}">
         <field name="name">Demo Program Validator</field>
         <field name="login">demo_program_validator</field>
         <field name="email">demo_program_validator@demo.spp</field>
@@ -219,7 +219,7 @@
     </record>
 
     <!-- Cycle Approver - Can approve program cycles -->
-    <record id="demo_user_cycle_approver" model="res.users">
+    <record id="demo_user_cycle_approver" model="res.users" context="{'no_reset_password': True}">
         <field name="name">Demo Cycle Approver</field>
         <field name="login">demo_cycle_approver</field>
         <field name="email">demo_cycle_approver@demo.spp</field>

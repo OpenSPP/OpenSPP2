@@ -37,6 +37,7 @@
         "theme_openspp_muk",  # Required for OpenSPP styling
     ],
     "data": [
+        "security/ir.model.access.csv",
         # Default configuration data (order matters)
         "data/res_company_data.xml",
         "data/ir_config_parameter.xml",

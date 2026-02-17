@@ -30,7 +30,7 @@
 
     <!-- ==================== SUPER ADMIN ==================== -->
 
-    <record id="user_admin_dmc" model="res.users">
+    <record id="user_admin_dmc" model="res.users" context="{'no_reset_password': True}">
         <field name="name">DMC Administrator</field>
         <field name="login">admin.dmc@drims.gov.lk</field>
         <field name="password">demo</field>
@@ -50,7 +50,7 @@
     <!-- These users can receive donations, manage inventory, and process dispatches -->
     <!-- They do NOT have manager/admin access -->
 
-    <record id="user_wh_staff_colombo" model="res.users">
+    <record id="user_wh_staff_colombo" model="res.users" context="{'no_reset_password': True}">
         <field name="name">Warehouse Staff - Colombo</field>
         <field name="login">staff.colombo@drims.gov.lk</field>
         <field name="password">demo</field>
@@ -64,7 +64,7 @@
         <field name="company_id" ref="base.main_company" />
     </record>
 
-    <record id="user_wh_staff_kandy" model="res.users">
+    <record id="user_wh_staff_kandy" model="res.users" context="{'no_reset_password': True}">
         <field name="name">Warehouse Staff - Kandy</field>
         <field name="login">staff.kandy@drims.gov.lk</field>
         <field name="password">demo</field>
@@ -81,7 +81,7 @@
     <!-- ==================== WAREHOUSE MANAGERS ==================== -->
     <!-- These users have full admin access to manage warehouse operations -->
 
-    <record id="user_wh_colombo" model="res.users">
+    <record id="user_wh_colombo" model="res.users" context="{'no_reset_password': True}">
         <field name="name">Warehouse Manager - Colombo</field>
         <field name="login">wh.colombo@drims.gov.lk</field>
         <field name="password">demo</field>
@@ -96,7 +96,7 @@
         <field name="company_id" ref="base.main_company" />
     </record>
 
-    <record id="user_wh_kandy" model="res.users">
+    <record id="user_wh_kandy" model="res.users" context="{'no_reset_password': True}">
         <field name="name">Warehouse Manager - Kandy</field>
         <field name="login">wh.kandy@drims.gov.lk</field>
         <field name="password">demo</field>
@@ -113,7 +113,7 @@
 
     <!-- ==================== APPROVERS ==================== -->
 
-    <record id="user_approver_national" model="res.users">
+    <record id="user_approver_national" model="res.users" context="{'no_reset_password': True}">
         <field name="name">National Approver (DMC)</field>
         <field name="login">approver.national@drims.gov.lk</field>
         <field name="password">demo</field>
@@ -127,7 +127,7 @@
         <field name="company_id" ref="base.main_company" />
     </record>
 
-    <record id="user_approver_western" model="res.users">
+    <record id="user_approver_western" model="res.users" context="{'no_reset_password': True}">
         <field name="name">Western Province Approver</field>
         <field name="login">approver.western@drims.gov.lk</field>
         <field name="password">demo</field>
@@ -141,7 +141,7 @@
         <field name="company_id" ref="base.main_company" />
     </record>
 
-    <record id="user_approver_central" model="res.users">
+    <record id="user_approver_central" model="res.users" context="{'no_reset_password': True}">
         <field name="name">Central Province Approver</field>
         <field name="login">approver.central@drims.gov.lk</field>
         <field name="password">demo</field>
@@ -158,7 +158,7 @@
     <!-- ==================== FIELD OFFICERS ==================== -->
     <!-- Field officers can create requests and confirm deliveries in assigned areas -->
 
-    <record id="user_officer_colombo" model="res.users">
+    <record id="user_officer_colombo" model="res.users" context="{'no_reset_password': True}">
         <field name="name">Field Officer - Colombo District</field>
         <field name="login">officer.colombo@drims.gov.lk</field>
         <field name="password">demo</field>
@@ -172,7 +172,7 @@
         <field name="company_id" ref="base.main_company" />
     </record>
 
-    <record id="user_officer_gampaha" model="res.users">
+    <record id="user_officer_gampaha" model="res.users" context="{'no_reset_password': True}">
         <field name="name">Field Officer - Gampaha District</field>
         <field name="login">officer.gampaha@drims.gov.lk</field>
         <field name="password">demo</field>
@@ -186,7 +186,7 @@
         <field name="company_id" ref="base.main_company" />
     </record>
 
-    <record id="user_officer_kandy" model="res.users">
+    <record id="user_officer_kandy" model="res.users" context="{'no_reset_password': True}">
         <field name="name">Field Officer - Kandy District</field>
         <field name="login">officer.kandy@drims.gov.lk</field>
         <field name="password">demo</field>
@@ -200,7 +200,7 @@
         <field name="company_id" ref="base.main_company" />
     </record>
 
-    <record id="user_officer_galle" model="res.users">
+    <record id="user_officer_galle" model="res.users" context="{'no_reset_password': True}">
         <field name="name">Field Officer - Galle District</field>
         <field name="login">officer.galle@drims.gov.lk</field>
         <field name="password">demo</field>
@@ -216,7 +216,7 @@
 
     <!-- ==================== VIEWERS / LEADERSHIP ==================== -->
 
-    <record id="user_viewer_secretary" model="res.users">
+    <record id="user_viewer_secretary" model="res.users" context="{'no_reset_password': True}">
         <field name="name">Secretary - Ministry of Disaster Management</field>
         <field name="login">secretary@drims.gov.lk</field>
         <field name="password">demo</field>
@@ -230,7 +230,7 @@
         <field name="company_id" ref="base.main_company" />
     </record>
 
-    <record id="user_viewer_director" model="res.users">
+    <record id="user_viewer_director" model="res.users" context="{'no_reset_password': True}">
         <field name="name">Director - DMC</field>
         <field name="login">director@drims.gov.lk</field>
         <field name="password">demo</field>

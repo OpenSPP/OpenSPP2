@@ -10,7 +10,7 @@ CEL Support Views for Create Program Wizard
     <record id="create_program_wizard_form_view_cel_eligibility" model="ir.ui.view">
         <field name="name">Create Program Wizard - CEL Eligibility</field>
         <field name="model">spp.program.create.wizard</field>
-        <field name="priority">20</field>
+        <field name="priority">99</field>
         <field
             name="inherit_id"
             ref="spp_programs.create_program_wizard_form_view_spp"
@@ -567,7 +567,7 @@ CEL Support Views for Create Program Wizard
     <record id="create_program_wizard_form_view_cel_inkind" model="ir.ui.view">
         <field name="name">Create Program Wizard - CEL In-Kind Items</field>
         <field name="model">spp.program.create.wizard</field>
-        <field name="priority">35</field>
+        <field name="priority">99</field>
         <field
             name="inherit_id"
             ref="spp_programs.create_program_wizard_form_view_inkind"

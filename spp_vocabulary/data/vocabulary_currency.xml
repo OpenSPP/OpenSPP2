@@ -1407,15 +1407,6 @@
         <field name="sequence">1730</field>
     </record>
 
-    <record id="currency_xxx" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_currency" />
-        <field name="code">XXX</field>
-        <field
-            name="display"
-        >The codes assigned for transactions where no currency is involved</field>
-        <field name="sequence">1740</field>
-    </record>
-
     <record id="currency_yer" model="spp.vocabulary.code">
         <field name="vocabulary_id" ref="vocab_currency" />
         <field name="code">YER</field>

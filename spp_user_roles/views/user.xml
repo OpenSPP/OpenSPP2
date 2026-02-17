@@ -18,6 +18,7 @@
         <field name="name">res.users.list.inherit.spp.user.roles</field>
         <field name="model">res.users</field>
         <field name="inherit_id" ref="base_user_role.view_res_users_tree_inherit" />
+        <field name="priority">99</field>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='role_ids']" position="replace">
                 <field name="role_ids_stored" widget="many2many_tags" optional="show" />

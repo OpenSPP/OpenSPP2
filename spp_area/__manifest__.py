@@ -43,6 +43,8 @@
         "views/group_views.xml",
         "views/role.xml",
         "views/user.xml",
+        "views/area.xml",
+        "views/area_import.xml",
     ],
     "assets": {},
     "demo": [],

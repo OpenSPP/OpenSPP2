@@ -42,6 +42,7 @@
         "views/grm_sla_rule_views.xml",
         "views/grm_ticket_views.xml",
         "views/grm_portal_templates.xml",
+        "views/res_config_settings_views.xml",
     ],
     "assets": {},
     "demo": [],

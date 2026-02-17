@@ -21,8 +21,7 @@
         "views/concept_group_views.xml",
         "views/deployment_profile_views.xml",
         "views/vocabulary_selection_views.xml",
-        # Temporarily disabled to break circular dependency with spp_registry
-        # "views/relationship_views.xml",
+        "views/relationship_views.xml",
         "views/menu.xml",  # Child menus with actions - must be after view files
         "data/vocabulary_gender.xml",
         "data/vocabulary_relationship.xml",
@@ -42,8 +41,7 @@
         "data/concept_groups.xml",
         "data/vocabulary_id_type.xml",
         "data/vocabulary_cr_document_types.xml",
-        # Temporarily disabled - references spp.relationship model from spp_registry
-        # "data/relationship_types.xml",
+        "data/relationship_types.xml",
     ],
     "application": False,
     "installable": True,

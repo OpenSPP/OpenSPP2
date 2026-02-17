@@ -51,7 +51,7 @@ Features:
         # Data files
         "data/ir_model_data_aliases.xml",
         "data/ir_config_params.xml",
-        # "data/id_types.xml",
+        "data/id_types.xml",
         "data/vocabularies.xml",
         "data/res_users.xml",
         # Security
