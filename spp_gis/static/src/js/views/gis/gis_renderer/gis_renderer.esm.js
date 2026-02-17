@@ -127,7 +127,7 @@ export class GisRenderer extends Component {
     _matchesDomain(values, domain) {
         if (!domain) return true;
 
-        let domainArray;
+        let domainArray = null;
         try {
             domainArray = typeof domain === "string" ? JSON.parse(domain) : domain;
         } catch {
@@ -676,7 +676,7 @@ export class GisRenderer extends Component {
         const opacity = Math.min(1, Math.max(0, layer.layer_opacity));
 
         // Determine fill/stroke color based on layer type
-        let fillColor;
+        let fillColor = null;
         let isChoropleth = false;
 
         if (layer.source_type === "report" && layer.report_features) {
@@ -891,7 +891,7 @@ export class GisRenderer extends Component {
             }
 
             // Determine color based on layer type
-            let fillColor;
+            let fillColor = null;
             if (layer.source_type === "report" && layer.report_features) {
                 // Report layers: use pre-computed report_color
                 fillColor = ["coalesce", ["get", "report_color"], "#cccccc"];

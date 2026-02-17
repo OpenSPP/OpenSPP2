@@ -28,7 +28,7 @@ export class TestPanelField extends Component {
             loading: false,
         });
 
-        onWillUpdateProps(async (nextProps) => {
+        onWillUpdateProps(async () => {
             // Handle prop updates if needed
         });
     }
@@ -74,7 +74,7 @@ export class TestPanelField extends Component {
         this.state.loading = true;
         try {
             // Call the action_run_test method on the test record
-            const result = await this.orm.call("spp.studio.test", "action_run_test", [
+            await this.orm.call("spp.studio.test", "action_run_test", [
                 [testId],
             ]);
 
@@ -106,7 +106,7 @@ export class TestPanelField extends Component {
         this.state.loading = true;
         try {
             // Call the action_test_all method on the logic record
-            const result = await this.orm.call("spp.logic", "action_test_all", [
+            await this.orm.call("spp.logic", "action_test_all", [
                 [this.logicId],
             ]);
 

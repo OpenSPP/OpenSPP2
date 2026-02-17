@@ -20,7 +20,7 @@ const symbolCache = new Map();
 export const celSymbolService = {
     dependencies: [],
 
-    start(env) {
+    start(/* env */) {
         return {
             /**
              * Get symbols for a profile
