@@ -223,6 +223,12 @@ class SPPCRCreateWizard(models.TransientModel):
         if target == "group" and not is_group:
             raise UserError(_("This request type requires a group registrant, not an individual."))
 
+        # Resolve translated strings while the ORM environment is available.
+        # Calling _() inside a return dict can fail when the cursor context
+        # is no longer reachable from the call stack.
+        detail_form_name = _("Change Request Details")
+        cr_form_name = _("Change Request")
+
         # Create the draft CR (this auto-creates the detail record)
         cr = self.env["spp.change.request"].create(
             {
@@ -241,7 +247,7 @@ class SPPCRCreateWizard(models.TransientModel):
                 "type": "ir.actions.client",
                 "tag": "open_cr_close_modal",
                 "params": {
-                    "name": _("Change Request Details"),
+                    "name": detail_form_name,
                     "res_model": cr.detail_res_model,
                     "res_id": detail.id,
                     "view_id": view_id,
@@ -258,7 +264,7 @@ class SPPCRCreateWizard(models.TransientModel):
             "type": "ir.actions.client",
             "tag": "open_cr_close_modal",
             "params": {
-                "name": _("Change Request"),
+                "name": cr_form_name,
                 "res_model": "spp.change.request",
                 "res_id": cr.id,
                 "context": {

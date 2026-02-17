@@ -88,17 +88,18 @@ class TestCreateWizard(TestChangeRequestBase):
 
         result = wizard.action_create_draft()
 
-        # Should return action to open a form
-        self.assertEqual(result["type"], "ir.actions.act_window")
-        self.assertTrue(result["res_id"])
-        self.assertEqual(result["target"], "current")
+        # Should return client action that closes modal then opens form
+        self.assertEqual(result["type"], "ir.actions.client")
+        self.assertEqual(result["tag"], "open_cr_close_modal")
+        params = result["params"]
+        self.assertTrue(params["res_id"])
 
         # If CR type has a detail model, wizard opens detail form directly
         # Otherwise, it falls back to CR form
         if cr_type.detail_model:
             # Opened detail form
-            self.assertEqual(result["res_model"], cr_type.detail_model)
-            detail = self.env[cr_type.detail_model].browse(result["res_id"])
+            self.assertEqual(params["res_model"], cr_type.detail_model)
+            detail = self.env[cr_type.detail_model].browse(params["res_id"])
             self.assertTrue(detail.exists())
             # Verify the CR was created and linked
             cr = detail.change_request_id
@@ -108,8 +109,8 @@ class TestCreateWizard(TestChangeRequestBase):
             self.assertEqual(cr.approval_state, "draft")
         else:
             # Opened CR form (fallback)
-            self.assertEqual(result["res_model"], "spp.change.request")
-            cr = self.env["spp.change.request"].browse(result["res_id"])
+            self.assertEqual(params["res_model"], "spp.change.request")
+            cr = self.env["spp.change.request"].browse(params["res_id"])
             self.assertTrue(cr.exists())
             self.assertEqual(cr.request_type_id, cr_type)
             self.assertEqual(cr.registrant_id, self.group)

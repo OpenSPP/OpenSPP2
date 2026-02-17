@@ -23,6 +23,7 @@
             "qrcode",
             "Pillow",
             "claim169",
+            "jwcrypto",
         ],
     },
     "data": [
