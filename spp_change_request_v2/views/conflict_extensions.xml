@@ -124,7 +124,7 @@
                         string="Check for Updates"
                         type="object"
                         class="btn-link"
-                        invisible="approval_state != 'draft'"
+                        invisible="approval_state != 'draft' or not is_conflict_detection_enabled"
                         help="Check if other requests have been completed"/>
             </xpath>
 

@@ -12,6 +12,10 @@ class SPPChangeRequestConflict(models.Model):
     _name = "spp.change.request"
     _inherit = ["spp.change.request", "spp.cr.conflict.mixin"]
 
+    is_conflict_detection_enabled = fields.Boolean(
+        related="request_type_id.enable_conflict_detection",
+    )
+
     # ══════════════════════════════════════════════════════════════════════════
     # OVERRIDE CRUD TO INTEGRATE CONFLICT DETECTION
     # ══════════════════════════════════════════════════════════════════════════
