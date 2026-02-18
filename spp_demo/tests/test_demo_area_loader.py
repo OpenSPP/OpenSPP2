@@ -57,10 +57,12 @@ class TestDemoAreaLoader(TransactionCase):
         initial_count = self.area_model.search_count([])
 
         # Load Philippines areas
-        loader = self.loader_model.create({
-            "country_code": "phl",
-            "load_shapes": False,
-        })
+        loader = self.loader_model.create(
+            {
+                "country_code": "phl",
+                "load_shapes": False,
+            }
+        )
         loader._load_xml_data("phl")
 
         # Verify areas were created
@@ -82,10 +84,12 @@ class TestDemoAreaLoader(TransactionCase):
     def test_load_lka_areas(self):
         """Test loading Sri Lanka area data."""
         # Load Sri Lanka areas
-        loader = self.loader_model.create({
-            "country_code": "lka",
-            "load_shapes": False,
-        })
+        loader = self.loader_model.create(
+            {
+                "country_code": "lka",
+                "load_shapes": False,
+            }
+        )
         loader._load_xml_data("lka")
 
         # Verify specific areas exist
@@ -98,10 +102,12 @@ class TestDemoAreaLoader(TransactionCase):
     def test_load_tgo_areas(self):
         """Test loading Togo area data."""
         # Load Togo areas
-        loader = self.loader_model.create({
-            "country_code": "tgo",
-            "load_shapes": False,
-        })
+        loader = self.loader_model.create(
+            {
+                "country_code": "tgo",
+                "load_shapes": False,
+            }
+        )
         loader._load_xml_data("tgo")
 
         # Verify specific areas exist
@@ -122,10 +128,12 @@ class TestDemoAreaLoader(TransactionCase):
 
     def test_geojson_to_wkt_polygon(self):
         """Test GeoJSON polygon to WKT conversion."""
-        loader = self.loader_model.create({
-            "country_code": "phl",
-            "load_shapes": False,
-        })
+        loader = self.loader_model.create(
+            {
+                "country_code": "phl",
+                "load_shapes": False,
+            }
+        )
 
         geometry = {
             "type": "Polygon",
@@ -138,10 +146,12 @@ class TestDemoAreaLoader(TransactionCase):
 
     def test_geojson_to_wkt_invalid(self):
         """Test GeoJSON conversion with invalid input."""
-        loader = self.loader_model.create({
-            "country_code": "phl",
-            "load_shapes": False,
-        })
+        loader = self.loader_model.create(
+            {
+                "country_code": "phl",
+                "load_shapes": False,
+            }
+        )
 
         # Empty geometry
         wkt = loader._geojson_to_wkt({})
@@ -163,10 +173,12 @@ class TestDemoAreaLoaderAreaKinds(TransactionCase):
 
     def test_phl_area_kinds(self):
         """Test Philippines area kinds hierarchy."""
-        loader = self.loader_model.create({
-            "country_code": "phl",
-            "load_shapes": False,
-        })
+        loader = self.loader_model.create(
+            {
+                "country_code": "phl",
+                "load_shapes": False,
+            }
+        )
         loader._load_xml_data("phl")
 
         # Check region kind exists
@@ -187,10 +199,12 @@ class TestDemoAreaLoaderAreaKinds(TransactionCase):
 
     def test_lka_area_kinds(self):
         """Test Sri Lanka area kinds hierarchy."""
-        loader = self.loader_model.create({
-            "country_code": "lka",
-            "load_shapes": False,
-        })
+        loader = self.loader_model.create(
+            {
+                "country_code": "lka",
+                "load_shapes": False,
+            }
+        )
         loader._load_xml_data("lka")
 
         # Check DS Division kind exists
@@ -203,10 +217,12 @@ class TestDemoAreaLoaderAreaKinds(TransactionCase):
 
     def test_tgo_area_kinds(self):
         """Test Togo area kinds hierarchy."""
-        loader = self.loader_model.create({
-            "country_code": "tgo",
-            "load_shapes": False,
-        })
+        loader = self.loader_model.create(
+            {
+                "country_code": "tgo",
+                "load_shapes": False,
+            }
+        )
         loader._load_xml_data("tgo")
 
         # Check prefecture kind exists

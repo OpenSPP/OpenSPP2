@@ -60,9 +60,7 @@ class TestDemoStories(TransactionCase):
         background_stories = demo_stories.get_background_stories()
         tutorial_stories = demo_stories.get_tutorial_stories()
 
-        self.assertEqual(
-            len(all_stories), len(main_stories) + len(background_stories) + len(tutorial_stories)
-        )
+        self.assertEqual(len(all_stories), len(main_stories) + len(background_stories) + len(tutorial_stories))
         self.assertGreater(len(main_stories), 0)
 
     def test_03_get_story_by_id(self):

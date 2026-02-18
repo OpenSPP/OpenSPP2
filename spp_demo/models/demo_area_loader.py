@@ -38,18 +38,13 @@ class DemoAreaLoader(models.TransientModel):
     load_shapes = fields.Boolean(
         string="Load Shapes (GIS)",
         default=True,
-        help="Load polygon shapes for GIS visualization. "
-        "Requires spp_gis module to be installed.",
+        help="Load polygon shapes for GIS visualization. Requires spp_gis module to be installed.",
     )
 
     @api.model
     def _is_gis_installed(self):
         """Check if spp_gis module is installed."""
-        return bool(
-            self.env["ir.module.module"].search(
-                [("name", "=", "spp_gis"), ("state", "=", "installed")]
-            )
-        )
+        return bool(self.env["ir.module.module"].search([("name", "=", "spp_gis"), ("state", "=", "installed")]))
 
     @api.model
     def _get_country_name(self, country_code):
@@ -77,11 +72,10 @@ class DemoAreaLoader(models.TransientModel):
         try:
             file_path(f"spp_demo/data/countries/{country_code}/area_kinds.xml")
             file_path(f"spp_demo/data/countries/{country_code}/areas.xml")
-        except FileNotFoundError:
+        except FileNotFoundError as exc:
             raise UserError(
-                _("Area data files not found for country: %s")
-                % self._get_country_name(country_code)
-            )
+                _("Area data files not found for country: %s") % self._get_country_name(country_code)
+            ) from exc
 
         # Count existing areas before loading
         existing_count = self.env["spp.area"].search_count([])
@@ -100,10 +94,10 @@ class DemoAreaLoader(models.TransientModel):
 
         # Build notification message
         country_name = self._get_country_name(country_code)
-        message = _(
-            "Successfully loaded geographic data for %(country)s:\n"
-            "- %(areas)d areas created/updated\n"
-        ) % {"country": country_name, "areas": areas_created}
+        message = _("Successfully loaded geographic data for %(country)s:\n- %(areas)d areas created/updated\n") % {
+            "country": country_name,
+            "areas": areas_created,
+        }
 
         if shapes_loaded > 0:
             message += _("- %(shapes)d polygon shapes loaded\n") % {"shapes": shapes_loaded}

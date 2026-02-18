@@ -251,17 +251,33 @@
                                     </div>
                                 </div>
                                 <!-- Geographic Data Section -->
-                                <div style="display: flex; flex-direction: column; gap: 20px;">
-                                    <div style="display: flex; gap: 20px; margin-bottom: 10px;">
+                                <div
+                                    style="display: flex; flex-direction: column; gap: 20px;"
+                                >
+                                    <div
+                                        style="display: flex; gap: 20px; margin-bottom: 10px;"
+                                    >
                                         <div style="flex: 1;">
-                                            <h4><label for="demo_country" class="o_form_label" /><div /></h4>
+                                            <h4>
+                                                <label
+                                                    for="demo_country"
+                                                    class="o_form_label"
+                                                />
+                                                <div />
+                                            </h4>
                                             <field
                                                 name="demo_country"
                                                 readonly="is_locked or state != 'draft'"
                                             />
                                         </div>
                                         <div style="flex: 1;">
-                                            <h4><label for="load_geographic_data" class="o_form_label" /><div /></h4>
+                                            <h4>
+                                                <label
+                                                    for="load_geographic_data"
+                                                    class="o_form_label"
+                                                />
+                                                <div />
+                                            </h4>
                                             <field
                                                 name="load_geographic_data"
                                                 readonly="is_locked or state != 'draft'"

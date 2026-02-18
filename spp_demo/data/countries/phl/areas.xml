@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="0">
     <!-- Philippines Curated Demo Areas
          Focused on NCR (Metro Manila) and CALABARZON (Region IV-A)
@@ -11,13 +11,13 @@
     <record id="area_phl_ncr" model="spp.area">
         <field name="draft_name">National Capital Region</field>
         <field name="code">PH-00</field>
-        <field name="area_type_id" ref="area_kind_phl_region"/>
+        <field name="area_type_id" ref="area_kind_phl_region" />
     </record>
 
     <record id="area_phl_calabarzon" model="spp.area">
         <field name="draft_name">CALABARZON</field>
         <field name="code">PH-40</field>
-        <field name="area_type_id" ref="area_kind_phl_region"/>
+        <field name="area_type_id" ref="area_kind_phl_region" />
     </record>
 
     <!-- ========== PROVINCES (NCR is special - no provinces, cities are direct) ========== -->
@@ -25,189 +25,189 @@
     <record id="area_phl_metro_manila" model="spp.area">
         <field name="draft_name">Metro Manila</field>
         <field name="code">PH-00-MM</field>
-        <field name="parent_id" ref="area_phl_ncr"/>
-        <field name="area_type_id" ref="area_kind_phl_province"/>
+        <field name="parent_id" ref="area_phl_ncr" />
+        <field name="area_type_id" ref="area_kind_phl_province" />
     </record>
 
     <record id="area_phl_cavite" model="spp.area">
         <field name="draft_name">Cavite</field>
         <field name="code">PH-40-21</field>
-        <field name="parent_id" ref="area_phl_calabarzon"/>
-        <field name="area_type_id" ref="area_kind_phl_province"/>
+        <field name="parent_id" ref="area_phl_calabarzon" />
+        <field name="area_type_id" ref="area_kind_phl_province" />
     </record>
 
     <record id="area_phl_laguna" model="spp.area">
         <field name="draft_name">Laguna</field>
         <field name="code">PH-40-34</field>
-        <field name="parent_id" ref="area_phl_calabarzon"/>
-        <field name="area_type_id" ref="area_kind_phl_province"/>
+        <field name="parent_id" ref="area_phl_calabarzon" />
+        <field name="area_type_id" ref="area_kind_phl_province" />
     </record>
 
     <record id="area_phl_rizal" model="spp.area">
         <field name="draft_name">Rizal</field>
         <field name="code">PH-40-58</field>
-        <field name="parent_id" ref="area_phl_calabarzon"/>
-        <field name="area_type_id" ref="area_kind_phl_province"/>
+        <field name="parent_id" ref="area_phl_calabarzon" />
+        <field name="area_type_id" ref="area_kind_phl_province" />
     </record>
 
     <!-- ========== CITIES/MUNICIPALITIES (NCR) ========== -->
     <record id="area_phl_quezon_city" model="spp.area">
         <field name="draft_name">Quezon City</field>
         <field name="code">PH-00-74</field>
-        <field name="parent_id" ref="area_phl_metro_manila"/>
-        <field name="area_type_id" ref="area_kind_phl_municipality"/>
+        <field name="parent_id" ref="area_phl_metro_manila" />
+        <field name="area_type_id" ref="area_kind_phl_municipality" />
     </record>
 
     <record id="area_phl_manila" model="spp.area">
         <field name="draft_name">City of Manila</field>
         <field name="code">PH-00-39</field>
-        <field name="parent_id" ref="area_phl_metro_manila"/>
-        <field name="area_type_id" ref="area_kind_phl_municipality"/>
+        <field name="parent_id" ref="area_phl_metro_manila" />
+        <field name="area_type_id" ref="area_kind_phl_municipality" />
     </record>
 
     <record id="area_phl_makati" model="spp.area">
         <field name="draft_name">Makati City</field>
         <field name="code">PH-00-38</field>
-        <field name="parent_id" ref="area_phl_metro_manila"/>
-        <field name="area_type_id" ref="area_kind_phl_municipality"/>
+        <field name="parent_id" ref="area_phl_metro_manila" />
+        <field name="area_type_id" ref="area_kind_phl_municipality" />
     </record>
 
     <record id="area_phl_taguig" model="spp.area">
         <field name="draft_name">Taguig City</field>
         <field name="code">PH-00-79</field>
-        <field name="parent_id" ref="area_phl_metro_manila"/>
-        <field name="area_type_id" ref="area_kind_phl_municipality"/>
+        <field name="parent_id" ref="area_phl_metro_manila" />
+        <field name="area_type_id" ref="area_kind_phl_municipality" />
     </record>
 
     <record id="area_phl_pasig" model="spp.area">
         <field name="draft_name">Pasig City</field>
         <field name="code">PH-00-76</field>
-        <field name="parent_id" ref="area_phl_metro_manila"/>
-        <field name="area_type_id" ref="area_kind_phl_municipality"/>
+        <field name="parent_id" ref="area_phl_metro_manila" />
+        <field name="area_type_id" ref="area_kind_phl_municipality" />
     </record>
 
     <!-- ========== CITIES/MUNICIPALITIES (CALABARZON) ========== -->
     <record id="area_phl_calamba" model="spp.area">
         <field name="draft_name">Calamba City</field>
         <field name="code">PH-40-34-08</field>
-        <field name="parent_id" ref="area_phl_laguna"/>
-        <field name="area_type_id" ref="area_kind_phl_municipality"/>
+        <field name="parent_id" ref="area_phl_laguna" />
+        <field name="area_type_id" ref="area_kind_phl_municipality" />
     </record>
 
     <record id="area_phl_santa_rosa" model="spp.area">
         <field name="draft_name">Santa Rosa City</field>
         <field name="code">PH-40-34-26</field>
-        <field name="parent_id" ref="area_phl_laguna"/>
-        <field name="area_type_id" ref="area_kind_phl_municipality"/>
+        <field name="parent_id" ref="area_phl_laguna" />
+        <field name="area_type_id" ref="area_kind_phl_municipality" />
     </record>
 
     <record id="area_phl_san_pablo" model="spp.area">
         <field name="draft_name">San Pablo City</field>
         <field name="code">PH-40-34-24</field>
-        <field name="parent_id" ref="area_phl_laguna"/>
-        <field name="area_type_id" ref="area_kind_phl_municipality"/>
+        <field name="parent_id" ref="area_phl_laguna" />
+        <field name="area_type_id" ref="area_kind_phl_municipality" />
     </record>
 
     <record id="area_phl_antipolo" model="spp.area">
         <field name="draft_name">Antipolo City</field>
         <field name="code">PH-40-58-01</field>
-        <field name="parent_id" ref="area_phl_rizal"/>
-        <field name="area_type_id" ref="area_kind_phl_municipality"/>
+        <field name="parent_id" ref="area_phl_rizal" />
+        <field name="area_type_id" ref="area_kind_phl_municipality" />
     </record>
 
     <record id="area_phl_bacoor" model="spp.area">
         <field name="draft_name">Bacoor City</field>
         <field name="code">PH-40-21-03</field>
-        <field name="parent_id" ref="area_phl_cavite"/>
-        <field name="area_type_id" ref="area_kind_phl_municipality"/>
+        <field name="parent_id" ref="area_phl_cavite" />
+        <field name="area_type_id" ref="area_kind_phl_municipality" />
     </record>
 
     <record id="area_phl_dasmarinas" model="spp.area">
         <field name="draft_name">Dasmarinas City</field>
         <field name="code">PH-40-21-09</field>
-        <field name="parent_id" ref="area_phl_cavite"/>
-        <field name="area_type_id" ref="area_kind_phl_municipality"/>
+        <field name="parent_id" ref="area_phl_cavite" />
+        <field name="area_type_id" ref="area_kind_phl_municipality" />
     </record>
 
     <!-- ========== BARANGAYS (Quezon City) ========== -->
     <record id="area_phl_qc_loyola_heights" model="spp.area">
         <field name="draft_name">Loyola Heights</field>
         <field name="code">PH-00-74-061</field>
-        <field name="parent_id" ref="area_phl_quezon_city"/>
-        <field name="area_type_id" ref="area_kind_phl_barangay"/>
+        <field name="parent_id" ref="area_phl_quezon_city" />
+        <field name="area_type_id" ref="area_kind_phl_barangay" />
     </record>
 
     <record id="area_phl_qc_commonwealth" model="spp.area">
         <field name="draft_name">Commonwealth</field>
         <field name="code">PH-00-74-028</field>
-        <field name="parent_id" ref="area_phl_quezon_city"/>
-        <field name="area_type_id" ref="area_kind_phl_barangay"/>
+        <field name="parent_id" ref="area_phl_quezon_city" />
+        <field name="area_type_id" ref="area_kind_phl_barangay" />
     </record>
 
     <record id="area_phl_qc_fairview" model="spp.area">
         <field name="draft_name">Fairview</field>
         <field name="code">PH-00-74-044</field>
-        <field name="parent_id" ref="area_phl_quezon_city"/>
-        <field name="area_type_id" ref="area_kind_phl_barangay"/>
+        <field name="parent_id" ref="area_phl_quezon_city" />
+        <field name="area_type_id" ref="area_kind_phl_barangay" />
     </record>
 
     <!-- ========== BARANGAYS (Makati) ========== -->
     <record id="area_phl_makati_poblacion" model="spp.area">
         <field name="draft_name">Poblacion</field>
         <field name="code">PH-00-38-020</field>
-        <field name="parent_id" ref="area_phl_makati"/>
-        <field name="area_type_id" ref="area_kind_phl_barangay"/>
+        <field name="parent_id" ref="area_phl_makati" />
+        <field name="area_type_id" ref="area_kind_phl_barangay" />
     </record>
 
     <record id="area_phl_makati_bel_air" model="spp.area">
         <field name="draft_name">Bel-Air</field>
         <field name="code">PH-00-38-004</field>
-        <field name="parent_id" ref="area_phl_makati"/>
-        <field name="area_type_id" ref="area_kind_phl_barangay"/>
+        <field name="parent_id" ref="area_phl_makati" />
+        <field name="area_type_id" ref="area_kind_phl_barangay" />
     </record>
 
     <!-- ========== BARANGAYS (Calamba) ========== -->
     <record id="area_phl_calamba_real" model="spp.area">
         <field name="draft_name">Real</field>
         <field name="code">PH-40-34-08-034</field>
-        <field name="parent_id" ref="area_phl_calamba"/>
-        <field name="area_type_id" ref="area_kind_phl_barangay"/>
+        <field name="parent_id" ref="area_phl_calamba" />
+        <field name="area_type_id" ref="area_kind_phl_barangay" />
     </record>
 
     <record id="area_phl_calamba_crossing" model="spp.area">
         <field name="draft_name">Crossing</field>
         <field name="code">PH-40-34-08-011</field>
-        <field name="parent_id" ref="area_phl_calamba"/>
-        <field name="area_type_id" ref="area_kind_phl_barangay"/>
+        <field name="parent_id" ref="area_phl_calamba" />
+        <field name="area_type_id" ref="area_kind_phl_barangay" />
     </record>
 
     <!-- ========== BARANGAYS (Santa Rosa) ========== -->
     <record id="area_phl_santa_rosa_balibago" model="spp.area">
         <field name="draft_name">Balibago</field>
         <field name="code">PH-40-34-26-002</field>
-        <field name="parent_id" ref="area_phl_santa_rosa"/>
-        <field name="area_type_id" ref="area_kind_phl_barangay"/>
+        <field name="parent_id" ref="area_phl_santa_rosa" />
+        <field name="area_type_id" ref="area_kind_phl_barangay" />
     </record>
 
     <record id="area_phl_santa_rosa_tagapo" model="spp.area">
         <field name="draft_name">Tagapo</field>
         <field name="code">PH-40-34-26-017</field>
-        <field name="parent_id" ref="area_phl_santa_rosa"/>
-        <field name="area_type_id" ref="area_kind_phl_barangay"/>
+        <field name="parent_id" ref="area_phl_santa_rosa" />
+        <field name="area_type_id" ref="area_kind_phl_barangay" />
     </record>
 
     <!-- ========== BARANGAYS (Antipolo) ========== -->
     <record id="area_phl_antipolo_dela_paz" model="spp.area">
         <field name="draft_name">Dela Paz</field>
         <field name="code">PH-40-58-01-005</field>
-        <field name="parent_id" ref="area_phl_antipolo"/>
-        <field name="area_type_id" ref="area_kind_phl_barangay"/>
+        <field name="parent_id" ref="area_phl_antipolo" />
+        <field name="area_type_id" ref="area_kind_phl_barangay" />
     </record>
 
     <record id="area_phl_antipolo_san_roque" model="spp.area">
         <field name="draft_name">San Roque</field>
         <field name="code">PH-40-58-01-015</field>
-        <field name="parent_id" ref="area_phl_antipolo"/>
-        <field name="area_type_id" ref="area_kind_phl_barangay"/>
+        <field name="parent_id" ref="area_phl_antipolo" />
+        <field name="area_type_id" ref="area_kind_phl_barangay" />
     </record>
 </odoo>

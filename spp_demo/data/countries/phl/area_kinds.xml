@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
     <!-- Philippines 4-Level Administrative Hierarchy
          Based on Philippine Standard Geographic Code (PSGC)
@@ -11,16 +11,16 @@
 
     <record id="area_kind_phl_province" model="spp.area.type">
         <field name="name">Province</field>
-        <field name="parent_id" ref="area_kind_phl_region"/>
+        <field name="parent_id" ref="area_kind_phl_region" />
     </record>
 
     <record id="area_kind_phl_municipality" model="spp.area.type">
         <field name="name">City/Municipality</field>
-        <field name="parent_id" ref="area_kind_phl_province"/>
+        <field name="parent_id" ref="area_kind_phl_province" />
     </record>
 
     <record id="area_kind_phl_barangay" model="spp.area.type">
         <field name="name">Barangay</field>
-        <field name="parent_id" ref="area_kind_phl_municipality"/>
+        <field name="parent_id" ref="area_kind_phl_municipality" />
     </record>
 </odoo>

@@ -299,11 +299,12 @@ class SPPDemoDataGenerator(models.Model):
             return
 
         for report in reports:
+            report_name = report.name
             try:
                 report._refresh_data()
-                _logger.info("Refreshed GIS report: %s", report.name)
+                _logger.info("Refreshed GIS report: %s", report_name)
             except Exception:
-                _logger.exception("Failed to refresh GIS report: %s", report.name)
+                _logger.exception("Failed to refresh GIS report: %s", report_name)
 
     def generate_groups(self, fake):
         group_vals = self.get_group_vals(fake)
@@ -370,18 +371,13 @@ class SPPDemoDataGenerator(models.Model):
             recordset: spp.area records at the deepest available level
         """
         Area = self.env["spp.area"]
-        all_areas = Area.search([])
-        if not all_areas:
-            return Area.browse()
 
-        # Find the maximum area_level (deepest in hierarchy)
-        max_level = max(all_areas.mapped("area_level"))
+        # Query only leaf areas directly: areas that have no children.
+        # This is a single SQL query rather than loading all areas into memory.
+        leaf_areas = Area.search([("child_ids", "=", False)])
 
-        # Get areas at the deepest level
-        leaf_areas = all_areas.filtered(lambda a: a.area_level == max_level)
-
-        # Fallback: if no areas at max level, use all areas
-        return leaf_areas if leaf_areas else all_areas
+        # Fallback: if no leaf areas found, return all areas
+        return leaf_areas if leaf_areas else Area.search([])
 
     def get_group_vals(self, fake):
         registration_date = self.get_random_date(
