@@ -1,5 +1,6 @@
 """DCI Client Service for making signed API requests."""
 
+import json
 import logging
 import time
 import uuid
@@ -943,7 +944,7 @@ class DCIClient:
                     log_error_detail = "401 Unauthorized - retrying with fresh token"
                     try:
                         log_response_data = response.json()
-                    except Exception:
+                    except json.JSONDecodeError:
                         log_response_data = None
                     self.data_source.clear_oauth2_token_cache()
                     return self._make_request(endpoint, envelope, _retry_auth=False)
@@ -979,7 +980,7 @@ class DCIClient:
                     technical_detail += f": {error_data['header']['status_reason_message']}"
                 else:
                     technical_detail += f": {response_text}"
-            except Exception:
+            except (json.JSONDecodeError, KeyError, TypeError):
                 technical_detail += f": {response_text}"
 
             log_error_detail = technical_detail
