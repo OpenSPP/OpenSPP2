@@ -1637,13 +1637,13 @@ class DrimsDemoGenerator(models.TransientModel):
 
                     dispatches |= picking
                     _logger.debug(
-                        "Created completed dispatch %s for request %s (beneficiaries: %d)",
+                        "Created completed dispatch %s for request ID=%s (beneficiaries: %d)",
                         picking.name,
-                        request.reference,
+                        request.id,
                         beneficiary_count,
                     )
                 except Exception as e:
-                    _logger.warning("Failed to complete dispatch for %s: %s", request.reference, e)
+                    _logger.warning("Failed to complete dispatch for request ID=%s: %s", request.id, e)
                     # Delete failed picking
                     picking.unlink()
 
