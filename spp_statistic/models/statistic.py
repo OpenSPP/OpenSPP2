@@ -35,7 +35,7 @@ class Statistic(models.Model):
         string="CEL Variable",
         required=True,
         ondelete="restrict",
-        domain="[('source_type', 'in', ['aggregate', 'computed', 'field']), " "('state', '=', 'active')]",
+        domain="[('source_type', 'in', ['aggregate', 'computed', 'field']), ('state', '=', 'active')]",
         help="The CEL variable that provides the computation for this statistic",
     )
     variable_accessor = fields.Char(
@@ -140,7 +140,7 @@ class Statistic(models.Model):
         for rec in self:
             if not re.match(r"^[a-z][a-z0-9_]*$", rec.name):
                 raise ValidationError(
-                    _("Statistic name '%(name)s' must be lowercase with underscores " "(e.g., 'children_under_5').")
+                    _("Statistic name '%(name)s' must be lowercase with underscores (e.g., 'children_under_5').")
                     % {"name": rec.name}
                 )
 

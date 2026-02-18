@@ -49,8 +49,7 @@ Models
 Fields Provided
 ---------------
 - **Identity**: name, label, description
-- **Computation**: metric_type, cel_expression, aggregation
-- **Presentation**: format, unit, decimal_places
+- **Presentation**: unit, decimal_places
 - **Categorization**: category_id
 - **Metadata**: sequence, active
 

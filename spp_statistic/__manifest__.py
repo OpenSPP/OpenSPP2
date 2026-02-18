@@ -54,7 +54,7 @@ Statistics separate "what to compute" (CEL variables) from "where to publish"
 Models
 ------
 - ``spp.statistic``: Publishable statistic referencing a CEL variable
-- ``spp.statistic.category``: Organization categories for statistics
+- ``spp.metric.category``: Organization categories for statistics
 - ``spp.statistic.context``: Context-specific presentation configuration
 
 Usage

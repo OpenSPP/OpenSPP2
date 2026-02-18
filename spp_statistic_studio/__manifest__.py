@@ -19,5 +19,5 @@
     ],
     "installable": True,
     # Bridge module: auto-install when both spp_statistic and spp_studio are present
-    "auto_install": ["spp_statistic", "spp_studio"],
+    "auto_install": True,
 }
