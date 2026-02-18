@@ -135,11 +135,7 @@ class SPPCRApplyAddMemberDCI(models.AbstractModel):
             household: The household/group (res.partner)
         """
         # Get program ID from system parameter
-        program_id_str = (
-            self.env["ir.config_parameter"]
-            .sudo()
-            .get_param("spp_dci_demo.enrollment_program_id", "")
-        )
+        program_id_str = self.env["ir.config_parameter"].sudo().get_param("spp_dci_demo.enrollment_program_id", "")
         if not program_id_str:
             _logger.info("No enrollment program configured (spp_dci_demo.enrollment_program_id)")
             return
@@ -171,6 +167,8 @@ class SPPCRApplyAddMemberDCI(models.AbstractModel):
         self._enroll_partner_in_program(household, program)
 
         # Enroll all household members including the new child
+        # Invalidate cache so the newly created membership is included
+        household.invalidate_recordset(["group_membership_ids"])
         if hasattr(household, "group_membership_ids"):
             for membership in household.group_membership_ids:
                 if membership.individual:
@@ -184,10 +182,13 @@ class SPPCRApplyAddMemberDCI(models.AbstractModel):
             program: The program to enroll in (spp.program)
         """
         # Check if already enrolled
-        existing = self.env["spp.program.membership"].search([
-            ("partner_id", "=", partner.id),
-            ("program_id", "=", program.id),
-        ], limit=1)
+        existing = self.env["spp.program.membership"].search(
+            [
+                ("partner_id", "=", partner.id),
+                ("program_id", "=", program.id),
+            ],
+            limit=1,
+        )
 
         if existing:
             _logger.info(
@@ -200,11 +201,13 @@ class SPPCRApplyAddMemberDCI(models.AbstractModel):
 
         # Create enrollment
         try:
-            self.env["spp.program.membership"].create({
-                "partner_id": partner.id,
-                "program_id": program.id,
-                "state": "enrolled",
-            })
+            self.env["spp.program.membership"].create(
+                {
+                    "partner_id": partner.id,
+                    "program_id": program.id,
+                    "state": "enrolled",
+                }
+            )
             _logger.info(
                 "Enrolled partner %s in program %s",
                 partner.id,

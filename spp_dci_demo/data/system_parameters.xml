@@ -13,6 +13,16 @@
     </record>
 
     <!--
+        Default CRVS data source for birth verification.
+        Leave empty to fall back to the first active CRVS data source.
+        To set a specific source, enter its numeric database ID here.
+    -->
+    <record id="param_default_crvs_data_source" model="ir.config_parameter">
+        <field name="key">spp_dci_demo.default_crvs_data_source</field>
+        <field name="value" />
+    </record>
+
+    <!--
         Program ID for auto-enrollment is set by post_init_hook
         since programs are created via wizard, not XML data.
         The hook finds the first available program.
