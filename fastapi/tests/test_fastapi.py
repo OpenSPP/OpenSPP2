@@ -71,7 +71,7 @@ class FastAPIHttpCase(HttpCase):
                 {
                     "name": "My Demo Endpoint User",
                     "login": "my_demo_app_user",
-                    "groups_id": [Command.set([runner_group.id])],
+                    "group_ids": [Command.set([runner_group.id])],
                 }
             )
             cls.env["ir.model.data"].create(

@@ -16,8 +16,11 @@
         "spp_registry",
     ],
     "data": [
-        "security/ir.model.access.csv",
         "views/country_office_views.xml",
+        # "views/res_users_views.xml",
+    ],
+    "oca_data_manual": [
+        "security/ir.model.access.csv",
         "views/res_users_views.xml",
     ],
     "assets": {},
