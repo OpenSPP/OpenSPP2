@@ -1,6 +1,8 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """Tests for OutgoingApiLogService"""
 
+import json
+
 from odoo.tests.common import TransactionCase
 
 from ..services.outgoing_api_log_service import OutgoingApiLogService
@@ -150,8 +152,6 @@ class TestOutgoingApiLogService(TransactionCase):
         )
 
         # Build a payload whose JSON serialization is exactly max_length
-        import json
-
         max_length = 50
         # {"k": "..."} — adjust value to hit exact length
         base = json.dumps({"k": ""})  # '{"k": ""}' = 10 chars
@@ -173,8 +173,6 @@ class TestOutgoingApiLogService(TransactionCase):
             service_code="test",
         )
 
-        import json
-
         max_length = 50
         base = json.dumps({"k": ""})
         filler = "x" * (max_length - len(base) + 1)
@@ -186,3 +184,194 @@ class TestOutgoingApiLogService(TransactionCase):
         self.assertTrue(result["_truncated"])
         self.assertEqual(result["_original_length"], max_length + 1)
         self.assertEqual(len(result["_preview"]), max_length)
+
+    def test_mask_sensitive_keys_top_level(self):
+        """_mask_sensitive_keys masks known sensitive keys at top level"""
+        service = OutgoingApiLogService(self.env, service_name="Test", service_code="test")
+
+        payload = {
+            "Authorization": "Bearer secret-token-123",
+            "Content-Type": "application/json",
+            "data": "visible",
+        }
+
+        result = service._mask_sensitive_keys(payload)
+        self.assertEqual(result["Authorization"], "***MASKED***")
+        self.assertEqual(result["Content-Type"], "application/json")
+        self.assertEqual(result["data"], "visible")
+
+    def test_mask_sensitive_keys_nested(self):
+        """_mask_sensitive_keys masks sensitive keys in nested dicts"""
+        service = OutgoingApiLogService(self.env, service_name="Test", service_code="test")
+
+        payload = {
+            "header": {
+                "authorization": "Bearer xyz",
+                "action": "search",
+            },
+            "body": {"password": "s3cret", "username": "admin"},
+        }
+
+        result = service._mask_sensitive_keys(payload)
+        self.assertEqual(result["header"]["authorization"], "***MASKED***")
+        self.assertEqual(result["header"]["action"], "search")
+        self.assertEqual(result["body"]["password"], "***MASKED***")
+        self.assertEqual(result["body"]["username"], "admin")
+
+    def test_mask_sensitive_keys_case_insensitive(self):
+        """_mask_sensitive_keys matches key names case-insensitively"""
+        service = OutgoingApiLogService(self.env, service_name="Test", service_code="test")
+
+        payload = {
+            "API_KEY": "key123",
+            "api_key": "key456",
+            "Api_Key": "key789",
+        }
+
+        result = service._mask_sensitive_keys(payload)
+        for key in payload:
+            self.assertEqual(result[key], "***MASKED***")
+
+    def test_mask_sensitive_keys_various_sensitive_names(self):
+        """_mask_sensitive_keys masks all common sensitive key names"""
+        service = OutgoingApiLogService(self.env, service_name="Test", service_code="test")
+
+        sensitive_keys = [
+            "authorization",
+            "password",
+            "token",
+            "access_token",
+            "refresh_token",
+            "api_key",
+            "apikey",
+            "secret",
+            "client_secret",
+            "credential",
+            "private_key",
+        ]
+
+        payload = {key: f"value_{key}" for key in sensitive_keys}
+        result = service._mask_sensitive_keys(payload)
+
+        for key in sensitive_keys:
+            self.assertEqual(
+                result[key],
+                "***MASKED***",
+                f"Key '{key}' should be masked",
+            )
+
+    def test_mask_sensitive_keys_preserves_non_dict_values(self):
+        """_mask_sensitive_keys handles lists and non-dict nested structures"""
+        service = OutgoingApiLogService(self.env, service_name="Test", service_code="test")
+
+        payload = {
+            "items": [
+                {"password": "secret", "name": "item1"},
+                {"token": "abc", "name": "item2"},
+            ],
+            "count": 2,
+        }
+
+        result = service._mask_sensitive_keys(payload)
+        self.assertEqual(result["items"][0]["password"], "***MASKED***")
+        self.assertEqual(result["items"][0]["name"], "item1")
+        self.assertEqual(result["items"][1]["token"], "***MASKED***")
+        self.assertEqual(result["items"][1]["name"], "item2")
+        self.assertEqual(result["count"], 2)
+
+    def test_mask_sensitive_keys_none_input(self):
+        """_mask_sensitive_keys returns None for None input"""
+        service = OutgoingApiLogService(self.env, service_name="Test", service_code="test")
+
+        self.assertIsNone(service._mask_sensitive_keys(None))
+
+    def test_mask_sensitive_keys_does_not_mutate_original(self):
+        """_mask_sensitive_keys returns a new dict without mutating the input"""
+        service = OutgoingApiLogService(self.env, service_name="Test", service_code="test")
+
+        payload = {"password": "secret", "data": "visible"}
+        result = service._mask_sensitive_keys(payload)
+
+        self.assertEqual(payload["password"], "secret")
+        self.assertEqual(result["password"], "***MASKED***")
+
+    def test_log_call_masks_sensitive_keys_in_payloads(self):
+        """log_call applies masking to request and response payloads"""
+        service = OutgoingApiLogService(self.env, service_name="Test", service_code="test")
+
+        result = service.log_call(
+            url="https://example.org/api/test",
+            request_summary={"authorization": "Bearer xyz", "action": "search"},
+            response_summary={"token": "resp-token", "status": "ok"},
+        )
+
+        self.assertTrue(result)
+        self.assertEqual(result.request_summary["authorization"], "***MASKED***")
+        self.assertEqual(result.request_summary["action"], "search")
+        self.assertEqual(result.response_summary["token"], "***MASKED***")
+        self.assertEqual(result.response_summary["status"], "ok")
+
+    def test_sanitize_url_no_sensitive_params(self):
+        """_sanitize_url leaves URLs without sensitive params unchanged"""
+        service = OutgoingApiLogService(self.env, service_name="Test", service_code="test")
+
+        url = "https://example.org/api/search?q=hello&limit=10"
+        result = service._sanitize_url(url)
+        self.assertIn("q=hello", result)
+        self.assertIn("limit=10", result)
+
+    def test_sanitize_url_masks_sensitive_params(self):
+        """_sanitize_url replaces sensitive query parameter values with MASKED"""
+        service = OutgoingApiLogService(self.env, service_name="Test", service_code="test")
+
+        url = "https://example.org/api/search?api_key=secret123&q=hello"
+        result = service._sanitize_url(url)
+        self.assertNotIn("secret123", result)
+        self.assertIn("***MASKED***", result)
+        self.assertIn("q=hello", result)
+
+    def test_sanitize_url_masks_multiple_sensitive_params(self):
+        """_sanitize_url masks all sensitive params in a single URL"""
+        service = OutgoingApiLogService(self.env, service_name="Test", service_code="test")
+
+        url = "https://example.org/api?token=abc&api_key=xyz&page=1"
+        result = service._sanitize_url(url)
+        self.assertNotIn("abc", result)
+        self.assertNotIn("xyz", result)
+        self.assertIn("page=1", result)
+
+    def test_sanitize_url_case_insensitive_params(self):
+        """_sanitize_url matches sensitive param names case-insensitively"""
+        service = OutgoingApiLogService(self.env, service_name="Test", service_code="test")
+
+        url = "https://example.org/api?API_KEY=secret&Access_Token=tok"
+        result = service._sanitize_url(url)
+        self.assertNotIn("secret", result)
+        self.assertNotIn("tok", result)
+
+    def test_sanitize_url_no_query_string(self):
+        """_sanitize_url returns URL unchanged when there is no query string"""
+        service = OutgoingApiLogService(self.env, service_name="Test", service_code="test")
+
+        url = "https://example.org/api/search"
+        result = service._sanitize_url(url)
+        self.assertEqual(result, url)
+
+    def test_sanitize_url_none_input(self):
+        """_sanitize_url returns None for None input"""
+        service = OutgoingApiLogService(self.env, service_name="Test", service_code="test")
+
+        self.assertIsNone(service._sanitize_url(None))
+
+    def test_log_call_sanitizes_url(self):
+        """log_call strips sensitive query parameters from URL before storing"""
+        service = OutgoingApiLogService(self.env, service_name="Test", service_code="test")
+
+        result = service.log_call(
+            url="https://example.org/api/search?api_key=supersecret&q=hello",
+        )
+
+        self.assertTrue(result)
+        self.assertNotIn("supersecret", result.url)
+        self.assertIn("***MASKED***", result.url)
+        self.assertIn("q=hello", result.url)

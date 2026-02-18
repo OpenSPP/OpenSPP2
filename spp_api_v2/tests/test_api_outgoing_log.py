@@ -266,8 +266,9 @@ class TestOutgoingLogAuditorSecurity(TransactionCase):
         )
 
     def test_auditor_can_read_sensitive_fields(self):
-        """User with auditor group can read request_summary, response_summary, error_detail"""
+        """User with auditor group can read url, request_summary, response_summary, error_detail"""
         log = self.log_record.with_user(self.auditor_user)
+        self.assertEqual(log.url, "https://crvs.example.org/api/registry/sync/search")
         self.assertTrue(log.request_summary)
         self.assertEqual(log.request_summary["message"]["national_id"], "123456")
         self.assertTrue(log.response_summary)
@@ -279,6 +280,8 @@ class TestOutgoingLogAuditorSecurity(TransactionCase):
         """User without auditor group gets AccessError for sensitive fields"""
         log = self.log_record.with_user(self.viewer_user)
         with self.assertRaises(AccessError):
+            _ = log.url
+        with self.assertRaises(AccessError):
             _ = log.request_summary
         with self.assertRaises(AccessError):
             _ = log.response_summary
@@ -288,7 +291,6 @@ class TestOutgoingLogAuditorSecurity(TransactionCase):
     def test_non_auditor_can_read_metadata_fields(self):
         """User without auditor group can still read non-sensitive metadata"""
         log = self.log_record.with_user(self.viewer_user)
-        self.assertEqual(log.url, "https://crvs.example.org/api/registry/sync/search")
         self.assertEqual(log.endpoint, "/registry/sync/search")
         self.assertEqual(log.http_method, "POST")
         self.assertEqual(log.status, "http_error")
@@ -299,8 +301,9 @@ class TestOutgoingLogAuditorSecurity(TransactionCase):
         fields_info = (
             self.env["spp.api.outgoing.log"]
             .with_user(self.viewer_user)
-            .fields_get(["request_summary", "response_summary", "error_detail"])
+            .fields_get(["url", "request_summary", "response_summary", "error_detail"])
         )
+        self.assertNotIn("url", fields_info)
         self.assertNotIn("request_summary", fields_info)
         self.assertNotIn("response_summary", fields_info)
         self.assertNotIn("error_detail", fields_info)

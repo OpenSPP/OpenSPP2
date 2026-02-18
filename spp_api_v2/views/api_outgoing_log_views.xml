@@ -30,7 +30,10 @@
                 <sheet>
                     <group>
                         <group name="request" string="Request">
-                            <field name="url" />
+                            <field
+                                name="url"
+                                groups="spp_api_v2.group_api_v2_auditor"
+                            />
                             <field name="endpoint" />
                             <field name="http_method" />
                             <field name="timestamp" />

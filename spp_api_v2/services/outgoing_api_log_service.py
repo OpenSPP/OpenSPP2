@@ -3,6 +3,7 @@
 
 import json
 import logging
+from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 import psycopg2
 
@@ -55,6 +56,26 @@ class OutgoingApiLogService:
         self.service_code = service_code
         self.user_id = user_id or env.uid
 
+    # Sensitive key patterns matched case-insensitively
+    SENSITIVE_KEYS = frozenset(
+        {
+            "authorization",
+            "password",
+            "token",
+            "access_token",
+            "refresh_token",
+            "api_key",
+            "apikey",
+            "secret",
+            "client_secret",
+            "credential",
+            "credentials",
+            "private_key",
+        }
+    )
+
+    MASK_VALUE = "***MASKED***"
+
     def log_call(
         self,
         url: str,
@@ -76,15 +97,21 @@ class OutgoingApiLogService:
         Logging failures never raise exceptions.
         """
         try:
-            # Truncate large payloads
-            truncated_request = self._truncate_payload(request_summary)
-            truncated_response = self._truncate_payload(response_summary)
+            # Sanitize URL, mask sensitive keys, then truncate large payloads
+            safe_url = self._sanitize_url(url)
+            masked_request = self._mask_sensitive_keys(request_summary)
+            masked_response = self._mask_sensitive_keys(response_summary)
+            truncated_request = self._truncate_payload(masked_request)
+            truncated_response = self._truncate_payload(masked_response)
 
+            # sudo() is intentional: log records must be created regardless of
+            # the calling user's permissions on spp.api.outgoing.log. The
+            # service is an internal component, not a user-facing API.
             return (
                 self.env["spp.api.outgoing.log"]
                 .sudo()
                 .log_call(
-                    url=url,
+                    url=safe_url,
                     endpoint=endpoint,
                     http_method=http_method,
                     request_summary=truncated_request,
@@ -106,6 +133,66 @@ class OutgoingApiLogService:
         except (psycopg2.Error, ValueError, RuntimeError):
             _logger.exception("Failed to log outgoing API call")
             return None
+
+    def _mask_sensitive_keys(self, payload):
+        """Recursively mask values of known sensitive keys in a payload.
+
+        Args:
+            payload: Dict payload to mask, or None.
+
+        Returns:
+            A new dict with sensitive values replaced by MASK_VALUE,
+            or None if input is None.
+        """
+        if payload is None:
+            return None
+
+        return self._mask_recursive(payload)
+
+    def _mask_recursive(self, obj):
+        """Walk a structure and mask sensitive dict keys."""
+        if isinstance(obj, dict):
+            return {
+                key: (self.MASK_VALUE if key.lower() in self.SENSITIVE_KEYS else self._mask_recursive(value))
+                for key, value in obj.items()
+            }
+        if isinstance(obj, list):
+            return [self._mask_recursive(item) for item in obj]
+        return obj
+
+    def _sanitize_url(self, url):
+        """Remove sensitive query parameters from a URL before logging.
+
+        Query parameters whose names match SENSITIVE_KEYS (case-insensitively)
+        are replaced with MASK_VALUE so that API keys or tokens embedded in
+        query strings are never persisted.
+
+        Args:
+            url: URL string to sanitize.
+
+        Returns:
+            Sanitized URL string with sensitive query parameters masked,
+            or the original value if it cannot be parsed as a URL.
+        """
+        if not url:
+            return url
+
+        try:
+            parsed = urlparse(url)
+        except Exception:
+            return url
+
+        if not parsed.query:
+            return url
+
+        params = parse_qs(parsed.query, keep_blank_values=True)
+        sanitized_params = {
+            key: ([self.MASK_VALUE] if key.lower() in self.SENSITIVE_KEYS else values) for key, values in params.items()
+        }
+
+        sanitized_query = urlencode(sanitized_params, doseq=True)
+        sanitized = parsed._replace(query=sanitized_query)
+        return urlunparse(sanitized)
 
     def _truncate_payload(self, payload, max_length=10000):
         """Truncate large payloads for DB storage.

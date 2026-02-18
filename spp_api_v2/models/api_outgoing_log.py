@@ -27,7 +27,8 @@ class ApiOutgoingLog(models.Model):
     url = fields.Char(
         required=True,
         index=True,
-        help="Full URL called",
+        groups="spp_api_v2.group_api_v2_auditor",
+        help="Full URL called (may contain sensitive query parameters)",
     )
 
     endpoint = fields.Char(
