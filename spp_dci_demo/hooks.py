@@ -28,7 +28,9 @@ def post_init_hook(env):
         return
 
     # Set the system parameter
-    env["ir.config_parameter"].sudo().set_param(
+    # sudo() is intentional: system parameters require admin access
+    config_params = env["ir.config_parameter"].sudo()  # nosemgrep: odoo-sudo-without-context
+    config_params.set_param(
         "spp_dci_demo.enrollment_program_id",
         str(program.id),
     )
