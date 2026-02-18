@@ -23,39 +23,4 @@
     "application": False,
     "installable": True,
     "auto_install": False,
-    "description": """
-OpenSPP Metrics Core
-====================
-
-Unified foundation for all metrics (statistics, simulation metrics, etc.)
-
-Architecture
-------------
-Provides a base abstract model that eliminates field duplication across
-different metric types (statistics, simulation metrics, etc.).
-
-::
-
-    spp.metric.base (AbstractModel)
-        │
-        ├── spp.statistic (extends with publication flags)
-        └── spp.simulation.metric (extends with scenario-specific fields)
-
-Models
-------
-- ``spp.metric.base``: Abstract model with shared metric fields
-- ``spp.metric.category``: Shared categorization for all metric types
-
-Fields Provided
----------------
-- **Identity**: name, label, description
-- **Presentation**: unit, decimal_places
-- **Categorization**: category_id
-- **Metadata**: sequence, active
-
-Migration
----------
-Automatically migrates ``spp.statistic.category`` to ``spp.metric.category``
-to maintain backward compatibility while providing a unified category model.
-    """,
 }

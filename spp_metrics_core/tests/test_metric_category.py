@@ -1,6 +1,5 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 
-from odoo.exceptions import ValidationError
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 

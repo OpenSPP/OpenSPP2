@@ -192,9 +192,7 @@ class TestStatistic(TransactionCase):
         """Test grouping statistics by category."""
         Statistic = self.env["spp.statistic"]
 
-        cat2 = self.env["spp.metric.category"].create(
-            {"name": "Second", "code": "second"}
-        )
+        cat2 = self.env["spp.metric.category"].create({"name": "Second", "code": "second"})
 
         Statistic.create(
             {

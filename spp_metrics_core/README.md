@@ -4,9 +4,10 @@ Shared foundation for all metrics (statistics, simulation metrics, etc.) in Open
 
 ## Overview
 
-`spp_metrics_core` provides the base model and categorization system that eliminates duplication of genuinely shared
-fields across different metric types. All domain modules (statistics, simulations, dashboards) inherit from the base
-model and add their own computation-specific fields.
+`spp_metrics_core` provides the base model and categorization system that eliminates
+duplication of genuinely shared fields across different metric types. All domain modules
+(statistics, simulations, dashboards) inherit from the base model and add their own
+computation-specific fields.
 
 ## Architecture
 
@@ -24,8 +25,8 @@ spp.metric.base (AbstractModel)
 
 Abstract model providing genuinely shared fields for all metric types.
 
-Concrete models define their own computation-specific fields (metric_type, format, expressions, etc.) since these vary
-incompatibly between metric types.
+Concrete models define their own computation-specific fields (metric_type, format,
+expressions, etc.) since these vary incompatibly between metric types.
 
 **Identity**
 
@@ -72,8 +73,8 @@ Shared categorization for all metric types:
 
 ## Defining Metrics
 
-Since `spp.metric.base` is an **AbstractModel**, it does not store data directly. Domain modules define concrete metrics
-by inheriting from the base:
+Since `spp.metric.base` is an **AbstractModel**, it does not store data directly. Domain
+modules define concrete metrics by inheriting from the base:
 
 - `spp_statistic` - Defines published statistics
 - `spp_simulation` - Defines simulation metrics
@@ -113,9 +114,9 @@ Reference categories in your metrics:
 
 ```xml
 <record id="my_custom_metric" model="custom.metric">
-    <field name="name">my_metric</field>
-    <field name="label">My Custom Metric</field>
-    <field name="category_id" ref="spp_metrics_core.category_population"/>
+  <field name="name">my_metric</field>
+  <field name="label">My Custom Metric</field>
+  <field name="category_id" ref="spp_metrics_core.category_population" />
 </record>
 ```
 
@@ -125,10 +126,10 @@ Add domain-specific categories:
 
 ```xml
 <record id="category_health" model="spp.metric.category">
-    <field name="name">Health</field>
-    <field name="code">health</field>
-    <field name="description">Health-related metrics</field>
-    <field name="sequence">50</field>
+  <field name="name">Health</field>
+  <field name="code">health</field>
+  <field name="description">Health-related metrics</field>
+  <field name="sequence">50</field>
 </record>
 ```
 
@@ -136,8 +137,8 @@ Add domain-specific categories:
 
 ### From spp_statistic.category
 
-The migration automatically renames `spp.statistic.category` to `spp.metric.category` while preserving all data and
-external references.
+The migration automatically renames `spp.statistic.category` to `spp.metric.category`
+while preserving all data and external references.
 
 **Before**:
 
@@ -156,7 +157,8 @@ See [Migration Guide](../../docs/migration/statistics-refactoring.md) for detail
 ## Benefits
 
 1. **No Duplication**: Genuinely shared fields defined once, reused everywhere
-2. **Model-Specific Freedom**: Each concrete model defines its own computation fields without conflicts
+2. **Model-Specific Freedom**: Each concrete model defines its own computation fields
+   without conflicts
 3. **Consistent UI**: Common fields (name, label, category) display the same way
 4. **Shared Categories**: One categorization system for all metrics
 5. **Future-Proof**: New metric types easily add their own computation approaches
@@ -174,7 +176,8 @@ See [Migration Guide](../../docs/migration/statistics-refactoring.md) for detail
 
 ## Architecture Documentation
 
-See [Statistics System Architecture](../../docs/architecture/statistics-systems.md) for the complete system design.
+See [Statistics System Architecture](../../docs/architecture/statistics-systems.md) for
+the complete system design.
 
 ## License
 

@@ -50,10 +50,7 @@ def migrate(cr, version):
         seq_exists = cr.fetchone()[0]
 
         if seq_exists:
-            _logger.info(
-                "Found spp_statistic_category_id_seq sequence, "
-                "renaming to spp_metric_category_id_seq"
-            )
+            _logger.info("Found spp_statistic_category_id_seq sequence, renaming to spp_metric_category_id_seq")
 
             # Rename sequence
             cr.execute(

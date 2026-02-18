@@ -3,7 +3,6 @@
     Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 -->
 <odoo>
-
     <!-- Default Metric Categories -->
 
     <record id="category_population" model="spp.metric.category">
@@ -33,5 +32,4 @@
         <field name="description">Distribution and entitlement metrics</field>
         <field name="sequence">40</field>
     </record>
-
 </odoo>

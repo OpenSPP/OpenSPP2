@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <!--
     Default Statistic Categories
 
@@ -8,12 +8,13 @@
     Note: Uses spp.metric.category (migrated from spp.statistic.category)
 -->
 <odoo noupdate="1">
-
     <!-- Demographics - Population composition -->
     <record id="category_demographics" model="spp.metric.category">
         <field name="name">Demographics</field>
         <field name="code">demographics</field>
-        <field name="description">Population composition statistics: age groups, gender distribution, household size</field>
+        <field
+            name="description"
+        >Population composition statistics: age groups, gender distribution, household size</field>
         <field name="sequence">10</field>
     </record>
 
@@ -21,7 +22,9 @@
     <record id="category_vulnerability" model="spp.metric.category">
         <field name="name">Vulnerability</field>
         <field name="code">vulnerability</field>
-        <field name="description">Vulnerability indicators: disability, female-headed households, at-risk populations</field>
+        <field
+            name="description"
+        >Vulnerability indicators: disability, female-headed households, at-risk populations</field>
         <field name="sequence">20</field>
     </record>
 
@@ -29,7 +32,9 @@
     <record id="category_programs" model="spp.metric.category">
         <field name="name">Programs</field>
         <field name="code">programs</field>
-        <field name="description">Program statistics: enrollment counts, coverage rates, benefit distribution</field>
+        <field
+            name="description"
+        >Program statistics: enrollment counts, coverage rates, benefit distribution</field>
         <field name="sequence">30</field>
     </record>
 
@@ -37,7 +42,9 @@
     <record id="category_geographic" model="spp.metric.category">
         <field name="name">Geographic</field>
         <field name="code">geographic</field>
-        <field name="description">Geographic statistics: area coverage, density, distribution patterns</field>
+        <field
+            name="description"
+        >Geographic statistics: area coverage, density, distribution patterns</field>
         <field name="sequence">40</field>
     </record>
 
@@ -45,7 +52,9 @@
     <record id="category_economic" model="spp.metric.category">
         <field name="name">Economic</field>
         <field name="code">economic</field>
-        <field name="description">Economic statistics: income levels, poverty indicators, benefit amounts</field>
+        <field
+            name="description"
+        >Economic statistics: income levels, poverty indicators, benefit amounts</field>
         <field name="sequence">50</field>
     </record>
 
@@ -53,8 +62,9 @@
     <record id="category_fairness" model="spp.metric.category">
         <field name="name">Fairness</field>
         <field name="code">fairness</field>
-        <field name="description">Equity and fairness metrics: disparity ratios, inclusion rates, coverage gaps</field>
+        <field
+            name="description"
+        >Equity and fairness metrics: disparity ratios, inclusion rates, coverage gaps</field>
         <field name="sequence">60</field>
     </record>
-
 </odoo>

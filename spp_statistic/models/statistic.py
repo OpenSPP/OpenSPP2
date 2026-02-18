@@ -267,7 +267,7 @@ class Statistic(models.Model):
 
         # Delegate to unified privacy service
         privacy_service = self.env.get("spp.metrics.privacy")
-        if privacy_service:
+        if privacy_service is not None:
             stat_config = {"minimum_count": min_count, "suppression_display": display_mode}
             return privacy_service.suppress_value(value, count, stat_config=stat_config)
 
