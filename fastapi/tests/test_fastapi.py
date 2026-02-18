@@ -86,7 +86,8 @@ class FastAPIHttpCase(HttpCase):
 
     @contextmanager
     def _mocked_commit(self):
-        with unittest.mock.patch.object(sql_db.TestCursor, "commit", return_value=None) as mocked_commit:
+        cursor_cls = getattr(sql_db, "TestCursor", None) or sql_db.BaseCursor
+        with unittest.mock.patch.object(cursor_cls, "commit", return_value=None) as mocked_commit:
             yield mocked_commit
 
     def _assert_expected_lang(self, accept_language, expected_lang):
