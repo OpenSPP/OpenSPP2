@@ -135,8 +135,7 @@ class AggregationEngine:
             filtered_rows = []
             for row in rows:
                 try:
-                    # Evaluate filter expression
-                    # WARNING: eval() is dangerous - in production use a safe expression evaluator
+                    # Evaluate filter expression using CEL (sandboxed, no system access)
                     if self._eval_filter(row, rule.filter_expression):
                         filtered_rows.append(row)
                 except Exception as e:

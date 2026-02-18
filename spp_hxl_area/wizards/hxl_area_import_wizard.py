@@ -6,6 +6,7 @@ import logging
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
+from odoo.tools import html_escape
 
 _logger = logging.getLogger(__name__)
 
@@ -151,7 +152,7 @@ class HxlAreaImportWizard(models.TransientModel):
 
         except Exception as e:
             _logger.error("Failed to parse file: %s", e, exc_info=True)
-            self.preview_html = f"<p style='color: red;'>Error parsing file: {e}</p>"
+            self.preview_html = f"<p style='color: red;'>Error parsing file: {html_escape(str(e))}</p>"
 
     def _generate_preview_html(self, rows):
         """Generate HTML table preview of rows.
@@ -173,7 +174,7 @@ class HxlAreaImportWizard(models.TransientModel):
         # Header
         html.append("<thead><tr>")
         for col in columns:
-            html.append(f"<th>{col}</th>")
+            html.append(f"<th>{html_escape(col)}</th>")
         html.append("</tr></thead>")
 
         # Rows
@@ -182,7 +183,7 @@ class HxlAreaImportWizard(models.TransientModel):
             html.append("<tr>")
             for col in columns:
                 value = row.get(col, "")
-                html.append(f"<td>{value}</td>")
+                html.append(f"<td>{html_escape(str(value))}</td>")
             html.append("</tr>")
         html.append("</tbody>")
 
