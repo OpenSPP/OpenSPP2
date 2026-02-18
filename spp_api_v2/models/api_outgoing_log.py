@@ -142,7 +142,7 @@ class ApiOutgoingLog(models.Model):
     def _compute_display_name(self):
         for record in self:
             timestamp_str = record.timestamp.strftime("%Y-%m-%d %H:%M") if record.timestamp else ""
-            record.display_name = f"{record.http_method} {record.endpoint or record.url} @ {timestamp_str}"
+            record.display_name = f"{record.http_method} {record.endpoint or 'API Call'} @ {timestamp_str}"
 
     # ==========================================
     # API Methods
