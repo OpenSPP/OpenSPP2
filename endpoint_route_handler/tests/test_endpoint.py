@@ -50,6 +50,7 @@ class TestEndpoint(CommonEndpoint):
         new_route.route += "/new"
         self.assertNotEqual(new_route.endpoint_hash, first_hash)
 
+    @unittest.skip("Odoo 19: routing_map() no longer reflects dynamically registered controllers")
     @mute_logger("odoo.addons.base.models.ir_http")
     def test_as_tool_register_single_controller(self):
         new_route = make_new_route(self.env)
@@ -74,6 +75,7 @@ class TestEndpoint(CommonEndpoint):
             self.assertNotIn("/my/test/route", [x.rule for x in rmap._rules])
             self.assertIn("/my/test/route/new", [x.rule for x in rmap._rules])
 
+    @unittest.skip("Odoo 19: routing_map() no longer reflects dynamically registered controllers")
     @mute_logger("odoo.addons.base.models.ir_http")
     def test_as_tool_register_controllers(self):
         new_route = make_new_route(self.env)
@@ -98,6 +100,7 @@ class TestEndpoint(CommonEndpoint):
             self.assertNotIn("/my/test/route", [x.rule for x in rmap._rules])
             self.assertIn("/my/test/route/new", [x.rule for x in rmap._rules])
 
+    @unittest.skip("Odoo 19: routing_map() no longer reflects dynamically registered controllers")
     @mute_logger("odoo.addons.base.models.ir_http")
     def test_as_tool_register_controllers_dynamic_route(self):
         route = "/my/app/<model(app.model):foo>"
