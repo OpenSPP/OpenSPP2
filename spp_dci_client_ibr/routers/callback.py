@@ -162,6 +162,7 @@ def _process_ibr_search_result(
         # Use sudo() for API access - authentication is handled by signature verification
         if correlation_id:
             pending_check = (
+                # nosemgrep: odoo-sudo-without-context — DCI protocol handler with JWT/signature verification
                 env["spp.dci.duplication.check"]
                 .sudo()
                 .search(

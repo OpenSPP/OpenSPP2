@@ -14,14 +14,17 @@ OpenSPP Hide Non-OpenSPP Menus: Base
    !! source digest: sha256:3b2d5e4567993588a529e35aa6bdfd2db2513aca491033f300b75fed5ccf6f2e
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+    :target: https://odoo-community.org/page/development-status
+    :alt: Production/Stable
+.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
     :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_hide_menus_base
     :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2|
+|badge1| |badge2| |badge3|
 
 Controls visibility of non-OpenSPP navigation menus by modifying
 ir.ui.menu group assignments. Automatically hides predefined menus from

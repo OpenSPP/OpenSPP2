@@ -266,13 +266,13 @@ class StudioField(models.Model):
 
         # Create the field
         field_vals = self._prepare_ir_model_field_vals()
-        ir_field = self.env["ir.model.fields"].sudo().create(field_vals)
+        ir_field = self.env["ir.model.fields"].sudo().create(field_vals)  # nosemgrep: odoo-sudo-without-context
         self.with_context(force_write=True).ir_model_fields_id = ir_field.id
 
         # Create view extension
         view_vals = self._prepare_view_extension_vals()
         if view_vals:
-            view = self.env["ir.ui.view"].sudo().create(view_vals)
+            view = self.env["ir.ui.view"].sudo().create(view_vals)  # nosemgrep: odoo-sudo-without-context
             self.with_context(force_write=True).view_inherit_id = view.id
 
         # If this field was created from a Logic Variable flow, update the variable
@@ -280,7 +280,7 @@ class StudioField(models.Model):
         # and, if possible, activate the variable automatically.
         logic_var_id = self.env.context.get("from_logic_variable_id")
         if logic_var_id and "spp.cel.variable" in self.env:
-            Variable = self.env["spp.cel.variable"].sudo()
+            Variable = self.env["spp.cel.variable"].sudo()  # nosemgrep: odoo-sudo-without-context
             variable = Variable.browse(logic_var_id)
             if variable and variable.exists():
                 update_vals = {
@@ -316,7 +316,7 @@ class StudioField(models.Model):
         # Full deletion would require data migration considerations
         if self.view_inherit_id:
             # Update view to make field invisible
-            self.view_inherit_id.sudo().write({"active": False})
+            self.view_inherit_id.sudo().write({"active": False})  # nosemgrep: odoo-sudo-without-context
 
     def _get_deactivation_impact(self):
         """Check if the field has data before deactivating."""

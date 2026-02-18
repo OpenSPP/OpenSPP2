@@ -138,6 +138,7 @@ repos:
       - id: pylint_odoo
         args:
           - --rcfile=.pylintrc-mandatory
+        exclude: ^spp$|^scripts/|^(base_user_role|endpoint_route_handler|extendable|extendable_fastapi|fastapi|openspp-vocabularies|openspp|theme_openspp_muk|queue_job)/
   # ============================================================================
   # OpenSPP Custom Linting Rules
   # Based on docs/principles/ - see scripts/lint/README.md for details

@@ -1,2 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_spp_registry_view_history_registry_read,spp.registry.view.history registry read,model_spp_registry_view_history,spp_registry.group_registry_read,1,1,1,1
+access_spp_registry_view_history_viewer,spp.registry.view.history.viewer,model_spp_registry_view_history,spp_registry.group_registry_viewer,1,0,0,0
+access_spp_registry_view_history_officer,spp.registry.view.history.officer,model_spp_registry_view_history,spp_registry.group_registry_officer,1,1,1,0
+access_spp_registry_view_history_manager,spp.registry.view.history.manager,model_spp_registry_view_history,spp_registry.group_registry_manager,1,1,1,1

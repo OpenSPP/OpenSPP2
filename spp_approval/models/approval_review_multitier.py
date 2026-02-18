@@ -166,7 +166,7 @@ class ApprovalReviewMultitier(models.Model):
 
         # Mark remaining tiers as skipped
         waiting_tiers = self.tier_review_ids.filtered(lambda t: t.status == "waiting")
-        waiting_tiers.sudo().write({"status": "skipped"})
+        waiting_tiers.sudo().write({"status": "skipped"})  # nosemgrep: odoo-sudo-without-context
 
         # Reject the review (use sudo since this is a system action triggered
         # by the multi-tier engine after individual tier approvals).

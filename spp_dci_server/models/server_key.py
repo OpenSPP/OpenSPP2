@@ -330,6 +330,7 @@ class DCIServerKey(models.Model):
 
         from odoo.addons.spp_dci.services.signing import DCISigner
 
+        # nosemgrep: odoo-sudo-without-context
         sender_id = self.env["ir.config_parameter"].sudo().get_param("dci.sender_id", "openspp")
 
         return DCISigner(

@@ -25,28 +25,4 @@
     "summary": """
         REST API endpoints for Change Request V2.
     """,
-    "description": """
-OpenSPP API V2 - Change Request
-================================
-
-Extends OpenSPP API V2 with Change Request endpoints.
-
-Endpoints
----------
-- ``POST /ChangeRequest`` - Create a new change request
-- ``GET /ChangeRequest/{identifier}`` - Read a change request by reference
-- ``GET /ChangeRequest`` - Search change requests
-- ``PATCH /ChangeRequest/{identifier}`` - Update change request detail data
-- ``POST /ChangeRequest/{identifier}/$submit`` - Submit for approval
-- ``POST /ChangeRequest/{identifier}/$approve`` - Approve (requires permission)
-- ``POST /ChangeRequest/{identifier}/$reject`` - Reject (requires permission)
-- ``POST /ChangeRequest/{identifier}/$apply`` - Apply changes to registrant
-
-Design Principles
------------------
-- Uses CR reference (CR/2024/00001), NOT database IDs
-- Returns appropriate HTTP status codes
-- Follows OpenSPP API V2 patterns
-- Requires authentication via OAuth 2.0
-    """,
 }

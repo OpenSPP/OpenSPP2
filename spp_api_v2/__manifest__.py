@@ -6,7 +6,7 @@
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Stable",
+    "development_status": "Production/Stable",
     "maintainers": ["jeremi", "gonzalesedwin1123", "reichie020212", "emjay0921"],
     "external_dependencies": {
         "python": ["pyjwt"],
@@ -48,38 +48,5 @@
     "post_init_hook": "_post_init_hook",
     "summary": """
         OpenSPP API V2 - Standards-aligned, consent-respecting API for social protection data exchange.
-    """,
-    "description": """
-OpenSPP API V2
-==============
-
-Standards-aligned, consent-respecting API for social protection data exchange.
-
-Key Features
-------------
-- **External identifiers only** - Never exposes database IDs
-- **Namespace URIs** - Uses globally unique URIs for all identifier types and vocabularies
-- **Consent-based access control** - All data access requires explicit consent
-- **Vocabulary system** - Uses spp.vocabulary for gender, relationships, etc.
-- **Source tracking** - Tracks data provenance per ADR-008
-- **OAuth 2.0** - Client credentials flow for authentication
-- **Extensible** - Module-specific fields via extension mechanism
-
-Design Principles
------------------
-- No database IDs exposed anywhere
-- namespace_uri used for all identifier lookups
-- gender_id used (not gender string)
-- JWT secret from ir.config_parameter
-- Source tracking on creates/updates
-- Consent filtering on all reads
-
-Architecture Decision Records
------------------------------
-- ADR-007: Namespace URIs for Identifiers
-- ADR-008: Source Tracking and Provenance
-- ADR-009: Terminology System
-
-See docs/specs/api-v2/SPEC.md for full specification.
     """,
 }

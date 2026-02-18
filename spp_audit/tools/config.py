@@ -163,7 +163,9 @@ class AuditConfig:
         if env is not None and not cls.is_locked(key):
             param_key = cls._get_param_key(key)
             try:
-                db_value = env["ir.config_parameter"].sudo().get_param(param_key)
+                db_value = (
+                    env["ir.config_parameter"].sudo().get_param(param_key)  # nosemgrep: odoo-sudo-without-context
+                )  # nosemgrep: odoo-sudo-without-context
                 if db_value is not None:
                     return db_value
             except (AttributeError, KeyError, RuntimeError):

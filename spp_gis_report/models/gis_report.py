@@ -1076,7 +1076,6 @@ class GISReport(models.Model):
             dict: Updated results with normalized values
         """
         self.ensure_one()
-        import statistics
 
         if self.normalization_method not in ("index", "percentile", "zscore"):
             return results

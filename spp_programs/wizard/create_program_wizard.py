@@ -231,7 +231,6 @@ class SPPCreateProgramWizardBase(models.TransientModel):
     def _get_entitlement_manager(self, program_id):
         """Get entitlement manager. Override in inherited models."""
         raise UserError(f"DEBUG BASE CLASS: Entitlement Type = '{self.entitlement_type}' | This should be overridden!")
-        return {}
 
 
 class SPPCreateNewProgramWiz(models.TransientModel):

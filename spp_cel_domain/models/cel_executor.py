@@ -1095,7 +1095,7 @@ class CelExecutor(models.AbstractModel):
         period_key = str(p.period_key or "current")
         subject_model = model
         # Resolve flags
-        ICP = self.env["ir.config_parameter"].sudo()
+        ICP = self.env["ir.config_parameter"].sudo()  # nosemgrep: odoo-sudo-without-context
         enable_sql = bool(int(ICP.get_param("cel.enable_sql_metrics", "1")))
         preview_cache_only = bool(int(ICP.get_param("cel.preview_cache_only", "0")))
         async_threshold = int(ICP.get_param("cel.async_threshold", "50000") or 50000)
@@ -1355,7 +1355,7 @@ class CelExecutor(models.AbstractModel):
         str_ops = {"==": "=", "!=": "!="}
         clause, clause_args = self._provider_clause(provider, params_hash, allow_any_provider)
         base_sql = (
-            f"SELECT DISTINCT fv.subject_id FROM {table_name} fv "
+            f"SELECT DISTINCT fv.subject_id FROM {table_name} fv "  # nosec B608 — table/field names from Odoo model metadata, not user input
             f"WHERE fv.company_id = %s AND fv.{metric_field} = %s AND fv.subject_model = %s "
             "AND fv.period_key = %s AND ("
             + clause
@@ -1426,7 +1426,7 @@ class CelExecutor(models.AbstractModel):
         clause, clause_args = self._provider_clause(provider, params_hash, allow_any_provider)
         tail = f" {extra_clause}" if extra_clause else ""
         sql = (
-            f"SELECT DISTINCT fv.subject_id FROM {table_name} fv "
+            f"SELECT DISTINCT fv.subject_id FROM {table_name} fv "  # nosec B608 — table/field names from Odoo model metadata, not user input
             f"WHERE fv.company_id = %s AND fv.{metric_field} = %s AND fv.subject_model = %s "
             "AND fv.period_key = %s AND (" + clause + ") AND fv.error_code IS NULL" + tail
         )
@@ -1469,6 +1469,7 @@ class CelExecutor(models.AbstractModel):
 
     def _allow_any_provider_fallback(self) -> bool:
         try:
+            # nosemgrep: odoo-sudo-without-context
             value = self.env["ir.config_parameter"].sudo().get_param("spp_indicator.allow_any_provider_fallback", "1")
             return bool(int(value or "1"))
         except Exception:

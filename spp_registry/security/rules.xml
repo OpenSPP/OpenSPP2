@@ -67,4 +67,33 @@
         <field name="perm_create" eval="True" />
         <field name="perm_unlink" eval="True" />
     </record>
+
+    <!-- Officer edit rules for group membership -->
+    <record id="rule_spp_group_membership_group_edit" model="ir.rule">
+        <field name="name">Group Membership: Edit via Group</field>
+        <field name="model_id" ref="model_spp_group_membership" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field
+            name="groups"
+            eval="[Command.link(ref('spp_registry.group_registry_officer'))]"
+        />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <record id="rule_spp_group_membership_individual_edit" model="ir.rule">
+        <field name="name">Group Membership: Edit via Individual</field>
+        <field name="model_id" ref="model_spp_group_membership" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field
+            name="groups"
+            eval="[Command.link(ref('spp_registry.group_registry_officer'))]"
+        />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
 </odoo>

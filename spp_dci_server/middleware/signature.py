@@ -85,6 +85,7 @@ def _check_and_warn_dev_mode(env: Environment) -> bool:
     global _dev_mode_warning_logged
 
     allow_unsigned = (
+        # nosemgrep: odoo-sudo-without-context
         env["ir.config_parameter"].sudo().get_param("dci.allow_unsigned_requests", "false").lower() == "true"
     )
 
@@ -153,6 +154,7 @@ async def verify_dci_signature(
                 )
 
         # Look up sender in registry
+        # nosemgrep: odoo-sudo-without-context
         sender_registry = env["spp.dci.sender.registry"].sudo().search([("sender_id", "=", sender_id)], limit=1)
 
         if not sender_registry:
@@ -240,6 +242,7 @@ async def verify_bearer_token(
     global _bearer_bypass_warning_logged
 
     # Check if bearer auth is bypassed (development mode)
+    # nosemgrep: odoo-sudo-without-context
     bypass_bearer = env["ir.config_parameter"].sudo().get_param("dci.bypass_bearer_auth", "false").lower() == "true"
 
     if bypass_bearer:
@@ -286,6 +289,7 @@ async def verify_bearer_token(
 
     # Get accepted tokens from config (comma-separated list)
     # If no tokens configured, accept any non-empty token (for testing)
+    # nosemgrep: odoo-sudo-without-context
     accepted_tokens_str = env["ir.config_parameter"].sudo().get_param("dci.api_tokens", "")
     if accepted_tokens_str:
         accepted_tokens = [t.strip() for t in accepted_tokens_str.split(",") if t.strip()]

@@ -14,14 +14,17 @@ OpenSPP Custom Fields
    !! source digest: sha256:4e1ff7f0e0d9441f7324e6677d0af345d7d7e5de71b600d55b0378c237fa8e77
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+    :target: https://odoo-community.org/page/development-status
+    :alt: Production/Stable
+.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
     :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_custom_field
     :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2|
+|badge1| |badge2| |badge3|
 
 Dynamically adds custom fields to registrant profiles without code
 changes. Administrators create fields on ``res.partner`` following

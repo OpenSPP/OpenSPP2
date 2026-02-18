@@ -16,6 +16,20 @@
         <field name="perm_unlink">0</field>
     </record>
 
+    <record id="rule_spp_approval_review_approver" model="ir.rule">
+        <field name="name">Approval Review: Approver Access</field>
+        <field name="model_id" ref="model_spp_approval_review" />
+        <field name="domain_force">[('reviewer_id', '=', user.id)]</field>
+        <field
+            name="groups"
+            eval="[Command.link(ref('spp_approval.group_approval_officer'))]"
+        />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="False" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
     <!-- Multi-company rule for approval definitions -->
     <record id="rule_spp_approval_definition_company" model="ir.rule">
         <field name="name">Approval Definition: Multi-Company Access</field>

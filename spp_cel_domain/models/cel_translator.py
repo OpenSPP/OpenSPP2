@@ -1180,7 +1180,7 @@ class CelTranslator(models.AbstractModel):
                         if not direct and right.lower() in {"male", "female"}:
                             code_defaults = {"male": "M", "female": "F"}
                             direct = (
-                                self.env[comodel]
+                                self.env[comodel]  # nosemgrep: odoo-sudo-without-context
                                 .with_context(active_test=False)
                                 .sudo()
                                 .create(

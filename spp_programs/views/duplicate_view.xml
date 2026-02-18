@@ -47,8 +47,13 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     </div>
                     <notebook>
                         <page string="Beneficiaries">
-                            <field name="beneficiary_ids" nolabel="1" colspan="2">
-                                <list delete="0" editable="bottom">
+                            <field
+                                name="beneficiary_ids"
+                                nolabel="1"
+                                colspan="2"
+                                readonly="1"
+                            >
+                                <list delete="0">
                                     <button
                                         name="open_registrant_form"
                                         type="object"

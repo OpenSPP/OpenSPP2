@@ -35,9 +35,8 @@ class SPPEntitlement(models.Model):
     def _reject_entitlement(self, to_state="reject", reject_reason=""):
         # Use sudo() so state changes are applied atomically once the wizard
         # has validated the caller's group-based permissions.
-        for rec in (
-            self.sudo()
-        ):  # nosemgrep: odoo-sudo-without-context - Called only from reject wizard with ACLs on wizard model.
+        # nosemgrep: odoo-sudo-without-context — called only from reject wizard with ACLs on wizard model
+        for rec in self.sudo():
             if rec.state not in self.allowed_to_reject_entitlement():
                 continue
 
@@ -197,8 +196,8 @@ class SPPInKindEntitlement(models.Model):
     def _reject_entitlement(self, to_state="reject", reject_reason=""):
         # Use sudo() so state changes are applied atomically once the wizard
         # has validated the caller's group-based permissions.
-        # nosemgrep: odoo-sudo-without-context
         # Called only from reject wizard with ACLs on wizard model.
+        # nosemgrep: odoo-sudo-without-context — called only from reject wizard with ACLs on wizard model
         for rec in self.sudo():
             if rec.state not in self.allowed_to_reject_entitlement():
                 continue

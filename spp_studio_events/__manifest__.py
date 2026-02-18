@@ -4,33 +4,10 @@
     "version": "19.0.2.0.0",
     "category": "OpenSPP/Configuration",
     "summary": "No-code event type designer for data collection",
-    "description": """
-OpenSPP Studio - Event Types
-=============================
-
-Provides a user-friendly interface for creating custom event types without code.
-Event types define data collection forms that can be recorded against individuals/groups.
-
-Features:
-- Visual event type builder wizard (3 steps)
-- Define custom fields for events (text, number, date, selection, etc.)
-- Target type configuration (individual, group, or both)
-- Draft/Active lifecycle for safe editing
-- Integration with spp.event.data infrastructure
-- Optional Kobo form integration
-- Configurable approval workflows
-
-Use Cases:
-- Health screenings
-- Household visits
-- Surveys and assessments
-- Field inspections
-- Data collection campaigns
-    """,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Stable",
+    "development_status": "Production/Stable",
     "depends": [
         "spp_studio",
         "spp_event_data",

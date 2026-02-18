@@ -913,6 +913,7 @@ class OpenSPPConsent(models.Model):
         # Process in batches for better performance
         total_processed = 0
 
+        # nosemgrep: odoo-commit-in-loop — batch consent expiry cron
         for i in range(0, len(expired), BATCH_SIZE_EXPIRED_CONSENT):
             batch = expired[i : i + BATCH_SIZE_EXPIRED_CONSENT]
 
@@ -1091,6 +1092,7 @@ class OpenSPPConsent(models.Model):
         else:
             data_subject_id = self.external_id
 
+        # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
         base_url = self.env["ir.config_parameter"].sudo().get_param("web.base.url", "")
 
         return {

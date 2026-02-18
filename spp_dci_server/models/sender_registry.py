@@ -237,7 +237,9 @@ class DCISenderRegistry(models.Model):
                 self.jwks_url,
                 str(e),
             )
-            raise UserError(_("Failed to fetch JWKS from %s: %s") % (self.jwks_url, str(e))) from e
+            raise UserError(
+                _("Failed to fetch JWKS from %(url)s: %(error)s") % {"url": self.jwks_url, "error": str(e)}
+            ) from e
 
     def _jwk_to_pem(self, jwk):
         """Convert JWK (JSON Web Key) to PEM format.
@@ -308,7 +310,10 @@ class DCISenderRegistry(models.Model):
                 return pem.decode("utf-8")
 
             else:
-                raise UserError(_("Unsupported JWK key type: %s (curve: %s)") % (kty, jwk.get("crv", "N/A")))
+                raise UserError(
+                    _("Unsupported JWK key type: %(type)s (curve: %(curve)s)")
+                    % {"type": kty, "curve": jwk.get("crv", "N/A")}
+                )
 
         except Exception as e:
             _logger.error("Failed to convert JWK to PEM: %s", str(e), exc_info=True)

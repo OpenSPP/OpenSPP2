@@ -7,7 +7,7 @@
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Stable",
+    "development_status": "Production/Stable",
     "depends": [
         "spp_change_request_v2",
     ],

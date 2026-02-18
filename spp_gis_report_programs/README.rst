@@ -126,6 +126,7 @@ Credits
 Authors
 -------
 
+* OpenSPP.org
 * OpenSPP
 
 Maintainers

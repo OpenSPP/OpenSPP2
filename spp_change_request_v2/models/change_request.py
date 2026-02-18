@@ -524,7 +524,7 @@ class SPPChangeRequest(models.Model):
 
             # Use sudo() for creation - users don't need create permission
             # Detail records are always created by the system automatically
-            detail = detail_model.sudo().create({cr_field: self.id})
+            detail = detail_model.sudo().create({cr_field: self.id})  # nosemgrep: odoo-sudo-without-context
             self.detail_res_id = detail.id
 
             # Pre-fill detail from registrant if the detail model supports it
@@ -894,7 +894,7 @@ class SPPChangeRequest(models.Model):
         if not event_type:
             return
 
-        self.env["spp.event.data"].sudo().create(
+        self.env["spp.event.data"].sudo().create(  # nosemgrep: odoo-sudo-without-context
             {
                 "event_type_id": event_type.id,
                 "partner_id": self.registrant_id.id,

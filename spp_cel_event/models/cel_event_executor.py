@@ -132,7 +132,7 @@ class CelEventExecutor(models.AbstractModel):
                 ) latest_event
                 WHERE {comparison_sql}
                 LIMIT %s
-                """,
+                """,  # nosec B608 — SQL clauses built from validated internal metadata
                 plan.event_type,
                 *state_args,
                 *temporal_args,
@@ -152,7 +152,7 @@ class CelEventExecutor(models.AbstractModel):
                   {temporal_clause}
                   AND {simple_comparison_sql}
                 LIMIT %s
-                """,
+                """,  # nosec B608 — SQL clauses built from validated internal metadata
                 plan.event_type,
                 *state_args,
                 *temporal_args,
@@ -274,7 +274,7 @@ class CelEventExecutor(models.AbstractModel):
               {state_clause}
               {temporal_clause}
             LIMIT %s
-            """,
+            """,  # nosec B608 — SQL clauses built from validated internal metadata
             plan.event_type,
             *state_args,
             *temporal_args,
@@ -386,7 +386,7 @@ class CelEventExecutor(models.AbstractModel):
             GROUP BY e.partner_id
             HAVING {agg_expr} {sql_op} %s
             LIMIT %s
-            """,
+            """,  # nosec B608 — SQL clauses built from validated internal metadata
             plan.event_type,
             *state_args,
             *temporal_args,

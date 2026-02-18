@@ -78,7 +78,7 @@ class VaultKeyProvider(models.AbstractModel):
         # Authenticate based on configured method
         auth_method = config.get("spp_vault_auth_method", "token")
 
-        if (
+        if (  # nosemgrep: odoo-timing-attack-password
             auth_method == "token"
         ):  # nosemgrep: odoo-timing-attack-password - Comparing auth method selector, not a secret token.
             self._auth_token(client)

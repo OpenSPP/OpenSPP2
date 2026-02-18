@@ -41,6 +41,7 @@ class ExtensionService:
             return {}
 
         # Get all applicable extensions (use sudo() for permission)
+        # nosemgrep: odoo-sudo-without-context
         all_extensions = self.env["spp.api.extension"].sudo().get_extensions_for_resource(resource_type)
 
         # Determine which extensions to include

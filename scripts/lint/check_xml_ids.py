@@ -11,7 +11,7 @@ Based on ADR-004 and OpenSPP naming standards:
 - Menus: menu_{model}
 - Security groups: group_{domain}_{level}
 - Categories: category_spp_{domain}
-- Privileges: privilege_{domain}_{level}
+- Privileges: privilege_{domain} or privilege_{domain}_{qualifier}
 - Record rules: rule_{model}_{purpose}
 
 Features:
@@ -106,7 +106,7 @@ NAMING_RULES = {
     },
     "res.groups": {
         "patterns": [
-            r"^group_[a-z0-9_]+_(viewer|officer|manager|admin|supervisor|approver|rejector|user|worker|requestor|validator|distributor|generator|registrar|reset|get|post|auditor|runner|editor)$",
+            r"^group_[a-z0-9_]+_(viewer|officer|manager|admin|supervisor|approver|rejector|user|worker|requestor|validator|distributor|generator|registrar|reset|get|post|auditor|runner|editor|validator_hq)$",
             r"^group_[a-z0-9_]+_(read|write|create|delete|approve|reject)$",
             r"^group_[a-z0-9_]+_restrict_[a-z0-9_]+$",  # Technical restriction groups
             r"^group_spp_[a-z0-9_]+_(agent|validator|applicator|administrator|external_api|local_validator|hq_validator)$",  # noqa: E501 Module-specific roles
@@ -136,10 +136,13 @@ NAMING_RULES = {
     },
     "res.groups.privilege": {
         "patterns": [
-            r"^privilege_[a-z0-9_]+_(viewer|officer|manager|admin|supervisor|approver|rejector|user|requestor|validator|distributor|generator|registrar|reset|get|post|auditor|runner|editor)$",
+            # Consolidated privilege: single privilege per domain (privilege_{domain})
+            r"^privilege_[a-z0-9_]+$",
+            # Qualified privilege: multi-category domains (privilege_{domain}_{qualifier})
+            r"^privilege_[a-z0-9_]+_(viewer|officer|manager|admin|supervisor|approver|rejector|user|requestor|validator|distributor|generator|registrar|reset|get|post|auditor|runner|editor|specialized)$",
         ],
-        "description": "Privilege IDs should follow 'privilege_{domain}_{level}' pattern",
-        "examples": ["privilege_registry_officer", "privilege_programs_approver"],
+        "description": "Privilege IDs should follow 'privilege_{domain}' or 'privilege_{domain}_{qualifier}' pattern",
+        "examples": ["privilege_registry", "privilege_programs_specialized"],
     },
     "ir.rule": {
         "patterns": [
@@ -306,14 +309,14 @@ class XMLValidator:
         try:
             if USING_LXML:
                 # lxml preserves line numbers
-                parser = ET.XMLParser(remove_blank_text=False)
+                parser = ET.XMLParser(remove_blank_text=False)  # nosec B314 — parsing local module XML for lint checks
                 # nosemgrep: odoo-xxe-stdlib - Script file parsing internal XML, not user-facing
-                tree = ET.parse(str(file_path), parser)
+                tree = ET.parse(str(file_path), parser)  # nosec B314 — parsing local module XML for lint checks
             else:
                 # ElementTree fallback
                 ET.register_namespace("", "http://www.w3.org/2001/XMLSchema")
                 # nosemgrep: odoo-xxe-stdlib - Script file parsing internal XML, not user-facing
-                tree = ET.parse(file_path)
+                tree = ET.parse(file_path)  # nosec B314 — parsing local module XML for lint checks
             return tree
         except Exception as e:
             print(f"Error parsing {file_path}: {e}", file=sys.stderr)

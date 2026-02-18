@@ -4,8 +4,8 @@
     "summary": "Write simple CEL-like expressions to filter records (OpenSPP/OpenG2P friendly)",
     "version": "19.0.2.0.0",
     "license": "LGPL-3",
-    "development_status": "Stable",
-    "author": "OpenSPP Community",
+    "development_status": "Production/Stable",
+    "author": "OpenSPP.org, OpenSPP Community",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "category": "Tools",
     "depends": [

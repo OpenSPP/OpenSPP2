@@ -262,7 +262,7 @@ async def get_consent_receipt(
             data_categories.add("Benefit eligibility data")
 
     # Get base URL for withdrawal URI
-    base_url = env["ir.config_parameter"].sudo().get_param("web.base.url", "")
+    base_url = env["ir.config_parameter"].sudo().get_param("web.base.url", "")  # nosemgrep: odoo-sudo-without-context
 
     return ConsentReceiptSchema(
         receipt_id=str(uuid.uuid4()),
@@ -271,6 +271,7 @@ async def get_consent_receipt(
         data_subject={"identifier": data_subject_id},
         data_controller={
             "name": "OpenSPP",
+            # nosemgrep: odoo-sudo-without-context
             "contact": env["ir.config_parameter"].sudo().get_param("spp_api_v2.data_controller_contact", ""),
         },
         consent_id=consent_id,

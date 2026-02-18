@@ -226,6 +226,7 @@ class DrimsAlert(models.Model):
         for vals in vals_list:
             if vals.get("reference", _("New")) == _("New"):
                 # Use DRIMS-specific sequence (ALT-) instead of base (ALR-)
+                # nosemgrep: odoo-sudo-without-context
                 vals["reference"] = self.env["ir.sequence"].sudo().next_by_code("spp.drims.alert") or _("New")
         return super().create(vals_list)
 

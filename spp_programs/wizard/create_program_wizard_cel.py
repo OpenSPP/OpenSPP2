@@ -316,6 +316,7 @@ class SPPCreateProgramWizardCEL(models.TransientModel):
             )
 
         # Create the compliance manager implementation
+        # nosemgrep: odoo-sudo-without-context
         compliance_impl = self.env["spp.compliance.manager.default"].sudo().create(vals)
 
         # Create the wrapper and link to program

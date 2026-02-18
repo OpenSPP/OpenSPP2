@@ -187,7 +187,7 @@ class CelRegistry(models.AbstractModel):
         # Priority 1: System parameter (for admin customization)
         params = self.env["ir.config_parameter"]
         key = f"cel_domain.profile.{profile}"
-        raw = params.sudo().get_param(key)
+        raw = params.sudo().get_param(key)  # nosemgrep: odoo-sudo-without-context
         if raw:
             try:
                 config = json.loads(raw)

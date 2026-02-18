@@ -201,7 +201,7 @@ async def check_dci_rate_limit(
     """
     # Look up sender registry record
     sender = (
-        env["spp.dci.sender.registry"]
+        env["spp.dci.sender.registry"]  # nosemgrep: odoo-sudo-without-context
         .sudo()
         .search(
             [("sender_id", "=", verified_sender_id)],

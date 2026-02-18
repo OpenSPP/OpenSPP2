@@ -14,8 +14,8 @@
             </xpath>
             <xpath expr="//div[@name='group_members_section']" position="inside">
                 <separator string="Group Members" />
-                <field name="group_membership_ids" readonly="disabled" nolabel="1">
-                    <list editable="top" default_order='status asc,ended_date asc'>
+                <field name="group_membership_ids" readonly="1" nolabel="1">
+                    <list default_order='status asc,ended_date asc'>
                         <button
                             name="open_individual_form"
                             type="object"

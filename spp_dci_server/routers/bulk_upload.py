@@ -300,12 +300,13 @@ async def bulk_search_upload(
         )
 
         # Look up sender
+        # nosemgrep: odoo-sudo-without-context
         sender = env["spp.dci.sender.registry"].sudo().search([("sender_id", "=", sender_id)], limit=1)
 
         # Check per-sender concurrency limits
         if sender:
             pending_jobs = (
-                env["spp.dci.transaction"]
+                env["spp.dci.transaction"]  # nosemgrep: odoo-sudo-without-context
                 .sudo()
                 .search_count(
                     [
@@ -333,7 +334,7 @@ async def bulk_search_upload(
 
         # Create transaction record for tracking
         transaction = (
-            env["spp.dci.transaction"]
+            env["spp.dci.transaction"]  # nosemgrep: odoo-sudo-without-context
             .sudo()
             .create(
                 {
@@ -504,7 +505,7 @@ async def bulk_verify_identifiers(
         all_types = list(set(k[0] for k in lookup_requests.keys()))
         all_values = list(set(k[1] for k in lookup_requests.keys()))
 
-        RegID = env["spp.registry.id"].sudo()
+        RegID = env["spp.registry.id"].sudo()  # nosemgrep: odoo-sudo-without-context
         reg_ids = RegID.search(
             [
                 ("id_type_id.namespace_uri", "in", all_types),

@@ -176,7 +176,7 @@ def _get_build_inputs_hash() -> str:
         PROJECT_ROOT / "docker" / "entrypoint.sh",
     ]
 
-    hasher = hashlib.md5()
+    hasher = hashlib.md5()  # nosec B324 — MD5 for build cache fingerprinting, not security
     for filepath in files_to_hash:
         if filepath.exists():
             hasher.update(filepath.read_bytes())
@@ -203,7 +203,7 @@ def _check_image_freshness(profile: str = "dev", auto_rebuild: bool = False) -> 
 
     # Check if build inputs changed
     current_hash = _get_build_inputs_hash()
-    marker_file = Path(f"/tmp/.openspp-build-{profile}-{current_hash}")
+    marker_file = Path(f"/tmp/.openspp-build-{profile}-{current_hash}")  # nosec B108 — build marker file, not sensitive data
 
     if marker_file.exists():
         return True  # Image is fresh
@@ -1008,7 +1008,7 @@ def cmd_build(args):
 
     # Update marker file
     current_hash = _get_build_inputs_hash()
-    marker_file = Path(f"/tmp/.openspp-build-{profile}-{current_hash}")
+    marker_file = Path(f"/tmp/.openspp-build-{profile}-{current_hash}")  # nosec B108 — build marker file, not sensitive data
     marker_file.touch()
 
     success("Build complete")
@@ -1018,7 +1018,7 @@ def cmd_status(args):
     """Show status of running services."""
     if IS_REMOTE:
         # Show local environment status
-        marker = Path("/tmp/.openspp_env_ready")
+        marker = Path("/tmp/.openspp_env_ready")  # nosec B108 — environment readiness marker, not sensitive data
         if marker.exists():
             print("Environment: Claude Code web (ready)")
             print("Test with: ./spp test <module>")

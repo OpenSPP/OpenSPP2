@@ -214,7 +214,7 @@ class DataCredential(models.Model):
         elif self.credential_type == "oauth_client":
             headers = self._get_oauth_client_headers()
 
-        elif (
+        elif (  # nosemgrep: odoo-timing-attack-password
             self.credential_type == "oauth_token"
         ):  # nosemgrep: odoo-timing-attack-password - Comparing credential_type enum value, not a secret token.
             headers = self._get_oauth_token_headers()

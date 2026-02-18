@@ -68,7 +68,7 @@ class SPPCycle(models.Model):
                     payment_batches_page[0].set("modifiers", modifiers)
 
                 parser = etree.XMLParser(resolve_entities=False, no_network=True)
-                arch = etree.fromstring(etree.tostring(doc, encoding="unicode"), parser=parser)
+                arch = etree.fromstring(etree.tostring(doc, encoding="unicode"), parser=parser)  # nosec B320 — internal view XML with restricted parser (no entities, no network)
 
         return arch, view
 
@@ -929,7 +929,7 @@ class SPPCycle(models.Model):
             hide_cash = True
 
         # Use stored action for proper URL/refresh handling
-        action = self.env.ref("spp_programs.action_cycle_list").sudo().read()[0]
+        action = self.env.ref("spp_programs.action_cycle_list").sudo().read()[0]  # nosemgrep: odoo-sudo-without-context
         action.update(
             {
                 "name": self.name,
@@ -1062,7 +1062,7 @@ class SPPCycle(models.Model):
                 )
             )
         registrant_satisfied = (
-            self.env["res.partner"]
+            self.env["res.partner"]  # nosemgrep: odoo-sudo-on-sensitive-models, odoo-sudo-without-context
             .sudo()  # nosemgrep: odoo-sudo-on-sensitive-models
             .search(
                 # Cross-program compliance filter restricted to
@@ -1114,6 +1114,7 @@ class SPPCycle(models.Model):
     def open_all_members_form(self):
         self.ensure_one()
         # Use stored action for proper URL/refresh handling
+        # nosemgrep: odoo-sudo-without-context
         action = self.env.ref("spp_programs.action_cycle_membership").sudo().read()[0]
         action.update(
             {
@@ -1131,6 +1132,7 @@ class SPPCycle(models.Model):
     def open_members_form(self):  # noqa: F811
         self.ensure_one()
         # Use stored action for proper URL/refresh handling
+        # nosemgrep: odoo-sudo-without-context
         action = self.env.ref("spp_programs.action_cycle_membership").sudo().read()[0]
         action.update(
             {

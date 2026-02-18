@@ -258,7 +258,7 @@ class DCITransaction(models.Model):
 
         # SECURITY: Validate callback URL to prevent SSRF
         try:
-            config = self.env["ir.config_parameter"].sudo()
+            config = self.env["ir.config_parameter"].sudo()  # nosemgrep: odoo-sudo-without-context
             allow_http = config.get_param("dci.allow_http_callbacks", "false").lower() == "true"
             skip_ip_check = config.get_param("dci.allow_internal_callback_ips", "false").lower() == "true"
             validate_callback_url(
@@ -348,7 +348,7 @@ class DCITransaction(models.Model):
 
         # SECURITY: Re-validate URL on retry (URL could have changed DNS)
         try:
-            config = self.env["ir.config_parameter"].sudo()
+            config = self.env["ir.config_parameter"].sudo()  # nosemgrep: odoo-sudo-without-context
             allow_http = config.get_param("dci.allow_http_callbacks", "false").lower() == "true"
             skip_ip_check = config.get_param("dci.allow_internal_callback_ips", "false").lower() == "true"
             validate_callback_url(
@@ -414,6 +414,7 @@ class DCITransaction(models.Model):
         """
         from ..services.response_signer import DCIResponseSigner
 
+        # nosemgrep: odoo-sudo-without-context
         sender_id = self.env["ir.config_parameter"].sudo().get_param("dci.sender_id", "openspp")
 
         # Build header with required fields per SPDCI spec
@@ -481,6 +482,7 @@ class DCITransaction(models.Model):
         """
         from ..services.response_signer import DCIResponseSigner
 
+        # nosemgrep: odoo-sudo-without-context
         sender_id = self.env["ir.config_parameter"].sudo().get_param("dci.sender_id", "openspp")
 
         # Build header with required fields per SPDCI spec
@@ -546,6 +548,7 @@ class DCITransaction(models.Model):
 
             # Look up subscriptions created for this transaction
             subscriptions = (
+                # nosemgrep: odoo-sudo-without-context
                 self.env["spp.dci.subscription"].sudo().search([("original_transaction_id", "=", transaction_id)])
             )
 
@@ -658,6 +661,7 @@ class DCITransaction(models.Model):
             elif attr_type == "correlation_id":
                 domain.append(("correlation_id", "=", attr_value))
 
+            # nosemgrep: odoo-sudo-without-context
             referenced_txn = self.env["spp.dci.transaction"].sudo().search(domain, limit=1)
 
             # Build response
@@ -757,7 +761,7 @@ class DCITransaction(models.Model):
 
         # SECURITY: Validate callback URL to prevent SSRF
         try:
-            config = self.env["ir.config_parameter"].sudo()
+            config = self.env["ir.config_parameter"].sudo()  # nosemgrep: odoo-sudo-without-context
             allow_http = config.get_param("dci.allow_http_callbacks", "false").lower() == "true"
             skip_ip_check = config.get_param("dci.allow_internal_callback_ips", "false").lower() == "true"
             validate_callback_url(

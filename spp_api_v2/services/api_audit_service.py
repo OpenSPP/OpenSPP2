@@ -352,7 +352,7 @@ class ApiAuditService:
         """
         try:
             return (
-                self.env["spp.api.audit.log"]
+                self.env["spp.api.audit.log"]  # nosemgrep: odoo-sudo-without-context
                 .sudo()
                 .log_operation(
                     api_client=self.api_client,
@@ -388,7 +388,7 @@ class ApiAuditService:
     def _link_audit_log(self, api_log, record):
         """Link the API audit log to the corresponding spp.audit.log entry."""
         try:
-            self.env["spp.api.audit.log"].sudo().link_audit_log(
+            self.env["spp.api.audit.log"].sudo().link_audit_log(  # nosemgrep: odoo-sudo-without-context
                 api_log,
                 record._name,
                 record.id,

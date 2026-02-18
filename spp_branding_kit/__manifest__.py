@@ -3,27 +3,7 @@
     "name": "OpenSPP Branding Kit",
     "version": "19.0.2.0.0",
     "summary": "Branding customization, URL routing and telemetry management for OpenSPP",
-    "description": """
-        OpenSPP Branding Kit
-        ====================
-
-        This module provides comprehensive branding customization for OpenSPP:
-
-        Features:
-        - Customizes system branding across all interfaces
-        - Redirects telemetry to OpenSPP servers (configurable)
-        - Option to completely disable telemetry
-        - Removes enterprise promotion elements
-        - Customizes system messages with OpenSPP branding
-        - Provides /openspp URL routes as alias for /odoo routes
-
-        Technical Features:
-        - Works with theme_openspp_muk for visual styling
-        - Configurable telemetry endpoint
-        - Privacy-focused with opt-out options
-        - URL router patching for branded URLs
-    """,
-    "author": "OpenSPP Project",
+    "author": "OpenSPP.org, OpenSPP Project",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
     "category": "Theme/Backend",

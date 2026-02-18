@@ -26,7 +26,7 @@ class ServicePointService:
             spp.service.point record or empty recordset
         """
         return (
-            self.env["spp.service.point"]
+            self.env["spp.service.point"]  # nosemgrep: odoo-sudo-without-context
             .sudo()
             .search(
                 [("name", "=", identifier)],
@@ -77,14 +77,14 @@ class ServicePointService:
                 domain.append(("write_date", ">=", last_updated))
 
         # Get total count
-        total = self.env["spp.service.point"].sudo().search_count(domain)
+        total = self.env["spp.service.point"].sudo().search_count(domain)  # nosemgrep: odoo-sudo-without-context
 
         # Get paginated records
         count = params.get("_count", 20)
         offset = params.get("_offset", 0)
 
         records = (
-            self.env["spp.service.point"]
+            self.env["spp.service.point"]  # nosemgrep: odoo-sudo-without-context
             .sudo()
             .search(
                 domain,

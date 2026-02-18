@@ -375,11 +375,11 @@
                             <group name="ids_section">
                                 <field
                                     name="reg_ids"
-                                    readonly="disabled"
+                                    readonly="1"
                                     nolabel="1"
                                     colspan="2"
                                 >
-                                    <list editable="bottom">
+                                    <list>
                                         <field
                                             name="available_id_type_ids"
                                             column_invisible="1"
@@ -415,14 +415,11 @@
                                     />
                                     <field
                                         name="related_1_ids"
-                                        readonly="disabled"
+                                        readonly="1"
                                         nolabel="1"
                                         colspan="2"
                                     >
-                                        <list
-                                            editable="bottom"
-                                            decoration-danger="disabled"
-                                        >
+                                        <list decoration-danger="disabled">
                                             <field
                                                 name="available_relation_ids"
                                                 column_invisible="1"
@@ -461,14 +458,11 @@
                                     />
                                     <field
                                         name="related_2_ids"
-                                        readonly="disabled"
+                                        readonly="1"
                                         nolabel="1"
                                         colspan="2"
                                     >
-                                        <list
-                                            editable="bottom"
-                                            decoration-danger="disabled"
-                                        >
+                                        <list decoration-danger="disabled">
                                             <field
                                                 name="available_relation_ids"
                                                 column_invisible="1"
@@ -686,11 +680,11 @@
                             <group name="group_ids_section">
                                 <field
                                     name="reg_ids"
-                                    readonly="disabled"
+                                    readonly="1"
                                     nolabel="1"
                                     colspan="2"
                                 >
-                                    <list editable="bottom">
+                                    <list>
                                         <field
                                             name="available_id_type_ids"
                                             column_invisible="1"
@@ -719,14 +713,11 @@
                                     />
                                     <field
                                         name="related_1_ids"
-                                        readonly="disabled"
+                                        readonly="1"
                                         nolabel="1"
                                         colspan="2"
                                     >
-                                        <list
-                                            editable="bottom"
-                                            decoration-danger="disabled"
-                                        >
+                                        <list decoration-danger="disabled">
                                             <field
                                                 name="available_relation_ids"
                                                 column_invisible="1"
@@ -764,14 +755,11 @@
                                     />
                                     <field
                                         name="related_2_ids"
-                                        readonly="disabled"
+                                        readonly="1"
                                         nolabel="1"
                                         colspan="2"
                                     >
-                                        <list
-                                            editable="bottom"
-                                            decoration-danger="disabled"
-                                        >
+                                        <list decoration-danger="disabled">
                                             <field
                                                 name="available_relation_ids"
                                                 column_invisible="1"

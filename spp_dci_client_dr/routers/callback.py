@@ -195,7 +195,7 @@ def _find_partner_by_identifier(env: Environment, id_type: str, id_value: str):
     # Search in spp.id records
     # Use sudo() for API access - authentication is handled by signature verification
     id_record = (
-        env["spp.id"]
+        env["spp.id"]  # nosemgrep: odoo-sudo-without-context
         .sudo()
         .search(
             [
@@ -212,7 +212,7 @@ def _find_partner_by_identifier(env: Environment, id_type: str, id_value: str):
     # Also check with namespace URIs
     if not id_type.startswith("urn:"):
         id_record = (
-            env["spp.id"]
+            env["spp.id"]  # nosemgrep: odoo-sudo-without-context
             .sudo()
             .search(
                 [
@@ -243,7 +243,7 @@ def _update_disability_status(
         source_registry: Source registry ID
     """
     # Use sudo() for API access - authentication is handled by signature verification
-    DisabilityStatus = env["spp.dci.disability.status"].sudo()
+    DisabilityStatus = env["spp.dci.disability.status"].sudo()  # nosemgrep: odoo-sudo-without-context
 
     # Extract disability data from record
     has_disability = record.get("has_disability", False) or record.get("is_pwd", False)

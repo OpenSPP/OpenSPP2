@@ -14,14 +14,17 @@ OpenSPP CEL Expression Widget
    !! source digest: sha256:aecc44306306e3e72041ea0af20b9c866f281f7b1f0588fca6722d05cbf479c6
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+    :target: https://odoo-community.org/page/development-status
+    :alt: Production/Stable
+.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
     :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_cel_widget
     :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2|
+|badge1| |badge2| |badge3|
 
 Reusable CEL (Common Expression Language) expression editor widget for
 Odoo forms. Provides a CodeMirror-based editor with syntax highlighting,
@@ -168,6 +171,7 @@ Credits
 Authors
 -------
 
+* OpenSPP.org
 * OpenSPP
 
 Maintainers

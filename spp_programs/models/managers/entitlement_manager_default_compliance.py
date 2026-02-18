@@ -16,6 +16,7 @@ class SppProgramEntitlementManagerDefault(models.Model):
             )
 
         automated_beneficiaries_filtering_mechanism = (
+            # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
             self.env["ir.config_parameter"]
             .sudo()
             .get_param(
@@ -28,11 +29,11 @@ class SppProgramEntitlementManagerDefault(models.Model):
             domain = cycle._get_compliance_criteria_domain()
             # Use sudo() for cross-program compliance lookup on registrants, restricted to authorized managers
             satisfied_registrant_ids = (
+                # nosemgrep: odoo-sudo-on-sensitive-models, odoo-sudo-without-context
                 self.env["res.partner"]
-                .sudo()  # nosemgrep: odoo-sudo-on-sensitive-models
-                # Cross-program compliance beneficiary lookup; caller restricted to
-                # group_programs_manager and domain is built from program-managed
-                # compliance criteria.
+                .sudo()
+                # Cross-program compliance beneficiary lookup; domain is built from
+                # program-managed compliance criteria.
                 .search(domain)
                 .ids
             )

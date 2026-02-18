@@ -193,6 +193,7 @@ class StudioChangeRequestType(models.Model):
 
         # Create CR type
         cr_type_vals = self._prepare_cr_type_vals(detail_model_name)
+        # nosemgrep: odoo-sudo-without-context — studio framework creating CR types as system operations
         cr_type = self.env["spp.change.request.type"].sudo().create(cr_type_vals)
 
         # Create field mappings
@@ -238,9 +239,11 @@ class StudioChangeRequestType(models.Model):
             "state": "manual",
             "transient": False,
         }
+        # nosemgrep: odoo-sudo-without-context — studio system ops
         model = self.env["ir.model"].sudo().create(model_vals)
 
         # Add the required change_request_id field (like spp.cr.detail.base)
+        # nosemgrep: odoo-sudo-without-context — studio system ops
         self.env["ir.model.fields"].sudo().create(
             {
                 "name": "x_change_request_id",
@@ -256,6 +259,7 @@ class StudioChangeRequestType(models.Model):
         )
 
         # Add registrant_id field
+        # nosemgrep: odoo-sudo-without-context — studio system ops
         self.env["ir.model.fields"].sudo().create(
             {
                 "name": "x_registrant_id",
@@ -270,6 +274,7 @@ class StudioChangeRequestType(models.Model):
         # Create fields for each mapping
         for mapping in self.field_mapping_ids:
             field_vals = mapping._prepare_detail_field_vals(model)
+            # nosemgrep: odoo-sudo-without-context — studio system ops
             self.env["ir.model.fields"].sudo().create(field_vals)
 
         # Create access rights for the new model
@@ -302,6 +307,7 @@ class StudioChangeRequestType(models.Model):
 
         # Find the ir.model.fields records for these fields
         field_records = (
+            # nosemgrep: odoo-sudo-without-context — studio system ops
             self.env["ir.model.fields"]
             .sudo()
             .search(
@@ -314,6 +320,7 @@ class StudioChangeRequestType(models.Model):
 
         if field_records:
             # Add to required_field_ids on the CR type
+            # nosemgrep: odoo-sudo-without-context — studio framework creating CR types as system operations
             cr_type.sudo().write({"required_field_ids": [Command.set(field_records.ids)]})
             _logger.info(
                 "Set %d required fields for CR type '%s': %s",
@@ -334,7 +341,8 @@ class StudioChangeRequestType(models.Model):
         sudo, so regular users don't need create permission. This also prevents
         the "New" button from appearing in the form view.
         """
-        access_model = self.env["ir.model.access"].sudo()  # nosemgrep: odoo-sudo-on-sensitive-models
+        # nosemgrep: odoo-sudo-on-sensitive-models, odoo-sudo-without-context — studio ACL ops
+        access_model = self.env["ir.model.access"].sudo()
 
         # Define access rights for each group
         access_rules = [
@@ -411,6 +419,7 @@ class StudioChangeRequestType(models.Model):
             "priority": 16,  # Higher priority than default views
         }
 
+        # nosemgrep: odoo-sudo-without-context — studio framework requires view/model creation as system operations
         view = self.env["ir.ui.view"].sudo().create(view_vals)
         _logger.info(
             "Created form view '%s' for Studio CR detail model '%s'",
@@ -442,6 +451,7 @@ class StudioChangeRequestType(models.Model):
         )
         if existing_action:
             # Update existing action
+            # nosemgrep: odoo-sudo-without-context — studio framework creating actions for dynamically generated views
             existing_action.sudo().write(
                 {
                     "view_id": form_view.id,
@@ -459,6 +469,7 @@ class StudioChangeRequestType(models.Model):
             "context": "{'create': False, 'delete': False}",
         }
 
+        # nosemgrep: odoo-sudo-without-context — studio framework creating actions for dynamically generated views
         action = self.env["ir.actions.act_window"].sudo().create(action_vals)
         _logger.info(
             "Created window action '%s' for Studio CR detail model '%s'",
@@ -524,6 +535,7 @@ class StudioChangeRequestType(models.Model):
         """
         self.ensure_one()
         if self.spp_change_request_type_id:
+            # nosemgrep: odoo-sudo-without-context — studio framework creating CR types as system operations
             self.spp_change_request_type_id.sudo().write({"detail_form_view_id": form_view.id})
 
     def _sync_detail_model_fields(self):
@@ -571,10 +583,12 @@ class StudioChangeRequestType(models.Model):
                 if existing_field.required:
                     update_vals["required"] = False
                 if update_vals:
+                    # nosemgrep: odoo-sudo-without-context — studio system ops
                     existing_field.sudo().write(update_vals)
             else:
                 # Create new field
                 field_vals = mapping._prepare_detail_field_vals(model)
+                # nosemgrep: odoo-sudo-without-context — studio system ops
                 self.env["ir.model.fields"].sudo().create(field_vals)
                 _logger.info(
                     "Added field '%s' to detail model '%s' for CR type '%s'",
@@ -650,6 +664,7 @@ class StudioChangeRequestType(models.Model):
 
         if existing_view:
             # Update existing view
+            # nosemgrep: odoo-sudo-without-context — studio framework requires view/model creation as system operations
             existing_view.sudo().write({"arch": new_arch})
             _logger.info(
                 "Updated form view '%s' for Studio CR detail model '%s'",
@@ -756,7 +771,8 @@ class StudioChangeRequestType(models.Model):
         if not self.detail_model_id:
             return
 
-        access_model = self.env["ir.model.access"].sudo()  # nosemgrep: odoo-sudo-on-sensitive-models
+        # nosemgrep: odoo-sudo-on-sensitive-models, odoo-sudo-without-context — studio ACL ops
+        access_model = self.env["ir.model.access"].sudo()
 
         # Find and update validator access
         validator_access = access_model.search(

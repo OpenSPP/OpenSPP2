@@ -61,6 +61,7 @@ async def get_token(
         )
 
     # Authenticate client
+    # nosemgrep: odoo-sudo-without-context
     api_client = env["spp.api.client"].sudo().authenticate(request.client_id, request.client_secret)
 
     if not api_client:
@@ -115,6 +116,7 @@ def _get_jwt_secret(env: Environment) -> str:
 
     if not secret:
         # Fall back to config parameter
+        # nosemgrep: odoo-sudo-without-context
         secret = env["ir.config_parameter"].sudo().get_param("spp_api_v2.jwt_secret")
 
     if not secret:

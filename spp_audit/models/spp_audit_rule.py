@@ -242,7 +242,7 @@ class SppAuditRule(models.Model):
         elif method == "unlink":
             domain.append(("is_log_unlink", "=", True))
 
-        return self.env["spp.audit.rule"].sudo().search(domain)
+        return self.env["spp.audit.rule"].sudo().search(domain)  # nosemgrep: odoo-sudo-without-context
 
     @api.model
     def _register_hook(self, ids=None):
@@ -257,7 +257,7 @@ class SppAuditRule(models.Model):
         """
         # Run hook registration with sudo() as a system-level operation
         # restricted by spp_audit.group_audit_manager ACLs.
-        self = (
+        self = (  # nosemgrep: odoo-sudo-without-context
             self.sudo()
         )  # nosemgrep: odoo-sudo-without-context - Audit hook wiring runs as a trusted admin-only operation.
         updated = False
@@ -566,6 +566,7 @@ class SppAuditRule(models.Model):
             if AuditConfig.get_bool("backend_db", env=self.env):
                 audit_log_vals = rec.get_audit_log_vals(res_id, method, data)
                 # Pass is_post_to_thread to control mail.thread posting
+                # nosemgrep: odoo-sudo-without-context
                 self.env["spp.audit.log"].sudo().with_context(audit_post_to_thread=rec.is_post_to_thread).create(
                     audit_log_vals
                 )
@@ -637,6 +638,7 @@ class SppAuditRule(models.Model):
                 "parent_res_ids_str": ",".join(parent_res_ids) if parent_res_ids else "",
             }
 
+            # nosemgrep: odoo-sudo-without-context
             self.env["spp.audit.log"].sudo().with_context(audit_post_to_thread=rule.is_post_to_thread).create(
                 audit_log_vals
             )

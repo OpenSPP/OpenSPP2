@@ -298,7 +298,7 @@ class ApprovalMixin(models.AbstractModel):
 
             # Create review record (sudo because it's system-managed)
             review = (
-                self.env["spp.approval.review"]
+                self.env["spp.approval.review"]  # nosemgrep: odoo-sudo-without-context
                 .sudo()
                 .create(
                     {

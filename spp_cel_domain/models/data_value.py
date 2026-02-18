@@ -573,6 +573,7 @@ class DataValue(models.Model):
         """
         if retention_days is None:
             # Get from system config
+            # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
             config = self.env["ir.config_parameter"].sudo()
             retention_json = config.get_param(
                 "spp.data_value.retention_by_source",

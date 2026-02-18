@@ -120,7 +120,6 @@ class CommandTupleVisitor(ast.NodeVisitor):
         if suggestion:
             # Get the original source text for this tuple
             try:
-                node.lineno - 1
                 col_start = node.col_offset
                 # For multi-line tuples, we need to handle carefully
                 original = self._extract_source(node)
@@ -277,7 +276,7 @@ class Odoo19Checker:
             return violations
 
         try:
-            tree = ET.parse(file_path)
+            tree = ET.parse(file_path)  # nosec B314 — parsing local module XML for lint checks
             root = tree.getroot()
         except Exception:  # Handle both lxml.etree.XMLSyntaxError and xml.etree.ParseError
             return violations

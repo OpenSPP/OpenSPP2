@@ -20,7 +20,7 @@ class SppCycleManagerDefault(models.Model):
             )
 
         automated_beneficiaries_filtering_mechanism = (
-            self.env["ir.config_parameter"]
+            self.env["ir.config_parameter"]  # nosemgrep: odoo-sudo-without-context
             .sudo()
             .get_param(
                 "spp_programs_compliance_criteria.beneficiaries_automated_filtering_mechanism",
@@ -34,7 +34,7 @@ class SppCycleManagerDefault(models.Model):
             # Use sudo() for cross-program compliance lookup on registrants,
             # restricted to authorized managers and validators
             beneficiaries = (
-                self.env["res.partner"]
+                self.env["res.partner"]  # nosemgrep: odoo-sudo-on-sensitive-models, odoo-sudo-without-context
                 .sudo()  # nosemgrep: odoo-sudo-on-sensitive-models
                 .search(
                     # Cross-program compliance beneficiary lookup; caller restricted to

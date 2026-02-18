@@ -130,7 +130,7 @@ class ComplianceChecker:
             # Add XML declaration if missing
             if not content.strip().startswith("<?xml"):
                 content = '<?xml version="1.0" encoding="utf-8"?>\n' + content
-            root = ET.fromstring(content)
+            root = ET.fromstring(content)  # nosec B314 — parsing local compliance XML files
 
             for record in root.iter("record"):
                 model = record.get("model", "")
@@ -163,7 +163,7 @@ class ComplianceChecker:
             content = file_path.read_text(encoding="utf-8")
             if not content.strip().startswith("<?xml"):
                 content = '<?xml version="1.0" encoding="utf-8"?>\n' + content
-            root = ET.fromstring(content)
+            root = ET.fromstring(content)  # nosec B314 — parsing local compliance XML files
 
             # Find menuitem elements
             for menuitem in root.iter("menuitem"):

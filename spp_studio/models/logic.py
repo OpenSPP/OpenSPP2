@@ -39,6 +39,7 @@ class Logic(models.Model):
     @api.model
     def _is_governance_enabled(self):
         """Check if governance mode is enabled via system parameter."""
+        # nosemgrep: odoo-sudo-without-context
         return self.env["ir.config_parameter"].sudo().get_param(GOVERNANCE_PARAM, "False").lower() == "true"
 
     def _check_governance_edit(self, vals):

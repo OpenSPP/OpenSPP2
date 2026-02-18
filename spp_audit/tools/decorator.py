@@ -29,7 +29,13 @@ def audit_decorator(method):
         rules = self.get_audit_rules("create")
 
         # Use sudo() to avoid access errors when reading computed fields
-        new_values = record.sudo().with_context(allowed_company_ids=[]).read(load="_classic_write")
+        new_values = (
+            record.sudo()  # nosemgrep: odoo-sudo-without-context
+            .with_context(allowed_company_ids=[])
+            .read(  # nosemgrep: odoo-sudo-without-context
+                load="_classic_write"
+            )
+        )
         if new_values:
             keys = new_values[0].keys()
             for key in keys:
@@ -50,11 +56,9 @@ def audit_decorator(method):
             # Use sudo() to take a full snapshot of record values for auditing,
             # regardless of user field-level access; audit rules control exposure.
             old_values = (
-                self.sudo()
+                self.sudo()  # nosemgrep: odoo-sudo-without-context
                 .with_context(allowed_company_ids=[])
-                .read(  # nosemgrep: odoo-sudo-without-context - System-level audit snapshot read.
-                    load="_classic_write"
-                )
+                .read(load="_classic_write")
             )
             old_values_copy = copy.deepcopy(old_values)
 
@@ -62,11 +66,9 @@ def audit_decorator(method):
         result = audit_write.origin(self.with_context(audit_in_progress=True), vals)
 
         new_values = (
-            self.sudo()
+            self.sudo()  # nosemgrep: odoo-sudo-without-context
             .with_context(allowed_company_ids=[])
-            .read(  # nosemgrep: odoo-sudo-without-context - System-level audit snapshot read.
-                load="_classic_write"
-            )
+            .read(load="_classic_write")
         )
 
         if new_values and old_values_copy:
@@ -83,11 +85,9 @@ def audit_decorator(method):
         rules = self.get_audit_rules("unlink")
         # Use sudo() to avoid access errors when reading computed fields
         old_values = (
-            self.sudo()
+            self.sudo()  # nosemgrep: odoo-sudo-without-context
             .with_context(allowed_company_ids=[])
-            .read(  # nosemgrep: odoo-sudo-without-context - System-level audit snapshot read before unlink.
-                load="_classic_write"
-            )
+            .read(load="_classic_write")
         )
 
         if old_values:

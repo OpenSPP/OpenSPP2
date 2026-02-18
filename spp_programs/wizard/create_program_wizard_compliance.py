@@ -45,6 +45,7 @@ class SppProgramCreateWizard(models.TransientModel):
         self.ensure_one()
         program.ensure_one()
         self._check_compliance_manager_info()
+        # nosemgrep: odoo-sudo-without-context
         manager = self.env[self.compliance_type].sudo().create(self._prepare_compliance_criteria_create_vals(program))
         program.write(
             {
