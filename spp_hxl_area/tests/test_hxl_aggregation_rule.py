@@ -42,7 +42,7 @@ class TestHxlAggregationRule(TransactionCase):
     def test_required_fields(self):
         """Test that required fields are enforced."""
         # profile_id is required
-        with self.assertRaises(Exception):
+        with self.assertRaises(Exception):  # noqa: B017
             self.Rule.create(
                 {
                     "name": "Test Rule",
@@ -51,7 +51,7 @@ class TestHxlAggregationRule(TransactionCase):
             )
 
         # name is required
-        with self.assertRaises(Exception):
+        with self.assertRaises(Exception):  # noqa: B017
             self.Rule.create(
                 {
                     "profile_id": self.profile.id,

@@ -12,7 +12,10 @@
                     <group>
                         <group string="HXL Tag Definition">
                             <field name="hxl_hashtag" placeholder="e.g., #affected" />
-                            <field name="hxl_attributes" placeholder="e.g., +f+children" />
+                            <field
+                                name="hxl_attributes"
+                                placeholder="e.g., +f+children"
+                            />
                             <field name="hxl_tag" readonly="1" />
                         </group>
                         <group string="Import/Export Behavior">

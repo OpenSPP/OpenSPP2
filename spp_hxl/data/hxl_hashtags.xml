@@ -4,7 +4,9 @@
     <record id="hxl_tag_adm1" model="spp.hxl.tag">
         <field name="hashtag">#adm1</field>
         <field name="name">Administrative Level 1</field>
-        <field name="description">First-level administrative division (e.g., province, state)</field>
+        <field
+            name="description"
+        >First-level administrative division (e.g., province, state)</field>
         <field name="category">geographic</field>
         <field name="is_standard" eval="True" />
         <field name="data_type">text</field>
@@ -13,7 +15,9 @@
     <record id="hxl_tag_adm2" model="spp.hxl.tag">
         <field name="hashtag">#adm2</field>
         <field name="name">Administrative Level 2</field>
-        <field name="description">Second-level administrative division (e.g., district, county)</field>
+        <field
+            name="description"
+        >Second-level administrative division (e.g., district, county)</field>
         <field name="category">geographic</field>
         <field name="is_standard" eval="True" />
         <field name="data_type">text</field>
@@ -22,7 +26,9 @@
     <record id="hxl_tag_adm3" model="spp.hxl.tag">
         <field name="hashtag">#adm3</field>
         <field name="name">Administrative Level 3</field>
-        <field name="description">Third-level administrative division (e.g., municipality)</field>
+        <field
+            name="description"
+        >Third-level administrative division (e.g., municipality)</field>
         <field name="category">geographic</field>
         <field name="is_standard" eval="True" />
         <field name="data_type">text</field>

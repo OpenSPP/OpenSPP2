@@ -42,7 +42,7 @@ class TestHxlAttribute(TransactionCase):
                 "name": "Unique Attribute",
             }
         )
-        with self.assertRaises(Exception):
+        with self.assertRaises(Exception):  # noqa: B017
             # Should raise constraint violation
             self.HxlAttribute.create(
                 {
@@ -175,7 +175,7 @@ class TestHxlAttribute(TransactionCase):
         self.assertEqual(attr1.code, "+attr_one_updated")
 
         # Should not be able to update to an existing value
-        with self.assertRaises(Exception):
+        with self.assertRaises(Exception):  # noqa: B017
             attr2.code = "+attr_one_updated"
 
     def test_attribute_with_special_characters_fails(self):

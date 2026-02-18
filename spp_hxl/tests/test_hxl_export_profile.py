@@ -51,7 +51,7 @@ class TestHxlExportProfile(TransactionCase):
                 "model_id": self.test_model.id,
             }
         )
-        with self.assertRaises(Exception):
+        with self.assertRaises(Exception):  # noqa: B017
             # Should raise constraint violation
             self.ExportProfile.create(
                 {

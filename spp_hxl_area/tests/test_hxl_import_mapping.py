@@ -51,7 +51,7 @@ class TestHxlImportMapping(TransactionCase):
     def test_required_fields(self):
         """Test that required fields are enforced."""
         # batch_id is required
-        with self.assertRaises(Exception):
+        with self.assertRaises(Exception):  # noqa: B017
             self.Mapping.create(
                 {
                     "source_column": "Test",

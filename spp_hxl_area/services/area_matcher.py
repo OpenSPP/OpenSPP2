@@ -167,9 +167,7 @@ class AreaMatcher:
 
         # This is a placeholder - in production you would use spatial queries
         # For now, return empty recordset
-        _logger.warning(
-            "GPS-based area matching not fully implemented. " "Requires PostGIS or similar spatial extension."
-        )
+        _logger.warning("GPS-based area matching not fully implemented. Requires PostGIS or similar spatial extension.")
 
         return Area.browse()
 

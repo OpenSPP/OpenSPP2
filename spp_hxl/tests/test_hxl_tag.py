@@ -40,7 +40,7 @@ class TestHxlTag(TransactionCase):
                 "name": "Unique Tag",
             }
         )
-        with self.assertRaises(Exception):
+        with self.assertRaises(Exception):  # noqa: B017
             # Should raise constraint violation
             self.HxlTag.create(
                 {

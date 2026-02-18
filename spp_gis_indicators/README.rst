@@ -20,9 +20,9 @@ OpenSPP GIS Indicators
 .. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2Fopenspp--modules-lightgray.png?logo=github
-    :target: https://github.com/OpenSPP/openspp-modules/tree/19.0/spp_gis_indicators
-    :alt: OpenSPP/openspp-modules
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+    :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_gis_indicators
+    :alt: OpenSPP/OpenSPP2
 
 |badge1| |badge2| |badge3|
 
@@ -35,34 +35,34 @@ legend generation.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  Define indicator layer configurations that link CEL variables to
-   color scales and classification methods
--  Classify continuous indicator values into discrete color classes
-   using quantile, equal interval, or manual breaks
--  Apply preset ColorBrewer color scales (sequential, diverging,
-   categorical) or define custom scales
--  Compute break values automatically based on actual data distribution
--  Generate HTML legends showing color-to-value mappings
--  Map area features to colors for choropleth rendering in GIS data
-   layers
--  Filter indicators by period and hazard incident context
+- Define indicator layer configurations that link CEL variables to color
+  scales and classification methods
+- Classify continuous indicator values into discrete color classes using
+  quantile, equal interval, or manual breaks
+- Apply preset ColorBrewer color scales (sequential, diverging,
+  categorical) or define custom scales
+- Compute break values automatically based on actual data distribution
+- Generate HTML legends showing color-to-value mappings
+- Map area features to colors for choropleth rendering in GIS data
+  layers
+- Filter indicators by period and hazard incident context
 
 Key Models
 ~~~~~~~~~~
 
-+-----------------------------+---------------------------------------+
-| Model                       | Description                           |
-+=============================+=======================================+
-| ``spp.gis.indicator.layer`` | Configuration linking a CEL variable  |
-|                             | to color scale and classification     |
-|                             | settings                              |
-+-----------------------------+---------------------------------------+
-| ``spp.gis.color.scale``     | Color scheme definition with JSON     |
-|                             | array of hex colors                   |
-+-----------------------------+---------------------------------------+
-| ``spp.gis.data.layer``      | Extended with ``choropleth`` geo      |
-|                             | representation option                 |
-+-----------------------------+---------------------------------------+
++-----------------------------+----------------------------------------+
+| Model                       | Description                            |
++=============================+========================================+
+| ``spp.gis.indicator.layer`` | Configuration linking a CEL variable   |
+|                             | to color scale and classification      |
+|                             | settings                               |
++-----------------------------+----------------------------------------+
+| ``spp.gis.color.scale``     | Color scheme definition with JSON      |
+|                             | array of hex colors                    |
++-----------------------------+----------------------------------------+
+| ``spp.gis.data.layer``      | Extended with ``choropleth`` geo       |
+|                             | representation option                  |
++-----------------------------+----------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -81,8 +81,8 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
--  **Menu**: Settings > GIS Configuration > Indicator Layers
--  **Menu**: Settings > GIS Configuration > Color Scales
+- **Menu**: Settings > GIS Configuration > Indicator Layers
+- **Menu**: Settings > GIS Configuration > Color Scales
 
 Security
 ~~~~~~~~
@@ -98,13 +98,13 @@ Group                              Access
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Override ``_compute_quantile_breaks()`` or
-   ``_compute_equal_interval_breaks()`` in ``spp.gis.indicator.layer``
-   to add custom classification algorithms
--  Inherit ``spp.gis.color.scale`` and override
-   ``get_color_for_value()`` to implement custom color mapping logic
--  Extend ``spp.gis.indicator.layer._get_indicator_values()`` to support
-   additional data sources beyond ``spp.hxl.area.indicator``
+- Override ``_compute_quantile_breaks()`` or
+  ``_compute_equal_interval_breaks()`` in ``spp.gis.indicator.layer`` to
+  add custom classification algorithms
+- Inherit ``spp.gis.color.scale`` and override ``get_color_for_value()``
+  to implement custom color mapping logic
+- Extend ``spp.gis.indicator.layer._get_indicator_values()`` to support
+  additional data sources beyond ``spp.hxl.area.indicator``
 
 Dependencies
 ~~~~~~~~~~~~
@@ -124,10 +124,10 @@ Dependencies
 Bug Tracker
 ===========
 
-Bugs are tracked on `GitHub Issues <https://github.com/OpenSPP/openspp-modules/issues>`_.
+Bugs are tracked on `GitHub Issues <https://github.com/OpenSPP/OpenSPP2/issues>`_.
 In case of trouble, please check there if your issue has already been reported.
 If you spotted it first, help us to smash it by providing a detailed and welcomed
-`feedback <https://github.com/OpenSPP/openspp-modules/issues/new?body=module:%20spp_gis_indicators%0Aversion:%2019.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**>`_.
+`feedback <https://github.com/OpenSPP/OpenSPP2/issues/new?body=module:%20spp_gis_indicators%0Aversion:%2019.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**>`_.
 
 Do not contact contributors directly about support or help with technical issues.
 
@@ -142,6 +142,6 @@ Authors
 Maintainers
 -----------
 
-This module is part of the `OpenSPP/openspp-modules <https://github.com/OpenSPP/openspp-modules/tree/19.0/spp_gis_indicators>`_ project on GitHub.
+This module is part of the `OpenSPP/OpenSPP2 <https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_gis_indicators>`_ project on GitHub.
 
 You are welcome to contribute.

@@ -48,7 +48,7 @@ class TestAggregationEngine(TransactionCase):
 
     def test_count_aggregation(self):
         """Test count aggregation type."""
-        rule = self.Rule.create(
+        self.Rule.create(
             {
                 "profile_id": self.profile.id,
                 "name": "Count All",
@@ -81,7 +81,7 @@ class TestAggregationEngine(TransactionCase):
 
     def test_sum_aggregation(self):
         """Test sum aggregation type."""
-        rule = self.Rule.create(
+        self.Rule.create(
             {
                 "profile_id": self.profile.id,
                 "name": "Sum Values",
@@ -114,7 +114,7 @@ class TestAggregationEngine(TransactionCase):
 
     def test_avg_aggregation(self):
         """Test average aggregation type."""
-        rule = self.Rule.create(
+        self.Rule.create(
             {
                 "profile_id": self.profile.id,
                 "name": "Average Values",
@@ -190,7 +190,7 @@ class TestAggregationEngine(TransactionCase):
 
     def test_filter_expression(self):
         """Test aggregation with filter expression."""
-        rule = self.Rule.create(
+        self.Rule.create(
             {
                 "profile_id": self.profile.id,
                 "name": "Count Severe",
@@ -222,7 +222,7 @@ class TestAggregationEngine(TransactionCase):
 
     def test_unmatched_areas(self):
         """Test handling of unmatched area values."""
-        rule = self.Rule.create(
+        self.Rule.create(
             {
                 "profile_id": self.profile.id,
                 "name": "Count All",
@@ -301,7 +301,7 @@ class TestAggregationEngine(TransactionCase):
 
     def test_count_distinct_aggregation(self):
         """Test count distinct aggregation type."""
-        rule = self.Rule.create(
+        self.Rule.create(
             {
                 "profile_id": self.profile.id,
                 "name": "Unique Organizations",
@@ -333,7 +333,7 @@ class TestAggregationEngine(TransactionCase):
 
     def test_percentage_aggregation(self):
         """Test percentage aggregation type."""
-        rule = self.Rule.create(
+        self.Rule.create(
             {
                 "profile_id": self.profile.id,
                 "name": "Percentage Severe",

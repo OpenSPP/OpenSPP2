@@ -119,7 +119,7 @@ class GisIndicatorLayer(models.Model):
             if rec.num_classes > 10:
                 raise ValidationError(_("Number of classes must not exceed 10"))
 
-    @api.constrains("manual_breaks")
+    @api.constrains("manual_breaks", "classification_method")
     def _check_manual_breaks(self):
         """Validate manual break points."""
         for rec in self:
@@ -169,13 +169,13 @@ class GisIndicatorLayer(models.Model):
                 # Get all indicator values for this configuration
                 values = rec._get_indicator_values()
 
-                if not values:
-                    rec.break_values = ""
-                    continue
-
                 # Compute breaks based on classification method
+                # Manual breaks don't depend on indicator data
                 if rec.classification_method == "manual":
                     breaks = rec._parse_manual_breaks(rec.manual_breaks)
+                elif not values:
+                    rec.break_values = ""
+                    continue
                 elif rec.classification_method == "quantile":
                     breaks = rec._compute_quantile_breaks(values, rec.num_classes)
                 elif rec.classification_method == "equal_interval":
@@ -227,7 +227,7 @@ class GisIndicatorLayer(models.Model):
                     elif i == num_classes - 1:
                         label = f"≥ {breaks[-1]:.2f}"
                     else:
-                        label = f"{breaks[i-1]:.2f} - {breaks[i]:.2f}"
+                        label = f"{breaks[i - 1]:.2f} - {breaks[i]:.2f}"
 
                     html_parts.append(
                         f'<div class="legend-item">'

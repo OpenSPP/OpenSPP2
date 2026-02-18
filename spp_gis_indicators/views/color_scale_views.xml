@@ -1,17 +1,16 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <!-- List View -->
     <record id="view_gis_color_scale_tree" model="ir.ui.view">
         <field name="name">spp.gis.color.scale.tree</field>
         <field name="model">spp.gis.color.scale</field>
         <field name="arch" type="xml">
             <list string="Color Scales">
-                <field name="sequence" widget="handle"/>
-                <field name="name"/>
-                <field name="scale_type"/>
-                <field name="description"/>
-                <field name="active"/>
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="scale_type" />
+                <field name="description" />
+                <field name="active" />
             </list>
         </field>
     </record>
@@ -24,27 +23,33 @@
             <form string="Color Scale">
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                        <widget
+                            name="web_ribbon"
+                            title="Archived"
+                            bg_color="text-bg-danger"
+                            invisible="active"
+                        />
                     </div>
                     <group>
                         <group>
-                            <field name="name"/>
-                            <field name="scale_type"/>
-                            <field name="sequence"/>
-                            <field name="active" invisible="1"/>
+                            <field name="name" />
+                            <field name="scale_type" />
+                            <field name="sequence" />
+                            <field name="active" invisible="1" />
                         </group>
-                        <separator string="Description"/>
-                        <field name="description" nolabel="1" class="oe_inline"/>
+                        <separator string="Description" />
+                        <field name="description" nolabel="1" class="oe_inline" />
                     </group>
                     <group string="Colors">
-                        <field name="colors_json" widget="text"/>
+                        <field name="colors_json" widget="text" />
                     </group>
                     <group string="Preview" name="preview">
                         <div class="o_color_scale_preview">
                             <p class="text-muted">
                                 Enter colors as JSON array of hex codes, e.g.:
-                                <br/>
-                                <code>["#f7fbff", "#deebf7", "#c6dbef", "#9ecae1", "#6baed6"]</code>
+                                <br />
+                                <code
+                            >["#f7fbff", "#deebf7", "#c6dbef", "#9ecae1", "#6baed6"]</code>
                             </p>
                         </div>
                     </group>
@@ -59,14 +64,26 @@
         <field name="model">spp.gis.color.scale</field>
         <field name="arch" type="xml">
             <search string="Color Scales">
-                <field name="name"/>
-                <field name="scale_type"/>
-                <separator/>
-                <filter string="Active" name="active" domain="[('active', '=', True)]"/>
-                <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
-                <separator/>
+                <field name="name" />
+                <field name="scale_type" />
+                <separator />
+                <filter
+                    string="Active"
+                    name="active"
+                    domain="[('active', '=', True)]"
+                />
+                <filter
+                    string="Archived"
+                    name="archived"
+                    domain="[('active', '=', False)]"
+                />
+                <separator />
                 <group>
-                    <filter string="Scale Type" name="group_by_scale_type" context="{'group_by': 'scale_type'}"/>
+                    <filter
+                        string="Scale Type"
+                        name="group_by_scale_type"
+                        context="{'group_by': 'scale_type'}"
+                    />
                 </group>
             </search>
         </field>
@@ -91,10 +108,11 @@
     </record>
 
     <!-- Menu Item -->
-    <menuitem id="menu_gis_color_scale"
-              name="Color Scales"
-              parent="menu_gis_config_root"
-              action="action_gis_color_scale"
-              sequence="20"/>
-
+    <menuitem
+        id="menu_gis_color_scale"
+        name="Color Scales"
+        parent="menu_gis_config_root"
+        action="action_gis_color_scale"
+        sequence="20"
+    />
 </odoo>

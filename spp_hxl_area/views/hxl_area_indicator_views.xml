@@ -55,7 +55,11 @@
                         </group>
                     </group>
                     <group string="Disaggregation" invisible="not disaggregation_json">
-                        <field name="disaggregation_json" widget="ace" options="{'mode': 'javascript'}" />
+                        <field
+                            name="disaggregation_json"
+                            widget="ace"
+                            options="{'mode': 'javascript'}"
+                        />
                     </group>
                     <group string="Notes">
                         <field name="notes" />
@@ -77,10 +81,26 @@
                 <field name="batch_id" />
                 <separator />
                 <group>
-                    <filter name="group_area" string="Area" context="{'group_by': 'area_id'}" />
-                    <filter name="group_variable" string="Variable" context="{'group_by': 'variable_id'}" />
-                    <filter name="group_period" string="Period" context="{'group_by': 'period_key'}" />
-                    <filter name="group_batch" string="Batch" context="{'group_by': 'batch_id'}" />
+                    <filter
+                        name="group_area"
+                        string="Area"
+                        context="{'group_by': 'area_id'}"
+                    />
+                    <filter
+                        name="group_variable"
+                        string="Variable"
+                        context="{'group_by': 'variable_id'}"
+                    />
+                    <filter
+                        name="group_period"
+                        string="Period"
+                        context="{'group_by': 'period_key'}"
+                    />
+                    <filter
+                        name="group_batch"
+                        string="Batch"
+                        context="{'group_by': 'batch_id'}"
+                    />
                 </group>
             </search>
         </field>

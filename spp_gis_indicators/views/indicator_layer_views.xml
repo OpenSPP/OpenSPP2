@@ -1,19 +1,18 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <!-- List View -->
     <record id="view_gis_indicator_layer_tree" model="ir.ui.view">
         <field name="name">spp.gis.indicator.layer.tree</field>
         <field name="model">spp.gis.indicator.layer</field>
         <field name="arch" type="xml">
             <list string="Indicator Layers">
-                <field name="sequence" widget="handle"/>
-                <field name="name"/>
-                <field name="variable_name"/>
-                <field name="period_key"/>
-                <field name="classification_method"/>
-                <field name="num_classes"/>
-                <field name="active"/>
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="variable_name" />
+                <field name="period_key" />
+                <field name="classification_method" />
+                <field name="num_classes" />
+                <field name="active" />
             </list>
         </field>
     </record>
@@ -26,13 +25,18 @@
             <form string="Indicator Layer">
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                        <widget
+                            name="web_ribbon"
+                            title="Archived"
+                            bg_color="text-bg-danger"
+                            invisible="active"
+                        />
                     </div>
                     <group>
                         <group>
-                            <field name="name"/>
-                            <field name="sequence"/>
-                            <field name="active" invisible="1"/>
+                            <field name="name" />
+                            <field name="sequence" />
+                            <field name="active" invisible="1" />
                         </group>
                     </group>
 
@@ -40,10 +44,13 @@
                         <page string="Data Source" name="data_source">
                             <group>
                                 <group string="What to Visualize">
-                                    <field name="variable_id" options="{'no_create': True, 'no_open': True}"/>
-                                    <field name="variable_name" invisible="1"/>
-                                    <field name="period_key"/>
-                                    <field name="incident_id"/>
+                                    <field
+                                        name="variable_id"
+                                        options="{'no_create': True, 'no_open': True}"
+                                    />
+                                    <field name="variable_name" invisible="1" />
+                                    <field name="period_key" />
+                                    <field name="incident_id" />
                                 </group>
                             </group>
                         </page>
@@ -51,20 +58,34 @@
                         <page string="Visualization" name="visualization">
                             <group>
                                 <group string="Color Configuration">
-                                    <field name="color_scale_id" options="{'no_create': True}"/>
-                                    <field name="classification_method"/>
-                                    <field name="num_classes" invisible="classification_method == 'manual'"/>
-                                    <field name="manual_breaks" invisible="classification_method != 'manual'"/>
+                                    <field
+                                        name="color_scale_id"
+                                        options="{'no_create': True}"
+                                    />
+                                    <field name="classification_method" />
+                                    <field
+                                        name="num_classes"
+                                        invisible="classification_method == 'manual'"
+                                    />
+                                    <field
+                                        name="manual_breaks"
+                                        invisible="classification_method != 'manual'"
+                                    />
                                 </group>
                             </group>
                             <group string="Computed Classification" name="computed">
-                                <field name="break_values" widget="text" readonly="1"/>
+                                <field name="break_values" widget="text" readonly="1" />
                             </group>
                         </page>
 
                         <page string="Legend Preview" name="legend">
                             <group>
-                                <field name="legend_html" widget="html" readonly="1" nolabel="1"/>
+                                <field
+                                    name="legend_html"
+                                    widget="html"
+                                    readonly="1"
+                                    nolabel="1"
+                                />
                             </group>
                         </page>
                     </notebook>
@@ -79,17 +100,37 @@
         <field name="model">spp.gis.indicator.layer</field>
         <field name="arch" type="xml">
             <search string="Indicator Layers">
-                <field name="name"/>
-                <field name="variable_id"/>
-                <field name="period_key"/>
-                <separator/>
-                <filter string="Active" name="active" domain="[('active', '=', True)]"/>
-                <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
-                <separator/>
+                <field name="name" />
+                <field name="variable_id" />
+                <field name="period_key" />
+                <separator />
+                <filter
+                    string="Active"
+                    name="active"
+                    domain="[('active', '=', True)]"
+                />
+                <filter
+                    string="Archived"
+                    name="archived"
+                    domain="[('active', '=', False)]"
+                />
+                <separator />
                 <group>
-                    <filter string="Variable" name="group_by_variable" context="{'group_by': 'variable_id'}"/>
-                    <filter string="Period" name="group_by_period" context="{'group_by': 'period_key'}"/>
-                    <filter string="Classification Method" name="group_by_classification" context="{'group_by': 'classification_method'}"/>
+                    <filter
+                        string="Variable"
+                        name="group_by_variable"
+                        context="{'group_by': 'variable_id'}"
+                    />
+                    <filter
+                        string="Period"
+                        name="group_by_period"
+                        context="{'group_by': 'period_key'}"
+                    />
+                    <filter
+                        string="Classification Method"
+                        name="group_by_classification"
+                        context="{'group_by': 'classification_method'}"
+                    />
                 </group>
             </search>
         </field>
@@ -115,10 +156,11 @@
     </record>
 
     <!-- Menu Item -->
-    <menuitem id="menu_gis_indicator_layer"
-              name="Indicator Layers"
-              parent="menu_gis_config_root"
-              action="action_gis_indicator_layer"
-              sequence="10"/>
-
+    <menuitem
+        id="menu_gis_indicator_layer"
+        name="Indicator Layers"
+        parent="menu_gis_config_root"
+        action="action_gis_indicator_layer"
+        sequence="10"
+    />
 </odoo>

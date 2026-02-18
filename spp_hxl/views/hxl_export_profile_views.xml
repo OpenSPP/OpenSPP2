@@ -40,7 +40,12 @@
             <form string="HXL Export Profile">
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active" />
+                        <widget
+                            name="web_ribbon"
+                            title="Archived"
+                            bg_color="text-bg-danger"
+                            invisible="active"
+                        />
                     </div>
                     <group>
                         <group>
@@ -56,7 +61,10 @@
                         </group>
                     </group>
                     <group colspan="2">
-                        <field name="description" placeholder="Description of this export profile..." />
+                        <field
+                            name="description"
+                            placeholder="Description of this export profile..."
+                        />
                     </group>
                     <notebook>
                         <page string="Columns" name="columns">
@@ -71,7 +79,10 @@
                                         <group>
                                             <field name="hxl_tag" />
                                             <field name="hxl_hashtag_id" />
-                                            <field name="hxl_attribute_ids" widget="many2many_tags" />
+                                            <field
+                                                name="hxl_attribute_ids"
+                                                widget="many2many_tags"
+                                            />
                                             <field name="computed_hxl_tag" />
                                         </group>
                                     </group>
@@ -93,9 +104,21 @@
                 <field name="name" />
                 <field name="code" />
                 <field name="model_id" />
-                <filter string="Active" name="filter_active" domain="[('active', '=', True)]" />
-                <filter string="Archived" name="filter_archived" domain="[('active', '=', False)]" />
-                <filter string="Model" name="group_by_model" context="{'group_by': 'model_id'}" />
+                <filter
+                    string="Active"
+                    name="filter_active"
+                    domain="[('active', '=', True)]"
+                />
+                <filter
+                    string="Archived"
+                    name="filter_archived"
+                    domain="[('active', '=', False)]"
+                />
+                <filter
+                    string="Model"
+                    name="group_by_model"
+                    context="{'group_by': 'model_id'}"
+                />
             </search>
         </field>
     </record>

@@ -88,7 +88,7 @@ class GisColorScale(models.Model):
                 if not color.startswith("#") or len(color) not in (4, 7):
                     raise ValidationError(
                         _(
-                            "Invalid hex color format: %s. " "Expected #RGB or #RRGGBB",
+                            "Invalid hex color format: %s. Expected #RGB or #RRGGBB",
                             color,
                         )
                     )

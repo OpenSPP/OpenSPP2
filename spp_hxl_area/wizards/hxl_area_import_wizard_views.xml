@@ -13,9 +13,12 @@
                             <i class="fa fa-hashtag" /> HXL Data Import
                         </h5>
                         <p class="mb-2">
-                            <strong>HXL (Humanitarian Exchange Language)</strong> uses hashtags to standardize
-                            humanitarian data columns. Tags like <code>#adm2+name</code> (district name) or
-                            <code>#affected+hh</code> (affected households) enable automatic data processing.
+                            <strong
+                        >HXL (Humanitarian Exchange Language)</strong> uses hashtags to standardize
+                            humanitarian data columns. Tags like <code
+                        >#adm2+name</code> (district name) or
+                            <code
+                        >#affected+hh</code> (affected households) enable automatic data processing.
                         </p>
                         <p class="mb-0">
                             This wizard imports HXL-tagged data and aggregates it by geographical area,
@@ -69,19 +72,27 @@
                             <separator string="Sample Data" />
                             <field name="preview_html" />
                         </page>
-                        <page string="Area Matching Preview" name="matching" invisible="not unmatched_areas">
+                        <page
+                            string="Area Matching Preview"
+                            name="matching"
+                            invisible="not unmatched_areas"
+                        >
                             <group>
                                 <field name="unmatched_areas" />
                             </group>
                             <div class="alert alert-warning" role="alert">
-                                <strong>Warning:</strong> Some area values couldn't be matched.
+                                <strong
+                            >Warning:</strong> Some area values couldn't be matched.
                                 <br />
                                 <strong>How to fix:</strong>
                                 <ul class="mb-0 mt-2">
-                                    <li>Verify the HXL tag in your Import Profile matches your data</li>
-                                    <li>Try changing the matching strategy (e.g., fuzzy matching for names with typos)</li>
-                                    <li>Ensure area records exist with correct codes/names</li>
-                                </ul>
+                                <li
+                                >Verify the HXL tag in your Import Profile matches your data</li>
+                                <li
+                                >Try changing the matching strategy (e.g., fuzzy matching for names with typos)</li>
+                                <li
+                                >Ensure area records exist with correct codes/names</li>
+                            </ul>
                             </div>
                         </page>
                     </notebook>
@@ -93,7 +104,12 @@
                         string="Import"
                         class="oe_highlight"
                     />
-                    <button name="action_cancel" type="object" string="Cancel" class="btn-secondary" />
+                    <button
+                        name="action_cancel"
+                        type="object"
+                        string="Cancel"
+                        class="btn-secondary"
+                    />
                 </footer>
             </form>
         </field>

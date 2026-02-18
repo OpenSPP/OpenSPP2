@@ -4,17 +4,22 @@ HXL import with area-level aggregation for humanitarian indicators.
 
 ## Overview
 
-This module enables importing HXL-tagged field data and aggregating it to area-level indicators for humanitarian
-coordination. It bridges individual-level observations to area-level metrics used in humanitarian response coordination.
+This module enables importing HXL-tagged field data and aggregating it to area-level
+indicators for humanitarian coordination. It bridges individual-level observations to
+area-level metrics used in humanitarian response coordination.
 
 ## Features
 
-- **Multiple Matching Strategies**: Match HXL data to areas using P-codes, names, GPS coordinates, or fuzzy matching
-- **Flexible Aggregation Rules**: Count, sum, average, min, max, distinct count, and percentage aggregations
-- **Disaggregation Support**: Break down indicators by demographic attributes (gender, age, etc.)
+- **Multiple Matching Strategies**: Match HXL data to areas using P-codes, names, GPS
+  coordinates, or fuzzy matching
+- **Flexible Aggregation Rules**: Count, sum, average, min, max, distinct count, and
+  percentage aggregations
+- **Disaggregation Support**: Break down indicators by demographic attributes (gender,
+  age, etc.)
 - **Import Profiles**: Pre-configured templates for common data sources
 - **Import Wizard**: User-friendly interface with data preview and validation
-- **CEL Integration**: Sync indicators to `spp.data.value` for use in eligibility expressions
+- **CEL Integration**: Sync indicators to `spp.data.value` for use in eligibility
+  expressions
 - **Queue Job Processing**: Background processing for large imports
 - **Audit Trail**: Track import batches, results, and errors
 
@@ -72,13 +77,15 @@ Aggregated indicator values:
 
 - **Strategy**: Name matching
 - **Level**: Admin Level 4 (GN Division)
-- **Indicators**: Severely damaged households, partially damaged households, total affected
+- **Indicators**: Severely damaged households, partially damaged households, total
+  affected
 
 ### Philippines Beneficiary Coverage
 
 - **Strategy**: P-code matching
 - **Level**: Admin Level 4 (Barangay)
-- **Indicators**: Total beneficiaries (with gender/age disaggregation), beneficiary households
+- **Indicators**: Total beneficiaries (with gender/age disaggregation), beneficiary
+  households
 
 ### OCHA 3W Import
 

@@ -4,12 +4,35 @@
     <menuitem id="menu_hxl_root" name="HXL" parent="base.menu_custom" sequence="50" />
 
     <!-- Configuration submenu -->
-    <menuitem id="menu_hxl_config" name="Configuration" parent="menu_hxl_root" sequence="100" />
+    <menuitem
+        id="menu_hxl_config"
+        name="Configuration"
+        parent="menu_hxl_root"
+        sequence="100"
+    />
 
     <!-- Menu items -->
-    <menuitem id="menu_hxl_tag" name="HXL Hashtags" parent="menu_hxl_config" action="action_hxl_tag" sequence="10" />
+    <menuitem
+        id="menu_hxl_tag"
+        name="HXL Hashtags"
+        parent="menu_hxl_config"
+        action="action_hxl_tag"
+        sequence="10"
+    />
 
-    <menuitem id="menu_hxl_attribute" name="HXL Attributes" parent="menu_hxl_config" action="action_hxl_attribute" sequence="20" />
+    <menuitem
+        id="menu_hxl_attribute"
+        name="HXL Attributes"
+        parent="menu_hxl_config"
+        action="action_hxl_attribute"
+        sequence="20"
+    />
 
-    <menuitem id="menu_hxl_export_profile" name="Export Profiles" parent="menu_hxl_root" action="action_hxl_export_profile" sequence="10" />
+    <menuitem
+        id="menu_hxl_export_profile"
+        name="Export Profiles"
+        parent="menu_hxl_root"
+        action="action_hxl_export_profile"
+        sequence="10"
+    />
 </odoo>

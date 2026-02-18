@@ -5,7 +5,10 @@
         <field name="name">spp.hxl.import.batch.tree</field>
         <field name="model">spp.hxl.import.batch</field>
         <field name="arch" type="xml">
-            <list decoration-success="state == 'done'" decoration-danger="state == 'failed'">
+            <list
+                decoration-success="state == 'done'"
+                decoration-danger="state == 'failed'"
+            >
                 <field name="name" />
                 <field name="profile_id" />
                 <field name="period_key" />
@@ -14,7 +17,13 @@
                 <field name="matched_rows" />
                 <field name="areas_updated" />
                 <field name="indicators_created" />
-                <field name="state" widget="badge" decoration-success="state == 'done'" decoration-info="state == 'processing'" decoration-danger="state == 'failed'" />
+                <field
+                    name="state"
+                    widget="badge"
+                    decoration-success="state == 'done'"
+                    decoration-info="state == 'processing'"
+                    decoration-danger="state == 'failed'"
+                />
                 <field name="create_date" />
             </list>
         </field>
@@ -49,7 +58,11 @@
                         class="btn-secondary"
                         confirm="This will delete all generated indicators. Are you sure?"
                     />
-                    <field name="state" widget="statusbar" statusbar_visible="draft,mapped,processing,done" />
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="draft,mapped,processing,done"
+                    />
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
@@ -60,26 +73,49 @@
                             icon="fa-bar-chart"
                             invisible="indicators_created == 0"
                         >
-                            <field name="indicators_created" widget="statinfo" string="Indicators" />
+                            <field
+                                name="indicators_created"
+                                widget="statinfo"
+                                string="Indicators"
+                            />
                         </button>
                     </div>
                     <group>
                         <group>
                             <field name="name" readonly="state in ('done', 'failed')" />
-                            <field name="profile_id" readonly="state in ('done', 'failed')" />
-                            <field name="period_key" readonly="state in ('done', 'failed')" />
+                            <field
+                                name="profile_id"
+                                readonly="state in ('done', 'failed')"
+                            />
+                            <field
+                                name="period_key"
+                                readonly="state in ('done', 'failed')"
+                            />
                         </group>
                         <group>
-                            <field name="incident_id" readonly="state in ('done', 'failed')" />
-                            <field name="source_url" readonly="state in ('done', 'failed')" />
+                            <field
+                                name="incident_id"
+                                readonly="state in ('done', 'failed')"
+                            />
+                            <field
+                                name="source_url"
+                                readonly="state in ('done', 'failed')"
+                            />
                         </group>
                     </group>
                     <notebook>
                         <page string="File" name="file">
                             <group>
                                 <group>
-                                    <field name="file_data" filename="file_name" readonly="state in ('done', 'failed')" />
-                                    <field name="file_name" readonly="state in ('done', 'failed')" />
+                                    <field
+                                        name="file_data"
+                                        filename="file_name"
+                                        readonly="state in ('done', 'failed')"
+                                    />
+                                    <field
+                                        name="file_name"
+                                        readonly="state in ('done', 'failed')"
+                                    />
                                 </group>
                                 <group>
                                     <field name="hxl_row_number" readonly="1" />
@@ -87,18 +123,33 @@
                                 </group>
                             </group>
                         </page>
-                        <page string="Column Mapping" name="mapping" invisible="state == 'draft'">
-                            <field name="mapping_ids" readonly="state in ('done', 'failed')">
+                        <page
+                            string="Column Mapping"
+                            name="mapping"
+                            invisible="state == 'draft'"
+                        >
+                            <field
+                                name="mapping_ids"
+                                readonly="state in ('done', 'failed')"
+                            >
                                 <list editable="bottom">
                                     <field name="sequence" />
                                     <field name="source_column" readonly="1" />
                                     <field name="detected_hxl_tag" readonly="1" />
                                     <field name="mapping_type" />
-                                    <field name="confidence" readonly="1" widget="progressbar" />
+                                    <field
+                                        name="confidence"
+                                        readonly="1"
+                                        widget="progressbar"
+                                    />
                                 </list>
                             </field>
                         </page>
-                        <page string="Statistics" name="statistics" invisible="state in ('draft', 'mapped')">
+                        <page
+                            string="Statistics"
+                            name="statistics"
+                            invisible="state in ('draft', 'mapped')"
+                        >
                             <group>
                                 <group string="Data Processing">
                                     <field name="total_rows" />
@@ -111,7 +162,11 @@
                                 </group>
                             </group>
                         </page>
-                        <page string="Indicators" name="indicators" invisible="indicators_created == 0">
+                        <page
+                            string="Indicators"
+                            name="indicators"
+                            invisible="indicators_created == 0"
+                        >
                             <field name="indicator_ids">
                                 <list>
                                     <field name="area_name" />
@@ -122,12 +177,16 @@
                                 </list>
                             </field>
                         </page>
-                        <page string="Error Log" name="error_log" invisible="not error_log">
+                        <page
+                            string="Error Log"
+                            name="error_log"
+                            invisible="not error_log"
+                        >
                             <field name="error_log" />
                         </page>
                     </notebook>
                 </sheet>
-                <chatter/>
+                <chatter />
             </form>
         </field>
     </record>
@@ -143,15 +202,43 @@
                 <field name="period_key" />
                 <field name="incident_id" />
                 <separator />
-                <filter name="filter_draft" string="Draft" domain="[('state', '=', 'draft')]" />
-                <filter name="filter_processing" string="Processing" domain="[('state', '=', 'processing')]" />
-                <filter name="filter_done" string="Completed" domain="[('state', '=', 'done')]" />
-                <filter name="filter_failed" string="Failed" domain="[('state', '=', 'failed')]" />
+                <filter
+                    name="filter_draft"
+                    string="Draft"
+                    domain="[('state', '=', 'draft')]"
+                />
+                <filter
+                    name="filter_processing"
+                    string="Processing"
+                    domain="[('state', '=', 'processing')]"
+                />
+                <filter
+                    name="filter_done"
+                    string="Completed"
+                    domain="[('state', '=', 'done')]"
+                />
+                <filter
+                    name="filter_failed"
+                    string="Failed"
+                    domain="[('state', '=', 'failed')]"
+                />
                 <separator />
                 <group>
-                    <filter name="group_profile" string="Profile" context="{'group_by': 'profile_id'}" />
-                    <filter name="group_period" string="Period" context="{'group_by': 'period_key'}" />
-                    <filter name="group_state" string="State" context="{'group_by': 'state'}" />
+                    <filter
+                        name="group_profile"
+                        string="Profile"
+                        context="{'group_by': 'profile_id'}"
+                    />
+                    <filter
+                        name="group_period"
+                        string="Period"
+                        context="{'group_by': 'period_key'}"
+                    />
+                    <filter
+                        name="group_state"
+                        string="State"
+                        context="{'group_by': 'state'}"
+                    />
                 </group>
             </search>
         </field>

@@ -43,7 +43,7 @@ class TestHxlImportProfile(TransactionCase):
             }
         )
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(Exception):  # noqa: B017
             self.Profile.create(
                 {
                     "name": "Profile 2",

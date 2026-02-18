@@ -39,7 +39,11 @@
                             class="oe_stat_button"
                             icon="fa-upload"
                         >
-                            <field name="batch_count" widget="statinfo" string="Imports" />
+                            <field
+                                name="batch_count"
+                                widget="statinfo"
+                                string="Imports"
+                            />
                         </button>
                     </div>
                     <widget
