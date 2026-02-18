@@ -472,17 +472,23 @@ class GISReport(models.Model):
         # (e.g., barangays when base level is municipality). We include all
         # descendant areas in the query and aggregate results back to the
         # base-level parent.
-        child_to_base = {}
-        for base_area in base_areas:
-            child_to_base[base_area.id] = base_area.id
-            descendants = self.env["spp.area"].search(
-                [
-                    ("id", "child_of", base_area.id),
-                    ("id", "!=", base_area.id),
-                ]
-            )
-            for desc in descendants:
-                child_to_base[desc.id] = base_area.id
+        #
+        # Fetch all descendants of all base areas in a single query, then build
+        # the child_to_base mapping in memory to avoid an N+1 query pattern.
+        child_to_base = {base_area.id: base_area.id for base_area in base_areas}
+        all_descendants = self.env["spp.area"].search(
+            [
+                ("id", "child_of", base_areas.ids),
+                ("id", "not in", base_areas.ids),
+            ]
+        )
+        # For each descendant, walk up its parent chain to find the base-level ancestor
+        for desc in all_descendants:
+            ancestor = desc.parent_id
+            while ancestor and ancestor.id not in child_to_base:
+                ancestor = ancestor.parent_id
+            if ancestor:
+                child_to_base[desc.id] = child_to_base[ancestor.id]
 
         # Add area filter to domain (base areas + all descendants)
         domain.append((area_field, "in", list(child_to_base.keys())))
@@ -525,12 +531,30 @@ class GISReport(models.Model):
                     base_id = child_to_base.get(area_id, area_id)
                     value = group.get(self.aggregation_field) or 0
                     count = group[f"{area_field}_count"]
-                    # Accumulate weighted values for proper re-aggregation
-                    results[base_id]["raw"] += value * count
+                    if agg_func == "avg":
+                        # Accumulate weighted sum so we can compute a proper
+                        # weighted average across subgroups when rolling up.
+                        results[base_id]["raw"] += value * count
+                    elif agg_func == "sum":
+                        # read_group already returns the sum for the subgroup;
+                        # multiplying by count would inflate the total.
+                        results[base_id]["raw"] += value
+                    elif agg_func == "min":
+                        # Keep the lowest value seen across subgroups.
+                        if results[base_id]["count"] == 0:
+                            results[base_id]["raw"] = value
+                        else:
+                            results[base_id]["raw"] = min(results[base_id]["raw"], value)
+                    elif agg_func == "max":
+                        # Keep the highest value seen across subgroups.
+                        if results[base_id]["count"] == 0:
+                            results[base_id]["raw"] = value
+                        else:
+                            results[base_id]["raw"] = max(results[base_id]["raw"], value)
                     results[base_id]["count"] += count
                     results[base_id]["weight"] += count
 
-            # For avg: convert accumulated (value*count) back to weighted average
+            # For avg: convert accumulated weighted sum back to weighted average
             if agg_func == "avg":
                 for data in results.values():
                     if data["count"] > 0:
