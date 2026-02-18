@@ -108,7 +108,7 @@ class FastAPIHttpCase(HttpCase):
         self._assert_expected_lang("fr-FR,en;q=0.7,en-GB;q=0.3", b'"fr_BE"')
         self._assert_expected_lang("fr-FR;q=0.1,en;q=1.0,en-GB;q=0.8", b'"en_US"')
 
-    @unittest.skip("Odoo 19: FastAPI retrying mechanism returns 500 in test mode")
+    @unittest.skip("Odoo 19: FastAPI retrying mechanism returns 500 in test mode (#53)")
     def test_retrying(self):
         """Test that the retrying mechanism is working as expected with the
         FastAPI endpoints.
@@ -119,7 +119,7 @@ class FastAPIHttpCase(HttpCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(int(response.content), nbr_retries)
 
-    @unittest.skip("Odoo 19: FastAPI retrying mechanism returns 500 in test mode")
+    @unittest.skip("Odoo 19: FastAPI retrying mechanism returns 500 in test mode (#53)")
     def test_retrying_post(self):
         """Test that the retrying mechanism is working as expected with the
         FastAPI endpoints in case of POST request with a file.
@@ -206,7 +206,7 @@ class FastAPIHttpCase(HttpCase):
             mocked_commit.assert_not_called()
             self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
-    @unittest.skip("Odoo 19: BaseCursor.commit mock not invoked by HTTP test runner")
+    @unittest.skip("Odoo 19: BaseCursor.commit mock not invoked by HTTP test runner (#54)")
     def test_no_commit_on_exception(self) -> None:
         # this test check that the way we mock the cursor is working as expected
         # and that the transaction is rolled back in case of exception.
