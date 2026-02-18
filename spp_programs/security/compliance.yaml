@@ -181,11 +181,6 @@ model_access:
     officer: [read, write, create]
     manager: [read, write, create, unlink]
 
-  - model: spp.program.notification.manager.sms
-    viewer: [read]
-    officer: [read, write, create]
-    manager: [read, write, create, unlink]
-
   - model: spp.program.manager
     viewer: [read]
     officer: [read, write, create]

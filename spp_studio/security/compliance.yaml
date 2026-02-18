@@ -202,18 +202,6 @@ model_access:
     manager: [read, write, create, unlink]
     note: "Wizard preview for pack installation - managers only"
 
-  - model: spp.cel.variable.sync
-    viewer: []
-    officer: []
-    manager: [read, write, create, unlink]
-    note: "Variable synchronization model - managers only"
-
-  - model: spp.cel.variable.sync.wizard
-    viewer: []
-    officer: []
-    manager: [read, write, create, unlink]
-    note: "Wizard for variable synchronization - managers only"
-
   - model: spp.studio.variable.remap.wizard
     viewer: []
     officer: []
