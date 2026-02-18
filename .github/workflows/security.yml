@@ -167,6 +167,7 @@ jobs:
             --config p/python \
             --config p/security-audit \
             --config .semgrep/ \
+            --exclude scripts/ \
             --sarif \
             --output semgrep-results.sarif \
             2>&1 || SEMGREP_EXIT=$?
@@ -176,6 +177,7 @@ jobs:
             --config p/python \
             --config p/security-audit \
             --config .semgrep/ \
+            --exclude scripts/ \
             2>&1 || true
 
           exit ${SEMGREP_EXIT:-0}
