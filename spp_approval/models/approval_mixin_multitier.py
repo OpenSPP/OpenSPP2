@@ -112,6 +112,7 @@ class ApprovalMixinMultitier(models.AbstractModel):
                 else:
                     # Single-tier: use the definition from the review (already resolved at submit)
                     # Use sudo to read definition as users may have limited access
+                    # nosemgrep: odoo-sudo-without-context — read approval definition
                     definition = active_review.sudo().definition_id
                     approvers = definition.get_approvers(record) if definition else self.env["res.users"]
                     _logger.warning(

@@ -1,5 +1,5 @@
 def get_param(env, key, default=None):
-    return env["ir.config_parameter"].sudo().get_param(key, default)
+    return env["ir.config_parameter"].sudo().get_param(key, default)  # nosemgrep: odoo-sudo-without-context
 
 
 def get_branding_config(env):

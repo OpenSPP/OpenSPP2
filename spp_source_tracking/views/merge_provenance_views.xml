@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Merge Provenance Tree View -->
     <record id="view_merge_provenance_tree" model="ir.ui.view">
@@ -6,13 +6,13 @@
         <field name="model">spp.merge.provenance</field>
         <field name="arch" type="xml">
             <list string="Merge History">
-                <field name="merge_date"/>
-                <field name="merged_id"/>
-                <field name="survivor_id"/>
-                <field name="merged_by_id"/>
-                <field name="merged_source_system"/>
-                <field name="merged_collection_method"/>
-                <field name="merge_reason" optional="hide"/>
+                <field name="merge_date" />
+                <field name="merged_id" />
+                <field name="survivor_id" />
+                <field name="merged_by_id" />
+                <field name="merged_source_system" />
+                <field name="merged_collection_method" />
+                <field name="merge_reason" optional="hide" />
             </list>
         </field>
     </record>
@@ -26,22 +26,22 @@
                 <sheet>
                     <group>
                         <group string="Merge Information">
-                            <field name="survivor_id"/>
-                            <field name="merged_id"/>
-                            <field name="merge_date"/>
-                            <field name="merged_by_id"/>
+                            <field name="survivor_id" />
+                            <field name="merged_id" />
+                            <field name="merge_date" />
+                            <field name="merged_by_id" />
                         </group>
                         <group string="Merged Record Provenance">
-                            <field name="merged_source_system"/>
-                            <field name="merged_source_reference"/>
-                            <field name="merged_collection_method"/>
-                            <field name="merged_collection_date"/>
+                            <field name="merged_source_system" />
+                            <field name="merged_source_reference" />
+                            <field name="merged_collection_method" />
+                            <field name="merged_collection_date" />
                         </group>
                     </group>
-                    <separator string="Merge Reason"/>
-                    <field name="merge_reason" nolabel="1"/>
-                    <separator string="Data Snapshot"/>
-                    <field name="merged_data_snapshot" widget="json" nolabel="1"/>
+                    <separator string="Merge Reason" />
+                    <field name="merge_reason" nolabel="1" />
+                    <separator string="Data Snapshot" />
+                    <field name="merged_data_snapshot" widget="json" nolabel="1" />
                 </sheet>
             </form>
         </field>
@@ -53,19 +53,47 @@
         <field name="model">spp.merge.provenance</field>
         <field name="arch" type="xml">
             <search string="Merge Provenance Search">
-                <field name="survivor_id"/>
-                <field name="merged_id"/>
-                <field name="merged_by_id"/>
-                <field name="merged_source_system"/>
-                <separator/>
-                <filter name="filter_today" string="Today" domain="[('merge_date', '&gt;=', context_today().strftime('%Y-%m-%d'))]"/>
-                <filter name="filter_this_week" string="This Week" domain="[('merge_date', '&gt;=', (context_today() - relativedelta(weeks=1)).strftime('%Y-%m-%d'))]"/>
-                <separator/>
-                <filter name="group_survivor" string="Survivor" context="{'group_by': 'survivor_id'}"/>
-                <filter name="group_merged_by" string="Merged By" context="{'group_by': 'merged_by_id'}"/>
-                <filter name="group_source_system" string="Source System" context="{'group_by': 'merged_source_system'}"/>
-                <filter name="group_collection_method" string="Collection Method" context="{'group_by': 'merged_collection_method'}"/>
-                <filter name="group_merge_date" string="Merge Date" context="{'group_by': 'merge_date:day'}"/>
+                <field name="survivor_id" />
+                <field name="merged_id" />
+                <field name="merged_by_id" />
+                <field name="merged_source_system" />
+                <separator />
+                <filter
+                    name="filter_today"
+                    string="Today"
+                    domain="[('merge_date', '&gt;=', context_today().strftime('%Y-%m-%d'))]"
+                />
+                <filter
+                    name="filter_this_week"
+                    string="This Week"
+                    domain="[('merge_date', '&gt;=', (context_today() - relativedelta(weeks=1)).strftime('%Y-%m-%d'))]"
+                />
+                <separator />
+                <filter
+                    name="group_survivor"
+                    string="Survivor"
+                    context="{'group_by': 'survivor_id'}"
+                />
+                <filter
+                    name="group_merged_by"
+                    string="Merged By"
+                    context="{'group_by': 'merged_by_id'}"
+                />
+                <filter
+                    name="group_source_system"
+                    string="Source System"
+                    context="{'group_by': 'merged_source_system'}"
+                />
+                <filter
+                    name="group_collection_method"
+                    string="Collection Method"
+                    context="{'group_by': 'merged_collection_method'}"
+                />
+                <filter
+                    name="group_merge_date"
+                    string="Merge Date"
+                    context="{'group_by': 'merge_date:day'}"
+                />
             </search>
         </field>
     </record>
@@ -75,7 +103,7 @@
         <field name="name">Merge History</field>
         <field name="res_model">spp.merge.provenance</field>
         <field name="view_mode">list,form</field>
-        <field name="search_view_id" ref="view_merge_provenance_search"/>
+        <field name="search_view_id" ref="view_merge_provenance_search" />
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 No merge records found

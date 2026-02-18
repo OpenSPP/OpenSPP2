@@ -5,10 +5,14 @@
         <field name="model">spp.grm.team</field>
         <field name="arch" type="xml">
             <form string="GRM Team">
-                <header>
-                </header>
+                <header />
                 <sheet>
-                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" invisible="active" />
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="bg-danger"
+                        invisible="active"
+                    />
                     <div class="oe_button_box" name="button_box">
                         <button
                             class="oe_stat_button"
@@ -16,7 +20,11 @@
                             name="action_view_tickets"
                             icon="fa-ticket"
                         >
-                            <field name="ticket_count" widget="statinfo" string="Tickets" />
+                            <field
+                                name="ticket_count"
+                                widget="statinfo"
+                                string="Tickets"
+                            />
                         </button>
                     </div>
                     <div class="oe_title">
@@ -28,7 +36,10 @@
                     <group name="main">
                         <group name="main_left">
                             <field name="manager_id" />
-                            <field name="company_id" groups="base.group_multi_company" />
+                            <field
+                                name="company_id"
+                                groups="base.group_multi_company"
+                            />
                         </group>
                         <group name="main_right">
                             <field name="active" invisible="1" />
@@ -43,7 +54,7 @@
                         </page>
                     </notebook>
                 </sheet>
-                <chatter/>
+                <chatter />
             </form>
         </field>
     </record>
@@ -57,7 +68,11 @@
                 <field name="manager_id" widget="many2one_avatar_user" />
                 <field name="ticket_count" />
                 <field name="open_ticket_count" />
-                <field name="company_id" optional="hide" groups="base.group_multi_company" />
+                <field
+                    name="company_id"
+                    optional="hide"
+                    groups="base.group_multi_company"
+                />
             </list>
         </field>
     </record>
@@ -67,7 +82,11 @@
         <field name="model">spp.grm.team</field>
         <field name="arch" type="xml">
             <search string="GRM Team Search">
-                <filter string="Archived" name="inactive" domain="[('active','=',False)]" />
+                <filter
+                    string="Archived"
+                    name="inactive"
+                    domain="[('active','=',False)]"
+                />
                 <separator />
                 <field name="name" filter_domain="[('name', 'ilike', self)]" />
                 <field name="manager_id" />
@@ -104,5 +123,4 @@
         action="spp_grm_team_action"
         sequence="30"
     />
-
 </odoo>

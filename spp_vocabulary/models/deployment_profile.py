@@ -98,7 +98,7 @@ class DeploymentProfile(models.Model):
                 duplicate = self.search(domain, limit=1)
                 if duplicate:
                     raise ValidationError(
-                        _("Only one deployment profile can be active at a time. " "Profile '%s' is already active.")
+                        _("Only one deployment profile can be active at a time. Profile '%s' is already active.")
                         % duplicate.name
                     )
 

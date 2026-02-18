@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="0">
     <!--
     Demo Programs XML Data
@@ -9,5 +9,4 @@
     -->
 
     <!-- Program-related reference data can be added here if needed -->
-
 </odoo>

@@ -23,9 +23,7 @@ class TestFieldDeactivationImpact(TransactionCase):
                 "target_type": "individual",
                 "tab_name": "Profile",
                 "xpath_expression": (
-                    "//notebook[@name='individual_detail']"
-                    "//page[@name='profile']"
-                    "//group[@name='demographics_section']"
+                    "//notebook[@name='individual_detail']//page[@name='profile']//group[@name='demographics_section']"
                 ),
                 "xpath_position": "inside",
             }

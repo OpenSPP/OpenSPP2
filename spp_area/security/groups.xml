@@ -17,7 +17,9 @@
 
     <record id="group_area_create" model="res.groups">
         <field name="name">Area: Create</field>
-        <field name="comment">Technical group for area create access. Grants permission to create new area records.</field>
+        <field
+            name="comment"
+        >Technical group for area create access. Grants permission to create new area records.</field>
         <field name="implied_ids" eval="[Command.link(ref('group_area_read'))]" />
     </record>
 
@@ -33,7 +35,9 @@
     <record id="group_area_officer" model="res.groups">
         <field name="name">Officer</field>
         <field name="privilege_id" ref="privilege_area" />
-        <field name="comment">Can view and edit area configuration including area types and tags. Cannot delete.</field>
+        <field
+            name="comment"
+        >Can view and edit area configuration including area types and tags. Cannot delete.</field>
         <field
             name="implied_ids"
             eval="[Command.link(ref('group_area_viewer')), Command.link(ref('group_area_write')), Command.link(ref('group_area_create'))]"
@@ -43,7 +47,9 @@
     <record id="group_area_manager" model="res.groups">
         <field name="name">Manager</field>
         <field name="privilege_id" ref="privilege_area" />
-        <field name="comment">Full area management including delete operations and bulk imports.</field>
+        <field
+            name="comment"
+        >Full area management including delete operations and bulk imports.</field>
         <field name="implied_ids" eval="[Command.link(ref('group_area_officer'))]" />
     </record>
 

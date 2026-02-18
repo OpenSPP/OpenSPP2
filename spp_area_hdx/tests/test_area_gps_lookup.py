@@ -157,7 +157,9 @@ class TestAreaGpsLookup(common.TransactionCase):
 
     def test_hdx_pcode_unique_constraint(self):
         """Test that HDX P-codes must be unique."""
-        with self.assertRaises(Exception):
+        from odoo.exceptions import ValidationError
+
+        with self.assertRaises(ValidationError):
             self.env["spp.area"].create(
                 {
                     "draft_name": "Duplicate",

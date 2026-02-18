@@ -1,7 +1,8 @@
 # External Dependencies
 
-OpenSPP requires the following external Odoo module repositories. The Docker setup fetches these automatically. For
-manual installation, clone each repo and add it to your Odoo addons path.
+OpenSPP requires the following external Odoo module repositories. The Docker setup
+fetches these automatically. For manual installation, clone each repo and add it to your
+Odoo addons path.
 
 | Repository                                                    | Branch | Modules                            |
 | ------------------------------------------------------------- | ------ | ---------------------------------- |

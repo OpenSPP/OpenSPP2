@@ -26,7 +26,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                 <group>
                     <field name="name" />
                     <field name="order" />
-                    <field name="domain" widget="domain" options="{'model': 'spp.entitlement'}" />
+                    <field
+                        name="domain"
+                        widget="domain"
+                        options="{'model': 'spp.entitlement'}"
+                    />
                     <field name="max_batch_size" />
                 </group>
             </form>
@@ -46,9 +50,8 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         id="menu_payment_batch_tags"
         name="Payment Batch Tags"
         action="action_payment_batch_tag"
-parent="spp_programs.spp_programs_config_menu_root"
+        parent="spp_programs.spp_programs_config_menu_root"
         sequence="1100"
         groups="spp_security.group_spp_admin,spp_programs.group_programs_manager"
     />
-
 </odoo>

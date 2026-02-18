@@ -73,7 +73,7 @@ class ApprovalDefinition(models.Model):
     # When this definition applies (domain filter)
     domain = fields.Char(
         default="[]",
-        help="Domain to filter which records need this approval. " "Leave empty to apply to all records.",
+        help="Domain to filter which records need this approval. Leave empty to apply to all records.",
     )
 
     # Behavior settings
@@ -194,7 +194,7 @@ class ApprovalDefinition(models.Model):
         except (ValueError, SyntaxError) as e:
             # Invalid domain syntax - log warning and default to matching
             _logger.warning(
-                "Invalid domain syntax in approval definition %s: %s. " "Defaulting to match all records.",
+                "Invalid domain syntax in approval definition %s: %s. Defaulting to match all records.",
                 self.name,
                 str(e),
             )

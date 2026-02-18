@@ -62,14 +62,14 @@ class AWSKMSKeyProvider(models.AbstractModel):
             UserError: If AWS is not configured
         """
         if not BOTO3_AVAILABLE:
-            raise UserError("AWS KMS integration requires the 'boto3' library. " "Install it with: pip install boto3")
+            raise UserError("AWS KMS integration requires the 'boto3' library. Install it with: pip install boto3")
 
         # Get configuration from odoo.conf or environment
         region = config.get("spp_aws_region") or os.environ.get("AWS_REGION") or os.environ.get("AWS_DEFAULT_REGION")
 
         if not region:
             raise UserError(
-                "AWS region not configured. Set spp_aws_region in odoo.conf " "or AWS_REGION environment variable."
+                "AWS region not configured. Set spp_aws_region in odoo.conf or AWS_REGION environment variable."
             )
 
         # Check for explicit credentials (odoo.conf takes precedence)
@@ -138,7 +138,7 @@ class AWSKMSKeyProvider(models.AbstractModel):
         except ClientError as e:
             error_code = e.response["Error"]["Code"]
             if error_code == "NotFoundException":
-                raise UserError(f"AWS KMS key not found: {kms_key_id}. " "Create the key in AWS KMS first.") from e
+                raise UserError(f"AWS KMS key not found: {kms_key_id}. Create the key in AWS KMS first.") from e
             raise UserError(f"AWS KMS error: {e}") from e
 
     def _cache_encrypted_key(self, key_id, encrypted_key, kms_key_id):
@@ -520,7 +520,7 @@ class AWSKMSKeyProvider(models.AbstractModel):
         # Explicitly reject Ed25519 - AWS KMS doesn't support it
         if algorithm in ("ed25519", "EdDSA"):
             raise UserError(
-                "AWS KMS does not support Ed25519 verification. " "Please use ECDSA keys or HashiCorp Vault Transit."
+                "AWS KMS does not support Ed25519 verification. Please use ECDSA keys or HashiCorp Vault Transit."
             )
 
         client = self._get_kms_client()

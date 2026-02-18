@@ -6,6 +6,7 @@ from functools import partial
 from requests import Response
 
 from odoo.exceptions import UserError
+from odoo.fields import Command
 from odoo.tools.misc import mute_logger
 
 from fastapi import status
@@ -29,8 +30,32 @@ class FastAPIDemoCase(FastAPITransactionCase):
     def setUpClass(cls) -> None:
         super().setUpClass()
         cls.default_fastapi_router = demo_router
-        cls.default_fastapi_running_user = cls.env.ref("fastapi.my_demo_app_user")
+        cls.default_fastapi_running_user = cls._get_or_create_demo_user()
         cls.default_fastapi_authenticated_partner = cls.env["res.partner"].create({"name": "FastAPI Demo"})
+
+    @classmethod
+    def _get_or_create_demo_user(cls):
+        """Get or create the demo app user (demo data may not be loaded)."""
+        try:
+            return cls.env.ref("fastapi.my_demo_app_user")
+        except ValueError:
+            runner_group = cls.env.ref("fastapi.group_fastapi_endpoint_runner")
+            user = cls.env["res.users"].create(
+                {
+                    "name": "My Demo Endpoint User",
+                    "login": "my_demo_app_user",
+                    "group_ids": [Command.set([runner_group.id])],
+                }
+            )
+            cls.env["ir.model.data"].create(
+                {
+                    "name": "my_demo_app_user",
+                    "module": "fastapi",
+                    "model": "res.users",
+                    "res_id": user.id,
+                }
+            )
+            return user
 
     def test_hello_world(self) -> None:
         with self._create_test_client() as test_client:
@@ -51,8 +76,33 @@ class FastAPIDemoCase(FastAPITransactionCase):
             },
         )
 
+    def _get_or_create_demo_endpoint(self):
+        """Get or create the demo endpoint (demo data may not be loaded)."""
+        try:
+            return self.env.ref("fastapi.fastapi_endpoint_demo")
+        except ValueError:
+            demo_user = self._get_or_create_demo_user()
+            endpoint = self.env["fastapi.endpoint"].create(
+                {
+                    "name": "Fastapi Demo Endpoint",
+                    "app": "demo",
+                    "root_path": "/fastapi_demo",
+                    "demo_auth_method": "http_basic",
+                    "user_id": demo_user.id,
+                }
+            )
+            self.env["ir.model.data"].create(
+                {
+                    "name": "fastapi_endpoint_demo",
+                    "module": "fastapi",
+                    "model": "fastapi.endpoint",
+                    "res_id": endpoint.id,
+                }
+            )
+            return endpoint
+
     def test_endpoint_info(self) -> None:
-        demo_app = self.env.ref("fastapi.fastapi_endpoint_demo")
+        demo_app = self._get_or_create_demo_endpoint()
         with self._create_test_client(
             dependency_overrides={fastapi_endpoint: partial(lambda a: a, demo_app)}
         ) as test_client:

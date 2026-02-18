@@ -2,8 +2,8 @@
 
 ## Overview
 
-The spp_gis_report module now has comprehensive test coverage with **100 test cases** across **2,811 lines** of test
-code.
+The spp_gis_report module now has comprehensive test coverage with **100 test cases**
+across **2,811 lines** of test code.
 
 ## Test Files
 
@@ -261,10 +261,12 @@ coverage report -m --include="**/spp_gis_report/**"
 
 ## Test Principles Followed
 
-✓ **No print() statements** - Uses `_logger` for debugging ✓ **No bare except** - Catches specific exceptions ✓ **No
-cr.commit() in tests** - Relies on TransactionCase rollback ✓ **Descriptive assertions** - Clear error messages ✓
-**Complete test data** - No incomplete records ✓ **@tagged decorators** - `@tagged("post_install", "-at_install")` ✓
-**User context** - Tests run with appropriate user permissions
+✓ **No print() statements** - Uses `_logger` for debugging ✓ **No bare except** -
+Catches specific exceptions ✓ **No cr.commit() in tests** - Relies on TransactionCase
+rollback ✓ **Descriptive assertions** - Clear error messages ✓ **Complete test data** -
+No incomplete records ✓ **@tagged decorators** -
+`@tagged("post_install", "-at_install")` ✓ **User context** - Tests run with appropriate
+user permissions
 
 ## Coverage Goals
 
@@ -291,7 +293,6 @@ cr.commit() in tests** - Relies on TransactionCase rollback ✓ **Descriptive as
    ```
 
 3. Add performance tests if needed:
-
    - Test with 10K+ registrants
    - Test rollup performance
    - Test GeoJSON generation at scale

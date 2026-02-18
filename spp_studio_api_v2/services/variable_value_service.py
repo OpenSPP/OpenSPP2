@@ -84,7 +84,7 @@ class VariableValueService:
         # Fetch values
         # sudo() required: Data values are computed system data, API needs
         # access regardless of user. Authorization is via API scope checks.
-        values = DataValue.sudo().search(domain)
+        values = DataValue.sudo().search(domain)  # nosemgrep: odoo-sudo-without-context
 
         result = {}
         for val in values:
@@ -147,7 +147,7 @@ class VariableValueService:
             domain.append(("variable_name", "in", variable_names))
 
         # sudo() required: Batch data value retrieval for API response
-        values = DataValue.sudo().search(domain)
+        values = DataValue.sudo().search(domain)  # nosemgrep: odoo-sudo-without-context
 
         # Group by subject_id
         result = {pid: {} for pid in partner_ids}
@@ -197,6 +197,7 @@ class VariableValueService:
 
         # sudo() required: Variable definitions are system config, API needs
         # access to list available variables regardless of user permissions.
+        # nosemgrep: odoo-sudo-without-context
         variables = Variable.sudo().search(domain, order="category_id, sequence, name")
 
         result = []
@@ -248,7 +249,7 @@ class VariableValueService:
         Variable = self.env["spp.cel.variable"]
 
         # sudo() required: Variable definition lookup for computation
-        variable = Variable.sudo().search(
+        variable = Variable.sudo().search(  # nosemgrep: odoo-sudo-without-context
             [("cel_accessor", "=", variable_name), ("state", "=", "active")],
             limit=1,
         )
@@ -268,7 +269,7 @@ class VariableValueService:
                 # sudo() required: Field value access on safe models (validated above)
                 # for variable computation. SAFE_SOURCE_MODELS allowlist ensures
                 # only appropriate models can be accessed.
-                Model = self.env[variable.source_model].sudo()
+                Model = self.env[variable.source_model].sudo()  # nosemgrep: odoo-sudo-without-context
                 record = Model.browse(partner_id)
                 if record.exists():
                     return getattr(record, variable.source_field, None)

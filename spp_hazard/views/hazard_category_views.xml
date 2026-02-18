@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Hazard Category List View -->
     <record id="view_hazard_category_list" model="ir.ui.view">
@@ -6,11 +6,11 @@
         <field name="model">spp.hazard.category</field>
         <field name="arch" type="xml">
             <list>
-                <field name="complete_name"/>
-                <field name="code"/>
-                <field name="parent_id" optional="hide"/>
-                <field name="incident_count" string="Incidents"/>
-                <field name="active"/>
+                <field name="complete_name" />
+                <field name="code" />
+                <field name="parent_id" optional="hide" />
+                <field name="incident_count" string="Incidents" />
+                <field name="active" />
             </list>
         </field>
     </record>
@@ -23,41 +23,59 @@
             <form string="Hazard Category">
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button name="action_view_incidents"
+                        <button
+                            name="action_view_incidents"
                             type="object"
                             class="oe_stat_button"
                             icon="fa-bolt"
-                            invisible="incident_count == 0">
-                            <field name="incident_count" widget="statinfo" string="Incidents"/>
+                            invisible="incident_count == 0"
+                        >
+                            <field
+                                name="incident_count"
+                                widget="statinfo"
+                                string="Incidents"
+                            />
                         </button>
                     </div>
-                    <widget name="web_ribbon" title="Inactive" bg_color="text-bg-danger" invisible="active"/>
+                    <widget
+                        name="web_ribbon"
+                        title="Inactive"
+                        bg_color="text-bg-danger"
+                        invisible="active"
+                    />
                     <div class="oe_title">
-                        <label for="name"/>
+                        <label for="name" />
                         <h1>
-                            <field name="name" placeholder="e.g., Typhoon"/>
+                            <field name="name" placeholder="e.g., Typhoon" />
                         </h1>
                     </div>
                     <group>
                         <group name="main_info">
-                            <field name="code" placeholder="e.g., NAT_STORM_TYPHOON"/>
-                            <field name="parent_id" options="{'no_create': True}"/>
-                            <field name="active"/>
+                            <field name="code" placeholder="e.g., NAT_STORM_TYPHOON" />
+                            <field name="parent_id" options="{'no_create': True}" />
+                            <field name="active" />
                         </group>
                         <group name="computed_info">
-                            <field name="complete_name"/>
+                            <field name="complete_name" />
                         </group>
                     </group>
                     <notebook>
                         <page string="Description" name="description">
-                            <field name="description" placeholder="Describe this hazard category..."/>
+                            <field
+                                name="description"
+                                placeholder="Describe this hazard category..."
+                            />
                         </page>
-                        <page string="Subcategories" name="subcategories" invisible="not child_ids">
+                        <page
+                            string="Subcategories"
+                            name="subcategories"
+                            invisible="not child_ids"
+                        >
                             <field name="child_ids" readonly="1">
                                 <list>
-                                    <field name="name"/>
-                                    <field name="code"/>
-                                    <field name="active"/>
+                                    <field name="name" />
+                                    <field name="code" />
+                                    <field name="active" />
                                 </list>
                             </field>
                         </page>
@@ -73,13 +91,25 @@
         <field name="model">spp.hazard.category</field>
         <field name="arch" type="xml">
             <search>
-                <field name="name"/>
-                <field name="code"/>
-                <field name="parent_id"/>
-                <filter name="active" string="Active" domain="[('active', '=', True)]"/>
-                <filter name="inactive" string="Inactive" domain="[('active', '=', False)]"/>
-                <separator/>
-                <filter name="grp_parent" string="Parent" context="{'group_by': 'parent_id'}"/>
+                <field name="name" />
+                <field name="code" />
+                <field name="parent_id" />
+                <filter
+                    name="active"
+                    string="Active"
+                    domain="[('active', '=', True)]"
+                />
+                <filter
+                    name="inactive"
+                    string="Inactive"
+                    domain="[('active', '=', False)]"
+                />
+                <separator />
+                <filter
+                    name="grp_parent"
+                    string="Parent"
+                    context="{'group_by': 'parent_id'}"
+                />
             </search>
         </field>
     </record>

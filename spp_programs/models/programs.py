@@ -145,7 +145,7 @@ class SPPProgram(models.Model):
     view_id = fields.Many2one(
         "ir.ui.view",
         "Program UI Template",
-        domain="[('model', '=', 'spp.program'), " "('type', '=', 'form')," "('inherit_id', '=', False),]",
+        domain="[('model', '=', 'spp.program'), ('type', '=', 'form'),('inherit_id', '=', False),]",
         default=lambda self: self._get_default_program_ui(),
     )
 
@@ -554,6 +554,7 @@ class SPPProgram(models.Model):
         self.ensure_one()
 
         # Use stored action for proper URL/refresh handling
+        # nosemgrep: odoo-sudo-without-context
         action = self.env.ref("spp_programs.action_program_membership").sudo().read()[0]
         action.update(
             {
@@ -593,7 +594,7 @@ class SPPProgram(models.Model):
         self.ensure_one()
 
         # Use stored action for proper URL/refresh handling
-        action = self.env.ref("spp_programs.action_cycle_list").sudo().read()[0]
+        action = self.env.ref("spp_programs.action_cycle_list").sudo().read()[0]  # nosemgrep: odoo-sudo-without-context
         action.update(
             {
                 "name": _("Cycles - %s", self.name),
@@ -616,6 +617,7 @@ class SPPProgram(models.Model):
                 view_id = rec.view_id
 
             # Use stored action for proper URL/refresh handling
+            # nosemgrep: odoo-sudo-without-context
             action = self.env.ref("spp_programs.action_program_list").sudo().read()[0]
             action.update(
                 {

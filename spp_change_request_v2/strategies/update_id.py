@@ -51,8 +51,7 @@ class SPPCRApplyUpdateID(models.AbstractModel):
         )
         if existing:
             raise UserError(
-                _("Registrant already has an ID of type '%s'. " "Use 'Update' operation instead.")
-                % detail.id_type_id.name
+                _("Registrant already has an ID of type '%s'. Use 'Update' operation instead.") % detail.id_type_id.name
             )
 
         # Create new ID record

@@ -7,29 +7,8 @@
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Stable",
+    "development_status": "Production/Stable",
     "summary": "Search-first registry interface for privacy protection",
-    "description": """
-OpenSPP Registry Search Portal
-==============================
-
-Provides a search-first interface for the registry to protect beneficiary privacy.
-
-Features:
-- Search-first landing page (no records loaded by default)
-- Quick search with minimum 3 characters
-- Advanced filters (phone, email, registration date)
-- Recently viewed registrants (personal to each user)
-- Auditor-only browse-all access
-
-Privacy Protection:
-- Regular users must search to find registrants
-- No bulk browsing by default
-- Audit trail of who viewed which registrants
-
-Security Groups:
-- Registry Auditor: Can browse all registrants without search
-    """,
     "depends": [
         "spp_registry",
     ],

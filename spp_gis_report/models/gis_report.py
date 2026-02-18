@@ -609,7 +609,7 @@ class GISReport(models.Model):
 
         return raw_value
 
-    def _compute_hierarchy_rollup(self, base_results):
+    def _compute_hierarchy_rollup(self, base_results):  # noqa: C901
         """Roll up values from base level to all parent levels.
 
         Starting from base_area_level, aggregates values upward through
@@ -1076,7 +1076,6 @@ class GISReport(models.Model):
             dict: Updated results with normalized values
         """
         self.ensure_one()
-        import statistics
 
         if self.normalization_method not in ("index", "percentile", "zscore"):
             return results
@@ -1489,7 +1488,7 @@ class GISReport(models.Model):
                     feature["geometry"] = shape.__geo_interface__
                 except ImportError:
                     _logger.warning(
-                        "shapely not available, geometry export limited. " "Install shapely for full geometry support."
+                        "shapely not available, geometry export limited. Install shapely for full geometry support."
                     )
                     feature["geometry"] = None
                 except Exception as e:

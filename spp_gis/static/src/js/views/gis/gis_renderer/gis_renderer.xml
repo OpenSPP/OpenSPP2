@@ -5,7 +5,10 @@
             <div class="map_container">
                 <div id="olmap" class="ol-map" />
             </div>
-            <LayersPanel model="props.data.resModel" dataLayerModel="dataLayerModel.root" />
+            <LayersPanel
+                model="props.data.resModel"
+                dataLayerModel="dataLayerModel.root"
+            />
         </div>
         <div id="map-legend" class="ol-control" />
     </t>

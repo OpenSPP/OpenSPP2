@@ -132,7 +132,7 @@ class SPPCRDetailMergeRegistrants(models.Model):
                 for dup in rec.duplicate_registrant_ids:
                     if dup.is_group != primary_is_group:
                         raise ValidationError(
-                            "Cannot merge individuals with groups. " "All registrants must be of the same type."
+                            "Cannot merge individuals with groups. All registrants must be of the same type."
                         )
                     if dup.id == rec.primary_registrant_id.id:
                         raise ValidationError("Primary registrant cannot be in the duplicates list.")

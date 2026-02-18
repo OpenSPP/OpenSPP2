@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
     <!--
         Marital Status Vocabulary based on UN Principles and Recommendations
@@ -11,8 +11,12 @@
         <field name="name">Marital Status</field>
         <field name="namespace_uri">urn:un:unsd:pop-census:marital-status</field>
         <field name="version">2017</field>
-        <field name="description">Marital status classification based on UN Principles and Recommendations for Population and Housing Censuses, Revision 3 (2017). Defines the personal status of each individual in relation to the marriage laws or customs of the country.</field>
-        <field name="reference_url">https://unstats.un.org/unsd/publication/seriesM/Series_M67Rev3en.pdf</field>
+        <field
+            name="description"
+        >Marital status classification based on UN Principles and Recommendations for Population and Housing Censuses, Revision 3 (2017). Defines the personal status of each individual in relation to the marriage laws or customs of the country.</field>
+        <field
+            name="reference_url"
+        >https://unstats.un.org/unsd/publication/seriesM/Series_M67Rev3en.pdf</field>
         <field name="is_system">True</field>
         <field name="domain">core</field>
     </record>
@@ -20,47 +24,57 @@
     <!-- Single (Never Married) -->
     <!-- UN Recommendation: Use "Never Married" to distinguish from "Unmarried" which may include Divorced/Widowed. -->
     <record id="code_marital_single" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_marital"/>
+        <field name="vocabulary_id" ref="vocab_marital" />
         <field name="code">S</field>
         <field name="display">Never Married</field>
-        <field name="definition">Persons who have never entered into a marriage or registered partnership.</field>
+        <field
+            name="definition"
+        >Persons who have never entered into a marriage or registered partnership.</field>
         <field name="sequence">10</field>
     </record>
 
     <!-- Married -->
     <record id="code_marital_married" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_marital"/>
+        <field name="vocabulary_id" ref="vocab_marital" />
         <field name="code">M</field>
         <field name="display">Married</field>
-        <field name="definition">Persons whose marriage or registered partnership is still legally in effect, and who are not separated.</field>
+        <field
+            name="definition"
+        >Persons whose marriage or registered partnership is still legally in effect, and who are not separated.</field>
         <field name="sequence">20</field>
     </record>
 
     <!-- Widowed -->
     <record id="code_marital_widowed" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_marital"/>
+        <field name="vocabulary_id" ref="vocab_marital" />
         <field name="code">W</field>
         <field name="display">Widowed</field>
-        <field name="definition">Persons whose spouse has died and who have not remarried or entered into a new registered partnership.</field>
+        <field
+            name="definition"
+        >Persons whose spouse has died and who have not remarried or entered into a new registered partnership.</field>
         <field name="sequence">30</field>
     </record>
 
     <!-- Divorced -->
     <record id="code_marital_divorced" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_marital"/>
+        <field name="vocabulary_id" ref="vocab_marital" />
         <field name="code">D</field>
         <field name="display">Divorced</field>
-        <field name="definition">Persons whose marriage or registered partnership has been legally dissolved and who have not remarried.</field>
+        <field
+            name="definition"
+        >Persons whose marriage or registered partnership has been legally dissolved and who have not remarried.</field>
         <field name="sequence">40</field>
     </record>
 
     <!-- Separated -->
     <!-- UN Category: "Married but separated" -->
     <record id="code_marital_separated" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_marital"/>
+        <field name="vocabulary_id" ref="vocab_marital" />
         <field name="code">L</field>
         <field name="display">Separated</field>
-        <field name="definition">Persons who are married but legally separated or living apart from their spouse, where the marriage or registered partnership has not been dissolved.</field>
+        <field
+            name="definition"
+        >Persons who are married but legally separated or living apart from their spouse, where the marriage or registered partnership has not been dissolved.</field>
         <field name="sequence">50</field>
     </record>
 
@@ -68,10 +82,12 @@
     <!-- NOTE: UN Revision 3 distinguishes this as a "living arrangement" rather than a legal marital status,
          but acknowledges it as a useful category for social statistics. -->
     <record id="code_marital_consensual" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_marital"/>
+        <field name="vocabulary_id" ref="vocab_marital" />
         <field name="code">C</field>
         <field name="display">Consensual Union</field>
-        <field name="definition">Persons living together as partners without a formal marriage or registered partnership. Also known as cohabiting or common-law union, as recognized by the customs of the country.</field>
+        <field
+            name="definition"
+        >Persons living together as partners without a formal marriage or registered partnership. Also known as cohabiting or common-law union, as recognized by the customs of the country.</field>
         <field name="sequence">60</field>
     </record>
 </odoo>

@@ -82,7 +82,7 @@ class StudioMixin(models.AbstractModel):
     program_ids = fields.Many2many(
         "spp.program",
         string="Programs",
-        help="If set, this configuration is only visible in these programs. " "Leave empty for global visibility.",
+        help="If set, this configuration is only visible in these programs. Leave empty for global visibility.",
     )
 
     def action_activate(self):
@@ -126,10 +126,10 @@ class StudioMixin(models.AbstractModel):
             )
 
         # Hook for subclasses to check impact before deactivation
-        impact = self._get_deactivation_impact()
+        impact = self._get_deactivation_impact()  # pylint: disable=assignment-from-none
         if impact:
             # Return a confirmation wizard if there's impact
-            return self._show_deactivation_warning(impact)  # pylint: disable=assignment-from-none
+            return self._show_deactivation_warning(impact)
 
         return self._do_deactivate()
 

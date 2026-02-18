@@ -6,7 +6,10 @@
          and override onCustomListCreate() in their ListController patch
          to replace the default "New" button with a custom one. -->
     <t t-inherit="web.ListView" t-inherit-mode="extension">
-        <xpath expr="//Layout/t[@t-set-slot='control-panel-create-button']" position="replace">
+        <xpath
+            expr="//Layout/t[@t-set-slot='control-panel-create-button']"
+            position="replace"
+        >
             <t t-set-slot="control-panel-create-button">
                 <t t-if="customListCreateButton">
                     <button
@@ -28,7 +31,10 @@
                         t-on-click="onClickCreate"
                         data-bounce-button=""
                     >New</button>
-                    <t t-if="props.showButtons and !env.inDialog" t-call="web.ListView.EditableButtons" />
+                    <t
+                        t-if="props.showButtons and !env.inDialog"
+                        t-call="web.ListView.EditableButtons"
+                    />
                 </t>
             </t>
         </xpath>

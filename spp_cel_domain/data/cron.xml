@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
-
     <!-- Purge expired cached variable values weekly -->
     <record id="cron_purge_expired_data_values" model="ir.cron">
         <field name="name">Purge Expired Variable Values</field>
-        <field name="model_id" ref="model_spp_data_value"/>
+        <field name="model_id" ref="model_spp_data_value" />
         <field name="state">code</field>
         <field name="code">model.cron_purge_expired()</field>
         <field name="interval_number">1</field>
@@ -15,14 +14,18 @@
     <!-- Refresh stale cached variable values nightly (Phase 3 of ADR-017) -->
     <record id="cron_refresh_stale_cached_variables" model="ir.cron">
         <field name="name">Refresh Stale Cached Variables</field>
-        <field name="model_id" ref="model_spp_data_cache_manager"/>
+        <field name="model_id" ref="model_spp_data_cache_manager" />
         <field name="state">code</field>
-        <field name="code">model.refresh_stale_cached_variables(max_age_hours=24, batch_size=1000)</field>
+        <field
+            name="code"
+        >model.refresh_stale_cached_variables(max_age_hours=24, batch_size=1000)</field>
         <field name="interval_number">1</field>
         <field name="interval_type">days</field>
-        <field name="nextcall" eval="(DateTime.now() + timedelta(days=1)).replace(hour=2, minute=0)"/>
+        <field
+            name="nextcall"
+            eval="(DateTime.now() + timedelta(days=1)).replace(hour=2, minute=0)"
+        />
         <field name="priority">10</field>
         <field name="active">False</field>
     </record>
-
 </odoo>

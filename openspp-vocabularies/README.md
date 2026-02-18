@@ -6,8 +6,9 @@ Curated, standardized vocabulary data files for OpenSPP social protection platfo
 
 ## Purpose
 
-This repository provides authoritative vocabulary data in a consistent JSON format, sourced from international standards
-(ISO, UN, ILO, etc.). It serves as the single source of truth for vocabulary synchronization in OpenSPP deployments.
+This repository provides authoritative vocabulary data in a consistent JSON format,
+sourced from international standards (ISO, UN, ILO, etc.). It serves as the single
+source of truth for vocabulary synchronization in OpenSPP deployments.
 
 ## Structure
 
@@ -114,4 +115,5 @@ Tag a version (e.g., `v1.0.0`) to create a GitHub release with vocabulary statis
 
 ## License
 
-Data sourced from international standards organizations. See individual vocabulary files for source attribution.
+Data sourced from international standards organizations. See individual vocabulary files
+for source attribution.

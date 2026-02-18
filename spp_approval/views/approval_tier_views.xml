@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Approval Tier Form View -->
     <record id="spp_approval_tier_view_form" model="ir.ui.view">
@@ -9,35 +9,44 @@
                 <sheet>
                     <group>
                         <group>
-                            <field name="name"/>
-                            <field name="sequence"/>
-                            <field name="definition_id" invisible="context.get('default_definition_id')"/>
-                            <field name="active"/>
+                            <field name="name" />
+                            <field name="sequence" />
+                            <field
+                                name="definition_id"
+                                invisible="context.get('default_definition_id')"
+                            />
+                            <field name="active" />
                         </group>
                         <group>
-                            <field name="approval_type"/>
-                            <field name="approval_group_id"
-                                   invisible="approval_type != 'group'"
-                                   required="approval_type == 'group'"/>
-                            <field name="approval_user_ids"
-                                   widget="many2many_tags"
-                                   invisible="approval_type != 'user'"
-                                   required="approval_type == 'user'"/>
-                            <field name="approval_field"
-                                   invisible="approval_type != 'field'"
-                                   required="approval_type == 'field'"/>
+                            <field name="approval_type" />
+                            <field
+                                name="approval_group_id"
+                                invisible="approval_type != 'group'"
+                                required="approval_type == 'group'"
+                            />
+                            <field
+                                name="approval_user_ids"
+                                widget="many2many_tags"
+                                invisible="approval_type != 'user'"
+                                required="approval_type == 'user'"
+                            />
+                            <field
+                                name="approval_field"
+                                invisible="approval_type != 'field'"
+                                required="approval_type == 'field'"
+                            />
                         </group>
                     </group>
                     <group string="Approval Requirements">
                         <group>
-                            <field name="is_require_all"/>
-                            <field name="min_approvers" invisible="is_require_all"/>
-                            <field name="can_self_approve"/>
-                            <field name="is_blocking"/>
+                            <field name="is_require_all" />
+                            <field name="min_approvers" invisible="is_require_all" />
+                            <field name="can_self_approve" />
+                            <field name="is_blocking" />
                         </group>
                         <group>
-                            <field name="sla_hours"/>
-                            <field name="notify_on_pending"/>
+                            <field name="sla_hours" />
+                            <field name="notify_on_pending" />
                         </group>
                     </group>
                 </sheet>
@@ -51,16 +60,20 @@
         <field name="model">spp.approval.tier</field>
         <field name="arch" type="xml">
             <list string="Approval Tiers" editable="bottom">
-                <field name="sequence" widget="handle"/>
-                <field name="name"/>
-                <field name="approval_type"/>
-                <field name="approval_group_id" optional="show"/>
-                <field name="approval_user_ids" widget="many2many_tags" optional="show"/>
-                <field name="is_require_all"/>
-                <field name="min_approvers"/>
-                <field name="is_blocking"/>
-                <field name="sla_hours" optional="hide"/>
-                <field name="active" optional="hide"/>
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="approval_type" />
+                <field name="approval_group_id" optional="show" />
+                <field
+                    name="approval_user_ids"
+                    widget="many2many_tags"
+                    optional="show"
+                />
+                <field name="is_require_all" />
+                <field name="min_approvers" />
+                <field name="is_blocking" />
+                <field name="sla_hours" optional="hide" />
+                <field name="active" optional="hide" />
             </list>
         </field>
     </record>
@@ -72,33 +85,37 @@
         <field name="arch" type="xml">
             <form string="Tier Review">
                 <header>
-                    <field name="status" widget="statusbar" statusbar_visible="waiting,pending,approved"/>
+                    <field
+                        name="status"
+                        widget="statusbar"
+                        statusbar_visible="waiting,pending,approved"
+                    />
                 </header>
                 <sheet>
                     <group>
                         <group>
-                            <field name="tier_id"/>
-                            <field name="tier_name"/>
-                            <field name="sequence"/>
-                            <field name="review_id"/>
+                            <field name="tier_id" />
+                            <field name="tier_name" />
+                            <field name="sequence" />
+                            <field name="review_id" />
                         </group>
                         <group>
-                            <field name="approved_by_ids" widget="many2many_tags"/>
-                            <field name="approved_date"/>
-                            <field name="completed_date"/>
+                            <field name="approved_by_ids" widget="many2many_tags" />
+                            <field name="approved_date" />
+                            <field name="completed_date" />
                         </group>
                     </group>
                     <group string="Rejection" invisible="status != 'rejected'">
-                        <field name="rejected_by_id"/>
-                        <field name="rejected_date"/>
-                        <field name="rejection_reason"/>
+                        <field name="rejected_by_id" />
+                        <field name="rejected_date" />
+                        <field name="rejection_reason" />
                     </group>
                     <group string="SLA" invisible="not sla_deadline">
-                        <field name="sla_deadline"/>
-                        <field name="is_sla_breached"/>
+                        <field name="sla_deadline" />
+                        <field name="is_sla_breached" />
                     </group>
                     <group>
-                        <field name="comment"/>
+                        <field name="comment" />
                     </group>
                 </sheet>
             </form>
@@ -111,17 +128,20 @@
         <field name="model">spp.approval.tier.review</field>
         <field name="arch" type="xml">
             <list string="Tier Reviews">
-                <field name="sequence"/>
-                <field name="tier_name"/>
-                <field name="status" widget="badge"
-                       decoration-info="status == 'waiting'"
-                       decoration-warning="status == 'pending'"
-                       decoration-success="status == 'approved'"
-                       decoration-danger="status == 'rejected'"
-                       decoration-muted="status == 'skipped'"/>
-                <field name="approved_by_ids" widget="many2many_tags"/>
-                <field name="completed_date"/>
-                <field name="is_sla_breached" optional="hide"/>
+                <field name="sequence" />
+                <field name="tier_name" />
+                <field
+                    name="status"
+                    widget="badge"
+                    decoration-info="status == 'waiting'"
+                    decoration-warning="status == 'pending'"
+                    decoration-success="status == 'approved'"
+                    decoration-danger="status == 'rejected'"
+                    decoration-muted="status == 'skipped'"
+                />
+                <field name="approved_by_ids" widget="many2many_tags" />
+                <field name="completed_date" />
+                <field name="is_sla_breached" optional="hide" />
             </list>
         </field>
     </record>

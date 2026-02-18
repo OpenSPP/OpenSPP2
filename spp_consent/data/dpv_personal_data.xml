@@ -8,7 +8,6 @@ See: https://w3id.org/dpv#PersonalData
 Includes social protection-specific categories.
 -->
 <odoo noupdate="1">
-
     <!-- ================================================================== -->
     <!-- BASIC PERSONAL DATA CATEGORIES (DPV) -->
     <!-- ================================================================== -->
@@ -69,7 +68,9 @@ Includes social protection-specific categories.
         <field name="dpv_uri">https://w3id.org/dpv#Family</field>
         <field name="dpv_concept">dpv:Family</field>
         <field name="description">Information about family relationships</field>
-        <field name="example_fields">Household members, dependents, relationships</field>
+        <field
+            name="example_fields"
+        >Household members, dependents, relationships</field>
         <field name="sequence">60</field>
     </record>
 
@@ -83,7 +84,9 @@ Includes social protection-specific categories.
         <field name="dpv_uri">https://w3id.org/dpv#HealthData</field>
         <field name="dpv_concept">dpv:HealthData</field>
         <field name="description">Health and medical information</field>
-        <field name="example_fields">Medical conditions, disabilities, treatments</field>
+        <field
+            name="example_fields"
+        >Medical conditions, disabilities, treatments</field>
         <field name="is_sensitive">True</field>
         <field name="sensitivity_reason">health</field>
         <field name="sequence">100</field>
@@ -142,7 +145,9 @@ Includes social protection-specific categories.
         <field name="code">SPVulnerability</field>
         <field name="name">Vulnerability Assessment Data</field>
         <field name="description">Information from vulnerability assessments</field>
-        <field name="example_fields">Vulnerability score, risk factors, needs assessment</field>
+        <field
+            name="example_fields"
+        >Vulnerability score, risk factors, needs assessment</field>
         <field name="is_social_protection">True</field>
         <field name="sequence">200</field>
     </record>
@@ -151,7 +156,9 @@ Includes social protection-specific categories.
         <field name="code">SPEnrollment</field>
         <field name="name">Program Enrollment Data</field>
         <field name="description">Information about program enrollments</field>
-        <field name="example_fields">Programs enrolled, enrollment dates, benefit types</field>
+        <field
+            name="example_fields"
+        >Programs enrolled, enrollment dates, benefit types</field>
         <field name="is_social_protection">True</field>
         <field name="sequence">210</field>
     </record>
@@ -160,7 +167,9 @@ Includes social protection-specific categories.
         <field name="code">SPBenefit</field>
         <field name="name">Benefit History Data</field>
         <field name="description">Information about benefits received</field>
-        <field name="example_fields">Payment amounts, payment dates, delivery method</field>
+        <field
+            name="example_fields"
+        >Payment amounts, payment dates, delivery method</field>
         <field name="is_social_protection">True</field>
         <field name="sequence">220</field>
     </record>
@@ -169,9 +178,10 @@ Includes social protection-specific categories.
         <field name="code">SPLivelihood</field>
         <field name="name">Livelihood Data</field>
         <field name="description">Information about livelihoods and occupation</field>
-        <field name="example_fields">Occupation, employment status, assets, land ownership</field>
+        <field
+            name="example_fields"
+        >Occupation, employment status, assets, land ownership</field>
         <field name="is_social_protection">True</field>
         <field name="sequence">230</field>
     </record>
-
 </odoo>

@@ -92,7 +92,7 @@ class DefaultEligibilityManager(models.Model):
         if self.program_id.target_type == "individual":
             domain += [("is_group", "=", False), ("is_registrant", "=", True)]
         domain += self._safe_eval(self.eligibility_domain)
-        _logger.debug("spp_programs: DOMAIN (Default Eligibility Manager): %s" % domain)
+        _logger.debug(f"spp_programs: DOMAIN (Default Eligibility Manager): {domain}")
         return domain
 
     def enroll_eligible_registrants(self, program_memberships):

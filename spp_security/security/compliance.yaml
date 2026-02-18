@@ -21,13 +21,16 @@ groups:
     tier: 2
     privilege_id: privilege_spp_admin
     comment:
-      "Full administrative access to all OpenSPP modules. This group automatically inherits all manager-level
-      permissions from installed domain modules. Assign this group to system administrators who need complete access."
+      "Full administrative access to all OpenSPP modules. This group automatically
+      inherits all manager-level permissions from installed domain modules. Assign this
+      group to system administrators who need complete access."
 
   - id: group_access_restrict_self
     tier: 2
     privilege_id: privilege_access_restrict_self_officer
-    comment: "Users in this group can only see their own user record. Used for field agents and limited-access users."
+    comment:
+      "Users in this group can only see their own user record. Used for field agents and
+      limited-access users."
 
 # Admin linkage - this module IS the admin module, no linkage needed
 # Domain modules should link their manager groups to group_spp_admin
@@ -51,26 +54,29 @@ record_rules:
     model: res.partner
     groups: [] # Global rule (no specific groups)
     domain_description:
-      "Partners: Multi-company access - users can only see partners from their companies or without company"
+      "Partners: Multi-company access - users can only see partners from their companies
+      or without company"
     perm_read: true
     perm_write: true
     perm_create: true
     perm_unlink: true
     global: true
     comment:
-      "Global multi-company rule ensuring users only access partners from their assigned companies or company-neutral
-      records"
+      "Global multi-company rule ensuring users only access partners from their assigned
+      companies or company-neutral records"
 
   # Self-only access rule for users with restricted access
   - id: rule_user_self_only
     model: res.users
     groups: [group_access_restrict_self]
-    domain_description: "Users: See only self - users can only see their own user record"
+    domain_description:
+      "Users: See only self - users can only see their own user record"
     perm_read: true
     perm_write: false
     perm_create: false
     perm_unlink: false
-    comment: "Restricts users in group_access_restrict_self to only view their own user record"
+    comment:
+      "Restricts users in group_access_restrict_self to only view their own user record"
 
 # =============================================================================
 # MENU VISIBILITY

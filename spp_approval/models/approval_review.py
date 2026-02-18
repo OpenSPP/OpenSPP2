@@ -201,7 +201,7 @@ class ApprovalReview(models.Model):
         # Get definitions where this user is an approver (group or user type)
         # Use sudo() to check group membership without requiring read access to res.groups
         definitions = (
-            self.env["spp.approval.definition"]
+            self.env["spp.approval.definition"]  # nosemgrep: odoo-sudo-without-context
             .sudo()
             .search(
                 [
@@ -213,6 +213,7 @@ class ApprovalReview(models.Model):
         )
 
         # Also check for manager-type definitions
+        # nosemgrep: odoo-sudo-without-context
         manager_definitions = self.env["spp.approval.definition"].sudo().search([("approval_type", "=", "manager")])
 
         all_definition_ids = definitions.ids

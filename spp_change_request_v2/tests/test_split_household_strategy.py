@@ -351,7 +351,7 @@ class TestSplitHouseholdStrategy(TransactionCase):
                     "is_group": False,
                 }
             )
-            mem1 = self.membership_model.create(
+            self.membership_model.create(
                 {
                     "group": group.id,
                     "individual": m1.id,

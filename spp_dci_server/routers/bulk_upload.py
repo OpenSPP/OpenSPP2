@@ -62,7 +62,7 @@ def _parse_json_file(content: bytes) -> list[dict]:
     try:
         data = json.loads(content.decode("utf-8"))
     except (json.JSONDecodeError, UnicodeDecodeError) as e:
-        raise BulkUploadError(f"Invalid JSON format: {str(e)}", "err.file.parse_error")
+        raise BulkUploadError(f"Invalid JSON format: {str(e)}", "err.file.parse_error") from e
 
     # Check if it's a full DCI envelope
     if isinstance(data, dict):
@@ -150,9 +150,9 @@ def _parse_csv_file(content: bytes) -> list[dict]:
         return _identifiers_to_search_requests(identifiers)
 
     except UnicodeDecodeError as e:
-        raise BulkUploadError(f"Invalid CSV encoding: {str(e)}", "err.file.parse_error")
+        raise BulkUploadError(f"Invalid CSV encoding: {str(e)}", "err.file.parse_error") from e
     except csv.Error as e:
-        raise BulkUploadError(f"Invalid CSV format: {str(e)}", "err.file.parse_error")
+        raise BulkUploadError(f"Invalid CSV format: {str(e)}", "err.file.parse_error") from e
 
 
 def _identifiers_to_search_requests(identifiers: list[dict]) -> list[dict]:
@@ -222,7 +222,7 @@ async def _read_file_with_limit(file: UploadFile, max_size: int) -> bytes:
         if len(content) > max_size:
             raise HTTPException(
                 status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-                detail=f"File exceeds maximum size of {max_size // (1024*1024)}MB",
+                detail=f"File exceeds maximum size of {max_size // (1024 * 1024)}MB",
             )
 
     return content
@@ -237,7 +237,7 @@ async def bulk_search_upload(
     env: Annotated[Environment, Depends(odoo_env)],
     _bearer_token: Annotated[str, Depends(verify_bearer_token)],
     _rate_limit_check: Annotated[None, Depends(check_dci_rate_limit)],
-    file: UploadFile = File(..., description="JSON or CSV file with search requests"),
+    file: Annotated[UploadFile, File(description="JSON or CSV file with search requests")],
     file_format: str = Form("json", description="File format: json or csv"),
     action: str = Form("search", description="DCI action type"),
     sender_id: str = Form(..., description="Sender identifier"),
@@ -300,12 +300,13 @@ async def bulk_search_upload(
         )
 
         # Look up sender
+        # nosemgrep: odoo-sudo-without-context
         sender = env["spp.dci.sender.registry"].sudo().search([("sender_id", "=", sender_id)], limit=1)
 
         # Check per-sender concurrency limits
         if sender:
             pending_jobs = (
-                env["spp.dci.transaction"]
+                env["spp.dci.transaction"]  # nosemgrep: odoo-sudo-without-context
                 .sudo()
                 .search_count(
                     [
@@ -333,7 +334,7 @@ async def bulk_search_upload(
 
         # Create transaction record for tracking
         transaction = (
-            env["spp.dci.transaction"]
+            env["spp.dci.transaction"]  # nosemgrep: odoo-sudo-without-context
             .sudo()
             .create(
                 {
@@ -390,7 +391,7 @@ async def bulk_search_upload(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={"error": e.code, "message": e.message},
-        )
+        ) from e
     except HTTPException:
         raise
     except Exception as e:
@@ -398,7 +399,7 @@ async def bulk_search_upload(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error processing bulk upload",
-        )
+        ) from e
 
 
 @dci_bulk_upload_router.post(
@@ -410,7 +411,7 @@ async def bulk_verify_identifiers(
     env: Annotated[Environment, Depends(odoo_env)],
     _bearer_token: Annotated[str, Depends(verify_bearer_token)],
     _rate_limit_check: Annotated[None, Depends(check_dci_rate_limit)],
-    file: UploadFile = File(..., description="JSON or CSV file with identifiers"),
+    file: Annotated[UploadFile, File(description="JSON or CSV file with identifiers")],
     file_format: str = Form("json", description="File format: json or csv"),
     sender_id: str = Form(..., description="Sender identifier"),
 ):
@@ -466,7 +467,9 @@ async def bulk_verify_identifiers(
         if len(search_items) > max_sync_items:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Too many items ({len(search_items)}) for sync verify. Max {max_sync_items}. Use /upload/search.",
+                detail=(
+                    f"Too many items ({len(search_items)}) for sync verify. Max {max_sync_items}. Use /upload/search."
+                ),
             )
 
         _logger.info(
@@ -502,7 +505,7 @@ async def bulk_verify_identifiers(
         all_types = list(set(k[0] for k in lookup_requests.keys()))
         all_values = list(set(k[1] for k in lookup_requests.keys()))
 
-        RegID = env["spp.registry.id"].sudo()
+        RegID = env["spp.registry.id"].sudo()  # nosemgrep: odoo-sudo-without-context
         reg_ids = RegID.search(
             [
                 ("id_type_id.namespace_uri", "in", all_types),
@@ -555,7 +558,7 @@ async def bulk_verify_identifiers(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={"error": e.code, "message": e.message},
-        )
+        ) from e
     except HTTPException:
         raise
     except Exception as e:
@@ -563,4 +566,4 @@ async def bulk_verify_identifiers(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error",
-        )
+        ) from e

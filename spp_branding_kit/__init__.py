@@ -37,6 +37,7 @@ def post_init_hook(env):
                 _logger.debug("Could not disable cron %s: %s", cron_xml_id, e)
 
         # Disable theme store menu if it exists
+        # nosemgrep: odoo-sudo-without-context — post-install hook runs as system to configure branding
         theme_menu = env["ir.ui.menu"].sudo().search([("name", "ilike", "Theme Store")], limit=1)
         if theme_menu and theme_menu.active:
             theme_menu.active = False
@@ -47,6 +48,7 @@ def post_init_hook(env):
 
     # Update company information for all companies
     try:
+        # nosemgrep: odoo-sudo-without-context — post-install hook runs as system to configure branding
         Company = env["res.company"].sudo()
         companies = Company.search([])
         for company in companies:
@@ -72,6 +74,7 @@ def uninstall_hook(env):
 
     # Remove all openspp.* configuration parameters
     try:
+        # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
         IrConfigParam = env["ir.config_parameter"].sudo()
         params = IrConfigParam.search([("key", "=like", "openspp.%")])
         if params:

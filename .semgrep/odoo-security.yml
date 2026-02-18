@@ -68,19 +68,13 @@ rules:
       owasp: "A03:2021 Injection"
 
   - id: odoo-unsafe-safe-eval
-    patterns:
-      - pattern-either:
-          - pattern: safe_eval(...)
-          - pattern: odoo.tools.safe_eval.safe_eval(...)
-          - pattern: odoo.tools.safe_eval.test_expr(...)
-      # Suppress in compute methods and known-safe domain evaluation
-      # contexts where the input is developer-controlled, not user-controlled.
-      - pattern-not-inside: |
-          def _compute_$METHOD(...):
-              ...
-      - pattern-not-inside: |
-          def action_domain_eval(...):
-              ...
+    # NOTE: pattern-not-inside blocks removed - semgrep v1.90.0 cannot parse
+    # metavariable/ellipsis patterns in Python function definitions.
+    # Use nosemgrep inline annotations for known-safe usage.
+    pattern-either:
+      - pattern: safe_eval(...)
+      - pattern: odoo.tools.safe_eval.safe_eval(...)
+      - pattern: odoo.tools.safe_eval.test_expr(...)
     message: |
       safe_eval() is NOT safe with user input!
       It can be bypassed to achieve code execution.
@@ -227,7 +221,8 @@ rules:
           - pattern: _logger.$METHOD(..., $RECORD.national_id, ...)
           - pattern: _logger.$METHOD(..., $RECORD.tax_id, ...)
           - pattern: _logger.$METHOD(..., $RECORD.vat, ...)
-    message: "Potential PII (national/tax ID) in log message - CRITICAL privacy violation."
+    message:
+      "Potential PII (national/tax ID) in log message - CRITICAL privacy violation."
     severity: ERROR
     languages: [python]
     metadata:

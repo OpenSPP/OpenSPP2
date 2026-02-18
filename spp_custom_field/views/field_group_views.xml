@@ -31,8 +31,8 @@
                             <field name="active" />
                         </group>
                     </group>
-                    <separator string="Description"/>
-                    <field name="description" nolabel="1" class="oe_inline"/>
+                    <separator string="Description" />
+                    <field name="description" nolabel="1" class="oe_inline" />
                 </sheet>
             </form>
         </field>
@@ -47,15 +47,27 @@
                 <field name="name" />
                 <field name="target_type" />
                 <separator />
-                <filter string="Group Fields" name="filter_group" domain="[('target_type', '=', 'grp')]" />
+                <filter
+                    string="Group Fields"
+                    name="filter_group"
+                    domain="[('target_type', '=', 'grp')]"
+                />
                 <filter
                     string="Individual Fields"
                     name="filter_individual"
                     domain="[('target_type', '=', 'indv')]"
                 />
                 <separator />
-                <filter string="Active" name="filter_active" domain="[('active', '=', True)]" />
-                <filter string="Archived" name="filter_archived" domain="[('active', '=', False)]" />
+                <filter
+                    string="Active"
+                    name="filter_active"
+                    domain="[('active', '=', True)]"
+                />
+                <filter
+                    string="Archived"
+                    name="filter_archived"
+                    domain="[('active', '=', False)]"
+                />
                 <separator />
                 <group>
                     <filter
@@ -85,5 +97,4 @@
             </p>
         </field>
     </record>
-
 </odoo>

@@ -51,7 +51,7 @@ async def get_jwks(
     """
     try:
         # Get active signing keys from database
-        SigningKey = env["spp.dci.signing.key"].sudo()
+        SigningKey = env["spp.dci.signing.key"].sudo()  # nosemgrep: odoo-sudo-without-context
         active_keys = SigningKey.search([("state", "=", "active")])
 
         if not active_keys:

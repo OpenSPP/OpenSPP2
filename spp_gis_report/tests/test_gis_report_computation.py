@@ -47,7 +47,7 @@ class TestGISReportComputation(GISReportTestBase):
         for i in range(4):
             cls.env["res.partner"].create(
                 {
-                    "name": f"District1 Individual {i+2}",
+                    "name": f"District1 Individual {i + 2}",
                     "is_registrant": True,
                     "is_group": False,
                     "area_id": cls.area_district_1.id,
@@ -66,7 +66,7 @@ class TestGISReportComputation(GISReportTestBase):
         for i in range(2):
             cls.env["res.partner"].create(
                 {
-                    "name": f"District2 Individual {i+2}",
+                    "name": f"District2 Individual {i + 2}",
                     "is_registrant": True,
                     "is_group": False,
                     "area_id": cls.area_district_2.id,
@@ -102,7 +102,7 @@ class TestGISReportComputation(GISReportTestBase):
         for i in range(10):
             cls.env["res.partner"].create(
                 {
-                    "name": f"District3 Individual {i+1}",
+                    "name": f"District3 Individual {i + 1}",
                     "is_registrant": True,
                     "is_group": False,
                     "area_id": cls.area_district_3.id,

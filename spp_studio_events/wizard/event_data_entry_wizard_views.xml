@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Event Data Entry Wizard Field - Inline Form View for editing -->
     <record id="view_event_data_entry_wizard_field_form" model="ir.ui.view">
@@ -7,44 +7,64 @@
         <field name="arch" type="xml">
             <form string="Edit Field Value">
                 <group>
-                    <field name="field_type" invisible="1"/>
-                    <field name="label" readonly="1" string="Field"/>
-                    <field name="help_text" readonly="1" invisible="not help_text"/>
-                    <field name="selection_options" invisible="1"/>
+                    <field name="field_type" invisible="1" />
+                    <field name="label" readonly="1" string="Field" />
+                    <field name="help_text" readonly="1" invisible="not help_text" />
+                    <field name="selection_options" invisible="1" />
 
                     <!-- Show appropriate input based on field type -->
-                    <field name="value_text"
-                           string="Value"
-                           invisible="field_type != 'text'"/>
-                    <field name="value_long_text"
-                           string="Value"
-                           invisible="field_type != 'long_text'"/>
-                    <field name="value_integer"
-                           string="Value"
-                           invisible="field_type != 'integer'"/>
-                    <field name="value_decimal"
-                           string="Value"
-                           invisible="field_type != 'decimal'"/>
-                    <field name="value_date"
-                           string="Value"
-                           invisible="field_type != 'date'"/>
-                    <field name="value_datetime"
-                           string="Value"
-                           invisible="field_type != 'datetime'"/>
-                    <field name="value_boolean"
-                           string="Value"
-                           widget="boolean_toggle"
-                           invisible="field_type != 'boolean'"/>
-                    <field name="value_selection"
-                           string="Value"
-                           invisible="field_type != 'selection'"/>
-                    <field name="value_multi_select"
-                           string="Value"
-                           placeholder="value1, value2, ..."
-                           invisible="field_type != 'multi_select'"/>
-                    <field name="value_link"
-                           string="Value"
-                           invisible="field_type != 'link'"/>
+                    <field
+                        name="value_text"
+                        string="Value"
+                        invisible="field_type != 'text'"
+                    />
+                    <field
+                        name="value_long_text"
+                        string="Value"
+                        invisible="field_type != 'long_text'"
+                    />
+                    <field
+                        name="value_integer"
+                        string="Value"
+                        invisible="field_type != 'integer'"
+                    />
+                    <field
+                        name="value_decimal"
+                        string="Value"
+                        invisible="field_type != 'decimal'"
+                    />
+                    <field
+                        name="value_date"
+                        string="Value"
+                        invisible="field_type != 'date'"
+                    />
+                    <field
+                        name="value_datetime"
+                        string="Value"
+                        invisible="field_type != 'datetime'"
+                    />
+                    <field
+                        name="value_boolean"
+                        string="Value"
+                        widget="boolean_toggle"
+                        invisible="field_type != 'boolean'"
+                    />
+                    <field
+                        name="value_selection"
+                        string="Value"
+                        invisible="field_type != 'selection'"
+                    />
+                    <field
+                        name="value_multi_select"
+                        string="Value"
+                        placeholder="value1, value2, ..."
+                        invisible="field_type != 'multi_select'"
+                    />
+                    <field
+                        name="value_link"
+                        string="Value"
+                        invisible="field_type != 'link'"
+                    />
                 </group>
             </form>
         </field>
@@ -58,16 +78,20 @@
             <form string="Enter Event Data">
                 <group>
                     <group string="Event Information">
-                        <field name="studio_event_type_id"
-                               readonly="1"
-                               options="{'no_create': True, 'no_create_edit': True}"/>
-                        <field name="event_type_id" invisible="1"/>
+                        <field
+                            name="studio_event_type_id"
+                            readonly="1"
+                            options="{'no_create': True, 'no_create_edit': True}"
+                        />
+                        <field name="event_type_id" invisible="1" />
                     </group>
                     <group string="Registrant">
-                        <field name="partner_id"
-                               readonly="1"
-                               options="{'no_create': True, 'no_create_edit': True}"/>
-                        <field name="collection_date"/>
+                        <field
+                            name="partner_id"
+                            readonly="1"
+                            options="{'no_create': True, 'no_create_edit': True}"
+                        />
+                        <field name="collection_date" />
                     </group>
                 </group>
 
@@ -75,56 +99,86 @@
                     <page name="event_data" string="Event Data">
                         <field name="field_value_ids">
                             <list>
-                                <field name="sequence" column_invisible="1"/>
-                                <field name="field_type" column_invisible="1"/>
-                                <field name="selection_options" column_invisible="1"/>
-                                <field name="label" string="Field" readonly="1"/>
-                                <field name="display_value" string="Value" readonly="1"/>
-                                <field name="is_required"
-                                       string="Required"
-                                       readonly="1"
-                                       optional="hide"/>
+                                <field name="sequence" column_invisible="1" />
+                                <field name="field_type" column_invisible="1" />
+                                <field name="selection_options" column_invisible="1" />
+                                <field name="label" string="Field" readonly="1" />
+                                <field
+                                    name="display_value"
+                                    string="Value"
+                                    readonly="1"
+                                />
+                                <field
+                                    name="is_required"
+                                    string="Required"
+                                    readonly="1"
+                                    optional="hide"
+                                />
                             </list>
                             <form>
                                 <group>
-                                    <field name="field_type" invisible="1"/>
-                                    <field name="label" readonly="1" string="Field"/>
-                                    <field name="help_text" readonly="1" invisible="not help_text"/>
-                                    <field name="selection_options" invisible="1"/>
+                                    <field name="field_type" invisible="1" />
+                                    <field name="label" readonly="1" string="Field" />
+                                    <field
+                                        name="help_text"
+                                        readonly="1"
+                                        invisible="not help_text"
+                                    />
+                                    <field name="selection_options" invisible="1" />
 
                                     <!-- Show appropriate input based on field type -->
-                                    <field name="value_text"
-                                           string="Value"
-                                           invisible="field_type != 'text'"/>
-                                    <field name="value_long_text"
-                                           string="Value"
-                                           invisible="field_type != 'long_text'"/>
-                                    <field name="value_integer"
-                                           string="Value"
-                                           invisible="field_type != 'integer'"/>
-                                    <field name="value_decimal"
-                                           string="Value"
-                                           invisible="field_type != 'decimal'"/>
-                                    <field name="value_date"
-                                           string="Value"
-                                           invisible="field_type != 'date'"/>
-                                    <field name="value_datetime"
-                                           string="Value"
-                                           invisible="field_type != 'datetime'"/>
-                                    <field name="value_boolean"
-                                           string="Value"
-                                           widget="boolean_toggle"
-                                           invisible="field_type != 'boolean'"/>
-                                    <field name="value_selection"
-                                           string="Value"
-                                           invisible="field_type != 'selection'"/>
-                                    <field name="value_multi_select"
-                                           string="Value"
-                                           placeholder="value1, value2, ..."
-                                           invisible="field_type != 'multi_select'"/>
-                                    <field name="value_link"
-                                           string="Value"
-                                           invisible="field_type != 'link'"/>
+                                    <field
+                                        name="value_text"
+                                        string="Value"
+                                        invisible="field_type != 'text'"
+                                    />
+                                    <field
+                                        name="value_long_text"
+                                        string="Value"
+                                        invisible="field_type != 'long_text'"
+                                    />
+                                    <field
+                                        name="value_integer"
+                                        string="Value"
+                                        invisible="field_type != 'integer'"
+                                    />
+                                    <field
+                                        name="value_decimal"
+                                        string="Value"
+                                        invisible="field_type != 'decimal'"
+                                    />
+                                    <field
+                                        name="value_date"
+                                        string="Value"
+                                        invisible="field_type != 'date'"
+                                    />
+                                    <field
+                                        name="value_datetime"
+                                        string="Value"
+                                        invisible="field_type != 'datetime'"
+                                    />
+                                    <field
+                                        name="value_boolean"
+                                        string="Value"
+                                        widget="boolean_toggle"
+                                        invisible="field_type != 'boolean'"
+                                    />
+                                    <field
+                                        name="value_selection"
+                                        string="Value"
+                                        invisible="field_type != 'selection'"
+                                    />
+                                    <field
+                                        name="value_multi_select"
+                                        string="Value"
+                                        placeholder="value1, value2, ..."
+                                        invisible="field_type != 'multi_select'"
+                                    />
+                                    <field
+                                        name="value_link"
+                                        string="Value"
+                                        invisible="field_type != 'link'"
+                                    />
                                 </group>
                             </form>
                         </field>
@@ -132,11 +186,13 @@
                 </notebook>
 
                 <footer>
-                    <button name="action_create_event"
-                            type="object"
-                            string="Create Event"
-                            class="btn-primary"/>
-                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    <button
+                        name="action_create_event"
+                        type="object"
+                        string="Create Event"
+                        class="btn-primary"
+                    />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
                 </footer>
             </form>
         </field>

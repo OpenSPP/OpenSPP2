@@ -1,10 +1,12 @@
 # OpenSPP Linting Scripts
 
-Custom linting checks for OpenSPP modules to enforce development principles and coding standards.
+Custom linting checks for OpenSPP modules to enforce development principles and coding
+standards.
 
 ## Overview
 
-These scripts automate enforcement of [OpenSPP Development Principles](../../docs/principles/):
+These scripts automate enforcement of
+[OpenSPP Development Principles](../../docs/principles/):
 
 | Check              | Principle                                                                                                         | Severity | Auto-Fix |
 | ------------------ | ----------------------------------------------------------------------------------------------------------------- | -------- | -------- |
@@ -134,8 +136,8 @@ Validates:
 - Boolean fields use `is_*` or `has_*` prefix
 - Many2one fields end with `_id`
 - One2many/Many2many fields end with `_ids`
-- Generic `kind` schema fields emit a warning (prefer `*_type` / `*_role`; allowed list: `in_kind` or config
-  `kind_allowed`)
+- Generic `kind` schema fields emit a warning (prefer `*_type` / `*_role`; allowed list:
+  `in_kind` or config `kind_allowed`)
 
 ```bash
 # Check module names
@@ -209,8 +211,8 @@ python scripts/lint/check_logger.py spp_registry_base/models/*.py
 
 ### 7. UI Patterns (`check_ui_patterns.py`)
 
-Validates XML view patterns based on [ui-design.md](../../docs/principles/ui-design.md) and
-[ui-performance.md](../../docs/principles/ui-performance.md):
+Validates XML view patterns based on [ui-design.md](../../docs/principles/ui-design.md)
+and [ui-performance.md](../../docs/principles/ui-performance.md):
 
 - **XPath class**: XPath must use `hasclass()` not `@class` (Odoo 19 requirement)
 - **Statusbar location**: Statusbar widget must be in `<header>` not `<sheet>`
@@ -228,8 +230,8 @@ python scripts/lint/check_ui_patterns.py spp_programs/views/*.xml
 python scripts/lint/check_ui_patterns.py --format json --module spp_grm
 ```
 
-**Configuration**: Large models, search panel thresholds, and editable O2M exceptions are configurable in
-`.openspp-lint.yaml` under `rules.ui`.
+**Configuration**: Large models, search panel thresholds, and editable O2M exceptions
+are configurable in `.openspp-lint.yaml` under `rules.ui`.
 
 ## Output Formats
 
@@ -302,7 +304,8 @@ The `.vscode/` folder includes:
 
 ## Pre-commit Integration
 
-All checks are configured in `.pre-commit-config.yaml`. The hooks run automatically on git commit.
+All checks are configured in `.pre-commit-config.yaml`. The hooks run automatically on
+git commit.
 
 ```bash
 # Run all hooks manually

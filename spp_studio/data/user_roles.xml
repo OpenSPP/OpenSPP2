@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
     <!-- Extend Program Manager role to include Studio Viewer -->
     <record id="spp_user_roles.global_role_program_manager" model="res.users.role">
@@ -10,5 +10,4 @@
             ]"
         />
     </record>
-
 </odoo>

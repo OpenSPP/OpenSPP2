@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
-    <record id="view_cycle_form_inherit_spp_programs_compliance_criteria" model="ir.ui.view">
+    <record
+        id="view_cycle_form_inherit_spp_programs_compliance_criteria"
+        model="ir.ui.view"
+    >
         <field name="name">spp.cycle.view.form.inherit</field>
         <field name="model">spp.cycle</field>
         <field name="inherit_id" ref="spp_programs.view_cycle_form" />
@@ -28,7 +30,10 @@
                     role="status"
                     invisible="not allow_filter_compliance_criteria or not compliance_criteria_applied"
                 >
-                    <i class="fa fa-info-circle" title="Info" /> Compliance criteria filtering has already been applied to this cycle.
+                    <i
+                    class="fa fa-info-circle"
+                    title="Info"
+                /> Compliance criteria filtering has already been applied to this cycle.
                     Non-compliant beneficiaries have been marked accordingly.
                 </div>
             </xpath>
@@ -49,5 +54,4 @@
             </xpath>
         </field>
     </record>
-
 </odoo>

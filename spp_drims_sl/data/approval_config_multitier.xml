@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!--
+    Enable multi-tier on approval definitions.
+
+    Uses <function> instead of duplicate record IDs to avoid
+    OCA xml-duplicate-record-id lint errors. This file loads after
+    approval_config.xml so that the tier records already exist,
+    satisfying the _check_multitier_config constraint.
+    -->
+
+    <function
+        model="spp.approval.definition"
+        name="write"
+        eval="[[ref('approval_def_medium')], {'use_multitier': True}]"
+    />
+
+    <function
+        model="spp.approval.definition"
+        name="write"
+        eval="[[ref('approval_def_large')], {'use_multitier': True}]"
+    />
+</odoo>

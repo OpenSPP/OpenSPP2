@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo noupdate="1">
-
     <!-- Document Type Vocabulary -->
     <record id="vocabulary_cr_document_type" model="spp.vocabulary">
         <field name="name">Change Request Document Types</field>
         <field name="namespace_uri">urn:openspp:vocab:cr_document_type</field>
-        <field name="description">Standard document types that can be attached to change requests</field>
+        <field
+            name="description"
+        >Standard document types that can be attached to change requests</field>
         <field name="is_system">False</field>
         <field name="active">True</field>
     </record>
-
 </odoo>

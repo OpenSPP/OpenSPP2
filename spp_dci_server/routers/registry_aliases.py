@@ -64,7 +64,9 @@ async def disability_sync_search(
                 timestamp=datetime.utcnow(),
                 status="rjct",
                 status_reason_code=MsgHeaderStatusReasonCode.ACTION_NOT_SUPPORTED.value,
-                status_reason_message="Disability Registry not yet implemented. Will be available in spp_dci_server_disability module.",
+                status_reason_message=(
+                    "Disability Registry not yet implemented. Will be available in spp_dci_server_disability module."
+                ),
                 data=None,
                 pagination=None,
                 locale=req_item.locale,
@@ -135,7 +137,9 @@ async def crvs_sync_search(
                 timestamp=datetime.utcnow(),
                 status="rjct",
                 status_reason_code=MsgHeaderStatusReasonCode.ACTION_NOT_SUPPORTED.value,
-                status_reason_message="Civil Registry not yet implemented. Will be available in spp_dci_server_crvs module.",
+                status_reason_message=(
+                    "Civil Registry not yet implemented. Will be available in spp_dci_server_crvs module."
+                ),
                 data=None,
                 pagination=None,
                 locale=req_item.locale,
@@ -206,7 +210,9 @@ async def farmer_sync_search(
                 timestamp=datetime.utcnow(),
                 status="rjct",
                 status_reason_code=MsgHeaderStatusReasonCode.ACTION_NOT_SUPPORTED.value,
-                status_reason_message="Farmer Registry not yet implemented. Will be available in spp_dci_server_farmer module.",
+                status_reason_message=(
+                    "Farmer Registry not yet implemented. Will be available in spp_dci_server_farmer module."
+                ),
                 data=None,
                 pagination=None,
                 locale=req_item.locale,

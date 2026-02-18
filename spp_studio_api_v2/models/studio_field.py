@@ -64,7 +64,7 @@ class StudioFieldAPI(models.Model):
         if self.ir_model_fields_id not in extension.field_ids:
             # sudo() required: Extension registration is system-level config,
             # done during field activation regardless of user permissions.
-            extension.sudo().write(
+            extension.sudo().write(  # nosemgrep: odoo-sudo-without-context
                 {
                     "field_ids": [Command.link(self.ir_model_fields_id.id)],
                 }
@@ -91,7 +91,7 @@ class StudioFieldAPI(models.Model):
         if self.ir_model_fields_id in extension.field_ids:
             # sudo() required: Extension registration is system-level config,
             # done during field deactivation regardless of user permissions.
-            extension.sudo().write(
+            extension.sudo().write(  # nosemgrep: odoo-sudo-without-context
                 {
                     "field_ids": [Command.unlink(self.ir_model_fields_id.id)],
                 }

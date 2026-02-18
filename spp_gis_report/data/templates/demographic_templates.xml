@@ -2,14 +2,16 @@
 <odoo>
     <!-- Demographic Templates -->
 
-        <record id="template_female_headed_households" model="spp.gis.report.template">
-            <field name="name">Female-Headed Households</field>
-            <field name="code">female_headed_households</field>
-            <field name="description">Geographic distribution of female-headed households. Shows density and percentage across administrative areas.</field>
-            <field name="category_id" ref="category_demographics" />
-            <field name="icon">fa-female</field>
-            <field name="sequence">10</field>
-            <field name="config">{
+    <record id="template_female_headed_households" model="spp.gis.report.template">
+        <field name="name">Female-Headed Households</field>
+        <field name="code">female_headed_households</field>
+        <field
+            name="description"
+        >Geographic distribution of female-headed households. Shows density and percentage across administrative areas.</field>
+        <field name="category_id" ref="category_demographics" />
+        <field name="icon">fa-female</field>
+        <field name="sequence">10</field>
+        <field name="config">{
     "source_model": "res.partner",
     "area_field_path": "area_id",
     "filter_template": "[('is_registrant', '=', True), ('is_group', '=', True), ('is_female_headed', '=', True)]",
@@ -21,16 +23,18 @@
     "rollup_method": "sum",
     "rollup_weight_source": "household_count"
 }</field>
-        </record>
+    </record>
 
-        <record id="template_elderly_population" model="spp.gis.report.template">
-            <field name="name">Elderly Population (65+)</field>
-            <field name="code">elderly_population</field>
-            <field name="description">Distribution of elderly individuals (age 65 and above) across geographic areas. Useful for targeting age-specific programs.</field>
-            <field name="category_id" ref="category_demographics" />
-            <field name="icon">fa-wheelchair</field>
-            <field name="sequence">20</field>
-            <field name="config">{
+    <record id="template_elderly_population" model="spp.gis.report.template">
+        <field name="name">Elderly Population (65+)</field>
+        <field name="code">elderly_population</field>
+        <field
+            name="description"
+        >Distribution of elderly individuals (age 65 and above) across geographic areas. Useful for targeting age-specific programs.</field>
+        <field name="category_id" ref="category_demographics" />
+        <field name="icon">fa-wheelchair</field>
+        <field name="sequence">20</field>
+        <field name="config">{
     "source_model": "res.partner",
     "area_field_path": "area_id",
     "filter_template": "[('is_registrant', '=', True), ('is_group', '=', False), ('age', '>=', 65)]",
@@ -42,16 +46,18 @@
     "rollup_method": "sum",
     "rollup_weight_source": "population"
 }</field>
-        </record>
+    </record>
 
-        <record id="template_children_under_5" model="spp.gis.report.template">
-            <field name="name">Children Under 5</field>
-            <field name="code">children_under_5</field>
-            <field name="description">Geographic distribution of young children (under 5 years). Important for nutrition and early childhood programs.</field>
-            <field name="category_id" ref="category_demographics" />
-            <field name="icon">fa-child</field>
-            <field name="sequence">30</field>
-            <field name="config">{
+    <record id="template_children_under_5" model="spp.gis.report.template">
+        <field name="name">Children Under 5</field>
+        <field name="code">children_under_5</field>
+        <field
+            name="description"
+        >Geographic distribution of young children (under 5 years). Important for nutrition and early childhood programs.</field>
+        <field name="category_id" ref="category_demographics" />
+        <field name="icon">fa-child</field>
+        <field name="sequence">30</field>
+        <field name="config">{
     "source_model": "res.partner",
     "area_field_path": "area_id",
     "filter_template": "[('is_registrant', '=', True), ('is_group', '=', False), ('age', '&lt;', 5)]",
@@ -63,16 +69,18 @@
     "rollup_method": "sum",
     "rollup_weight_source": "population"
 }</field>
-        </record>
+    </record>
 
-        <record id="template_disability_prevalence" model="spp.gis.report.template">
-            <field name="name">Disability Prevalence</field>
-            <field name="code">disability_prevalence</field>
-            <field name="description">Percentage of population with disabilities by area. Helps identify regions needing accessibility accommodations.</field>
-            <field name="category_id" ref="category_demographics" />
-            <field name="icon">fa-wheelchair-alt</field>
-            <field name="sequence">40</field>
-            <field name="config">{
+    <record id="template_disability_prevalence" model="spp.gis.report.template">
+        <field name="name">Disability Prevalence</field>
+        <field name="code">disability_prevalence</field>
+        <field
+            name="description"
+        >Percentage of population with disabilities by area. Helps identify regions needing accessibility accommodations.</field>
+        <field name="category_id" ref="category_demographics" />
+        <field name="icon">fa-wheelchair-alt</field>
+        <field name="sequence">40</field>
+        <field name="config">{
     "source_model": "res.partner",
     "area_field_path": "area_id",
     "filter_template": "[('is_registrant', '=', True), ('is_group', '=', False), ('has_disability', '=', True)]",
@@ -84,16 +92,18 @@
     "rollup_method": "sum",
     "rollup_weight_source": "population"
 }</field>
-        </record>
+    </record>
 
-        <record id="template_household_size_avg" model="spp.gis.report.template">
-            <field name="name">Average Household Size</field>
-            <field name="code">avg_household_size</field>
-            <field name="description">Average number of individuals per household across different areas. Useful for program planning and resource allocation.</field>
-            <field name="category_id" ref="category_demographics" />
-            <field name="icon">fa-home</field>
-            <field name="sequence">50</field>
-            <field name="config">{
+    <record id="template_household_size_avg" model="spp.gis.report.template">
+        <field name="name">Average Household Size</field>
+        <field name="code">avg_household_size</field>
+        <field
+            name="description"
+        >Average number of individuals per household across different areas. Useful for program planning and resource allocation.</field>
+        <field name="category_id" ref="category_demographics" />
+        <field name="icon">fa-home</field>
+        <field name="sequence">50</field>
+        <field name="config">{
     "source_model": "res.partner",
     "area_field_path": "area_id",
     "filter_template": "[('is_registrant', '=', True), ('is_group', '=', True)]",
@@ -106,16 +116,18 @@
     "rollup_method": "weighted_avg",
     "rollup_weight_source": "household_count"
 }</field>
-        </record>
+    </record>
 
-        <record id="template_youth_population" model="spp.gis.report.template">
-            <field name="name">Youth Population (15-24)</field>
-            <field name="code">youth_population</field>
-            <field name="description">Distribution of youth population (ages 15-24) across areas. Important for education and employment programs.</field>
-            <field name="category_id" ref="category_demographics" />
-            <field name="icon">fa-graduation-cap</field>
-            <field name="sequence">60</field>
-            <field name="config">{
+    <record id="template_youth_population" model="spp.gis.report.template">
+        <field name="name">Youth Population (15-24)</field>
+        <field name="code">youth_population</field>
+        <field
+            name="description"
+        >Distribution of youth population (ages 15-24) across areas. Important for education and employment programs.</field>
+        <field name="category_id" ref="category_demographics" />
+        <field name="icon">fa-graduation-cap</field>
+        <field name="sequence">60</field>
+        <field name="config">{
     "source_model": "res.partner",
     "area_field_path": "area_id",
     "filter_template": "[('is_registrant', '=', True), ('is_group', '=', False), ('age', '>=', 15), ('age', '&lt;=', 24)]",
@@ -127,5 +139,5 @@
     "rollup_method": "sum",
     "rollup_weight_source": "population"
 }</field>
-        </record>
+    </record>
 </odoo>

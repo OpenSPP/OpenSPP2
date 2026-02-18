@@ -71,6 +71,11 @@ rules:
       - "line_ids" # Generic line items (typically <20)
       - "manager_ids" # Program managers (typically <10)
       - "approver_ids" # Approval workflow (typically <5)
+      - "bank_ids" # Bank accounts (typically 1-5 per person)
+      - "phone_number_ids" # Phone numbers (typically 1-3 per person)
+      - "entitlement_manager_ids" # Entitlement managers (typically <10 per program)
+      - "payment_manager_ids" # Payment managers (typically <10 per program)
+      - "farm_machinery_ids" # Farm machinery (typically <20 per farm)
 
 # Severity overrides (change default severity for rules)
 # Valid values: error, warning, info

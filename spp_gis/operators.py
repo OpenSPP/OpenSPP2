@@ -392,9 +392,7 @@ class Operator:
         `distance`.
         """
         if not isinstance(value, str | dict | list | tuple | BaseGeometry):
-            raise ValueError(
-                "Value should be a geojson, WKT, a list or tuple with 2 elements, " "or a shapely geometry."
-            )
+            raise ValueError("Value should be a geojson, WKT, a list or tuple with 2 elements, or a shapely geometry.")
 
         distance = None
         if isinstance(value, list | tuple):

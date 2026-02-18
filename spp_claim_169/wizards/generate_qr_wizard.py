@@ -222,8 +222,8 @@ class Claim169GenerateQRWizard(models.TransientModel):
 
                 _logger.info(
                     "Generated credential %s for partner %s",
-                    credential.name,
-                    partner.name,
+                    credential.id,
+                    partner.id,
                 )
 
             except Exception as e:

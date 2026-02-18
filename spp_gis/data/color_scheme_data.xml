@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="0">
     <!--
     Predefined GIS Color Schemes
@@ -16,7 +16,9 @@
         <field name="name">Viridis</field>
         <field name="code">viridis</field>
         <field name="scheme_type">sequential</field>
-        <field name="colors">["#440154", "#3b528b", "#21918c", "#5ec962", "#fde725"]</field>
+        <field
+            name="colors"
+        >["#440154", "#3b528b", "#21918c", "#5ec962", "#fde725"]</field>
         <field name="default_steps">5</field>
         <field name="is_colorblind_safe">True</field>
         <field name="is_default">True</field>
@@ -28,7 +30,9 @@
         <field name="name">Plasma</field>
         <field name="code">plasma</field>
         <field name="scheme_type">sequential</field>
-        <field name="colors">["#0d0887", "#7e03a8", "#cc4778", "#f89540", "#f0f921"]</field>
+        <field
+            name="colors"
+        >["#0d0887", "#7e03a8", "#cc4778", "#f89540", "#f0f921"]</field>
         <field name="default_steps">5</field>
         <field name="is_colorblind_safe">True</field>
         <field name="sequence">2</field>
@@ -39,7 +43,9 @@
         <field name="name">Cividis</field>
         <field name="code">cividis</field>
         <field name="scheme_type">sequential</field>
-        <field name="colors">["#00224e", "#456680", "#8fa3a5", "#cdc383", "#fdea45"]</field>
+        <field
+            name="colors"
+        >["#00224e", "#456680", "#8fa3a5", "#cdc383", "#fdea45"]</field>
         <field name="default_steps">5</field>
         <field name="is_colorblind_safe">True</field>
         <field name="sequence">3</field>
@@ -146,7 +152,9 @@
         <field name="name">Set 1 (Categories)</field>
         <field name="code">set1</field>
         <field name="scheme_type">qualitative</field>
-        <field name="colors">["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33", "#a65628", "#f781bf"]</field>
+        <field
+            name="colors"
+        >["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33", "#a65628", "#f781bf"]</field>
         <field name="default_steps">8</field>
         <field name="is_colorblind_safe">False</field>
         <field name="sequence">30</field>
@@ -157,7 +165,9 @@
         <field name="name">Dark 2 (Categories)</field>
         <field name="code">dark2</field>
         <field name="scheme_type">qualitative</field>
-        <field name="colors">["#1b9e77", "#d95f02", "#7570b3", "#e7298a", "#66a61e", "#e6ab02", "#a6761d", "#666666"]</field>
+        <field
+            name="colors"
+        >["#1b9e77", "#d95f02", "#7570b3", "#e7298a", "#66a61e", "#e6ab02", "#a6761d", "#666666"]</field>
         <field name="default_steps">8</field>
         <field name="is_colorblind_safe">True</field>
         <field name="sequence">31</field>
@@ -188,5 +198,4 @@
         <field name="is_colorblind_safe">False</field>
         <field name="sequence">41</field>
     </record>
-
 </odoo>

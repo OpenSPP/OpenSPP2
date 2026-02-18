@@ -279,9 +279,7 @@ class SPPCRDocumentUploadWizard(models.TransientModel):
         self.ensure_one()
 
         if not self.change_request_id.dms_directory_id:
-            raise UserError(
-                _("No storage directory found for this change request. " "Please contact an administrator.")
-            )
+            raise UserError(_("No storage directory found for this change request. Please contact an administrator."))
 
         # Create DMS file with document type
         vals = {

@@ -1,26 +1,31 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Hazard Incident List View -->
     <record id="view_hazard_incident_list" model="ir.ui.view">
         <field name="name">view.hazard.incident.list</field>
         <field name="model">spp.hazard.incident</field>
         <field name="arch" type="xml">
-            <list decoration-info="status == 'alert'"
-                  decoration-warning="status == 'recovery'"
-                  decoration-muted="status == 'closed'">
-                <field name="name"/>
-                <field name="code"/>
-                <field name="category_id"/>
-                <field name="start_date"/>
-                <field name="end_date" optional="show"/>
-                <field name="status" widget="badge"
+            <list
+                decoration-info="status == 'alert'"
+                decoration-warning="status == 'recovery'"
+                decoration-muted="status == 'closed'"
+            >
+                <field name="name" />
+                <field name="code" />
+                <field name="category_id" />
+                <field name="start_date" />
+                <field name="end_date" optional="show" />
+                <field
+                    name="status"
+                    widget="badge"
                     decoration-info="status == 'alert'"
                     decoration-success="status == 'active'"
                     decoration-warning="status == 'recovery'"
-                    decoration-muted="status == 'closed'"/>
-                <field name="severity"/>
-                <field name="area_count" string="Areas"/>
-                <field name="affected_registrant_count" string="Affected"/>
+                    decoration-muted="status == 'closed'"
+                />
+                <field name="severity" />
+                <field name="area_count" string="Areas" />
+                <field name="affected_registrant_count" string="Affected" />
             </list>
         </field>
     </record>
@@ -32,85 +37,125 @@
         <field name="arch" type="xml">
             <form string="Hazard Incident">
                 <header>
-                    <button name="action_set_active" type="object" string="Set Active"
+                    <button
+                        name="action_set_active"
+                        type="object"
+                        string="Set Active"
                         invisible="status not in ('alert', 'recovery')"
-                        class="btn-primary"/>
-                    <button name="action_set_recovery" type="object" string="Start Recovery"
+                        class="btn-primary"
+                    />
+                    <button
+                        name="action_set_recovery"
+                        type="object"
+                        string="Start Recovery"
                         invisible="status != 'active'"
-                        class="btn-primary"/>
-                    <button name="action_close" type="object" string="Close Incident"
+                        class="btn-primary"
+                    />
+                    <button
+                        name="action_close"
+                        type="object"
+                        string="Close Incident"
                         invisible="status in ('closed',)"
-                        class="btn-secondary"/>
-                    <field name="status" widget="statusbar" statusbar_visible="alert,active,recovery,closed"/>
+                        class="btn-secondary"
+                    />
+                    <field
+                        name="status"
+                        widget="statusbar"
+                        statusbar_visible="alert,active,recovery,closed"
+                    />
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button name="action_view_impacts"
+                        <button
+                            name="action_view_impacts"
                             type="object"
                             class="oe_stat_button"
-                            icon="fa-users">
-                            <field name="affected_registrant_count" widget="statinfo" string="Affected"/>
+                            icon="fa-users"
+                        >
+                            <field
+                                name="affected_registrant_count"
+                                widget="statinfo"
+                                string="Affected"
+                            />
                         </button>
-                        <button name="action_view_areas"
+                        <button
+                            name="action_view_areas"
                             type="object"
                             class="oe_stat_button"
                             icon="fa-map-marker"
-                            invisible="area_count == 0">
-                            <field name="area_count" widget="statinfo" string="Areas"/>
+                            invisible="area_count == 0"
+                        >
+                            <field name="area_count" widget="statinfo" string="Areas" />
                         </button>
                     </div>
-                    <widget name="web_ribbon" title="Ongoing" bg_color="text-bg-warning" invisible="not is_ongoing"/>
+                    <widget
+                        name="web_ribbon"
+                        title="Ongoing"
+                        bg_color="text-bg-warning"
+                        invisible="not is_ongoing"
+                    />
                     <div class="oe_title">
-                        <label for="name"/>
+                        <label for="name" />
                         <h1>
-                            <field name="name" placeholder="e.g., Typhoon Yolanda"/>
+                            <field name="name" placeholder="e.g., Typhoon Yolanda" />
                         </h1>
                     </div>
                     <group>
                         <group name="main_info">
-                            <field name="code" placeholder="e.g., 2013-YOLANDA"/>
-                            <field name="category_id" options="{'no_create': True}"/>
-                            <field name="severity"/>
+                            <field name="code" placeholder="e.g., 2013-YOLANDA" />
+                            <field name="category_id" options="{'no_create': True}" />
+                            <field name="severity" />
                         </group>
                         <group name="dates">
-                            <field name="start_date"/>
-                            <field name="end_date"/>
-                            <field name="is_ongoing" invisible="1"/>
+                            <field name="start_date" />
+                            <field name="end_date" />
+                            <field name="is_ongoing" invisible="1" />
                         </group>
                     </group>
                     <notebook>
                         <page string="Description" name="description">
-                            <field name="description" placeholder="Describe the incident in detail..."/>
+                            <field
+                                name="description"
+                                placeholder="Describe the incident in detail..."
+                            />
                         </page>
                         <page string="Affected Areas" name="areas">
-                            <p class="text-muted">Add areas affected by this incident. Specify severity and population estimates for each area.</p>
+                            <p
+                                class="text-muted"
+                            >Add areas affected by this incident. Specify severity and population estimates for each area.</p>
                             <field name="incident_area_ids">
                                 <list editable="bottom">
-                                    <field name="area_id" options="{'no_create': True}"/>
-                                    <field name="severity_override"/>
-                                    <field name="affected_population_estimate"/>
-                                    <field name="notes"/>
+                                    <field
+                                        name="area_id"
+                                        options="{'no_create': True}"
+                                    />
+                                    <field name="severity_override" />
+                                    <field name="affected_population_estimate" />
+                                    <field name="notes" />
                                 </list>
                             </field>
                         </page>
                         <page string="Impacts" name="impacts">
                             <field name="impact_ids">
                                 <list>
-                                    <field name="registrant_id"/>
-                                    <field name="impact_type_id"/>
-                                    <field name="damage_level"/>
-                                    <field name="impact_date"/>
-                                    <field name="verification_status" widget="badge"
+                                    <field name="registrant_id" />
+                                    <field name="impact_type_id" />
+                                    <field name="damage_level" />
+                                    <field name="impact_date" />
+                                    <field
+                                        name="verification_status"
+                                        widget="badge"
                                         decoration-info="verification_status == 'reported'"
                                         decoration-success="verification_status == 'verified'"
                                         decoration-warning="verification_status == 'disputed'"
-                                        decoration-muted="verification_status == 'closed'"/>
+                                        decoration-muted="verification_status == 'closed'"
+                                    />
                                 </list>
                             </field>
                         </page>
                     </notebook>
                 </sheet>
-                <chatter/>
+                <chatter />
             </form>
         </field>
     </record>
@@ -121,21 +166,57 @@
         <field name="model">spp.hazard.incident</field>
         <field name="arch" type="xml">
             <search>
-                <field name="name"/>
-                <field name="code"/>
-                <field name="category_id"/>
-                <filter name="alert" string="Alert" domain="[('status', '=', 'alert')]"/>
-                <filter name="active" string="Active" domain="[('status', '=', 'active')]"/>
-                <filter name="recovery" string="Recovery" domain="[('status', '=', 'recovery')]"/>
-                <filter name="closed" string="Closed" domain="[('status', '=', 'closed')]"/>
-                <separator/>
-                <filter name="ongoing" string="Ongoing" domain="[('is_ongoing', '=', True)]"/>
-                <separator/>
+                <field name="name" />
+                <field name="code" />
+                <field name="category_id" />
+                <filter
+                    name="alert"
+                    string="Alert"
+                    domain="[('status', '=', 'alert')]"
+                />
+                <filter
+                    name="active"
+                    string="Active"
+                    domain="[('status', '=', 'active')]"
+                />
+                <filter
+                    name="recovery"
+                    string="Recovery"
+                    domain="[('status', '=', 'recovery')]"
+                />
+                <filter
+                    name="closed"
+                    string="Closed"
+                    domain="[('status', '=', 'closed')]"
+                />
+                <separator />
+                <filter
+                    name="ongoing"
+                    string="Ongoing"
+                    domain="[('is_ongoing', '=', True)]"
+                />
+                <separator />
                 <group>
-                    <filter name="grp_status" string="Status" context="{'group_by': 'status'}"/>
-                    <filter name="grp_category" string="Category" context="{'group_by': 'category_id'}"/>
-                    <filter name="grp_severity" string="Severity" context="{'group_by': 'severity'}"/>
-                    <filter name="grp_start" string="Start Date" context="{'group_by': 'start_date:month'}"/>
+                    <filter
+                        name="grp_status"
+                        string="Status"
+                        context="{'group_by': 'status'}"
+                    />
+                    <filter
+                        name="grp_category"
+                        string="Category"
+                        context="{'group_by': 'category_id'}"
+                    />
+                    <filter
+                        name="grp_severity"
+                        string="Severity"
+                        context="{'group_by': 'severity'}"
+                    />
+                    <filter
+                        name="grp_start"
+                        string="Start Date"
+                        context="{'group_by': 'start_date:month'}"
+                    />
                 </group>
             </search>
         </field>
@@ -167,11 +248,11 @@
         <field name="model">spp.hazard.incident.area</field>
         <field name="arch" type="xml">
             <list editable="bottom">
-                <field name="incident_id"/>
-                <field name="area_id"/>
-                <field name="severity_override"/>
-                <field name="affected_population_estimate"/>
-                <field name="notes"/>
+                <field name="incident_id" />
+                <field name="area_id" />
+                <field name="severity_override" />
+                <field name="affected_population_estimate" />
+                <field name="notes" />
             </list>
         </field>
     </record>

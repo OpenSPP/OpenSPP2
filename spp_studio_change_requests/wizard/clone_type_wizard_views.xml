@@ -14,33 +14,41 @@
                 </div>
 
                 <group string="Source Type">
-                    <field name="source_type_id"
-                           options="{'no_create': True, 'no_quick_create': True}"/>
-                    <field name="source_code" invisible="not source_type_id"/>
+                    <field
+                        name="source_type_id"
+                        options="{'no_create': True, 'no_quick_create': True}"
+                    />
+                    <field name="source_code" invisible="not source_type_id" />
                 </group>
 
                 <group string="New Type Configuration">
-                    <field name="new_name"/>
-                    <field name="new_code"/>
-                    <div class="alert alert-warning" role="alert" invisible="code_is_unique">
-                        <span class="fa fa-exclamation-triangle"/>
+                    <field name="new_name" />
+                    <field name="new_code" />
+                    <div
+                        class="alert alert-warning"
+                        role="alert"
+                        invisible="code_is_unique"
+                    >
+                        <span class="fa fa-exclamation-triangle" />
                         This code already exists. Please choose a different code.
                     </div>
                 </group>
 
                 <group string="Clone Options">
-                    <field name="copy_field_mappings"/>
-                    <field name="copy_approval_workflow"/>
-                    <field name="copy_document_requirements"/>
+                    <field name="copy_field_mappings" />
+                    <field name="copy_approval_workflow" />
+                    <field name="copy_document_requirements" />
                 </group>
 
                 <footer>
-                    <button name="action_clone"
-                            string="Clone &amp; Edit"
-                            type="object"
-                            class="btn-primary"
-                            invisible="not code_is_unique"/>
-                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    <button
+                        name="action_clone"
+                        string="Clone &amp; Edit"
+                        type="object"
+                        class="btn-primary"
+                        invisible="not code_is_unique"
+                    />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
                 </footer>
             </form>
         </field>
@@ -52,9 +60,11 @@
         <field name="res_model">spp.studio.clone.cr.type.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
-        <field name="binding_model_id" ref="spp_change_request_v2.model_spp_change_request_type"/>
+        <field
+            name="binding_model_id"
+            ref="spp_change_request_v2.model_spp_change_request_type"
+        />
         <field name="binding_view_types">form,list</field>
         <field name="context">{'default_source_type_id': active_id}</field>
     </record>
-
 </odoo>

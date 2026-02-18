@@ -917,7 +917,7 @@ class DCIClient:
 
             # Make synchronous HTTP request
             timeout = self.data_source.timeout or 60
-            with httpx.Client(
+            with httpx.Client(  # nosec B113 — explicit timeout via self.data_source.timeout
                 timeout=float(timeout),
                 verify=self.data_source.verify_ssl,
             ) as client:

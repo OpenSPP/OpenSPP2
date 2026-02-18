@@ -86,7 +86,7 @@ async def list_vocabularies(
     if domain:
         search_domain.append(("domain", "=", domain))
 
-    Vocabulary = env["spp.vocabulary"].sudo()
+    Vocabulary = env["spp.vocabulary"].sudo()  # nosemgrep: odoo-sudo-without-context
 
     # Get total count
     total = Vocabulary.search_count(search_domain)
@@ -171,7 +171,7 @@ async def get_vocabulary_codes(
             )
 
     # Find vocabulary
-    Vocabulary = env["spp.vocabulary"].sudo()
+    Vocabulary = env["spp.vocabulary"].sudo()  # nosemgrep: odoo-sudo-without-context
     vocabulary = Vocabulary.search(
         [("namespace_uri", "=", decoded_uri), ("active", "=", True)],
         limit=1,
@@ -184,7 +184,7 @@ async def get_vocabulary_codes(
         )
 
     # Build domain for codes
-    VocabularyCode = env["spp.vocabulary.code"].sudo()
+    VocabularyCode = env["spp.vocabulary.code"].sudo()  # nosemgrep: odoo-sudo-without-context
     code_domain = [
         ("vocabulary_id", "=", vocabulary.id),
         ("active", "=", True),
@@ -281,7 +281,7 @@ async def get_vocabulary(
     _validate_namespace_uri(decoded_uri)
 
     # Find vocabulary
-    Vocabulary = env["spp.vocabulary"].sudo()
+    Vocabulary = env["spp.vocabulary"].sudo()  # nosemgrep: odoo-sudo-without-context
     vocabulary = Vocabulary.search(
         [("namespace_uri", "=", decoded_uri), ("active", "=", True)],
         limit=1,

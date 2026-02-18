@@ -16,7 +16,8 @@
 #### What's Tested Well:
 
 1. **Profile retrieval** - Tests for both individuals and groups profiles
-2. **Symbol structure** - Verifies variables, functions, operators, keywords are returned
+2. **Symbol structure** - Verifies variables, functions, operators, keywords are
+   returned
 3. **Field metadata** - Checks that fields have type information
 4. **Function signatures** - Validates functions have proper documentation
 5. **Validation** - Basic valid/invalid/empty expression validation
@@ -415,19 +416,16 @@
 ### Missing Integration Tests:
 
 1. **Widget in actual form context**
-
    - No test that creates a record using the widget in a real form
    - No test of widget interactions with Odoo's form view lifecycle
    - No test of save/reload cycle preserving expression
 
 2. **Cross-module integration**
-
    - No test with spp_eligibility_cel integration
    - No test with spp_entitlement_amount_cel
    - No test with spp_compliance_cel
 
 3. **Performance tests**
-
    - No test of symbol loading time
    - No test of validation performance
    - No benchmark for autocomplete response time
@@ -446,35 +444,30 @@
 ### Tours Included:
 
 1. **cel_widget_basic_rendering** - Tests widget initialization and UI components
-
    - Verifies toolbar appears
    - Checks Symbols button exists
    - Confirms autocomplete trigger button present
    - Validates help text displays
 
 2. **cel_widget_autocomplete** - Tests autocomplete functionality
-
    - Types "me." to trigger autocomplete
    - Waits for suggestion menu
    - Selects a field from suggestions
    - Verifies insertion into editor
 
 3. **cel_widget_validation_success** - Tests valid expression validation
-
    - Enters valid expression `me.name == "Test"`
    - Waits for validation (debounced)
    - Checks for success icon (fa-check-circle)
    - Verifies success message "Valid"
 
 4. **cel_widget_validation_error** - Tests invalid expression handling
-
    - Enters incomplete expression `me.name ==`
    - Waits for validation
    - Checks for error icon (fa-times-circle)
    - Verifies error message displayed
 
 5. **cel_widget_symbol_browser** - Tests symbol browser navigation
-
    - Opens symbol browser
    - Expands "me" variable
    - Views and selects fields
@@ -483,7 +476,6 @@
    - Closes browser
 
 6. **cel_widget_symbol_search** - Tests search/filter functionality
-
    - Opens browser
    - Searches for "birth" in fields
    - Verifies filtering works
@@ -491,19 +483,16 @@
    - Tests case-insensitive search
 
 7. **cel_widget_manual_autocomplete** - Tests manual autocomplete trigger
-
    - Types "me" (without dot)
    - Clicks autocomplete button
    - Verifies menu appears
 
 8. **cel_widget_readonly** - Tests readonly mode
-
    - Opens existing record in readonly
    - Verifies editor has readonly class
    - Ensures editing is disabled
 
 9. **cel_widget_empty_validation** - Tests empty expression handling
-
    - Verifies no validation on empty
    - Types then clears expression
    - Confirms validation clears
@@ -532,7 +521,8 @@ odoo-bin -c odoo.conf -d test_db --test-enable --test-tags=/cel_widget --stop-af
 
 ### A. Unit Test Additions
 
-**Priority: HIGH** Create `/home/user/openspp-modules-v2/spp_cel_widget/tests/test_symbol_provider_extended.py`:
+**Priority: HIGH** Create
+`/home/user/openspp-modules-v2/spp_cel_widget/tests/test_symbol_provider_extended.py`:
 
 ```python
 """Extended tests for CEL Symbol Provider covering edge cases."""
@@ -648,7 +638,8 @@ class TestCelSymbolProviderExtended(TransactionCase):
 
 ### B. Controller Test Additions
 
-**Priority: MEDIUM** Create `/home/user/openspp-modules-v2/spp_cel_widget/tests/test_controller_extended.py`:
+**Priority: MEDIUM** Create
+`/home/user/openspp-modules-v2/spp_cel_widget/tests/test_controller_extended.py`:
 
 ```python
 """Extended tests for CEL Widget HTTP Controller."""
@@ -772,7 +763,8 @@ class TestCelWidgetControllerExtended(HttpCase):
 
 ### C. Integration Test Additions
 
-**Priority: MEDIUM** Create `/home/user/openspp-modules-v2/spp_cel_widget/tests/test_widget_integration.py`:
+**Priority: MEDIUM** Create
+`/home/user/openspp-modules-v2/spp_cel_widget/tests/test_widget_integration.py`:
 
 ```python
 """Integration tests for CEL widget in form views."""
@@ -826,7 +818,8 @@ class TestCelWidgetIntegration(TransactionCase):
 
 ### D. Performance Test Additions
 
-**Priority: LOW** Create `/home/user/openspp-modules-v2/spp_cel_widget/tests/test_performance.py`:
+**Priority: LOW** Create
+`/home/user/openspp-modules-v2/spp_cel_widget/tests/test_performance.py`:
 
 ```python
 """Performance tests for CEL widget operations."""
@@ -913,21 +906,18 @@ class TestCelWidgetPerformance(TransactionCase):
 ### Recommended Priority Order:
 
 1. **CRITICAL** (Do First)
-
    - Add edge case tests for malformed expressions (parentheses, operators)
    - Add tests for undefined fields/variables
    - Add controller tests for missing parameters
    - Add tests for special characters and unicode
 
 2. **HIGH** (Do Soon)
-
    - Add integration tests with actual models
    - Add readonly mode tests
    - Add field relationship traversal tests
    - Extend E2E tours with error recovery scenarios
 
 3. **MEDIUM** (Do When Time Permits)
-
    - Add performance benchmarks
    - Add concurrency tests
    - Add large payload tests
@@ -968,14 +958,13 @@ odoo-bin --test-enable --test-tags=/cel_widget_basic_rendering --stop-after-init
 
 ## Files Modified/Created
 
-1. **Created:** `/home/user/openspp-modules-v2/spp_cel_widget/static/tests/tours/cel_widget_tour.js`
-
+1. **Created:**
+   `/home/user/openspp-modules-v2/spp_cel_widget/static/tests/tours/cel_widget_tour.js`
    - 10 comprehensive E2E tour tests
    - ~650 lines of test code
    - Covers all major user flows
 
 2. **Modified:** `/home/user/openspp-modules-v2/spp_cel_widget/__manifest__.py`
-
    - Added `web.assets_tests` bundle
    - Included tour file in test assets
 

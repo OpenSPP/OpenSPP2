@@ -1,7 +1,7 @@
 # OpenSPP MIS Demo V2 - Use Cases Guide
 
-This document describes the different demo use cases available in the `spp_mis_demo_v2` module and how to use them
-effectively for sales demos, training, and testing.
+This document describes the different demo use cases available in the `spp_mis_demo_v2`
+module and how to use them effectively for sales demos, training, and testing.
 
 ## Table of Contents
 
@@ -17,8 +17,9 @@ effectively for sales demos, training, and testing.
 
 ## Overview
 
-The MIS Demo V2 module provides realistic demo data that showcases OpenSPP's capabilities for social protection program
-management. It follows the "Fixed Stories + Volume" architecture:
+The MIS Demo V2 module provides realistic demo data that showcases OpenSPP's
+capabilities for social protection program management. It follows the "Fixed Stories +
+Volume" architecture:
 
 - **Fixed Stories**: 8 named personas with predefined program journeys
 - **Volume Data**: Random enrollments for realistic dashboards
@@ -398,8 +399,8 @@ management. It follows the "Fixed Stories + Volume" architecture:
 
 ## Formula Library Demo
 
-The MIS Demo includes comprehensive formula library data demonstrating versioned, auditable business rules for
-eligibility, entitlements, and scoring.
+The MIS Demo includes comprehensive formula library data demonstrating versioned,
+auditable business rules for eligibility, entitlements, and scoring.
 
 ### Formula Categories
 
@@ -430,9 +431,10 @@ eligibility, entitlements, and scoring.
 household.pmt_score < 45.0 && household.member_count > 0
 ```
 
-**Test Cases:** | Persona | PMT Score | Expected | Result | |---------|-----------|----------|--------| | Maria Santos |
-38 | `true` | ✓ Eligible | | Rosa Garcia | 42 | `true` | ✓ Eligible | | Carlos Morales | 48 | `false` | ✗ Not eligible |
-| Ibrahim Hassan | 35 | `true` | ✓ Eligible |
+**Test Cases:** | Persona | PMT Score | Expected | Result |
+|---------|-----------|----------|--------| | Maria Santos | 38 | `true` | ✓ Eligible |
+| Rosa Garcia | 42 | `true` | ✓ Eligible | | Carlos Morales | 48 | `false` | ✗ Not
+eligible | | Ibrahim Hassan | 35 | `true` | ✓ Eligible |
 
 ---
 
@@ -451,8 +453,9 @@ household.pmt_score < 45.0 && household.member_count > 0
 individual.age >= 65 && !individual.receives_other_pension
 ```
 
-**Test Cases:** | Persona | Age | Other Pension | Expected | |---------|-----|---------------|----------| | Rosa Garcia
-| 72 | No | `true` ✓ | | Maria Santos | 45 | No | `false` ✗ | | Pedro Reyes | 55 | No | `false` ✗ |
+**Test Cases:** | Persona | Age | Other Pension | Expected |
+|---------|-----|---------------|----------| | Rosa Garcia | 72 | No | `true` ✓ | |
+Maria Santos | 45 | No | `false` ✗ | | Pedro Reyes | 55 | No | `false` ✗ |
 
 ---
 
@@ -471,8 +474,9 @@ individual.age >= 65 && !individual.receives_other_pension
 150.0 + (household.child_count * 50.0) * (household.is_rural ? 1.2 : 1.0)
 ```
 
-**Test Cases:** | Persona | Children | Rural | Expected Amount | |---------|----------|-------|-----------------| |
-Maria Santos | 2 | Yes | $270 | | Carlos Morales | 3 | No | $300 | | Ana Mendoza | 1 | Yes | $210 |
+**Test Cases:** | Persona | Children | Rural | Expected Amount |
+|---------|----------|-------|-----------------| | Maria Santos | 2 | Yes | $270 | |
+Carlos Morales | 3 | No | $300 | | Ana Mendoza | 1 | Yes | $210 |
 
 ---
 
@@ -495,8 +499,9 @@ min(40, (100 - household.pmt_score) * 0.5)
 ```
 
 **Test Cases:** | Persona | Female-Headed | Disabled | Dep. Ratio | PMT | Score |
-|---------|---------------|----------|------------|-----|-------| | Rosa Garcia | No | No | 0.0 | 42 | 29 | | Maria
-Santos | Yes | No | 0.4 | 38 | 51 | | Ibrahim Hassan | No | Yes | 0.6 | 35 | 72 |
+|---------|---------------|----------|------------|-----|-------| | Rosa Garcia | No |
+No | 0.0 | 42 | 29 | | Maria Santos | Yes | No | 0.4 | 38 | 51 | | Ibrahim Hassan | No |
+Yes | 0.6 | 35 | 72 |
 
 ---
 
@@ -545,7 +550,8 @@ vulnerability_score(household) * 0.6 +
 
 **Objective:** Demonstrate formula versioning for policy changes
 
-**Story:** Government decides to expand Cash Transfer coverage by raising PMT threshold from 45 to 50.
+**Story:** Government decides to expand Cash Transfer coverage by raising PMT threshold
+from 45 to 50.
 
 **Steps:**
 
@@ -775,7 +781,8 @@ vulnerability_score(household) * 0.6 +
 
 ## Event Data
 
-The MIS Demo generates event records that track beneficiary interactions with the system.
+The MIS Demo generates event records that track beneficiary interactions with the
+system.
 
 ### Event Types
 
@@ -872,7 +879,8 @@ This ensures proper integration between modules and complete demo scenarios.
 
 ### GRM Integration
 
-The GRM demo creates specific tickets for story personas that integrate with their MIS journeys:
+The GRM demo creates specific tickets for story personas that integrate with their MIS
+journeys:
 
 | Story            | GRM Ticket           | Links To                   |
 | ---------------- | -------------------- | -------------------------- |

@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- CEL Domain Privilege -->
     <record id="privilege_cel_domain" model="res.groups.privilege">
         <field name="name">CEL Domain</field>
-        <field name="category_id" ref="spp_security.category_spp_admin"/>
+        <field name="category_id" ref="spp_security.category_spp_admin" />
         <field name="sequence">90</field>
     </record>
 </odoo>

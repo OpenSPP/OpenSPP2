@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- ============================================== -->
     <!-- Data Provider Views                            -->
@@ -10,12 +10,12 @@
         <field name="model">spp.data.provider</field>
         <field name="arch" type="xml">
             <list string="Data Providers">
-                <field name="name"/>
-                <field name="code"/>
-                <field name="auth_type" widget="badge"/>
-                <field name="base_url" optional="show"/>
-                <field name="variable_count" string="Variables"/>
-                <field name="active" widget="boolean_toggle"/>
+                <field name="name" />
+                <field name="code" />
+                <field name="auth_type" widget="badge" />
+                <field name="base_url" optional="show" />
+                <field name="variable_count" string="Variables" />
+                <field name="active" widget="boolean_toggle" />
             </list>
         </field>
     </record>
@@ -27,49 +27,80 @@
         <field name="arch" type="xml">
             <form string="Data Provider">
                 <header>
-                    <button name="action_test_connection" string="Test Connection"
-                            type="object" class="btn-secondary"
-                            invisible="not base_url"/>
+                    <button
+                        name="action_test_connection"
+                        string="Test Connection"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="not base_url"
+                    />
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button class="oe_stat_button" type="object"
-                                name="action_view_variables" icon="fa-list">
-                            <field name="variable_count" widget="statinfo" string="Variables"/>
+                        <button
+                            class="oe_stat_button"
+                            type="object"
+                            name="action_view_variables"
+                            icon="fa-list"
+                        >
+                            <field
+                                name="variable_count"
+                                widget="statinfo"
+                                string="Variables"
+                            />
                         </button>
                     </div>
-                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
-                            invisible="active"/>
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="text-bg-danger"
+                        invisible="active"
+                    />
 
                     <div class="oe_title">
-                        <label for="name" string="Provider Name"/>
+                        <label for="name" string="Provider Name" />
                         <h1>
-                            <field name="name" placeholder="e.g., Education Ministry API"/>
+                            <field
+                                name="name"
+                                placeholder="e.g., Education Ministry API"
+                            />
                         </h1>
                     </div>
 
                     <group>
                         <group string="Identification">
-                            <field name="code" placeholder="e.g., education_ministry"/>
-                            <field name="active"/>
+                            <field name="code" placeholder="e.g., education_ministry" />
+                            <field name="active" />
                         </group>
                         <group string="Connection">
-                            <field name="base_url" placeholder="https://api.example.gov/v1"/>
-                            <field name="auth_type"/>
+                            <field
+                                name="base_url"
+                                placeholder="https://api.example.gov/v1"
+                            />
+                            <field name="auth_type" />
                         </group>
                     </group>
 
                     <notebook>
-                        <page string="Authentication" name="auth"
-                              invisible="auth_type == 'none'">
+                        <page
+                            string="Authentication"
+                            name="auth"
+                            invisible="auth_type == 'none'"
+                        >
                             <group>
-                                <group string="API Key" invisible="auth_type != 'api_key'">
-                                    <field name="api_key" password="True"/>
+                                <group
+                                    string="API Key"
+                                    invisible="auth_type != 'api_key'"
+                                >
+                                    <field name="api_key" password="True" />
                                 </group>
-                                <group string="OAuth 2.0" invisible="auth_type != 'oauth2'">
-                                    <field name="oauth_client_id"/>
-                                    <field name="oauth_client_secret" password="True"/>
-                                    <field name="oauth_token_url"/>
+                                <group
+                                    string="OAuth 2.0"
+                                    invisible="auth_type != 'oauth2'"
+                                >
+                                    <field name="oauth_client_id" />
+                                    <field name="oauth_client_secret" password="True" />
+                                    <field name="oauth_token_url" />
                                 </group>
                             </group>
                             <div class="alert alert-warning" role="alert">
@@ -81,24 +112,28 @@
                         <page string="Behavior" name="behavior">
                             <group>
                                 <group string="Caching">
-                                    <field name="default_ttl_seconds"/>
+                                    <field name="default_ttl_seconds" />
                                 </group>
                                 <group string="Request Settings">
-                                    <field name="max_batch_size"/>
-                                    <field name="timeout_ms"/>
-                                    <field name="retry_max"/>
-                                    <field name="recommended_concurrency"/>
+                                    <field name="max_batch_size" />
+                                    <field name="timeout_ms" />
+                                    <field name="retry_max" />
+                                    <field name="recommended_concurrency" />
                                 </group>
                             </group>
                         </page>
 
                         <page string="ID Mapping" name="id_mapping">
                             <group>
-                                <field name="id_mapping_fields"
-                                       placeholder="e.g., spp_id, ref, x_external_id"/>
-                                <field name="is_id_mapping_required"/>
-                                <field name="id_mapping_namespace"
-                                       placeholder="e.g., EDU_MINISTRY"/>
+                                <field
+                                    name="id_mapping_fields"
+                                    placeholder="e.g., spp_id, ref, x_external_id"
+                                />
+                                <field name="is_id_mapping_required" />
+                                <field
+                                    name="id_mapping_namespace"
+                                    placeholder="e.g., EDU_MINISTRY"
+                                />
                             </group>
                             <div class="alert alert-info" role="alert">
                                 <strong>ID Mapping:</strong>
@@ -110,10 +145,10 @@
                         <page string="Variables" name="variables">
                             <field name="variable_ids">
                                 <list>
-                                    <field name="name"/>
-                                    <field name="cel_accessor"/>
-                                    <field name="value_type" widget="badge"/>
-                                    <field name="cache_strategy" widget="badge"/>
+                                    <field name="name" />
+                                    <field name="cel_accessor" />
+                                    <field name="value_type" widget="badge" />
+                                    <field name="cache_strategy" widget="badge" />
                                 </list>
                             </field>
                         </page>
@@ -129,27 +164,45 @@
         <field name="model">spp.data.provider</field>
         <field name="arch" type="xml">
             <search string="Search Data Providers">
-                <field name="name"/>
-                <field name="code"/>
-                <field name="auth_type"/>
+                <field name="name" />
+                <field name="code" />
+                <field name="auth_type" />
 
-                <separator/>
-                <filter string="Active" name="filter_active"
-                        domain="[('active', '=', True)]"/>
-                <filter string="Archived" name="filter_archived"
-                        domain="[('active', '=', False)]"/>
+                <separator />
+                <filter
+                    string="Active"
+                    name="filter_active"
+                    domain="[('active', '=', True)]"
+                />
+                <filter
+                    string="Archived"
+                    name="filter_archived"
+                    domain="[('active', '=', False)]"
+                />
 
-                <separator/>
-                <filter string="With API Key" name="filter_api_key"
-                        domain="[('auth_type', '=', 'api_key')]"/>
-                <filter string="OAuth 2.0" name="filter_oauth"
-                        domain="[('auth_type', '=', 'oauth2')]"/>
-                <filter string="No Auth" name="filter_no_auth"
-                        domain="[('auth_type', '=', 'none')]"/>
+                <separator />
+                <filter
+                    string="With API Key"
+                    name="filter_api_key"
+                    domain="[('auth_type', '=', 'api_key')]"
+                />
+                <filter
+                    string="OAuth 2.0"
+                    name="filter_oauth"
+                    domain="[('auth_type', '=', 'oauth2')]"
+                />
+                <filter
+                    string="No Auth"
+                    name="filter_no_auth"
+                    domain="[('auth_type', '=', 'none')]"
+                />
 
                 <group>
-                    <filter string="Auth Type" name="group_auth"
-                            context="{'group_by': 'auth_type'}"/>
+                    <filter
+                        string="Auth Type"
+                        name="group_auth"
+                        context="{'group_by': 'auth_type'}"
+                    />
                 </group>
             </search>
         </field>
@@ -167,10 +220,10 @@
                 Create your first Data Provider
             </p>
             <p>
-                Data providers represent external systems that can push data into the cache.<br/>
+                Data providers represent external systems that can push data into the cache.<br
+            />
                 Configure API endpoints, authentication, and ID mapping for each provider.
             </p>
         </field>
     </record>
-
 </odoo>

@@ -8,7 +8,7 @@
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Stable",
+    "development_status": "Production/Stable",
     "maintainers": ["jeremi", "gonzalesedwin1123", "reichie020212"],
     "depends": [
         "spp_api_v2",
@@ -25,24 +25,5 @@
     "auto_install": ["spp_api_v2", "spp_programs"],
     "summary": """
         REST API endpoints for Entitlements (Cash and In-Kind).
-    """,
-    "description": """
-OpenSPP API V2 - Entitlements
-==============================
-
-Extends OpenSPP API V2 with Entitlement endpoints.
-
-Endpoints
----------
-- ``GET /Entitlement`` - Search entitlements
-- ``GET /Entitlement/{identifier}`` - Read entitlement by code
-
-Design Principles
------------------
-- Uses entitlement code (UUID) as external identifier
-- Supports both cash and in-kind entitlements
-- Returns appropriate HTTP status codes
-- Follows OpenSPP API V2 patterns
-- Requires authentication via OAuth 2.0
     """,
 }

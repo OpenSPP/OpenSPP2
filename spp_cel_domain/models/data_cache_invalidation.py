@@ -40,7 +40,7 @@ class DataCacheInvalidation(models.AbstractModel):
             dict: {field_name: [variable_records], ...}
         """
         # Use sudo() for internal cache management - shouldn't depend on user permissions
-        Variable = self.env["spp.cel.variable"].sudo()
+        Variable = self.env["spp.cel.variable"].sudo()  # nosemgrep: odoo-sudo-without-context
 
         # Get all active variables with persistent caching
         cached_vars = Variable.search(
@@ -82,7 +82,7 @@ class DataCacheInvalidation(models.AbstractModel):
             return
 
         # Use sudo() for internal cache management
-        DataValue = self.env["spp.data.value"].sudo()
+        DataValue = self.env["spp.data.value"].sudo()  # nosemgrep: odoo-sudo-without-context
         for var_name in variable_names:
             DataValue.invalidate(var_name, subject_ids)
 
@@ -129,7 +129,7 @@ class ResPartnerCacheInvalidation(models.Model):
         """Override unlink to invalidate cache before deletion."""
         # Get all cached variables for these subjects
         # Use sudo() for internal cache management
-        DataValue = self.env["spp.data.value"].sudo()
+        DataValue = self.env["spp.data.value"].sudo()  # nosemgrep: odoo-sudo-without-context
         if self:
             # Invalidate all cached values for these subjects
             DataValue.search(
@@ -149,7 +149,7 @@ class ResPartnerCacheInvalidation(models.Model):
         2. For child count variables, update group counts
         """
         # Use sudo() for internal cache management
-        Variable = self.env["spp.cel.variable"].sudo()
+        Variable = self.env["spp.cel.variable"].sudo()  # nosemgrep: odoo-sudo-without-context
 
         # Get aggregate variables with member change invalidation
         aggregate_vars = Variable.search(
@@ -195,7 +195,7 @@ class CelVariableCacheInvalidation(models.Model):
         variable definition changes significantly.
         """
         # Use sudo() for internal cache management
-        DataValue = self.env["spp.data.value"].sudo()
+        DataValue = self.env["spp.data.value"].sudo()  # nosemgrep: odoo-sudo-without-context
         for var in self:
             if var.uses_persistent_cache():
                 DataValue.invalidate_pattern(var.name)

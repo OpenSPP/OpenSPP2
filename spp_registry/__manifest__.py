@@ -8,29 +8,8 @@
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Stable",
+    "development_status": "Production/Stable",
     "summary": "Consolidated registry management for individuals, groups, and membership",
-    "description": """
-OpenSPP Registry
-================
-
-This module consolidates the core registry management system for OpenSPP, including:
-- Base registry functionality for registrants
-- Individual and group registry
-- Group membership management
-- Enhanced UI with improved UX
-- Registrant tagging capabilities
-
-Features:
-- Comprehensive registrant management (individuals and groups)
-- ID document tracking and verification
-- Relationship management between registrants
-- Group membership with roles and dates
-- Flexible tagging system for categorization
-- Consolidated tab structure (Profile, Identity, Participation, History)
-- Enhanced list views with avatars and status badges
-- Improved search and filtering
-    """,
     "depends": [
         "base",
         "mail",
@@ -87,6 +66,9 @@ Features:
             "spp_registry/static/src/js/form_text_overflow.js",
         ],
     },
+    "oca_data_manual": [
+        "data/id_types.xml",
+    ],
     "application": True,
     "installable": True,
     "auto_install": False,

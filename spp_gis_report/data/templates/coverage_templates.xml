@@ -2,15 +2,17 @@
 <odoo>
     <!-- Coverage Analysis Templates -->
 
-        <record id="template_beneficiary_density" model="spp.gis.report.template">
-            <field name="name">Beneficiary Density</field>
-            <field name="code">beneficiary_density</field>
-            <field name="description">Shows where beneficiaries are concentrated geographically. Displays the count of beneficiaries per square kilometer for each administrative area.</field>
-            <field name="category_id" ref="category_coverage" />
-            <field name="icon">fa-users</field>
-            <field name="sequence">10</field>
-            <field name="requires_program">True</field>
-            <field name="config">{
+    <record id="template_beneficiary_density" model="spp.gis.report.template">
+        <field name="name">Beneficiary Density</field>
+        <field name="code">beneficiary_density</field>
+        <field
+            name="description"
+        >Shows where beneficiaries are concentrated geographically. Displays the count of beneficiaries per square kilometer for each administrative area.</field>
+        <field name="category_id" ref="category_coverage" />
+        <field name="icon">fa-users</field>
+        <field name="sequence">10</field>
+        <field name="requires_program">True</field>
+        <field name="config">{
     "source_model": "res.partner",
     "area_field_path": "area_id",
     "filter_template": "[('is_registrant', '=', True), ('is_group', '=', True)]",
@@ -22,18 +24,20 @@
     "rollup_method": "sum",
     "rollup_weight_source": "count"
 }</field>
-        </record>
+    </record>
 
-        <record id="template_coverage_rate" model="spp.gis.report.template">
-            <field name="name">Program Coverage Rate</field>
-            <field name="code">coverage_rate</field>
-            <field name="description">Percentage of eligible population enrolled in the program. Compares enrolled beneficiaries to the total eligible population in each area.</field>
-            <field name="category_id" ref="category_coverage" />
-            <field name="icon">fa-percent</field>
-            <field name="sequence">20</field>
-            <field name="requires_program">True</field>
-            <field name="requires_reference_data">eligible_count</field>
-            <field name="config">{
+    <record id="template_coverage_rate" model="spp.gis.report.template">
+        <field name="name">Program Coverage Rate</field>
+        <field name="code">coverage_rate</field>
+        <field
+            name="description"
+        >Percentage of eligible population enrolled in the program. Compares enrolled beneficiaries to the total eligible population in each area.</field>
+        <field name="category_id" ref="category_coverage" />
+        <field name="icon">fa-percent</field>
+        <field name="sequence">20</field>
+        <field name="requires_program">True</field>
+        <field name="requires_reference_data">eligible_count</field>
+        <field name="config">{
     "source_model": "res.partner",
     "area_field_path": "area_id",
     "filter_template": "[('is_registrant', '=', True), ('is_group', '=', True)]",
@@ -46,18 +50,20 @@
     "rollup_weight_source": "custom",
     "rollup_weight_field": "eligible_count"
 }</field>
-        </record>
+    </record>
 
-        <record id="template_coverage_gap" model="spp.gis.report.template">
-            <field name="name">Coverage Gap Analysis</field>
-            <field name="code">coverage_gap</field>
-            <field name="description">Identifies areas with low program coverage that need expansion. Shows the gap between eligible and enrolled populations.</field>
-            <field name="category_id" ref="category_coverage" />
-            <field name="icon">fa-exclamation-triangle</field>
-            <field name="sequence">30</field>
-            <field name="requires_program">True</field>
-            <field name="requires_reference_data">eligible_count</field>
-            <field name="config">{
+    <record id="template_coverage_gap" model="spp.gis.report.template">
+        <field name="name">Coverage Gap Analysis</field>
+        <field name="code">coverage_gap</field>
+        <field
+            name="description"
+        >Identifies areas with low program coverage that need expansion. Shows the gap between eligible and enrolled populations.</field>
+        <field name="category_id" ref="category_coverage" />
+        <field name="icon">fa-exclamation-triangle</field>
+        <field name="sequence">30</field>
+        <field name="requires_program">True</field>
+        <field name="requires_reference_data">eligible_count</field>
+        <field name="config">{
     "source_model": "res.partner",
     "area_field_path": "area_id",
     "filter_template": "[('is_registrant', '=', True), ('is_group', '=', True)]",
@@ -69,17 +75,19 @@
     "rollup_method": "sum",
     "rollup_weight_source": "count"
 }</field>
-        </record>
+    </record>
 
-        <record id="template_enrollment_distribution" model="spp.gis.report.template">
-            <field name="name">Enrollment Distribution</field>
-            <field name="code">enrollment_distribution</field>
-            <field name="description">Visual representation of how program enrollment is distributed across regions. Useful for identifying underserved areas.</field>
-            <field name="category_id" ref="category_coverage" />
-            <field name="icon">fa-map-marker</field>
-            <field name="sequence">40</field>
-            <field name="requires_program">True</field>
-            <field name="config">{
+    <record id="template_enrollment_distribution" model="spp.gis.report.template">
+        <field name="name">Enrollment Distribution</field>
+        <field name="code">enrollment_distribution</field>
+        <field
+            name="description"
+        >Visual representation of how program enrollment is distributed across regions. Useful for identifying underserved areas.</field>
+        <field name="category_id" ref="category_coverage" />
+        <field name="icon">fa-map-marker</field>
+        <field name="sequence">40</field>
+        <field name="requires_program">True</field>
+        <field name="config">{
     "source_model": "res.partner",
     "area_field_path": "area_id",
     "filter_template": "[('is_registrant', '=', True), ('is_group', '=', True)]",
@@ -91,17 +99,19 @@
     "rollup_method": "sum",
     "rollup_weight_source": "count"
 }</field>
-        </record>
+    </record>
 
-        <record id="template_active_beneficiaries" model="spp.gis.report.template">
-            <field name="name">Active Beneficiaries Map</field>
-            <field name="code">active_beneficiaries</field>
-            <field name="description">Geographic distribution of currently active program beneficiaries. Excludes suspended, graduated, or inactive enrollments.</field>
-            <field name="category_id" ref="category_coverage" />
-            <field name="icon">fa-check-circle</field>
-            <field name="sequence">50</field>
-            <field name="requires_program">True</field>
-            <field name="config">{
+    <record id="template_active_beneficiaries" model="spp.gis.report.template">
+        <field name="name">Active Beneficiaries Map</field>
+        <field name="code">active_beneficiaries</field>
+        <field
+            name="description"
+        >Geographic distribution of currently active program beneficiaries. Excludes suspended, graduated, or inactive enrollments.</field>
+        <field name="category_id" ref="category_coverage" />
+        <field name="icon">fa-check-circle</field>
+        <field name="sequence">50</field>
+        <field name="requires_program">True</field>
+        <field name="config">{
     "source_model": "res.partner",
     "area_field_path": "area_id",
     "filter_template": "[('is_registrant', '=', True), ('is_group', '=', True)]",
@@ -113,5 +123,5 @@
     "rollup_method": "sum",
     "rollup_weight_source": "population"
 }</field>
-        </record>
+    </record>
 </odoo>

@@ -45,7 +45,7 @@ class SppApiFilterPreset(models.Model):
     )
     filter_json = fields.Text(
         required=True,
-        help="JSON array of filter conditions. Format: " '[{"field": "age", "operator": "gte", "value": 65}, ...]',
+        help='JSON array of filter conditions. Format: [{"field": "age", "operator": "gte", "value": 65}, ...]',
     )
 
     # Access control
@@ -69,7 +69,7 @@ class SppApiFilterPreset(models.Model):
             ]
             if self.search(domain, limit=1):
                 raise ValidationError(
-                    _("Preset name must be unique per API path. " "A preset named '%s' already exists for this path.")
+                    _("Preset name must be unique per API path. A preset named '%s' already exists for this path.")
                     % record.name
                 )
 

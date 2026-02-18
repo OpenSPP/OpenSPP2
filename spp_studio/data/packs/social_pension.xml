@@ -1,79 +1,102 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
-        <!-- Social Pension Pack: Old-age pension programs -->
-        <record id="pack_social_pension" model="spp.studio.pack">
-            <field name="name">Social Pension</field>
-            <field name="code">social_pension</field>
-            <field name="description">Complete logic pack for old-age/social pension programs. Includes age-based eligibility, income verification, and standard benefit calculation.</field>
-            <field name="category">social_pension</field>
-            <field name="version">1.0</field>
-            <field name="author">OpenSPP</field>
-            <field name="state">available</field>
-        </record>
+    <!-- Social Pension Pack: Old-age pension programs -->
+    <record id="pack_social_pension" model="spp.studio.pack">
+        <field name="name">Social Pension</field>
+        <field name="code">social_pension</field>
+        <field
+            name="description"
+        >Complete logic pack for old-age/social pension programs. Includes age-based eligibility, income verification, and standard benefit calculation.</field>
+        <field name="category">social_pension</field>
+        <field name="version">1.0</field>
+        <field name="author">OpenSPP</field>
+        <field name="state">available</field>
+    </record>
 
-        <!-- Eligibility: Old-Age Pension -->
-        <record id="pack_social_pension_item_age_eligibility" model="spp.studio.pack.item">
-            <field name="pack_id" ref="pack_social_pension"/>
-            <field name="name">Old-Age Pension Eligibility</field>
-            <field name="context_type">individual</field>
-            <field name="description">Age-based eligibility check for social pension. Uses retirement_age variable (default 60), adjustable per country policy.</field>
-            <field name="expression_type">filter</field>
-            <field name="logic_data">{"cel_expression": "age &gt;= retirement_age"}</field>
-            <field name="sequence">10</field>
-        </record>
+    <!-- Eligibility: Old-Age Pension -->
+    <record id="pack_social_pension_item_age_eligibility" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_social_pension" />
+        <field name="name">Old-Age Pension Eligibility</field>
+        <field name="context_type">individual</field>
+        <field
+            name="description"
+        >Age-based eligibility check for social pension. Uses retirement_age variable (default 60), adjustable per country policy.</field>
+        <field name="expression_type">filter</field>
+        <field name="logic_data">{"cel_expression": "age &gt;= retirement_age"}</field>
+        <field name="sequence">10</field>
+    </record>
 
-        <!-- Eligibility: Not Receiving Other Pension -->
-        <record id="pack_social_pension_item_no_formal_pension" model="spp.studio.pack.item">
-            <field name="pack_id" ref="pack_social_pension"/>
-            <field name="name">No Formal Pension Check</field>
-            <field name="context_type">individual</field>
-            <field name="description">Excludes individuals already receiving formal/contributory pension benefits.</field>
-            <field name="expression_type">filter</field>
-            <field name="logic_data">{"cel_expression": "!has_formal_pension || formal_pension_amount == 0"}</field>
-            <field name="sequence">20</field>
-        </record>
+    <!-- Eligibility: Not Receiving Other Pension -->
+    <record
+        id="pack_social_pension_item_no_formal_pension"
+        model="spp.studio.pack.item"
+    >
+        <field name="pack_id" ref="pack_social_pension" />
+        <field name="name">No Formal Pension Check</field>
+        <field name="context_type">individual</field>
+        <field
+            name="description"
+        >Excludes individuals already receiving formal/contributory pension benefits.</field>
+        <field name="expression_type">filter</field>
+        <field
+            name="logic_data"
+        >{"cel_expression": "!has_formal_pension || formal_pension_amount == 0"}</field>
+        <field name="sequence">20</field>
+    </record>
 
-        <!-- Eligibility: Residency Requirement -->
-        <record id="pack_social_pension_item_residency" model="spp.studio.pack.item">
-            <field name="pack_id" ref="pack_social_pension"/>
-            <field name="name">Residency Requirement</field>
-            <field name="context_type">individual</field>
-            <field name="description">Minimum residency years in country/region. Default is 5 years continuous residency.</field>
-            <field name="expression_type">filter</field>
-            <field name="logic_data">{"cel_expression": "residency_years >= 5"}</field>
-            <field name="sequence">30</field>
-        </record>
+    <!-- Eligibility: Residency Requirement -->
+    <record id="pack_social_pension_item_residency" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_social_pension" />
+        <field name="name">Residency Requirement</field>
+        <field name="context_type">individual</field>
+        <field
+            name="description"
+        >Minimum residency years in country/region. Default is 5 years continuous residency.</field>
+        <field name="expression_type">filter</field>
+        <field name="logic_data">{"cel_expression": "residency_years >= 5"}</field>
+        <field name="sequence">30</field>
+    </record>
 
-        <!-- Scoring: Pension Priority Score -->
-        <record id="pack_social_pension_item_priority_score" model="spp.studio.pack.item">
-            <field name="pack_id" ref="pack_social_pension"/>
-            <field name="name">Pension Priority Score</field>
-            <field name="context_type">both</field>
-            <field name="description">Priority scoring for pension allocation. Higher scores for older age, lower income, and no family support.</field>
-            <field name="expression_type">scoring</field>
-            <field name="logic_data">{"cel_expression": "(age - retirement_age) * 2.0 + (has_caregiver ? 0 : 10) + (1 - income_ratio) * 20"}</field>
-            <field name="sequence">40</field>
-        </record>
+    <!-- Scoring: Pension Priority Score -->
+    <record id="pack_social_pension_item_priority_score" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_social_pension" />
+        <field name="name">Pension Priority Score</field>
+        <field name="context_type">both</field>
+        <field
+            name="description"
+        >Priority scoring for pension allocation. Higher scores for older age, lower income, and no family support.</field>
+        <field name="expression_type">scoring</field>
+        <field
+            name="logic_data"
+        >{"cel_expression": "(age - retirement_age) * 2.0 + (has_caregiver ? 0 : 10) + (1 - income_ratio) * 20"}</field>
+        <field name="sequence">40</field>
+    </record>
 
-        <!-- Benefit: Flat Pension Amount -->
-        <record id="pack_social_pension_item_flat_benefit" model="spp.studio.pack.item">
-            <field name="pack_id" ref="pack_social_pension"/>
-            <field name="name">Flat Pension Benefit</field>
-            <field name="context_type">both</field>
-            <field name="description">Standard flat monthly pension amount. Universal amount regardless of household size.</field>
-            <field name="expression_type">formula</field>
-            <field name="logic_data">{"cel_expression": "base_benefit"}</field>
-            <field name="sequence">50</field>
-        </record>
+    <!-- Benefit: Flat Pension Amount -->
+    <record id="pack_social_pension_item_flat_benefit" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_social_pension" />
+        <field name="name">Flat Pension Benefit</field>
+        <field name="context_type">both</field>
+        <field
+            name="description"
+        >Standard flat monthly pension amount. Universal amount regardless of household size.</field>
+        <field name="expression_type">formula</field>
+        <field name="logic_data">{"cel_expression": "base_benefit"}</field>
+        <field name="sequence">50</field>
+    </record>
 
-        <!-- Benefit: Age-Adjusted Pension -->
-        <record id="pack_social_pension_item_age_adjusted" model="spp.studio.pack.item">
-            <field name="pack_id" ref="pack_social_pension"/>
-            <field name="name">Age-Adjusted Pension</field>
-            <field name="context_type">individual</field>
-            <field name="description">Higher pension for very elderly (e.g., 80+). Adds supplement for advanced age.</field>
-            <field name="expression_type">formula</field>
-            <field name="logic_data">{"cel_expression": "base_benefit + (age &gt;= 80 ? 500 : 0)"}</field>
-            <field name="sequence">60</field>
-        </record>
+    <!-- Benefit: Age-Adjusted Pension -->
+    <record id="pack_social_pension_item_age_adjusted" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_social_pension" />
+        <field name="name">Age-Adjusted Pension</field>
+        <field name="context_type">individual</field>
+        <field
+            name="description"
+        >Higher pension for very elderly (e.g., 80+). Adds supplement for advanced age.</field>
+        <field name="expression_type">formula</field>
+        <field
+            name="logic_data"
+        >{"cel_expression": "base_benefit + (age &gt;= 80 ? 500 : 0)"}</field>
+        <field name="sequence">60</field>
+    </record>
 </odoo>

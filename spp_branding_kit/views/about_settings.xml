@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <record id="view_res_config_settings_form_inherit_spp_branding_kit_about" model="ir.ui.view">
+    <record
+        id="view_res_config_settings_form_inherit_spp_branding_kit_about"
+        model="ir.ui.view"
+    >
         <field name="priority">99</field>
         <field name="name">res.config.settings.view.form.inherit.openspp.about</field>
         <field name="model">res.config.settings</field>

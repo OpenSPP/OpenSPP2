@@ -86,6 +86,7 @@ class SPPDMSDirectory(models.Model):
                 record.root_directory_id = record.parent_id.root_directory_id
 
     def _compute_size(self):
+        # nosemgrep: odoo-sudo-without-context — directory size computation requires access to all child files
         sudo_model = self.env["spp.dms.file"].sudo()
         for record in self:
             # Avoid NewId

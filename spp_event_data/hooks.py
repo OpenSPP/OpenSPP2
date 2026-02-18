@@ -23,9 +23,8 @@ def post_init_hook(env):
             sql = f.read()
 
         # Execute SQL from static file (no user input involved)
-        env.cr.execute(
-            sql
-        )  # nosemgrep: odoo-sql-injection-string-format - SQL comes from static module file data/event_data_indexes.sql, not from user input.
+        env.cr.execute(sql)  # nosemgrep: odoo-sql-injection-string-format
+        # SQL comes from static module file data/event_data_indexes.sql, not from user input.
         _logger.info("spp_event_data: Database indexes created successfully")
     else:
         _logger.warning("spp_event_data: Index SQL file not found: %s", sql_file)
@@ -54,7 +53,9 @@ def uninstall_hook(env):
             # Use psycopg2's sql module for safe identifier handling
             from psycopg2 import sql
 
-            env.cr.execute(  # nosemgrep: odoo-sql-injection-string-format - Index name is validated by regex and passed as psycopg2 Identifier, not string interpolation.
+            env.cr.execute(  # nosemgrep: odoo-sql-injection-string-format
+                # Index name is validated by regex and passed as psycopg2 Identifier,
+                # not string interpolation.
                 sql.SQL("DROP INDEX IF EXISTS {}").format(sql.Identifier(index))
             )
         except Exception as e:

@@ -285,8 +285,6 @@ class TestComplianceCELBreaking(TransactionCase):
 
     def test_base_domain_applied_in_compliance_preview(self):
         """Base domain should be applied when computing preview count."""
-        from odoo import fields
-
         # Create disabled partner (disabled is a Datetime field)
         self.env["res.partner"].create(
             {

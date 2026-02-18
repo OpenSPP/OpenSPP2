@@ -27,22 +27,35 @@
                         type="object"
                         invisible="state == 'config'"
                     />
-                    <field name="state" widget="statusbar" statusbar_visible="config,preview,done" />
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="config,preview,done"
+                    />
                 </header>
                 <sheet>
                     <!-- Educational header explaining HDX -->
-                    <div class="alert alert-info mb-3" role="alert" invisible="state != 'config'">
+                    <div
+                        class="alert alert-info mb-3"
+                        role="alert"
+                        invisible="state != 'config'"
+                    >
                         <h5 class="alert-heading">
-                            <i class="fa fa-globe" /> HDX Administrative Boundaries Import
+                            <i
+                            class="fa fa-globe"
+                        /> HDX Administrative Boundaries Import
                         </h5>
                         <p class="mb-2">
-                            <strong>HDX (Humanitarian Data Exchange)</strong> is OCHA's platform for sharing
-                            humanitarian data. This wizard imports <strong>Common Operational Datasets (COD)</strong>
+                            <strong
+                        >HDX (Humanitarian Data Exchange)</strong> is OCHA's platform for sharing
+                            humanitarian data. This wizard imports <strong
+                        >Common Operational Datasets (COD)</strong>
                             which provide standardized administrative boundary polygons used across humanitarian
                             organizations.
                         </p>
                         <p class="mb-0">
-                            <strong>P-codes</strong> (Place codes like LK-11) are unique identifiers that enable
+                            <strong
+                        >P-codes</strong> (Place codes like LK-11) are unique identifiers that enable
                             consistent data sharing between systems.
                         </p>
                     </div>
@@ -55,14 +68,21 @@
                                 help="Download from HDX: Fetch official boundary data from OCHA. Upload GeoJSON: Import your own boundary file."
                             />
                             <field name="country_id" invisible="import_mode != 'hdx'" />
-                            <field name="source_id" invisible="import_mode != 'hdx'" domain="[('country_id', '=', country_id)]" />
+                            <field
+                                name="source_id"
+                                invisible="import_mode != 'hdx'"
+                                domain="[('country_id', '=', country_id)]"
+                            />
                         </group>
                     </group>
 
                     <!-- HDX Mode Configuration -->
                     <notebook invisible="state != 'config' or import_mode != 'hdx'">
                         <page string="Admin Levels" name="levels">
-                            <field name="resource_ids" domain="[('source_id', '=', source_id)]">
+                            <field
+                                name="resource_ids"
+                                domain="[('source_id', '=', source_id)]"
+                            >
                                 <list>
                                     <field name="name" />
                                     <field name="admin_level" />
@@ -122,14 +142,29 @@
                             </p>
                         </div>
                         <group>
-                            <field name="preview_matched" string="Areas to Update" help="Existing areas that will be updated with boundary polygons" />
-                            <field name="preview_missing" string="P-codes Not Found" help="P-codes in the HDX data without matching area records" />
-                            <field name="preview_new" string="Areas to Create" help="New area records that will be created (if 'Create Missing' is enabled)" />
+                            <field
+                                name="preview_matched"
+                                string="Areas to Update"
+                                help="Existing areas that will be updated with boundary polygons"
+                            />
+                            <field
+                                name="preview_missing"
+                                string="P-codes Not Found"
+                                help="P-codes in the HDX data without matching area records"
+                            />
+                            <field
+                                name="preview_new"
+                                string="Areas to Create"
+                                help="New area records that will be created (if 'Create Missing' is enabled)"
+                            />
                         </group>
                     </group>
 
                     <!-- Import Log -->
-                    <group string="Import Log" invisible="state not in ('importing', 'done')">
+                    <group
+                        string="Import Log"
+                        invisible="state not in ('importing', 'done')"
+                    >
                         <field name="import_log" nolabel="1" />
                     </group>
                 </sheet>

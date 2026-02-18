@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Programs Domain Groups -->
     <!-- Following ADR-004 three-tier architecture -->
@@ -6,69 +6,104 @@
     <!-- Tier 3: Technical base groups -->
     <record id="group_programs_read" model="res.groups">
         <field name="name">Programs: Read</field>
-        <field name="comment">Technical group for read access to program/cycle/entitlement models.</field>
+        <field
+            name="comment"
+        >Technical group for read access to program/cycle/entitlement models.</field>
     </record>
 
     <record id="group_programs_write" model="res.groups">
         <field name="name">Programs: Write</field>
-        <field name="comment">Technical group for write access to program/cycle/entitlement models.</field>
-        <field name="implied_ids" eval="[Command.link(ref('group_programs_read'))]"/>
+        <field
+            name="comment"
+        >Technical group for write access to program/cycle/entitlement models.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_programs_read'))]" />
     </record>
 
     <record id="group_programs_create" model="res.groups">
         <field name="name">Programs: Create</field>
-        <field name="comment">Technical group for create access to program/cycle/entitlement models.</field>
-        <field name="implied_ids" eval="[Command.link(ref('group_programs_read'))]"/>
+        <field
+            name="comment"
+        >Technical group for create access to program/cycle/entitlement models.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_programs_read'))]" />
     </record>
 
     <!-- Tier 2: User-facing groups -->
     <record id="group_programs_viewer" model="res.groups">
         <field name="name">Viewer</field>
-        <field name="privilege_id" ref="privilege_programs_user"/>
-        <field name="comment">Can view program, cycle, and entitlement records. Cannot modify data.</field>
-        <field name="implied_ids" eval="[Command.link(ref('group_programs_read'))]"/>
+        <field name="privilege_id" ref="privilege_programs_user" />
+        <field
+            name="comment"
+        >Can view program, cycle, and entitlement records. Cannot modify data.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_programs_read'))]" />
     </record>
 
     <record id="group_programs_officer" model="res.groups">
         <field name="name">Officer</field>
-        <field name="privilege_id" ref="privilege_programs_user"/>
-        <field name="comment">Can view and edit program, cycle, and entitlement records. Cannot delete.</field>
-        <field name="implied_ids" eval="[Command.link(ref('group_programs_viewer')), Command.link(ref('group_programs_write')), Command.link(ref('group_programs_create'))]"/>
+        <field name="privilege_id" ref="privilege_programs_user" />
+        <field
+            name="comment"
+        >Can view and edit program, cycle, and entitlement records. Cannot delete.</field>
+        <field
+            name="implied_ids"
+            eval="[Command.link(ref('group_programs_viewer')), Command.link(ref('group_programs_write')), Command.link(ref('group_programs_create'))]"
+        />
     </record>
 
     <record id="group_programs_manager" model="res.groups">
         <field name="name">Manager</field>
-        <field name="privilege_id" ref="privilege_programs_user"/>
-        <field name="comment">Full program management including delete operations.</field>
-        <field name="implied_ids" eval="[Command.link(ref('group_programs_officer'))]"/>
+        <field name="privilege_id" ref="privilege_programs_user" />
+        <field
+            name="comment"
+        >Full program management including delete operations.</field>
+        <field
+            name="implied_ids"
+            eval="[Command.link(ref('group_programs_officer'))]"
+        />
     </record>
 
     <!-- Tier 1: Specialized roles -->
     <!-- These use a separate privilege so they can be combined with basic roles -->
     <record id="group_programs_validator" model="res.groups">
         <field name="name">Finance Validator</field>
-        <field name="privilege_id" ref="privilege_programs_validator"/>
-        <field name="comment">SPECIALIZED ROLE: Can validate/approve financial aspects of entitlements.</field>
-        <field name="implied_ids" eval="[Command.link(ref('group_programs_read')), Command.link(ref('group_programs_write'))]"/>
+        <field name="privilege_id" ref="privilege_programs_validator" />
+        <field
+            name="comment"
+        >SPECIALIZED ROLE: Can validate/approve financial aspects of entitlements.</field>
+        <field
+            name="implied_ids"
+            eval="[Command.link(ref('group_programs_read')), Command.link(ref('group_programs_write'))]"
+        />
     </record>
 
     <record id="group_programs_rejector" model="res.groups">
         <field name="name">Entitlement Rejector</field>
-        <field name="privilege_id" ref="privilege_programs_validator"/>
-        <field name="comment">SPECIALIZED ROLE: Can reject entitlements. This is a functional role (not part of Viewer/Officer/Manager hierarchy).</field>
-        <field name="implied_ids" eval="[Command.link(ref('group_programs_read')), Command.link(ref('group_programs_write'))]"/>
+        <field name="privilege_id" ref="privilege_programs_validator" />
+        <field
+            name="comment"
+        >SPECIALIZED ROLE: Can reject entitlements. This is a functional role (not part of Viewer/Officer/Manager hierarchy).</field>
+        <field
+            name="implied_ids"
+            eval="[Command.link(ref('group_programs_read')), Command.link(ref('group_programs_write'))]"
+        />
     </record>
 
     <record id="group_programs_cycle_approver" model="res.groups">
         <field name="name">Cycle Approver</field>
-        <field name="privilege_id" ref="privilege_programs_validator"/>
-        <field name="comment">SPECIALIZED ROLE: Can approve cycles. This is a functional role (not part of Viewer/Officer/Manager hierarchy).</field>
-        <field name="implied_ids" eval="[Command.link(ref('group_programs_read')), Command.link(ref('group_programs_write'))]"/>
+        <field name="privilege_id" ref="privilege_programs_validator" />
+        <field
+            name="comment"
+        >SPECIALIZED ROLE: Can approve cycles. This is a functional role (not part of Viewer/Officer/Manager hierarchy).</field>
+        <field
+            name="implied_ids"
+            eval="[Command.link(ref('group_programs_read')), Command.link(ref('group_programs_write'))]"
+        />
     </record>
 
     <!-- Link manager to admin (IMPORTANT!) -->
     <record id="spp_security.group_spp_admin" model="res.groups">
-        <field name="implied_ids" eval="[Command.link(ref('group_programs_manager'))]"/>
+        <field
+            name="implied_ids"
+            eval="[Command.link(ref('group_programs_manager'))]"
+        />
     </record>
-
 </odoo>

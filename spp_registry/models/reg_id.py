@@ -97,7 +97,7 @@ class SPPIDType(models.Model):
         string="Namespace URI",
         index=True,
         copy=False,
-        help="Globally unique URI identifying this ID type. " "Example: urn:gov:ph:psa:national-id",
+        help="Globally unique URI identifying this ID type. Example: urn:gov:ph:psa:national-id",
     )
 
     _unique_namespace_uri = models.Constraint("UNIQUE(namespace_uri)", "Namespace URI must be unique")
