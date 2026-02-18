@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Metric List View -->
     <record id="view_simulation_metric_list" model="ir.ui.view">
@@ -6,10 +6,10 @@
         <field name="model">spp.simulation.metric</field>
         <field name="arch" type="xml">
             <list>
-                <field name="sequence" widget="handle"/>
-                <field name="name"/>
-                <field name="metric_type"/>
-                <field name="aggregation" invisible="metric_type != 'aggregate'"/>
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="metric_type" />
+                <field name="aggregation" invisible="metric_type != 'aggregate'" />
             </list>
         </field>
     </record>
@@ -23,23 +23,28 @@
                 <sheet>
                     <group>
                         <group>
-                            <field name="name"/>
-                            <field name="metric_type"/>
-                            <field name="aggregation" invisible="metric_type != 'aggregate'"/>
+                            <field name="name" />
+                            <field name="metric_type" />
+                            <field
+                                name="aggregation"
+                                invisible="metric_type != 'aggregate'"
+                            />
                         </group>
                         <group>
-                            <field name="sequence"/>
-                            <field name="active"/>
+                            <field name="sequence" />
+                            <field name="active" />
                         </group>
                     </group>
-                    <group invisible="metric_type != 'aggregate' and metric_type != 'coverage'">
-                        <field name="cel_expression"/>
+                    <group
+                        invisible="metric_type != 'aggregate' and metric_type != 'coverage'"
+                    >
+                        <field name="cel_expression" />
                     </group>
                     <group invisible="metric_type != 'ratio'">
-                        <field name="numerator_expression"/>
-                        <field name="denominator_expression"/>
+                        <field name="numerator_expression" />
+                        <field name="denominator_expression" />
                     </group>
-                    <field name="description"/>
+                    <field name="description" />
                 </sheet>
             </form>
         </field>

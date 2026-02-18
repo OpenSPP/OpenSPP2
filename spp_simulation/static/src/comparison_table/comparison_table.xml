@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <templates xml:space="preserve">
     <t t-name="spp_simulation.SimulationComparisonTable">
         <div class="o_simulation_comparison_table">
@@ -12,8 +12,12 @@
                             <th>Metric</th>
                             <t t-foreach="state.runs" t-as="run" t-key="run.run_id">
                                 <th class="text-center">
-                                    <div t-esc="run.scenario_name"/>
-                                    <small class="text-muted" t-if="run.executed_at" t-esc="formatDate(run.executed_at)"/>
+                                    <div t-esc="run.scenario_name" />
+                                    <small
+                                        class="text-muted"
+                                        t-if="run.executed_at"
+                                        t-esc="formatDate(run.executed_at)"
+                                    />
                                 </th>
                             </t>
                         </tr>
@@ -21,10 +25,12 @@
                     <tbody>
                         <t t-foreach="state.metrics" t-as="metric" t-key="metric.key">
                             <tr>
-                                <td class="fw-bold" t-esc="metric.label"/>
+                                <td class="fw-bold" t-esc="metric.label" />
                                 <t t-foreach="state.runs" t-as="run" t-key="run.run_id">
-                                    <td t-attf-class="text-center {{isBestValue(metric.key, run_index) ? 'table-success fw-bold' : ''}}"
-                                        t-esc="formatValue(run[metric.key], metric.format)"/>
+                                    <td
+                                        t-attf-class="text-center {{isBestValue(metric.key, run_index) ? 'table-success fw-bold' : ''}}"
+                                        t-esc="formatValue(run[metric.key], metric.format)"
+                                    />
                                 </t>
                             </tr>
                         </t>

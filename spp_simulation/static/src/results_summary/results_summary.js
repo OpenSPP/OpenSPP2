@@ -48,7 +48,14 @@ export class SimulationResultsSummary extends Component {
             const [data] = await this.orm.read(
                 "spp.simulation.run",
                 [resId],
-                ["beneficiary_count", "coverage_rate", "total_cost", "budget_utilization", "equity_score", "state"]
+                [
+                    "beneficiary_count",
+                    "coverage_rate",
+                    "total_cost",
+                    "budget_utilization",
+                    "equity_score",
+                    "state",
+                ]
             );
             if (data && data.state === "completed") {
                 this.state.beneficiaryCount = data.beneficiary_count || 0;

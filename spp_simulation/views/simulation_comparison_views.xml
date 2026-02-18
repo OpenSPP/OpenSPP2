@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Comparison List View -->
     <record id="view_simulation_comparison_list" model="ir.ui.view">
@@ -6,9 +6,9 @@
         <field name="model">spp.simulation.comparison</field>
         <field name="arch" type="xml">
             <list>
-                <field name="name"/>
-                <field name="run_ids" widget="many2many_tags"/>
-                <field name="create_date"/>
+                <field name="name" />
+                <field name="run_ids" widget="many2many_tags" />
+                <field name="create_date" />
             </list>
         </field>
     </record>
@@ -30,28 +30,44 @@
                 <sheet>
                     <div class="oe_title">
                         <h1>
-                            <field name="name"/>
+                            <field name="name" />
                         </h1>
                     </div>
-                    <div class="alert alert-info" role="status" invisible="not staleness_warning">
-                        <i class="fa fa-info-circle me-2" title="Information"/>
-                        <field name="staleness_warning"/>
+                    <div
+                        class="alert alert-info"
+                        role="status"
+                        invisible="not staleness_warning"
+                    >
+                        <i class="fa fa-info-circle me-2" title="Information" />
+                        <field name="staleness_warning" />
                     </div>
                     <group>
-                        <field name="run_ids" widget="many2many_tags"/>
+                        <field name="run_ids" widget="many2many_tags" />
                     </group>
 
                     <notebook>
                         <page name="parameters" string="Parameters Comparison">
-                            <field name="parameters_comparison_html" readonly="1" nolabel="1"/>
+                            <field
+                                name="parameters_comparison_html"
+                                readonly="1"
+                                nolabel="1"
+                            />
                         </page>
 
                         <page name="results" string="Results Comparison">
-                            <field name="comparison_json" widget="simulation_comparison_table" readonly="1"/>
+                            <field
+                                name="comparison_json"
+                                widget="simulation_comparison_table"
+                                readonly="1"
+                            />
                         </page>
 
                         <page name="overlap" string="Population Overlap">
-                            <field name="overlap_count_json" widget="simulation_overlap_table" readonly="1"/>
+                            <field
+                                name="overlap_count_json"
+                                widget="simulation_overlap_table"
+                                readonly="1"
+                            />
                         </page>
                     </notebook>
                 </sheet>

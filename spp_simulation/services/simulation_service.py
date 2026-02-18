@@ -360,11 +360,15 @@ class SimulationService(models.AbstractModel):
                         base_domain=[("id", "in", beneficiary_ids)],
                         limit=0,
                     )
-                    count = result.get("count", 0)
+                    # Use the aggregation type as the result key so that
+                    # sum/avg/min/max metrics read the correct key rather
+                    # than always reading "count".
+                    agg_key = metric.aggregation or "count"
+                    value = result.get(agg_key, 0)
                     results[metric.name] = {
                         "type": "aggregate",
                         "aggregation": metric.aggregation,
-                        "value": count,
+                        "value": value,
                     }
 
                 elif metric.metric_type == "coverage":
@@ -587,6 +591,7 @@ class SimulationService(models.AbstractModel):
                 # Multiplier mode cannot be directly mapped because
                 # simulation rules use a Char field name while wizard items
                 # use a Many2one to ir.model.fields. Fall back to fixed.
+                item_vals["amount_mode"] = "fixed"
                 warnings.append(
                     _(
                         "Entitlement rule '%s' uses multiplier mode with field '%s'. "

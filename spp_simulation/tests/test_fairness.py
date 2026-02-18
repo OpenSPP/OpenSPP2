@@ -131,7 +131,7 @@ class TestFairness(SimulationTestCommon):
             male_registrants |= male
 
         # Set up scenario to target all 20 registrants (population)
-        scenario = self.env["spp.simulation.scenario"].create(
+        _scenario = self.env["spp.simulation.scenario"].create(
             {
                 "name": "Disparity Test Scenario",
                 "target_type": "group",

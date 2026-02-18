@@ -56,8 +56,19 @@ class TargetingEfficiencyService(models.AbstractModel):
 
     @api.model
     def _get_ideal_population_ids(self, scenario):
-        """Get the ideal population IDs from the ideal population expression."""
-        executor = self.env["spp.cel.executor"]
+        """Get the ideal population IDs from the ideal population expression.
+
+        Loads the CEL profile matching the scenario target type so that the
+        executor evaluates the expression in the correct model context (same
+        pattern used by _execute_targeting in simulation_service.py).
+        """
+        # Load the CEL profile so the executor has the correct base domain
+        # and model context, matching _execute_targeting in simulation_service.py
+        profile = "registry_groups" if scenario.target_type == "group" else "registry_individuals"
+        registry = self.env["spp.cel.registry"]
+        cfg = registry.load_profile(profile)
+
+        executor = self.env["spp.cel.executor"].with_context(cel_cfg=cfg)
         all_ids = []
         try:
             for batch_ids in executor.compile_for_batch(

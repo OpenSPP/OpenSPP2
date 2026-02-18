@@ -74,6 +74,4 @@ class SimulationScenarioTemplate(models.Model):
     def _compute_cel_profile(self):
         """Compute the CEL profile based on target type."""
         for record in self:
-            record.cel_profile = (
-                "registry_groups" if record.target_type == "group" else "registry_individuals"
-            )
+            record.cel_profile = "registry_groups" if record.target_type == "group" else "registry_individuals"

@@ -52,12 +52,14 @@ export class SimulationFairnessTable extends Component {
                 const fairness = data.fairness_json;
                 this.state.equityScore = data.equity_score || 0;
                 this.state.hasDisparity = data.has_disparity || false;
-                this.state.attributes = Object.entries(fairness.attributes || {}).map(([key, attr]) => ({
-                    name: key,
-                    groups: attr.groups || [],
-                    worstRatio: attr.worst_ratio || 0,
-                    hasDisparity: attr.has_disparity || false,
-                }));
+                this.state.attributes = Object.entries(fairness.attributes || {}).map(
+                    ([key, attr]) => ({
+                        name: key,
+                        groups: attr.groups || [],
+                        worstRatio: attr.worst_ratio || 0,
+                        hasDisparity: attr.has_disparity || false,
+                    })
+                );
             }
         } catch (error) {
             console.error("Failed to load fairness data:", error);
@@ -81,7 +83,8 @@ export class SimulationFairnessTable extends Component {
     getStatusLabel(status) {
         if (status === "proportional" || status === "fair") return "Proportional";
         if (status === "low_coverage" || status === "warning") return "Low coverage";
-        if (status === "under_represented" || status === "disparity") return "Under-represented";
+        if (status === "under_represented" || status === "disparity")
+            return "Under-represented";
         return status;
     }
 

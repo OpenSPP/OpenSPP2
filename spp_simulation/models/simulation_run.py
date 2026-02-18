@@ -225,6 +225,7 @@ class SimulationRun(models.Model):
         "equity_score",
         "scenario_id.name",
         "scenario_id.budget_amount",
+        "scenario_id.target_type",
     )
     def _compute_summary_html(self):
         for record in self:
@@ -312,7 +313,7 @@ class SimulationRun(models.Model):
                 ("Std Dev", dist.get("standard_deviation", 0), "{:,.2f}"),
             ]
             for label, value, fmt in stats:
-                formatted = fmt.format(value) if value else "-"
+                formatted = fmt.format(value) if value is not None else "-"
                 html_parts.append(f"<tr><td><strong>{label}</strong></td><td>{formatted}</td></tr>")
             html_parts.append("</tbody></table></div>")
 
@@ -392,7 +393,13 @@ class SimulationRun(models.Model):
                 Markup("</tr></thead><tbody>"),
             ]
             for metric_name, metric_data in metrics.items():
-                value = metric_data.get("value", 0)
+                # coverage stores result under "rate", ratio under "ratio";
+                # fall back through all three keys using explicit None checks
+                value = metric_data.get("value")
+                if value is None:
+                    value = metric_data.get("rate")
+                if value is None:
+                    value = metric_data.get("ratio", 0)
                 metric_type = metric_data.get("type", "unknown")
                 # Format value based on type
                 if metric_type == "coverage":

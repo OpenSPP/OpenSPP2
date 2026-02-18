@@ -1,18 +1,26 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <templates xml:space="preserve">
     <t t-name="spp_simulation.SimulationFairnessTable">
         <div class="o_simulation_fairness_table">
-            <div t-if="state.loading" class="text-center py-3" role="status" aria-live="polite">
-                <i class="fa fa-spinner fa-spin me-2" aria-hidden="true"/>
+            <div
+                t-if="state.loading"
+                class="text-center py-3"
+                role="status"
+                aria-live="polite"
+            >
+                <i class="fa fa-spinner fa-spin me-2" aria-hidden="true" />
                 <span>Loading fairness data...</span>
             </div>
-            <div t-elif="state.attributes.length === 0" class="text-muted text-center py-3">
+            <div
+                t-elif="state.attributes.length === 0"
+                class="text-muted text-center py-3"
+            >
                 No fairness data available.
             </div>
             <div t-else="">
                 <div class="d-flex align-items-center mb-3">
                     <span t-attf-class="badge {{getScoreBadgeClass()}} me-2 fs-6">
-                        <t t-esc="Math.round(state.equityScore)"/>/100
+                        <t t-esc="Math.round(state.equityScore)" />/100
                     </span>
                     <span class="fw-bold">Parity Score</span>
                 </div>
@@ -30,17 +38,21 @@
                         <t t-foreach="state.attributes" t-as="attr" t-key="attr.name">
                             <t t-foreach="attr.groups" t-as="group" t-key="group.key">
                                 <tr>
-                                    <td t-if="group_index === 0"
+                                    <td
+                                        t-if="group_index === 0"
                                         t-att-rowspan="attr.groups.length"
-                                        class="fw-bold text-capitalize">
-                                        <t t-esc="attr.name"/>
+                                        class="fw-bold text-capitalize"
+                                    >
+                                        <t t-esc="attr.name" />
                                     </td>
-                                    <td t-esc="group.label"/>
-                                    <td t-esc="formatPercent(group.coverage)"/>
-                                    <td t-esc="formatRatio(group.disparity_ratio)"/>
+                                    <td t-esc="group.label" />
+                                    <td t-esc="formatPercent(group.coverage)" />
+                                    <td t-esc="formatRatio(group.disparity_ratio)" />
                                     <td>
-                                        <span t-attf-class="status-icon {{getStatusClass(group.status)}}"
-                                              t-esc="getStatusIcon(group.status)"/>
+                                        <span
+                                            t-attf-class="status-icon {{getStatusClass(group.status)}}"
+                                            t-esc="getStatusIcon(group.status)"
+                                        />
                                     </td>
                                 </tr>
                             </t>
@@ -51,7 +63,9 @@
                     <strong>Legend:</strong>
                     <span class="text-success ms-2">✓ Proportional (≥ 0.80)</span>
                     <span class="text-warning ms-2">⚠ Low coverage (0.70 - 0.80)</span>
-                    <span class="text-danger ms-2">✗ Under-represented (&lt; 0.70)</span>
+                    <span
+                        class="text-danger ms-2"
+                    >✗ Under-represented (&lt; 0.70)</span>
                 </div>
             </div>
         </div>
