@@ -189,11 +189,12 @@ class OdooModelSchemaBuilder:
         Handles both list-of-tuples and callable selections.
         """
         selection = field.selection
+        field_name = field.name
         if callable(selection):
             try:
                 selection = selection(self.env[field.model_name])
             except Exception:
-                _logger.warning("Could not evaluate callable selection for %s", field.name, exc_info=True)
+                _logger.warning("Could not evaluate callable selection for %s", field_name, exc_info=True)
                 return []
         if not selection:
             return []
@@ -202,7 +203,7 @@ class OdooModelSchemaBuilder:
             if isinstance(item, (list, tuple)) and len(item) >= 2:
                 result.append({"value": item[0], "label": item[1]})
             else:
-                _logger.debug("Skipping unparseable selection item for %s: %r", field.name, item)
+                _logger.debug("Skipping unparseable selection item for %s: %r", field_name, item)
         return result
 
     def _extract_vocabulary_info_from_domain(

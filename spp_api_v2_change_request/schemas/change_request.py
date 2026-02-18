@@ -103,10 +103,9 @@ class ChangeRequestResponse(BaseModel):
     request_type: ChangeRequestType = Field(..., alias="requestType")
 
     # Status
-    status: str = Field(
+    status: Literal["draft", "pending", "revision", "approved", "rejected", "applied"] = Field(
         ...,
         description="Current status",
-        json_schema_extra={"enum": ["draft", "pending", "revision", "approved", "rejected", "applied"]},
     )
 
     # Target registrant
@@ -202,7 +201,9 @@ class ChangeRequestTypeInfo(BaseModel):
 
     code: str = Field(..., description="Type code (e.g., add_member)")
     name: str = Field(..., description="Human-readable type name")
-    target_type: str = Field(..., alias="targetType", description="Target registrant type (individual, group, both)")
+    target_type: Literal["individual", "group", "both"] = Field(
+        ..., alias="targetType", description="Target registrant type"
+    )
     requires_applicant: bool = Field(False, alias="requiresApplicant", description="Whether an applicant is required")
 
     class Config:
