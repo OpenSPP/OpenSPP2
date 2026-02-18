@@ -298,6 +298,7 @@ repos:
     hooks:
       - id: semgrep
         args: ["--config", ".semgrep/", "--error", "--quiet"]
+        additional_dependencies: ["setuptools"]
         # Only scan OpenSPP spp_* modules (not scripts, endpoint handlers, etc.)
         files: ^spp_
         # Exclude test files, migrations, and demo-only modules
