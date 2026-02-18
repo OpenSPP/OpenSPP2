@@ -1,6 +1,8 @@
 import logging
 from datetime import datetime
 
+from markupsafe import Markup
+
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
@@ -36,8 +38,7 @@ class SimulationComparison(models.Model):
     overlap_count_json = fields.Json(
         string="Overlap Counts",
         readonly=True,
-        help="Aggregated overlap counts between scenarios. "
-        "Computed from current registry data, not historical state.",
+        help="Aggregated overlap counts between scenarios. Computed from current registry data, not historical state.",
     )
     staleness_warning = fields.Text(
         string="Staleness Warning",
@@ -140,10 +141,10 @@ class SimulationComparison(models.Model):
                 continue
 
             # Build comparison table
-            html_parts = ['<table class="table table-bordered table-sm">']
+            html_parts = [Markup('<table class="table table-bordered table-sm">')]
 
             # Header row with scenario names and execution dates
-            html_parts.append("<thead><tr><th>Parameter</th>")
+            html_parts.append(Markup("<thead><tr><th>Parameter</th>"))
             for run_data in runs:
                 name = run_data.get("scenario_name", "Unknown")
                 executed_at = run_data.get("executed_at")
@@ -152,68 +153,72 @@ class SimulationComparison(models.Model):
                     try:
                         dt = datetime.fromisoformat(executed_at.replace("Z", "+00:00"))
                         date_str = dt.strftime("%b %d, %Y %H:%M")
-                        html_parts.append(f"<th>{name}<br/><small class='text-muted'>{date_str}</small></th>")
+                        html_parts.append(
+                            Markup("<th>{}<br/><small class='text-muted'>{}</small></th>").format(name, date_str)
+                        )
                     except ValueError:
-                        html_parts.append(f"<th>{name}</th>")
+                        html_parts.append(Markup("<th>{}</th>").format(name))
                 else:
-                    html_parts.append(f"<th>{name}</th>")
-            html_parts.append("</tr></thead><tbody>")
+                    html_parts.append(Markup("<th>{}</th>").format(name))
+            html_parts.append(Markup("</tr></thead><tbody>"))
 
             # Target Type row
-            html_parts.append("<tr><td><strong>Target Type</strong></td>")
+            html_parts.append(Markup("<tr><td><strong>Target Type</strong></td>"))
             for run_data in runs:
                 val = target_type_labels.get(run_data.get("target_type"), run_data.get("target_type", "-"))
-                html_parts.append(f"<td>{val}</td>")
-            html_parts.append("</tr>")
+                html_parts.append(Markup("<td>{}</td>").format(val))
+            html_parts.append(Markup("</tr>"))
 
             # Targeting Expression row
-            html_parts.append("<tr><td><strong>Targeting Expression</strong></td>")
+            html_parts.append(Markup("<tr><td><strong>Targeting Expression</strong></td>"))
             for run_data in runs:
                 expr = run_data.get("targeting_expression") or "-"
-                html_parts.append(f"<td><code style='word-break:break-word'>{expr}</code></td>")
-            html_parts.append("</tr>")
+                html_parts.append(Markup("<td><code style='word-break:break-word'>{}</code></td>").format(expr))
+            html_parts.append(Markup("</tr>"))
 
             # Budget Amount row
-            html_parts.append("<tr><td><strong>Budget Amount</strong></td>")
+            html_parts.append(Markup("<tr><td><strong>Budget Amount</strong></td>"))
             for run_data in runs:
                 amount = run_data.get("budget_amount") or 0
-                html_parts.append(f"<td>{amount:,.2f}</td>")
-            html_parts.append("</tr>")
+                html_parts.append(Markup("<td>{}</td>").format(f"{amount:,.2f}"))
+            html_parts.append(Markup("</tr>"))
 
             # Budget Strategy row
-            html_parts.append("<tr><td><strong>Budget Strategy</strong></td>")
+            html_parts.append(Markup("<tr><td><strong>Budget Strategy</strong></td>"))
             for run_data in runs:
                 strategy = budget_strategy_labels.get(
                     run_data.get("budget_strategy"), run_data.get("budget_strategy", "-")
                 )
-                html_parts.append(f"<td>{strategy}</td>")
-            html_parts.append("</tr>")
+                html_parts.append(Markup("<td>{}</td>").format(strategy))
+            html_parts.append(Markup("</tr>"))
 
             # Entitlement Rules row
-            html_parts.append("<tr><td><strong>Entitlement Rules</strong></td>")
+            html_parts.append(Markup("<tr><td><strong>Entitlement Rules</strong></td>"))
             for run_data in runs:
                 rules = run_data.get("entitlement_rules") or []
                 if rules:
-                    rules_html = "<ul style='margin:0;padding-left:1rem'>"
+                    rules_parts = [Markup("<ul style='margin:0;padding-left:1rem'>")]
                     for rule in rules:
                         mode = rule.get("amount_mode", "fixed")
                         amount = rule.get("amount", 0)
                         if mode == "fixed":
-                            rules_html += f"<li>Fixed: {amount:,.2f}</li>"
+                            rules_parts.append(Markup("<li>Fixed: {}</li>").format(f"{amount:,.2f}"))
                         elif mode == "multiplier":
                             field = rule.get("multiplier_field", "?")
-                            rules_html += f"<li>Multiplier: {amount:,.2f} × {field}</li>"
+                            rules_parts.append(
+                                Markup("<li>Multiplier: {} \u00d7 {}</li>").format(f"{amount:,.2f}", field)
+                            )
                         elif mode == "cel":
                             cel = rule.get("amount_cel_expression", "?")
-                            rules_html += f"<li>CEL: <code>{cel}</code></li>"
-                    rules_html += "</ul>"
-                    html_parts.append(f"<td>{rules_html}</td>")
+                            rules_parts.append(Markup("<li>CEL: <code>{}</code></li>").format(cel))
+                    rules_parts.append(Markup("</ul>"))
+                    html_parts.append(Markup("<td>{}</td>").format(Markup("").join(rules_parts)))
                 else:
-                    html_parts.append("<td>-</td>")
-            html_parts.append("</tr>")
+                    html_parts.append(Markup("<td>-</td>"))
+            html_parts.append(Markup("</tr>"))
 
-            html_parts.append("</tbody></table>")
-            record.parameters_comparison_html = "".join(html_parts)
+            html_parts.append(Markup("</tbody></table>"))
+            record.parameters_comparison_html = Markup("").join(html_parts)
 
     def action_compute_comparison(self):
         """Compute the side-by-side comparison data."""

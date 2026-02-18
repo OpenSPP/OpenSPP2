@@ -18,11 +18,22 @@ export class SimulationComparisonTable extends Component {
                 {key: "total_cost", label: "Total Cost", format: "currency"},
                 {key: "coverage_rate", label: "Coverage Rate", format: "percent"},
                 {key: "equity_score", label: "Equity Score", format: "score"},
-                {key: "gini_coefficient", label: "Benefit Equality (Gini)", format: "decimal"},
+                {
+                    key: "gini_coefficient",
+                    label: "Benefit Equality (Gini)",
+                    format: "decimal",
+                },
                 {key: "leakage_rate", label: "Leakage", format: "percent"},
-                {key: "undercoverage_rate", label: "Missed Population", format: "percent"},
-                {key: "targeting_accuracy", label: "Targeting Accuracy", format: "percent"},
-                {key: "budget_utilization", label: "Budget Utilization", format: "percent"},
+                {
+                    key: "undercoverage_rate",
+                    label: "Missed Population",
+                    format: "percent",
+                },
+                {
+                    key: "budget_utilization",
+                    label: "Budget Utilization",
+                    format: "percent",
+                },
             ],
         });
 
@@ -85,7 +96,12 @@ export class SimulationComparisonTable extends Component {
         const values = this.state.runs.map((r) => r[metricKey] || 0);
         const value = values[runIndex];
         // For these metrics, lower is better
-        const lowerIsBetter = ["gini_coefficient", "leakage_rate", "undercoverage_rate", "total_cost"];
+        const lowerIsBetter = [
+            "gini_coefficient",
+            "leakage_rate",
+            "undercoverage_rate",
+            "total_cost",
+        ];
         if (lowerIsBetter.includes(metricKey)) {
             return value === Math.min(...values);
         }

@@ -1,5 +1,7 @@
 import logging
 
+from markupsafe import Markup
+
 from odoo import Command, _, api, fields, models
 from odoo.exceptions import UserError
 
@@ -20,7 +22,7 @@ class SimulationRun(models.Model):
             if record.scenario_id and record.executed_at:
                 date_str = record.executed_at.strftime("%b %d, %Y %H:%M")
                 record.display_name = (
-                    f"{record.scenario_id.name} - {date_str} " f"({record.beneficiary_count:,} beneficiaries)"
+                    f"{record.scenario_id.name} - {date_str} ({record.beneficiary_count:,} beneficiaries)"
                 )
             elif record.scenario_id:
                 record.display_name = f"{record.scenario_id.name} - Run #{record.id}"
@@ -233,22 +235,29 @@ class SimulationRun(models.Model):
             target_type_label = "households" if record.scenario_id.target_type == "group" else "individuals"
             coverage_pct = f"{record.coverage_rate:.1f}" if record.coverage_rate else "0.0"
             parts = [
-                f"<strong>{scenario_name}</strong> targets "
-                f"<strong>{record.beneficiary_count:,}</strong> {target_type_label} "
-                f"({coverage_pct}% of registry).",
+                Markup("<strong>{}</strong> targets <strong>{}</strong> {} ({}% of registry).").format(
+                    scenario_name,
+                    f"{record.beneficiary_count:,}",
+                    target_type_label,
+                    coverage_pct,
+                ),
             ]
             if record.total_cost:
-                parts.append(f" Total estimated cost: <strong>{record.total_cost:,.2f}</strong>.")
+                parts.append(Markup(" Total estimated cost: <strong>{}</strong>.").format(f"{record.total_cost:,.2f}"))
             if record.budget_utilization and record.scenario_id.budget_amount:
-                parts.append(f" Budget utilization: {record.budget_utilization:.1f}%.")
+                parts.append(Markup(" Budget utilization: {}%.").format(f"{record.budget_utilization:.1f}"))
             if record.equity_score:
                 parity_label = (
                     "proportional"
                     if record.equity_score >= 80
                     else ("some variation" if record.equity_score >= 60 else "significant variation")
                 )
-                parts.append(f" Parity score: <strong>{record.equity_score:.0f}/100</strong> ({parity_label}).")
-            record.summary_html = "<p>" + "".join(parts) + "</p>"
+                parts.append(
+                    Markup(" Parity score: <strong>{}/100</strong> ({}).").format(
+                        f"{record.equity_score:.0f}", parity_label
+                    )
+                )
+            record.summary_html = Markup("<p>{}</p>").format(Markup("").join(parts))
 
     @api.depends("gini_coefficient", "distribution_json")
     def _compute_distribution_summary_html(self):
@@ -261,7 +270,7 @@ class SimulationRun(models.Model):
             gini_label = (
                 "nearly equal" if gini < 0.2 else ("moderately distributed" if gini < 0.4 else "unequally distributed")
             )
-            parts = [f"Benefits are <strong>{gini_label}</strong> " f"(Gini coefficient: {gini:.2f})."]
+            parts = [f"Benefits are <strong>{gini_label}</strong> (Gini coefficient: {gini:.2f})."]
             minimum = distribution.get("minimum", 0)
             maximum = distribution.get("maximum", 0)
             mean = distribution.get("mean", 0)
@@ -344,10 +353,10 @@ class SimulationRun(models.Model):
                 continue
 
             html_parts = [
-                '<table class="table table-sm table-bordered">',
-                "<thead><tr>",
-                "<th>Area</th><th>Beneficiaries</th><th>Amount</th><th>Coverage</th>",
-                "</tr></thead><tbody>",
+                Markup('<table class="table table-sm table-bordered">'),
+                Markup("<thead><tr>"),
+                Markup("<th>Area</th><th>Beneficiaries</th><th>Amount</th><th>Coverage</th>"),
+                Markup("</tr></thead><tbody>"),
             ]
             # Sort by beneficiary count descending
             sorted_areas = sorted(geo_data.items(), key=lambda x: x[1].get("count", 0), reverse=True)
@@ -357,10 +366,12 @@ class SimulationRun(models.Model):
                 amount = area_info.get("amount", 0)
                 coverage = area_info.get("coverage_rate", 0)
                 html_parts.append(
-                    f"<tr><td>{name}</td><td>{count:,}</td>" f"<td>{amount:,.2f}</td><td>{coverage:.1f}%</td></tr>"
+                    Markup("<tr><td>{}</td><td>{}</td><td>{}</td><td>{}%</td></tr>").format(
+                        name, f"{count:,}", f"{amount:,.2f}", f"{coverage:.1f}"
+                    )
                 )
-            html_parts.append("</tbody></table>")
-            record.geographic_html = "".join(html_parts)
+            html_parts.append(Markup("</tbody></table>"))
+            record.geographic_html = Markup("").join(html_parts)
 
     @api.depends("metric_results_json")
     def _compute_metric_results_html(self):
@@ -375,10 +386,10 @@ class SimulationRun(models.Model):
                 continue
 
             html_parts = [
-                '<table class="table table-sm table-bordered">',
-                "<thead><tr>",
-                "<th>Metric</th><th>Value</th><th>Type</th>",
-                "</tr></thead><tbody>",
+                Markup('<table class="table table-sm table-bordered">'),
+                Markup("<thead><tr>"),
+                Markup("<th>Metric</th><th>Value</th><th>Type</th>"),
+                Markup("</tr></thead><tbody>"),
             ]
             for metric_name, metric_data in metrics.items():
                 value = metric_data.get("value", 0)
@@ -392,9 +403,13 @@ class SimulationRun(models.Model):
                     formatted_value = f"{value:,.2f}"
                 else:
                     formatted_value = str(value)
-                html_parts.append(f"<tr><td>{metric_name}</td><td>{formatted_value}</td><td>{metric_type}</td></tr>")
-            html_parts.append("</tbody></table>")
-            record.metric_results_html = "".join(html_parts)
+                html_parts.append(
+                    Markup("<tr><td>{}</td><td>{}</td><td>{}</td></tr>").format(
+                        metric_name, formatted_value, metric_type
+                    )
+                )
+            html_parts.append(Markup("</tbody></table>"))
+            record.metric_results_html = Markup("").join(html_parts)
 
     @api.depends("targeting_efficiency_json")
     def _compute_targeting_efficiency_html(self):
@@ -474,11 +489,11 @@ class SimulationRun(models.Model):
             rules = snapshot.get("entitlement_rules") or []
             if rules:
                 html_parts = [
-                    '<table class="table table-sm table-bordered">',
-                    "<thead><tr>",
-                    "<th>Mode</th><th>Amount</th><th>Multiplier Field</th><th>Max Multiplier</th>",
-                    "<th>CEL Expression</th><th>Condition</th>",
-                    "</tr></thead><tbody>",
+                    Markup('<table class="table table-sm table-bordered">'),
+                    Markup("<thead><tr>"),
+                    Markup("<th>Mode</th><th>Amount</th><th>Multiplier Field</th><th>Max Multiplier</th>"),
+                    Markup("<th>CEL Expression</th><th>Condition</th>"),
+                    Markup("</tr></thead><tbody>"),
                 ]
                 amount_mode_labels = {
                     "fixed": "Fixed",
@@ -493,12 +508,21 @@ class SimulationRun(models.Model):
                     cel_expr = rule.get("amount_cel_expression") or "-"
                     condition = rule.get("condition_cel_expression") or "-"
                     html_parts.append(
-                        f"<tr><td>{mode}</td><td>{amount:,.2f}</td><td>{mult_field}</td>"
-                        f"<td>{max_mult}</td><td><code>{cel_expr}</code></td>"
-                        f"<td><code>{condition}</code></td></tr>"
+                        Markup(
+                            "<tr><td>{}</td><td>{}</td><td>{}</td>"
+                            "<td>{}</td><td><code>{}</code></td>"
+                            "<td><code>{}</code></td></tr>"
+                        ).format(
+                            mode,
+                            f"{amount:,.2f}",
+                            mult_field,
+                            max_mult,
+                            cel_expr,
+                            condition,
+                        )
                     )
-                html_parts.append("</tbody></table>")
-                record.scenario_snapshot_entitlement_rules_html = "".join(html_parts)
+                html_parts.append(Markup("</tbody></table>"))
+                record.scenario_snapshot_entitlement_rules_html = Markup("").join(html_parts)
             else:
                 record.scenario_snapshot_entitlement_rules_html = (
                     "<p class='text-muted'>No entitlement rules defined</p>"

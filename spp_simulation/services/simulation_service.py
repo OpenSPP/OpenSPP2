@@ -1,6 +1,8 @@
 import logging
 import time
 
+from markupsafe import Markup, escape
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
@@ -127,7 +129,7 @@ class SimulationService(models.AbstractModel):
                 }
             )
             _logger.info(
-                "Simulation completed for scenario '%s': %d beneficiaries, cost %.2f, " "equity %.0f, duration %.2fs",
+                "Simulation completed for scenario '%s': %d beneficiaries, cost %.2f, equity %.0f, duration %.2fs",
                 scenario.name,
                 beneficiary_count,
                 total_cost,
@@ -498,7 +500,7 @@ class SimulationService(models.AbstractModel):
 
         # Post chatter message
         scenario.message_post(
-            body=_("Converted to program: %s") % program.name,
+            body=Markup(_("Converted to program: %s")) % escape(program.name),
         )
 
         _logger.info(
