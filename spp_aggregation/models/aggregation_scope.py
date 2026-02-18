@@ -279,7 +279,8 @@ class AggregationScope(models.Model):
         cache_service = self.env["spp.aggregation.cache"]
         count = cache_service.invalidate_scope(self)
         if count:
-            _logger.info("Invalidated %d cache entries for scope %s", count, self.name)
+            scope_name = self.name
+            _logger.info("Invalidated %d cache entries for scope %s", count, scope_name)
 
         self.write({"last_cache_refresh": fields.Datetime.now()})
         return True

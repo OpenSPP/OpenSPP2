@@ -122,7 +122,7 @@ class TestPrivacyEnforcement(TransactionCase):
 
         # Siblings differ by exactly one dimension
         self.assertIn("female|urban", siblings)  # Same location, different gender
-        self.assertIn("male|rural", siblings)    # Same gender, different location
+        self.assertIn("male|rural", siblings)  # Same gender, different location
         self.assertNotIn("female|rural", siblings)  # Different by 2
 
     def test_get_smallest_sibling(self):
@@ -208,10 +208,7 @@ class TestPrivacyKAnonymityAttacks(TransactionCase):
         self.assertTrue(enforced["breakdown"]["other"]["suppressed"])
 
         # At least one sibling should also be suppressed
-        siblings_suppressed = sum(
-            1 for k in ["male", "female"]
-            if enforced["breakdown"][k].get("suppressed", False)
-        )
+        siblings_suppressed = sum(1 for k in ["male", "female"] if enforced["breakdown"][k].get("suppressed", False))
         self.assertGreaterEqual(siblings_suppressed, 1)
 
     def test_multi_dimensional_differencing(self):

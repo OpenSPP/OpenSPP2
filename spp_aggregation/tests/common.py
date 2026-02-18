@@ -10,34 +10,44 @@ class AggregationTestCase(TransactionCase):
         super().setUpClass()
 
         # Create test areas
-        cls.area_country = cls.env["spp.area"].create({
-            "draft_name": "Test Country",
-            "code": "TC",
-        })
-        cls.area_region = cls.env["spp.area"].create({
-            "draft_name": "Test Region",
-            "code": "TR",
-            "parent_id": cls.area_country.id,
-        })
-        cls.area_district = cls.env["spp.area"].create({
-            "draft_name": "Test District",
-            "code": "TD",
-            "parent_id": cls.area_region.id,
-        })
+        cls.area_country = cls.env["spp.area"].create(
+            {
+                "draft_name": "Test Country",
+                "code": "TC",
+            }
+        )
+        cls.area_region = cls.env["spp.area"].create(
+            {
+                "draft_name": "Test Region",
+                "code": "TR",
+                "parent_id": cls.area_country.id,
+            }
+        )
+        cls.area_district = cls.env["spp.area"].create(
+            {
+                "draft_name": "Test District",
+                "code": "TD",
+                "parent_id": cls.area_region.id,
+            }
+        )
 
         # Get or create area tags (may already exist from demo data)
         cls.tag_urban = cls.env["spp.area.tag"].search([("code", "=", "URBAN")], limit=1)
         if not cls.tag_urban:
-            cls.tag_urban = cls.env["spp.area.tag"].create({
-                "name": "Urban",
-                "code": "URBAN",
-            })
+            cls.tag_urban = cls.env["spp.area.tag"].create(
+                {
+                    "name": "Urban",
+                    "code": "URBAN",
+                }
+            )
         cls.tag_rural = cls.env["spp.area.tag"].search([("code", "=", "RURAL")], limit=1)
         if not cls.tag_rural:
-            cls.tag_rural = cls.env["spp.area.tag"].create({
-                "name": "Rural",
-                "code": "RURAL",
-            })
+            cls.tag_rural = cls.env["spp.area.tag"].create(
+                {
+                    "name": "Rural",
+                    "code": "RURAL",
+                }
+            )
         cls.area_district.tag_ids = [(4, cls.tag_urban.id)]
 
         # Create test registrants

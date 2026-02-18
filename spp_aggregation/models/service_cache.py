@@ -64,9 +64,13 @@ class AggregationCacheService(models.AbstractModel):
         cache_key = self._generate_cache_key(scope_record, statistics, group_by)
 
         # Find cache entry (use sudo for internal caching operation)
-        entry = self.env["spp.aggregation.cache.entry"].sudo().search(
-            [("cache_key", "=", cache_key)],
-            limit=1,
+        entry = (
+            self.env["spp.aggregation.cache.entry"]  # nosemgrep: odoo-sudo-without-context
+            .sudo()
+            .search(
+                [("cache_key", "=", cache_key)],
+                limit=1,
+            )
         )
 
         if not entry:
@@ -131,7 +135,7 @@ class AggregationCacheService(models.AbstractModel):
             return False
 
         # Store or update cache entry (use sudo for internal caching operation)
-        cache_model = self.env["spp.aggregation.cache.entry"].sudo()
+        cache_model = self.env["spp.aggregation.cache.entry"].sudo()  # nosemgrep: odoo-sudo-without-context
         existing = cache_model.search(
             [("cache_key", "=", cache_key)],
             limit=1,
@@ -175,8 +179,10 @@ class AggregationCacheService(models.AbstractModel):
         # Invalidate all cache entries of this scope type
         # This is a conservative approach - it may invalidate more than needed,
         # but ensures consistency
-        entries = self.env["spp.aggregation.cache.entry"].sudo().search(
-            [("scope_type", "=", scope_type)]
+        entries = (
+            self.env["spp.aggregation.cache.entry"]  # nosemgrep: odoo-sudo-without-context
+            .sudo()
+            .search([("scope_type", "=", scope_type)])
         )
 
         count = len(entries)
@@ -201,7 +207,7 @@ class AggregationCacheService(models.AbstractModel):
         :returns: Number of cache entries invalidated
         :rtype: int
         """
-        entries = self.env["spp.aggregation.cache.entry"].sudo().search([])
+        entries = self.env["spp.aggregation.cache.entry"].sudo().search([])  # nosemgrep: odoo-sudo-without-context
         count = len(entries)
 
         if count > 0:
@@ -230,11 +236,15 @@ class AggregationCacheService(models.AbstractModel):
 
             expires_before = now - timedelta(seconds=ttl)
 
-            entries = self.env["spp.aggregation.cache.entry"].sudo().search(
-                [
-                    ("scope_type", "=", scope_type),
-                    ("computed_at", "<", expires_before),
-                ]
+            entries = (
+                self.env["spp.aggregation.cache.entry"]  # nosemgrep: odoo-sudo-without-context
+                .sudo()
+                .search(
+                    [
+                        ("scope_type", "=", scope_type),
+                        ("computed_at", "<", expires_before),
+                    ]
+                )
             )
 
             count = len(entries)

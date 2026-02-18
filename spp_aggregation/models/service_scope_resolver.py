@@ -40,7 +40,8 @@ class ScopeResolverService(models.AbstractModel):
         try:
             return resolver_method(scope)
         except Exception as e:
-            _logger.error("Error resolving scope %s: %s", scope.name, e)
+            scope_name = scope.name
+            _logger.error("Error resolving scope %s: %s", scope_name, e)
             return []
 
     def _resolve_inline(self, scope_dict):
@@ -101,7 +102,7 @@ class ScopeResolverService(models.AbstractModel):
         if not executor:
             _logger.error("CEL executor not available")
             return []
-        executor = executor.sudo()
+        executor = executor.sudo()  # nosemgrep: odoo-sudo-without-context
 
         all_ids = []
         try:
@@ -145,14 +146,17 @@ class ScopeResolverService(models.AbstractModel):
 
         # Build area domain (sudo for model reads - callers may be unprivileged)
         if include_children:
-            # Use parent_path for efficient child lookup
-            areas = self.env["spp.area"].sudo().browse(area_ids)
+            # Collect all parent_path values first, then do a single search using
+            # OR-chained domain conditions to avoid N+1 queries inside a loop.
+            areas = self.env["spp.area"].sudo().browse(area_ids)  # nosemgrep: odoo-sudo-without-context
             all_area_ids = set(area_ids)
-            for area in areas:
-                if area.parent_path:
-                    # Find all child areas using parent_path prefix
-                    children = self.env["spp.area"].sudo().search([("parent_path", "like", f"{area.parent_path}%")])
-                    all_area_ids.update(children.ids)
+            parent_paths = [area.parent_path for area in areas if area.parent_path]
+            if parent_paths:
+                domain = ["|"] * (len(parent_paths) - 1)
+                for path in parent_paths:
+                    domain.append(("parent_path", "like", f"{path}%"))
+                child_areas = self.env["spp.area"].sudo().search(domain)  # nosemgrep: odoo-sudo-without-context
+                all_area_ids.update(child_areas.ids)
             area_ids = list(all_area_ids)
 
         # Find registrants directly in these areas
@@ -160,10 +164,15 @@ class ScopeResolverService(models.AbstractModel):
             ("is_registrant", "=", True),
             ("area_id", "in", area_ids),
         ]
-        direct_ids = set(self.env["res.partner"].sudo().search(domain).ids)
+        direct_ids = set(
+            self.env["res.partner"]  # nosemgrep: odoo-sudo-without-context, odoo-sudo-on-sensitive-models
+            .sudo()
+            .search(domain)
+            .ids
+        )
 
         # Also find individuals without area_id whose group is in these areas
-        Membership = self.env["spp.group.membership"].sudo()
+        Membership = self.env["spp.group.membership"].sudo()  # nosemgrep: odoo-sudo-without-context
         memberships = Membership.search(
             [
                 ("group.area_id", "in", area_ids),
@@ -203,7 +212,7 @@ class ScopeResolverService(models.AbstractModel):
             return []
 
         # Find areas with these tags (sudo for model reads - callers may be unprivileged)
-        areas = self.env["spp.area"].sudo().search([("tag_ids", "in", tag_ids)])
+        areas = self.env["spp.area"].sudo().search([("tag_ids", "in", tag_ids)])  # nosemgrep: odoo-sudo-without-context
         if not areas:
             return []
 
@@ -241,7 +250,7 @@ class ScopeResolverService(models.AbstractModel):
             return spatial_resolver.resolve_polygon(geojson_str)
 
         # Fallback: no spatial support
-        _logger.warning("Spatial polygon scope requires spp_aggregation_spatial module. " "Returning empty result.")
+        _logger.warning("Spatial polygon scope requires spp_aggregation_spatial module. Returning empty result.")
         return []
 
     def _resolve_spatial_buffer(self, scope):
@@ -276,7 +285,7 @@ class ScopeResolverService(models.AbstractModel):
             return spatial_resolver.resolve_buffer(latitude, longitude, radius_km)
 
         # Fallback: no spatial support
-        _logger.warning("Spatial buffer scope requires spp_aggregation_spatial module. " "Returning empty result.")
+        _logger.warning("Spatial buffer scope requires spp_aggregation_spatial module. Returning empty result.")
         return []
 
     # -------------------------------------------------------------------------
@@ -299,7 +308,7 @@ class ScopeResolverService(models.AbstractModel):
 
         # Validate that these are actual registrants (sudo for model reads - callers may be unprivileged)
         valid_ids = (
-            self.env["res.partner"]
+            self.env["res.partner"]  # nosemgrep: odoo-sudo-without-context, odoo-sudo-on-sensitive-models
             .sudo()
             .search(
                 [

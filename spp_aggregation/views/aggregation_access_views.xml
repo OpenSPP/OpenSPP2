@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Access Rule Form View -->
     <record id="view_aggregation_access_rule_form" model="ir.ui.view">
@@ -7,60 +7,68 @@
         <field name="arch" type="xml">
             <form>
                 <sheet>
-                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="text-bg-danger"
+                        invisible="active"
+                    />
                     <group>
                         <group string="Rule Identity">
-                            <field name="name"/>
-                            <field name="sequence"/>
-                            <field name="active"/>
+                            <field name="name" />
+                            <field name="sequence" />
+                            <field name="active" />
                         </group>
                         <group string="Applies To">
-                            <field name="user_id"/>
-                            <field name="group_id"/>
+                            <field name="user_id" />
+                            <field name="group_id" />
                         </group>
                     </group>
 
                     <group>
                         <group string="Access Level">
-                            <field name="access_level" widget="radio"/>
+                            <field name="access_level" widget="radio" />
                         </group>
                         <group string="Privacy Settings">
-                            <field name="minimum_k_anonymity"/>
+                            <field name="minimum_k_anonymity" />
                         </group>
                     </group>
 
                     <group>
                         <group string="Scope Restrictions">
-                            <field name="allowed_scope_types"/>
-                            <field name="allow_inline_scopes"/>
+                            <field name="allowed_scope_types" />
+                            <field name="allow_inline_scopes" />
                         </group>
                         <group string="Dimension Restrictions">
-                            <field name="max_group_by_dimensions"/>
+                            <field name="max_group_by_dimensions" />
                         </group>
                     </group>
 
                     <notebook>
-                        <page string="Allowed Scopes" name="allowed_scopes"
-                              invisible="allowed_scope_types != 'predefined'">
+                        <page
+                            string="Allowed Scopes"
+                            name="allowed_scopes"
+                            invisible="allowed_scope_types != 'predefined'"
+                        >
                             <field name="allowed_scope_ids">
                                 <list>
-                                    <field name="name"/>
-                                    <field name="scope_type"/>
+                                    <field name="name" />
+                                    <field name="scope_type" />
                                 </list>
                             </field>
                         </page>
                         <page string="Allowed Dimensions" name="allowed_dimensions">
                             <field name="allowed_dimension_ids">
                                 <list>
-                                    <field name="name"/>
-                                    <field name="label"/>
+                                    <field name="name" />
+                                    <field name="label" />
                                 </list>
                             </field>
                         </page>
                     </notebook>
 
                     <group>
-                        <field name="description"/>
+                        <field name="description" />
                     </group>
                 </sheet>
             </form>
@@ -73,13 +81,13 @@
         <field name="model">spp.aggregation.access.rule</field>
         <field name="arch" type="xml">
             <list>
-                <field name="sequence" widget="handle"/>
-                <field name="name"/>
-                <field name="user_id"/>
-                <field name="group_id"/>
-                <field name="access_level"/>
-                <field name="minimum_k_anonymity"/>
-                <field name="active"/>
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="user_id" />
+                <field name="group_id" />
+                <field name="access_level" />
+                <field name="minimum_k_anonymity" />
+                <field name="active" />
             </list>
         </field>
     </record>
@@ -90,16 +98,32 @@
         <field name="model">spp.aggregation.access.rule</field>
         <field name="arch" type="xml">
             <search string="Search Access Rules">
-                <field name="name"/>
-                <field name="user_id"/>
-                <field name="group_id"/>
-                <separator/>
-                <filter string="Aggregate Only" name="filter_aggregate" domain="[('access_level', '=', 'aggregate')]"/>
-                <filter string="Individual Access" name="filter_individual" domain="[('access_level', '=', 'individual')]"/>
-                <separator/>
-                <filter string="Archived" name="filter_archived" domain="[('active', '=', False)]"/>
-                <separator/>
-                <filter string="Access Level" name="group_by_access" context="{'group_by': 'access_level'}"/>
+                <field name="name" />
+                <field name="user_id" />
+                <field name="group_id" />
+                <separator />
+                <filter
+                    string="Aggregate Only"
+                    name="filter_aggregate"
+                    domain="[('access_level', '=', 'aggregate')]"
+                />
+                <filter
+                    string="Individual Access"
+                    name="filter_individual"
+                    domain="[('access_level', '=', 'individual')]"
+                />
+                <separator />
+                <filter
+                    string="Archived"
+                    name="filter_archived"
+                    domain="[('active', '=', False)]"
+                />
+                <separator />
+                <filter
+                    string="Access Level"
+                    name="group_by_access"
+                    context="{'group_by': 'access_level'}"
+                />
             </search>
         </field>
     </record>

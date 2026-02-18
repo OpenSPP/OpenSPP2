@@ -4,9 +4,9 @@ Shared computation and caching services for metrics across OpenSPP modules.
 
 ## Overview
 
-`spp_metrics_services` provides the core computation engine for all metrics in OpenSPP, including population statistics,
-simulation outcomes, fairness analysis, and privacy protection. These services are used by GIS, dashboards, simulations,
-and APIs.
+`spp_metrics_services` provides the core computation engine for all metrics in OpenSPP,
+including population statistics, simulation outcomes, fairness analysis, and privacy
+protection. These services are used by GIS, dashboards, simulations, and APIs.
 
 ## Architecture
 
@@ -281,8 +281,8 @@ result = breakdown.compute_breakdown(dimension_ids, registrant_ids)  # Re-evalua
 
 ## Migration from spp_aggregation
 
-These services were extracted from `spp_aggregation` to enable reuse across modules. Model names remain unchanged for
-backward compatibility.
+These services were extracted from `spp_aggregation` to enable reuse across modules.
+Model names remain unchanged for backward compatibility.
 
 **No code changes required** - Existing code continues to work:
 
@@ -346,7 +346,8 @@ Key test scenarios:
 
 ## Architecture Documentation
 
-See [Statistics System Architecture](../../docs/architecture/statistics-systems.md) for the complete system design.
+See [Statistics System Architecture](../../docs/architecture/statistics-systems.md) for
+the complete system design.
 
 ## License
 

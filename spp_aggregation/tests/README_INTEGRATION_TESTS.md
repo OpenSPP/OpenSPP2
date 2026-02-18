@@ -2,8 +2,8 @@
 
 ## Overview
 
-The integration tests in `test_integration_demo.py` use realistic demo data from `spp_mis_demo_v2` to thoroughly test
-the aggregation service with real-world scenarios.
+The integration tests in `test_integration_demo.py` use realistic demo data from
+`spp_mis_demo_v2` to thoroughly test the aggregation service with real-world scenarios.
 
 ## Test Coverage
 
@@ -187,7 +187,8 @@ Planned improvements for integration tests:
 
 ### "Module spp_mis_demo_v2 not installed"
 
-This is expected when running `./scripts/test_single_module.sh spp_aggregation` alone. To run integration tests, use:
+This is expected when running `./scripts/test_single_module.sh spp_aggregation` alone.
+To run integration tests, use:
 
 ```bash
 ./scripts/test_single_module.sh spp_aggregation,spp_mis_demo_v2

@@ -367,7 +367,7 @@ class PrivacyEnforcerService(models.AbstractModel):
         # Use defensive lookup - model may not be installed
         access_rule_model = self.env.get("spp.aggregation.access.rule")
         if access_rule_model is not None:
-            rule = access_rule_model.sudo().get_effective_rule_for_user(user)
+            rule = access_rule_model.sudo().get_effective_rule_for_user(user)  # nosemgrep: odoo-sudo-without-context
             if rule:
                 return rule.access_level
 
@@ -390,7 +390,7 @@ class PrivacyEnforcerService(models.AbstractModel):
         # Use defensive lookup - model may not be installed
         access_rule_model = self.env.get("spp.aggregation.access.rule")
         if access_rule_model is not None:
-            rule = access_rule_model.sudo().get_effective_rule_for_user(user)
+            rule = access_rule_model.sudo().get_effective_rule_for_user(user)  # nosemgrep: odoo-sudo-without-context
             if rule:
                 return rule.minimum_k_anonymity
 

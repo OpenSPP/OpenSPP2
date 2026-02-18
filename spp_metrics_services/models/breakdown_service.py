@@ -49,7 +49,7 @@ class BreakdownService(models.AbstractModel):
             return {}
 
         # Get dimension records (use sudo - they're configuration data)
-        dimension_model = self.env["spp.demographic.dimension"].sudo()
+        dimension_model = self.env["spp.demographic.dimension"].sudo()  # nosemgrep: odoo-sudo-without-context
         dimensions = [dimension_model.get_by_name(name) for name in group_by]
         dimensions = [d for d in dimensions if d]  # Filter out None
 

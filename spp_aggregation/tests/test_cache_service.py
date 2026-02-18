@@ -184,9 +184,7 @@ class TestCacheService(AggregationTestCase):
 
         # Invalidate scope (invalidates all entries of scope type)
         count = self.cache_service.invalidate_scope(self.test_scope)
-        self.assertGreaterEqual(
-            count, 3, "Should invalidate at least the 3 cache entries we created"
-        )
+        self.assertGreaterEqual(count, 3, "Should invalidate at least the 3 cache entries we created")
 
         # Verify all are gone
         self.assertIsNone(self.cache_service.get_cached_result(self.test_scope, ["count"], []))

@@ -1,68 +1,78 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <data noupdate="1">
-        <!-- Gender Dimension -->
-        <record id="dimension_gender" model="spp.demographic.dimension">
-            <field name="name">gender</field>
-            <field name="label">Gender</field>
-            <field name="description">Gender identity from ISO 5218 vocabulary</field>
-            <field name="sequence">10</field>
-            <field name="dimension_type">field</field>
-            <field name="field_path">gender_id</field>
-            <field name="applies_to">all</field>
-            <field name="value_labels_json">{"0": "Not Known", "1": "Male", "2": "Female", "9": "Not Applicable"}</field>
-        </record>
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <!-- Gender Dimension -->
+    <record id="dimension_gender" model="spp.demographic.dimension">
+        <field name="name">gender</field>
+        <field name="label">Gender</field>
+        <field name="description">Gender identity from ISO 5218 vocabulary</field>
+        <field name="sequence">10</field>
+        <field name="dimension_type">field</field>
+        <field name="field_path">gender_id</field>
+        <field name="applies_to">all</field>
+        <field
+            name="value_labels_json"
+        >{"0": "Not Known", "1": "Male", "2": "Female", "9": "Not Applicable"}</field>
+    </record>
 
-        <!-- Disability Status Dimension -->
-        <record id="dimension_disability_status" model="spp.demographic.dimension">
-            <field name="name">disability_status</field>
-            <field name="label">Disability Status</field>
-            <field name="description">Whether the registrant has a recorded disability</field>
-            <field name="sequence">20</field>
-            <field name="dimension_type">expression</field>
-            <field name="cel_expression">r.disability_id != null ? "pwd" : "non_pwd"</field>
-            <field name="active" eval="False"/>
-            <field name="applies_to">individuals</field>
-            <field name="value_labels_json">{"pwd": "Persons with Disability", "non_pwd": "Without Disability"}</field>
-        </record>
+    <!-- Disability Status Dimension -->
+    <record id="dimension_disability_status" model="spp.demographic.dimension">
+        <field name="name">disability_status</field>
+        <field name="label">Disability Status</field>
+        <field
+            name="description"
+        >Whether the registrant has a recorded disability</field>
+        <field name="sequence">20</field>
+        <field name="dimension_type">expression</field>
+        <field name="cel_expression">r.disability_id != null ? "pwd" : "non_pwd"</field>
+        <field name="active" eval="False" />
+        <field name="applies_to">individuals</field>
+        <field
+            name="value_labels_json"
+        >{"pwd": "Persons with Disability", "non_pwd": "Without Disability"}</field>
+    </record>
 
-        <!-- Area Dimension -->
-        <record id="dimension_area" model="spp.demographic.dimension">
-            <field name="name">area</field>
-            <field name="label">Administrative Area</field>
-            <field name="description">Administrative area of the registrant</field>
-            <field name="sequence">30</field>
-            <field name="dimension_type">field</field>
-            <field name="field_path">area_id</field>
-            <field name="applies_to">all</field>
-        </record>
+    <!-- Area Dimension -->
+    <record id="dimension_area" model="spp.demographic.dimension">
+        <field name="name">area</field>
+        <field name="label">Administrative Area</field>
+        <field name="description">Administrative area of the registrant</field>
+        <field name="sequence">30</field>
+        <field name="dimension_type">field</field>
+        <field name="field_path">area_id</field>
+        <field name="applies_to">all</field>
+    </record>
 
-        <!-- Registrant Type Dimension -->
-        <record id="dimension_registrant_type" model="spp.demographic.dimension">
-            <field name="name">registrant_type</field>
-            <field name="label">Registrant Type</field>
-            <field name="description">Whether individual or group/household</field>
-            <field name="sequence">40</field>
-            <field name="dimension_type">field</field>
-            <field name="field_path">is_group</field>
-            <field name="applies_to">all</field>
-            <field name="value_labels_json">{"true": "Group/Household", "false": "Individual"}</field>
-        </record>
+    <!-- Registrant Type Dimension -->
+    <record id="dimension_registrant_type" model="spp.demographic.dimension">
+        <field name="name">registrant_type</field>
+        <field name="label">Registrant Type</field>
+        <field name="description">Whether individual or group/household</field>
+        <field name="sequence">40</field>
+        <field name="dimension_type">field</field>
+        <field name="field_path">is_group</field>
+        <field name="applies_to">all</field>
+        <field
+            name="value_labels_json"
+        >{"true": "Group/Household", "false": "Individual"}</field>
+    </record>
 
-        <!-- Age Group Dimension (example using CEL expression) -->
-        <record id="dimension_age_group" model="spp.demographic.dimension">
-            <field name="name">age_group</field>
-            <field name="label">Age Group</field>
-            <field name="description">Age group based on birth date</field>
-            <field name="sequence">50</field>
-            <field name="dimension_type">expression</field>
-            <field name="cel_expression"><![CDATA[
-                r.birthdate == null ? "unknown" :
-                age_years(r.birthdate) < 18 ? "child" :
-                age_years(r.birthdate) < 60 ? "adult" : "elderly"
-            ]]></field>
-            <field name="applies_to">individuals</field>
-            <field name="value_labels_json">{"child": "Child (0-17)", "adult": "Adult (18-59)", "elderly": "Elderly (60+)", "unknown": "Unknown"}</field>
-        </record>
-    </data>
+    <!-- Age Group Dimension (example using CEL expression) -->
+    <record id="dimension_age_group" model="spp.demographic.dimension">
+        <field name="name">age_group</field>
+        <field name="label">Age Group</field>
+        <field name="description">Age group based on birth date</field>
+        <field name="sequence">50</field>
+        <field name="dimension_type">expression</field>
+        <field
+            name="cel_expression"
+        ><![CDATA[
+            r.birthdate == null ? "unknown" :
+            age_years(r.birthdate) < 18 ? "child" :
+            age_years(r.birthdate) < 60 ? "adult" : "elderly"
+        ]]></field>
+        <field name="applies_to">individuals</field>
+        <field
+            name="value_labels_json"
+        >{"child": "Child (0-17)", "adult": "Adult (18-59)", "elderly": "Elderly (60+)", "unknown": "Unknown"}</field>
+    </record>
 </odoo>

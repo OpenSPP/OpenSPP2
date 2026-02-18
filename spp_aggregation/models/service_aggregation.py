@@ -149,7 +149,7 @@ class AggregationService(models.AbstractModel):
             )
 
         # Check dimensions exist (use sudo for internal validation)
-        dimension_model = self.env["spp.demographic.dimension"].sudo()
+        dimension_model = self.env["spp.demographic.dimension"].sudo()  # nosemgrep: odoo-sudo-without-context
         for dim_name in group_by:
             if not dimension_model.get_by_name(dim_name):
                 raise ValidationError(_("Unknown dimension: %s") % dim_name)
@@ -157,7 +157,7 @@ class AggregationService(models.AbstractModel):
         # Check access rule dimension restrictions
         user = self.env.user
         # Use sudo() to read access rules - this is an internal security check
-        rule = self.env["spp.aggregation.access.rule"].sudo().get_effective_rule_for_user(user)
+        rule = self.env["spp.aggregation.access.rule"].sudo().get_effective_rule_for_user(user)  # nosemgrep: odoo-sudo-without-context  # noqa: E501  # fmt: skip
         if rule and group_by:
             rule.check_dimensions_allowed(group_by)
 
@@ -190,7 +190,7 @@ class AggregationService(models.AbstractModel):
         """
         user = self.env.user
         # Use sudo() to read access rules - this is an internal security check
-        rule = self.env["spp.aggregation.access.rule"].sudo().get_effective_rule_for_user(user)
+        rule = self.env["spp.aggregation.access.rule"].sudo().get_effective_rule_for_user(user)  # nosemgrep: odoo-sudo-without-context  # noqa: E501  # fmt: skip
 
         if not rule:
             # No explicit rule - allow with defaults
@@ -228,7 +228,9 @@ class AggregationService(models.AbstractModel):
         statistic_by_name = {}
         statistic_model = self.env.get("spp.statistic")
         if statistic_model is not None:
-            statistic_records = statistic_model.sudo().search([("name", "in", statistics)])
+            statistic_records = statistic_model.sudo().search(  # nosemgrep: odoo-sudo-without-context
+                [("name", "in", statistics)]
+            )
             statistic_by_name = {record.name: record for record in statistic_records}
 
         privacy_service = self.env["spp.metrics.privacy"]

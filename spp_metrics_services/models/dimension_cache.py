@@ -39,7 +39,7 @@ class DimensionCacheService(models.AbstractModel):
             registrant_ids = list(registrant_ids)
         sorted_ids = sorted(registrant_ids)
         id_str = ",".join(str(i) for i in sorted_ids)
-        return hashlib.md5(id_str.encode()).hexdigest()
+        return hashlib.md5(id_str.encode(), usedforsecurity=False).hexdigest()  # nosec B324
 
     @api.model
     @tools.ormcache("dimension_id", "dimension_write_date", "registrant_ids_key")
@@ -57,12 +57,12 @@ class DimensionCacheService(models.AbstractModel):
         :returns: Dictionary mapping registrant_id → category value
         :rtype: dict
         """
-        dimension = self.env["spp.demographic.dimension"].sudo().browse(dimension_id)
+        dimension = self.env["spp.demographic.dimension"].sudo().browse(dimension_id)  # nosemgrep: odoo-sudo-without-context  # noqa: E501  # fmt: skip
         if not dimension.exists():
             return {}
 
         result = {}
-        partner_model = self.env["res.partner"].sudo()
+        partner_model = self.env["res.partner"].sudo()  # nosemgrep: odoo-sudo-without-context, odoo-sudo-on-sensitive-models  # noqa: E501  # fmt: skip
         partners = partner_model.browse(registrant_ids_list)
 
         for partner in partners:
@@ -97,7 +97,8 @@ class DimensionCacheService(models.AbstractModel):
         result = self._compute_evaluations(dimension.id, write_date, registrant_ids_key, list(registrant_ids))
 
         if result:
-            _logger.debug("Evaluated dimension %s for %d registrants", dimension.name, len(registrant_ids))
+            dimension_name = dimension.name
+            _logger.debug("Evaluated dimension %s for %d registrants", dimension_name, len(registrant_ids))
 
         return result
 

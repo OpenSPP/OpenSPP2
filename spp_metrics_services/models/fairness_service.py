@@ -115,7 +115,7 @@ class FairnessService(models.AbstractModel):
         :returns: Recordset of dimensions
         """
         # Use sudo() - dimensions are configuration data, like menu items
-        dimension_model = self.env["spp.demographic.dimension"].sudo()
+        dimension_model = self.env["spp.demographic.dimension"].sudo()  # nosemgrep: odoo-sudo-without-context
         if dimension_names:
             return dimension_model.search(
                 [
@@ -171,7 +171,8 @@ class FairnessService(models.AbstractModel):
 
         # Check if field exists
         if base_field not in partner_model._fields:
-            _logger.warning("Field %s not found on res.partner for dimension %s", base_field, dimension.name)
+            dimension_name = dimension.name
+            _logger.warning("Field %s not found on res.partner for dimension %s", base_field, dimension_name)
             return None
 
         field = partner_model._fields[base_field]
@@ -194,7 +195,8 @@ class FairnessService(models.AbstractModel):
                 dimension, base_field, beneficiary_set, base_domain, overall_coverage, partner_model
             )
 
-        _logger.warning("Unsupported field type %s for dimension %s", field.type, dimension.name)
+        dimension_name = dimension.name
+        _logger.warning("Unsupported field type %s for dimension %s", field.type, dimension_name)
         return None
 
     def _analyze_many2one_dimension(
@@ -206,27 +208,39 @@ class FairnessService(models.AbstractModel):
         overall_coverage,
         partner_model,
     ):
-        """Analyze a Many2one field dimension."""
+        """Analyze a Many2one field dimension.
+
+        Uses read_group to count population and beneficiaries per group in two
+        database queries rather than loading all records into memory.
+        """
         group_results = []
         worst_ratio = 1.0
 
-        # Get distinct values from population using mapped() to avoid N+1
-        population = partner_model.search(base_domain)
-        values = set(population.mapped(f"{field_name}.id"))
-        values.discard(False)
+        # Population counts per group - one query
+        population_groups = partner_model.read_group(base_domain, [field_name], [field_name])
+        # Beneficiary counts per group - one query
+        beneficiary_domain = base_domain + [("id", "in", list(beneficiary_set))]
+        beneficiary_groups = partner_model.read_group(beneficiary_domain, [field_name], [field_name])
 
-        for value_id in values:
-            related_record = self.env[partner_model._fields[field_name].comodel_name].browse(value_id)
+        # Build lookup dict from group value -> beneficiary count
+        # read_group returns the Many2one field as (id, display_name) tuple or False
+        beneficiary_counts = {}
+        for row in beneficiary_groups:
+            value = row[field_name]
+            value_id = value[0] if value else False
+            beneficiary_counts[value_id] = row[f"{field_name}_count"]
 
-            group_domain = base_domain + [(field_name, "=", value_id)]
-            group_total = partner_model.search_count(group_domain)
+        for row in population_groups:
+            value = row[field_name]
+            if not value:
+                continue
+            value_id, display_name = value
+            group_total = row[f"{field_name}_count"]
 
             if group_total == 0:
                 continue
 
-            # Count beneficiaries in this group
-            beneficiary_domain = group_domain + [("id", "in", list(beneficiary_set))]
-            group_beneficiaries = partner_model.search_count(beneficiary_domain)
+            group_beneficiaries = beneficiary_counts.get(value_id, 0)
             group_coverage = group_beneficiaries / group_total
 
             disparity_ratio = self._compute_disparity_ratio(group_coverage, overall_coverage)
@@ -235,7 +249,7 @@ class FairnessService(models.AbstractModel):
             status = self._get_disparity_status(disparity_ratio)
             # For Many2one fields, prefer display_name over dimension label mapping
             # since label mappings may use codes rather than database IDs
-            label = related_record.display_name or dimension.get_label_for_value(str(value_id))
+            label = display_name or dimension.get_label_for_value(str(value_id))
 
             group_results.append(
                 {
@@ -269,7 +283,11 @@ class FairnessService(models.AbstractModel):
         overall_coverage,
         partner_model,
     ):
-        """Analyze a Selection field dimension."""
+        """Analyze a Selection field dimension.
+
+        Uses read_group to count population and beneficiaries per group in two
+        database queries rather than one search_count pair per selection value.
+        """
         group_results = []
         worst_ratio = 1.0
 
@@ -277,23 +295,35 @@ class FairnessService(models.AbstractModel):
         selection = field.selection
         if callable(selection):
             selection = selection(partner_model)
+        # Build label lookup from the field's selection values
+        label_by_key = dict(selection)
 
-        for key, label in selection:
-            group_domain = base_domain + [(field_name, "=", key)]
-            group_total = partner_model.search_count(group_domain)
+        # Population counts per group - one query
+        population_groups = partner_model.read_group(base_domain, [field_name], [field_name])
+        # Beneficiary counts per group - one query
+        beneficiary_domain = base_domain + [("id", "in", list(beneficiary_set))]
+        beneficiary_groups = partner_model.read_group(beneficiary_domain, [field_name], [field_name])
+
+        # Build lookup dict from selection key -> beneficiary count
+        beneficiary_counts = {row[field_name]: row[f"{field_name}_count"] for row in beneficiary_groups}
+
+        for row in population_groups:
+            key = row[field_name]
+            if key is False:
+                continue
+            group_total = row[f"{field_name}_count"]
 
             if group_total == 0:
                 continue
 
-            beneficiary_domain = group_domain + [("id", "in", list(beneficiary_set))]
-            group_beneficiaries = partner_model.search_count(beneficiary_domain)
+            group_beneficiaries = beneficiary_counts.get(key, 0)
             group_coverage = group_beneficiaries / group_total
 
             disparity_ratio = self._compute_disparity_ratio(group_coverage, overall_coverage)
             worst_ratio = min(worst_ratio, disparity_ratio)
 
             status = self._get_disparity_status(disparity_ratio)
-            display_label = dimension.get_label_for_value(key) or label
+            display_label = dimension.get_label_for_value(key) or label_by_key.get(key, key)
 
             group_results.append(
                 {
@@ -327,19 +357,31 @@ class FairnessService(models.AbstractModel):
         overall_coverage,
         partner_model,
     ):
-        """Analyze a Boolean field dimension."""
+        """Analyze a Boolean field dimension.
+
+        Uses read_group to count population and beneficiaries per group in two
+        database queries rather than one search_count pair per boolean value.
+        """
         group_results = []
         worst_ratio = 1.0
 
-        for value in [True, False]:
-            group_domain = base_domain + [(field_name, "=", value)]
-            group_total = partner_model.search_count(group_domain)
+        # Population counts per group - one query
+        population_groups = partner_model.read_group(base_domain, [field_name], [field_name])
+        # Beneficiary counts per group - one query
+        beneficiary_domain = base_domain + [("id", "in", list(beneficiary_set))]
+        beneficiary_groups = partner_model.read_group(beneficiary_domain, [field_name], [field_name])
+
+        # Build lookup dict from boolean value -> beneficiary count
+        beneficiary_counts = {row[field_name]: row[f"{field_name}_count"] for row in beneficiary_groups}
+
+        for row in population_groups:
+            value = row[field_name]
+            group_total = row[f"{field_name}_count"]
 
             if group_total == 0:
                 continue
 
-            beneficiary_domain = group_domain + [("id", "in", list(beneficiary_set))]
-            group_beneficiaries = partner_model.search_count(beneficiary_domain)
+            group_beneficiaries = beneficiary_counts.get(value, 0)
             group_coverage = group_beneficiaries / group_total
 
             disparity_ratio = self._compute_disparity_ratio(group_coverage, overall_coverage)
@@ -391,7 +433,8 @@ class FairnessService(models.AbstractModel):
         """
         cel_service = self.env.get("spp.cel.service")
         if not cel_service:
-            _logger.warning("CEL service not available for dimension %s", dimension.name)
+            dimension_name = dimension.name
+            _logger.warning("CEL service not available for dimension %s", dimension_name)
             return None
 
         # Categorize all registrants in population

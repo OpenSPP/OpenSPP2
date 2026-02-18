@@ -27,20 +27,4 @@
     "application": False,
     "installable": True,
     "auto_install": False,
-    "description": """
-OpenSPP Metrics Services
-========================
-
-Provides shared services for metrics computation used across OpenSPP modules.
-
-Services
---------
-
-- ``spp.metrics.fairness``: Parity analysis across demographic groups
-- ``spp.metrics.distribution``: Gini coefficient, Lorenz curve, percentiles
-- ``spp.metrics.privacy``: K-anonymity enforcement with complementary suppression
-- ``spp.metrics.breakdown``: Breakdown computation by demographic dimensions
-
-These services are extracted from spp_aggregation to enable reuse across multiple modules.
-    """,
 }

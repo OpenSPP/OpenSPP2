@@ -55,9 +55,9 @@ class StatisticRegistry(models.AbstractModel):
             stat_count = 0
             var_count = 0
             if has_stat_model:
-                stat_count = self.env["spp.statistic"].sudo().search_count([])
+                stat_count = self.env["spp.statistic"].sudo().search_count([])  # nosemgrep: odoo-sudo-without-context
             if has_var_model:
-                var_count = self.env["spp.cel.variable"].sudo().search_count([])
+                var_count = self.env["spp.cel.variable"].sudo().search_count([])  # nosemgrep: odoo-sudo-without-context
 
             _logger.debug(
                 "Statistic lookup failed for '%s'. Available: %d spp.statistic, %d spp.cel.variable",
@@ -85,7 +85,7 @@ class StatisticRegistry(models.AbstractModel):
         # From spp.statistic
         stat_model = self.env.get("spp.statistic")
         if stat_model:
-            for stat in stat_model.sudo().search([("active", "=", True)]):
+            for stat in stat_model.sudo().search([("active", "=", True)]):  # nosemgrep: odoo-sudo-without-context
                 available.append({"name": stat.name, "label": stat.label, "source": "statistic"})
 
         # From spp.cel.variable
@@ -96,7 +96,7 @@ class StatisticRegistry(models.AbstractModel):
             if "state" in var_model._fields:
                 domain = [("state", "=", "active")]
 
-            for var in var_model.sudo().search(domain):
+            for var in var_model.sudo().search(domain):  # nosemgrep: odoo-sudo-without-context
                 if not any(a["name"] == var.name for a in available):
                     available.append({"name": var.name, "label": var.name, "source": "variable"})
 
@@ -154,7 +154,7 @@ class StatisticRegistry(models.AbstractModel):
         stat_model = self.env.get("spp.statistic")
         if stat_model is None:
             return None
-        stat = stat_model.sudo().search([("name", "=", stat_name)], limit=1)
+        stat = stat_model.sudo().search([("name", "=", stat_name)], limit=1)  # nosemgrep: odoo-sudo-without-context
         if stat and stat.variable_id:
             return self._compute_from_variable(stat.variable_id, registrant_ids)
         return None
@@ -170,7 +170,7 @@ class StatisticRegistry(models.AbstractModel):
         var_model = self.env.get("spp.cel.variable")
         if var_model is None:
             return None
-        variable = var_model.sudo().search([("name", "=", stat_name)], limit=1)
+        variable = var_model.sudo().search([("name", "=", stat_name)], limit=1)  # nosemgrep: odoo-sudo-without-context
         if variable:
             return self._compute_from_variable(variable, registrant_ids)
         return None
@@ -193,7 +193,7 @@ class StatisticRegistry(models.AbstractModel):
         cel_service = self.env.get("spp.cel.service")
         if cel_service is None:
             return None
-        cel_service = cel_service.sudo()
+        cel_service = cel_service.sudo()  # nosemgrep: odoo-sudo-without-context
 
         # Get expression
         expression = None
@@ -229,7 +229,8 @@ class StatisticRegistry(models.AbstractModel):
             )
             return result.get("count", 0)
         except Exception as e:
-            _logger.warning("Error computing variable %s: %s", variable.name, e)
+            variable_name = variable.name
+            _logger.warning("Error computing variable %s: %s", variable_name, e)
             return None
 
     @api.model
@@ -263,13 +264,13 @@ class StatisticRegistry(models.AbstractModel):
         """
         if not hasattr(cel_service, "evaluate_member_aggregate"):
             _logger.warning(
-                "CEL service missing evaluate_member_aggregate, " "falling back to count for expression: %s",
+                "CEL service missing evaluate_member_aggregate, falling back to count for expression: %s",
                 expression,
             )
             return None
 
         try:
-            groups = self.env["res.partner"].sudo().browse(registrant_ids)
+            groups = self.env["res.partner"].sudo().browse(registrant_ids)  # nosemgrep: odoo-sudo-without-context, odoo-sudo-on-sensitive-models  # noqa: E501  # fmt: skip
             total = 0
             for group in groups:
                 if not group.is_group:

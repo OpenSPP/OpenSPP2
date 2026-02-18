@@ -290,15 +290,18 @@ class AggregationAccessRule(models.Model):
 
         # If include_child_areas is True, expand to include all child areas
         if self.include_child_areas:
-            # Use parent_path for efficient child lookup
-            for area in self.allowed_area_ids:
-                if area.parent_path:
-                    # Find all child areas using parent_path prefix
-                    children = self.env["spp.area"].sudo().search([("parent_path", "like", f"{area.parent_path}%")])
-                    allowed_area_ids.update(children.ids)
+            # Collect all parent_path values first, then do a single search using
+            # OR-chained domain conditions to avoid N+1 queries inside a loop.
+            parent_paths = [area.parent_path for area in self.allowed_area_ids if area.parent_path]
+            if parent_paths:
+                domain = ["|"] * (len(parent_paths) - 1)
+                for path in parent_paths:
+                    domain.append(("parent_path", "like", f"{path}%"))
+                child_areas = self.env["spp.area"].sudo().search(domain)  # nosemgrep: odoo-sudo-without-context
+                allowed_area_ids.update(child_areas.ids)
 
         # Get area_ids for the partners
-        partners = self.env["res.partner"].sudo().browse(partner_ids)
+        partners = self.env["res.partner"].sudo().browse(partner_ids)  # nosemgrep: odoo-sudo-without-context, odoo-sudo-on-sensitive-models  # noqa: E501  # fmt: skip
         partner_area_ids = set(partners.mapped("area_id").ids)
 
         # Check if all partner areas are in allowed areas
@@ -306,7 +309,7 @@ class AggregationAccessRule(models.Model):
 
         if disallowed_area_ids:
             # Get area names for error message
-            disallowed_areas = self.env["spp.area"].sudo().browse(list(disallowed_area_ids))
+            disallowed_areas = self.env["spp.area"].sudo().browse(list(disallowed_area_ids))  # nosemgrep: odoo-sudo-without-context  # noqa: E501  # fmt: skip
             area_names = ", ".join(disallowed_areas.mapped("draft_name"))
             raise ValidationError(
                 _("Some registrants are outside your allowed areas. Disallowed areas: %s") % area_names

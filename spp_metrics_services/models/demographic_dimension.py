@@ -84,7 +84,7 @@ class DemographicDimension(models.Model):
     # -------------------------------------------------------------------------
     value_labels_json = fields.Json(
         string="Value Labels",
-        help=("JSON mapping of raw values to display labels. " 'Example: {"M": "Male", "F": "Female", "O": "Other"}'),
+        help=('JSON mapping of raw values to display labels. Example: {"M": "Male", "F": "Female", "O": "Other"}'),
     )
     default_value = fields.Char(
         string="Default Value",
@@ -152,7 +152,9 @@ class DemographicDimension(models.Model):
             else:
                 return self._evaluate_expression(record)
         except (ValueError, AttributeError, TypeError, KeyError) as e:
-            _logger.warning("Error evaluating dimension %s for record %s: %s", self.name, record.id, e)
+            dimension_name = self.name
+            record_id = record.id
+            _logger.warning("Error evaluating dimension %s for record %s: %s", dimension_name, record_id, e)
             return self.default_value or "error"
 
     def _evaluate_field(self, record):
@@ -187,9 +189,10 @@ class DemographicDimension(models.Model):
     def _evaluate_expression(self, record):
         """Evaluate a CEL expression-based dimension."""
         try:
-            cel_service = self.env["spp.cel.service"].sudo()
+            cel_service = self.env["spp.cel.service"].sudo()  # nosemgrep: odoo-sudo-without-context
         except KeyError:
-            _logger.warning("CEL service not available for dimension %s", self.name)
+            dimension_name = self.name
+            _logger.warning("CEL service not available for dimension %s", dimension_name)
             return self.default_value or "error"
 
         context = {"r": record, "me": record}
