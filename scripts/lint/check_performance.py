@@ -4,7 +4,7 @@ Performance Anti-Pattern Checker for OpenSPP
 
 Detects common performance issues based on docs/principles/performance-scalability.md:
 - Offset-based pagination (should use cursor-based)
-- cr.commit() in loops (should use queue_job)
+- cr.commit() in loops (should use job_worker)
 - N+1 query patterns (attribute access in loops without prefetch)
 
 Features:
@@ -159,10 +159,10 @@ class PerformanceChecker:
                 Violation(
                     file_path=file_path,
                     line=line_num,
-                    message="cr.commit() inside loop - use queue_job for batch processing instead",
+                    message="cr.commit() inside loop - use job_worker for batch processing instead",
                     rule_id="performance.commit_in_loop",
                     severity=severity,
-                    suggestion="Use queue_job to process records asynchronously",
+                    suggestion="Use job_worker to process records asynchronously",
                     doc_link="docs/principles/performance-scalability.md#batch-processing-pattern",
                 )
             )
@@ -457,7 +457,7 @@ Examples:
 
 Checks:
   - Offset pagination: .search(..., offset=...) should use cursor-based
-  - Commit in loops: cr.commit() in loops should use queue_job
+  - Commit in loops: cr.commit() in loops should use job_worker
   - N+1 queries: Related field access in loops without prefetch
 
 See docs/principles/performance-scalability.md for guidelines.

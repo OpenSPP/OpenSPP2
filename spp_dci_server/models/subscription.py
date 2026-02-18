@@ -1,5 +1,5 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
-"""DCI Subscription model for event notifications with queue_job."""
+"""DCI Subscription model for event notifications with job_worker."""
 
 import logging
 import uuid
@@ -19,7 +19,7 @@ DEFAULT_MAX_SUBSCRIPTIONS_PER_SENDER = 100
 
 
 class DCISubscription(models.Model):
-    """Manage DCI event subscriptions with queue_job notifications.
+    """Manage DCI event subscriptions with job_worker notifications.
 
     External systems can subscribe to events (registration, update, delete)
     for specific registry types. When events occur, notifications are
@@ -227,12 +227,13 @@ class DCISubscription(models.Model):
         for sub in subscriptions:
             # Queue notification job for each subscription
             sub.with_delay(
-                channel="root.dci",
+                channel="dci",
+                timeout=60,
                 description=f"DCI Notify {sub.subscription_code}",
             )._send_notification(event_type, records)
 
     def _send_notification(self, event_type: str, records: list):
-        """Send notification to subscriber. Called by queue_job.
+        """Send notification to subscriber. Called by job_worker.
 
         Args:
             event_type: Event type

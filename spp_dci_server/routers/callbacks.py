@@ -310,7 +310,8 @@ async def async_txn_status(
         # Queue the callback job
         if callback_uri:
             job = transaction.with_delay(
-                channel="root.dci",
+                channel="dci",
+                timeout=60,
                 description=f"DCI TxnStatus Callback {transaction.transaction_id}",
             ).process_async_txn_status()
             transaction.job_uuid = job.uuid

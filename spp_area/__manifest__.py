@@ -18,7 +18,7 @@
         "spp_base_common",
         "spp_user_roles",
         "spp_registry",
-        "queue_job",
+        "job_worker",
         "spp_security",
     ],
     "external_dependencies": {
@@ -29,7 +29,7 @@
     "data": [
         "data/area_type_data.xml",
         "data/area_tag_data.xml",
-        "data/queue_job_channel.xml",
+        "data/queue_limit_data.xml",
         "security/privileges.xml",
         "security/groups.xml",
         "security/ir.model.access.csv",

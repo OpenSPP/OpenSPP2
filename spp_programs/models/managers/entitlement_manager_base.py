@@ -4,10 +4,7 @@ import logging
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
-try:
-    from odoo.addons.queue_job.delay import group
-except ImportError:
-    group = None
+from odoo.addons.job_worker.delay import group
 
 _logger = logging.getLogger(__name__)
 

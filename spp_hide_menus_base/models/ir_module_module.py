@@ -52,8 +52,8 @@ class IrModuleModule(models.Model):
         "fastapi": {
             "menu_xml_id": "fastapi.menu_fastapi_root",
         },
-        "queue_job": {
-            "menu_xml_id": "queue_job.menu_queue_job_root",
+        "job_worker": {
+            "menu_xml_id": "job_worker.menu_queue_job_root",
         },
     }
 

@@ -175,10 +175,6 @@ export ODOO_TIME_REAL="${ODOO_TIME_REAL:-1200}"
 export ODOO_LIMIT_REQUEST="${ODOO_LIMIT_REQUEST:-8192}"
 [[ -z "$ODOO_LIMIT_REQUEST" || ! "$ODOO_LIMIT_REQUEST" =~ ^[0-9]+$ ]] && export ODOO_LIMIT_REQUEST="8192"
 
-# Queue Job configuration (OCA/queue)
-export ODOO_QUEUE_JOB_CHANNELS="${ODOO_QUEUE_JOB_CHANNELS:-root:2}"
-[[ -z "$ODOO_QUEUE_JOB_CHANNELS" || ! "$ODOO_QUEUE_JOB_CHANNELS" =~ ^[a-zA-Z_][a-zA-Z0-9_.]*:[0-9]+(,[a-zA-Z_][a-zA-Z0-9_.]*:[0-9]+)*$ ]] && export ODOO_QUEUE_JOB_CHANNELS="root:2"
-
 # Logging
 export LOG_LEVEL="${LOG_LEVEL:-info}"
 export LOG_HANDLER="${LOG_HANDLER:-:INFO}"

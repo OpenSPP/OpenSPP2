@@ -27,7 +27,7 @@
         "spp_approval",
         "spp_cel_domain",
         "spp_audit",
-        "queue_job",
+        "job_worker",
     ],
     "data": [
         # Security (must be first)

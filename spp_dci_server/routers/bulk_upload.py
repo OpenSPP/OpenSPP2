@@ -364,7 +364,8 @@ async def bulk_search_upload(
 
         # Queue the async search job
         job = transaction.with_delay(
-            channel="root.dci",
+            channel="dci",
+            timeout=60,
             description=f"DCI Bulk Search {transaction_id} ({len(search_items)} items)",
         ).process_async_search()
 

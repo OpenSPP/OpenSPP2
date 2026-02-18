@@ -47,7 +47,7 @@ except ImportError:
 # Whitelist for modules that don't follow spp_* naming
 MODULE_WHITELIST = {
     "base_user_role",
-    "queue_job",
+    "job_worker",
     "endpoint_route_handler",
     "extendable",
     "extendable_fastapi",
@@ -75,13 +75,14 @@ STANDARD_MODEL_WHITELIST = {
 # Third-party models that don't need to follow spp.* naming
 # These are from external/third-party modules we depend on
 THIRD_PARTY_MODEL_WHITELIST = {
-    # queue_job module
+    # job_worker module
     "queue.job",
     "queue.job.channel",
     "queue.job.function",
     "queue.job.lock",
     "queue.jobs.to.cancelled",
     "queue.jobs.to.done",
+    "queue.limit",
     "queue.requeue.job",
     # fastapi module
     "fastapi.endpoint",

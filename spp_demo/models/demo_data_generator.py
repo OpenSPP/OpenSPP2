@@ -9,7 +9,7 @@ from faker import Faker
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 
-from odoo.addons.queue_job.delay import group
+from odoo.addons.job_worker.delay import group
 
 _logger = logging.getLogger(__name__)
 

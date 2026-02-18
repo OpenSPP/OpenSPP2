@@ -12,7 +12,7 @@ class BaseAreaTest(TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
         # Set context to avoid job queue delay for faster tests
-        # Note: queue_job module uses 'queue_job__no_delay' (double underscore)
+        # Note: job_worker module uses 'queue_job__no_delay' (double underscore)
         cls.env = cls.env(
             context=dict(
                 cls.env.context,

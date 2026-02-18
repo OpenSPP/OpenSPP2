@@ -18,8 +18,8 @@ class IrModuleModule(models.Model):
             "menu_xml_id": "mail.menu_root_discuss",
             "icon": "spp_base_common,static/description/icon-Discuss-White-line.png",
         },
-        "queue_job": {
-            "menu_xml_id": "queue_job.menu_queue_job_root",
+        "job_worker": {
+            "menu_xml_id": "job_worker.menu_queue_job_root",
             "icon": "spp_base_common,static/description/icon-Job-Queue-White-line.png",
         },
         "spreadsheet_dashboard": {

@@ -1,0 +1,7 @@
+<odoo>
+    <record id="limit_area_import" model="queue.limit">
+        <field name="name">area_import</field>
+        <field name="limit">1</field>
+        <field name="rate_limit">0</field>
+    </record>
+</odoo>

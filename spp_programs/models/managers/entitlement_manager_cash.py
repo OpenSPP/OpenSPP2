@@ -4,7 +4,7 @@ import logging
 from odoo import Command, _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
-from odoo.addons.queue_job.delay import group
+from odoo.addons.job_worker.delay import group
 
 _logger = logging.getLogger(__name__)
 

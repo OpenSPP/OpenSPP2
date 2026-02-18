@@ -18,7 +18,7 @@ list_db = ${LIST_DB}
 data_dir = /var/lib/odoo
 
 # Addons path - includes Odoo core, OpenSPP, and OCA modules
-addons_path = /opt/odoo/odoo/addons,/opt/odoo/odoo/odoo/addons,/mnt/extra-addons/openspp,/mnt/extra-addons/server-ux,/mnt/extra-addons/server-tools,/mnt/extra-addons/queue,/mnt/extra-addons/server-backend,/mnt/extra-addons/rest-framework,/mnt/extra-addons/muk-it
+addons_path = /opt/odoo/odoo/addons,/opt/odoo/odoo/odoo/addons,/mnt/extra-addons/openspp,/mnt/extra-addons/server-ux,/mnt/extra-addons/server-tools,/mnt/extra-addons/queue,/mnt/extra-addons/odoo-job-worker,/mnt/extra-addons/server-backend,/mnt/extra-addons/rest-framework,/mnt/extra-addons/muk-it
 
 # =============================================================================
 # Security
@@ -62,8 +62,8 @@ http_enable = True
 http_interface = ${HTTP_INTERFACE}
 gevent_port = 8072
 
-# Server-wide modules (queue_job for background jobs)
-server_wide_modules = base,web,queue_job
+# Server-wide modules
+server_wide_modules = base,web
 
 # =============================================================================
 # Email configuration
@@ -100,11 +100,7 @@ unaccent = ${UNACCENT}
 without_demo = True
 
 # =============================================================================
-# Queue Job Configuration (OCA/queue)
+# Job Worker Configuration
 # =============================================================================
-[queue_job]
-channels = ${ODOO_QUEUE_JOB_CHANNELS}
-jobrunner_db_host = ${DB_HOST}
-jobrunner_db_port = ${DB_PORT}
-jobrunner_db_user = ${DB_USER}
-jobrunner_db_password = ${DB_PASSWORD}
+# The job_worker runner runs as a separate process via:
+#   python -m odoo.addons.job_worker.cli

@@ -367,7 +367,7 @@ class DrimsDemoGenerator(models.TransientModel):
         Returns:
             int: Number of areas imported/updated
         """
-        # Use context to bypass queue_job delays for synchronous processing
+        # Use context to bypass job_worker delays for synchronous processing
         AreaImport = self.env["spp.area.import"].with_context(queue_job__no_delay=True)
         Area = self.env["spp.area"]
 

@@ -178,7 +178,7 @@ repos:
           - PyYAML
         types: [python]
         # Exclude: scripts, tests, migrations, and third-party modules
-        exclude: ^scripts/|/tests/|migrations/|^(fastapi|queue_job|base_user_role|extendable|extendable_fastapi|endpoint_route_handler)/
+        exclude: ^scripts/|/tests/|migrations/|^(fastapi|job_worker|base_user_role|extendable|extendable_fastapi|endpoint_route_handler)/
         pass_filenames: true
       - id: openspp-check-xml-ids
         name: "OpenSPP: XML ID naming conventions"
@@ -189,7 +189,7 @@ repos:
           - PyYAML
         types: [xml]
         # Exclude: scripts, tests, data, demo, and third-party modules
-        exclude: ^scripts/|/tests/|/data/|/demo/|^(fastapi|queue_job|base_user_role|extendable|extendable_fastapi|endpoint_route_handler)/
+        exclude: ^scripts/|/tests/|/data/|/demo/|^(fastapi|job_worker|base_user_role|extendable|extendable_fastapi|endpoint_route_handler)/
         pass_filenames: true
       # Phase 2: ACL check (warning only, runs on all files)
       - id: openspp-check-acl
@@ -222,7 +222,7 @@ repos:
           - PyYAML
         types: [python]
         # Exclude: scripts, tests, migrations, and third-party modules
-        exclude: ^scripts/|/tests/|migrations/|^(fastapi|queue_job|base_user_role|extendable|extendable_fastapi|endpoint_route_handler)/
+        exclude: ^scripts/|/tests/|migrations/|^(fastapi|job_worker|base_user_role|extendable|extendable_fastapi|endpoint_route_handler)/
         pass_filenames: true
       # Phase 3: Logger setup check (warning only)
       - id: openspp-check-logger
@@ -234,7 +234,7 @@ repos:
           - PyYAML
         types: [python]
         # Exclude: scripts, tests, manifests, inits, and third-party modules
-        exclude: ^scripts/|/tests/|__manifest__|__init__|^(fastapi|queue_job|base_user_role|extendable|extendable_fastapi|endpoint_route_handler)/
+        exclude: ^scripts/|/tests/|__manifest__|__init__|^(fastapi|job_worker|base_user_role|extendable|extendable_fastapi|endpoint_route_handler)/
         pass_filenames: true
       # Phase 3: UI patterns check (warning only)
       - id: openspp-check-ui
@@ -248,7 +248,7 @@ repos:
           - PyYAML
         types: [xml]
         # Exclude: scripts, tests, data, demo, and third-party modules
-        exclude: ^scripts/|/tests/|/data/|/demo/|^(fastapi|queue_job|base_user_role|extendable|extendable_fastapi|endpoint_route_handler)/
+        exclude: ^scripts/|/tests/|/data/|/demo/|^(fastapi|job_worker|base_user_role|extendable|extendable_fastapi|endpoint_route_handler)/
         pass_filenames: true
       # Odoo 19 Compatibility Checks
       - id: openspp-check-odoo19-python
@@ -260,7 +260,7 @@ repos:
           - PyYAML
         types: [python]
         # Exclude: scripts, tests, migrations, and third-party modules
-        exclude: ^scripts/|/tests/|migrations/|^(fastapi|queue_job|base_user_role|extendable|extendable_fastapi|endpoint_route_handler)/
+        exclude: ^scripts/|/tests/|migrations/|^(fastapi|job_worker|base_user_role|extendable|extendable_fastapi|endpoint_route_handler)/
         pass_filenames: true
       - id: openspp-check-odoo19-xml
         name: "OpenSPP: Odoo 19 compatibility (XML)"
@@ -272,7 +272,7 @@ repos:
           - lxml
         types: [xml]
         # Exclude: scripts, tests, data, demo, and third-party modules
-        exclude: ^scripts/|/tests/|/data/|/demo/|^(fastapi|queue_job|base_user_role|extendable|extendable_fastapi|endpoint_route_handler)/
+        exclude: ^scripts/|/tests/|/data/|/demo/|^(fastapi|job_worker|base_user_role|extendable|extendable_fastapi|endpoint_route_handler)/
         pass_filenames: true
       # API authentication enforcement
       - id: openspp-check-api-auth

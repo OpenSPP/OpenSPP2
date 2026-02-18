@@ -16,7 +16,7 @@
         "spp_base_common",
         "spp_registry",
         "spp_vocabulary",
-        "queue_job",
+        "job_worker",
         "spp_security",
     ],
     "external_dependencies": {

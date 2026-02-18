@@ -13,12 +13,12 @@ from openpyxl import load_workbook
 from odoo import Command, _, api, fields, models
 from odoo.exceptions import ValidationError
 
-from odoo.addons.queue_job.delay import group
+from odoo.addons.job_worker.delay import group
 
 _logger = logging.getLogger(__name__)
 _area_import_raw_model = "spp.area.import.raw"
 _res_lang_model = "res.lang"
-_area_import_channel = "root.area_import"
+_area_import_channel = "area_import"
 
 # Regex patterns for COD column name normalization
 # Pattern 1: admin{N}Name_{lang} or admin{N}Pcode (Sri Lanka style)
