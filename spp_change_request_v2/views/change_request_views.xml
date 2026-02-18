@@ -182,18 +182,7 @@
                            statusbar_visible="draft,pending,approved,applied"/>
                 </header>
                 <sheet>
-                    <!-- Button Box with Smart Buttons -->
                     <div class="oe_button_box" name="button_box">
-                        <button name="action_open_detail"
-                                type="object"
-                                class="oe_stat_button"
-                                icon="fa-edit"
-                                invisible="approval_state not in ('draft', 'revision')">
-                            <div class="o_stat_info">
-                                <span class="o_stat_text">Edit</span>
-                                <span class="o_stat_value">Details</span>
-                            </div>
-                        </button>
                         <button name="action_open_preview_wizard"
                                 type="object"
                                 class="oe_stat_button"
