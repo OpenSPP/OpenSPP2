@@ -135,7 +135,9 @@ class SPPCRApplyAddMemberDCI(models.AbstractModel):
             household: The household/group (res.partner)
         """
         # Get program ID from system parameter
-        program_id_str = self.env["ir.config_parameter"].sudo().get_param("spp_dci_demo.enrollment_program_id", "")
+        # sudo() is intentional: system parameters require admin access
+        config_params = self.env["ir.config_parameter"].sudo()  # nosemgrep: odoo-sudo-without-context
+        program_id_str = config_params.get_param("spp_dci_demo.enrollment_program_id", "")
         if not program_id_str:
             _logger.info("No enrollment program configured (spp_dci_demo.enrollment_program_id)")
             return
