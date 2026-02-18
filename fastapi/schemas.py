@@ -2,14 +2,14 @@
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/LGPL).
 import warnings
 from enum import StrEnum
-from typing import Annotated, TypeVar
+from typing import Annotated, Generic, TypeVar
 
 from pydantic import AliasChoices, BaseModel, ConfigDict, Field, computed_field
 
 T = TypeVar("T")
 
 
-class PagedCollection[T](BaseModel):
+class PagedCollection(BaseModel, Generic[T]):
     count: Annotated[
         int,
         Field(
