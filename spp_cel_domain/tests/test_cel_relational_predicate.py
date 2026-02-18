@@ -73,10 +73,7 @@ class TestRelationalBarePredicates(TransactionCase):
         self.assertTrue(result["valid"], f"Error: {result.get('error')}")
         # The domain should contain a check for "has records"
         domain = result["domain"]
-        # Look for the field check in the domain
-        found = False
-        for leaf in domain:
-            if isinstance(leaf, tuple) and leaf[0] == "program_membership_ids" and leaf[1] == "!=":
-                found = True
-                break
-        self.assertTrue(found, f"Expected '!= False' domain for one2many, got: {domain}")
+        # Look for the exact expected leaf in the domain
+        expected_leaf = ("program_membership_ids", "!=", False)
+        found = any(leaf == expected_leaf for leaf in domain if isinstance(leaf, tuple))
+        self.assertTrue(found, f"Expected '{expected_leaf}' to be in domain, but got: {domain}")
