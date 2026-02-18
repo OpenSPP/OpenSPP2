@@ -503,8 +503,8 @@ class IndividualService:
         # Use sudo() for cross-program individual creation while enforcing authorization above
         partner = (
             self.env["res.partner"]
-            .sudo()
-            .with_context(  # nosemgrep: odoo-sudo-on-sensitive-models
+            .sudo()  # nosemgrep: odoo-sudo-on-sensitive-models
+            .with_context(
                 # Individual creation is restricted to group_api_v2_manager and
                 # uses external identifiers only.
                 source_system=source

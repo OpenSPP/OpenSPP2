@@ -35,8 +35,8 @@ class SppCycleManagerDefault(models.Model):
             # restricted to authorized managers and validators
             beneficiaries = (
                 self.env["res.partner"]
-                .sudo()
-                .search(  # nosemgrep: odoo-sudo-on-sensitive-models
+                .sudo()  # nosemgrep: odoo-sudo-on-sensitive-models
+                .search(
                     # Cross-program compliance beneficiary lookup; caller restricted to
                     # group_programs_manager and group_programs_validator. Domain is
                     # built from program-managed compliance criteria.

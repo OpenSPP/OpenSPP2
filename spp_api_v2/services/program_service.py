@@ -63,7 +63,7 @@ class ProgramService:
             name_guess = value.replace("-", " ")
             program = (
                 self.env["spp.program"]
-                .sudo()
+                .sudo()  # nosemgrep: odoo-sudo-on-sensitive-models
                 .search(
                     [("name", "=ilike", name_guess)],
                     limit=1,

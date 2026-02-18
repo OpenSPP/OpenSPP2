@@ -1063,8 +1063,8 @@ class SPPCycle(models.Model):
             )
         registrant_satisfied = (
             self.env["res.partner"]
-            .sudo()
-            .search(  # nosemgrep: odoo-sudo-on-sensitive-models
+            .sudo()  # nosemgrep: odoo-sudo-on-sensitive-models
+            .search(
                 # Cross-program compliance filter restricted to
                 # spp_programs.group_programs_manager; domain is built from
                 # program-managed compliance criteria.

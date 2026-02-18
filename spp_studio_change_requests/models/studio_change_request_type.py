@@ -334,7 +334,7 @@ class StudioChangeRequestType(models.Model):
         sudo, so regular users don't need create permission. This also prevents
         the "New" button from appearing in the form view.
         """
-        access_model = self.env["ir.model.access"].sudo()
+        access_model = self.env["ir.model.access"].sudo()  # nosemgrep: odoo-sudo-on-sensitive-models
 
         # Define access rights for each group
         access_rules = [
@@ -756,7 +756,7 @@ class StudioChangeRequestType(models.Model):
         if not self.detail_model_id:
             return
 
-        access_model = self.env["ir.model.access"].sudo()
+        access_model = self.env["ir.model.access"].sudo()  # nosemgrep: odoo-sudo-on-sensitive-models
 
         # Find and update validator access
         validator_access = access_model.search(

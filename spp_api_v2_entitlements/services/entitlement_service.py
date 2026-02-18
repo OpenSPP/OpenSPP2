@@ -30,8 +30,8 @@ class EntitlementService:
         # First try cash entitlement
         entitlement = (
             self.env["spp.entitlement"]
-            .sudo()
-            .search(  # nosemgrep: odoo-sudo-on-sensitive-models
+            .sudo()  # nosemgrep: odoo-sudo-on-sensitive-models
+            .search(
                 # Read-only entitlement lookup via external code; callers are
                 # restricted to API V2 groups.
                 [("code", "=", identifier)],
@@ -125,8 +125,8 @@ class EntitlementService:
 
         total = (
             self.env["spp.entitlement"]
-            .sudo()
-            .search_count(  # nosemgrep: odoo-sudo-on-sensitive-models
+            .sudo()  # nosemgrep: odoo-sudo-on-sensitive-models
+            .search_count(
                 # Read-only entitlement search restricted to
                 # spp_api_v2.group_api_v2_viewer.
                 domain
@@ -138,8 +138,8 @@ class EntitlementService:
 
         records = (
             self.env["spp.entitlement"]
-            .sudo()
-            .search(  # nosemgrep: odoo-sudo-on-sensitive-models
+            .sudo()  # nosemgrep: odoo-sudo-on-sensitive-models
+            .search(
                 # Read-only entitlement search restricted to
                 # spp_api_v2.group_api_v2_viewer.
                 domain,
