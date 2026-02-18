@@ -48,7 +48,7 @@ async def receive_ibr_search_response(
             verified_sender_id,
         )
 
-        header = envelope.header.model_dump()
+        envelope.header.model_dump()
         message = envelope.message
 
         # Extract search response data

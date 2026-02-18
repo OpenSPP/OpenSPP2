@@ -49,8 +49,8 @@ class DCIHTTPException(HTTPException):
 
 # Monkey-patch convert_exception_to_status_body to handle DCIHTTPException
 # We need to patch it in multiple places since it's imported directly
-from odoo.addons.fastapi import error_handlers as fastapi_error_handlers
-from odoo.addons.fastapi import fastapi_dispatcher as fastapi_dispatcher_module
+from odoo.addons.fastapi import error_handlers as fastapi_error_handlers  # noqa: E402
+from odoo.addons.fastapi import fastapi_dispatcher as fastapi_dispatcher_module  # noqa: E402
 
 _original_convert_exception = fastapi_error_handlers.convert_exception_to_status_body
 

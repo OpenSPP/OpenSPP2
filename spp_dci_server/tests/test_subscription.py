@@ -259,7 +259,7 @@ class TestDCISubscriptionNotifications(DCIServerCommon):
     def test_notify_event_finds_matching_subscriptions(self):
         """Test that notify_event finds subscriptions by event type."""
         # Create active subscription
-        sub = self.Subscription.create(
+        self.Subscription.create(
             {
                 "sender_id": self.test_sender.id,
                 "callback_uri": "https://callback.example.com/notify",
@@ -286,7 +286,7 @@ class TestDCISubscriptionNotifications(DCIServerCommon):
     def test_notify_event_ignores_inactive(self):
         """Test that inactive subscriptions don't receive notifications."""
         # Create inactive subscription
-        sub = self.Subscription.create(
+        self.Subscription.create(
             {
                 "sender_id": self.test_sender.id,
                 "callback_uri": "https://callback.example.com/notify",
@@ -474,7 +474,7 @@ class TestDCISubscriptionStats(DCIServerCommon):
         )
 
         # Create some notification logs
-        for i in range(5):
+        for _i in range(5):
             self.NotificationLog.create(
                 {
                     "subscription_id": sub.id,
@@ -506,7 +506,7 @@ class TestDCISubscriptionStats(DCIServerCommon):
             subs |= sub
 
             # Add logs for each
-            for j in range(i + 1):
+            for _j in range(i + 1):
                 self.NotificationLog.create(
                     {
                         "subscription_id": sub.id,

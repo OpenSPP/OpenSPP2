@@ -120,7 +120,7 @@ class CommandTupleVisitor(ast.NodeVisitor):
         if suggestion:
             # Get the original source text for this tuple
             try:
-                line_start = node.lineno - 1
+                node.lineno - 1
                 col_start = node.col_offset
                 # For multi-line tuples, we need to handle carefully
                 original = self._extract_source(node)
@@ -219,7 +219,7 @@ class Odoo19Checker:
             visitor = CommandTupleVisitor(source_lines)
             visitor.visit(tree)
 
-            for line, col, original, suggestion in visitor.violations:
+            for line, col, _original, suggestion in visitor.violations:
                 violations.append(
                     Violation(
                         file_path=file_path,
@@ -428,7 +428,7 @@ class Odoo19Fixer:
         # Apply fixes in reverse order (to preserve line numbers)
         sorted_violations = sorted(visitor.violations, key=lambda x: (-x[0], -x[1]))
 
-        for line, col, original, suggestion in sorted_violations:
+        for line, _col, original, suggestion in sorted_violations:
             if original and suggestion:
                 # Replace the tuple with Command call
                 modified_content = self._replace_in_content(modified_content, original, suggestion)

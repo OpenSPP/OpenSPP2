@@ -244,7 +244,7 @@ class TestBatchApprovalWizard(TestChangeRequestBase):
             self.skipTest("No CR type with approval definition")
 
         self.pending_crs = self.env["spp.change.request"]
-        for i in range(3):
+        for _i in range(3):
             cr = self.env["spp.change.request"].create(
                 {
                     "request_type_id": cr_type.id,
@@ -366,10 +366,10 @@ class TestConflictComparisonWizard(TestChangeRequestBase):
         )
 
         # Test approve latest action
-        result = wizard.action_approve_latest_decline_others()
+        wizard.action_approve_latest_decline_others()
 
         # Check decisions were set
-        latest_line = wizard.line_ids.sorted(key=lambda l: l.change_request_id.create_date, reverse=True)[0]
+        latest_line = wizard.line_ids.sorted(key=lambda line: line.change_request_id.create_date, reverse=True)[0]
         self.assertEqual(latest_line.decision, "approve")
 
     def test_wizard_line_decision(self):

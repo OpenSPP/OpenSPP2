@@ -609,7 +609,7 @@ class GISReport(models.Model):
 
         return raw_value
 
-    def _compute_hierarchy_rollup(self, base_results):
+    def _compute_hierarchy_rollup(self, base_results):  # noqa: C901
         """Roll up values from base level to all parent levels.
 
         Starting from base_area_level, aggregates values upward through

@@ -62,6 +62,8 @@ class TestDCITransaction(DCIServerCommon):
 
     def test_transaction_uniqueness_per_sender(self):
         """Test that transaction_id must be unique per sender."""
+        from odoo.exceptions import ValidationError
+
         self.Transaction.create(
             {
                 "transaction_id": "unique-txn-001",
@@ -72,7 +74,7 @@ class TestDCITransaction(DCIServerCommon):
         )
 
         # Same transaction_id, same sender - should fail
-        with self.assertRaises(Exception):  # IntegrityError wrapped
+        with self.assertRaises(ValidationError):
             self.Transaction.create(
                 {
                     "transaction_id": "unique-txn-001",

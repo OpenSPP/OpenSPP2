@@ -169,7 +169,7 @@ class PerformanceChecker:
 
         return violations
 
-    def _check_n_plus_one(self, file_path: str, tree: ast.AST, content: str) -> list[Violation]:
+    def _check_n_plus_one(self, file_path: str, tree: ast.AST, content: str) -> list[Violation]:  # noqa: C901
         """Check for potential N+1 query patterns using AST analysis.
 
         This check is Odoo-aware and accounts for:
@@ -382,7 +382,7 @@ class PerformanceChecker:
                         return
 
                     # Check each loop in the stack
-                    for loop_var, loop_line, has_prefetch in self.loop_stack:
+                    for loop_var, _loop_line, has_prefetch in self.loop_stack:
                         if var_name == loop_var and len(chain) >= 2:
                             first_field = chain[0]
                             # Check if accessing a relational field and then its attribute
@@ -419,7 +419,7 @@ class PerformanceChecker:
 
         # Deduplicate violations (same line might be flagged multiple times)
         seen_lines = set()
-        for line_num, loop_var, field_chain in visitor.found_violations:
+        for line_num, _loop_var, field_chain in visitor.found_violations:
             if line_num not in seen_lines:
                 seen_lines.add(line_num)
                 violations.append(

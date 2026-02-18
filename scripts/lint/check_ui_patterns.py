@@ -32,7 +32,6 @@ try:
         Severity,
         Violation,
         add_common_args,
-        print_summary,
     )
 except ImportError:
     from common import LintConfig, OutputFormatter, Severity, Violation, add_common_args
@@ -232,7 +231,9 @@ class UIPatternChecker:
                                     message=f"Form for model '{model_name}' has tabs but no extension points",
                                     rule_id="ui.extension_points",
                                     severity=self.config.get_severity("ui.extension_points", Severity.INFO),
-                                    suggestion="Add <group name='additional_*' invisible='1'/> to tabs for extensibility",
+                                    suggestion=(
+                                        "Add <group name='additional_*' invisible='1'/> to tabs for extensibility"
+                                    ),
                                     doc_link="docs/principles/ui-design.md#extension-points",
                                 )
                             )

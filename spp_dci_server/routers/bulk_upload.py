@@ -62,7 +62,7 @@ def _parse_json_file(content: bytes) -> list[dict]:
     try:
         data = json.loads(content.decode("utf-8"))
     except (json.JSONDecodeError, UnicodeDecodeError) as e:
-        raise BulkUploadError(f"Invalid JSON format: {str(e)}", "err.file.parse_error")
+        raise BulkUploadError(f"Invalid JSON format: {str(e)}", "err.file.parse_error") from e
 
     # Check if it's a full DCI envelope
     if isinstance(data, dict):
@@ -150,9 +150,9 @@ def _parse_csv_file(content: bytes) -> list[dict]:
         return _identifiers_to_search_requests(identifiers)
 
     except UnicodeDecodeError as e:
-        raise BulkUploadError(f"Invalid CSV encoding: {str(e)}", "err.file.parse_error")
+        raise BulkUploadError(f"Invalid CSV encoding: {str(e)}", "err.file.parse_error") from e
     except csv.Error as e:
-        raise BulkUploadError(f"Invalid CSV format: {str(e)}", "err.file.parse_error")
+        raise BulkUploadError(f"Invalid CSV format: {str(e)}", "err.file.parse_error") from e
 
 
 def _identifiers_to_search_requests(identifiers: list[dict]) -> list[dict]:
@@ -237,7 +237,7 @@ async def bulk_search_upload(
     env: Annotated[Environment, Depends(odoo_env)],
     _bearer_token: Annotated[str, Depends(verify_bearer_token)],
     _rate_limit_check: Annotated[None, Depends(check_dci_rate_limit)],
-    file: UploadFile = File(..., description="JSON or CSV file with search requests"),
+    file: Annotated[UploadFile, File(description="JSON or CSV file with search requests")],
     file_format: str = Form("json", description="File format: json or csv"),
     action: str = Form("search", description="DCI action type"),
     sender_id: str = Form(..., description="Sender identifier"),
@@ -390,7 +390,7 @@ async def bulk_search_upload(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={"error": e.code, "message": e.message},
-        )
+        ) from e
     except HTTPException:
         raise
     except Exception as e:
@@ -398,7 +398,7 @@ async def bulk_search_upload(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error processing bulk upload",
-        )
+        ) from e
 
 
 @dci_bulk_upload_router.post(
@@ -410,7 +410,7 @@ async def bulk_verify_identifiers(
     env: Annotated[Environment, Depends(odoo_env)],
     _bearer_token: Annotated[str, Depends(verify_bearer_token)],
     _rate_limit_check: Annotated[None, Depends(check_dci_rate_limit)],
-    file: UploadFile = File(..., description="JSON or CSV file with identifiers"),
+    file: Annotated[UploadFile, File(description="JSON or CSV file with identifiers")],
     file_format: str = Form("json", description="File format: json or csv"),
     sender_id: str = Form(..., description="Sender identifier"),
 ):
@@ -466,7 +466,9 @@ async def bulk_verify_identifiers(
         if len(search_items) > max_sync_items:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Too many items ({len(search_items)}) for sync verify. Max {max_sync_items}. Use /upload/search.",
+                detail=(
+                    f"Too many items ({len(search_items)}) for sync verify. Max {max_sync_items}. Use /upload/search."
+                ),
             )
 
         _logger.info(
@@ -555,7 +557,7 @@ async def bulk_verify_identifiers(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={"error": e.code, "message": e.message},
-        )
+        ) from e
     except HTTPException:
         raise
     except Exception as e:
@@ -563,4 +565,4 @@ async def bulk_verify_identifiers(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error",
-        )
+        ) from e

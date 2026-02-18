@@ -381,7 +381,10 @@ def _get_module_state(profile: str, module_name: str) -> str:
     """Get the state of a module ('installed', 'to install', 'uninstalled', etc.)."""
     service = "openspp-dev" if profile == "dev" else "openspp"
     # Pass Python code via stdin (not -c which is for config file)
-    code = f"m = env['ir.module.module'].search([('name', '=', '{module_name}')], limit=1); print('STATE:' + (m.state if m else 'NOT_FOUND'))"
+    code = (
+        f"m = env['ir.module.module'].search([('name', '=', '{module_name}')], limit=1); "
+        f"print('STATE:' + (m.state if m else 'NOT_FOUND'))"
+    )
     result = run(
         docker_compose(
             "exec",

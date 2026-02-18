@@ -109,7 +109,7 @@ class ScheduleVersionWizard(models.TransientModel):
                 # Same date conflict - error
                 record.has_conflict = True
                 record.conflict_severity = "error"
-                existing = scheduled.filtered(lambda s: s.effective_date == record.effective_date)[0]
+                existing = scheduled.filtered(lambda s, _record=record: s.effective_date == _record.effective_date)[0]
                 record.conflict_message = _(
                     "Version v%(version)s is already scheduled for %(date)s. "
                     "Only one version can be scheduled per date."

@@ -71,7 +71,7 @@ NAMING_RULES = {
         "patterns": [
             r"^view_[a-z0-9_]+_(form|list|tree|kanban|search|graph|pivot|calendar|gantt|activity|gis)$",
             r"^view_[a-z0-9_]+_(form|list|tree|kanban|search|graph|pivot|calendar|gantt|activity|gis)_[a-z0-9_]+$",
-            r"^[a-z0-9_]+_(view_)?(form|list|tree|kanban|search|graph|pivot|calendar|gantt|activity|gis)$",  # {model}_{type} or {model}_view_{type}
+            r"^[a-z0-9_]+_(view_)?(form|list|tree|kanban|search|graph|pivot|calendar|gantt|activity|gis)$",  # noqa: E501 {model}_{type} or {model}_view_{type}
         ],
         "description": "View IDs should follow 'view_{model}_{type}' or '{model}_{type}' pattern",
         "examples": ["view_spp_program_form", "res_partner_tree", "ticket_view_form"],
@@ -109,7 +109,7 @@ NAMING_RULES = {
             r"^group_[a-z0-9_]+_(viewer|officer|manager|admin|supervisor|approver|rejector|user|worker|requestor|validator|distributor|generator|registrar|reset|get|post|auditor|runner|editor)$",
             r"^group_[a-z0-9_]+_(read|write|create|delete|approve|reject)$",
             r"^group_[a-z0-9_]+_restrict_[a-z0-9_]+$",  # Technical restriction groups
-            r"^group_spp_[a-z0-9_]+_(agent|validator|applicator|administrator|external_api|local_validator|hq_validator)$",  # Module-specific roles
+            r"^group_spp_[a-z0-9_]+_(agent|validator|applicator|administrator|external_api|local_validator|hq_validator)$",  # noqa: E501 Module-specific roles
             r"^category_[a-z0-9_]+$",
         ],
         "description": "Group IDs should follow 'group_{domain}_{level}' or 'category_{domain}' pattern",

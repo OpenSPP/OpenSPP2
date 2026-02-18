@@ -2748,7 +2748,8 @@ class SPPMISDemoGenerator(models.TransientModel):
                 # Use with_user() only for demo data generation to simulate
                 # different request owners; demo_user is a controlled user
                 # provided by the test/demo setup.
-                cr_model = cr_model.with_user(  # nosemgrep: odoo-with-user-unvalidated - Demo-only generator, demo_user is not user input.
+                cr_model = cr_model.with_user(  # nosemgrep: odoo-with-user-unvalidated
+                    # Demo-only generator, demo_user is not user input.
                     demo_user
                 )
             cr = cr_model.create(cr_vals)

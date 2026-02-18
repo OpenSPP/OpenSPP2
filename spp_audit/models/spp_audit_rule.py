@@ -517,7 +517,8 @@ class SppAuditRule(models.Model):
             # Use sudo() here so audit logging remains reliable even if the caller
             # has limited read access on spp.audit.rule; access is controlled by
             # spp_audit.group_audit_manager and hook wiring uses sudo() already.
-            "model_id": self.sudo().model_id.id,  # nosemgrep: odoo-sudo-without-context - System-level audit logging of model operations.
+            "model_id": self.sudo().model_id.id,  # nosemgrep: odoo-sudo-without-context
+            # System-level audit logging of model operations.
             "res_id": res_id,
             "method": method,
             "data": repr(data[res_id]),

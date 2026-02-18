@@ -166,7 +166,9 @@ class SPPCRDetailSplitHousehold(models.Model):
             )
 
             # Filter out head member
-            non_head_memberships = memberships.filtered(lambda m: head_type not in m.membership_type_ids)
+            non_head_memberships = memberships.filtered(
+                lambda m, _head_type=head_type: _head_type not in m.membership_type_ids
+            )
 
             rec.available_member_ids = non_head_memberships.mapped("individual")
 

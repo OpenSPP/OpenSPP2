@@ -51,7 +51,7 @@ class SppProgramCreateWizard(models.TransientModel):
                 "compliance_manager_ids": [
                     Command.create(
                         {
-                            "manager_ref_id": "%s,%d" % (self.compliance_type, manager.id),
+                            "manager_ref_id": f"{self.compliance_type},{manager.id}",
                         }
                     ),
                 ],

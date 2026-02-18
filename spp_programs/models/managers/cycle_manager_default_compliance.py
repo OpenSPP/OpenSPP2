@@ -31,11 +31,15 @@ class SppCycleManagerDefault(models.Model):
         if automated_beneficiaries_filtering_mechanism == "1" and has_compliance:
             domain = cycle._get_compliance_criteria_domain()
             new_domain = AND([domain, [["id", "in", beneficiaries]]])
-            # Use sudo() for cross-program compliance lookup on registrants, restricted to authorized managers and validators
+            # Use sudo() for cross-program compliance lookup on registrants,
+            # restricted to authorized managers and validators
             beneficiaries = (
                 self.env["res.partner"]
                 .sudo()
-                .search(  # nosemgrep: odoo-sudo-on-sensitive-models - Cross-program compliance beneficiary lookup; caller restricted to group_programs_manager and group_programs_validator. Domain is built from program-managed compliance criteria.
+                .search(  # nosemgrep: odoo-sudo-on-sensitive-models
+                    # Cross-program compliance beneficiary lookup; caller restricted to
+                    # group_programs_manager and group_programs_validator. Domain is
+                    # built from program-managed compliance criteria.
                     new_domain
                 )
                 .ids

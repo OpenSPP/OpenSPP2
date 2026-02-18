@@ -31,7 +31,9 @@ class EntitlementService:
         entitlement = (
             self.env["spp.entitlement"]
             .sudo()
-            .search(  # nosemgrep: odoo-sudo-on-sensitive-models - Read-only entitlement lookup via external code; callers are restricted to API V2 groups.
+            .search(  # nosemgrep: odoo-sudo-on-sensitive-models
+                # Read-only entitlement lookup via external code; callers are
+                # restricted to API V2 groups.
                 [("code", "=", identifier)],
                 limit=1,
             )
@@ -43,7 +45,9 @@ class EntitlementService:
         return (
             self.env["spp.entitlement.inkind"]
             .sudo()
-            .search(  # nosemgrep: odoo-sudo-on-sensitive-models - Read-only in-kind entitlement lookup via external code; callers are restricted to API V2 groups.
+            .search(  # nosemgrep: odoo-sudo-on-sensitive-models
+                # Read-only in-kind entitlement lookup via external code; callers
+                # are restricted to API V2 groups.
                 [("code", "=", identifier)],
                 limit=1,
             )
@@ -122,7 +126,9 @@ class EntitlementService:
         total = (
             self.env["spp.entitlement"]
             .sudo()
-            .search_count(  # nosemgrep: odoo-sudo-on-sensitive-models - Read-only entitlement search restricted to spp_api_v2.group_api_v2_viewer.
+            .search_count(  # nosemgrep: odoo-sudo-on-sensitive-models
+                # Read-only entitlement search restricted to
+                # spp_api_v2.group_api_v2_viewer.
                 domain
             )
         )
@@ -133,7 +139,9 @@ class EntitlementService:
         records = (
             self.env["spp.entitlement"]
             .sudo()
-            .search(  # nosemgrep: odoo-sudo-on-sensitive-models - Read-only entitlement search restricted to spp_api_v2.group_api_v2_viewer.
+            .search(  # nosemgrep: odoo-sudo-on-sensitive-models
+                # Read-only entitlement search restricted to
+                # spp_api_v2.group_api_v2_viewer.
                 domain,
                 limit=count,
                 offset=offset,
@@ -189,13 +197,15 @@ class EntitlementService:
             else:
                 domain.append(("write_date", ">=", last_updated))
 
-        total = (
-            self.env["spp.entitlement.inkind"].sudo().search_count(domain)
-        )  # nosemgrep: odoo-sudo-on-sensitive-models - Read-only entitlement search restricted to spp_api_v2.group_api_v2_viewer.
+        # nosemgrep: odoo-sudo-on-sensitive-models
+        # Read-only entitlement search restricted to spp_api_v2.group_api_v2_viewer.
+        total = self.env["spp.entitlement.inkind"].sudo().search_count(domain)
 
         count = params.get("_count", 20)
         offset = params.get("_offset", 0)
 
+        # nosemgrep: odoo-sudo-on-sensitive-models
+        # Read-only entitlement search restricted to spp_api_v2.group_api_v2_viewer.
         records = (
             self.env["spp.entitlement.inkind"]
             .sudo()
@@ -205,7 +215,7 @@ class EntitlementService:
                 offset=offset,
                 order="create_date desc",
             )
-        )  # nosemgrep: odoo-sudo-on-sensitive-models - Read-only entitlement search restricted to spp_api_v2.group_api_v2_viewer.
+        )
 
         return records, total
 

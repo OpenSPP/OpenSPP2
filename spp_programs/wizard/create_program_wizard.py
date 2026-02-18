@@ -537,14 +537,16 @@ class SPPCreateNewProgramWiz(models.TransientModel):
         if self.entitlement_type == "cash" and not self.entitlement_cash_item_ids:
             raise UserError(
                 _(
-                    "No amount defined for the selected benefit type (Cash). Please add at least one Cash Entitlement Item with a valid amount under the ‘What Do They Receive’ tab."
+                    "No amount defined for the selected benefit type (Cash). Please add at least one "
+                    "Cash Entitlement Item with a valid amount under the 'What Do They Receive' tab."
                 )
             )
         if self.entitlement_type == "inkind":
             if not self.entitlement_item_ids:
                 raise UserError(
                     _(
-                        "No items defined for the selected benefit type (In-Kind). Please add at least one In-Kind Entitlement Item with a valid quantity under the ‘What Do They Receive’ tab."
+                        "No items defined for the selected benefit type (In-Kind). Please add at least one "
+                        "In-Kind Entitlement Item with a valid quantity under the 'What Do They Receive' tab."
                     )
                 )
             if self.manage_inventory and not self.warehouse_id:

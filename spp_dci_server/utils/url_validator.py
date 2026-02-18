@@ -139,7 +139,7 @@ def validate_callback_url(url: str, require_https: bool = True, skip_ip_check: b
         try:
             # Get all IP addresses for the hostname
             addr_info = socket.getaddrinfo(hostname, port, socket.AF_UNSPEC, socket.SOCK_STREAM)
-            for family, _, _, _, sockaddr in addr_info:
+            for _family, _, _, _, sockaddr in addr_info:
                 ip_str = sockaddr[0]
                 if is_ip_blocked(ip_str):
                     _logger.warning(

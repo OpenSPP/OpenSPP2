@@ -20,7 +20,7 @@ class TestRegistryVariableActivation(TransactionCase):
             STANDARD_VARIABLES,
         )
 
-        Variable = self.env["spp.cel.variable"]
+        self.env["spp.cel.variable"]
 
         for xml_id in STANDARD_VARIABLES:
             variable = self.env.ref(xml_id, raise_if_not_found=False)

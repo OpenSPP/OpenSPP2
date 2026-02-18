@@ -227,7 +227,9 @@ class DataCredential(models.Model):
 
         # Update last used timestamp using sudo() so audit metadata is recorded
         # even if the caller has limited write access on credentials.
-        self.sudo().write(  # nosemgrep: odoo-sudo-without-context - Timestamp update on credential record; access already gated by _check_access_credential.
+        self.sudo().write(  # nosemgrep: odoo-sudo-without-context
+            # Timestamp update on credential record; access already gated by
+            # _check_access_credential.
             {"last_used": fields.Datetime.now()}
         )
 
@@ -325,7 +327,9 @@ class DataCredential(models.Model):
             expires_in = data.get("expires_in", 3600)
             expires_at = fields.Datetime.now() + timedelta(seconds=expires_in - 60)
 
-            self.sudo().write(  # nosemgrep: odoo-sudo-without-context - Cache update for OAuth tokens; access already gated by _check_access_credential.
+            self.sudo().write(  # nosemgrep: odoo-sudo-without-context
+                # Cache update for OAuth tokens; access already gated by
+                # _check_access_credential.
                 {
                     "oauth_access_token": access_token,
                     "oauth_token_expires": expires_at,
@@ -338,7 +342,9 @@ class DataCredential(models.Model):
 
         except requests.RequestException as e:
             error_msg = str(e)
-            self.sudo().write(  # nosemgrep: odoo-sudo-without-context - Error flagging for OAuth tokens; access already gated by _check_access_credential.
+            self.sudo().write(  # nosemgrep: odoo-sudo-without-context
+                # Error flagging for OAuth tokens; access already gated by
+                # _check_access_credential.
                 {
                     "last_error": error_msg,
                     "is_valid": False,

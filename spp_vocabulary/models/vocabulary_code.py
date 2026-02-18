@@ -203,7 +203,9 @@ class VocabularyCode(models.Model):
             code = vals.get("code")
             if vocab_id and code:
                 duplicate = (
-                    self.sudo()  # nosemgrep: odoo-sudo-without-context - Uniqueness checks need a global view across active/archive; result is only used to raise validation errors, not exposed to callers.
+                    self.sudo()  # nosemgrep: odoo-sudo-without-context
+                    # Uniqueness checks need a global view across active/archive;
+                    # result is only used to raise validation errors, not exposed to callers.
                     .with_context(active_test=False)
                     .search(
                         [
@@ -248,7 +250,9 @@ class VocabularyCode(models.Model):
                 code = new_code or rec.code
                 vocab_id = new_vocab or rec.vocabulary_id.id
                 duplicate = (
-                    self.sudo()  # nosemgrep: odoo-sudo-without-context - Uniqueness checks need a global view across active/archive; result is only used to raise validation errors, not exposed to callers.
+                    self.sudo()  # nosemgrep: odoo-sudo-without-context
+                    # Uniqueness checks need a global view across active/archive;
+                    # result is only used to raise validation errors, not exposed to callers.
                     .with_context(active_test=False)
                     .search(
                         [

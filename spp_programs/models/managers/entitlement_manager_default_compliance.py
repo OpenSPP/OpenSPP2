@@ -29,7 +29,10 @@ class SppProgramEntitlementManagerDefault(models.Model):
             # Use sudo() for cross-program compliance lookup on registrants, restricted to authorized managers
             satisfied_registrant_ids = (
                 self.env["res.partner"]
-                .sudo()  # nosemgrep: odoo-sudo-on-sensitive-models - Cross-program compliance beneficiary lookup; caller restricted to group_programs_manager and domain is built from program-managed compliance criteria.
+                .sudo()  # nosemgrep: odoo-sudo-on-sensitive-models
+                # Cross-program compliance beneficiary lookup; caller restricted to
+                # group_programs_manager and domain is built from program-managed
+                # compliance criteria.
                 .search(domain)
                 .ids
             )

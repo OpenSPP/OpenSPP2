@@ -504,7 +504,9 @@ class IndividualService:
         partner = (
             self.env["res.partner"]
             .sudo()
-            .with_context(  # nosemgrep: odoo-sudo-on-sensitive-models - Individual creation is restricted to group_api_v2_manager and uses external identifiers only.
+            .with_context(  # nosemgrep: odoo-sudo-on-sensitive-models
+                # Individual creation is restricted to group_api_v2_manager and
+                # uses external identifiers only.
                 source_system=source
             )
             .create(vals)
@@ -549,7 +551,7 @@ class IndividualService:
         _logger.info("Updated individual %s via API from %s", identifier_str, source)
         return partner
 
-    def partial_update(self, partner, patch: IndividualPatch, source: str) -> Any:
+    def partial_update(self, partner, patch: IndividualPatch, source: str) -> Any:  # noqa: C901
         """
         Partially update Individual with source tracking (JSON Merge Patch).
 

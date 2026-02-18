@@ -266,12 +266,6 @@ class DefaultEligibilityManagerCEL(models.Model):
                 raise ValidationError(_("Error previewing: %s") % error_msg)
 
             domain = result.get("domain", [])
-            list_view_id = (
-                "spp_registry.view_groups_list_tree"
-                if self.program_id.target_type == "group"
-                else "spp_registry.view_individuals_list_tree"
-            )
-            form_view_id = "spp_registry.view_individuals_form"
 
             return {
                 "type": "ir.actions.act_window",

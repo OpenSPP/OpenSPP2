@@ -1,15 +1,15 @@
 # Copyright 2022 ACSONE SA/NV
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/LGPL).
 import warnings
-from enum import Enum
-from typing import Annotated, Generic, TypeVar
+from enum import StrEnum
+from typing import Annotated, TypeVar
 
 from pydantic import AliasChoices, BaseModel, ConfigDict, Field, computed_field
 
 T = TypeVar("T")
 
 
-class PagedCollection(BaseModel, Generic[T]):
+class PagedCollection[T](BaseModel):
     count: Annotated[
         int,
         Field(
@@ -57,7 +57,7 @@ class DemoEndpointAppInfo(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class DemoExceptionType(str, Enum):
+class DemoExceptionType(StrEnum):
     user_error = "UserError"
     validation_error = "ValidationError"
     access_error = "AccessError"

@@ -778,7 +778,8 @@ class SPPCycle(models.Model):
                 if approval_review:
                     raise UserError(
                         _(
-                            "The cycle has existing approved approval reviews. Please reset to draft from the approval review."
+                            "The cycle has existing approved approval reviews. Please reset to "
+                            "draft from the approval review."
                         )
                     )
 
@@ -1063,7 +1064,10 @@ class SPPCycle(models.Model):
         registrant_satisfied = (
             self.env["res.partner"]
             .sudo()
-            .search(  # nosemgrep: odoo-sudo-on-sensitive-models - Cross-program compliance filter restricted to spp_programs.group_programs_manager; domain is built from program-managed compliance criteria.
+            .search(  # nosemgrep: odoo-sudo-on-sensitive-models
+                # Cross-program compliance filter restricted to
+                # spp_programs.group_programs_manager; domain is built from
+                # program-managed compliance criteria.
                 self._get_compliance_criteria_domain()
             )
         )

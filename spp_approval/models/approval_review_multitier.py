@@ -170,7 +170,9 @@ class ApprovalReviewMultitier(models.Model):
 
         # Reject the review (use sudo since this is a system action triggered
         # by the multi-tier engine after individual tier approvals).
-        self.sudo().action_reject(  # nosemgrep: odoo-sudo-without-context - Final review rejection is a system-level workflow transition after tier checks.
+        self.sudo().action_reject(  # nosemgrep: odoo-sudo-without-context
+            # Final review rejection is a system-level workflow transition after
+            # tier checks.
             comment=reason
         )
 

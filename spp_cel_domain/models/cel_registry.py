@@ -285,14 +285,16 @@ class CelRegistry(models.AbstractModel):
                                 # Merge profiles from this module
                                 all_profiles.update(presets)
                                 modules_with_profiles.append(module.name)
-                                _logger.info(  # nosemgrep: odoo-pii-fstring-name - Logs module names for CEL profiles, not person names.
+                                _logger.info(  # nosemgrep: odoo-pii-fstring-name
+                                    # Logs module names for CEL profiles, not person names.
                                     f"[CEL Registry] Loaded {len(presets)} profile(s) from {module.name}"
                                 )
                     except FileNotFoundError:
                         # Module does not expose CEL profiles; skip quietly
                         continue
                     except Exception as e:
-                        _logger.debug(  # nosemgrep: odoo-pii-fstring-name - Logs module names for CEL profiles, not person names.
+                        _logger.debug(  # nosemgrep: odoo-pii-fstring-name
+                            # Logs module names for CEL profiles, not person names.
                             f"[CEL Registry] No CEL profiles in {module.name}: {e}"
                         )
 

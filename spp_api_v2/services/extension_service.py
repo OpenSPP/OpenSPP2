@@ -49,9 +49,11 @@ class ExtensionService:
         else:
             # Filter to requested extensions (by name, URL, or derived key)
             extensions_to_include = all_extensions.filtered(
-                lambda e: e.name in extension_names
-                or e.url in extension_names
-                or self._get_extension_key(e) in extension_names
+                lambda e: (
+                    e.name in extension_names
+                    or e.url in extension_names
+                    or self._get_extension_key(e) in extension_names
+                )
             )
 
         if not extensions_to_include:
