@@ -392,16 +392,19 @@ class TestOutgoingLogIntegration(TransactionCase):
         )
         self.assertEqual(len(logs), 2, "Should have two log entries (401 + retry)")
 
-        # Most recent should be the retry success
-        self.assertEqual(logs[0].status, "success")
-        self.assertEqual(logs[0].response_status_code, 200)
-
-        # Earlier should be the 401 error
-        self.assertEqual(logs[1].status, "http_error")
-        self.assertEqual(logs[1].response_status_code, 401)
-        self.assertIn("retrying", logs[1].error_detail.lower())
+        # With order="id desc", logs[0] has the highest ID (created last).
+        # Due to try-finally semantics, the recursive retry's finally runs first
+        # (lower ID = success), then the outer call's finally runs (higher ID = 401).
+        # So logs[0] (highest ID) is the 401 entry, logs[1] (lower ID) is the success.
+        self.assertEqual(logs[0].status, "http_error")
+        self.assertEqual(logs[0].response_status_code, 401)
+        self.assertIn("retrying", logs[0].error_detail.lower())
         # M-1 fix: 401 response body should be captured
-        self.assertTrue(logs[1].response_summary)
+        self.assertTrue(logs[0].response_summary)
+
+        # Earlier log (lower ID) is the retry success
+        self.assertEqual(logs[1].status, "success")
+        self.assertEqual(logs[1].response_status_code, 200)
 
     @patch("httpx.Client")
     def test_log_failure_does_not_block_request(self, mock_client_class):
