@@ -1636,12 +1636,6 @@ class DrimsDemoGenerator(models.TransientModel):
                         picking.date_arrived = fields.Datetime.now() - timedelta(hours=random.randint(0, 1))
 
                     dispatches |= picking
-                    _logger.debug(
-                        "Created completed dispatch %s for request ID=%s (beneficiaries: %d)",
-                        picking.name,
-                        request.id,
-                        beneficiary_count,
-                    )
                 except Exception as e:
                     _logger.warning("Failed to complete dispatch for request ID=%s: %s", request.id, e)
                     # Delete failed picking
