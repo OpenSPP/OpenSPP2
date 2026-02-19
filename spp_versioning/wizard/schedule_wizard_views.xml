@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <!-- Schedule Version Wizard Form -->
     <record id="view_schedule_version_wizard_form" model="ir.ui.view">
         <field name="name">spp.artifact.version.schedule.wizard.form</field>
@@ -14,57 +13,68 @@
 
                     <group col="2">
                         <group>
-                            <field name="artifact_name" readonly="1"/>
-                            <field name="version_number" readonly="1"/>
+                            <field name="artifact_name" readonly="1" />
+                            <field name="version_number" readonly="1" />
                         </group>
                     </group>
 
                     <group>
-                        <field name="activation_mode" widget="radio"/>
-                        <field name="effective_date"
-                               invisible="activation_mode != 'scheduled'"
-                               required="activation_mode == 'scheduled'"/>
+                        <field name="activation_mode" widget="radio" />
+                        <field
+                            name="effective_date"
+                            invisible="activation_mode != 'scheduled'"
+                            required="activation_mode == 'scheduled'"
+                        />
                     </group>
 
                     <!-- Conflict error -->
-                    <div class="alert alert-danger mb-3"
-                         role="alert"
-                         invisible="conflict_severity != 'error'">
-                        <i class="fa fa-times-circle me-2" title="Error"/>
-                        <field name="conflict_message" nolabel="1" readonly="1"/>
+                    <div
+                        class="alert alert-danger mb-3"
+                        role="alert"
+                        invisible="conflict_severity != 'error'"
+                    >
+                        <i class="fa fa-times-circle me-2" title="Error" />
+                        <field name="conflict_message" nolabel="1" readonly="1" />
                     </div>
 
                     <!-- Conflict warning -->
-                    <div class="alert alert-warning mb-3"
-                         role="alert"
-                         invisible="conflict_severity != 'warning'">
-                        <i class="fa fa-exclamation-triangle me-2" title="Warning"/>
-                        <field name="conflict_message" nolabel="1" readonly="1"/>
+                    <div
+                        class="alert alert-warning mb-3"
+                        role="alert"
+                        invisible="conflict_severity != 'warning'"
+                    >
+                        <i class="fa fa-exclamation-triangle me-2" title="Warning" />
+                        <field name="conflict_message" nolabel="1" readonly="1" />
                     </div>
 
                     <!-- Hidden fields for computed values -->
-                    <field name="has_conflict" invisible="1"/>
-                    <field name="conflict_severity" invisible="1"/>
+                    <field name="has_conflict" invisible="1" />
+                    <field name="conflict_severity" invisible="1" />
 
                     <group>
-                        <field name="change_summary" required="1"
-                               placeholder="Describe what changed (for audit trail)..."/>
+                        <field
+                            name="change_summary"
+                            required="1"
+                            placeholder="Describe what changed (for audit trail)..."
+                        />
                     </group>
                 </sheet>
                 <footer>
-                    <button string="Schedule Activation"
-                            name="action_schedule"
-                            type="object"
-                            class="btn-primary"
-                            invisible="activation_mode != 'scheduled'"/>
-                    <button string="Activate Now"
-                            name="action_activate_now"
-                            type="object"
-                            class="btn-primary"
-                            invisible="activation_mode != 'immediate'"/>
-                    <button string="Cancel"
-                            class="btn-secondary"
-                            special="cancel"/>
+                    <button
+                        string="Schedule Activation"
+                        name="action_schedule"
+                        type="object"
+                        class="btn-primary"
+                        invisible="activation_mode != 'scheduled'"
+                    />
+                    <button
+                        string="Activate Now"
+                        name="action_activate_now"
+                        type="object"
+                        class="btn-primary"
+                        invisible="activation_mode != 'immediate'"
+                    />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
                 </footer>
             </form>
         </field>
@@ -77,5 +87,4 @@
         <field name="view_mode">form</field>
         <field name="target">new</field>
     </record>
-
 </odoo>

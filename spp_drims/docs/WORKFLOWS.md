@@ -1,6 +1,7 @@
 # DRIMS Workflows
 
-This document describes the core workflows in DRIMS for managing disaster relief operations.
+This document describes the core workflows in DRIMS for managing disaster relief
+operations.
 
 ## Donation Workflow
 
@@ -34,21 +35,18 @@ stateDiagram-v2
 ### Process
 
 1. **Create Donation**
-
    - Select incident and receiving warehouse
    - Enter donor information (linked partner or free text)
    - Add line items with pledged quantities
    - State: `announced`
 
 2. **Receive Donation** (`action_mark_received`)
-
    - Warehouse staff confirms physical arrival
    - Enter actual received quantities (may differ from pledged)
    - Set received date
    - State: `received`
 
 3. **Inspect Donation** (`action_inspect`)
-
    - Check item condition and quality
    - Note any damaged or substandard items
    - Record condition codes per line
@@ -118,7 +116,6 @@ Once approved, requests track fulfillment progress:
 ### Process
 
 1. **Create Request**
-
    - Select incident and destination area
    - Set priority and date needed
    - Add requested items with quantities
@@ -126,25 +123,21 @@ Once approved, requests track fulfillment progress:
    - State: `draft`
 
 2. **Submit for Approval** (`action_submit`)
-
    - Validates request has line items
    - Triggers approval workflow
    - State: `pending`
 
 3. **Approval Decision**
-
    - **Approve** (`action_approve`): Ready for fulfillment
    - **Reject** (`action_reject`): Denied with reason
    - **Request Revision** (`action_request_revision`): Return for changes
 
 4. **Allocate** (`action_allocate`)
-
    - Assign source warehouse
    - Check stock availability
    - State: `allocated`
 
 5. **Create Dispatch**
-
    - Generate stock picking from warehouse
    - Pick items and create waybill
    - State: `dispatched`
@@ -163,8 +156,8 @@ Once approved, requests track fulfillment progress:
 | `medium`   | Medium   | Standard, within 48-72 hours         |
 | `low`      | Low      | Non-urgent, can wait                 |
 
-**Life-Threatening Flag**: Requests marked as life-threatening bypass normal approval thresholds and are escalated
-immediately.
+**Life-Threatening Flag**: Requests marked as life-threatening bypass normal approval
+thresholds and are escalated immediately.
 
 ### Model
 

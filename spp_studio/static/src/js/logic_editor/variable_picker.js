@@ -1,6 +1,13 @@
 /** @odoo-module **/
 
-import {Component, onMounted, onWillUnmount, useEffect, useRef, useState} from "@odoo/owl";
+import {
+    Component,
+    onMounted,
+    onWillUnmount,
+    useEffect,
+    useRef,
+    useState,
+} from "@odoo/owl";
 import {registry} from "@web/core/registry";
 import {useService} from "@web/core/utils/hooks";
 
@@ -77,7 +84,9 @@ export class VariablePicker extends Component {
      */
     updateSearchTerm() {
         if (this.props.selectedValue) {
-            const selected = this.props.variables.find((v) => v.id === this.props.selectedValue);
+            const selected = this.props.variables.find(
+                (v) => v.id === this.props.selectedValue
+            );
             if (selected) {
                 this.state.searchTerm = selected.label || selected.name;
             }
@@ -148,7 +157,12 @@ export class VariablePicker extends Component {
         const terms = this.state.searchTerm.toLowerCase().split(/\s+/);
 
         return baseVars.filter((v) => {
-            const searchableText = [v.name || "", v.label || "", v.synonyms || "", v.cel_accessor || ""]
+            const searchableText = [
+                v.name || "",
+                v.label || "",
+                v.synonyms || "",
+                v.cel_accessor || "",
+            ]
                 .join(" ")
                 .toLowerCase();
 
@@ -200,7 +214,9 @@ export class VariablePicker extends Component {
      * Variables that are constants/parameters
      */
     get constantVariables() {
-        const base = this.state.searchTerm ? this.filteredVariables : this.filterByScope(this.props.variables);
+        const base = this.state.searchTerm
+            ? this.filteredVariables
+            : this.filterByScope(this.props.variables);
         return base.filter((v) => v.source_type === "constant");
     }
 
@@ -388,24 +404,35 @@ export class VariablePicker extends Component {
             return;
         }
 
-        const items = this.state.searchTerm ? this.filteredVariables : this.getAllVisibleItems();
+        const items = this.state.searchTerm
+            ? this.filteredVariables
+            : this.getAllVisibleItems();
 
         switch (ev.key) {
             case "ArrowDown":
                 ev.preventDefault();
-                this.state.highlightedIndex = Math.min(this.state.highlightedIndex + 1, items.length - 1);
+                this.state.highlightedIndex = Math.min(
+                    this.state.highlightedIndex + 1,
+                    items.length - 1
+                );
                 this.scrollToHighlighted();
                 break;
 
             case "ArrowUp":
                 ev.preventDefault();
-                this.state.highlightedIndex = Math.max(this.state.highlightedIndex - 1, 0);
+                this.state.highlightedIndex = Math.max(
+                    this.state.highlightedIndex - 1,
+                    0
+                );
                 this.scrollToHighlighted();
                 break;
 
             case "Enter":
                 ev.preventDefault();
-                if (this.state.highlightedIndex >= 0 && items[this.state.highlightedIndex]) {
+                if (
+                    this.state.highlightedIndex >= 0 &&
+                    items[this.state.highlightedIndex]
+                ) {
                     this.selectVariable(items[this.state.highlightedIndex]);
                 }
                 break;
@@ -585,7 +612,9 @@ export class VariablePicker extends Component {
      */
     get displayValue() {
         if (this.props.selectedValue) {
-            const selected = this.props.variables.find((v) => v.id === this.props.selectedValue);
+            const selected = this.props.variables.find(
+                (v) => v.id === this.props.selectedValue
+            );
             return selected ? selected.label || selected.name : "";
         }
         return "";

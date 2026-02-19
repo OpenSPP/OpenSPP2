@@ -35,43 +35,43 @@ lifecycle tracking.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  Generate signed QR credentials using MOSIP Claim 169 standard with
-   Ed25519 or EC keys
--  Configure mappings from partner fields to numbered claim attributes
-   (1-99)
--  Track credential lifecycle with automatic expiration and manual
-   revocation
--  Verify credential authenticity using public key verification
--  Transform data with multiple formats: direct copy, date formatting,
-   gender codes, address combination, and CEL expressions
--  Batch generate credentials for multiple registrants with configurable
-   replacement modes
--  Audit credential generation, revocation, and download events
+- Generate signed QR credentials using MOSIP Claim 169 standard with
+  Ed25519 or EC keys
+- Configure mappings from partner fields to numbered claim attributes
+  (1-99)
+- Track credential lifecycle with automatic expiration and manual
+  revocation
+- Verify credential authenticity using public key verification
+- Transform data with multiple formats: direct copy, date formatting,
+  gender codes, address combination, and CEL expressions
+- Batch generate credentials for multiple registrants with configurable
+  replacement modes
+- Audit credential generation, revocation, and download events
 
 Key Models
 ~~~~~~~~~~
 
-+----------------------------------+----------------------------------+
-| Model                            | Description                      |
-+==================================+==================================+
-| ``spp.claim169.credential``      | Stores issued credentials with   |
-|                                  | QR codes and validity dates      |
-+----------------------------------+----------------------------------+
-| ``spp.claim169.issuer.config``   | Defines issuer identity and      |
-|                                  | signing keys                     |
-+----------------------------------+----------------------------------+
-| ``                               | Maps partner fields to claim     |
-| spp.claim169.attribute.mapping`` | attribute numbers                |
-+----------------------------------+----------------------------------+
-| ``spp.claim169.service``         | Service for credential           |
-|                                  | generation and verification      |
-+----------------------------------+----------------------------------+
-| ``s                              | Wizard for batch credential      |
-| pp.claim169.generate.qr.wizard`` | generation                       |
-+----------------------------------+----------------------------------+
-| `                                | Wizard for credential            |
-| `spp.claim169.verify.qr.wizard`` | verification                     |
-+----------------------------------+----------------------------------+
++-------------------------------------+----------------------------------+
+| Model                               | Description                      |
++=====================================+==================================+
+| ``spp.claim169.credential``         | Stores issued credentials with   |
+|                                     | QR codes and validity dates      |
++-------------------------------------+----------------------------------+
+| ``spp.claim169.issuer.config``      | Defines issuer identity and      |
+|                                     | signing keys                     |
++-------------------------------------+----------------------------------+
+| ``spp.claim169.attribute.mapping``  | Maps partner fields to claim     |
+|                                     | attribute numbers                |
++-------------------------------------+----------------------------------+
+| ``spp.claim169.service``            | Service for credential           |
+|                                     | generation and verification      |
++-------------------------------------+----------------------------------+
+| ``spp.claim169.generate.qr.wizard`` | Wizard for batch credential      |
+|                                     | generation                       |
++-------------------------------------+----------------------------------+
+| ``spp.claim169.verify.qr.wizard``   | Wizard for credential            |
+|                                     | verification                     |
++-------------------------------------+----------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -93,38 +93,36 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
--  **Configuration**: Registry > Configuration > QR Credentials
+- **Configuration**: Registry > Configuration > QR Credentials
 
-   -  Issuer Configurations
-   -  Attribute Mappings
+  - Issuer Configurations
+  - Attribute Mappings
 
--  **Credentials**: Accessed from registrant profile under "QR
-   Credentials" section on Identity tab
--  **Generate**: Button on partner form opens generation wizard
--  **Verify**: Use verification wizard to validate credentials
+- **Credentials**: Accessed from registrant profile under "QR
+  Credentials" section on Identity tab
+- **Generate**: Button on partner form opens generation wizard
+- **Verify**: Use verification wizard to validate credentials
 
 Security
 ~~~~~~~~
 
-+------------------------+--------------+---------------+-----------+
-| Group                  | Credentials  | Configuration | Wizards   |
-+========================+==============+===============+===========+
-| ``spp_claim_169        | Read, Create | Read only     | Full CRUD |
-| .group_claim169_user`` |              |               |           |
-+------------------------+--------------+---------------+-----------+
-| ``spp_claim_169.gr     | Full CRUD    | Full CRUD     | Full CRUD |
-| oup_claim169_manager`` |              |               |           |
-+------------------------+--------------+---------------+-----------+
++------------------------------------------+--------------+---------------+-----------+
+| Group                                    | Credentials  | Configuration | Wizards   |
++==========================================+==============+===============+===========+
+| ``spp_claim_169.group_claim169_user``    | Read, Create | Read only     | Full CRUD |
++------------------------------------------+--------------+---------------+-----------+
+| ``spp_claim_169.group_claim169_manager`` | Full CRUD    | Full CRUD     | Full CRUD |
++------------------------------------------+--------------+---------------+-----------+
 
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Override ``spp.claim169.attribute.mapping._transform_value()`` to add
-   custom transformation types
--  Inherit ``spp.claim169.service._build_claim169_input()`` to customize
-   claim structure
--  Extend ``spp.claim169.credential`` to add domain-specific metadata
-   fields
+- Override ``spp.claim169.attribute.mapping._transform_value()`` to add
+  custom transformation types
+- Inherit ``spp.claim169.service._build_claim169_input()`` to customize
+  claim structure
+- Extend ``spp.claim169.credential`` to add domain-specific metadata
+  fields
 
 Dependencies
 ~~~~~~~~~~~~

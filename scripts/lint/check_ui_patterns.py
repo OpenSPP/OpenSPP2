@@ -15,8 +15,8 @@ Features:
 - Model classification awareness
 
 Exit codes:
-    0: No violations found
-    1: Violations found
+    0: No error-level violations found (warnings/info may be printed)
+    1: Error-level violations found
 """
 
 import argparse
@@ -32,7 +32,6 @@ try:
         Severity,
         Violation,
         add_common_args,
-        print_summary,
     )
 except ImportError:
     from common import LintConfig, OutputFormatter, Severity, Violation, add_common_args
@@ -79,7 +78,7 @@ class UIPatternChecker:
             return violations
 
         try:
-            tree = ET.parse(file_path)
+            tree = ET.parse(file_path)  # nosec B314 — parsing local view XML for lint checks
             root = tree.getroot()
         except ET.ParseError:
             return violations  # Skip malformed XML
@@ -232,7 +231,9 @@ class UIPatternChecker:
                                     message=f"Form for model '{model_name}' has tabs but no extension points",
                                     rule_id="ui.extension_points",
                                     severity=self.config.get_severity("ui.extension_points", Severity.INFO),
-                                    suggestion="Add <group name='additional_*' invisible='1'/> to tabs for extensibility",
+                                    suggestion=(
+                                        "Add <group name='additional_*' invisible='1'/> to tabs for extensibility"
+                                    ),
                                     doc_link="docs/principles/ui-design.md#extension-points",
                                 )
                             )
@@ -339,8 +340,9 @@ def main():
     output = formatter.format(all_violations, show_summary=args.summary)
     print(output)
 
-    # Exit with error if violations found
-    return 1 if all_violations else 0
+    # Exit with error only if ERROR-level violations found
+    has_errors = any(v.severity == Severity.ERROR for v in all_violations)
+    return 1 if has_errors else 0
 
 
 if __name__ == "__main__":

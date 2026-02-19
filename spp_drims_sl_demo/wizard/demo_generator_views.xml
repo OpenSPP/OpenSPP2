@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Demo Generator Wizard Form -->
     <record id="view_drims_demo_generator_form" model="ir.ui.view">
@@ -8,10 +8,15 @@
             <form string="Load DRIMS Demo Data">
                 <sheet>
                     <div class="alert alert-info" role="alert">
-                        <p><strong>This will load comprehensive DRIMS demo data:</strong></p>
+                        <p>
+                            <strong
+                            >This will load comprehensive DRIMS demo data:</strong>
+                        </p>
                         <ul>
-                            <li>Sri Lanka admin boundaries (9 Provinces, 25 Districts, DS/GN Divisions)</li>
-                            <li>3 disaster incidents (Monsoon Floods, Landslides, Drought)</li>
+                            <li
+                            >Sri Lanka admin boundaries (9 Provinces, 25 Districts, DS/GN Divisions)</li>
+                            <li
+                            >3 disaster incidents (Monsoon Floods, Landslides, Drought)</li>
                             <li>Donations from UN agencies and NGOs</li>
                             <li>Relief requests at various approval stages</li>
                             <li>Warehouse stock with lot tracking</li>
@@ -21,11 +26,13 @@
                     </div>
                 </sheet>
                 <footer>
-                    <button name="action_generate"
-                            string="Load Demo Data"
-                            type="object"
-                            class="btn-primary"/>
-                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    <button
+                        name="action_generate"
+                        string="Load Demo Data"
+                        type="object"
+                        class="btn-primary"
+                    />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
                 </footer>
             </form>
         </field>
@@ -40,16 +47,20 @@
     </record>
 
     <!-- Parent menu for Demo Data (under Settings) -->
-    <menuitem id="menu_demo_data_root"
-              name="Demo Data"
-              parent="base.menu_administration"
-              sequence="100"
-              groups="base.group_system"/>
+    <menuitem
+        id="menu_demo_data_root"
+        name="Demo Data"
+        parent="base.menu_administration"
+        sequence="100"
+        groups="base.group_system"
+    />
 
     <!-- Menu Item (under Settings > Demo Data) -->
-    <menuitem id="menu_drims_demo_generator"
-              name="Load DRIMS Demo"
-              parent="menu_demo_data_root"
-              action="action_drims_demo_generator"
-              sequence="10"/>
+    <menuitem
+        id="menu_drims_demo_generator"
+        name="Load DRIMS Demo"
+        parent="menu_demo_data_root"
+        action="action_drims_demo_generator"
+        sequence="10"
+    />
 </odoo>

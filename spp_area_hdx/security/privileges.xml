@@ -3,14 +3,14 @@
     <!-- HDX User Privilege - Can view HDX COD sources and resources -->
     <record id="privilege_hdx_user" model="res.groups.privilege">
         <field name="name">HDX User</field>
-        <field name="category_id" ref="spp_security.category_spp_area"/>
+        <field name="category_id" ref="spp_security.category_spp_area" />
         <field name="sequence">10</field>
     </record>
 
     <!-- HDX Manager Privilege - Can manage HDX COD sources, sync from HDX, and import data -->
     <record id="privilege_hdx_manager" model="res.groups.privilege">
         <field name="name">HDX Manager</field>
-        <field name="category_id" ref="spp_security.category_spp_area"/>
+        <field name="category_id" ref="spp_security.category_spp_area" />
         <field name="sequence">20</field>
     </record>
 </odoo>

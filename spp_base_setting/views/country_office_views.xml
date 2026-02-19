@@ -29,14 +29,22 @@
                                             placeholder="Street 2..."
                                             class="o_address_street"
                                         />
-                                        <field name="city" placeholder="City" class="o_address_city" />
+                                        <field
+                                            name="city"
+                                            placeholder="City"
+                                            class="o_address_city"
+                                        />
                                         <field
                                             name="state_id"
                                             class="o_address_state"
                                             placeholder="State"
                                             options='{"no_open": True}'
                                         />
-                                        <field name="zip" placeholder="ZIP" class="o_address_zip" />
+                                        <field
+                                            name="zip"
+                                            placeholder="ZIP"
+                                            class="o_address_zip"
+                                        />
                                         <field
                                             name="country_id"
                                             placeholder="Country"
@@ -62,7 +70,10 @@
                                         widget="url"
                                         placeholder="e.g. https://www.odoo.com"
                                     />
-                                    <field name="parent_id" groups="base.group_no_one" />
+                                    <field
+                                        name="parent_id"
+                                        groups="base.group_no_one"
+                                    />
                                     <field name="parent_id" invisible="1" />
                                 </group>
                                 <group name="social_media" />
@@ -110,5 +121,4 @@
         <field name="view_id" ref="view_country_office_form" />
         <field name="act_window_id" ref="action_res_country_office" />
     </record>
-
 </odoo>

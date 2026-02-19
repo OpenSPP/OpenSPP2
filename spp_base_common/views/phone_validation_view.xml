@@ -8,7 +8,13 @@
         <field name="model">spp.phone.validation</field>
         <field name="priority">1</field>
         <field name="arch" type="xml">
-            <list create="true" edit="true" delete="false" duplicate="false" editable="top">
+            <list
+                create="true"
+                edit="true"
+                delete="false"
+                duplicate="false"
+                editable="top"
+            >
                 <field name="number_of_digits" />
                 <field name="is_with_prefix" />
                 <field name="prefix" />
@@ -78,7 +84,8 @@
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Add a Phone Validation!
-            </p><p>
+            </p>
+            <p>
                 Click the create button to enter a phone validation.
             </p>
         </field>
@@ -90,6 +97,4 @@
         <field name="view_id" ref="view_phone_validation_tree" />
         <field name="act_window_id" ref="action_phone_validation" />
     </record>
-
-
 </odoo>

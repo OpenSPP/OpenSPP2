@@ -45,7 +45,7 @@ class Member(BaseModel):
     marital_status: MaritalStatus | str | None = Field(
         None,
         description=(
-            "Marital status (S=Single, M=Married, W=Widowed, A=Annulled, " "D=Divorced, L=Legally Separated, U=Unknown)"
+            "Marital status (S=Single, M=Married, W=Widowed, A=Annulled, D=Divorced, L=Legally Separated, U=Unknown)"
         ),
     )
     employment_status: EmploymentStatusEnum | str | None = Field(

@@ -35,9 +35,8 @@ class SPPEntitlement(models.Model):
     def _reject_entitlement(self, to_state="reject", reject_reason=""):
         # Use sudo() so state changes are applied atomically once the wizard
         # has validated the caller's group-based permissions.
-        for rec in (
-            self.sudo()
-        ):  # nosemgrep: odoo-sudo-without-context - Called only from reject wizard with ACLs on wizard model.
+        # nosemgrep: odoo-sudo-without-context — called only from reject wizard with ACLs on wizard model
+        for rec in self.sudo():
             if rec.state not in self.allowed_to_reject_entitlement():
                 continue
 
@@ -111,7 +110,8 @@ class SPPEntitlement(models.Model):
             # so approval operations are not blocked by downstream ACLs.
             return super(
                 SPPEntitlement,
-                self.sudo(),  # nosemgrep: odoo-sudo-without-context - Approval restricted to spp_programs.approve_entitlement group.
+                self.sudo(),  # nosemgrep: odoo-sudo-without-context
+                # Approval restricted to spp_programs.approve_entitlement group.
             ).approve_entitlement()
         return super().approve_entitlement()
 
@@ -121,7 +121,8 @@ class SPPEntitlement(models.Model):
         ):
             return super(
                 SPPEntitlement,
-                self.sudo(),  # nosemgrep: odoo-sudo-without-context - Elevated write restricted to spp_programs.approve_entitlement group.
+                self.sudo(),  # nosemgrep: odoo-sudo-without-context
+                # Elevated write restricted to spp_programs.approve_entitlement group.
             ).write(vals)
         return super().write(vals)
 
@@ -141,7 +142,8 @@ class SPPEntitlement(models.Model):
     def _reset_to_pending(self):
         # Reset to pending as a system operation after wizard has verified
         # permissions and context.
-        for rec in self.sudo():  # nosemgrep: odoo-sudo-without-context - Reset called via controlled wizard action.
+        for rec in self.sudo():  # nosemgrep: odoo-sudo-without-context
+            # Reset called via controlled wizard action.
             rec.state = "pending_validation"
 
         return {
@@ -194,9 +196,9 @@ class SPPInKindEntitlement(models.Model):
     def _reject_entitlement(self, to_state="reject", reject_reason=""):
         # Use sudo() so state changes are applied atomically once the wizard
         # has validated the caller's group-based permissions.
-        for rec in (
-            self.sudo()
-        ):  # nosemgrep: odoo-sudo-without-context - Called only from reject wizard with ACLs on wizard model.
+        # Called only from reject wizard with ACLs on wizard model.
+        # nosemgrep: odoo-sudo-without-context — called only from reject wizard with ACLs on wizard model
+        for rec in self.sudo():
             if rec.state not in self.allowed_to_reject_entitlement():
                 continue
 
@@ -233,7 +235,8 @@ class SPPInKindEntitlement(models.Model):
             other_user = self.env["res.users"].browse(SUPERUSER_ID)
             # Switch to SUPERUSER to render entitlement views when admin group
             # is not present; this only affects view loading, not record writes.
-            self = self.with_user(  # nosemgrep: odoo-with-user-unvalidated - Internal view rendering override, SUPERUSER_ID is fixed.
+            self = self.with_user(  # nosemgrep: odoo-with-user-unvalidated
+                # Internal view rendering override, SUPERUSER_ID is fixed.
                 other_user
             )
 

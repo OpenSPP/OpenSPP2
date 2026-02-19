@@ -1,5 +1,4 @@
 <odoo>
-
     <record id="view_restore_version_wizard_form" model="ir.ui.view">
         <field name="name">view_restore_version_wizard_form</field>
         <field name="model">spp.dms.restore.version.wizard</field>
@@ -9,38 +8,41 @@
                     <div class="alert alert-warning" role="alert">
                         <strong>Warning:</strong> Restoring a previous version will:
                         <ul>
-                            <li>Save the current file content as a new version before restoration</li>
-                            <li>Restore the content from the selected version</li>
-                            <li>Create a new version for the restored content</li>
-                        </ul>
+                        <li
+                        >Save the current file content as a new version before restoration</li>
+                        <li>Restore the content from the selected version</li>
+                        <li>Create a new version for the restored content</li>
+                    </ul>
                     </div>
 
                     <group>
-                        <field name="file_id" readonly="1"/>
-                        <field name="version_id"/>
+                        <field name="file_id" readonly="1" />
+                        <field name="version_id" />
                     </group>
 
                     <group string="Version Details" invisible="not version_id">
                         <group>
-                            <field name="version_number" readonly="1"/>
-                            <field name="created_date" widget="datetime" readonly="1"/>
+                            <field name="version_number" readonly="1" />
+                            <field name="created_date" widget="datetime" readonly="1" />
                         </group>
                         <group>
-                            <field name="created_by_id" readonly="1"/>
+                            <field name="created_by_id" readonly="1" />
                         </group>
                     </group>
 
                     <group string="Version Comment" invisible="not version_id">
-                        <field name="comment" nolabel="1" readonly="1"/>
+                        <field name="comment" nolabel="1" readonly="1" />
                     </group>
                 </sheet>
                 <footer>
-                    <button name="action_restore"
-                            type="object"
-                            string="Restore Version"
-                            class="btn-primary"
-                            invisible="not version_id"/>
-                    <button special="cancel" string="Cancel" class="btn-secondary"/>
+                    <button
+                        name="action_restore"
+                        type="object"
+                        string="Restore Version"
+                        class="btn-primary"
+                        invisible="not version_id"
+                    />
+                    <button special="cancel" string="Cancel" class="btn-secondary" />
                 </footer>
             </form>
         </field>
@@ -52,7 +54,7 @@
         <field name="res_model">spp.dms.restore.version.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
-        <field name="binding_model_id" ref="model_spp_dms_file_version"/>
+        <field name="binding_model_id" ref="model_spp_dms_file_version" />
         <field name="binding_view_types">form</field>
     </record>
 
@@ -63,5 +65,4 @@
         <field name="view_mode">form</field>
         <field name="target">new</field>
     </record>
-
 </odoo>

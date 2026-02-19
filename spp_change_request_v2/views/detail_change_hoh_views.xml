@@ -6,6 +6,27 @@
         <field name="model">spp.cr.detail.change_hoh</field>
         <field name="arch" type="xml">
             <form string="Change Head of Household Details">
+                <header>
+                    <button
+                        name="action_submit_for_approval"
+                        string="Submit for Approval"
+                        type="object"
+                        class="btn-primary"
+                        invisible="approval_state != 'draft'"
+                    />
+                    <button
+                        name="action_submit_for_approval"
+                        string="Resubmit for Review"
+                        type="object"
+                        class="btn-primary"
+                        invisible="approval_state != 'revision'"
+                    />
+                    <field
+                        name="approval_state"
+                        widget="statusbar"
+                        statusbar_visible="draft,pending,approved,applied"
+                    />
+                </header>
                 <sheet>
                     <group>
                         <group string="Current Head">
@@ -19,7 +40,11 @@
                                 domain="[('id', 'in', available_individual_ids)]"
                                 required="1"
                             />
-                            <field name="new_head_membership_id" invisible="1" force_save="1"/>
+                            <field
+                                name="new_head_membership_id"
+                                invisible="1"
+                                force_save="1"
+                            />
                         </group>
                     </group>
                     <group>
@@ -28,11 +53,17 @@
                             <field name="effective_date" />
                         </group>
                         <group string="Previous Head Reassignment">
-                            <field name="previous_head_new_role_id" options="{'no_create': True}" />
+                            <field
+                                name="previous_head_new_role_id"
+                                options="{'no_create': True, 'no_open': True}"
+                            />
                         </group>
                     </group>
                     <group string="Additional Information">
-                        <field name="remarks" placeholder="Enter any additional notes..." />
+                        <field
+                            name="remarks"
+                            placeholder="Enter any additional notes..."
+                        />
                     </group>
                 </sheet>
             </form>

@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
-        <!-- MapTiler API Key Configuration -->
-        <!-- NOTE: You need to set your actual MapTiler API key in System Parameters -->
-        <!-- Go to Settings > Technical > Parameters > System Parameters -->
-        <!-- Add parameter: spp_gis.map_tiler_api_key with your MapTiler API key value -->
-        <record id="spp_gis_map_tiler_api_key" model="ir.config_parameter">
-            <field name="key">spp_gis.map_tiler_api_key</field>
-            <field name="value">YOUR_MAPTILER_API_KEY_HERE</field>
-        </record>
+    <!-- MapTiler API Key Configuration -->
+    <!-- NOTE: You need to set your actual MapTiler API key in System Parameters -->
+    <!-- Go to Settings > Technical > Parameters > System Parameters -->
+    <!-- Add parameter: spp_gis.map_tiler_api_key with your MapTiler API key value -->
+    <record id="spp_gis_map_tiler_api_key" model="ir.config_parameter">
+        <field name="key">spp_gis.map_tiler_api_key</field>
+        <field name="value">YOUR_MAPTILER_API_KEY_HERE</field>
+    </record>
 </odoo>

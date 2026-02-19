@@ -5,14 +5,16 @@ Centralized cryptographic key management with pluggable providers for OpenSPP.
 ## Features
 
 - **Envelope Encryption**: Data encryption keys (DEKs) protected by a master key (KEK)
-- **Pluggable Providers**: Database provider included, extensible for HSM/KMS integration
+- **Pluggable Providers**: Database provider included, extensible for HSM/KMS
+  integration
 - **Key Versioning**: Support for key rotation while maintaining decryption of old data
 - **Asymmetric Keys**: RSA, EC (P-256, P-384, P-521), and Ed25519 key support
 - **Purpose-based Keys**: Separate keys for different purposes (PII, credentials, etc.)
 
 ## Master Key Configuration
 
-The master key encrypts all data keys stored in the database. It is resolved in this order:
+The master key encrypts all data keys stored in the database. It is resolved in this
+order:
 
 ### 1. Environment Variable (Recommended for Production)
 
@@ -30,11 +32,13 @@ spp_master_key = <base64-encoded-32-byte-key>
 
 ### 3. Auto-derived (Demo/Development Only)
 
-If no explicit key is configured, a key is automatically derived from the database UUID. This provides a zero-config
-experience for demos while logging a warning in non-demo mode.
+If no explicit key is configured, a key is automatically derived from the database UUID.
+This provides a zero-config experience for demos while logging a warning in non-demo
+mode.
 
-**Security Note**: The derived key is deterministic per database, so encrypted data persists across restarts. However,
-for production deployments, always use an explicit key via environment variable.
+**Security Note**: The derived key is deterministic per database, so encrypted data
+persists across restarts. However, for production deployments, always use an explicit
+key via environment variable.
 
 ## Key Providers
 

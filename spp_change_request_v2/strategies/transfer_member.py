@@ -91,7 +91,7 @@ class SPPCRApplyTransferMember(models.AbstractModel):
             "member_name": detail.member_name,
             "source_group": detail.source_group_name,
             "target_group": detail.target_group_name,
-            "new_role": detail.new_role_id.name if detail.new_role_id else None,
+            "new_role": detail.new_role_id.display if detail.new_role_id else None,
             "transfer_date": str(detail.transfer_date),
             "reason": detail.transfer_reason,
         }

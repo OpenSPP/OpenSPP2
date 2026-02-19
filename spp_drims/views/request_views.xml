@@ -7,37 +7,63 @@
         <field name="name">spp.drims.request.list</field>
         <field name="model">spp.drims.request</field>
         <field name="arch" type="xml">
-            <list decoration-danger="is_life_threatening"
-                  decoration-warning="priority_id and priority_id.code == 'high'"
-                  decoration-muted="state == 'rejected'"
-                  decoration-success="state == 'approved'"
-                  sample="1">
-                <field name="reference" decoration-bf="1"/>
-                <field name="incident_id"/>
-                <field name="cluster_id" optional="hide"/>
-                <field name="destination_area_id"/>
-                <field name="priority_id" widget="badge"
-                       decoration-danger="priority_id.code == 'critical'"
-                       decoration-warning="priority_id.code == 'high'"
-                       decoration-info="priority_id.code == 'medium'"/>
-                <field name="is_life_threatening" widget="boolean_toggle" optional="hide"/>
-                <field name="date_needed"/>
-                <field name="date_requested" optional="hide"/>
-                <field name="affected_population" optional="hide"/>
-                <field name="line_count" string="Items" optional="hide"/>
-                <field name="total_value" sum="Total Value" optional="hide"/>
-                <field name="state" invisible="1"/>
-                <field name="approval_state" widget="badge"
-                       decoration-info="approval_state == 'draft'"
-                       decoration-warning="approval_state in ('pending', 'revision')"
-                       decoration-success="approval_state == 'approved'"
-                       decoration-danger="approval_state == 'rejected'"/>
-                <field name="sla_status" widget="badge" optional="show"
-                       decoration-success="sla_status == 'on_time'"
-                       decoration-warning="sla_status == 'warning'"
-                       decoration-danger="sla_status == 'breached'"/>
-                <field name="create_uid" string="Requested By" widget="many2one_avatar_user" optional="hide"/>
-                <field name="create_date" string="Created" widget="datetime" optional="hide"/>
+            <list
+                decoration-danger="is_life_threatening"
+                decoration-warning="priority_id and priority_id.code == 'high'"
+                decoration-muted="state == 'rejected'"
+                decoration-success="state == 'approved'"
+                sample="1"
+            >
+                <field name="reference" decoration-bf="1" />
+                <field name="incident_id" />
+                <field name="cluster_id" optional="hide" />
+                <field name="destination_area_id" />
+                <field
+                    name="priority_id"
+                    widget="badge"
+                    decoration-danger="priority_id.code == 'critical'"
+                    decoration-warning="priority_id.code == 'high'"
+                    decoration-info="priority_id.code == 'medium'"
+                />
+                <field
+                    name="is_life_threatening"
+                    widget="boolean_toggle"
+                    optional="hide"
+                />
+                <field name="date_needed" />
+                <field name="date_requested" optional="hide" />
+                <field name="affected_population" optional="hide" />
+                <field name="line_count" string="Items" optional="hide" />
+                <field name="total_value" sum="Total Value" optional="hide" />
+                <field name="state" invisible="1" />
+                <field
+                    name="approval_state"
+                    widget="badge"
+                    decoration-info="approval_state == 'draft'"
+                    decoration-warning="approval_state in ('pending', 'revision')"
+                    decoration-success="approval_state == 'approved'"
+                    decoration-danger="approval_state == 'rejected'"
+                />
+                <field
+                    name="sla_status"
+                    widget="badge"
+                    optional="show"
+                    decoration-success="sla_status == 'on_time'"
+                    decoration-warning="sla_status == 'warning'"
+                    decoration-danger="sla_status == 'breached'"
+                />
+                <field
+                    name="create_uid"
+                    string="Requested By"
+                    widget="many2one_avatar_user"
+                    optional="hide"
+                />
+                <field
+                    name="create_date"
+                    string="Created"
+                    widget="datetime"
+                    optional="hide"
+                />
             </list>
         </field>
     </record>
@@ -52,177 +78,248 @@
             <form>
                 <header>
                     <!-- Draft Actions -->
-                    <button name="action_submit"
-                            string="Submit for Approval"
-                            type="object"
-                            class="btn-primary"
-                            invisible="approval_state != 'draft'"
-                            data-hotkey="s"/>
+                    <button
+                        name="action_submit"
+                        string="Submit for Approval"
+                        type="object"
+                        class="btn-primary"
+                        invisible="approval_state != 'draft'"
+                        data-hotkey="s"
+                    />
 
                     <!-- Pending Actions (Approver) -->
-                    <button name="action_approve"
-                            string="Approve"
-                            type="object"
-                            class="btn-success"
-                            invisible="approval_state != 'pending'"
-                            groups="spp_drims.group_drims_approver"
-                            confirm="Approve this request? Items will be ready for allocation."
-                            data-hotkey="a"/>
-                    <button name="action_request_revision"
-                            string="Request Changes"
-                            type="object"
-                            class="btn-secondary"
-                            invisible="approval_state != 'pending'"
-                            groups="spp_drims.group_drims_approver"/>
-                    <button name="action_reject"
-                            string="Reject"
-                            type="object"
-                            class="btn-outline-danger"
-                            invisible="approval_state != 'pending'"
-                            groups="spp_drims.group_drims_approver"
-                            confirm="Reject this request? This action cannot be undone."/>
+                    <button
+                        name="action_approve"
+                        string="Approve"
+                        type="object"
+                        class="btn-success"
+                        invisible="approval_state != 'pending'"
+                        groups="spp_drims.group_drims_approver"
+                        confirm="Approve this request? Items will be ready for allocation."
+                        data-hotkey="a"
+                    />
+                    <button
+                        name="action_request_revision"
+                        string="Request Changes"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="approval_state != 'pending'"
+                        groups="spp_drims.group_drims_approver"
+                    />
+                    <button
+                        name="action_reject"
+                        string="Reject"
+                        type="object"
+                        class="btn-outline-danger"
+                        invisible="approval_state != 'pending'"
+                        groups="spp_drims.group_drims_approver"
+                        confirm="Reject this request? This action cannot be undone."
+                    />
 
                     <!-- Revision Actions -->
-                    <button name="action_submit"
-                            string="Resubmit for Approval"
-                            type="object"
-                            class="btn-primary"
-                            invisible="approval_state != 'revision'"/>
+                    <button
+                        name="action_submit"
+                        string="Resubmit for Approval"
+                        type="object"
+                        class="btn-primary"
+                        invisible="approval_state != 'revision'"
+                    />
 
                     <!-- Reset to Draft (for rejected) -->
-                    <button name="action_reset_to_draft"
-                            string="Reset to Draft"
-                            type="object"
-                            class="btn-secondary"
-                            invisible="approval_state != 'rejected'"
-                            confirm="This will clear review history and return to draft. Continue?"/>
+                    <button
+                        name="action_reset_to_draft"
+                        string="Reset to Draft"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="approval_state != 'rejected'"
+                        confirm="This will clear review history and return to draft. Continue?"
+                    />
 
                     <!-- Fulfillment Actions (GAP-REQ-002, GAP-REQ-003, GAP-DIS-001) -->
-                    <button name="action_open_allocation_wizard"
-                            string="Allocate Stock"
-                            type="object"
-                            class="btn-primary"
-                            invisible="approval_state != 'approved' or state == 'allocated'"
-                            data-hotkey="l"/>
-                    <button name="action_create_dispatch"
-                            string="Create Dispatch"
-                            type="object"
-                            class="btn-primary"
-                            invisible="state != 'allocated'"
-                            data-hotkey="d"/>
+                    <button
+                        name="action_open_allocation_wizard"
+                        string="Allocate Stock"
+                        type="object"
+                        class="btn-primary"
+                        invisible="approval_state != 'approved' or state == 'allocated'"
+                        data-hotkey="l"
+                    />
+                    <button
+                        name="action_create_dispatch"
+                        string="Create Dispatch"
+                        type="object"
+                        class="btn-primary"
+                        invisible="state != 'allocated'"
+                        data-hotkey="d"
+                    />
 
-                    <field name="approval_state" widget="statusbar"
-                           statusbar_visible="draft,pending,approved"/>
+                    <field
+                        name="approval_state"
+                        widget="statusbar"
+                        statusbar_visible="draft,pending,approved"
+                    />
                 </header>
 
                 <sheet>
                     <!-- Button Box -->
                     <div class="oe_button_box" name="button_box">
-                        <button name="action_view_pickings"
-                                type="object"
-                                class="oe_stat_button"
-                                icon="fa-truck"
-                                invisible="picking_count == 0">
-                            <field name="picking_count" widget="statinfo" string="Dispatches"/>
+                        <button
+                            name="action_view_pickings"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-truck"
+                            invisible="picking_count == 0"
+                        >
+                            <field
+                                name="picking_count"
+                                widget="statinfo"
+                                string="Dispatches"
+                            />
                         </button>
                     </div>
 
                     <!-- Ribbons for terminal states -->
-                    <widget name="web_ribbon" title="Approved" bg_color="text-bg-success"
-                            invisible="approval_state != 'approved'"/>
-                    <widget name="web_ribbon" title="Rejected" bg_color="text-bg-danger"
-                            invisible="approval_state != 'rejected'"/>
-                    <widget name="web_ribbon" title="LIFE-THREATENING" bg_color="text-bg-danger"
-                            invisible="not is_life_threatening"/>
+                    <widget
+                        name="web_ribbon"
+                        title="Approved"
+                        bg_color="text-bg-success"
+                        invisible="approval_state != 'approved'"
+                    />
+                    <widget
+                        name="web_ribbon"
+                        title="Rejected"
+                        bg_color="text-bg-danger"
+                        invisible="approval_state != 'rejected'"
+                    />
+                    <widget
+                        name="web_ribbon"
+                        title="LIFE-THREATENING"
+                        bg_color="text-bg-danger"
+                        invisible="not is_life_threatening"
+                    />
 
                     <!-- Title -->
                     <div class="oe_title">
                         <h1>
-                            <field name="reference" readonly="1"/>
+                            <field name="reference" readonly="1" />
                         </h1>
                         <h2>
-                            <field name="name" invisible="1"/>
+                            <field name="name" invisible="1" />
                         </h2>
                     </div>
 
                     <!-- Main Info Groups (Two Column Layout) -->
                     <group>
                         <group string="Request Details">
-                            <field name="incident_id"
-                                   readonly="approval_state not in ('draft', 'revision')"
-                                   options="{'no_create': True}"/>
-                            <field name="cluster_id"
-                                   readonly="approval_state not in ('draft', 'revision')"
-                                   options="{'no_create': True}"/>
-                            <field name="destination_area_id"
-                                   readonly="approval_state not in ('draft', 'revision')"
-                                   options="{'no_create': True}"/>
-                            <field name="service_point_id"
-                                   readonly="approval_state not in ('draft', 'revision')"
-                                   options="{'no_create': True}"/>
-                            <field name="affected_population"
-                                   readonly="approval_state not in ('draft', 'revision')"/>
+                            <field
+                                name="incident_id"
+                                readonly="approval_state not in ('draft', 'revision')"
+                                options="{'no_create': True}"
+                            />
+                            <field
+                                name="cluster_id"
+                                readonly="approval_state not in ('draft', 'revision')"
+                                options="{'no_create': True}"
+                            />
+                            <field
+                                name="destination_area_id"
+                                readonly="approval_state not in ('draft', 'revision')"
+                                options="{'no_create': True}"
+                            />
+                            <field
+                                name="service_point_id"
+                                readonly="approval_state not in ('draft', 'revision')"
+                                options="{'no_create': True}"
+                            />
+                            <field
+                                name="affected_population"
+                                readonly="approval_state not in ('draft', 'revision')"
+                            />
                         </group>
                         <group string="Priority and Dates">
-                            <field name="priority_id"
-                                   readonly="approval_state not in ('draft', 'revision')"
-                                   widget="badge"
-                                   decoration-danger="priority_id.code == 'critical'"
-                                   decoration-warning="priority_id.code == 'high'"
-                                   decoration-info="priority_id.code == 'medium'"/>
-                            <field name="is_life_threatening"
-                                   readonly="approval_state not in ('draft', 'revision')"
-                                   widget="boolean_toggle"/>
-                            <field name="date_requested" readonly="1"/>
-                            <field name="date_needed"
-                                   readonly="approval_state not in ('draft', 'revision')"/>
-                            <field name="state_id" invisible="1"/>
-                            <field name="state" invisible="1"/>
+                            <field
+                                name="priority_id"
+                                readonly="approval_state not in ('draft', 'revision')"
+                                widget="badge"
+                                decoration-danger="priority_id.code == 'critical'"
+                                decoration-warning="priority_id.code == 'high'"
+                                decoration-info="priority_id.code == 'medium'"
+                            />
+                            <field
+                                name="is_life_threatening"
+                                readonly="approval_state not in ('draft', 'revision')"
+                                widget="boolean_toggle"
+                            />
+                            <field name="date_requested" readonly="1" />
+                            <field
+                                name="date_needed"
+                                readonly="approval_state not in ('draft', 'revision')"
+                            />
+                            <field name="state_id" invisible="1" />
+                            <field name="state" invisible="1" />
                         </group>
                     </group>
 
                     <!-- Contact Info -->
                     <group string="Contact Information">
                         <group>
-                            <field name="contact_name"
-                                   readonly="approval_state not in ('draft', 'revision')"/>
-                            <field name="contact_phone"
-                                   readonly="approval_state not in ('draft', 'revision')"/>
+                            <field
+                                name="contact_name"
+                                readonly="approval_state not in ('draft', 'revision')"
+                            />
+                            <field
+                                name="contact_phone"
+                                readonly="approval_state not in ('draft', 'revision')"
+                            />
                         </group>
                     </group>
 
                     <!-- Fulfillment - visible after approval (GAP-REQ-001, GAP-REQ-006) -->
-                    <group string="Fulfillment" invisible="approval_state != 'approved'">
+                    <group
+                        string="Fulfillment"
+                        invisible="approval_state != 'approved'"
+                    >
                         <group>
-                            <field name="source_warehouse_id"
-                                   options="{'no_create': True}"
-                                   required="approval_state == 'approved' and state not in ('allocated', 'dispatched', 'delivered')"/>
-                            <field name="destination_warehouse_id"
-                                   options="{'no_create': True}"/>
-                            <field name="state" string="Status" readonly="1"/>
+                            <field
+                                name="source_warehouse_id"
+                                options="{'no_create': True}"
+                                required="approval_state == 'approved' and state not in ('allocated', 'dispatched', 'delivered')"
+                            />
+                            <field
+                                name="destination_warehouse_id"
+                                options="{'no_create': True}"
+                            />
+                            <field name="state" string="Status" readonly="1" />
                         </group>
                         <group string="Progress">
-                            <field name="total_quantity" string="Requested"/>
-                            <field name="total_allocated"/>
-                            <field name="allocation_pct" widget="progressbar"/>
-                            <field name="total_dispatched"/>
-                            <field name="total_delivered"/>
-                            <field name="fulfillment_pct" widget="progressbar"/>
+                            <field name="total_quantity" string="Requested" />
+                            <field name="total_allocated" />
+                            <field name="allocation_pct" widget="progressbar" />
+                            <field name="total_dispatched" />
+                            <field name="total_delivered" />
+                            <field name="fulfillment_pct" widget="progressbar" />
                         </group>
                     </group>
 
                     <!-- Justification -->
-                    <group string="Justification">
-                        <field name="justification" nolabel="1"
-                               placeholder="Explain why this request is needed and how it will help the affected population..."
-                               readonly="approval_state not in ('draft', 'revision')"/>
+                    <group string="Justification" col="2">
+                        <field
+                            name="justification"
+                            nolabel="1"
+                            colspan="2"
+                            placeholder="Explain why this request is needed and how it will help the affected population..."
+                            readonly="approval_state not in ('draft', 'revision')"
+                        />
                     </group>
 
                     <!-- Revision Needed Banner -->
-                    <div class="alert alert-warning" role="status"
-                         invisible="approval_state != 'revision'">
+                    <div
+                        class="alert alert-warning"
+                        role="status"
+                        invisible="approval_state != 'revision'"
+                    >
                         <div class="d-flex align-items-center">
-                            <i class="fa fa-edit fa-2x me-3" title="Edit"/>
+                            <i class="fa fa-edit fa-2x me-3" title="Edit" />
                             <div>
                                 <h5 class="alert-heading mb-1">Changes Requested</h5>
                                 <p class="mb-0">
@@ -234,12 +331,17 @@
                     </div>
 
                     <!-- Ready to Allocate Banner -->
-                    <div class="alert alert-success" role="status"
-                         invisible="approval_state != 'approved'">
+                    <div
+                        class="alert alert-success"
+                        role="status"
+                        invisible="approval_state != 'approved'"
+                    >
                         <div class="d-flex align-items-center">
-                            <i class="fa fa-check-circle fa-2x me-3" title="Approved"/>
+                            <i class="fa fa-check-circle fa-2x me-3" title="Approved" />
                             <div>
-                                <h5 class="alert-heading mb-1">Approved - Ready to Allocate</h5>
+                                <h5
+                                    class="alert-heading mb-1"
+                                >Approved - Ready to Allocate</h5>
                                 <p class="mb-0">
                                     This request has been approved. Items can now be allocated and dispatched.
                                 </p>
@@ -250,45 +352,68 @@
                     <!-- Notebook with Tabs -->
                     <notebook>
                         <page string="Requested Items" name="items">
-                            <field name="line_ids"
-                                   readonly="approval_state not in ('draft', 'revision')">
+                            <field
+                                name="line_ids"
+                                readonly="approval_state not in ('draft', 'revision')"
+                            >
                                 <list editable="bottom">
-                                    <field name="sequence" widget="handle"/>
-                                    <field name="product_id"/>
-                                    <field name="quantity_requested"/>
-                                    <field name="uom_id" groups="uom.group_uom"/>
-                                    <field name="unit_value" optional="show"/>
-                                    <field name="value" sum="Total Value" optional="show"/>
-                                    <field name="quantity_allocated" optional="show"/>
-                                    <field name="quantity_delivered" optional="show"/>
-                                    <field name="fulfillment_pct" widget="progressbar" optional="show"/>
-                                    <field name="notes" optional="hide"/>
+                                    <field name="sequence" widget="handle" />
+                                    <field name="product_id" />
+                                    <field name="quantity_requested" />
+                                    <field name="uom_id" groups="uom.group_uom" />
+                                    <field name="unit_value" optional="show" />
+                                    <field
+                                        name="value"
+                                        sum="Total Value"
+                                        optional="show"
+                                    />
+                                    <field name="quantity_allocated" optional="show" />
+                                    <field name="quantity_delivered" optional="show" />
+                                    <field
+                                        name="fulfillment_pct"
+                                        widget="progressbar"
+                                        optional="show"
+                                    />
+                                    <field name="notes" optional="hide" />
                                 </list>
                             </field>
                             <group class="oe_subtotal_footer oe_right" colspan="2">
-                                <field name="total_quantity" string="Total Quantity Requested"/>
-                                <field name="total_value" string="Total Estimated Value"/>
+                                <field
+                                    name="total_quantity"
+                                    string="Total Quantity Requested"
+                                />
+                                <field
+                                    name="total_value"
+                                    string="Total Estimated Value"
+                                />
                             </group>
                         </page>
 
                         <page string="Approval History" name="approval_history">
                             <div class="text-muted mb-3">
-                                <i class="fa fa-info-circle me-1"/>
+                                <i class="fa fa-info-circle me-1" />
                                 Timeline of approvals and reviews for this request.
                             </div>
-                            <field name="approval_review_ids" readonly="1" nolabel="1"/>
+                            <field
+                                name="approval_review_ids"
+                                readonly="1"
+                                nolabel="1"
+                            />
                         </page>
 
                         <page string="Notes" name="notes">
-                            <field name="notes" nolabel="1"
-                                   placeholder="Internal notes (not visible to requester)..."
-                                   readonly="approval_state not in ('draft', 'revision', 'pending')"/>
+                            <field
+                                name="notes"
+                                nolabel="1"
+                                placeholder="Internal notes (not visible to requester)..."
+                                readonly="approval_state not in ('draft', 'revision', 'pending')"
+                            />
                         </page>
                     </notebook>
                 </sheet>
 
                 <!-- Chatter -->
-                <chatter/>
+                <chatter />
             </form>
         </field>
     </record>
@@ -303,81 +428,168 @@
             <search>
                 <!-- Searchpanel for quick filtering -->
                 <searchpanel>
-                    <field name="incident_id" icon="fa-exclamation-triangle" enable_counters="1"/>
-                    <field name="destination_area_id" icon="fa-map-marker" enable_counters="1" hierarchize="1"/>
-                    <field name="cluster_id" select="multi" icon="fa-users" enable_counters="1"/>
-                    <field name="approval_state" select="multi" icon="fa-tasks" enable_counters="1"/>
-                    <field name="priority_id" select="multi" icon="fa-flag" enable_counters="1"/>
+                    <field
+                        name="incident_id"
+                        icon="fa-exclamation-triangle"
+                        enable_counters="1"
+                    />
+                    <field
+                        name="destination_area_id"
+                        icon="fa-map-marker"
+                        enable_counters="1"
+                        hierarchize="1"
+                    />
+                    <field
+                        name="cluster_id"
+                        select="multi"
+                        icon="fa-users"
+                        enable_counters="1"
+                    />
+                    <field
+                        name="approval_state"
+                        select="multi"
+                        icon="fa-tasks"
+                        enable_counters="1"
+                    />
+                    <field
+                        name="priority_id"
+                        select="multi"
+                        icon="fa-flag"
+                        enable_counters="1"
+                    />
                 </searchpanel>
 
-                <field name="reference"/>
-                <field name="incident_id"/>
-                <field name="cluster_id"/>
-                <field name="destination_area_id"/>
-                <field name="priority_id"/>
-                <field name="contact_name"/>
-                <separator/>
+                <field name="reference" />
+                <field name="incident_id" />
+                <field name="cluster_id" />
+                <field name="destination_area_id" />
+                <field name="priority_id" />
+                <field name="contact_name" />
+                <separator />
 
                 <!-- Priority Filters -->
-                <filter name="life_threatening" string="Life-Threatening"
-                        domain="[('is_life_threatening', '=', True)]"/>
-                <filter name="critical" string="Critical"
-                        domain="[('priority_id.code', '=', 'critical')]"/>
-                <filter name="high" string="High Priority"
-                        domain="[('priority_id.code', '=', 'high')]"/>
-                <separator/>
+                <filter
+                    name="life_threatening"
+                    string="Life-Threatening"
+                    domain="[('is_life_threatening', '=', True)]"
+                />
+                <filter
+                    name="critical"
+                    string="Critical"
+                    domain="[('priority_id.code', '=', 'critical')]"
+                />
+                <filter
+                    name="high"
+                    string="High Priority"
+                    domain="[('priority_id.code', '=', 'high')]"
+                />
+                <separator />
 
                 <!-- State Filters -->
-                <filter name="draft" string="Draft"
-                        domain="[('approval_state', '=', 'draft')]"/>
-                <filter name="pending" string="Pending Approval"
-                        domain="[('approval_state', '=', 'pending')]"/>
-                <filter name="revision" string="Needs Changes"
-                        domain="[('approval_state', '=', 'revision')]"/>
-                <filter name="approved" string="Approved"
-                        domain="[('approval_state', '=', 'approved')]"/>
-                <filter name="rejected" string="Rejected"
-                        domain="[('approval_state', '=', 'rejected')]"/>
-                <separator/>
+                <filter
+                    name="draft"
+                    string="Draft"
+                    domain="[('approval_state', '=', 'draft')]"
+                />
+                <filter
+                    name="pending"
+                    string="Pending Approval"
+                    domain="[('approval_state', '=', 'pending')]"
+                />
+                <filter
+                    name="revision"
+                    string="Needs Changes"
+                    domain="[('approval_state', '=', 'revision')]"
+                />
+                <filter
+                    name="approved"
+                    string="Approved"
+                    domain="[('approval_state', '=', 'approved')]"
+                />
+                <filter
+                    name="rejected"
+                    string="Rejected"
+                    domain="[('approval_state', '=', 'rejected')]"
+                />
+                <separator />
 
                 <!-- Date Filters - Needed By -->
-                <filter name="urgent" string="Urgent (Needed Today)"
-                        domain="[('date_needed', '&lt;=', context_today().strftime('%Y-%m-%d'))]"/>
-                <filter name="this_week" string="Needed This Week"
-                        domain="[('date_needed', '&lt;=', (context_today() + datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"/>
-                <separator/>
+                <filter
+                    name="urgent"
+                    string="Urgent (Needed Today)"
+                    domain="[('date_needed', '&lt;=', context_today().strftime('%Y-%m-%d'))]"
+                />
+                <filter
+                    name="this_week"
+                    string="Needed This Week"
+                    domain="[('date_needed', '&lt;=', (context_today() + datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"
+                />
+                <separator />
 
                 <!-- Date Filters - Requested Date Presets -->
-                <filter name="last_24h" string="Last 24 Hours"
-                        domain="[('date_requested', '&gt;=', (context_today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d'))]"/>
-                <filter name="last_7d" string="Last 7 Days"
-                        domain="[('date_requested', '&gt;=', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"/>
-                <filter name="last_30d" string="Last 30 Days"
-                        domain="[('date_requested', '&gt;=', (context_today() - datetime.timedelta(days=30)).strftime('%Y-%m-%d'))]"/>
-                <separator/>
+                <filter
+                    name="last_24h"
+                    string="Last 24 Hours"
+                    domain="[('date_requested', '&gt;=', (context_today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d'))]"
+                />
+                <filter
+                    name="last_7d"
+                    string="Last 7 Days"
+                    domain="[('date_requested', '&gt;=', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"
+                />
+                <filter
+                    name="last_30d"
+                    string="Last 30 Days"
+                    domain="[('date_requested', '&gt;=', (context_today() - datetime.timedelta(days=30)).strftime('%Y-%m-%d'))]"
+                />
+                <separator />
 
                 <!-- User Filters -->
-                <filter name="my_requests" string="My Requests"
-                        domain="[('create_uid', '=', uid)]"/>
-                <filter name="needs_approval" string="Needs My Approval"
-                        domain="[('approval_state', '=', 'pending')]"
-                        groups="spp_drims.group_drims_approver"/>
-                <separator/>
+                <filter
+                    name="my_requests"
+                    string="My Requests"
+                    domain="[('create_uid', '=', uid)]"
+                />
+                <filter
+                    name="needs_approval"
+                    string="Needs My Approval"
+                    domain="[('approval_state', '=', 'pending')]"
+                    groups="spp_drims.group_drims_approver"
+                />
+                <separator />
 
                 <!-- Group By -->
                 <group>
-                    <filter name="group_incident" string="Incident"
-                            context="{'group_by': 'incident_id'}"/>
-                    <filter name="group_cluster" string="Cluster"
-                            context="{'group_by': 'cluster_id'}"/>
-                    <filter name="group_area" string="Area"
-                            context="{'group_by': 'destination_area_id'}"/>
-                    <filter name="group_priority" string="Priority"
-                            context="{'group_by': 'priority_id'}"/>
-                    <filter name="group_state" string="Approval Status"
-                            context="{'group_by': 'approval_state'}"/>
-                    <filter name="group_date_needed" string="Date Needed"
-                            context="{'group_by': 'date_needed'}"/>
+                    <filter
+                        name="group_incident"
+                        string="Incident"
+                        context="{'group_by': 'incident_id'}"
+                    />
+                    <filter
+                        name="group_cluster"
+                        string="Cluster"
+                        context="{'group_by': 'cluster_id'}"
+                    />
+                    <filter
+                        name="group_area"
+                        string="Area"
+                        context="{'group_by': 'destination_area_id'}"
+                    />
+                    <filter
+                        name="group_priority"
+                        string="Priority"
+                        context="{'group_by': 'priority_id'}"
+                    />
+                    <filter
+                        name="group_state"
+                        string="Approval Status"
+                        context="{'group_by': 'approval_state'}"
+                    />
+                    <filter
+                        name="group_date_needed"
+                        string="Date Needed"
+                        context="{'group_by': 'date_needed'}"
+                    />
                 </group>
             </search>
         </field>
@@ -390,57 +602,77 @@
         <field name="name">spp.drims.request.kanban</field>
         <field name="model">spp.drims.request</field>
         <field name="arch" type="xml">
-            <kanban default_group_by="approval_state" class="o_kanban_small_column"
-                    quick_create="false" sample="1">
-                <field name="reference"/>
-                <field name="incident_id"/>
-                <field name="cluster_id"/>
-                <field name="destination_area_id"/>
-                <field name="priority_id"/>
-                <field name="is_life_threatening"/>
-                <field name="approval_state"/>
-                <field name="date_needed"/>
-                <field name="line_count"/>
-                <field name="total_value"/>
-                <progressbar field="approval_state"
-                             colors='{"draft": "secondary", "pending": "warning", "revision": "info", "approved": "success", "rejected": "danger"}'/>
+            <kanban
+                default_group_by="approval_state"
+                class="o_kanban_small_column"
+                quick_create="false"
+                sample="1"
+            >
+                <field name="reference" />
+                <field name="incident_id" />
+                <field name="cluster_id" />
+                <field name="destination_area_id" />
+                <field name="priority_id" />
+                <field name="is_life_threatening" />
+                <field name="approval_state" />
+                <field name="date_needed" />
+                <field name="line_count" />
+                <field name="total_value" />
+                <progressbar
+                    field="approval_state"
+                    colors='{"draft": "secondary", "pending": "warning", "revision": "info", "approved": "success", "rejected": "danger"}'
+                />
                 <templates>
                     <t t-name="card">
                         <div class="o_kanban_card_content">
                             <div class="o_kanban_primary_left">
                                 <strong>
-                                    <field name="reference"/>
+                                    <field name="reference" />
                                 </strong>
-                                <span t-if="record.is_life_threatening.raw_value" class="badge text-bg-danger ms-2">
+                                <span
+                                    t-if="record.is_life_threatening.raw_value"
+                                    class="badge text-bg-danger ms-2"
+                                >
                                     URGENT
                                 </span>
                             </div>
                             <div class="text-muted mb-1">
-                                <i class="fa fa-warning me-1" title="Incident"/>
-                                <field name="incident_id"/>
+                                <i class="fa fa-warning me-1" title="Incident" />
+                                <field name="incident_id" />
                             </div>
                             <div class="mb-1" t-if="record.cluster_id.raw_value">
-                                <i class="fa fa-users me-1 text-muted" title="Cluster"/>
-                                <field name="cluster_id"/>
+                                <i
+                                    class="fa fa-users me-1 text-muted"
+                                    title="Cluster"
+                                />
+                                <field name="cluster_id" />
                             </div>
                             <div class="mb-1">
-                                <i class="fa fa-map-marker me-1 text-muted" title="Area"/>
-                                <field name="destination_area_id"/>
+                                <i
+                                    class="fa fa-map-marker me-1 text-muted"
+                                    title="Area"
+                                />
+                                <field name="destination_area_id" />
                             </div>
                             <div class="d-flex align-items-center mb-2">
-                                <span t-if="record.priority_id.raw_value" class="badge me-2"
-                                      t-att-class="record.priority_id.value === 'Critical' ? 'text-bg-danger' :
-                                                   record.priority_id.value === 'High' ? 'text-bg-warning' : 'text-bg-info'">
-                                    <field name="priority_id"/>
+                                <span
+                                    t-if="record.priority_id.raw_value"
+                                    class="badge me-2"
+                                    t-att-class="record.priority_id.value === 'Critical' ? 'text-bg-danger' :
+                                                   record.priority_id.value === 'High' ? 'text-bg-warning' : 'text-bg-info'"
+                                >
+                                    <field name="priority_id" />
                                 </span>
                             </div>
-                            <div class="mt-2 d-flex justify-content-between align-items-center">
+                            <div
+                                class="mt-2 d-flex justify-content-between align-items-center"
+                            >
                                 <span class="text-muted small">
-                                    <i class="fa fa-calendar me-1" title="Needed"/>
-                                    <field name="date_needed"/>
+                                    <i class="fa fa-calendar me-1" title="Needed" />
+                                    <field name="date_needed" />
                                 </span>
                                 <span class="badge text-bg-secondary">
-                                    <field name="line_count"/> items
+                                    <field name="line_count" /> items
                                 </span>
                             </div>
                         </div>
@@ -458,15 +690,15 @@
         <field name="model">spp.drims.request.line</field>
         <field name="arch" type="xml">
             <list>
-                <field name="sequence" widget="handle"/>
-                <field name="product_id"/>
-                <field name="quantity_requested"/>
-                <field name="uom_id" groups="uom.group_uom"/>
-                <field name="unit_value"/>
-                <field name="value" sum="Total Value"/>
-                <field name="quantity_allocated"/>
-                <field name="quantity_delivered"/>
-                <field name="fulfillment_pct" widget="progressbar"/>
+                <field name="sequence" widget="handle" />
+                <field name="product_id" />
+                <field name="quantity_requested" />
+                <field name="uom_id" groups="uom.group_uom" />
+                <field name="unit_value" />
+                <field name="value" sum="Total Value" />
+                <field name="quantity_allocated" />
+                <field name="quantity_delivered" />
+                <field name="fulfillment_pct" widget="progressbar" />
             </list>
         </field>
     </record>
@@ -479,7 +711,7 @@
         <field name="model">spp.drims.request</field>
         <field name="arch" type="xml">
             <graph string="Request Status Distribution" type="pie" sample="1">
-                <field name="approval_state"/>
+                <field name="approval_state" />
             </graph>
         </field>
     </record>
@@ -490,10 +722,10 @@
         <field name="model">spp.drims.request</field>
         <field name="arch" type="xml">
             <pivot string="Request Analysis" sample="1">
-                <field name="incident_id" type="row"/>
-                <field name="approval_state" type="col"/>
-                <field name="total_value" type="measure"/>
-                <field name="line_count" type="measure"/>
+                <field name="incident_id" type="row" />
+                <field name="approval_state" type="col" />
+                <field name="total_value" type="measure" />
+                <field name="line_count" type="measure" />
             </pivot>
         </field>
     </record>
@@ -508,7 +740,7 @@
         <field name="path">drims-requests</field>
         <field name="res_model">spp.drims.request</field>
         <field name="view_mode">list,kanban,graph,pivot,form</field>
-        <field name="search_view_id" ref="spp_drims_request_search"/>
+        <field name="search_view_id" ref="spp_drims_request_search" />
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 No requests found
@@ -525,7 +757,7 @@
         <field name="path">my-drims-requests</field>
         <field name="res_model">spp.drims.request</field>
         <field name="view_mode">list,kanban,form</field>
-        <field name="search_view_id" ref="spp_drims_request_search"/>
+        <field name="search_view_id" ref="spp_drims_request_search" />
         <field name="context">{'search_default_my_requests': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
@@ -540,7 +772,7 @@
         <field name="path">pending-drims-requests</field>
         <field name="res_model">spp.drims.request</field>
         <field name="view_mode">list,kanban,form</field>
-        <field name="search_view_id" ref="spp_drims_request_search"/>
+        <field name="search_view_id" ref="spp_drims_request_search" />
         <field name="context">{'search_default_pending': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
@@ -555,7 +787,7 @@
         <field name="path">top-priority-requests</field>
         <field name="res_model">spp.drims.request</field>
         <field name="view_mode">list,form</field>
-        <field name="search_view_id" ref="spp_drims_request_search"/>
+        <field name="search_view_id" ref="spp_drims_request_search" />
         <field name="domain">[('approval_state', 'in', ['pending', 'approved'])]</field>
         <field name="context">{
             'search_default_pending': 1,
@@ -572,5 +804,4 @@
             </p>
         </field>
     </record>
-
 </odoo>

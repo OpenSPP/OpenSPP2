@@ -8,7 +8,6 @@ See: https://w3id.org/dpv#Purpose
 Includes social protection-specific purposes that extend DPV.
 -->
 <odoo noupdate="1">
-
     <!-- ================================================================== -->
     <!-- TOP-LEVEL DPV PURPOSES -->
     <!-- ================================================================== -->
@@ -27,7 +26,9 @@ Includes social protection-specific purposes that extend DPV.
         <field name="name">Personalisation</field>
         <field name="dpv_uri">https://w3id.org/dpv#Personalisation</field>
         <field name="dpv_concept">dpv:Personalisation</field>
-        <field name="description">Processing for personalising services or content</field>
+        <field
+            name="description"
+        >Processing for personalising services or content</field>
         <field name="sequence">20</field>
     </record>
 
@@ -63,7 +64,9 @@ Includes social protection-specific purposes that extend DPV.
         <field name="name">Legal Compliance</field>
         <field name="dpv_uri">https://w3id.org/dpv#LegalCompliance</field>
         <field name="dpv_concept">dpv:LegalCompliance</field>
-        <field name="description">Processing for compliance with legal obligations</field>
+        <field
+            name="description"
+        >Processing for compliance with legal obligations</field>
         <field name="sequence">60</field>
     </record>
 
@@ -84,7 +87,9 @@ Includes social protection-specific purposes that extend DPV.
         <field name="code">SPRegistration</field>
         <field name="name">Beneficiary Registration</field>
         <field name="parent_id" ref="purpose_service_provision" />
-        <field name="description">Processing for registering beneficiaries in social protection programs</field>
+        <field
+            name="description"
+        >Processing for registering beneficiaries in social protection programs</field>
         <field name="is_social_protection">True</field>
         <field name="sequence">11</field>
     </record>
@@ -93,7 +98,9 @@ Includes social protection-specific purposes that extend DPV.
         <field name="code">SPEligibilityAssessment</field>
         <field name="name">Eligibility Assessment</field>
         <field name="parent_id" ref="purpose_service_provision" />
-        <field name="description">Processing for assessing eligibility for benefits</field>
+        <field
+            name="description"
+        >Processing for assessing eligibility for benefits</field>
         <field name="is_social_protection">True</field>
         <field name="sequence">12</field>
     </record>
@@ -102,7 +109,9 @@ Includes social protection-specific purposes that extend DPV.
         <field name="code">SPEnrollment</field>
         <field name="name">Program Enrollment</field>
         <field name="parent_id" ref="purpose_service_provision" />
-        <field name="description">Processing for enrolling beneficiaries in programs</field>
+        <field
+            name="description"
+        >Processing for enrolling beneficiaries in programs</field>
         <field name="is_social_protection">True</field>
         <field name="sequence">13</field>
     </record>
@@ -111,7 +120,9 @@ Includes social protection-specific purposes that extend DPV.
         <field name="code">SPBenefitDelivery</field>
         <field name="name">Benefit Delivery</field>
         <field name="parent_id" ref="purpose_service_provision" />
-        <field name="description">Processing for delivering benefits to beneficiaries</field>
+        <field
+            name="description"
+        >Processing for delivering benefits to beneficiaries</field>
         <field name="is_social_protection">True</field>
         <field name="sequence">14</field>
     </record>
@@ -120,7 +131,9 @@ Includes social protection-specific purposes that extend DPV.
         <field name="code">SPGrievanceHandling</field>
         <field name="name">Grievance Handling</field>
         <field name="parent_id" ref="purpose_service_provision" />
-        <field name="description">Processing for handling grievances and complaints</field>
+        <field
+            name="description"
+        >Processing for handling grievances and complaints</field>
         <field name="is_social_protection">True</field>
         <field name="sequence">15</field>
     </record>
@@ -129,7 +142,9 @@ Includes social protection-specific purposes that extend DPV.
         <field name="code">SPMonitoringEvaluation</field>
         <field name="name">Monitoring &amp; Evaluation</field>
         <field name="parent_id" ref="purpose_research" />
-        <field name="description">Processing for program monitoring and evaluation</field>
+        <field
+            name="description"
+        >Processing for program monitoring and evaluation</field>
         <field name="is_social_protection">True</field>
         <field name="sequence">41</field>
     </record>
@@ -138,7 +153,9 @@ Includes social protection-specific purposes that extend DPV.
         <field name="code">SPDeduplication</field>
         <field name="name">Deduplication</field>
         <field name="parent_id" ref="purpose_identity_verification" />
-        <field name="description">Processing for detecting and removing duplicate registrations</field>
+        <field
+            name="description"
+        >Processing for detecting and removing duplicate registrations</field>
         <field name="is_social_protection">True</field>
         <field name="sequence">51</field>
     </record>
@@ -146,7 +163,9 @@ Includes social protection-specific purposes that extend DPV.
     <record id="purpose_sp_data_sharing" model="spp.consent.purpose">
         <field name="code">SPInterAgencySharing</field>
         <field name="name">Inter-Agency Data Sharing</field>
-        <field name="description">Processing for sharing data between agencies for coordinated service delivery</field>
+        <field
+            name="description"
+        >Processing for sharing data between agencies for coordinated service delivery</field>
         <field name="is_social_protection">True</field>
         <field name="sequence">80</field>
     </record>
@@ -155,9 +174,10 @@ Includes social protection-specific purposes that extend DPV.
         <field name="code">SPCaseManagement</field>
         <field name="name">Case Management</field>
         <field name="parent_id" ref="purpose_service_provision" />
-        <field name="description">Processing for managing beneficiary cases and referrals</field>
+        <field
+            name="description"
+        >Processing for managing beneficiary cases and referrals</field>
         <field name="is_social_protection">True</field>
         <field name="sequence">16</field>
     </record>
-
 </odoo>

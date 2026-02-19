@@ -1,61 +1,61 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-        <!-- API V2 Menu -->
-        <menuitem
-            id="menu_api_v2_root"
-            name="API V2"
-            parent="spp_registry.spp_configuration_menu_root"
-            sequence="50"
-            groups="spp_api_v2.group_api_v2_viewer"
-        />
+    <!-- API V2 Menu -->
+    <menuitem
+        id="menu_api_v2_root"
+        name="API V2"
+        parent="spp_registry.spp_configuration_menu_root"
+        sequence="50"
+        groups="spp_api_v2.group_api_v2_viewer"
+    />
 
-        <!-- API Clients Menu -->
-        <menuitem
-            id="menu_api_clients"
-            name="API Clients"
-            parent="menu_api_v2_root"
-            action="action_api_client"
-            sequence="10"
-            groups="spp_api_v2.group_api_v2_viewer"
-        />
+    <!-- API Clients Menu -->
+    <menuitem
+        id="menu_api_clients"
+        name="API Clients"
+        parent="menu_api_v2_root"
+        action="action_api_client"
+        sequence="10"
+        groups="spp_api_v2.group_api_v2_viewer"
+    />
 
-        <!-- API Extensions Menu -->
-        <menuitem
-            id="menu_api_extensions"
-            name="API Extensions"
-            parent="menu_api_v2_root"
-            action="action_api_extension"
-            sequence="20"
-            groups="spp_api_v2.group_api_v2_viewer"
-        />
+    <!-- API Extensions Menu -->
+    <menuitem
+        id="menu_api_extensions"
+        name="API Extensions"
+        parent="menu_api_v2_root"
+        action="action_api_extension"
+        sequence="20"
+        groups="spp_api_v2.group_api_v2_viewer"
+    />
 
-        <!-- API Paths Menu -->
-        <menuitem
-            id="menu_api_paths"
-            name="API Paths"
-            parent="menu_api_v2_root"
-            action="action_api_path"
-            sequence="30"
-            groups="spp_api_v2.group_api_v2_viewer"
-        />
+    <!-- API Paths Menu -->
+    <menuitem
+        id="menu_api_paths"
+        name="API Paths"
+        parent="menu_api_v2_root"
+        action="action_api_path"
+        sequence="30"
+        groups="spp_api_v2.group_api_v2_viewer"
+    />
 
-        <!-- API Filters Menu -->
-        <menuitem
-            id="menu_api_filters"
-            name="API Filters"
-            parent="menu_api_v2_root"
-            action="action_api_path_filter"
-            sequence="40"
-            groups="spp_api_v2.group_api_v2_viewer"
-        />
+    <!-- API Filters Menu -->
+    <menuitem
+        id="menu_api_filters"
+        name="API Filters"
+        parent="menu_api_v2_root"
+        action="action_api_path_filter"
+        sequence="40"
+        groups="spp_api_v2.group_api_v2_viewer"
+    />
 
-        <!-- Filter Presets Menu -->
-        <menuitem
-            id="menu_filter_presets"
-            name="Filter Presets"
-            parent="menu_api_v2_root"
-            action="action_api_filter_preset"
-            sequence="50"
-            groups="spp_api_v2.group_api_v2_viewer"
-        />
+    <!-- Filter Presets Menu -->
+    <menuitem
+        id="menu_filter_presets"
+        name="Filter Presets"
+        parent="menu_api_v2_root"
+        action="action_api_filter_preset"
+        sequence="50"
+        groups="spp_api_v2.group_api_v2_viewer"
+    />
 </odoo>

@@ -1,21 +1,28 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Studio Event Type Tree View -->
     <record id="view_studio_event_type_tree" model="ir.ui.view">
         <field name="name">spp.studio.event.type.tree</field>
         <field name="model">spp.studio.event.type</field>
         <field name="arch" type="xml">
-            <list string="Event Types" decoration-muted="state == 'inactive'" decoration-success="state == 'active'">
-                <field name="name"/>
-                <field name="technical_name"/>
-                <field name="target_type"/>
-                <field name="data_field_count" string="Fields"/>
-                <field name="state" widget="badge"
-                       decoration-info="state == 'draft'"
-                       decoration-success="state == 'active'"
-                       decoration-muted="state == 'inactive'"/>
-                <field name="activated_date" optional="hide"/>
-                <field name="created_by_id" optional="hide"/>
+            <list
+                string="Event Types"
+                decoration-muted="state == 'inactive'"
+                decoration-success="state == 'active'"
+            >
+                <field name="name" />
+                <field name="technical_name" />
+                <field name="target_type" />
+                <field name="data_field_count" string="Fields" />
+                <field
+                    name="state"
+                    widget="badge"
+                    decoration-info="state == 'draft'"
+                    decoration-success="state == 'active'"
+                    decoration-muted="state == 'inactive'"
+                />
+                <field name="activated_date" optional="hide" />
+                <field name="created_by_id" optional="hide" />
             </list>
         </field>
     </record>
@@ -25,29 +32,42 @@
         <field name="name">spp.studio.event.type.tree.editable</field>
         <field name="model">spp.studio.event.type</field>
         <field name="arch" type="xml">
-            <list string="Event Types (Table Edit)"
-                  editable="bottom"
-                  decoration-muted="state == 'inactive'"
-                  decoration-success="state == 'active'">
-                <field name="name" readonly="state == 'active'"/>
-                <field name="target_type" readonly="state == 'active'"/>
-                <field name="description" optional="show" readonly="state == 'active'"/>
-                <field name="requires_approval" readonly="state == 'active'"/>
-                <field name="approval_definition_id"
-                       readonly="state == 'active'"
-                       column_invisible="1"
-                       options="{'no_create': True}"/>
-                <field name="data_field_count" string="Fields"/>
-                <field name="state" widget="badge"
-                       decoration-info="state == 'draft'"
-                       decoration-success="state == 'active'"
-                       decoration-muted="state == 'inactive'"/>
-                <button name="action_activate"
-                        string="Activate"
-                        type="object"
-                        icon="fa-check"
-                        class="btn-link text-success"
-                        invisible="state != 'draft'"/>
+            <list
+                string="Event Types (Table Edit)"
+                editable="bottom"
+                decoration-muted="state == 'inactive'"
+                decoration-success="state == 'active'"
+            >
+                <field name="name" readonly="state == 'active'" />
+                <field name="target_type" readonly="state == 'active'" />
+                <field
+                    name="description"
+                    optional="show"
+                    readonly="state == 'active'"
+                />
+                <field name="requires_approval" readonly="state == 'active'" />
+                <field
+                    name="approval_definition_id"
+                    readonly="state == 'active'"
+                    column_invisible="1"
+                    options="{'no_create': True}"
+                />
+                <field name="data_field_count" string="Fields" />
+                <field
+                    name="state"
+                    widget="badge"
+                    decoration-info="state == 'draft'"
+                    decoration-success="state == 'active'"
+                    decoration-muted="state == 'inactive'"
+                />
+                <button
+                    name="action_activate"
+                    string="Activate"
+                    type="object"
+                    icon="fa-check"
+                    class="btn-link text-success"
+                    invisible="state != 'draft'"
+                />
             </list>
         </field>
     </record>
@@ -59,247 +79,363 @@
         <field name="arch" type="xml">
             <form string="Event Type">
                 <header>
-                    <button name="action_activate"
-                            string="Activate"
-                            type="object"
-                            class="oe_highlight"
-                            invisible="state != 'draft'"
-                            groups="spp_studio.group_studio_manager"/>
-                    <button name="action_deactivate"
-                            string="Deactivate"
-                            type="object"
-                            invisible="state != 'active'"
-                            groups="spp_studio.group_studio_manager"/>
-                    <button name="action_reactivate"
-                            string="Reactivate"
-                            type="object"
-                            invisible="state != 'inactive'"
-                            groups="spp_studio.group_studio_manager"/>
-                    <button name="action_set_draft"
-                            string="Set to Draft"
-                            type="object"
-                            invisible="state != 'inactive'"
-                            groups="spp_studio.group_studio_manager"/>
-                    <button name="action_open_event_type"
-                            string="View Event Type"
-                            type="object"
-                            class="btn-secondary"
-                            invisible="not spp_event_type_id"
-                            groups="spp_studio.group_studio_viewer"/>
-                    <button name="action_view_events"
-                            string="View Events"
-                            type="object"
-                            class="btn-secondary"
-                            invisible="not spp_event_type_id"
-                            groups="spp_studio.group_studio_viewer"/>
-                    <button name="action_enter_event_data"
-                            string="Enter Event"
-                            type="object"
-                            class="oe_highlight"
-                            invisible="state != 'active'"
-                            groups="spp_studio.group_studio_viewer"/>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,active"/>
+                    <button
+                        name="action_activate"
+                        string="Activate"
+                        type="object"
+                        class="oe_highlight"
+                        invisible="state != 'draft'"
+                        groups="spp_studio.group_studio_manager"
+                    />
+                    <button
+                        name="action_deactivate"
+                        string="Deactivate"
+                        type="object"
+                        invisible="state != 'active'"
+                        groups="spp_studio.group_studio_manager"
+                    />
+                    <button
+                        name="action_reactivate"
+                        string="Reactivate"
+                        type="object"
+                        invisible="state != 'inactive'"
+                        groups="spp_studio.group_studio_manager"
+                    />
+                    <button
+                        name="action_set_draft"
+                        string="Set to Draft"
+                        type="object"
+                        invisible="state != 'inactive'"
+                        groups="spp_studio.group_studio_manager"
+                    />
+                    <button
+                        name="action_open_event_type"
+                        string="View Event Type"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="not spp_event_type_id"
+                        groups="spp_studio.group_studio_viewer"
+                    />
+                    <button
+                        name="action_view_events"
+                        string="View Events"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="not spp_event_type_id"
+                        groups="spp_studio.group_studio_viewer"
+                    />
+                    <button
+                        name="action_enter_event_data"
+                        string="Enter Event"
+                        type="object"
+                        class="oe_highlight"
+                        invisible="state != 'active'"
+                        groups="spp_studio.group_studio_viewer"
+                    />
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="draft,active"
+                    />
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button name="action_view_events"
-                                type="object"
-                                class="oe_stat_button"
-                                icon="fa-calendar-check-o"
-                                invisible="not spp_event_type_id">
+                        <button
+                            name="action_view_events"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-calendar-check-o"
+                            invisible="not spp_event_type_id"
+                        >
                             <div class="o_field_widget o_stat_info">
                                 <span class="o_stat_text">Events</span>
                             </div>
                         </button>
                     </div>
-                    <widget name="web_ribbon" title="Draft" bg_color="text-bg-info" invisible="state != 'draft'"/>
-                    <widget name="web_ribbon" title="Inactive" bg_color="text-bg-secondary" invisible="state != 'inactive'"/>
+                    <widget
+                        name="web_ribbon"
+                        title="Draft"
+                        bg_color="text-bg-info"
+                        invisible="state != 'draft'"
+                    />
+                    <widget
+                        name="web_ribbon"
+                        title="Inactive"
+                        bg_color="text-bg-secondary"
+                        invisible="state != 'inactive'"
+                    />
                     <div class="oe_title">
-                        <label for="name" string="Event Type Name"/>
+                        <label for="name" string="Event Type Name" />
                         <h1>
-                            <field name="name" placeholder="e.g., Health Screening" readonly="state == 'active'"/>
+                            <field
+                                name="name"
+                                placeholder="e.g., Health Screening"
+                                readonly="state == 'active'"
+                            />
                         </h1>
                     </div>
                     <group>
                         <group string="Basic Information">
-                            <field name="technical_name" readonly="1"/>
-                            <field name="target_type" readonly="state == 'active'"/>
-                            <field name="description" readonly="state == 'active'"/>
+                            <field name="technical_name" readonly="1" />
+                            <field name="target_type" readonly="state == 'active'" />
+                            <field name="description" readonly="state == 'active'" />
                         </group>
                         <group string="Configuration">
-                            <field name="kobo_form_id" readonly="state == 'active'"/>
-                            <field name="allow_multiple" readonly="state == 'active'"/>
-                            <field name="requires_approval" readonly="state == 'active'"/>
-                            <field name="approval_definition_id"
-                                   readonly="state == 'active'"
-                                   invisible="not requires_approval"
-                                   required="requires_approval"
-                                   options="{'no_create': True}"/>
-                            <field name="spp_event_type_id" invisible="1"/>
+                            <field name="kobo_form_id" readonly="state == 'active'" />
+                            <field name="allow_multiple" readonly="state == 'active'" />
+                            <field
+                                name="requires_approval"
+                                readonly="state == 'active'"
+                            />
+                            <field
+                                name="approval_definition_id"
+                                readonly="state == 'active'"
+                                invisible="not requires_approval"
+                                required="requires_approval"
+                                options="{'no_create': True}"
+                            />
+                            <field name="spp_event_type_id" invisible="1" />
                         </group>
                     </group>
                     <notebook>
                         <page name="fields" string="Fields">
-                            <field name="data_fields" readonly="state == 'active'" nolabel="1">
+                            <field
+                                name="data_fields"
+                                readonly="state == 'active'"
+                                nolabel="1"
+                            >
                                 <list string="Event Fields" editable="bottom">
-                                    <field name="sequence" widget="handle"/>
-                                    <field name="label" required="1"/>
-                                    <field name="technical_name" readonly="1"/>
-                                    <field name="field_type" required="1"/>
-                                    <field name="field_group_id"
-                                           string="Group"
-                                           domain="[('event_type_id', '=', parent.id)]"
-                                           options="{'no_create': True, 'no_create_edit': True}"
-                                           column_invisible="parent.field_group_count == 0"/>
-                                    <field name="selection_options"
-                                           column_invisible="parent.state == 'active'"
-                                           invisible="field_type not in ('selection', 'multi_select')"/>
-                                    <field name="link_model_id"
-                                           column_invisible="parent.state == 'active'"
-                                           invisible="field_type != 'link'"
-                                           options="{'no_create': True}"/>
-                                    <field name="is_required"/>
-                                    <field name="validation_type" optional="hide"/>
-                                    <field name="visibility_condition" optional="hide"/>
-                                    <field name="help_text" optional="hide"/>
-                                    <field name="event_type_state" column_invisible="1"/>
-                                    <field name="event_type_id" column_invisible="1"/>
+                                    <field name="sequence" widget="handle" />
+                                    <field name="label" required="1" />
+                                    <field name="technical_name" readonly="1" />
+                                    <field name="field_type" required="1" />
+                                    <field
+                                        name="field_group_id"
+                                        string="Group"
+                                        domain="[('event_type_id', '=', parent.id)]"
+                                        options="{'no_create': True, 'no_create_edit': True}"
+                                        column_invisible="parent.field_group_count == 0"
+                                    />
+                                    <field
+                                        name="selection_options"
+                                        column_invisible="parent.state == 'active'"
+                                        invisible="field_type not in ('selection', 'multi_select')"
+                                    />
+                                    <field
+                                        name="link_model_id"
+                                        column_invisible="parent.state == 'active'"
+                                        invisible="field_type != 'link'"
+                                        options="{'no_create': True}"
+                                    />
+                                    <field name="is_required" />
+                                    <field name="validation_type" optional="hide" />
+                                    <field
+                                        name="visibility_condition"
+                                        optional="hide"
+                                    />
+                                    <field name="help_text" optional="hide" />
+                                    <field
+                                        name="event_type_state"
+                                        column_invisible="1"
+                                    />
+                                    <field name="event_type_id" column_invisible="1" />
                                 </list>
                                 <form string="Event Field">
                                     <group>
                                         <group string="Field Definition">
-                                            <field name="label" required="1"/>
-                                            <field name="technical_name" readonly="1"/>
-                                            <field name="field_type" required="1"/>
-                                            <field name="field_group_id"
-                                                   string="Field Group"
-                                                   domain="[('event_type_id', '=', event_type_id)]"
-                                                   options="{'no_create': True}"/>
-                                            <field name="is_required"/>
-                                            <field name="sequence"/>
+                                            <field name="label" required="1" />
+                                            <field name="technical_name" readonly="1" />
+                                            <field name="field_type" required="1" />
+                                            <field
+                                                name="field_group_id"
+                                                string="Field Group"
+                                                domain="[('event_type_id', '=', event_type_id)]"
+                                                options="{'no_create': True}"
+                                            />
+                                            <field name="is_required" />
+                                            <field name="sequence" />
                                         </group>
                                         <group string="Type-Specific Options">
-                                            <field name="selection_options"
-                                                   invisible="field_type not in ('selection', 'multi_select')"
-                                                   placeholder="value1|Label 1&#10;value2|Label 2&#10;value3|Label 3"/>
-                                            <field name="link_model_id"
-                                                   invisible="field_type != 'link'"
-                                                   options="{'no_create': True}"/>
-                                            <field name="link_domain"
-                                                   invisible="field_type != 'link'"
-                                                   placeholder="[('active', '=', True)]"/>
+                                            <field
+                                                name="selection_options"
+                                                invisible="field_type not in ('selection', 'multi_select')"
+                                                placeholder="value1|Label 1&#10;value2|Label 2&#10;value3|Label 3"
+                                            />
+                                            <field
+                                                name="link_model_id"
+                                                invisible="field_type != 'link'"
+                                                options="{'no_create': True}"
+                                            />
+                                            <field
+                                                name="link_domain"
+                                                invisible="field_type != 'link'"
+                                                placeholder="[('active', '=', True)]"
+                                            />
                                         </group>
                                     </group>
-                                    <group string="Validation" invisible="field_type in ('boolean', 'link')">
+                                    <group
+                                        string="Validation"
+                                        invisible="field_type in ('boolean', 'link')"
+                                    >
                                         <group>
-                                            <field name="validation_type"/>
+                                            <field name="validation_type" />
                                         </group>
                                         <group>
-                                            <field name="validation_min"
-                                                   invisible="validation_type != 'range' or field_type not in ('integer', 'decimal')"/>
-                                            <field name="validation_max"
-                                                   invisible="validation_type != 'range' or field_type not in ('integer', 'decimal')"/>
-                                            <field name="validation_regex"
-                                                   invisible="validation_type != 'regex' or field_type not in ('text', 'long_text')"/>
-                                            <field name="validation_error_message"
-                                                   invisible="validation_type == 'none'"/>
+                                            <field
+                                                name="validation_min"
+                                                invisible="validation_type != 'range' or field_type not in ('integer', 'decimal')"
+                                            />
+                                            <field
+                                                name="validation_max"
+                                                invisible="validation_type != 'range' or field_type not in ('integer', 'decimal')"
+                                            />
+                                            <field
+                                                name="validation_regex"
+                                                invisible="validation_type != 'regex' or field_type not in ('text', 'long_text')"
+                                            />
+                                            <field
+                                                name="validation_error_message"
+                                                invisible="validation_type == 'none'"
+                                            />
                                         </group>
                                     </group>
                                     <group string="Conditional Visibility">
                                         <group>
-                                            <field name="visibility_condition"/>
+                                            <field name="visibility_condition" />
                                         </group>
-                                        <group invisible="visibility_condition != 'conditional'">
-                                            <field name="visibility_field_id"
-                                                   domain="[('event_type_id', '=', event_type_id), ('id', '!=', id)]"
-                                                   required="visibility_condition == 'conditional'"/>
-                                            <field name="visibility_operator"/>
-                                            <field name="visibility_value"
-                                                   invisible="visibility_operator in ('set', 'not_set')"/>
+                                        <group
+                                            invisible="visibility_condition != 'conditional'"
+                                        >
+                                            <field
+                                                name="visibility_field_id"
+                                                domain="[('event_type_id', '=', event_type_id), ('id', '!=', id)]"
+                                                required="visibility_condition == 'conditional'"
+                                            />
+                                            <field name="visibility_operator" />
+                                            <field
+                                                name="visibility_value"
+                                                invisible="visibility_operator in ('set', 'not_set')"
+                                            />
                                         </group>
-                                        <field name="event_type_id" invisible="1"/>
+                                        <field name="event_type_id" invisible="1" />
                                     </group>
                                     <group string="Help Text">
-                                        <field name="help_text" nolabel="1" placeholder="Optional help text shown to users..."/>
+                                        <field
+                                            name="help_text"
+                                            nolabel="1"
+                                            placeholder="Optional help text shown to users..."
+                                        />
                                     </group>
                                 </form>
                             </field>
-                            <div class="alert alert-warning" role="alert" invisible="data_field_count > 0 or state != 'draft'">
-                                <strong>No fields defined yet.</strong> Click "Add a line" to add fields, or use the wizard to create a complete event type.
+                            <div
+                                class="alert alert-warning"
+                                role="alert"
+                                invisible="data_field_count > 0 or state != 'draft'"
+                            >
+                                <strong
+                            >No fields defined yet.</strong> Click "Add a line" to add fields, or use the wizard to create a complete event type.
                             </div>
-                            <field name="data_field_count" invisible="1"/>
+                            <field name="data_field_count" invisible="1" />
                         </page>
                         <page name="field_groups" string="Field Groups">
-                            <div class="alert alert-info" role="alert" invisible="field_group_count > 0">
-                                <strong>Optional:</strong> Create field groups to organize fields into tabs in the data entry form.
+                            <div
+                                class="alert alert-info"
+                                role="alert"
+                                invisible="field_group_count > 0"
+                            >
+                                <strong
+                            >Optional:</strong> Create field groups to organize fields into tabs in the data entry form.
                                 Fields without a group will appear in a "General" tab.
                             </div>
-                            <field name="field_group_ids" readonly="state == 'active'" nolabel="1">
+                            <field
+                                name="field_group_ids"
+                                readonly="state == 'active'"
+                                nolabel="1"
+                            >
                                 <list string="Field Groups" editable="bottom">
-                                    <field name="sequence" widget="handle"/>
-                                    <field name="name" required="1"/>
-                                    <field name="field_count" string="Fields"/>
-                                    <field name="event_type_state" column_invisible="1"/>
-                                    <field name="event_type_id" column_invisible="1"/>
+                                    <field name="sequence" widget="handle" />
+                                    <field name="name" required="1" />
+                                    <field name="field_count" string="Fields" />
+                                    <field
+                                        name="event_type_state"
+                                        column_invisible="1"
+                                    />
+                                    <field name="event_type_id" column_invisible="1" />
                                 </list>
                                 <form string="Field Group">
                                     <group>
                                         <group string="Group Information">
-                                            <field name="name" required="1"/>
-                                            <field name="sequence"/>
+                                            <field name="name" required="1" />
+                                            <field name="sequence" />
                                         </group>
                                         <group string="Statistics">
-                                            <field name="field_count" readonly="1"/>
+                                            <field name="field_count" readonly="1" />
                                         </group>
                                     </group>
                                     <group string="Fields in this Group">
-                                        <field name="field_ids" nolabel="1" readonly="1">
+                                        <field
+                                            name="field_ids"
+                                            nolabel="1"
+                                            readonly="1"
+                                        >
                                             <list>
-                                                <field name="sequence" widget="handle"/>
-                                                <field name="label"/>
-                                                <field name="field_type"/>
-                                                <field name="is_required"/>
+                                                <field
+                                                    name="sequence"
+                                                    widget="handle"
+                                                />
+                                                <field name="label" />
+                                                <field name="field_type" />
+                                                <field name="is_required" />
                                             </list>
                                         </field>
                                     </group>
-                                    <field name="event_type_id" invisible="1"/>
+                                    <field name="event_type_id" invisible="1" />
                                 </form>
                             </field>
-                            <field name="field_group_count" invisible="1"/>
+                            <field name="field_group_count" invisible="1" />
                         </page>
                         <page name="programs" string="Programs">
-                            <field name="program_ids" nolabel="1" readonly="state == 'active'">
+                            <field
+                                name="program_ids"
+                                nolabel="1"
+                                readonly="state == 'active'"
+                            >
                                 <list>
-                                    <field name="name"/>
-                                    <field name="state" widget="badge"/>
+                                    <field name="name" />
+                                    <field name="state" widget="badge" />
                                 </list>
                             </field>
                             <div class="alert alert-info" role="alert">
-                                <strong>Program Visibility:</strong> If programs are selected, this event type
+                                <strong
+                            >Program Visibility:</strong> If programs are selected, this event type
                                 will only be visible in those programs. Leave empty for global visibility.
                             </div>
                         </page>
                         <page name="audit" string="Audit Trail">
                             <group>
                                 <group string="Created">
-                                    <field name="created_by_id" readonly="1"/>
-                                    <field name="created_date" readonly="1"/>
+                                    <field name="created_by_id" readonly="1" />
+                                    <field name="created_date" readonly="1" />
                                 </group>
-                                <group string="Activated" invisible="not activated_by_id">
-                                    <field name="activated_by_id" readonly="1"/>
-                                    <field name="activated_date" readonly="1"/>
+                                <group
+                                    string="Activated"
+                                    invisible="not activated_by_id"
+                                >
+                                    <field name="activated_by_id" readonly="1" />
+                                    <field name="activated_date" readonly="1" />
                                 </group>
                             </group>
                             <group invisible="not deactivated_by_id">
                                 <group string="Deactivated">
-                                    <field name="deactivated_by_id" readonly="1"/>
-                                    <field name="deactivated_date" readonly="1"/>
+                                    <field name="deactivated_by_id" readonly="1" />
+                                    <field name="deactivated_date" readonly="1" />
                                 </group>
                             </group>
                         </page>
                     </notebook>
                 </sheet>
-                <chatter/>
+                <chatter />
             </form>
         </field>
     </record>
@@ -310,34 +446,37 @@
         <field name="model">spp.studio.event.type</field>
         <field name="arch" type="xml">
             <kanban string="Event Types" class="o_kanban_mobile">
-                <field name="name"/>
-                <field name="technical_name"/>
-                <field name="target_type"/>
-                <field name="state"/>
-                <field name="data_field_count"/>
+                <field name="name" />
+                <field name="technical_name" />
+                <field name="target_type" />
+                <field name="state" />
+                <field name="data_field_count" />
                 <templates>
                     <t t-name="card">
                         <div class="oe_kanban_global_click">
                             <div class="o_kanban_record_top">
                                 <div class="o_kanban_record_headings">
                                     <strong class="o_kanban_record_title">
-                                        <field name="name"/>
+                                        <field name="name" />
                                     </strong>
-                                    <br/>
+                                    <br />
                                     <span class="text-muted">
-                                        <field name="technical_name"/>
+                                        <field name="technical_name" />
                                     </span>
                                 </div>
                                 <span class="float-end">
-                                    <field name="state" widget="badge"
-                                           decoration-info="state == 'draft'"
-                                           decoration-success="state == 'active'"
-                                           decoration-muted="state == 'inactive'"/>
+                                    <field
+                                        name="state"
+                                        widget="badge"
+                                        decoration-info="state == 'draft'"
+                                        decoration-success="state == 'active'"
+                                        decoration-muted="state == 'inactive'"
+                                    />
                                 </span>
                             </div>
                             <div class="o_kanban_record_body">
-                                <field name="target_type"/>
-                                • <field name="data_field_count"/> fields
+                                <field name="target_type" />
+                                • <field name="data_field_count" /> fields
                             </div>
                         </div>
                     </t>
@@ -352,21 +491,60 @@
         <field name="model">spp.studio.event.type</field>
         <field name="arch" type="xml">
             <search string="Event Types">
-                <field name="name" string="Name or Code"
-                       filter_domain="['|', ('name', 'ilike', self), ('technical_name', 'ilike', self)]"/>
-                <field name="target_type"/>
-                <separator/>
-                <filter name="filter_draft" string="Draft" domain="[('state', '=', 'draft')]"/>
-                <filter name="filter_active" string="Active" domain="[('state', '=', 'active')]"/>
-                <filter name="filter_inactive" string="Inactive" domain="[('state', '=', 'inactive')]"/>
-                <separator/>
-                <filter name="filter_individual" string="Individual" domain="[('target_type', '=', 'individual')]"/>
-                <filter name="filter_group" string="Group" domain="[('target_type', '=', 'group')]"/>
-                <filter name="filter_both" string="Both" domain="[('target_type', '=', 'both')]"/>
+                <field
+                    name="name"
+                    string="Name or Code"
+                    filter_domain="['|', ('name', 'ilike', self), ('technical_name', 'ilike', self)]"
+                />
+                <field name="target_type" />
+                <separator />
+                <filter
+                    name="filter_draft"
+                    string="Draft"
+                    domain="[('state', '=', 'draft')]"
+                />
+                <filter
+                    name="filter_active"
+                    string="Active"
+                    domain="[('state', '=', 'active')]"
+                />
+                <filter
+                    name="filter_inactive"
+                    string="Inactive"
+                    domain="[('state', '=', 'inactive')]"
+                />
+                <separator />
+                <filter
+                    name="filter_individual"
+                    string="Individual"
+                    domain="[('target_type', '=', 'individual')]"
+                />
+                <filter
+                    name="filter_group"
+                    string="Group"
+                    domain="[('target_type', '=', 'group')]"
+                />
+                <filter
+                    name="filter_both"
+                    string="Both"
+                    domain="[('target_type', '=', 'both')]"
+                />
                 <group>
-                    <filter name="group_state" string="State" context="{'group_by': 'state'}"/>
-                    <filter name="group_target_type" string="Target Type" context="{'group_by': 'target_type'}"/>
-                    <filter name="group_created_by" string="Created By" context="{'group_by': 'created_by_id'}"/>
+                    <filter
+                        name="group_state"
+                        string="State"
+                        context="{'group_by': 'state'}"
+                    />
+                    <filter
+                        name="group_target_type"
+                        string="Target Type"
+                        context="{'group_by': 'target_type'}"
+                    />
+                    <filter
+                        name="group_created_by"
+                        string="Created By"
+                        context="{'group_by': 'created_by_id'}"
+                    />
                 </group>
             </search>
         </field>
@@ -378,14 +556,15 @@
         <field name="path">studio-event-types</field>
         <field name="res_model">spp.studio.event.type</field>
         <field name="view_mode">kanban,list,form</field>
-        <field name="search_view_id" ref="view_studio_event_type_search"/>
+        <field name="search_view_id" ref="view_studio_event_type_search" />
         <field name="context">{'search_default_filter_active': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Create your first event type
             </p>
             <p>
-                Event types let you collect custom data about individuals or groups.<br/>
+                Event types let you collect custom data about individuals or groups.<br
+            />
                 Use the wizard to quickly create a new event type with fields.
             </p>
         </field>
@@ -396,8 +575,8 @@
         <field name="name">Event Types (Table Edit)</field>
         <field name="res_model">spp.studio.event.type</field>
         <field name="view_mode">list,form</field>
-        <field name="view_id" ref="view_studio_event_type_tree_editable"/>
-        <field name="search_view_id" ref="view_studio_event_type_search"/>
+        <field name="view_id" ref="view_studio_event_type_tree_editable" />
+        <field name="search_view_id" ref="view_studio_event_type_search" />
         <field name="context">{'search_default_filter_draft': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">

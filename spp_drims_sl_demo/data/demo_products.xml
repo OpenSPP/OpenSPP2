@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
     <!-- Sri Lanka Relief Items Product Catalog -->
 
@@ -8,102 +8,102 @@
     </record>
     <record id="categ_food" model="product.category">
         <field name="name">Food &amp; Nutrition</field>
-        <field name="parent_id" ref="categ_relief"/>
+        <field name="parent_id" ref="categ_relief" />
     </record>
     <record id="categ_water" model="product.category">
         <field name="name">Water &amp; Beverages</field>
-        <field name="parent_id" ref="categ_relief"/>
+        <field name="parent_id" ref="categ_relief" />
     </record>
     <record id="categ_medical" model="product.category">
         <field name="name">Medical &amp; Health</field>
-        <field name="parent_id" ref="categ_relief"/>
+        <field name="parent_id" ref="categ_relief" />
     </record>
     <record id="categ_shelter" model="product.category">
         <field name="name">Shelter &amp; Housing</field>
-        <field name="parent_id" ref="categ_relief"/>
+        <field name="parent_id" ref="categ_relief" />
     </record>
     <record id="categ_hygiene" model="product.category">
         <field name="name">Hygiene &amp; WASH</field>
-        <field name="parent_id" ref="categ_relief"/>
+        <field name="parent_id" ref="categ_relief" />
     </record>
     <record id="categ_clothing" model="product.category">
         <field name="name">Clothing &amp; Bedding</field>
-        <field name="parent_id" ref="categ_relief"/>
+        <field name="parent_id" ref="categ_relief" />
     </record>
     <record id="categ_equipment" model="product.category">
         <field name="name">Equipment &amp; Tools</field>
-        <field name="parent_id" ref="categ_relief"/>
+        <field name="parent_id" ref="categ_relief" />
     </record>
 
     <!-- Food Products -->
     <record id="product_rice_5kg" model="product.template">
         <field name="name">Rice (5kg pack)</field>
         <field name="type">consu</field>
-        <field name="is_storable" eval="True"/>
-        <field name="categ_id" ref="categ_food"/>
+        <field name="is_storable" eval="True" />
+        <field name="categ_id" ref="categ_food" />
         <field name="list_price">750</field>
         <field name="standard_price">650</field>
-        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="uom_id" ref="uom.product_uom_unit" />
         <field name="tracking">none</field>
     </record>
     <record id="product_rice_25kg" model="product.template">
         <field name="name">Rice (25kg sack)</field>
         <field name="type">consu</field>
-        <field name="is_storable" eval="True"/>
-        <field name="categ_id" ref="categ_food"/>
+        <field name="is_storable" eval="True" />
+        <field name="categ_id" ref="categ_food" />
         <field name="list_price">3500</field>
         <field name="standard_price">3000</field>
-        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="uom_id" ref="uom.product_uom_unit" />
         <field name="tracking">none</field>
     </record>
     <record id="product_dhal" model="product.template">
         <field name="name">Dhal (1kg pack)</field>
         <field name="type">consu</field>
-        <field name="is_storable" eval="True"/>
-        <field name="categ_id" ref="categ_food"/>
+        <field name="is_storable" eval="True" />
+        <field name="categ_id" ref="categ_food" />
         <field name="list_price">450</field>
         <field name="standard_price">380</field>
-        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="uom_id" ref="uom.product_uom_unit" />
         <field name="tracking">none</field>
     </record>
     <record id="product_canned_fish" model="product.template">
         <field name="name">Canned Fish (400g)</field>
         <field name="type">consu</field>
-        <field name="is_storable" eval="True"/>
-        <field name="categ_id" ref="categ_food"/>
+        <field name="is_storable" eval="True" />
+        <field name="categ_id" ref="categ_food" />
         <field name="list_price">350</field>
         <field name="standard_price">280</field>
-        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="uom_id" ref="uom.product_uom_unit" />
         <field name="tracking">none</field>
     </record>
     <record id="product_cooking_oil" model="product.template">
         <field name="name">Cooking Oil (2L)</field>
         <field name="type">consu</field>
-        <field name="is_storable" eval="True"/>
-        <field name="categ_id" ref="categ_food"/>
+        <field name="is_storable" eval="True" />
+        <field name="categ_id" ref="categ_food" />
         <field name="list_price">1200</field>
         <field name="standard_price">1000</field>
-        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="uom_id" ref="uom.product_uom_unit" />
         <field name="tracking">none</field>
     </record>
     <record id="product_infant_formula" model="product.template">
         <field name="name">Infant Formula (400g)</field>
         <field name="type">consu</field>
-        <field name="is_storable" eval="True"/>
-        <field name="categ_id" ref="categ_food"/>
+        <field name="is_storable" eval="True" />
+        <field name="categ_id" ref="categ_food" />
         <field name="list_price">2500</field>
         <field name="standard_price">2200</field>
-        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="uom_id" ref="uom.product_uom_unit" />
         <field name="tracking">none</field>
     </record>
     <record id="product_biscuits" model="product.template">
         <field name="name">High Energy Biscuits (Pack)</field>
         <field name="type">consu</field>
-        <field name="is_storable" eval="True"/>
-        <field name="categ_id" ref="categ_food"/>
+        <field name="is_storable" eval="True" />
+        <field name="categ_id" ref="categ_food" />
         <field name="list_price">150</field>
         <field name="standard_price">120</field>
-        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="uom_id" ref="uom.product_uom_unit" />
         <field name="tracking">none</field>
     </record>
 
@@ -111,30 +111,30 @@
     <record id="product_bottled_water" model="product.template">
         <field name="name">Bottled Water (1.5L)</field>
         <field name="type">consu</field>
-        <field name="is_storable" eval="True"/>
-        <field name="categ_id" ref="categ_water"/>
+        <field name="is_storable" eval="True" />
+        <field name="categ_id" ref="categ_water" />
         <field name="list_price">80</field>
         <field name="standard_price">60</field>
-        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="uom_id" ref="uom.product_uom_unit" />
     </record>
     <record id="product_water_purification" model="product.template">
         <field name="name">Water Purification Tablets (100 tabs)</field>
         <field name="type">consu</field>
-        <field name="is_storable" eval="True"/>
-        <field name="categ_id" ref="categ_water"/>
+        <field name="is_storable" eval="True" />
+        <field name="categ_id" ref="categ_water" />
         <field name="list_price">350</field>
         <field name="standard_price">280</field>
-        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="uom_id" ref="uom.product_uom_unit" />
         <field name="tracking">none</field>
     </record>
     <record id="product_ors" model="product.template">
         <field name="name">Oral Rehydration Salts (Pack of 10)</field>
         <field name="type">consu</field>
-        <field name="is_storable" eval="True"/>
-        <field name="categ_id" ref="categ_water"/>
+        <field name="is_storable" eval="True" />
+        <field name="categ_id" ref="categ_water" />
         <field name="list_price">150</field>
         <field name="standard_price">100</field>
-        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="uom_id" ref="uom.product_uom_unit" />
         <field name="tracking">none</field>
     </record>
 
@@ -142,40 +142,40 @@
     <record id="product_first_aid_kit" model="product.template">
         <field name="name">First Aid Kit (Family)</field>
         <field name="type">consu</field>
-        <field name="is_storable" eval="True"/>
-        <field name="categ_id" ref="categ_medical"/>
+        <field name="is_storable" eval="True" />
+        <field name="categ_id" ref="categ_medical" />
         <field name="list_price">2500</field>
         <field name="standard_price">2000</field>
-        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="uom_id" ref="uom.product_uom_unit" />
         <field name="tracking">none</field>
     </record>
     <record id="product_paracetamol" model="product.template">
         <field name="name">Paracetamol (500mg, 100 tabs)</field>
         <field name="type">consu</field>
-        <field name="is_storable" eval="True"/>
-        <field name="categ_id" ref="categ_medical"/>
+        <field name="is_storable" eval="True" />
+        <field name="categ_id" ref="categ_medical" />
         <field name="list_price">250</field>
         <field name="standard_price">180</field>
-        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="uom_id" ref="uom.product_uom_unit" />
         <field name="tracking">none</field>
     </record>
     <record id="product_bandages" model="product.template">
         <field name="name">Bandages (Roll)</field>
         <field name="type">consu</field>
-        <field name="is_storable" eval="True"/>
-        <field name="categ_id" ref="categ_medical"/>
+        <field name="is_storable" eval="True" />
+        <field name="categ_id" ref="categ_medical" />
         <field name="list_price">150</field>
         <field name="standard_price">100</field>
-        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="uom_id" ref="uom.product_uom_unit" />
     </record>
     <record id="product_antiseptic" model="product.template">
         <field name="name">Antiseptic Solution (500ml)</field>
         <field name="type">consu</field>
-        <field name="is_storable" eval="True"/>
-        <field name="categ_id" ref="categ_medical"/>
+        <field name="is_storable" eval="True" />
+        <field name="categ_id" ref="categ_medical" />
         <field name="list_price">450</field>
         <field name="standard_price">350</field>
-        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="uom_id" ref="uom.product_uom_unit" />
         <field name="tracking">none</field>
     </record>
 
@@ -183,124 +183,124 @@
     <record id="product_family_tent" model="product.template">
         <field name="name">Family Tent (4-6 persons)</field>
         <field name="type">consu</field>
-        <field name="is_storable" eval="True"/>
-        <field name="categ_id" ref="categ_shelter"/>
+        <field name="is_storable" eval="True" />
+        <field name="categ_id" ref="categ_shelter" />
         <field name="list_price">35000</field>
         <field name="standard_price">28000</field>
-        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="uom_id" ref="uom.product_uom_unit" />
     </record>
     <record id="product_tarpaulin" model="product.template">
         <field name="name">Tarpaulin (4m x 6m)</field>
         <field name="type">consu</field>
-        <field name="is_storable" eval="True"/>
-        <field name="categ_id" ref="categ_shelter"/>
+        <field name="is_storable" eval="True" />
+        <field name="categ_id" ref="categ_shelter" />
         <field name="list_price">3500</field>
         <field name="standard_price">2800</field>
-        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="uom_id" ref="uom.product_uom_unit" />
     </record>
     <record id="product_rope" model="product.template">
         <field name="name">Rope (50m roll)</field>
         <field name="type">consu</field>
-        <field name="is_storable" eval="True"/>
-        <field name="categ_id" ref="categ_shelter"/>
+        <field name="is_storable" eval="True" />
+        <field name="categ_id" ref="categ_shelter" />
         <field name="list_price">800</field>
         <field name="standard_price">600</field>
-        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="uom_id" ref="uom.product_uom_unit" />
     </record>
 
     <!-- Hygiene Products -->
     <record id="product_hygiene_kit" model="product.template">
         <field name="name">Hygiene Kit (Family)</field>
         <field name="type">consu</field>
-        <field name="is_storable" eval="True"/>
-        <field name="categ_id" ref="categ_hygiene"/>
+        <field name="is_storable" eval="True" />
+        <field name="categ_id" ref="categ_hygiene" />
         <field name="list_price">2000</field>
         <field name="standard_price">1600</field>
-        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="uom_id" ref="uom.product_uom_unit" />
     </record>
     <record id="product_soap" model="product.template">
         <field name="name">Soap (Box of 6)</field>
         <field name="type">consu</field>
-        <field name="is_storable" eval="True"/>
-        <field name="categ_id" ref="categ_hygiene"/>
+        <field name="is_storable" eval="True" />
+        <field name="categ_id" ref="categ_hygiene" />
         <field name="list_price">300</field>
         <field name="standard_price">240</field>
-        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="uom_id" ref="uom.product_uom_unit" />
     </record>
     <record id="product_sanitary_pads" model="product.template">
         <field name="name">Sanitary Pads (Pack of 10)</field>
         <field name="type">consu</field>
-        <field name="is_storable" eval="True"/>
-        <field name="categ_id" ref="categ_hygiene"/>
+        <field name="is_storable" eval="True" />
+        <field name="categ_id" ref="categ_hygiene" />
         <field name="list_price">250</field>
         <field name="standard_price">180</field>
-        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="uom_id" ref="uom.product_uom_unit" />
     </record>
     <record id="product_water_container" model="product.template">
         <field name="name">Water Container (20L)</field>
         <field name="type">consu</field>
-        <field name="is_storable" eval="True"/>
-        <field name="categ_id" ref="categ_hygiene"/>
+        <field name="is_storable" eval="True" />
+        <field name="categ_id" ref="categ_hygiene" />
         <field name="list_price">500</field>
         <field name="standard_price">400</field>
-        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="uom_id" ref="uom.product_uom_unit" />
     </record>
 
     <!-- Clothing & Bedding Products -->
     <record id="product_blanket" model="product.template">
         <field name="name">Blanket (Double)</field>
         <field name="type">consu</field>
-        <field name="is_storable" eval="True"/>
-        <field name="categ_id" ref="categ_clothing"/>
+        <field name="is_storable" eval="True" />
+        <field name="categ_id" ref="categ_clothing" />
         <field name="list_price">1500</field>
         <field name="standard_price">1200</field>
-        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="uom_id" ref="uom.product_uom_unit" />
     </record>
     <record id="product_sleeping_mat" model="product.template">
         <field name="name">Sleeping Mat</field>
         <field name="type">consu</field>
-        <field name="is_storable" eval="True"/>
-        <field name="categ_id" ref="categ_clothing"/>
+        <field name="is_storable" eval="True" />
+        <field name="categ_id" ref="categ_clothing" />
         <field name="list_price">800</field>
         <field name="standard_price">600</field>
-        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="uom_id" ref="uom.product_uom_unit" />
     </record>
     <record id="product_mosquito_net" model="product.template">
         <field name="name">Mosquito Net (Family size)</field>
         <field name="type">consu</field>
-        <field name="is_storable" eval="True"/>
-        <field name="categ_id" ref="categ_clothing"/>
+        <field name="is_storable" eval="True" />
+        <field name="categ_id" ref="categ_clothing" />
         <field name="list_price">1200</field>
         <field name="standard_price">900</field>
-        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="uom_id" ref="uom.product_uom_unit" />
     </record>
 
     <!-- Equipment Products -->
     <record id="product_solar_lamp" model="product.template">
         <field name="name">Solar Lamp</field>
         <field name="type">consu</field>
-        <field name="is_storable" eval="True"/>
-        <field name="categ_id" ref="categ_equipment"/>
+        <field name="is_storable" eval="True" />
+        <field name="categ_id" ref="categ_equipment" />
         <field name="list_price">2500</field>
         <field name="standard_price">2000</field>
-        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="uom_id" ref="uom.product_uom_unit" />
     </record>
     <record id="product_generator" model="product.template">
         <field name="name">Portable Generator (2kW)</field>
         <field name="type">consu</field>
-        <field name="is_storable" eval="True"/>
-        <field name="categ_id" ref="categ_equipment"/>
+        <field name="is_storable" eval="True" />
+        <field name="categ_id" ref="categ_equipment" />
         <field name="list_price">85000</field>
         <field name="standard_price">70000</field>
-        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="uom_id" ref="uom.product_uom_unit" />
     </record>
     <record id="product_tool_kit" model="product.template">
         <field name="name">Hand Tool Kit</field>
         <field name="type">consu</field>
-        <field name="is_storable" eval="True"/>
-        <field name="categ_id" ref="categ_equipment"/>
+        <field name="is_storable" eval="True" />
+        <field name="categ_id" ref="categ_equipment" />
         <field name="list_price">5000</field>
         <field name="standard_price">4000</field>
-        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="uom_id" ref="uom.product_uom_unit" />
     </record>
 </odoo>

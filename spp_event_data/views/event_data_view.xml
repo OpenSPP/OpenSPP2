@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- ════════════════════════════════════════════════════════════════════ -->
     <!-- EVENT DATA VIEWS -->
@@ -9,9 +9,11 @@
         <field name="model">spp.event.data</field>
         <field name="priority">1</field>
         <field name="arch" type="xml">
-            <list decoration-muted="state in ('cancelled', 'expired', 'superseded')"
-                  decoration-info="state == 'draft'"
-                  decoration-warning="state == 'pending'">
+            <list
+                decoration-muted="state in ('cancelled', 'expired', 'superseded')"
+                decoration-info="state == 'draft'"
+                decoration-warning="state == 'pending'"
+            >
                 <button
                     name="open_form"
                     type="object"
@@ -64,43 +66,78 @@
             <form>
                 <header>
                     <!-- Standard state actions -->
-                    <button name="action_activate" string="Activate"
-                            type="object" class="btn-primary"
-                            invisible="state != 'draft' or event_type_id.is_requires_approval" />
-                    <button name="action_cancel" string="Cancel"
-                            class="btn-danger"
-                            type="object"
-                            invisible="state in ('cancelled', 'expired', 'superseded')" />
-                    <button name="action_set_draft" string="Reset to Draft"
-                            type="object"
-                            invisible="state not in ('cancelled',)" />
-                    <button name="open_form" type="object"
-                            class="btn-primary" icon="fa-external-link"
-                            invisible="not data_record_id and not res_id"
-                            string="View Data" />
+                    <button
+                        name="action_activate"
+                        string="Activate"
+                        type="object"
+                        class="btn-primary"
+                        invisible="state != 'draft' or event_type_id.is_requires_approval"
+                    />
+                    <button
+                        name="action_cancel"
+                        string="Cancel"
+                        class="btn-danger"
+                        type="object"
+                        invisible="state in ('cancelled', 'expired', 'superseded')"
+                    />
+                    <button
+                        name="action_set_draft"
+                        string="Reset to Draft"
+                        type="object"
+                        invisible="state not in ('cancelled',)"
+                    />
+                    <button
+                        name="open_form"
+                        type="object"
+                        class="btn-primary"
+                        icon="fa-external-link"
+                        invisible="not data_record_id and not res_id"
+                        string="View Data"
+                    />
                     <!-- Approval workflow buttons -->
-                    <button name="action_submit_for_approval" string="Submit for Approval"
-                            type="object" class="btn-primary"
-                            invisible="approval_state != 'draft' or not event_type_id.is_requires_approval"/>
-                    <button name="action_approve" string="Approve"
-                            type="object" class="btn-success"
-                            invisible="not can_approve"/>
-                    <button name="action_reject" string="Reject"
-                            type="object" class="btn-danger"
-                            invisible="not can_reject"/>
-                    <button name="action_reset_to_draft" string="Reset to Draft"
-                            type="object"
-                            invisible="approval_state not in ('rejected', 'revision')"/>
-                    <field name="state" widget="statusbar"
-                           statusbar_visible="draft,pending,active" />
+                    <button
+                        name="action_submit_for_approval"
+                        string="Submit for Approval"
+                        type="object"
+                        class="btn-primary"
+                        invisible="approval_state != 'draft' or not event_type_id.is_requires_approval"
+                    />
+                    <button
+                        name="action_approve"
+                        string="Approve"
+                        type="object"
+                        class="btn-success"
+                        invisible="not can_approve"
+                    />
+                    <button
+                        name="action_reject"
+                        string="Reject"
+                        type="object"
+                        class="btn-danger"
+                        invisible="not can_reject"
+                    />
+                    <button
+                        name="action_reset_to_draft"
+                        string="Reset to Draft"
+                        type="object"
+                        invisible="approval_state not in ('rejected', 'revision')"
+                    />
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="draft,pending,active"
+                    />
                 </header>
                 <sheet>
                     <group>
                         <group string="Event Information">
                             <field name="event_type_id" options="{'no_create': True}" />
                             <field name="event_type_code" invisible="1" />
-                            <field name="partner_id" readonly="state != 'draft'"
-                                   options="{'no_create': True}" />
+                            <field
+                                name="partner_id"
+                                readonly="state != 'draft'"
+                                options="{'no_create': True}"
+                            />
                             <field name="name" readonly="1" />
                         </group>
                         <group string="Collection Details">
@@ -115,7 +152,7 @@
                     <notebook>
                         <!-- Event Data Tab -->
                         <page string="Event Data" name="event_data">
-                            <field name="data_json" invisible="1"/>
+                            <field name="data_json" invisible="1" />
                             <style>
                                 .o_event_data_list {
                                     font-size: 0.9rem;
@@ -132,10 +169,14 @@
                                 }
                             </style>
                             <div invisible="not data_json">
-                                <field name="data_html" nolabel="1" readonly="1"/>
+                                <field name="data_html" nolabel="1" readonly="1" />
                             </div>
-                            <div invisible="data_json" class="alert alert-info" role="alert">
-                                <i class="fa fa-info-circle me-2" title="Info"/>
+                            <div
+                                invisible="data_json"
+                                class="alert alert-info"
+                                role="alert"
+                            >
+                                <i class="fa fa-info-circle me-2" title="Info" />
                                 <span>
                                     Event data is stored in a dedicated model.
                                     Click "View Data" to see the details.
@@ -144,8 +185,11 @@
                         </page>
 
                         <!-- Source Information Tab -->
-                        <page string="Source" name="source"
-                              invisible="source_type == 'internal'">
+                        <page
+                            string="Source"
+                            name="source"
+                            invisible="source_type == 'internal'"
+                        >
                             <group>
                                 <group>
                                     <field name="source_type" readonly="1" />
@@ -156,8 +200,15 @@
                                     <field name="source_received_date" />
                                 </group>
                             </group>
-                            <group string="Raw Source Data" invisible="not source_raw_data">
-                                <field name="source_raw_data" widget="json" nolabel="1" />
+                            <group
+                                string="Raw Source Data"
+                                invisible="not source_raw_data"
+                            >
+                                <field
+                                    name="source_raw_data"
+                                    widget="json"
+                                    nolabel="1"
+                                />
                             </group>
                         </page>
 
@@ -174,8 +225,7 @@
                         </page>
 
                         <!-- Legacy Tab (for backward compatibility) -->
-                        <page string="Legacy Data" name="legacy"
-                              invisible="not model">
+                        <page string="Legacy Data" name="legacy" invisible="not model">
                             <group>
                                 <group>
                                     <field name="model" readonly="1" />
@@ -188,57 +238,81 @@
                         </page>
 
                         <!-- Approval Tab (from spp.approval.mixin) -->
-                        <page string="Approval" name="approval"
-                              invisible="not event_type_id.is_requires_approval">
+                        <page
+                            string="Approval"
+                            name="approval"
+                            invisible="not event_type_id.is_requires_approval"
+                        >
                             <group>
                                 <group string="Approval Status">
-                                    <field name="approval_state" readonly="1"/>
-                                    <field name="can_submit" invisible="1"/>
-                                    <field name="can_approve" invisible="1"/>
-                                    <field name="can_reject" invisible="1"/>
+                                    <field name="approval_state" readonly="1" />
+                                    <field name="can_submit" invisible="1" />
+                                    <field name="can_approve" invisible="1" />
+                                    <field name="can_reject" invisible="1" />
                                 </group>
                                 <group string="Submission">
-                                    <field name="submitted_by_id" readonly="1"/>
-                                    <field name="submitted_date" readonly="1"/>
+                                    <field name="submitted_by_id" readonly="1" />
+                                    <field name="submitted_date" readonly="1" />
                                 </group>
                             </group>
-                            <group invisible="approval_state not in ('approved', 'rejected', 'revision')">
-                                <group string="Approval Details"
-                                       invisible="approval_state != 'approved'">
-                                    <field name="approved_by_id" readonly="1"/>
-                                    <field name="approved_date" readonly="1"/>
+                            <group
+                                invisible="approval_state not in ('approved', 'rejected', 'revision')"
+                            >
+                                <group
+                                    string="Approval Details"
+                                    invisible="approval_state != 'approved'"
+                                >
+                                    <field name="approved_by_id" readonly="1" />
+                                    <field name="approved_date" readonly="1" />
                                 </group>
-                                <group string="Rejection Details"
-                                       invisible="approval_state != 'rejected'">
-                                    <field name="rejected_by_id" readonly="1"/>
-                                    <field name="rejected_date" readonly="1"/>
-                                    <field name="rejection_reason" readonly="1"/>
+                                <group
+                                    string="Rejection Details"
+                                    invisible="approval_state != 'rejected'"
+                                >
+                                    <field name="rejected_by_id" readonly="1" />
+                                    <field name="rejected_date" readonly="1" />
+                                    <field name="rejection_reason" readonly="1" />
                                 </group>
-                                <group string="Revision Request"
-                                       invisible="approval_state != 'revision'">
-                                    <field name="revision_requested_by_id" readonly="1"/>
-                                    <field name="revision_requested_date" readonly="1"/>
-                                    <field name="revision_notes" readonly="1"/>
+                                <group
+                                    string="Revision Request"
+                                    invisible="approval_state != 'revision'"
+                                >
+                                    <field
+                                        name="revision_requested_by_id"
+                                        readonly="1"
+                                    />
+                                    <field
+                                        name="revision_requested_date"
+                                        readonly="1"
+                                    />
+                                    <field name="revision_notes" readonly="1" />
                                 </group>
                             </group>
                             <group string="Approval Reviews">
-                                <field name="approval_review_ids" nolabel="1" readonly="1">
+                                <field
+                                    name="approval_review_ids"
+                                    nolabel="1"
+                                    readonly="1"
+                                >
                                     <list>
-                                        <field name="requested_date"/>
-                                        <field name="requested_by_id"/>
-                                        <field name="status" widget="badge"
-                                               decoration-success="status == 'approved'"
-                                               decoration-warning="status == 'pending'"
-                                               decoration-danger="status == 'rejected'"/>
-                                        <field name="reviewer_id"/>
-                                        <field name="review_date"/>
+                                        <field name="requested_date" />
+                                        <field name="requested_by_id" />
+                                        <field
+                                            name="status"
+                                            widget="badge"
+                                            decoration-success="status == 'approved'"
+                                            decoration-warning="status == 'pending'"
+                                            decoration-danger="status == 'rejected'"
+                                        />
+                                        <field name="reviewer_id" />
+                                        <field name="review_date" />
                                     </list>
                                 </field>
                             </group>
                         </page>
                     </notebook>
                 </sheet>
-                <chatter/>
+                <chatter />
             </form>
         </field>
     </record>
@@ -254,24 +328,69 @@
                 <field name="event_type_code" />
                 <field name="source_reference" />
                 <separator />
-                <filter name="active" string="Active" domain="[('state', '=', 'active')]" />
-                <filter name="draft" string="Draft" domain="[('state', '=', 'draft')]" />
-                <filter name="pending" string="Pending" domain="[('state', '=', 'pending')]" />
+                <filter
+                    name="active"
+                    string="Active"
+                    domain="[('state', '=', 'active')]"
+                />
+                <filter
+                    name="draft"
+                    string="Draft"
+                    domain="[('state', '=', 'draft')]"
+                />
+                <filter
+                    name="pending"
+                    string="Pending"
+                    domain="[('state', '=', 'pending')]"
+                />
                 <separator />
-                <filter name="expired" string="Expired" domain="[('is_expired', '=', True)]" />
+                <filter
+                    name="expired"
+                    string="Expired"
+                    domain="[('is_expired', '=', True)]"
+                />
                 <separator />
-                <filter name="today" string="Today"
-                        domain="[('collection_date', '=', context_today().strftime('%Y-%m-%d'))]" />
-                <filter name="this_week" string="This Week"
-                        domain="[('collection_date', '>=', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]" />
-                <filter name="this_month" string="This Month"
-                        domain="[('collection_date', '>=', (context_today().replace(day=1)).strftime('%Y-%m-%d'))]" />
+                <filter
+                    name="today"
+                    string="Today"
+                    domain="[('collection_date', '=', context_today().strftime('%Y-%m-%d'))]"
+                />
+                <filter
+                    name="this_week"
+                    string="This Week"
+                    domain="[('collection_date', '>=', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"
+                />
+                <filter
+                    name="this_month"
+                    string="This Month"
+                    domain="[('collection_date', '>=', (context_today().replace(day=1)).strftime('%Y-%m-%d'))]"
+                />
                 <separator />
-                <filter name="group_type" string="Event Type" context="{'group_by': 'event_type_id'}" />
-                <filter name="group_state" string="State" context="{'group_by': 'state'}" />
-                <filter name="group_source" string="Source Type" context="{'group_by': 'source_type'}" />
-                <filter name="group_partner" string="Registrant" context="{'group_by': 'partner_id'}" />
-                <filter name="group_date" string="Collection Date" context="{'group_by': 'collection_date:month'}" />
+                <filter
+                    name="group_type"
+                    string="Event Type"
+                    context="{'group_by': 'event_type_id'}"
+                />
+                <filter
+                    name="group_state"
+                    string="State"
+                    context="{'group_by': 'state'}"
+                />
+                <filter
+                    name="group_source"
+                    string="Source Type"
+                    context="{'group_by': 'source_type'}"
+                />
+                <filter
+                    name="group_partner"
+                    string="Registrant"
+                    context="{'group_by': 'partner_id'}"
+                />
+                <filter
+                    name="group_date"
+                    string="Collection Date"
+                    context="{'group_by': 'collection_date:month'}"
+                />
             </search>
         </field>
     </record>
@@ -308,6 +427,4 @@
         <field name="view_id" ref="view_spp_event_data_form" />
         <field name="act_window_id" ref="action_spp_event_data" />
     </record>
-
-
 </odoo>

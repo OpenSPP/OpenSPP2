@@ -5,6 +5,8 @@ from odoo import Command, fields
 from odoo.exceptions import UserError
 from odoo.tests import TransactionCase
 
+from .common import get_or_create_cr_type, get_or_create_membership_kind
+
 
 class TestChangeHOHStrategy(TransactionCase):
     """Tests for Change Head of Household custom strategy."""
@@ -19,8 +21,8 @@ class TestChangeHOHStrategy(TransactionCase):
         # Get head membership kind from vocabulary
         cls.head_kind = cls.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:group-membership-type", "head")
 
-        # Get spouse kind from vocabulary
-        cls.spouse_kind = cls.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:group-membership-type", "spouse")
+        # Get or create spouse kind from vocabulary
+        cls.spouse_kind = get_or_create_membership_kind(cls.env, "spouse")
 
         # Create test group
         cls.group = cls.partner_model.create(
@@ -64,16 +66,11 @@ class TestChangeHOHStrategy(TransactionCase):
             }
         )
 
-        # Get CR type
-        cls.cr_type = cls.env.ref(
-            "spp_change_request_v2.cr_type_change_hoh",
-            raise_if_not_found=False,
-        )
+        # Get or create CR type
+        cls.cr_type = get_or_create_cr_type(cls.env, "change_hoh")
 
     def test_change_hoh_transfers_role(self):
         """Test changing HOH transfers head role."""
-        if not self.cr_type or not self.head_kind:
-            self.skipTest("Change HOH CR type or head kind not found")
 
         cr = self.cr_model.create(
             {
@@ -109,8 +106,6 @@ class TestChangeHOHStrategy(TransactionCase):
 
     def test_change_hoh_assigns_new_role_to_previous(self):
         """Test previous head gets new role assigned."""
-        if not self.cr_type or not self.head_kind:
-            self.skipTest("Change HOH CR type or head kind not found")
 
         cr = self.cr_model.create(
             {
@@ -141,8 +136,6 @@ class TestChangeHOHStrategy(TransactionCase):
 
     def test_change_hoh_on_individual_fails(self):
         """Test cannot change HOH on individual registrant."""
-        if not self.cr_type:
-            self.skipTest("Change HOH CR type not found")
 
         cr = self.cr_model.create(
             {
@@ -169,8 +162,6 @@ class TestChangeHOHStrategy(TransactionCase):
 
     def test_change_hoh_all_reasons(self):
         """Test all change reasons work."""
-        if not self.cr_type:
-            self.skipTest("Change HOH CR type not found")
 
         reasons = [
             "deceased",
@@ -244,8 +235,6 @@ class TestChangeHOHStrategy(TransactionCase):
 
     def test_change_hoh_preview(self):
         """Test preview returns expected structure."""
-        if not self.cr_type:
-            self.skipTest("Change HOH CR type not found")
 
         cr = self.cr_model.create(
             {

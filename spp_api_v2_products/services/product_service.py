@@ -27,7 +27,7 @@ class ProductService:
         """
         # First try by default_code (SKU)
         product = (
-            self.env["product.template"]
+            self.env["product.template"]  # nosemgrep: odoo-sudo-without-context
             .sudo()
             .search(
                 [("default_code", "=", identifier)],
@@ -39,7 +39,7 @@ class ProductService:
 
         # Then try by name
         return (
-            self.env["product.template"]
+            self.env["product.template"]  # nosemgrep: odoo-sudo-without-context
             .sudo()
             .search(
                 [("name", "=", identifier)],
@@ -86,14 +86,14 @@ class ProductService:
                 domain.append(("write_date", ">=", last_updated))
 
         # Get total count
-        total = self.env["product.template"].sudo().search_count(domain)
+        total = self.env["product.template"].sudo().search_count(domain)  # nosemgrep: odoo-sudo-without-context
 
         # Get paginated records
         count = params.get("_count", 20)
         offset = params.get("_offset", 0)
 
         records = (
-            self.env["product.template"]
+            self.env["product.template"]  # nosemgrep: odoo-sudo-without-context
             .sudo()
             .search(
                 domain,

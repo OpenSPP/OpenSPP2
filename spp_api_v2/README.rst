@@ -14,14 +14,17 @@ OpenSPP API V2
    !! source digest: sha256:55c34e24792156bb2b5b659ae5daa7b32ac02683f94059d4c503b78247f840fa
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+    :target: https://odoo-community.org/page/development-status
+    :alt: Production/Stable
+.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
     :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_api_v2
     :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2|
+|badge1| |badge2| |badge3|
 
 FastAPI-based REST API for social protection data exchange. Exposes
 registrant, program, and membership data via OAuth 2.0 authenticated
@@ -31,38 +34,38 @@ all identifiers use namespace URIs for global interoperability.
 Key Capabilities
 ----------------
 
--  **OAuth 2.0 Authentication**: Client credentials flow with
-   scrypt-hashed secrets, scoped access
--  **Consent-Based Access Control**: All reads require active consent,
-   filtered by organization type
--  **External Identifiers Only**: Namespace URIs for lookups, vocabulary
-   IDs for coded values
--  **Source Tracking**: Records data provenance per ADR-008
--  **Extension Registry**: Domain modules register custom fields via
-   ``spp.api.extension``
--  **Batch Operations**: Create/update multiple registrants per request
+- **OAuth 2.0 Authentication**: Client credentials flow with
+  scrypt-hashed secrets, scoped access
+- **Consent-Based Access Control**: All reads require active consent,
+  filtered by organization type
+- **External Identifiers Only**: Namespace URIs for lookups, vocabulary
+  IDs for coded values
+- **Source Tracking**: Records data provenance per ADR-008
+- **Extension Registry**: Domain modules register custom fields via
+  ``spp.api.extension``
+- **Batch Operations**: Create/update multiple registrants per request
 
 Key Models
 ----------
 
-+---------------------------+-----------------------------------------+
-| Model                     | Description                             |
-+===========================+=========================================+
-| ``spp.api.client``        | OAuth 2.0 credentials, organization     |
-|                           | verification                            |
-+---------------------------+-----------------------------------------+
-| ``spp.api.client.scope``  | Resource/action permissions             |
-+---------------------------+-----------------------------------------+
-| ``spp.api.path``          | Endpoint configuration and filters      |
-+---------------------------+-----------------------------------------+
-| ``spp.api.path.filter``   | Field-level filter configurations       |
-+---------------------------+-----------------------------------------+
-| ``spp.api.filter.preset`` | Saved filter combinations               |
-+---------------------------+-----------------------------------------+
-| ``spp.api.extension``     | Domain field registry                   |
-+---------------------------+-----------------------------------------+
-| ``spp.consent.scope``     | Resource types per consent              |
-+---------------------------+-----------------------------------------+
++---------------------------+------------------------------------------+
+| Model                     | Description                              |
++===========================+==========================================+
+| ``spp.api.client``        | OAuth 2.0 credentials, organization      |
+|                           | verification                             |
++---------------------------+------------------------------------------+
+| ``spp.api.client.scope``  | Resource/action permissions              |
++---------------------------+------------------------------------------+
+| ``spp.api.path``          | Endpoint configuration and filters       |
++---------------------------+------------------------------------------+
+| ``spp.api.path.filter``   | Field-level filter configurations        |
++---------------------------+------------------------------------------+
+| ``spp.api.filter.preset`` | Saved filter combinations                |
++---------------------------+------------------------------------------+
+| ``spp.api.extension``     | Domain field registry                    |
++---------------------------+------------------------------------------+
+| ``spp.consent.scope``     | Resource types per consent               |
++---------------------------+------------------------------------------+
 
 UI Location
 -----------
@@ -70,29 +73,29 @@ UI Location
 Navigate to **Registry > Configuration > API V2** for all API
 configuration. Available submenus:
 
--  **API Clients** - Manage OAuth credentials and organization
-   verification
--  **API Extensions** - View registered custom field extensions
--  **API Paths** - Configure available endpoints and static filters
--  **API Filters** - Define queryable field filters per path
--  **Filter Presets** - Create named filter combinations
+- **API Clients** - Manage OAuth credentials and organization
+  verification
+- **API Extensions** - View registered custom field extensions
+- **API Paths** - Configure available endpoints and static filters
+- **API Filters** - Define queryable field filters per path
+- **Filter Presets** - Create named filter combinations
 
 **API Client Form Tabs:**
 
--  **Consent & Security** - Consent requirements, legal basis,
-   organization type verification
--  **Scopes** - Resource/action permissions and program restrictions
--  **Description** - Client documentation
+- **Consent & Security** - Consent requirements, legal basis,
+  organization type verification
+- **Scopes** - Resource/action permissions and program restrictions
+- **Description** - Client documentation
 
 **API Extension Form Tabs:**
 
--  **Fields** - Registered custom fields from domain modules
--  **JSON Schema** - Auto-generated schema for extension fields
+- **Fields** - Registered custom fields from domain modules
+- **JSON Schema** - Auto-generated schema for extension fields
 
 **API Path Form Tabs:**
 
--  **Filters** - Field-level filter configurations (inline editable)
--  **Presets** - Saved filter combinations (inline editable)
+- **Filters** - Field-level filter configurations (inline editable)
+- **Presets** - Saved filter combinations (inline editable)
 
 Configuration
 -------------
@@ -111,27 +114,27 @@ API endpoints available at ``/api/v2/`` (token endpoint:
 Security
 --------
 
-+--------------------------+------------------------------------------+
-| Group                    | Access                                   |
-+==========================+==========================================+
-| ``group_api_v2_viewer``  | Read-only: all API configuration and     |
-|                          | consent                                  |
-+--------------------------+------------------------------------------+
-| ``group_api_v2_officer`` | Read/Write: all models (no               |
-|                          | create/delete), full CRUD on consent     |
-|                          | scopes                                   |
-+--------------------------+------------------------------------------+
-| ``group_api_v2_manager`` | Full CRUD: clients, scopes, paths,       |
-|                          | filters, presets, extensions;            |
-|                          | Read/Write/Create on consent (no delete) |
-+--------------------------+------------------------------------------+
++--------------------------+-------------------------------------------+
+| Group                    | Access                                    |
++==========================+===========================================+
+| ``group_api_v2_viewer``  | Read-only: all API configuration and      |
+|                          | consent                                   |
++--------------------------+-------------------------------------------+
+| ``group_api_v2_officer`` | Read/Write: all models (no                |
+|                          | create/delete), full CRUD on consent      |
+|                          | scopes                                    |
++--------------------------+-------------------------------------------+
+| ``group_api_v2_manager`` | Full CRUD: clients, scopes, paths,        |
+|                          | filters, presets, extensions;             |
+|                          | Read/Write/Create on consent (no delete)  |
++--------------------------+-------------------------------------------+
 
 Extension Points
 ----------------
 
--  Inherit ``spp.api.extension`` to register custom fields
--  Override ``_get_fastapi_routers()`` in ``fastapi.endpoint`` for
-   custom endpoints
+- Inherit ``spp.api.extension`` to register custom fields
+- Override ``_get_fastapi_routers()`` in ``fastapi.endpoint`` for custom
+  endpoints
 
 Dependencies
 ------------

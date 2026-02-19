@@ -11,4 +11,6 @@ var domainFieldProgramCriteria = {...domainFieldExtend};
 
 domainFieldProgramCriteria.component = DomainFieldProgramCriteria;
 
-registry.category("fields").add("domain_program_compliance", domainFieldProgramCriteria);
+registry
+    .category("fields")
+    .add("domain_program_compliance", domainFieldProgramCriteria);

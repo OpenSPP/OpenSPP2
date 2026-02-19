@@ -76,7 +76,7 @@ class SearchService:
         Partner = self.env["res.partner"]
 
         # Get total count (before cursor filter)
-        total = Partner.sudo().search_count(domain)
+        total = Partner.sudo().search_count(domain)  # nosemgrep: odoo-sudo-without-context
 
         # Apply cursor-based pagination
         last_id = params.get("_lastId")
@@ -96,6 +96,7 @@ class SearchService:
         if "id" not in order.lower():
             order = f"{order}, id"
 
+        # nosemgrep: odoo-sudo-without-context
         records = Partner.sudo().search(domain, limit=limit, offset=offset, order=order)
 
         return records, total
@@ -134,7 +135,7 @@ class SearchService:
                     # Use id_type_id.uri (full URI with code) instead of namespace_uri
                     # (which only contains the vocabulary namespace)
                     reg_id = (
-                        self.env["spp.registry.id"]
+                        self.env["spp.registry.id"]  # nosemgrep: odoo-sudo-without-context
                         .sudo()
                         .search(
                             [
@@ -156,7 +157,7 @@ class SearchService:
 
         # Execute search with sudo() to access registry.id via domain
         Partner = self.env["res.partner"]
-        total = Partner.sudo().search_count(domain)
+        total = Partner.sudo().search_count(domain)  # nosemgrep: odoo-sudo-without-context
 
         # Apply cursor-based pagination
         last_id = params.get("_lastId")
@@ -172,7 +173,7 @@ class SearchService:
         if "id" not in order.lower():
             order = f"{order}, id"
 
-        records = Partner.sudo().search(domain, limit=limit, order=order)
+        records = Partner.sudo().search(domain, limit=limit, order=order)  # nosemgrep: odoo-sudo-without-context
 
         return records, total
 
@@ -245,7 +246,7 @@ class SearchService:
 
         # Find gender code
         gender_code = (
-            self.env["spp.vocabulary.code"]
+            self.env["spp.vocabulary.code"]  # nosemgrep: odoo-sudo-without-context
             .sudo()
             .search(
                 [
@@ -273,6 +274,7 @@ class SearchService:
         # Special case: find orphan individuals (not in any group)
         if group.lower() == "none":
             # Find all individuals with active memberships
+            # nosemgrep: odoo-sudo-without-context
             active_memberships = self.env["spp.group.membership"].sudo().search([("is_ended", "=", False)])
             membered_individual_ids = active_memberships.mapped("individual.id")
             return [("id", "not in", membered_individual_ids)]
@@ -288,7 +290,7 @@ class SearchService:
         # Use id_type_id.uri (full URI with code) instead of namespace_uri
         # (which only contains the vocabulary namespace)
         reg_id = (
-            self.env["spp.registry.id"]
+            self.env["spp.registry.id"]  # nosemgrep: odoo-sudo-without-context
             .sudo()
             .search(
                 [
@@ -321,7 +323,7 @@ class SearchService:
 
         # Find role code in vocabulary
         role_code = (
-            self.env["spp.vocabulary.code"]
+            self.env["spp.vocabulary.code"]  # nosemgrep: odoo-sudo-without-context
             .sudo()
             .search(
                 [

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-  <!-- Root Menu -->
-  <menuitem
+    <!-- Root Menu -->
+    <menuitem
         id="menu_cel_domain_root"
         name="CEL Domain"
         parent="base.menu_custom"
@@ -9,25 +9,25 @@
         sequence="50"
     />
 
-  <!-- Rule Preview Action -->
-  <record id="action_cel_rule_wizard" model="ir.actions.act_window">
-    <field name="name">Rule Preview</field>
-    <field name="res_model">spp.cel.rule.wizard</field>
-    <field name="view_mode">form</field>
-    <field name="target">new</field>
-    <field name="context">{}</field>
-  </record>
+    <!-- Rule Preview Action -->
+    <record id="action_cel_rule_wizard" model="ir.actions.act_window">
+        <field name="name">Rule Preview</field>
+        <field name="res_model">spp.cel.rule.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{}</field>
+    </record>
 
-  <!-- Data Management Submenu -->
-  <menuitem
+    <!-- Data Management Submenu -->
+    <menuitem
         id="menu_data_management"
         name="Data Management"
         parent="menu_cel_domain_root"
         sequence="10"
     />
 
-  <!-- Data Providers Menu -->
-  <menuitem
+    <!-- Data Providers Menu -->
+    <menuitem
         id="menu_data_providers"
         name="Data Providers"
         parent="menu_data_management"
@@ -35,8 +35,8 @@
         sequence="10"
     />
 
-  <!-- Data Cache Menu -->
-  <menuitem
+    <!-- Data Cache Menu -->
+    <menuitem
         id="menu_data_cache"
         name="Data Cache"
         parent="menu_data_management"
@@ -44,16 +44,16 @@
         sequence="20"
     />
 
-  <!-- Tools Submenu -->
-  <menuitem
+    <!-- Tools Submenu -->
+    <menuitem
         id="menu_cel_tools"
         name="Tools"
         parent="menu_cel_domain_root"
         sequence="20"
     />
 
-  <!-- Rule Preview Menu -->
-  <menuitem
+    <!-- Rule Preview Menu -->
+    <menuitem
         id="menu_cel_rule_wizard"
         name="Rule Preview"
         parent="menu_cel_tools"

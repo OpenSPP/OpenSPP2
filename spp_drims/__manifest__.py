@@ -10,7 +10,7 @@
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Alpha",
+    "development_status": "Beta",
     "maintainers": ["jeremi", "gonzalesedwin1123"],
     "depends": [
         "base",
@@ -43,6 +43,7 @@
         "data/audit_rules.xml",
         "data/config_defaults.xml",
         "data/gis_report_templates.xml",
+        "data/approval_definitions.xml",
         # Reports (before views, as views may reference report actions)
         "report/waybill_template.xml",
         "views/dashboard_views.xml",

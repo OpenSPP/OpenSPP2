@@ -60,8 +60,15 @@ export class RegistrySearchPortal extends Component {
             // Check permissions via Python methods
             try {
                 const [canCreate, canEdit] = await Promise.all([
-                    this.orm.call("res.partner", "check_access_rights", ["create", false]),
-                    this.orm.call("spp.registry.view.history", "check_registrant_edit_permission", []),
+                    this.orm.call("res.partner", "check_access_rights", [
+                        "create",
+                        false,
+                    ]),
+                    this.orm.call(
+                        "spp.registry.view.history",
+                        "check_registrant_edit_permission",
+                        []
+                    ),
                 ]);
                 this.state.canCreate = canCreate;
                 this.state.canEdit = canEdit;
@@ -76,9 +83,11 @@ export class RegistrySearchPortal extends Component {
 
     async loadRecentlyViewed() {
         try {
-            this.state.recentlyViewed = await this.orm.call("spp.registry.view.history", "get_recent_registrants", [
-                10,
-            ]);
+            this.state.recentlyViewed = await this.orm.call(
+                "spp.registry.view.history",
+                "get_recent_registrants",
+                [10]
+            );
         } catch {
             // Silently fail - recently viewed is not critical
             this.state.recentlyViewed = [];
@@ -119,9 +128,15 @@ export class RegistrySearchPortal extends Component {
 
     async performSearch() {
         if (this.state.searchTerm.length < this.minSearchChars) {
-            this.notification.add(_t("Please enter at least %s characters to search.", this.minSearchChars), {
-                type: "warning",
-            });
+            this.notification.add(
+                _t(
+                    "Please enter at least %s characters to search.",
+                    this.minSearchChars
+                ),
+                {
+                    type: "warning",
+                }
+            );
             return;
         }
 
@@ -133,7 +148,15 @@ export class RegistrySearchPortal extends Component {
             const domain = this._buildSearchDomain();
 
             // Search registrants
-            const fields = ["id", "name", "is_group", "phone", "email", "registration_date", "disabled"];
+            const fields = [
+                "id",
+                "name",
+                "is_group",
+                "phone",
+                "email",
+                "registration_date",
+                "disabled",
+            ];
             const results = await this.orm.searchRead("res.partner", domain, fields, {
                 limit: SEARCH_RESULT_LIMIT,
             });
@@ -178,10 +201,18 @@ export class RegistrySearchPortal extends Component {
         // Advanced filters (AND logic - all conditions must be met)
         if (this.state.showAdvanced) {
             if (this.state.advancedFilters.registrationDateFrom) {
-                domain.push(["registration_date", ">=", this.state.advancedFilters.registrationDateFrom]);
+                domain.push([
+                    "registration_date",
+                    ">=",
+                    this.state.advancedFilters.registrationDateFrom,
+                ]);
             }
             if (this.state.advancedFilters.registrationDateTo) {
-                domain.push(["registration_date", "<=", this.state.advancedFilters.registrationDateTo]);
+                domain.push([
+                    "registration_date",
+                    "<=",
+                    this.state.advancedFilters.registrationDateTo,
+                ]);
             }
         }
 
@@ -236,7 +267,9 @@ export class RegistrySearchPortal extends Component {
         }
 
         // Determine which form view to use
-        const viewRef = isGroup ? "spp_registry.view_groups_form_membership" : "spp_registry.view_individuals_form";
+        const viewRef = isGroup
+            ? "spp_registry.view_groups_form_membership"
+            : "spp_registry.view_individuals_form";
 
         // Build context - readonly for users without edit access
         const context = {
@@ -327,7 +360,9 @@ export class RegistrySearchPortal extends Component {
         try {
             // Odoo returns datetime in UTC without timezone indicator
             // Append 'Z' to parse as UTC
-            const utcDateStr = dateStr.includes("Z") ? dateStr : dateStr.replace(" ", "T") + "Z";
+            const utcDateStr = dateStr.includes("Z")
+                ? dateStr
+                : dateStr.replace(" ", "T") + "Z";
             const date = new Date(utcDateStr);
             const now = new Date();
             const diffMs = now - date;
@@ -355,4 +390,6 @@ export class RegistrySearchPortal extends Component {
 }
 
 // Register as client action
-registry.category("actions").add("spp_registry_search.search_portal", RegistrySearchPortal);
+registry
+    .category("actions")
+    .add("spp_registry_search.search_portal", RegistrySearchPortal);

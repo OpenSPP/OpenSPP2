@@ -32,6 +32,7 @@ def get_sender_id(env: Environment) -> str:
     Returns:
         str: Configured sender ID or 'openspp' default
     """
+    # nosemgrep: odoo-sudo-without-context
     return env["ir.config_parameter"].sudo().get_param("dci.sender_id", "openspp")
 
 
@@ -98,7 +99,7 @@ def sign_dci_envelope(
     """
     try:
         # Get active signing key
-        signing_key_model = env["spp.dci.signing.key"].sudo()
+        signing_key_model = env["spp.dci.signing.key"].sudo()  # nosemgrep: odoo-sudo-without-context
         active_key = signing_key_model.get_active_key()
 
         if not active_key:

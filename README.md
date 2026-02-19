@@ -5,27 +5,35 @@
 [![License: LGPL-3](https://img.shields.io/badge/License-LGPL--3-blue.svg)](LICENSE)
 [![Odoo](https://img.shields.io/badge/Odoo-19.0-875A7B.svg)](https://www.odoo.com/)
 
-**Open-source Social Protection Platform** for managing beneficiary registries, cash transfer programs, in-kind
-distribution, and grievance redressal at scale.
+**Open-source Social Protection Platform** for managing beneficiary registries, cash
+transfer programs, in-kind distribution, and grievance redressal at scale.
 
-Built on [Odoo 19](https://www.odoo.com/) | [Documentation](https://docs.openspp.org) | [Website](https://openspp.org)
+Built on [Odoo 19](https://www.odoo.com/) | [Documentation](https://docs.openspp.org) |
+[Website](https://openspp.org)
 
 ---
 
 ## Key Features
 
-- **Social Registry** - Unified beneficiary database for individuals and households with deduplication
-- **Program Management** - Configure eligibility rules, enrollment cycles, and benefit calculations
-- **Cash & In-Kind Transfers** - Manage entitlements with payment integration and inventory tracking
-- **Consent Management** - DPV-aligned consent lifecycle with GDPR-compliant audit trails
+- **Social Registry** - Unified beneficiary database for individuals and households with
+  deduplication
+- **Program Management** - Configure eligibility rules, enrollment cycles, and benefit
+  calculations
+- **Cash & In-Kind Transfers** - Manage entitlements with payment integration and
+  inventory tracking
+- **Consent Management** - DPV-aligned consent lifecycle with GDPR-compliant audit
+  trails
 - **Approval Workflows** - Multi-tier approval chains with CEL-based business rules
 - **Change Requests** - Auditable data update workflows with conflict detection
-- **GIS Integration** - Geographic visualization, admin boundary management, HDX integration
-- **Grievance Redressal** - Track and resolve beneficiary complaints through customizable stages
+- **GIS Integration** - Geographic visualization, admin boundary management, HDX
+  integration
+- **Grievance Redressal** - Track and resolve beneficiary complaints through
+  customizable stages
 - **Disaster Response (DRIMS)** - Inventory management for emergency relief distribution
 - **REST API v2** - Standards-aligned API with consent-aware data sharing
 - **DCI Interoperability** - Connect to CRVS, identity systems, and other registries
-- **No-Code Studio** - Configure custom fields, events, and change requests without coding
+- **No-Code Studio** - Configure custom fields, events, and change requests without
+  coding
 - **Audit Trail** - Comprehensive logging with tamper-resistant backends
 
 ## Quick Start
@@ -72,8 +80,9 @@ OpenSPP follows a layered architecture:
 
 ## External Dependencies
 
-OpenSPP requires OCA and third-party modules listed in [EXTERNAL_DEPENDENCIES.md](EXTERNAL_DEPENDENCIES.md). The Docker
-setup fetches these automatically.
+OpenSPP requires OCA and third-party modules listed in
+[EXTERNAL_DEPENDENCIES.md](EXTERNAL_DEPENDENCIES.md). The Docker setup fetches these
+automatically.
 
 ## Available addons
 
@@ -155,16 +164,19 @@ setup fetches these automatically.
 
 ## Contributing
 
-We welcome contributions! Please see our [Contributing Guide](https://docs.openspp.org/contributing/) for details.
+We welcome contributions! Please see our
+[Contributing Guide](https://docs.openspp.org/contributing/) for details.
 
 - **Report bugs** - [Open an issue](https://github.com/OpenSPP/OpenSPP2/issues/new)
-- **Request features** - [Start a discussion](https://github.com/OpenSPP/OpenSPP2/discussions)
+- **Request features** -
+  [Start a discussion](https://github.com/OpenSPP/OpenSPP2/discussions)
 - **Submit PRs** - Fork, branch, and open a pull request
 
 ## Acknowledgments
 
-OpenSPP includes code originally developed by the [OpenG2P](https://openg2p.org/) project. We thank all contributors to
-both projects. See [CONTRIBUTORS.md](CONTRIBUTORS.md) for the full list.
+OpenSPP includes code originally developed by the [OpenG2P](https://openg2p.org/)
+project. We thank all contributors to both projects. See
+[CONTRIBUTORS.md](CONTRIBUTORS.md) for the full list.
 
 ## License
 

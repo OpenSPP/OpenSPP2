@@ -15,7 +15,7 @@ def _post_init_hook(env):
     """
     import secrets
 
-    ICP = env["ir.config_parameter"].sudo()
+    ICP = env["ir.config_parameter"].sudo()  # nosemgrep: odoo-sudo-without-context
     existing_secret = ICP.get_param("spp_api_v2.jwt_secret")
 
     if not existing_secret:

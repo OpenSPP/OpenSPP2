@@ -27,36 +27,39 @@
     <!-- Approval Definition: Routine Changes (Registry Officer) -->
     <record id="approval_def_routine_changes" model="spp.approval.definition">
         <field name="name">Routine Changes (Officer Approval)</field>
-        <field name="model_id" search="[('model', '=', 'spp.change.request')]"/>
+        <field name="model_id" search="[('model', '=', 'spp.change.request')]" />
         <field name="approval_type">group</field>
-        <field name="approval_group_id" ref="spp_registry.group_registry_officer"/>
-        <field name="notify_on_submit" eval="True"/>
-        <field name="notify_on_approve" eval="True"/>
-        <field name="notify_on_reject" eval="True"/>
+        <field name="approval_group_id" ref="spp_registry.group_registry_officer" />
+        <field name="notify_on_submit" eval="True" />
+        <field name="notify_on_approve" eval="True" />
+        <field name="notify_on_reject" eval="True" />
         <field name="sla_days">3</field>
     </record>
 
     <!-- Approval Definition: Local Validator (Single-Tier) -->
     <record id="approval_def_local_validator" model="spp.approval.definition">
         <field name="name">Local Validator Approval</field>
-        <field name="model_id" search="[('model', '=', 'spp.change.request')]"/>
+        <field name="model_id" search="[('model', '=', 'spp.change.request')]" />
         <field name="approval_type">group</field>
-        <field name="approval_group_id" ref="spp_change_request_v2.group_cr_validator"/>
-        <field name="notify_on_submit" eval="True"/>
-        <field name="notify_on_approve" eval="True"/>
-        <field name="notify_on_reject" eval="True"/>
+        <field
+            name="approval_group_id"
+            ref="spp_change_request_v2.group_cr_validator"
+        />
+        <field name="notify_on_submit" eval="True" />
+        <field name="notify_on_approve" eval="True" />
+        <field name="notify_on_reject" eval="True" />
         <field name="sla_days">5</field>
     </record>
 
     <!-- Approval Definition: Household Changes (Registry Manager) -->
     <record id="approval_def_household_changes" model="spp.approval.definition">
         <field name="name">Household Changes (Manager Approval)</field>
-        <field name="model_id" search="[('model', '=', 'spp.change.request')]"/>
+        <field name="model_id" search="[('model', '=', 'spp.change.request')]" />
         <field name="approval_type">group</field>
-        <field name="approval_group_id" ref="spp_registry.group_registry_manager"/>
-        <field name="notify_on_submit" eval="True"/>
-        <field name="notify_on_approve" eval="True"/>
-        <field name="notify_on_reject" eval="True"/>
+        <field name="approval_group_id" ref="spp_registry.group_registry_manager" />
+        <field name="notify_on_submit" eval="True" />
+        <field name="notify_on_approve" eval="True" />
+        <field name="notify_on_reject" eval="True" />
         <field name="sla_days">5</field>
     </record>
 
@@ -75,13 +78,15 @@
     -->
     <record id="approval_def_local_to_hq_validator" model="spp.approval.definition">
         <field name="name">Local to HQ Validator (2-Tier)</field>
-        <field name="model_id" search="[('model', '=', 'spp.change.request')]"/>
-        <field name="use_multitier" eval="True"/>
-        <field name="notify_on_submit" eval="True"/>
-        <field name="notify_on_approve" eval="True"/>
-        <field name="notify_on_reject" eval="True"/>
+        <field name="model_id" search="[('model', '=', 'spp.change.request')]" />
+        <field name="use_multitier" eval="True" />
+        <field name="notify_on_submit" eval="True" />
+        <field name="notify_on_approve" eval="True" />
+        <field name="notify_on_reject" eval="True" />
         <!-- Tiers must be created inline to satisfy the constraint -->
-        <field name="tier_ids" eval="[
+        <field
+            name="tier_ids"
+            eval="[
             Command.create({
                 'sequence': 10,
                 'name': 'Local Validator Review',
@@ -98,7 +103,8 @@
                 'sla_hours': 72,
                 'notify_on_pending': True,
             }),
-        ]"/>
+        ]"
+        />
     </record>
 
     <!--
@@ -114,13 +120,15 @@
     -->
     <record id="approval_def_exit_registrant_multitier" model="spp.approval.definition">
         <field name="name">Exit Registrant (3-Tier Approval)</field>
-        <field name="model_id" search="[('model', '=', 'spp.change.request')]"/>
-        <field name="use_multitier" eval="True"/>
-        <field name="notify_on_submit" eval="True"/>
-        <field name="notify_on_approve" eval="True"/>
-        <field name="notify_on_reject" eval="True"/>
+        <field name="model_id" search="[('model', '=', 'spp.change.request')]" />
+        <field name="use_multitier" eval="True" />
+        <field name="notify_on_submit" eval="True" />
+        <field name="notify_on_approve" eval="True" />
+        <field name="notify_on_reject" eval="True" />
         <!-- Tiers must be created inline to satisfy the constraint -->
-        <field name="tier_ids" eval="[
+        <field
+            name="tier_ids"
+            eval="[
             Command.create({
                 'sequence': 10,
                 'name': 'Field Officer Validation',
@@ -145,7 +153,8 @@
                 'sla_hours': 72,
                 'notify_on_pending': True,
             }),
-        ]"/>
+        ]"
+        />
     </record>
 
     <!--
@@ -158,17 +167,24 @@
     The CEL condition checks if the registrant has program memberships,
     escalating complex cases to higher authority.
     -->
-    <record id="approval_def_split_household_conditional" model="spp.approval.definition">
+    <record
+        id="approval_def_split_household_conditional"
+        model="spp.approval.definition"
+    >
         <field name="name">Split Household (Conditional Multi-Tier)</field>
-        <field name="model_id" search="[('model', '=', 'spp.change.request')]"/>
-        <field name="use_multitier" eval="True"/>
-        <field name="use_cel_condition" eval="True"/>
-        <field name="cel_condition">size(record.registrant_id.program_membership_ids) > 0</field>
-        <field name="notify_on_submit" eval="True"/>
-        <field name="notify_on_approve" eval="True"/>
-        <field name="notify_on_reject" eval="True"/>
+        <field name="model_id" search="[('model', '=', 'spp.change.request')]" />
+        <field name="use_multitier" eval="True" />
+        <field name="use_cel_condition" eval="True" />
+        <field
+            name="cel_condition"
+        >size(record.registrant_id.program_membership_ids) > 0</field>
+        <field name="notify_on_submit" eval="True" />
+        <field name="notify_on_approve" eval="True" />
+        <field name="notify_on_reject" eval="True" />
         <!-- Tiers must be created inline to satisfy the constraint -->
-        <field name="tier_ids" eval="[
+        <field
+            name="tier_ids"
+            eval="[
             Command.create({
                 'sequence': 10,
                 'name': 'Registry Manager Review',
@@ -185,7 +201,8 @@
                 'sla_hours': 72,
                 'notify_on_pending': True,
             }),
-        ]"/>
+        ]"
+        />
     </record>
 
     <!--
@@ -195,15 +212,20 @@
     1. Registry Manager to verify the merge is appropriate
     2. Approval Manager to authorize the data consolidation
     -->
-    <record id="approval_def_merge_registrants_multitier" model="spp.approval.definition">
+    <record
+        id="approval_def_merge_registrants_multitier"
+        model="spp.approval.definition"
+    >
         <field name="name">Merge Registrants (2-Tier Approval)</field>
-        <field name="model_id" search="[('model', '=', 'spp.change.request')]"/>
-        <field name="use_multitier" eval="True"/>
-        <field name="notify_on_submit" eval="True"/>
-        <field name="notify_on_approve" eval="True"/>
-        <field name="notify_on_reject" eval="True"/>
+        <field name="model_id" search="[('model', '=', 'spp.change.request')]" />
+        <field name="use_multitier" eval="True" />
+        <field name="notify_on_submit" eval="True" />
+        <field name="notify_on_approve" eval="True" />
+        <field name="notify_on_reject" eval="True" />
         <!-- Tiers must be created inline to satisfy the constraint -->
-        <field name="tier_ids" eval="[
+        <field
+            name="tier_ids"
+            eval="[
             Command.create({
                 'sequence': 10,
                 'name': 'Registry Manager Verification',
@@ -220,7 +242,8 @@
                 'sla_hours': 72,
                 'notify_on_pending': True,
             }),
-        ]"/>
+        ]"
+        />
     </record>
 
     <!-- ═══════════════════════════════════════════════════════════════════════ -->
@@ -229,58 +252,84 @@
     <!-- ═══════════════════════════════════════════════════════════════════════ -->
 
     <!-- Edit Individual (from spp_cr_types_base) -->
-    <record id="spp_cr_types_base.cr_type_edit_individual" model="spp.change.request.type">
-        <field name="approval_definition_id" ref="approval_def_local_to_hq_validator"/>
+    <record
+        id="spp_cr_types_base.cr_type_edit_individual"
+        model="spp.change.request.type"
+    >
+        <field name="approval_definition_id" ref="approval_def_local_to_hq_validator" />
     </record>
 
     <!-- Edit Group (from spp_cr_types_base) -->
     <record id="spp_cr_types_base.cr_type_edit_group" model="spp.change.request.type">
-        <field name="approval_definition_id" ref="approval_def_local_to_hq_validator"/>
+        <field name="approval_definition_id" ref="approval_def_local_to_hq_validator" />
     </record>
 
     <!-- Add Member (from spp_cr_types_advanced) -->
-    <record id="spp_cr_types_advanced.cr_type_add_member" model="spp.change.request.type">
-        <field name="approval_definition_id" ref="approval_def_local_to_hq_validator"/>
+    <record
+        id="spp_cr_types_advanced.cr_type_add_member"
+        model="spp.change.request.type"
+    >
+        <field name="approval_definition_id" ref="approval_def_local_to_hq_validator" />
     </record>
 
     <!-- Remove Member (from spp_cr_types_advanced) -->
-    <record id="spp_cr_types_advanced.cr_type_remove_member" model="spp.change.request.type">
-        <field name="approval_definition_id" ref="approval_def_local_to_hq_validator"/>
+    <record
+        id="spp_cr_types_advanced.cr_type_remove_member"
+        model="spp.change.request.type"
+    >
+        <field name="approval_definition_id" ref="approval_def_local_to_hq_validator" />
     </record>
 
     <!-- Change Head of Household (from spp_cr_types_advanced) -->
-    <record id="spp_cr_types_advanced.cr_type_change_hoh" model="spp.change.request.type">
-        <field name="approval_definition_id" ref="approval_def_local_to_hq_validator"/>
+    <record
+        id="spp_cr_types_advanced.cr_type_change_hoh"
+        model="spp.change.request.type"
+    >
+        <field name="approval_definition_id" ref="approval_def_local_to_hq_validator" />
     </record>
 
     <!-- Transfer Member (from spp_cr_types_advanced) -->
-    <record id="spp_cr_types_advanced.cr_type_transfer_member" model="spp.change.request.type">
-        <field name="approval_definition_id" ref="approval_def_local_to_hq_validator"/>
+    <record
+        id="spp_cr_types_advanced.cr_type_transfer_member"
+        model="spp.change.request.type"
+    >
+        <field name="approval_definition_id" ref="approval_def_local_to_hq_validator" />
     </record>
 
     <!-- Exit Registrant (from spp_cr_types_advanced) -->
-    <record id="spp_cr_types_advanced.cr_type_exit_registrant" model="spp.change.request.type">
-        <field name="approval_definition_id" ref="approval_def_local_to_hq_validator"/>
+    <record
+        id="spp_cr_types_advanced.cr_type_exit_registrant"
+        model="spp.change.request.type"
+    >
+        <field name="approval_definition_id" ref="approval_def_local_to_hq_validator" />
     </record>
 
     <!-- Update ID (from spp_cr_types_base) -->
     <record id="spp_cr_types_base.cr_type_update_id" model="spp.change.request.type">
-        <field name="approval_definition_id" ref="approval_def_local_to_hq_validator"/>
+        <field name="approval_definition_id" ref="approval_def_local_to_hq_validator" />
     </record>
 
     <!-- Create Group (from spp_cr_types_advanced) -->
-    <record id="spp_cr_types_advanced.cr_type_create_group" model="spp.change.request.type">
-        <field name="approval_definition_id" ref="approval_def_local_to_hq_validator"/>
+    <record
+        id="spp_cr_types_advanced.cr_type_create_group"
+        model="spp.change.request.type"
+    >
+        <field name="approval_definition_id" ref="approval_def_local_to_hq_validator" />
     </record>
 
     <!-- Split Household (from spp_cr_types_advanced) -->
-    <record id="spp_cr_types_advanced.cr_type_split_household" model="spp.change.request.type">
-        <field name="approval_definition_id" ref="approval_def_local_to_hq_validator"/>
+    <record
+        id="spp_cr_types_advanced.cr_type_split_household"
+        model="spp.change.request.type"
+    >
+        <field name="approval_definition_id" ref="approval_def_local_to_hq_validator" />
     </record>
 
     <!-- Merge Registrants (from spp_cr_types_advanced) -->
-    <record id="spp_cr_types_advanced.cr_type_merge_registrants" model="spp.change.request.type">
-        <field name="approval_definition_id" ref="approval_def_local_to_hq_validator"/>
+    <record
+        id="spp_cr_types_advanced.cr_type_merge_registrants"
+        model="spp.change.request.type"
+    >
+        <field name="approval_definition_id" ref="approval_def_local_to_hq_validator" />
     </record>
-
 </odoo>

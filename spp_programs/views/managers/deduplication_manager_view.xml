@@ -63,7 +63,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     <div class="oe_title mb24">
                         <label for="name" string="Name:" />
                         <h1>
-                            <field id="name" name="name" placeholder="Enter the Manager Name..." />
+                            <field
+                                id="name"
+                                name="name"
+                                placeholder="Enter the Manager Name..."
+                            />
                         </h1>
                     </div>
                 </sheet>
@@ -80,7 +84,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                 <field name="name" />
                 <field name="program_id" />
                 <separator />
-                    <filter string="Program" name="grp_program_id" context="{'group_by': 'program_id'}" />
+                <filter
+                    string="Program"
+                    name="grp_program_id"
+                    context="{'group_by': 'program_id'}"
+                />
                 <!--<searchpanel>
                     <field name="group" icon="fa-users"/>
                 </searchpanel> -->
@@ -100,20 +108,27 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Add a Default Deduplication Manager!
-            </p><p>
+            </p>
+            <p>
                 Click the create button to enter a new Default deduplication manager.
             </p>
         </field>
     </record>
 
-    <record id="action_deduplication_manager_default_tree_view" model="ir.actions.act_window.view">
+    <record
+        id="action_deduplication_manager_default_tree_view"
+        model="ir.actions.act_window.view"
+    >
         <field name="sequence" eval="1" />
         <field name="view_mode">list</field>
         <field name="view_id" ref="view_deduplication_manager_default_tree" />
         <field name="act_window_id" ref="action_deduplication_manager_default" />
     </record>
 
-    <record id="action_deduplication_manager_default_form_view" model="ir.actions.act_window.view">
+    <record
+        id="action_deduplication_manager_default_form_view"
+        model="ir.actions.act_window.view"
+    >
         <field name="sequence" eval="1" />
         <field name="view_mode">form</field>
         <field name="view_id" ref="view_deduplication_manager_default_form" />
@@ -146,7 +161,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     <div class="oe_title mb24">
                         <label for="name" string="Name:" />
                         <h1>
-                            <field id="name" name="name" placeholder="Enter the Manager Name..." />
+                            <field
+                                id="name"
+                                name="name"
+                                placeholder="Enter the Manager Name..."
+                            />
                         </h1>
                     </div>
                     <group colspan="4" col="4">
@@ -171,7 +190,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                 <field name="name" />
                 <field name="program_id" />
                 <separator />
-                    <filter string="Program" name="grp_program_id" context="{'group_by': 'program_id'}" />
+                <filter
+                    string="Program"
+                    name="grp_program_id"
+                    context="{'group_by': 'program_id'}"
+                />
                 <!--<searchpanel>
                     <field name="group" icon="fa-users"/>
                 </searchpanel> -->
@@ -191,20 +214,27 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Add an ID Deduplication Manager!
-            </p><p>
+            </p>
+            <p>
                 Click the create button to enter a new ID deduplication manager.
             </p>
         </field>
     </record>
 
-    <record id="action_deduplication_manager_id_dedup_tree_view" model="ir.actions.act_window.view">
+    <record
+        id="action_deduplication_manager_id_dedup_tree_view"
+        model="ir.actions.act_window.view"
+    >
         <field name="sequence" eval="1" />
         <field name="view_mode">list</field>
         <field name="view_id" ref="view_deduplication_manager_id_dedup_tree" />
         <field name="act_window_id" ref="action_deduplication_manager_id_dedup" />
     </record>
 
-    <record id="action_deduplication_manager_id_dedup_form_view" model="ir.actions.act_window.view">
+    <record
+        id="action_deduplication_manager_id_dedup_form_view"
+        model="ir.actions.act_window.view"
+    >
         <field name="sequence" eval="1" />
         <field name="view_mode">form</field>
         <field name="view_id" ref="view_deduplication_manager_id_dedup_form" />
@@ -236,7 +266,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     <div class="oe_title mb24">
                         <label for="name" string="Name:" />
                         <h1>
-                            <field id="name" name="name" placeholder="Enter the Manager Name..." />
+                            <field
+                                id="name"
+                                name="name"
+                                placeholder="Enter the Manager Name..."
+                            />
                         </h1>
                     </div>
                 </sheet>
@@ -253,7 +287,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                 <field name="name" />
                 <field name="program_id" />
                 <separator />
-                    <filter string="Program" name="grp_program_id" context="{'group_by': 'program_id'}" />
+                <filter
+                    string="Program"
+                    name="grp_program_id"
+                    context="{'group_by': 'program_id'}"
+                />
                 <!--<searchpanel>
                     <field name="group" icon="fa-users"/>
                 </searchpanel> -->
@@ -261,7 +299,10 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         </field>
     </record>
 
-    <record id="action_deduplication_manager_phone_number" model="ir.actions.act_window">
+    <record
+        id="action_deduplication_manager_phone_number"
+        model="ir.actions.act_window"
+    >
         <field name="name">Phone Number Deduplication Managers</field>
         <field name="type">ir.actions.act_window</field>
         <field name="path">program-phone-deduplication-managers</field>
@@ -273,20 +314,27 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Add a Phone Number Deduplication Manager!
-            </p><p>
+            </p>
+            <p>
                 Click the create button to enter a new Phone Number deduplication manager.
             </p>
         </field>
     </record>
 
-    <record id="action_deduplication_manager_phone_number_tree_view" model="ir.actions.act_window.view">
+    <record
+        id="action_deduplication_manager_phone_number_tree_view"
+        model="ir.actions.act_window.view"
+    >
         <field name="sequence" eval="1" />
         <field name="view_mode">list</field>
         <field name="view_id" ref="view_deduplication_manager_phone_number_tree" />
         <field name="act_window_id" ref="action_deduplication_manager_phone_number" />
     </record>
 
-    <record id="action_deduplication_manager_phone_number_form_view" model="ir.actions.act_window.view">
+    <record
+        id="action_deduplication_manager_phone_number_form_view"
+        model="ir.actions.act_window.view"
+    >
         <field name="sequence" eval="1" />
         <field name="view_mode">form</field>
         <field name="view_id" ref="view_deduplication_manager_phone_number_form" />
@@ -317,7 +365,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     <div class="oe_title mb24">
                         <label for="name" string="Name:" />
                         <h1>
-                            <field id="name" name="name" placeholder="Enter the Manager Name..." />
+                            <field
+                                id="name"
+                                name="name"
+                                placeholder="Enter the Manager Name..."
+                            />
                         </h1>
                     </div>
                 </sheet>
@@ -334,7 +386,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                 <field name="name" />
                 <field name="program_id" />
                 <separator />
-                    <filter string="Program" name="grp_program_id" context="{'group_by': 'program_id'}" />
+                <filter
+                    string="Program"
+                    name="grp_program_id"
+                    context="{'group_by': 'program_id'}"
+                />
                 <!--<searchpanel>
                     <field name="group" icon="fa-users"/>
                 </searchpanel> -->
@@ -354,20 +410,27 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Add an ID Deduplication Eligibility Manager!
-            </p><p>
+            </p>
+            <p>
                 Click the create button to enter a new ID deduplication eligibility manager.
             </p>
         </field>
     </record>
 
-    <record id="action_eligibility_manager_id_dedup_tree_view" model="ir.actions.act_window.view">
+    <record
+        id="action_eligibility_manager_id_dedup_tree_view"
+        model="ir.actions.act_window.view"
+    >
         <field name="sequence" eval="1" />
         <field name="view_mode">list</field>
         <field name="view_id" ref="view_eligibility_manager_id_dedup_tree" />
         <field name="act_window_id" ref="action_eligibility_manager_id_dedup" />
     </record>
 
-    <record id="action_eligibility_manager_id_dedup_form_view" model="ir.actions.act_window.view">
+    <record
+        id="action_eligibility_manager_id_dedup_form_view"
+        model="ir.actions.act_window.view"
+    >
         <field name="sequence" eval="1" />
         <field name="view_mode">form</field>
         <field name="view_id" ref="view_eligibility_manager_id_dedup_form" />
@@ -398,7 +461,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     <div class="oe_title mb24">
                         <label for="name" string="Name:" />
                         <h1>
-                            <field id="name" name="name" placeholder="Enter the Manager Name..." />
+                            <field
+                                id="name"
+                                name="name"
+                                placeholder="Enter the Manager Name..."
+                            />
                         </h1>
                     </div>
                 </sheet>
@@ -415,7 +482,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                 <field name="name" />
                 <field name="program_id" />
                 <separator />
-                    <filter string="Program" name="grp_program_id" context="{'group_by': 'program_id'}" />
+                <filter
+                    string="Program"
+                    name="grp_program_id"
+                    context="{'group_by': 'program_id'}"
+                />
                 <!--<searchpanel>
                     <field name="group" icon="fa-users"/>
                 </searchpanel> -->
@@ -435,24 +506,30 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Add a Phone Number Deduplication Eligibility Manager!
-            </p><p>
+            </p>
+            <p>
                 Click the create button to enter a new Phone Number deduplication eligibility manager.
             </p>
         </field>
     </record>
 
-    <record id="action_eligibility_manager_phone_number_tree_view" model="ir.actions.act_window.view">
+    <record
+        id="action_eligibility_manager_phone_number_tree_view"
+        model="ir.actions.act_window.view"
+    >
         <field name="sequence" eval="1" />
         <field name="view_mode">list</field>
         <field name="view_id" ref="view_eligibility_manager_phone_number_tree" />
         <field name="act_window_id" ref="action_eligibility_manager_phone_number" />
     </record>
 
-    <record id="action_eligibility_manager_phone_number_form_view" model="ir.actions.act_window.view">
+    <record
+        id="action_eligibility_manager_phone_number_form_view"
+        model="ir.actions.act_window.view"
+    >
         <field name="sequence" eval="1" />
         <field name="view_mode">form</field>
         <field name="view_id" ref="view_eligibility_manager_phone_number_form" />
         <field name="act_window_id" ref="action_eligibility_manager_phone_number" />
     </record>
-
 </odoo>

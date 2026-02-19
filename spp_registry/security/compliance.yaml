@@ -59,7 +59,8 @@ groups:
   - id: group_registry_restrict_self
     tier: 2
     privilege_id: privilege_registry_restrict_self_officer
-    comment: "Restrict access to only see own records. Can be combined with other groups."
+    comment:
+      "Restrict access to only see own records. Can be combined with other groups."
 
 # Admin linkage - manager group links to spp_security.group_spp_admin
 admin_link_group: group_registry_manager
@@ -154,7 +155,8 @@ record_rules:
   - id: rule_spp_group_membership_group_edit
     model: spp.group.membership
     groups: [group_registry_officer, group_registry_manager]
-    domain_description: "Allow officers/managers to manage memberships for active groups"
+    domain_description:
+      "Allow officers/managers to manage memberships for active groups"
     perm_read: true
     perm_write: true
     perm_create: true
@@ -172,7 +174,8 @@ record_rules:
   - id: rule_spp_group_membership_individual_edit
     model: spp.group.membership
     groups: [group_registry_officer, group_registry_manager]
-    domain_description: "Allow officers/managers to manage memberships for active individuals"
+    domain_description:
+      "Allow officers/managers to manage memberships for active individuals"
     perm_read: true
     perm_write: true
     perm_create: true
@@ -186,7 +189,13 @@ record_rules:
 menus:
   - id: spp_main_menu_root
     name: "Registry"
-    groups: [spp_security.group_spp_admin, group_registry_viewer, group_registry_officer, group_registry_manager]
+    groups:
+      [
+        spp_security.group_spp_admin,
+        group_registry_viewer,
+        group_registry_officer,
+        group_registry_manager,
+      ]
 
   - id: spp_configuration_menu_root
     name: "Configuration"

@@ -40,11 +40,18 @@ class HdxCodSource(models.Model):
 
     _country_unique = models.Constraint("UNIQUE(country_id)", "Only one COD source per country is allowed")
 
-    @api.depends("country_id")
+    @api.depends("country_id", "hdx_dataset_id")
     def _compute_country_iso3(self):
-        """Compute ISO3 code from country."""
+        """Compute ISO3 code from HDX dataset ID or country.
+
+        HDX dataset IDs follow the pattern ``cod-ab-{iso3}`` (e.g., ``cod-ab-phl``),
+        which contains the correct 3-letter ISO code.  Falls back to the 2-letter
+        ``res.country.code`` when the dataset ID is not set.
+        """
         for record in self:
-            if record.country_id:
+            if record.hdx_dataset_id and record.hdx_dataset_id.startswith("cod-ab-"):
+                record.country_iso3 = record.hdx_dataset_id[len("cod-ab-") :].upper()
+            elif record.country_id:
                 record.country_iso3 = record.country_id.code
             else:
                 record.country_iso3 = False
@@ -63,7 +70,12 @@ class HdxCodSource(models.Model):
 
         try:
             client = HdxClient()
-            dataset = client.search_cod_datasets(self.country_iso3)
+
+            # Use existing dataset ID if available, otherwise search by ISO3
+            if self.hdx_dataset_id:
+                dataset = client.get_dataset(self.hdx_dataset_id)
+            else:
+                dataset = client.search_cod_datasets(self.country_iso3)
 
             if not dataset:
                 raise UserError(_("No COD dataset found for country %s") % self.country_id.name)
@@ -88,8 +100,9 @@ class HdxCodSource(models.Model):
                 admin_level = client.detect_admin_level(resource_name)
 
                 # Check if resource already exists
+                _rid, _lvl = resource_id, admin_level
                 existing_resource = self.resource_ids.filtered(
-                    lambda r: r.hdx_resource_id == resource_id or r.admin_level == admin_level
+                    lambda r, rid=_rid, lvl=_lvl: r.hdx_resource_id == rid or r.admin_level == lvl
                 )
 
                 resource_vals = {

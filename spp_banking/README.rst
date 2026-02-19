@@ -14,14 +14,17 @@ OpenSPP Banking: Bank Details
    !! source digest: sha256:51133ab18c2a673387162710434ad8b19d5c7f0c8a37f17b95e8b27193ff80ec
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+    :target: https://odoo-community.org/page/development-status
+    :alt: Production/Stable
+.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
     :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_banking
     :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2|
+|badge1| |badge2| |badge3|
 
 Adds bank account management to registrants (individuals and groups).
 Stores account details, bank information, and automatically generates
@@ -31,22 +34,23 @@ IBANs using the schwifty library. Extends the standard Odoo
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  Store multiple bank accounts per registrant with account number,
-   bank, and account type
--  Automatically generate IBAN from bank country code, BIC, and account
-   number
--  Display bank details in individual and group registry forms under the
-   financial section
--  Validate and format IBANs according to country-specific standards
+- Store multiple bank accounts per registrant with account number, bank,
+  and account type
+- Automatically generate IBAN from bank country code, BIC, and account
+  number
+- Display bank details in individual and group registry forms under the
+  financial section
+- Validate and format IBANs according to country-specific standards
 
 Key Models
 ~~~~~~~~~~
 
-+----------------------+------------------------------------------------------+
-| Model                | Description                                          |
-+======================+======================================================+
-| ``res.partner.bank`` | Bank account details with automatic IBAN computation |
-+----------------------+------------------------------------------------------+
++----------------------+-----------------------------------------------+
+| Model                | Description                                   |
++======================+===============================================+
+| ``res.partner.bank`` | Bank account details with automatic IBAN      |
+|                      | computation                                   |
++----------------------+-----------------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -57,12 +61,12 @@ directly to registrant profiles.
 UI Location
 ~~~~~~~~~~~
 
--  **No standalone menu**: Bank account fields are added to existing
-   registrant forms
--  **Individuals**: Navigate to a registrant, view the "Profile" tab,
-   bank accounts appear in the Financial Information section
--  **Groups**: Navigate to a group registrant, view the "Profile" tab,
-   bank accounts appear in the Financial Information section
+- **No standalone menu**: Bank account fields are added to existing
+  registrant forms
+- **Individuals**: Navigate to a registrant, view the "Profile" tab,
+  bank accounts appear in the Financial Information section
+- **Groups**: Navigate to a group registrant, view the "Profile" tab,
+  bank accounts appear in the Financial Information section
 
 Bank accounts are displayed as an editable list with fields for bank,
 account number, and computed IBAN.
@@ -81,10 +85,10 @@ Group                                   Access
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Override ``_compute_account_number()`` in ``res.partner.bank`` to
-   customize IBAN generation logic
--  Inherit ``res.partner.bank`` to add additional banking fields or
-   validation rules
+- Override ``_compute_account_number()`` in ``res.partner.bank`` to
+  customize IBAN generation logic
+- Inherit ``res.partner.bank`` to add additional banking fields or
+  validation rules
 
 Dependencies
 ~~~~~~~~~~~~

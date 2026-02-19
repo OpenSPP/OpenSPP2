@@ -38,13 +38,21 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                             icon="fa-map"
                             name="action_view_reports"
                         >
-                            <field name="report_count" widget="statinfo" string="Reports" />
+                            <field
+                                name="report_count"
+                                widget="statinfo"
+                                string="Reports"
+                            />
                         </button>
                     </div>
 
                     <div class="oe_title">
                         <h1>
-                            <field name="name" placeholder="Category Name" required="1" />
+                            <field
+                                name="name"
+                                placeholder="Category Name"
+                                required="1"
+                            />
                         </h1>
                     </div>
 

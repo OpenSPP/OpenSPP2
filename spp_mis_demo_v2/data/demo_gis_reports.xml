@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
     <!--
     GIS Report Demo Data for SP-MIS Demo
@@ -11,20 +11,24 @@
     <record id="gis_report_beneficiary_distribution" model="spp.gis.report">
         <field name="name">Beneficiary Distribution Map</field>
         <field name="code">MIS_DEMO_BENEFICIARY_DIST</field>
-        <field name="description">Geographic distribution of registered beneficiaries across all areas. Shows where households are concentrated to help with resource allocation and outreach planning.</field>
-        <field name="category_id" ref="spp_gis_report.category_coverage"/>
+        <field
+            name="description"
+        >Geographic distribution of registered beneficiaries across all areas. Shows where households are concentrated to help with resource allocation and outreach planning.</field>
+        <field name="category_id" ref="spp_gis_report.category_coverage" />
         <field name="sequence">10</field>
-        <field name="source_model_id" search="[('model', '=', 'res.partner')]"/>
+        <field name="source_model_id" search="[('model', '=', 'res.partner')]" />
         <field name="area_field_path">area_id</field>
         <field name="filter_mode">domain</field>
-        <field name="filter_domain">[('is_registrant', '=', True), ('is_group', '=', True)]</field>
+        <field
+            name="filter_domain"
+        >[('is_registrant', '=', True), ('is_group', '=', True)]</field>
         <field name="aggregation_method">count</field>
         <field name="base_area_level">2</field>
         <field name="normalization_method">raw</field>
         <field name="enable_rollup">True</field>
         <field name="rollup_method">sum</field>
         <field name="rollup_weight_source">count</field>
-        <field name="color_scheme_id" ref="spp_gis.scheme_viridis"/>
+        <field name="color_scheme_id" ref="spp_gis.scheme_viridis" />
         <field name="threshold_mode">auto_quartile</field>
         <field name="bucket_count">5</field>
         <field name="disaggregate_by_gender">True</field>
@@ -36,20 +40,24 @@
     <record id="gis_report_beneficiary_density" model="spp.gis.report">
         <field name="name">Beneficiary Density per km²</field>
         <field name="code">MIS_DEMO_BENEFICIARY_DENSITY</field>
-        <field name="description">Density of registered beneficiaries normalized by area size. Identifies highly concentrated areas that may need additional service points or staff.</field>
-        <field name="category_id" ref="spp_gis_report.category_coverage"/>
+        <field
+            name="description"
+        >Density of registered beneficiaries normalized by area size. Identifies highly concentrated areas that may need additional service points or staff.</field>
+        <field name="category_id" ref="spp_gis_report.category_coverage" />
         <field name="sequence">20</field>
-        <field name="source_model_id" search="[('model', '=', 'res.partner')]"/>
+        <field name="source_model_id" search="[('model', '=', 'res.partner')]" />
         <field name="area_field_path">area_id</field>
         <field name="filter_mode">domain</field>
-        <field name="filter_domain">[('is_registrant', '=', True), ('is_group', '=', True)]</field>
+        <field
+            name="filter_domain"
+        >[('is_registrant', '=', True), ('is_group', '=', True)]</field>
         <field name="aggregation_method">count</field>
         <field name="base_area_level">2</field>
         <field name="normalization_method">per_area_sqkm</field>
         <field name="enable_rollup">True</field>
         <field name="rollup_method">weighted_avg</field>
         <field name="rollup_weight_source">area_sqkm</field>
-        <field name="color_scheme_id" ref="spp_gis.scheme_blues"/>
+        <field name="color_scheme_id" ref="spp_gis.scheme_blues" />
         <field name="threshold_mode">auto_jenks</field>
         <field name="bucket_count">5</field>
         <field name="disaggregate_by_gender">True</field>
@@ -61,20 +69,24 @@
     <record id="gis_report_individuals_per_household" model="spp.gis.report">
         <field name="name">Individuals per Household</field>
         <field name="code">MIS_DEMO_AVG_HH_SIZE</field>
-        <field name="description">Average number of individual registrants per household by area. Useful for understanding family composition patterns across regions.</field>
-        <field name="category_id" ref="spp_gis_report.category_demographics"/>
+        <field
+            name="description"
+        >Average number of individual registrants per household by area. Useful for understanding family composition patterns across regions.</field>
+        <field name="category_id" ref="spp_gis_report.category_demographics" />
         <field name="sequence">30</field>
-        <field name="source_model_id" search="[('model', '=', 'res.partner')]"/>
+        <field name="source_model_id" search="[('model', '=', 'res.partner')]" />
         <field name="area_field_path">area_id</field>
         <field name="filter_mode">domain</field>
-        <field name="filter_domain">[('is_registrant', '=', True), ('is_group', '=', False)]</field>
+        <field
+            name="filter_domain"
+        >[('is_registrant', '=', True), ('is_group', '=', False)]</field>
         <field name="aggregation_method">count</field>
         <field name="base_area_level">2</field>
         <field name="normalization_method">percentile</field>
         <field name="enable_rollup">True</field>
         <field name="rollup_method">avg</field>
         <field name="rollup_weight_source">count</field>
-        <field name="color_scheme_id" ref="spp_gis.scheme_viridis"/>
+        <field name="color_scheme_id" ref="spp_gis.scheme_viridis" />
         <field name="threshold_mode">auto_quartile</field>
         <field name="bucket_count">4</field>
         <field name="disaggregate_by_age">True</field>
@@ -87,24 +99,27 @@
     <record id="gis_report_coverage_percentile" model="spp.gis.report">
         <field name="name">Coverage Percentile Ranking</field>
         <field name="code">MIS_DEMO_COVERAGE_PERCENTILE</field>
-        <field name="description">Percentile ranking of coverage across areas. Quickly identifies which areas are in the top or bottom quartiles for program reach.</field>
-        <field name="category_id" ref="spp_gis_report.category_coverage"/>
+        <field
+            name="description"
+        >Percentile ranking of coverage across areas. Quickly identifies which areas are in the top or bottom quartiles for program reach.</field>
+        <field name="category_id" ref="spp_gis_report.category_coverage" />
         <field name="sequence">40</field>
-        <field name="source_model_id" search="[('model', '=', 'res.partner')]"/>
+        <field name="source_model_id" search="[('model', '=', 'res.partner')]" />
         <field name="area_field_path">area_id</field>
         <field name="filter_mode">domain</field>
-        <field name="filter_domain">[('is_registrant', '=', True), ('is_group', '=', True)]</field>
+        <field
+            name="filter_domain"
+        >[('is_registrant', '=', True), ('is_group', '=', True)]</field>
         <field name="aggregation_method">count</field>
         <field name="base_area_level">2</field>
         <field name="normalization_method">index</field>
         <field name="enable_rollup">True</field>
         <field name="rollup_method">sum</field>
         <field name="rollup_weight_source">count</field>
-        <field name="color_scheme_id" ref="spp_gis.scheme_viridis"/>
+        <field name="color_scheme_id" ref="spp_gis.scheme_viridis" />
         <field name="threshold_mode">auto_equal</field>
         <field name="bucket_count">5</field>
         <field name="refresh_mode">scheduled</field>
         <field name="refresh_interval">daily</field>
     </record>
-
 </odoo>

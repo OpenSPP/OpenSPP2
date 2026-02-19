@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-<!-- Area Import (Excel File) -->
+    <!-- Area Import (Excel File) -->
     <record id="view_spparea_import_form" model="ir.ui.view">
         <field name="name">view_spparea_import_form</field>
         <field name="model">spp.area.import</field>
@@ -8,10 +8,10 @@
         <field name="arch" type="xml">
             <form string="Area Import">
                 <!-- Hidden Fields -->
-                <field name="is_locked" invisible="1"/>
-                <field name="progress_total" invisible="1"/>
-                <field name="progress_done" invisible="1"/>
-                <field name="progress_percent" invisible="1"/>
+                <field name="is_locked" invisible="1" />
+                <field name="progress_total" invisible="1" />
+                <field name="progress_done" invisible="1" />
+                <field name="progress_percent" invisible="1" />
 
                 <!-- Header with Workflow Buttons -->
                 <header invisible="is_locked">
@@ -22,7 +22,8 @@
                         string="Process File"
                         class="btn-primary"
                         invisible="state not in ('Uploaded', 'Parsed') or not id"
-                        confirm="This will parse the Excel file, import data, and validate it. Continue?"/>
+                        confirm="This will parse the Excel file, import data, and validate it. Continue?"
+                    />
 
                     <!-- Save Action -->
                     <button
@@ -31,7 +32,8 @@
                         string="Save to Area Records"
                         class="btn-success"
                         invisible="state != 'Validated'"
-                        confirm="This will save the validated data to area records. This action cannot be undone. Continue?"/>
+                        confirm="This will save the validated data to area records. This action cannot be undone. Continue?"
+                    />
 
                     <!-- Secondary Actions -->
                     <button
@@ -39,7 +41,8 @@
                         type="object"
                         string="Re-validate Data"
                         class="btn-secondary"
-                        invisible="state != 'Imported'"/>
+                        invisible="state != 'Imported'"
+                    />
 
                     <!-- Reset/Cancel -->
                     <button
@@ -48,7 +51,8 @@
                         string="Reset"
                         class="btn-warning"
                         invisible="state not in ('Parsed', 'Imported', 'Validated')"
-                        confirm="This will reset the import to uploaded state. All progress will be lost. Continue?"/>
+                        confirm="This will reset the import to uploaded state. All progress will be lost. Continue?"
+                    />
 
                     <button
                         name="cancel_import"
@@ -56,118 +60,210 @@
                         string="Cancel Import"
                         class="btn-danger"
                         invisible="state not in ('Uploaded', 'Parsed', 'Imported', 'Validated') or not id"
-                        confirm="Cancel this import? This action cannot be undone."/>
+                        confirm="Cancel this import? This action cannot be undone."
+                    />
 
                     <field
                         name="state"
                         widget="statusbar"
-                        statusbar_visible="New,Uploaded,Validated,Done"/>
+                        statusbar_visible="New,Uploaded,Validated,Done"
+                    />
                 </header>
 
                 <!-- Progress Banner -->
-                <div class="alert alert-warning text-center py-2 o_form_header" role="status" invisible="not is_locked">
+                <div
+                    class="alert alert-warning text-center py-2 o_form_header"
+                    role="status"
+                    invisible="not is_locked"
+                >
                     <div class="d-flex align-items-center justify-content-center gap-2">
-                        <i class="fa fa-spinner fa-pulse" title="Loading"/>
+                        <i class="fa fa-spinner fa-pulse" title="Loading" />
                         <strong>Processing...</strong>
-                        <field name="locked_reason" class="d-inline"/>
+                        <field name="locked_reason" class="d-inline" />
                     </div>
-                    <div class="d-flex align-items-center justify-content-center gap-2 mt-2" invisible="progress_total == 0">
-                        <field name="progress_percent" widget="progressbar"
-                               options="{'editable': false}" style="max-width: 300px;"/>
+                    <div
+                        class="d-flex align-items-center justify-content-center gap-2 mt-2"
+                        invisible="progress_total == 0"
+                    >
+                        <field
+                            name="progress_percent"
+                            widget="progressbar"
+                            options="{'editable': false}"
+                            style="max-width: 300px;"
+                        />
                         <span class="badge text-bg-info">
-                            <field name="progress_done" readonly="1" class="d-inline"/> /
-                            <field name="progress_total" readonly="1" class="d-inline"/> batches
+                            <field
+                            name="progress_done"
+                            readonly="1"
+                            class="d-inline"
+                        /> /
+                            <field
+                            name="progress_total"
+                            readonly="1"
+                            class="d-inline"
+                        /> batches
                         </span>
                         <button
                             name="refresh_page"
                             type="object"
                             class="btn btn-sm btn-outline-secondary"
                             icon="fa-refresh"
-                            string="Refresh"/>
+                            string="Refresh"
+                        />
                     </div>
                 </div>
 
                 <sheet>
                     <!-- Status Ribbons -->
-                    <widget name="web_ribbon" title="New" bg_color="text-bg-secondary"
-                            invisible="state != 'New'"/>
-                    <widget name="web_ribbon" title="Uploaded" bg_color="text-bg-primary"
-                            invisible="state != 'Uploaded'"/>
-                    <widget name="web_ribbon" title="Processing" bg_color="text-bg-info"
-                            invisible="state not in ('Parsed', 'Imported')"/>
-                    <widget name="web_ribbon" title="Ready to Save" bg_color="text-bg-success"
-                            invisible="state != 'Validated'"/>
-                    <widget name="web_ribbon" title="Completed" bg_color="text-bg-success"
-                            invisible="state != 'Done'"/>
-                    <widget name="web_ribbon" title="Cancelled" bg_color="text-bg-danger"
-                            invisible="state != 'Cancelled'"/>
+                    <widget
+                        name="web_ribbon"
+                        title="New"
+                        bg_color="text-bg-secondary"
+                        invisible="state != 'New'"
+                    />
+                    <widget
+                        name="web_ribbon"
+                        title="Uploaded"
+                        bg_color="text-bg-primary"
+                        invisible="state != 'Uploaded'"
+                    />
+                    <widget
+                        name="web_ribbon"
+                        title="Processing"
+                        bg_color="text-bg-info"
+                        invisible="state not in ('Parsed', 'Imported')"
+                    />
+                    <widget
+                        name="web_ribbon"
+                        title="Ready to Save"
+                        bg_color="text-bg-success"
+                        invisible="state != 'Validated'"
+                    />
+                    <widget
+                        name="web_ribbon"
+                        title="Completed"
+                        bg_color="text-bg-success"
+                        invisible="state != 'Done'"
+                    />
+                    <widget
+                        name="web_ribbon"
+                        title="Cancelled"
+                        bg_color="text-bg-danger"
+                        invisible="state != 'Cancelled'"
+                    />
 
                     <!-- Title Section -->
                     <div class="oe_title">
-                        <label for="name" class="oe_edit_only"/>
+                        <label for="name" class="oe_edit_only" />
                         <h1>
-                            <field name="name"
-                                   placeholder="Area Import..."
-                                   readonly="state not in ('New', 'Uploaded')"/>
+                            <field
+                                name="name"
+                                placeholder="Area Import..."
+                                readonly="state not in ('New', 'Uploaded')"
+                            />
                         </h1>
                     </div>
 
                     <!-- File Upload Section -->
                     <group>
-                        <field name="excel_file"
-                               filename="name"
-                               readonly="state not in ('New', 'Uploaded')"/>
+                        <field
+                            name="excel_file"
+                            filename="name"
+                            readonly="state not in ('New', 'Uploaded')"
+                        />
                     </group>
 
                     <!-- Summary and Process Details Side by Side -->
                     <group invisible="state in ('New', 'Uploaded')">
                         <group string="Import Summary">
-                            <field name="total_rows_imported" string="Total Rows" readonly="1"/>
-                            <field name="total_rows_error" string="Rows with Errors" readonly="1"/>
-                            <field name="date_uploaded" readonly="1" widget="datetime"/>
-                            <field name="date_imported" readonly="1" widget="datetime"/>
-                            <field name="date_validated" readonly="1" widget="datetime"/>
+                            <field
+                                name="total_rows_imported"
+                                string="Total Rows"
+                                readonly="1"
+                            />
+                            <field
+                                name="total_rows_error"
+                                string="Rows with Errors"
+                                readonly="1"
+                            />
+                            <field
+                                name="date_uploaded"
+                                readonly="1"
+                                widget="datetime"
+                            />
+                            <field
+                                name="date_imported"
+                                readonly="1"
+                                widget="datetime"
+                            />
+                            <field
+                                name="date_validated"
+                                readonly="1"
+                                widget="datetime"
+                            />
                         </group>
                         <group string="Process Details">
-                            <field name="upload_id" readonly="1"/>
-                            <field name="import_id" readonly="1"/>
-                            <field name="validate_id" readonly="1"/>
+                            <field name="upload_id" readonly="1" />
+                            <field name="import_id" readonly="1" />
+                            <field name="validate_id" readonly="1" />
                         </group>
                     </group>
 
                     <!-- Data Tabs -->
                     <notebook invisible="state == 'New'">
                         <page string="Imported Data" name="raw_data">
-                            <field name="raw_data_ids" nolabel="1" readonly="state != 'Done'">
-                                <list create="0" delete="0" edit="0"
-                                      default_order="state_order">
-                                    <field name="state" widget="badge"
-                                           decoration-secondary="state=='New'"
-                                           decoration-primary="state=='Validated'"
-                                           decoration-success="state=='Posted'"
-                                           decoration-danger="state=='Error'"/>
-                                    <field name="remarks"/>
-                                    <field name="admin_name" string="Area Name"/>
-                                    <field name="admin_code" string="Area Code"/>
-                                    <field name="area_sqkm" string="Area (sq/km)" optional="show"/>
-                                    <field name="parent_name" optional="show"/>
-                                    <field name="parent_code" optional="show"/>
-                                    <field name="level" optional="show"/>
-                                    <field name="state_order" column_invisible="1"/>
+                            <field
+                                name="raw_data_ids"
+                                nolabel="1"
+                                readonly="state != 'Done'"
+                            >
+                                <list
+                                    create="0"
+                                    delete="0"
+                                    edit="0"
+                                    default_order="state_order"
+                                >
+                                    <field
+                                        name="state"
+                                        widget="badge"
+                                        decoration-secondary="state=='New'"
+                                        decoration-primary="state=='Validated'"
+                                        decoration-success="state=='Posted'"
+                                        decoration-danger="state=='Error'"
+                                    />
+                                    <field name="remarks" />
+                                    <field name="admin_name" string="Area Name" />
+                                    <field name="admin_code" string="Area Code" />
+                                    <field
+                                        name="area_sqkm"
+                                        string="Area (sq/km)"
+                                        optional="show"
+                                    />
+                                    <field name="parent_name" optional="show" />
+                                    <field name="parent_code" optional="show" />
+                                    <field name="level" optional="show" />
+                                    <field name="state_order" column_invisible="1" />
                                 </list>
                             </field>
                         </page>
 
-                        <page string="JSON Batches" name="json_data"
-                              invisible="not json_file_ids">
+                        <page
+                            string="JSON Batches"
+                            name="json_data"
+                            invisible="not json_file_ids"
+                        >
                             <field name="json_file_ids" nolabel="1" readonly="1">
                                 <list create="0" delete="0" edit="0">
-                                    <field name="batch_number" string="Batch #"/>
-                                    <field name="row_count" string="Rows"/>
-                                    <field name="file_size" string="Size"/>
-                                    <field name="json_file" filename="json_file_name"
-                                           widget="binary" string="Download"/>
-                                    <field name="json_file_name" column_invisible="1"/>
+                                    <field name="batch_number" string="Batch #" />
+                                    <field name="row_count" string="Rows" />
+                                    <field name="file_size" string="Size" />
+                                    <field
+                                        name="json_file"
+                                        filename="json_file_name"
+                                        widget="binary"
+                                        string="Download"
+                                    />
+                                    <field name="json_file_name" column_invisible="1" />
                                 </list>
                             </field>
                         </page>
@@ -187,9 +283,21 @@
                 <field name="upload_id" />
                 <field name="import_id" />
                 <filter name="state_new" string="New" domain="[('state','=','New')]" />
-                <filter name="state_uploaded" string="Uploaded" domain="[('state','=','Uploaded')]" />
-                <filter name="state_done" string="Done" domain="[('state','=','Done')]" />
-                <filter name="grp_state" string="State" context="{'group_by': 'state'}" />
+                <filter
+                    name="state_uploaded"
+                    string="Uploaded"
+                    domain="[('state','=','Uploaded')]"
+                />
+                <filter
+                    name="state_done"
+                    string="Done"
+                    domain="[('state','=','Done')]"
+                />
+                <filter
+                    name="grp_state"
+                    string="State"
+                    context="{'group_by': 'state'}"
+                />
             </search>
         </field>
     </record>
@@ -230,20 +338,27 @@
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Upload an excel file!
-            </p><p>
+            </p>
+            <p>
                 Click the create button to upload a new excel file.
             </p>
         </field>
     </record>
 
-    <record id="action_view_spparea_import_tree_view" model="ir.actions.act_window.view">
+    <record
+        id="action_view_spparea_import_tree_view"
+        model="ir.actions.act_window.view"
+    >
         <field name="sequence" eval="1" />
         <field name="view_mode">list</field>
         <field name="view_id" ref="view_spparea_import_tree" />
         <field name="act_window_id" ref="action_view_spparea_import" />
     </record>
 
-    <record id="action_view_spparea_import_form_view" model="ir.actions.act_window.view">
+    <record
+        id="action_view_spparea_import_form_view"
+        model="ir.actions.act_window.view"
+    >
         <field name="sequence" eval="2" />
         <field name="view_mode">form</field>
         <field name="view_id" ref="view_spparea_import_form" />
@@ -258,5 +373,4 @@
         sequence="106"
         groups="base.group_system,spp_security.group_spp_admin,spp_area.group_area_manager"
     />
-
 </odoo>

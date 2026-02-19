@@ -3,7 +3,6 @@
 Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 -->
 <odoo>
-
     <record id="view_program_membership_tree" model="ir.ui.view">
         <field name="name">view_program_membership_tree</field>
         <field name="model">spp.program.membership</field>
@@ -42,7 +41,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         <field name="arch" type="xml">
             <form string="Program Membership" edit="0" create="0">
                 <header>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,enrolled,paused,exited" />
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="draft,enrolled,paused,exited"
+                    />
                     <button
                         name="verify_eligibility"
                         type="object"
@@ -82,8 +85,7 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     />
                 </header>
                 <sheet>
-                    <div class="oe_button_box" name="button_box">
-                    </div>
+                    <div class="oe_button_box" name="button_box" />
                     <widget
                         name="web_ribbon"
                         title="DRAFT"
@@ -156,7 +158,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                             <field name="registration_date" readonly="1" />
                             <field name="enrollment_date" readonly="1" />
                             <field name="exit_date" />
-                            <field name="delivery_mechanism_value" colspan="4" invisible="1" />
+                            <field
+                                name="delivery_mechanism_value"
+                                colspan="4"
+                                invisible="1"
+                            />
                         </group>
                     </group>
                     <field name="is_group" invisible="1" />
@@ -169,7 +175,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                                     <field name="email" widget="email" />
                                 </group>
                                 <group>
-                                    <field name="phone_number_ids" nolabel="1" colspan="2">
+                                    <field
+                                        name="phone_number_ids"
+                                        nolabel="1"
+                                        colspan="2"
+                                    >
                                         <list>
                                             <field
                                                 name="phone_no"
@@ -179,7 +189,10 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                                             />
                                             <field name="country_id" />
                                             <field name="date_collected" />
-                                            <field name="disabled" column_invisible="1" />
+                                            <field
+                                                name="disabled"
+                                                column_invisible="1"
+                                            />
                                         </list>
                                     </field>
                                 </group>
@@ -187,7 +200,10 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                                     <field name="birthdate" />
                                     <field name="age" />
                                     <field name="birth_place" />
-                                    <field name="gender_id" domain="[('namespace_uri', '=', 'urn:iso:std:iso:5218')]"/>
+                                    <field
+                                        name="gender_id"
+                                        domain="[('namespace_uri', '=', 'urn:iso:std:iso:5218')]"
+                                    />
                                 </group>
                             </group>
                         </page>
@@ -202,8 +218,8 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                             </field>
                         </page>
                         <page string="IDs" name="ids">
-                            <field name="reg_ids" nolabel="1" colspan="2">
-                                <list editable="bottom">
+                            <field name="reg_ids" nolabel="1" colspan="2" readonly="1">
+                                <list>
                                     <field name="id_type_id" />
                                     <field name="value" string="ID Number" />
                                     <field name="expiry_date" />
@@ -212,14 +228,22 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         </page>
                         <page string="Relationships" name="relationships">
                             <group string="Registrant is related to:">
-                                <field name="related_1_ids" nolabel="1" colspan="2">
-                                    <list editable="bottom">
+                                <field
+                                    name="related_1_ids"
+                                    nolabel="1"
+                                    colspan="2"
+                                    readonly="1"
+                                >
+                                    <list>
                                         <field
                                             name="source"
                                             domain="[('is_registrant','=',True),('id','!=',id)]"
                                             string="Registrant"
                                         />
-                                        <field name="relation_as_str" string="Relation" />
+                                        <field
+                                            name="relation_as_str"
+                                            string="Relation"
+                                        />
                                         <field name="start_date" />
                                         <field name="end_date" />
                                         <field name="disabled" />
@@ -235,7 +259,10 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                                             domain="[('is_registrant','=',True),('id','!=',id)]"
                                             string="Registrant"
                                         />
-                                        <field name="relation_as_str" string="Relation" />
+                                        <field
+                                            name="relation_as_str"
+                                            string="Relation"
+                                        />
                                         <field name="start_date" />
                                         <field name="end_date" />
                                         <field name="disabled" />
@@ -244,9 +271,17 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                                 </field>
                             </group>
                         </page>
-                        <page name="group_members" string="Members of Group" invisible="not is_group">
+                        <page
+                            name="group_members"
+                            string="Members of Group"
+                            invisible="not is_group"
+                        >
                             <group>
-                                <field name="group_membership_ids" nolabel="1" colspan="2">
+                                <field
+                                    name="group_membership_ids"
+                                    nolabel="1"
+                                    colspan="2"
+                                >
                                     <list>
                                         <field
                                             name="individual"
@@ -254,26 +289,49 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                                             string="Member Name"
                                             context="{'form_view_ref':'spp_registry.view_individuals_form'}"
                                         />
-                                        <field name="individual_birthdate" string="Date of Birth" />
-                                        <field name="individual_gender" string="Gender" />
-                                        <field name="membership_type_ids" string="Membership Types" widget="many2many_tags" />
+                                        <field
+                                            name="individual_birthdate"
+                                            string="Date of Birth"
+                                        />
+                                        <field
+                                            name="individual_gender"
+                                            string="Gender"
+                                        />
+                                        <field
+                                            name="membership_type_ids"
+                                            string="Membership Types"
+                                            widget="many2many_tags"
+                                        />
                                         <field name="start_date" />
                                         <field name="ended_date" />
                                     </list>
                                 </field>
                             </group>
                         </page>
-                        <page name="individual_groups" string="Groups" invisible="is_group">
+                        <page
+                            name="individual_groups"
+                            string="Groups"
+                            invisible="is_group"
+                        >
                             <group>
-                                <field name="individual_membership_ids" nolabel="1" colspan="2">
-                                    <list editable="bottom">
+                                <field
+                                    name="individual_membership_ids"
+                                    nolabel="1"
+                                    colspan="2"
+                                    readonly="1"
+                                >
+                                    <list>
                                         <field
                                             name="group"
                                             domain="[('is_registrant','=',True),('is_group','=',True)]"
                                             string="Group Name"
                                             context="{'form_view_ref':'spp_registry.view_individuals_form'}"
                                         />
-                                        <field name="membership_type_ids" string="Membership Types" widget="many2many_tags" />
+                                        <field
+                                            name="membership_type_ids"
+                                            string="Membership Types"
+                                            widget="many2many_tags"
+                                        />
                                         <field name="start_date" />
                                         <field name="ended_date" />
                                     </list>
@@ -281,12 +339,20 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                             </group>
                         </page>
                         <page name="program" string="Other Programs">
-                            <field name="program_membership_ids" readonly="1" nolabel="1" colspan="2">
+                            <field
+                                name="program_membership_ids"
+                                readonly="1"
+                                nolabel="1"
+                                colspan="2"
+                            >
                                 <list>
                                     <field name="program_id" />
                                     <field name="enrollment_date" />
                                     <field name="exit_date" />
-                                    <field name="delivery_mechanism_value" column_invisible="1" />
+                                    <field
+                                        name="delivery_mechanism_value"
+                                        column_invisible="1"
+                                    />
                                     <field
                                         name="state"
                                         decoration-primary="state=='draft'"
@@ -300,7 +366,12 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                             </field>
                         </page>
                         <page name="entitlement" string="Entitlements">
-                            <field name="entitlement_ids" readonly="1" nolabel="1" colspan="2">
+                            <field
+                                name="entitlement_ids"
+                                readonly="1"
+                                nolabel="1"
+                                colspan="2"
+                            >
                                 <list>
                                     <field name="name" />
                                     <field name="ern" />
@@ -332,20 +403,48 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                 <filter name="filter_enrollment_date" date="enrollment_date" />
                 <filter name="filter_exit_date" date="exit_date" />
                 <separator />
-                <filter name="draft_state" string="Draft" domain="[('state','=','draft')]" />
-                <filter name="enrolled_state" string="Enrolled" domain="[('state','=','enrolled')]" />
-                <filter name="paused_state" string="Paused" domain="[('state','=','paused')]" />
-                <filter name="exited_state" string="Exited" domain="[('state','=','exited')]" />
-                <filter name="not_eligible" string="Not Eligible" domain="[('state','=','not_eligible')]" />
+                <filter
+                    name="draft_state"
+                    string="Draft"
+                    domain="[('state','=','draft')]"
+                />
+                <filter
+                    name="enrolled_state"
+                    string="Enrolled"
+                    domain="[('state','=','enrolled')]"
+                />
+                <filter
+                    name="paused_state"
+                    string="Paused"
+                    domain="[('state','=','paused')]"
+                />
+                <filter
+                    name="exited_state"
+                    string="Exited"
+                    domain="[('state','=','exited')]"
+                />
+                <filter
+                    name="not_eligible"
+                    string="Not Eligible"
+                    domain="[('state','=','not_eligible')]"
+                />
                 <separator />
-                    <filter
+                <filter
                     string="Enrollment Date"
                     name="enrollment_date"
                     context="{'group_by':'enrollment_date'}"
                 />
-                    <filter string="Exit Date" name="exit_date" context="{'group_by':'exit_date'}" />
-                    <separator orientation="vertical" />
-                    <filter string="State" name="grp_state" context="{'group_by': 'state'}" />
+                <filter
+                    string="Exit Date"
+                    name="exit_date"
+                    context="{'group_by':'exit_date'}"
+                />
+                <separator orientation="vertical" />
+                <filter
+                    string="State"
+                    name="grp_state"
+                    context="{'group_by': 'state'}"
+                />
                 <!-- <searchpanel>
                     <field name="group" icon="fa-users"/>
                 </searchpanel> -->
@@ -365,7 +464,8 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 No program memberships found!
-            </p><p>
+            </p>
+            <p>
                 Program memberships are created through the enrollment workflow.
             </p>
         </field>
@@ -393,5 +493,4 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         sequence="20"
         groups="spp_security.group_spp_admin"
     /> -->
-
 </odoo>

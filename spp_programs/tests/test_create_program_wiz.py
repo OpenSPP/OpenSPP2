@@ -34,7 +34,7 @@ class TestCreateProgramWiz(TransactionCase):
             }
         )
 
-        self.program = self._program_create_wiz.create_program()
+        self._program_action = self._program_create_wiz.create_program()
         # self.cycle_manager_default = (
         #     self._program_create_wiz.create_cycle_manager_default(self.program.id)
         # )
@@ -69,19 +69,19 @@ class TestCreateProgramWiz(TransactionCase):
         )
         res = new_wiz.create_program()
         self.assertEqual(type(res), dict, "Action should be in json format!")
-        for key in ("type", "res_model", "res_id"):
+        for key in ("type", "tag", "params"):
             self.assertIn(key, res.keys(), f"Key `{key}` is missing!")
         self.assertEqual(
             res["type"],
-            "ir.actions.act_window",
+            "ir.actions.client",
             "Action for program should be returned!",
         )
-        self.assertEqual(res["res_model"], "spp.program", "Action for program should be return!")
-        self.assertTrue(res["res_id"], "New record for program should be existed!")
+        self.assertEqual(res["tag"], "open_program_close_modal", "Client action tag should match!")
+        self.assertTrue(res["params"]["program_id"], "New record for program should be existed!")
 
     def test_03_get_eligibility_manager(self):
         self._program_create_wiz.eligibility_type = "default_eligibility"
-        res = self._program_create_wiz._get_eligibility_manager(self.program["res_id"])
+        res = self._program_create_wiz._get_eligibility_manager(self._program_action["params"]["program_id"])
 
         self.assertIn("eligibility_managers", res)
 
@@ -115,7 +115,7 @@ class TestCreateProgramWiz(TransactionCase):
                 "entitlement_item_ids": [Command.create({"product_id": self.product.id, "quantity": 1})],
             }
         )
-        program = new_wiz.create_program()
+        action = new_wiz.create_program()
 
-        self.assertEqual(program["res_model"], "spp.program")
-        self.assertIsNotNone(program)
+        self.assertEqual(action["type"], "ir.actions.client")
+        self.assertTrue(action["params"]["program_id"])

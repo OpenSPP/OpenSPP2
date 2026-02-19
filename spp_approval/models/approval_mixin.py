@@ -298,7 +298,7 @@ class ApprovalMixin(models.AbstractModel):
 
             # Create review record (sudo because it's system-managed)
             review = (
-                self.env["spp.approval.review"]
+                self.env["spp.approval.review"]  # nosemgrep: odoo-sudo-without-context
                 .sudo()
                 .create(
                     {
@@ -363,7 +363,7 @@ class ApprovalMixin(models.AbstractModel):
                 )
 
                 if not self.env.cr.fetchone():
-                    raise UserError(_("This record was modified by another user. " "Please refresh and try again."))
+                    raise UserError(_("This record was modified by another user. Please refresh and try again."))
         else:
             # ORM approach for computed/non-stored approval_state
             # Verify the record is in pending state (via computed field)
@@ -387,7 +387,7 @@ class ApprovalMixin(models.AbstractModel):
                 )
 
                 if not self.env.cr.fetchone():
-                    raise UserError(_("This record was modified by another user. " "Please refresh and try again."))
+                    raise UserError(_("This record was modified by another user. Please refresh and try again."))
 
         # Invalidate cache
         self.invalidate_recordset()

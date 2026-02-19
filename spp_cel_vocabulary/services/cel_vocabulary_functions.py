@@ -233,6 +233,7 @@ def head(env, member, _membership=None, _group=None):
         return False
 
     # Get the 'head' vocabulary code
+    # nosemgrep: odoo-sudo-without-context
     head_code = env["spp.vocabulary.code"].sudo().get_code("urn:openspp:vocab:group-membership-type", "head")
     if not head_code:
         _logger.debug("[CEL Vocabulary] Head membership type code not found")

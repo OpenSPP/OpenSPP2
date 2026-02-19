@@ -14,14 +14,17 @@ OpenSPP API V2 - Cycles
    !! source digest: sha256:4d19389b00e4e19c72ff9e7e6b891369bdfb47ddb40d85f75c0cb54e5b6588bd
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+    :target: https://odoo-community.org/page/development-status
+    :alt: Production/Stable
+.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
     :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_api_v2_cycles
     :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2|
+|badge1| |badge2| |badge3|
 
 Extends OpenSPP API V2 with REST endpoints for program cycles. Exposes
 cycle data including state, period, beneficiary statistics, and
@@ -31,18 +34,18 @@ and requires OAuth 2.0 authentication with resource-based scopes.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  **Read Cycle**: Retrieve cycle details by name via
-   ``GET /Cycle/{identifier}``
--  **Search Cycles**: Filter cycles by program, state, start/end dates,
-   or last updated timestamp
--  **Pagination**: Support for offset-based pagination with configurable
-   page size (max 100)
--  **Statistics**: Expose beneficiary count, entitlement count, payment
-   count, and total amounts
--  **Cycle Navigation**: Reference to previous and next cycles in
-   sequence
--  **OAuth Scopes**: Extend API client scopes with ``cycle`` resource
-   type for read operations
+- **Read Cycle**: Retrieve cycle details by name via
+  ``GET /Cycle/{identifier}``
+- **Search Cycles**: Filter cycles by program, state, start/end dates,
+  or last updated timestamp
+- **Pagination**: Support for offset-based pagination with configurable
+  page size (max 100)
+- **Statistics**: Expose beneficiary count, entitlement count, payment
+  count, and total amounts
+- **Cycle Navigation**: Reference to previous and next cycles in
+  sequence
+- **OAuth Scopes**: Extend API client scopes with ``cycle`` resource
+  type for read operations
 
 Key Models
 ~~~~~~~~~~
@@ -71,8 +74,8 @@ UI Location
 
 No standalone menu. API endpoints are available at:
 
--  ``/api/v2/spp/Cycle`` - Search cycles
--  ``/api/v2/spp/Cycle/{identifier}`` - Read cycle by name
+- ``/api/v2/spp/Cycle`` - Search cycles
+- ``/api/v2/spp/Cycle/{identifier}`` - Read cycle by name
 
 Security
 ~~~~~~~~
@@ -88,12 +91,12 @@ existing models.
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Override ``CycleService.to_api_schema()`` to add custom fields to the
-   API response
--  Inherit ``Cycle`` schema to add domain-specific attributes in the
-   ``extension`` field
--  Add search filters by extending ``CycleService.search()`` to support
-   additional query parameters
+- Override ``CycleService.to_api_schema()`` to add custom fields to the
+  API response
+- Inherit ``Cycle`` schema to add domain-specific attributes in the
+  ``extension`` field
+- Add search filters by extending ``CycleService.search()`` to support
+  additional query parameters
 
 Dependencies
 ~~~~~~~~~~~~

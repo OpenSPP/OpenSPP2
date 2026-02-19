@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <record id="spp_apps_wizard_view_form" model="ir.ui.view">
         <field name="name">spp.apps.wizard.view.form</field>
         <field name="model">spp.apps.wizard</field>
@@ -31,7 +30,11 @@
                             invisible="not not_installed_module_ids"
                             name="not_installed_modules"
                         >
-                            <field name="not_installed_module_ids" options="{'no_create': True}" readonly="1">
+                            <field
+                                name="not_installed_module_ids"
+                                options="{'no_create': True}"
+                                readonly="1"
+                            >
                                 <list>
                                     <field name="shortdesc" />
                                     <field name="name" />
@@ -45,7 +48,11 @@
                             invisible="not missing_module_ids"
                             name="missing_modules"
                         >
-                            <field name="missing_module_ids" options="{'no_create': True}" readonly="1">
+                            <field
+                                name="missing_module_ids"
+                                options="{'no_create': True}"
+                                readonly="1"
+                            >
                                 <list>
                                     <field name="name" />
                                 </list>
@@ -72,5 +79,4 @@
         <field name="view_mode">form</field>
         <field name="target">new</field>
     </record>
-
 </odoo>

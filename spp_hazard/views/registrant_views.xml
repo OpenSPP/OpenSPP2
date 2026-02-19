@@ -1,87 +1,69 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Extend Individual Form View to show hazard impacts -->
     <record id="view_individual_form_hazard" model="ir.ui.view">
         <field name="name">view.individual.form.hazard</field>
         <field name="model">res.partner</field>
-        <field name="inherit_id" ref="spp_registry.view_individuals_form"/>
+        <field name="inherit_id" ref="spp_registry.view_individuals_form" />
         <field name="priority">50</field>
         <field name="arch" type="xml">
             <xpath expr="//div[@name='button_box']" position="inside">
-                <button name="action_view_hazard_impacts"
+                <button
+                    name="action_view_hazard_impacts"
                     type="object"
                     class="oe_stat_button"
                     icon="fa-bolt"
-                    invisible="hazard_impact_count == 0">
-                    <field name="hazard_impact_count" widget="statinfo" string="Impacts"/>
+                    invisible="hazard_impact_count == 0"
+                >
+                    <field
+                        name="hazard_impact_count"
+                        widget="statinfo"
+                        string="Impacts"
+                    />
                 </button>
             </xpath>
             <!-- Add Emergency Response tab for hazard impacts -->
             <xpath expr="//page[@name='participation']" position="after">
-                <page string="Emergency Response" name="emergency_response"
-                    invisible="not is_registrant">
-                    <field name="has_active_impact" invisible="1"/>
-                    <div class="alert alert-warning" role="alert" invisible="not has_active_impact">
+                <page
+                    string="Emergency Response"
+                    name="emergency_response"
+                    invisible="not is_registrant"
+                >
+                    <field name="has_active_impact" invisible="1" />
+                    <div
+                        class="alert alert-warning"
+                        role="alert"
+                        invisible="not has_active_impact"
+                    >
                         <span class="fw-bold">Active incident impacts recorded</span>
                     </div>
-                    <group name="hazard_impacts_section" string="Incident Impacts"
-                        invisible="hazard_impact_count == 0">
-                        <field name="hazard_impact_ids" nolabel="1" readonly="1" colspan="2">
+                    <p class="text-muted" invisible="hazard_impact_count != 0">
+                        No emergency response records yet. Impact records will appear here when this registrant is affected by a hazard incident.
+                    </p>
+                    <group
+                        name="hazard_impacts_section"
+                        string="Incident Impacts"
+                        invisible="hazard_impact_count == 0"
+                    >
+                        <field
+                            name="hazard_impact_ids"
+                            nolabel="1"
+                            readonly="1"
+                            colspan="2"
+                        >
                             <list>
-                                <field name="incident_id"/>
-                                <field name="impact_type_id"/>
-                                <field name="damage_level" widget="badge"/>
-                                <field name="impact_date"/>
-                                <field name="verification_status" widget="badge"
+                                <field name="incident_id" />
+                                <field name="impact_type_id" />
+                                <field name="damage_level" widget="badge" />
+                                <field name="impact_date" />
+                                <field
+                                    name="verification_status"
+                                    widget="badge"
                                     decoration-info="verification_status == 'reported'"
                                     decoration-success="verification_status == 'verified'"
                                     decoration-warning="verification_status == 'disputed'"
-                                    decoration-muted="verification_status == 'closed'"/>
-                            </list>
-                        </field>
-                    </group>
-                </page>
-            </xpath>
-        </field>
-    </record>
-
-    <!-- Extend Group Form View to show hazard impacts -->
-    <record id="view_group_form_hazard" model="ir.ui.view">
-        <field name="name">view.group.form.hazard</field>
-        <field name="model">res.partner</field>
-        <field name="inherit_id" ref="spp_registry.view_groups_form_membership"/>
-        <field name="priority">50</field>
-        <field name="arch" type="xml">
-            <xpath expr="//div[@name='button_box']" position="inside">
-                <button name="action_view_hazard_impacts"
-                    type="object"
-                    class="oe_stat_button"
-                    icon="fa-bolt"
-                    invisible="hazard_impact_count == 0">
-                    <field name="hazard_impact_count" widget="statinfo" string="Impacts"/>
-                </button>
-            </xpath>
-            <!-- Add Emergency Response tab for hazard impacts -->
-            <xpath expr="//page[@name='participation']" position="after">
-                <page string="Emergency Response" name="emergency_response"
-                    invisible="not is_registrant">
-                    <field name="has_active_impact" invisible="1"/>
-                    <div class="alert alert-warning" role="alert" invisible="not has_active_impact">
-                        <span class="fw-bold">Active incident impacts recorded</span>
-                    </div>
-                    <group name="hazard_impacts_section" string="Incident Impacts"
-                        invisible="hazard_impact_count == 0">
-                        <field name="hazard_impact_ids" nolabel="1" readonly="1" colspan="2">
-                            <list>
-                                <field name="incident_id"/>
-                                <field name="impact_type_id"/>
-                                <field name="damage_level" widget="badge"/>
-                                <field name="impact_date"/>
-                                <field name="verification_status" widget="badge"
-                                    decoration-info="verification_status == 'reported'"
-                                    decoration-success="verification_status == 'verified'"
-                                    decoration-warning="verification_status == 'disputed'"
-                                    decoration-muted="verification_status == 'closed'"/>
+                                    decoration-muted="verification_status == 'closed'"
+                                />
                             </list>
                         </field>
                     </group>
@@ -94,12 +76,16 @@
     <record id="view_individual_list_hazard" model="ir.ui.view">
         <field name="name">view.individual.list.hazard</field>
         <field name="model">res.partner</field>
-        <field name="inherit_id" ref="spp_registry.view_individuals_list_tree"/>
+        <field name="inherit_id" ref="spp_registry.view_individuals_list_tree" />
         <field name="priority">50</field>
         <field name="arch" type="xml">
             <xpath expr="//list" position="inside">
-                <field name="hazard_impact_count" string="Impacts" optional="hide"/>
-                <field name="has_active_impact" string="Active Impact" optional="hide"/>
+                <field name="hazard_impact_count" string="Impacts" optional="hide" />
+                <field
+                    name="has_active_impact"
+                    string="Active Impact"
+                    optional="hide"
+                />
             </xpath>
         </field>
     </record>
@@ -108,15 +94,21 @@
     <record id="view_individual_search_hazard" model="ir.ui.view">
         <field name="name">view.individual.search.hazard</field>
         <field name="model">res.partner</field>
-        <field name="inherit_id" ref="spp_registry.view_registry_individuals_filter"/>
+        <field name="inherit_id" ref="spp_registry.view_registry_individuals_filter" />
         <field name="priority">50</field>
         <field name="arch" type="xml">
             <xpath expr="//search" position="inside">
-                <separator/>
-                <filter name="has_active_impact" string="Has Active Impact"
-                    domain="[('has_active_impact', '=', True)]"/>
-                <filter name="has_impact" string="Has Any Impact"
-                    domain="[('hazard_impact_count', '>', 0)]"/>
+                <separator />
+                <filter
+                    name="has_active_impact"
+                    string="Has Active Impact"
+                    domain="[('has_active_impact', '=', True)]"
+                />
+                <filter
+                    name="has_impact"
+                    string="Has Any Impact"
+                    domain="[('hazard_impact_count', '>', 0)]"
+                />
             </xpath>
         </field>
     </record>

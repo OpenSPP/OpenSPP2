@@ -14,14 +14,17 @@ OpenSPP API V2 - Vocabulary
    !! source digest: sha256:2611be8dec906e9307744aec8d0a3b774eb58a56111f8b44a915ed9afd1ae82f
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+    :target: https://odoo-community.org/page/development-status
+    :alt: Production/Stable
+.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
     :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_api_v2_vocabulary
     :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2|
+|badge1| |badge2| |badge3|
 
 REST API endpoints for vocabulary lookup and code retrieval. Exposes
 vocabularies (standardized code lists like gender, relationship types,
@@ -33,44 +36,44 @@ present.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  List all available vocabularies with domain filtering and pagination
--  Retrieve vocabulary metadata including name, version, description,
-   and reference URL
--  Fetch codes within a vocabulary with support for hierarchical
-   structures
--  Filter codes by parent (for hierarchical vocabularies) and
-   include/exclude deprecated codes
--  Validate namespace URIs for security (path traversal, null bytes,
-   control characters)
+- List all available vocabularies with domain filtering and pagination
+- Retrieve vocabulary metadata including name, version, description, and
+  reference URL
+- Fetch codes within a vocabulary with support for hierarchical
+  structures
+- Filter codes by parent (for hierarchical vocabularies) and
+  include/exclude deprecated codes
+- Validate namespace URIs for security (path traversal, null bytes,
+  control characters)
 
 Key Models
 ~~~~~~~~~~
 
-+--------------------------+------------------------------------------+
-| Model                    | Description                              |
-+==========================+==========================================+
-| ``spp.vocabulary``       | Vocabulary definitions exposed via GET   |
-|                          | endpoints                                |
-+--------------------------+------------------------------------------+
-| ``spp.vocabulary.code``  | Individual codes within vocabularies     |
-+--------------------------+------------------------------------------+
-| ``spp.api.client.scope`` | Extended to add "vocabulary" resource    |
-|                          | type for OAuth                           |
-+--------------------------+------------------------------------------+
-| ``fastapi.endpoint``     | Extended to register Vocabulary router   |
-|                          | in API V2                                |
-+--------------------------+------------------------------------------+
++--------------------------+-------------------------------------------+
+| Model                    | Description                               |
++==========================+===========================================+
+| ``spp.vocabulary``       | Vocabulary definitions exposed via GET    |
+|                          | endpoints                                 |
++--------------------------+-------------------------------------------+
+| ``spp.vocabulary.code``  | Individual codes within vocabularies      |
++--------------------------+-------------------------------------------+
+| ``spp.api.client.scope`` | Extended to add "vocabulary" resource     |
+|                          | type for OAuth                            |
++--------------------------+-------------------------------------------+
+| ``fastapi.endpoint``     | Extended to register Vocabulary router in |
+|                          | API V2                                    |
++--------------------------+-------------------------------------------+
 
 API Endpoints
 ~~~~~~~~~~~~~
 
--  ``GET /Vocabulary`` - List all vocabularies (supports ``domain``,
-   ``_count``, ``_offset`` query params)
--  ``GET /Vocabulary/{namespace_uri}`` - Get vocabulary details by
-   namespace URI (URL-encoded)
--  ``GET /Vocabulary/{namespace_uri}/codes`` - Get codes within a
-   vocabulary (supports ``parent_code``, ``include_deprecated``,
-   ``_count``, ``_offset``)
+- ``GET /Vocabulary`` - List all vocabularies (supports ``domain``,
+  ``_count``, ``_offset`` query params)
+- ``GET /Vocabulary/{namespace_uri}`` - Get vocabulary details by
+  namespace URI (URL-encoded)
+- ``GET /Vocabulary/{namespace_uri}/codes`` - Get codes within a
+  vocabulary (supports ``parent_code``, ``include_deprecated``,
+  ``_count``, ``_offset``)
 
 Configuration
 ~~~~~~~~~~~~~
@@ -88,12 +91,12 @@ modules:
 Security
 ~~~~~~~~
 
--  Requires OAuth 2.0 authentication via ``spp_api_v2`` framework
--  Requires "vocabulary" scope with "read" action on API client
--  No Odoo security groups required (vocabularies are public data,
-   endpoints use sudo())
--  Validates namespace URI and parent_code parameters for injection
-   attacks
+- Requires OAuth 2.0 authentication via ``spp_api_v2`` framework
+- Requires "vocabulary" scope with "read" action on API client
+- No Odoo security groups required (vocabularies are public data,
+  endpoints use sudo())
+- Validates namespace URI and parent_code parameters for injection
+  attacks
 
 Dependencies
 ~~~~~~~~~~~~

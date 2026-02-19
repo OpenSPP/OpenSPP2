@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
     <!--
         Country Vocabulary - Full ISO 3166-1 Alpha-2 (249 codes)
@@ -17,8 +17,12 @@
         <field name="name">Country (ISO 3166-1)</field>
         <field name="namespace_uri">urn:iso:std:iso:3166-1</field>
         <field name="version">2024</field>
-        <field name="description">Complete ISO 3166-1 alpha-2 country codes (249 codes). Includes all officially assigned codes plus special codes for stateless persons and unknown countries.</field>
-        <field name="reference_url">https://www.iso.org/iso-3166-country-codes.html</field>
+        <field
+            name="description"
+        >Complete ISO 3166-1 alpha-2 country codes (249 codes). Includes all officially assigned codes plus special codes for stateless persons and unknown countries.</field>
+        <field
+            name="reference_url"
+        >https://www.iso.org/iso-3166-country-codes.html</field>
         <field name="is_system">True</field>
         <field name="is_hierarchical">False</field>
         <field name="domain">core</field>
@@ -26,7 +30,7 @@
 
     <!-- AFRICA -->
     <record id="country_dz" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">DZ</field>
         <field name="display">Algeria</field>
         <field name="definition">Northern Africa</field>
@@ -34,7 +38,7 @@
     </record>
 
     <record id="country_ao" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">AO</field>
         <field name="display">Angola</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -42,7 +46,7 @@
     </record>
 
     <record id="country_bj" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">BJ</field>
         <field name="display">Benin</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -50,7 +54,7 @@
     </record>
 
     <record id="country_bw" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">BW</field>
         <field name="display">Botswana</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -58,7 +62,7 @@
     </record>
 
     <record id="country_io" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">IO</field>
         <field name="display">British Indian Ocean Territory</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -66,7 +70,7 @@
     </record>
 
     <record id="country_bf" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">BF</field>
         <field name="display">Burkina Faso</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -74,7 +78,7 @@
     </record>
 
     <record id="country_bi" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">BI</field>
         <field name="display">Burundi</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -82,7 +86,7 @@
     </record>
 
     <record id="country_cv" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">CV</field>
         <field name="display">Cabo Verde</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -90,7 +94,7 @@
     </record>
 
     <record id="country_cm" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">CM</field>
         <field name="display">Cameroon</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -98,7 +102,7 @@
     </record>
 
     <record id="country_cf" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">CF</field>
         <field name="display">Central African Republic</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -106,7 +110,7 @@
     </record>
 
     <record id="country_td" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">TD</field>
         <field name="display">Chad</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -114,7 +118,7 @@
     </record>
 
     <record id="country_km" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">KM</field>
         <field name="display">Comoros</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -122,7 +126,7 @@
     </record>
 
     <record id="country_cg" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">CG</field>
         <field name="display">Congo</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -130,7 +134,7 @@
     </record>
 
     <record id="country_cd" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">CD</field>
         <field name="display">Congo, Democratic Republic of the</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -138,7 +142,7 @@
     </record>
 
     <record id="country_ci" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">CI</field>
         <field name="display">Côte d&#x27;Ivoire</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -146,7 +150,7 @@
     </record>
 
     <record id="country_dj" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">DJ</field>
         <field name="display">Djibouti</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -154,7 +158,7 @@
     </record>
 
     <record id="country_eg" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">EG</field>
         <field name="display">Egypt</field>
         <field name="definition">Northern Africa</field>
@@ -162,7 +166,7 @@
     </record>
 
     <record id="country_gq" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">GQ</field>
         <field name="display">Equatorial Guinea</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -170,7 +174,7 @@
     </record>
 
     <record id="country_er" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">ER</field>
         <field name="display">Eritrea</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -178,7 +182,7 @@
     </record>
 
     <record id="country_sz" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">SZ</field>
         <field name="display">Eswatini</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -186,7 +190,7 @@
     </record>
 
     <record id="country_et" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">ET</field>
         <field name="display">Ethiopia</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -194,7 +198,7 @@
     </record>
 
     <record id="country_tf" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">TF</field>
         <field name="display">French Southern Territories</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -202,7 +206,7 @@
     </record>
 
     <record id="country_ga" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">GA</field>
         <field name="display">Gabon</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -210,7 +214,7 @@
     </record>
 
     <record id="country_gm" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">GM</field>
         <field name="display">Gambia</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -218,7 +222,7 @@
     </record>
 
     <record id="country_gh" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">GH</field>
         <field name="display">Ghana</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -226,7 +230,7 @@
     </record>
 
     <record id="country_gn" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">GN</field>
         <field name="display">Guinea</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -234,7 +238,7 @@
     </record>
 
     <record id="country_gw" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">GW</field>
         <field name="display">Guinea-Bissau</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -242,7 +246,7 @@
     </record>
 
     <record id="country_ke" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">KE</field>
         <field name="display">Kenya</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -250,7 +254,7 @@
     </record>
 
     <record id="country_ls" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">LS</field>
         <field name="display">Lesotho</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -258,7 +262,7 @@
     </record>
 
     <record id="country_lr" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">LR</field>
         <field name="display">Liberia</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -266,7 +270,7 @@
     </record>
 
     <record id="country_ly" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">LY</field>
         <field name="display">Libya</field>
         <field name="definition">Northern Africa</field>
@@ -274,7 +278,7 @@
     </record>
 
     <record id="country_mg" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">MG</field>
         <field name="display">Madagascar</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -282,7 +286,7 @@
     </record>
 
     <record id="country_mw" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">MW</field>
         <field name="display">Malawi</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -290,7 +294,7 @@
     </record>
 
     <record id="country_ml" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">ML</field>
         <field name="display">Mali</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -298,7 +302,7 @@
     </record>
 
     <record id="country_mr" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">MR</field>
         <field name="display">Mauritania</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -306,7 +310,7 @@
     </record>
 
     <record id="country_mu" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">MU</field>
         <field name="display">Mauritius</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -314,7 +318,7 @@
     </record>
 
     <record id="country_yt" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">YT</field>
         <field name="display">Mayotte</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -322,7 +326,7 @@
     </record>
 
     <record id="country_ma" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">MA</field>
         <field name="display">Morocco</field>
         <field name="definition">Northern Africa</field>
@@ -330,7 +334,7 @@
     </record>
 
     <record id="country_mz" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">MZ</field>
         <field name="display">Mozambique</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -338,7 +342,7 @@
     </record>
 
     <record id="country_na" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">NA</field>
         <field name="display">Namibia</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -346,7 +350,7 @@
     </record>
 
     <record id="country_ne" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">NE</field>
         <field name="display">Niger</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -354,7 +358,7 @@
     </record>
 
     <record id="country_ng" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">NG</field>
         <field name="display">Nigeria</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -362,7 +366,7 @@
     </record>
 
     <record id="country_rw" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">RW</field>
         <field name="display">Rwanda</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -370,7 +374,7 @@
     </record>
 
     <record id="country_re" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">RE</field>
         <field name="display">Réunion</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -378,7 +382,7 @@
     </record>
 
     <record id="country_sh" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">SH</field>
         <field name="display">Saint Helena, Ascension and Tristan da Cunha</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -386,7 +390,7 @@
     </record>
 
     <record id="country_st" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">ST</field>
         <field name="display">Sao Tome and Principe</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -394,7 +398,7 @@
     </record>
 
     <record id="country_sn" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">SN</field>
         <field name="display">Senegal</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -402,7 +406,7 @@
     </record>
 
     <record id="country_sc" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">SC</field>
         <field name="display">Seychelles</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -410,7 +414,7 @@
     </record>
 
     <record id="country_sl" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">SL</field>
         <field name="display">Sierra Leone</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -418,7 +422,7 @@
     </record>
 
     <record id="country_so" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">SO</field>
         <field name="display">Somalia</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -426,7 +430,7 @@
     </record>
 
     <record id="country_za" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">ZA</field>
         <field name="display">South Africa</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -434,7 +438,7 @@
     </record>
 
     <record id="country_ss" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">SS</field>
         <field name="display">South Sudan</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -442,7 +446,7 @@
     </record>
 
     <record id="country_sd" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">SD</field>
         <field name="display">Sudan</field>
         <field name="definition">Northern Africa</field>
@@ -450,7 +454,7 @@
     </record>
 
     <record id="country_tz" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">TZ</field>
         <field name="display">Tanzania, United Republic of</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -458,7 +462,7 @@
     </record>
 
     <record id="country_tg" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">TG</field>
         <field name="display">Togo</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -466,7 +470,7 @@
     </record>
 
     <record id="country_tn" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">TN</field>
         <field name="display">Tunisia</field>
         <field name="definition">Northern Africa</field>
@@ -474,7 +478,7 @@
     </record>
 
     <record id="country_ug" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">UG</field>
         <field name="display">Uganda</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -482,7 +486,7 @@
     </record>
 
     <record id="country_eh" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">EH</field>
         <field name="display">Western Sahara</field>
         <field name="definition">Northern Africa</field>
@@ -490,7 +494,7 @@
     </record>
 
     <record id="country_zm" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">ZM</field>
         <field name="display">Zambia</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -498,7 +502,7 @@
     </record>
 
     <record id="country_zw" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">ZW</field>
         <field name="display">Zimbabwe</field>
         <field name="definition">Sub-Saharan Africa</field>
@@ -507,7 +511,7 @@
 
     <!-- AMERICAS -->
     <record id="country_ai" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">AI</field>
         <field name="display">Anguilla</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -515,7 +519,7 @@
     </record>
 
     <record id="country_ag" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">AG</field>
         <field name="display">Antigua and Barbuda</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -523,7 +527,7 @@
     </record>
 
     <record id="country_ar" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">AR</field>
         <field name="display">Argentina</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -531,7 +535,7 @@
     </record>
 
     <record id="country_aw" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">AW</field>
         <field name="display">Aruba</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -539,7 +543,7 @@
     </record>
 
     <record id="country_bs" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">BS</field>
         <field name="display">Bahamas</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -547,7 +551,7 @@
     </record>
 
     <record id="country_bb" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">BB</field>
         <field name="display">Barbados</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -555,7 +559,7 @@
     </record>
 
     <record id="country_bz" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">BZ</field>
         <field name="display">Belize</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -563,7 +567,7 @@
     </record>
 
     <record id="country_bm" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">BM</field>
         <field name="display">Bermuda</field>
         <field name="definition">Northern America</field>
@@ -571,7 +575,7 @@
     </record>
 
     <record id="country_bo" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">BO</field>
         <field name="display">Bolivia, Plurinational State of</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -579,7 +583,7 @@
     </record>
 
     <record id="country_bq" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">BQ</field>
         <field name="display">Bonaire, Sint Eustatius and Saba</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -587,7 +591,7 @@
     </record>
 
     <record id="country_bv" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">BV</field>
         <field name="display">Bouvet Island</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -595,7 +599,7 @@
     </record>
 
     <record id="country_br" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">BR</field>
         <field name="display">Brazil</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -603,7 +607,7 @@
     </record>
 
     <record id="country_ca" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">CA</field>
         <field name="display">Canada</field>
         <field name="definition">Northern America</field>
@@ -611,7 +615,7 @@
     </record>
 
     <record id="country_ky" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">KY</field>
         <field name="display">Cayman Islands</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -619,7 +623,7 @@
     </record>
 
     <record id="country_cl" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">CL</field>
         <field name="display">Chile</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -627,7 +631,7 @@
     </record>
 
     <record id="country_co" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">CO</field>
         <field name="display">Colombia</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -635,7 +639,7 @@
     </record>
 
     <record id="country_cr" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">CR</field>
         <field name="display">Costa Rica</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -643,7 +647,7 @@
     </record>
 
     <record id="country_cu" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">CU</field>
         <field name="display">Cuba</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -651,7 +655,7 @@
     </record>
 
     <record id="country_cw" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">CW</field>
         <field name="display">Curaçao</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -659,7 +663,7 @@
     </record>
 
     <record id="country_dm" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">DM</field>
         <field name="display">Dominica</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -667,7 +671,7 @@
     </record>
 
     <record id="country_do" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">DO</field>
         <field name="display">Dominican Republic</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -675,7 +679,7 @@
     </record>
 
     <record id="country_ec" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">EC</field>
         <field name="display">Ecuador</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -683,7 +687,7 @@
     </record>
 
     <record id="country_sv" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">SV</field>
         <field name="display">El Salvador</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -691,7 +695,7 @@
     </record>
 
     <record id="country_fk" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">FK</field>
         <field name="display">Falkland Islands (Malvinas)</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -699,7 +703,7 @@
     </record>
 
     <record id="country_gf" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">GF</field>
         <field name="display">French Guiana</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -707,7 +711,7 @@
     </record>
 
     <record id="country_gl" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">GL</field>
         <field name="display">Greenland</field>
         <field name="definition">Northern America</field>
@@ -715,7 +719,7 @@
     </record>
 
     <record id="country_gd" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">GD</field>
         <field name="display">Grenada</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -723,7 +727,7 @@
     </record>
 
     <record id="country_gp" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">GP</field>
         <field name="display">Guadeloupe</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -731,7 +735,7 @@
     </record>
 
     <record id="country_gt" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">GT</field>
         <field name="display">Guatemala</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -739,7 +743,7 @@
     </record>
 
     <record id="country_gy" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">GY</field>
         <field name="display">Guyana</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -747,7 +751,7 @@
     </record>
 
     <record id="country_ht" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">HT</field>
         <field name="display">Haiti</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -755,7 +759,7 @@
     </record>
 
     <record id="country_hn" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">HN</field>
         <field name="display">Honduras</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -763,7 +767,7 @@
     </record>
 
     <record id="country_jm" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">JM</field>
         <field name="display">Jamaica</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -771,7 +775,7 @@
     </record>
 
     <record id="country_mq" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">MQ</field>
         <field name="display">Martinique</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -779,7 +783,7 @@
     </record>
 
     <record id="country_mx" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">MX</field>
         <field name="display">Mexico</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -787,7 +791,7 @@
     </record>
 
     <record id="country_ms" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">MS</field>
         <field name="display">Montserrat</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -795,7 +799,7 @@
     </record>
 
     <record id="country_ni" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">NI</field>
         <field name="display">Nicaragua</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -803,7 +807,7 @@
     </record>
 
     <record id="country_pa" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">PA</field>
         <field name="display">Panama</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -811,7 +815,7 @@
     </record>
 
     <record id="country_py" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">PY</field>
         <field name="display">Paraguay</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -819,7 +823,7 @@
     </record>
 
     <record id="country_pe" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">PE</field>
         <field name="display">Peru</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -827,7 +831,7 @@
     </record>
 
     <record id="country_pr" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">PR</field>
         <field name="display">Puerto Rico</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -835,7 +839,7 @@
     </record>
 
     <record id="country_bl" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">BL</field>
         <field name="display">Saint Barthélemy</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -843,7 +847,7 @@
     </record>
 
     <record id="country_kn" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">KN</field>
         <field name="display">Saint Kitts and Nevis</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -851,7 +855,7 @@
     </record>
 
     <record id="country_lc" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">LC</field>
         <field name="display">Saint Lucia</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -859,7 +863,7 @@
     </record>
 
     <record id="country_mf" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">MF</field>
         <field name="display">Saint Martin (French part)</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -867,7 +871,7 @@
     </record>
 
     <record id="country_pm" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">PM</field>
         <field name="display">Saint Pierre and Miquelon</field>
         <field name="definition">Northern America</field>
@@ -875,7 +879,7 @@
     </record>
 
     <record id="country_vc" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">VC</field>
         <field name="display">Saint Vincent and the Grenadines</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -883,7 +887,7 @@
     </record>
 
     <record id="country_sx" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">SX</field>
         <field name="display">Sint Maarten (Dutch part)</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -891,7 +895,7 @@
     </record>
 
     <record id="country_gs" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">GS</field>
         <field name="display">South Georgia and the South Sandwich Islands</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -899,7 +903,7 @@
     </record>
 
     <record id="country_sr" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">SR</field>
         <field name="display">Suriname</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -907,7 +911,7 @@
     </record>
 
     <record id="country_tt" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">TT</field>
         <field name="display">Trinidad and Tobago</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -915,7 +919,7 @@
     </record>
 
     <record id="country_tc" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">TC</field>
         <field name="display">Turks and Caicos Islands</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -923,7 +927,7 @@
     </record>
 
     <record id="country_us" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">US</field>
         <field name="display">United States of America</field>
         <field name="definition">Northern America</field>
@@ -931,7 +935,7 @@
     </record>
 
     <record id="country_uy" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">UY</field>
         <field name="display">Uruguay</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -939,7 +943,7 @@
     </record>
 
     <record id="country_ve" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">VE</field>
         <field name="display">Venezuela, Bolivarian Republic of</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -947,7 +951,7 @@
     </record>
 
     <record id="country_vg" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">VG</field>
         <field name="display">Virgin Islands (British)</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -955,7 +959,7 @@
     </record>
 
     <record id="country_vi" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">VI</field>
         <field name="display">Virgin Islands (U.S.)</field>
         <field name="definition">Latin America and the Caribbean</field>
@@ -964,7 +968,7 @@
 
     <!-- ASIA -->
     <record id="country_af" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">AF</field>
         <field name="display">Afghanistan</field>
         <field name="definition">Southern Asia</field>
@@ -972,7 +976,7 @@
     </record>
 
     <record id="country_am" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">AM</field>
         <field name="display">Armenia</field>
         <field name="definition">Western Asia</field>
@@ -980,7 +984,7 @@
     </record>
 
     <record id="country_az" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">AZ</field>
         <field name="display">Azerbaijan</field>
         <field name="definition">Western Asia</field>
@@ -988,7 +992,7 @@
     </record>
 
     <record id="country_bh" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">BH</field>
         <field name="display">Bahrain</field>
         <field name="definition">Western Asia</field>
@@ -996,7 +1000,7 @@
     </record>
 
     <record id="country_bd" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">BD</field>
         <field name="display">Bangladesh</field>
         <field name="definition">Southern Asia</field>
@@ -1004,7 +1008,7 @@
     </record>
 
     <record id="country_bt" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">BT</field>
         <field name="display">Bhutan</field>
         <field name="definition">Southern Asia</field>
@@ -1012,7 +1016,7 @@
     </record>
 
     <record id="country_bn" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">BN</field>
         <field name="display">Brunei Darussalam</field>
         <field name="definition">South-eastern Asia</field>
@@ -1020,7 +1024,7 @@
     </record>
 
     <record id="country_kh" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">KH</field>
         <field name="display">Cambodia</field>
         <field name="definition">South-eastern Asia</field>
@@ -1028,7 +1032,7 @@
     </record>
 
     <record id="country_cn" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">CN</field>
         <field name="display">China</field>
         <field name="definition">Eastern Asia</field>
@@ -1036,7 +1040,7 @@
     </record>
 
     <record id="country_cy" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">CY</field>
         <field name="display">Cyprus</field>
         <field name="definition">Western Asia</field>
@@ -1044,7 +1048,7 @@
     </record>
 
     <record id="country_ge" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">GE</field>
         <field name="display">Georgia</field>
         <field name="definition">Western Asia</field>
@@ -1052,7 +1056,7 @@
     </record>
 
     <record id="country_hk" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">HK</field>
         <field name="display">Hong Kong</field>
         <field name="definition">Eastern Asia</field>
@@ -1060,7 +1064,7 @@
     </record>
 
     <record id="country_in" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">IN</field>
         <field name="display">India</field>
         <field name="definition">Southern Asia</field>
@@ -1068,7 +1072,7 @@
     </record>
 
     <record id="country_id" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">ID</field>
         <field name="display">Indonesia</field>
         <field name="definition">South-eastern Asia</field>
@@ -1076,7 +1080,7 @@
     </record>
 
     <record id="country_ir" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">IR</field>
         <field name="display">Iran, Islamic Republic of</field>
         <field name="definition">Southern Asia</field>
@@ -1084,7 +1088,7 @@
     </record>
 
     <record id="country_iq" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">IQ</field>
         <field name="display">Iraq</field>
         <field name="definition">Western Asia</field>
@@ -1092,7 +1096,7 @@
     </record>
 
     <record id="country_il" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">IL</field>
         <field name="display">Israel</field>
         <field name="definition">Western Asia</field>
@@ -1100,7 +1104,7 @@
     </record>
 
     <record id="country_jp" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">JP</field>
         <field name="display">Japan</field>
         <field name="definition">Eastern Asia</field>
@@ -1108,7 +1112,7 @@
     </record>
 
     <record id="country_jo" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">JO</field>
         <field name="display">Jordan</field>
         <field name="definition">Western Asia</field>
@@ -1116,7 +1120,7 @@
     </record>
 
     <record id="country_kz" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">KZ</field>
         <field name="display">Kazakhstan</field>
         <field name="definition">Central Asia</field>
@@ -1124,7 +1128,7 @@
     </record>
 
     <record id="country_kp" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">KP</field>
         <field name="display">Korea, Democratic People&#x27;s Republic of</field>
         <field name="definition">Eastern Asia</field>
@@ -1132,7 +1136,7 @@
     </record>
 
     <record id="country_kr" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">KR</field>
         <field name="display">Korea, Republic of</field>
         <field name="definition">Eastern Asia</field>
@@ -1140,7 +1144,7 @@
     </record>
 
     <record id="country_kw" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">KW</field>
         <field name="display">Kuwait</field>
         <field name="definition">Western Asia</field>
@@ -1148,7 +1152,7 @@
     </record>
 
     <record id="country_kg" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">KG</field>
         <field name="display">Kyrgyzstan</field>
         <field name="definition">Central Asia</field>
@@ -1156,7 +1160,7 @@
     </record>
 
     <record id="country_la" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">LA</field>
         <field name="display">Lao People&#x27;s Democratic Republic</field>
         <field name="definition">South-eastern Asia</field>
@@ -1164,7 +1168,7 @@
     </record>
 
     <record id="country_lb" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">LB</field>
         <field name="display">Lebanon</field>
         <field name="definition">Western Asia</field>
@@ -1172,7 +1176,7 @@
     </record>
 
     <record id="country_mo" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">MO</field>
         <field name="display">Macao</field>
         <field name="definition">Eastern Asia</field>
@@ -1180,7 +1184,7 @@
     </record>
 
     <record id="country_my" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">MY</field>
         <field name="display">Malaysia</field>
         <field name="definition">South-eastern Asia</field>
@@ -1188,7 +1192,7 @@
     </record>
 
     <record id="country_mv" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">MV</field>
         <field name="display">Maldives</field>
         <field name="definition">Southern Asia</field>
@@ -1196,7 +1200,7 @@
     </record>
 
     <record id="country_mn" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">MN</field>
         <field name="display">Mongolia</field>
         <field name="definition">Eastern Asia</field>
@@ -1204,7 +1208,7 @@
     </record>
 
     <record id="country_mm" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">MM</field>
         <field name="display">Myanmar</field>
         <field name="definition">South-eastern Asia</field>
@@ -1212,7 +1216,7 @@
     </record>
 
     <record id="country_np" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">NP</field>
         <field name="display">Nepal</field>
         <field name="definition">Southern Asia</field>
@@ -1220,7 +1224,7 @@
     </record>
 
     <record id="country_om" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">OM</field>
         <field name="display">Oman</field>
         <field name="definition">Western Asia</field>
@@ -1228,7 +1232,7 @@
     </record>
 
     <record id="country_pk" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">PK</field>
         <field name="display">Pakistan</field>
         <field name="definition">Southern Asia</field>
@@ -1236,7 +1240,7 @@
     </record>
 
     <record id="country_ps" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">PS</field>
         <field name="display">Palestine, State of</field>
         <field name="definition">Western Asia</field>
@@ -1244,7 +1248,7 @@
     </record>
 
     <record id="country_ph" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">PH</field>
         <field name="display">Philippines</field>
         <field name="definition">South-eastern Asia</field>
@@ -1252,7 +1256,7 @@
     </record>
 
     <record id="country_qa" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">QA</field>
         <field name="display">Qatar</field>
         <field name="definition">Western Asia</field>
@@ -1260,7 +1264,7 @@
     </record>
 
     <record id="country_sa" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">SA</field>
         <field name="display">Saudi Arabia</field>
         <field name="definition">Western Asia</field>
@@ -1268,7 +1272,7 @@
     </record>
 
     <record id="country_sg" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">SG</field>
         <field name="display">Singapore</field>
         <field name="definition">South-eastern Asia</field>
@@ -1276,7 +1280,7 @@
     </record>
 
     <record id="country_lk" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">LK</field>
         <field name="display">Sri Lanka</field>
         <field name="definition">Southern Asia</field>
@@ -1284,7 +1288,7 @@
     </record>
 
     <record id="country_sy" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">SY</field>
         <field name="display">Syrian Arab Republic</field>
         <field name="definition">Western Asia</field>
@@ -1292,7 +1296,7 @@
     </record>
 
     <record id="country_tj" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">TJ</field>
         <field name="display">Tajikistan</field>
         <field name="definition">Central Asia</field>
@@ -1300,7 +1304,7 @@
     </record>
 
     <record id="country_th" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">TH</field>
         <field name="display">Thailand</field>
         <field name="definition">South-eastern Asia</field>
@@ -1308,7 +1312,7 @@
     </record>
 
     <record id="country_tl" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">TL</field>
         <field name="display">Timor-Leste</field>
         <field name="definition">South-eastern Asia</field>
@@ -1316,7 +1320,7 @@
     </record>
 
     <record id="country_tm" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">TM</field>
         <field name="display">Turkmenistan</field>
         <field name="definition">Central Asia</field>
@@ -1324,7 +1328,7 @@
     </record>
 
     <record id="country_tr" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">TR</field>
         <field name="display">Türkiye</field>
         <field name="definition">Western Asia</field>
@@ -1332,7 +1336,7 @@
     </record>
 
     <record id="country_ae" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">AE</field>
         <field name="display">United Arab Emirates</field>
         <field name="definition">Western Asia</field>
@@ -1340,7 +1344,7 @@
     </record>
 
     <record id="country_uz" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">UZ</field>
         <field name="display">Uzbekistan</field>
         <field name="definition">Central Asia</field>
@@ -1348,7 +1352,7 @@
     </record>
 
     <record id="country_vn" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">VN</field>
         <field name="display">Viet Nam</field>
         <field name="definition">South-eastern Asia</field>
@@ -1356,7 +1360,7 @@
     </record>
 
     <record id="country_ye" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">YE</field>
         <field name="display">Yemen</field>
         <field name="definition">Western Asia</field>
@@ -1365,7 +1369,7 @@
 
     <!-- EUROPE -->
     <record id="country_al" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">AL</field>
         <field name="display">Albania</field>
         <field name="definition">Southern Europe</field>
@@ -1373,7 +1377,7 @@
     </record>
 
     <record id="country_ad" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">AD</field>
         <field name="display">Andorra</field>
         <field name="definition">Southern Europe</field>
@@ -1381,7 +1385,7 @@
     </record>
 
     <record id="country_at" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">AT</field>
         <field name="display">Austria</field>
         <field name="definition">Western Europe</field>
@@ -1389,7 +1393,7 @@
     </record>
 
     <record id="country_by" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">BY</field>
         <field name="display">Belarus</field>
         <field name="definition">Eastern Europe</field>
@@ -1397,7 +1401,7 @@
     </record>
 
     <record id="country_be" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">BE</field>
         <field name="display">Belgium</field>
         <field name="definition">Western Europe</field>
@@ -1405,7 +1409,7 @@
     </record>
 
     <record id="country_ba" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">BA</field>
         <field name="display">Bosnia and Herzegovina</field>
         <field name="definition">Southern Europe</field>
@@ -1413,7 +1417,7 @@
     </record>
 
     <record id="country_bg" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">BG</field>
         <field name="display">Bulgaria</field>
         <field name="definition">Eastern Europe</field>
@@ -1421,7 +1425,7 @@
     </record>
 
     <record id="country_hr" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">HR</field>
         <field name="display">Croatia</field>
         <field name="definition">Southern Europe</field>
@@ -1429,7 +1433,7 @@
     </record>
 
     <record id="country_cz" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">CZ</field>
         <field name="display">Czechia</field>
         <field name="definition">Eastern Europe</field>
@@ -1437,7 +1441,7 @@
     </record>
 
     <record id="country_dk" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">DK</field>
         <field name="display">Denmark</field>
         <field name="definition">Northern Europe</field>
@@ -1445,7 +1449,7 @@
     </record>
 
     <record id="country_ee" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">EE</field>
         <field name="display">Estonia</field>
         <field name="definition">Northern Europe</field>
@@ -1453,7 +1457,7 @@
     </record>
 
     <record id="country_fo" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">FO</field>
         <field name="display">Faroe Islands</field>
         <field name="definition">Northern Europe</field>
@@ -1461,7 +1465,7 @@
     </record>
 
     <record id="country_fi" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">FI</field>
         <field name="display">Finland</field>
         <field name="definition">Northern Europe</field>
@@ -1469,7 +1473,7 @@
     </record>
 
     <record id="country_fr" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">FR</field>
         <field name="display">France</field>
         <field name="definition">Western Europe</field>
@@ -1477,7 +1481,7 @@
     </record>
 
     <record id="country_de" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">DE</field>
         <field name="display">Germany</field>
         <field name="definition">Western Europe</field>
@@ -1485,7 +1489,7 @@
     </record>
 
     <record id="country_gi" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">GI</field>
         <field name="display">Gibraltar</field>
         <field name="definition">Southern Europe</field>
@@ -1493,7 +1497,7 @@
     </record>
 
     <record id="country_gr" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">GR</field>
         <field name="display">Greece</field>
         <field name="definition">Southern Europe</field>
@@ -1501,7 +1505,7 @@
     </record>
 
     <record id="country_gg" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">GG</field>
         <field name="display">Guernsey</field>
         <field name="definition">Northern Europe</field>
@@ -1509,7 +1513,7 @@
     </record>
 
     <record id="country_va" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">VA</field>
         <field name="display">Holy See</field>
         <field name="definition">Southern Europe</field>
@@ -1517,7 +1521,7 @@
     </record>
 
     <record id="country_hu" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">HU</field>
         <field name="display">Hungary</field>
         <field name="definition">Eastern Europe</field>
@@ -1525,7 +1529,7 @@
     </record>
 
     <record id="country_is" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">IS</field>
         <field name="display">Iceland</field>
         <field name="definition">Northern Europe</field>
@@ -1533,7 +1537,7 @@
     </record>
 
     <record id="country_ie" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">IE</field>
         <field name="display">Ireland</field>
         <field name="definition">Northern Europe</field>
@@ -1541,7 +1545,7 @@
     </record>
 
     <record id="country_im" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">IM</field>
         <field name="display">Isle of Man</field>
         <field name="definition">Northern Europe</field>
@@ -1549,7 +1553,7 @@
     </record>
 
     <record id="country_it" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">IT</field>
         <field name="display">Italy</field>
         <field name="definition">Southern Europe</field>
@@ -1557,7 +1561,7 @@
     </record>
 
     <record id="country_je" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">JE</field>
         <field name="display">Jersey</field>
         <field name="definition">Northern Europe</field>
@@ -1565,7 +1569,7 @@
     </record>
 
     <record id="country_lv" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">LV</field>
         <field name="display">Latvia</field>
         <field name="definition">Northern Europe</field>
@@ -1573,7 +1577,7 @@
     </record>
 
     <record id="country_li" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">LI</field>
         <field name="display">Liechtenstein</field>
         <field name="definition">Western Europe</field>
@@ -1581,7 +1585,7 @@
     </record>
 
     <record id="country_lt" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">LT</field>
         <field name="display">Lithuania</field>
         <field name="definition">Northern Europe</field>
@@ -1589,7 +1593,7 @@
     </record>
 
     <record id="country_lu" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">LU</field>
         <field name="display">Luxembourg</field>
         <field name="definition">Western Europe</field>
@@ -1597,7 +1601,7 @@
     </record>
 
     <record id="country_mt" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">MT</field>
         <field name="display">Malta</field>
         <field name="definition">Southern Europe</field>
@@ -1605,7 +1609,7 @@
     </record>
 
     <record id="country_md" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">MD</field>
         <field name="display">Moldova, Republic of</field>
         <field name="definition">Eastern Europe</field>
@@ -1613,7 +1617,7 @@
     </record>
 
     <record id="country_mc" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">MC</field>
         <field name="display">Monaco</field>
         <field name="definition">Western Europe</field>
@@ -1621,7 +1625,7 @@
     </record>
 
     <record id="country_me" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">ME</field>
         <field name="display">Montenegro</field>
         <field name="definition">Southern Europe</field>
@@ -1629,7 +1633,7 @@
     </record>
 
     <record id="country_nl" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">NL</field>
         <field name="display">Netherlands, Kingdom of the</field>
         <field name="definition">Western Europe</field>
@@ -1637,7 +1641,7 @@
     </record>
 
     <record id="country_mk" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">MK</field>
         <field name="display">North Macedonia</field>
         <field name="definition">Southern Europe</field>
@@ -1645,7 +1649,7 @@
     </record>
 
     <record id="country_no" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">NO</field>
         <field name="display">Norway</field>
         <field name="definition">Northern Europe</field>
@@ -1653,7 +1657,7 @@
     </record>
 
     <record id="country_pl" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">PL</field>
         <field name="display">Poland</field>
         <field name="definition">Eastern Europe</field>
@@ -1661,7 +1665,7 @@
     </record>
 
     <record id="country_pt" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">PT</field>
         <field name="display">Portugal</field>
         <field name="definition">Southern Europe</field>
@@ -1669,7 +1673,7 @@
     </record>
 
     <record id="country_ro" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">RO</field>
         <field name="display">Romania</field>
         <field name="definition">Eastern Europe</field>
@@ -1677,7 +1681,7 @@
     </record>
 
     <record id="country_ru" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">RU</field>
         <field name="display">Russian Federation</field>
         <field name="definition">Eastern Europe</field>
@@ -1685,7 +1689,7 @@
     </record>
 
     <record id="country_sm" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">SM</field>
         <field name="display">San Marino</field>
         <field name="definition">Southern Europe</field>
@@ -1693,7 +1697,7 @@
     </record>
 
     <record id="country_rs" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">RS</field>
         <field name="display">Serbia</field>
         <field name="definition">Southern Europe</field>
@@ -1701,7 +1705,7 @@
     </record>
 
     <record id="country_sk" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">SK</field>
         <field name="display">Slovakia</field>
         <field name="definition">Eastern Europe</field>
@@ -1709,7 +1713,7 @@
     </record>
 
     <record id="country_si" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">SI</field>
         <field name="display">Slovenia</field>
         <field name="definition">Southern Europe</field>
@@ -1717,7 +1721,7 @@
     </record>
 
     <record id="country_es" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">ES</field>
         <field name="display">Spain</field>
         <field name="definition">Southern Europe</field>
@@ -1725,7 +1729,7 @@
     </record>
 
     <record id="country_sj" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">SJ</field>
         <field name="display">Svalbard and Jan Mayen</field>
         <field name="definition">Northern Europe</field>
@@ -1733,7 +1737,7 @@
     </record>
 
     <record id="country_se" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">SE</field>
         <field name="display">Sweden</field>
         <field name="definition">Northern Europe</field>
@@ -1741,7 +1745,7 @@
     </record>
 
     <record id="country_ch" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">CH</field>
         <field name="display">Switzerland</field>
         <field name="definition">Western Europe</field>
@@ -1749,7 +1753,7 @@
     </record>
 
     <record id="country_ua" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">UA</field>
         <field name="display">Ukraine</field>
         <field name="definition">Eastern Europe</field>
@@ -1757,15 +1761,17 @@
     </record>
 
     <record id="country_gb" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">GB</field>
-        <field name="display">United Kingdom of Great Britain and Northern Ireland</field>
+        <field
+            name="display"
+        >United Kingdom of Great Britain and Northern Ireland</field>
         <field name="definition">Northern Europe</field>
         <field name="sequence">2170</field>
     </record>
 
     <record id="country_ax" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">AX</field>
         <field name="display">Åland Islands</field>
         <field name="definition">Northern Europe</field>
@@ -1774,7 +1780,7 @@
 
     <!-- OCEANIA -->
     <record id="country_as" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">AS</field>
         <field name="display">American Samoa</field>
         <field name="definition">Polynesia</field>
@@ -1782,7 +1788,7 @@
     </record>
 
     <record id="country_au" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">AU</field>
         <field name="display">Australia</field>
         <field name="definition">Australia and New Zealand</field>
@@ -1790,7 +1796,7 @@
     </record>
 
     <record id="country_cx" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">CX</field>
         <field name="display">Christmas Island</field>
         <field name="definition">Australia and New Zealand</field>
@@ -1798,7 +1804,7 @@
     </record>
 
     <record id="country_cc" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">CC</field>
         <field name="display">Cocos (Keeling) Islands</field>
         <field name="definition">Australia and New Zealand</field>
@@ -1806,7 +1812,7 @@
     </record>
 
     <record id="country_ck" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">CK</field>
         <field name="display">Cook Islands</field>
         <field name="definition">Polynesia</field>
@@ -1814,7 +1820,7 @@
     </record>
 
     <record id="country_fj" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">FJ</field>
         <field name="display">Fiji</field>
         <field name="definition">Melanesia</field>
@@ -1822,7 +1828,7 @@
     </record>
 
     <record id="country_pf" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">PF</field>
         <field name="display">French Polynesia</field>
         <field name="definition">Polynesia</field>
@@ -1830,7 +1836,7 @@
     </record>
 
     <record id="country_gu" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">GU</field>
         <field name="display">Guam</field>
         <field name="definition">Micronesia</field>
@@ -1838,7 +1844,7 @@
     </record>
 
     <record id="country_hm" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">HM</field>
         <field name="display">Heard Island and McDonald Islands</field>
         <field name="definition">Australia and New Zealand</field>
@@ -1846,7 +1852,7 @@
     </record>
 
     <record id="country_ki" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">KI</field>
         <field name="display">Kiribati</field>
         <field name="definition">Micronesia</field>
@@ -1854,7 +1860,7 @@
     </record>
 
     <record id="country_mh" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">MH</field>
         <field name="display">Marshall Islands</field>
         <field name="definition">Micronesia</field>
@@ -1862,7 +1868,7 @@
     </record>
 
     <record id="country_fm" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">FM</field>
         <field name="display">Micronesia, Federated States of</field>
         <field name="definition">Micronesia</field>
@@ -1870,7 +1876,7 @@
     </record>
 
     <record id="country_nr" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">NR</field>
         <field name="display">Nauru</field>
         <field name="definition">Micronesia</field>
@@ -1878,7 +1884,7 @@
     </record>
 
     <record id="country_nc" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">NC</field>
         <field name="display">New Caledonia</field>
         <field name="definition">Melanesia</field>
@@ -1886,7 +1892,7 @@
     </record>
 
     <record id="country_nz" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">NZ</field>
         <field name="display">New Zealand</field>
         <field name="definition">Australia and New Zealand</field>
@@ -1894,7 +1900,7 @@
     </record>
 
     <record id="country_nu" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">NU</field>
         <field name="display">Niue</field>
         <field name="definition">Polynesia</field>
@@ -1902,7 +1908,7 @@
     </record>
 
     <record id="country_nf" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">NF</field>
         <field name="display">Norfolk Island</field>
         <field name="definition">Australia and New Zealand</field>
@@ -1910,7 +1916,7 @@
     </record>
 
     <record id="country_mp" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">MP</field>
         <field name="display">Northern Mariana Islands</field>
         <field name="definition">Micronesia</field>
@@ -1918,7 +1924,7 @@
     </record>
 
     <record id="country_pw" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">PW</field>
         <field name="display">Palau</field>
         <field name="definition">Micronesia</field>
@@ -1926,7 +1932,7 @@
     </record>
 
     <record id="country_pg" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">PG</field>
         <field name="display">Papua New Guinea</field>
         <field name="definition">Melanesia</field>
@@ -1934,7 +1940,7 @@
     </record>
 
     <record id="country_pn" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">PN</field>
         <field name="display">Pitcairn</field>
         <field name="definition">Polynesia</field>
@@ -1942,7 +1948,7 @@
     </record>
 
     <record id="country_ws" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">WS</field>
         <field name="display">Samoa</field>
         <field name="definition">Polynesia</field>
@@ -1950,7 +1956,7 @@
     </record>
 
     <record id="country_sb" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">SB</field>
         <field name="display">Solomon Islands</field>
         <field name="definition">Melanesia</field>
@@ -1958,7 +1964,7 @@
     </record>
 
     <record id="country_tk" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">TK</field>
         <field name="display">Tokelau</field>
         <field name="definition">Polynesia</field>
@@ -1966,7 +1972,7 @@
     </record>
 
     <record id="country_to" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">TO</field>
         <field name="display">Tonga</field>
         <field name="definition">Polynesia</field>
@@ -1974,7 +1980,7 @@
     </record>
 
     <record id="country_tv" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">TV</field>
         <field name="display">Tuvalu</field>
         <field name="definition">Polynesia</field>
@@ -1982,7 +1988,7 @@
     </record>
 
     <record id="country_um" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">UM</field>
         <field name="display">United States Minor Outlying Islands</field>
         <field name="definition">Micronesia</field>
@@ -1990,7 +1996,7 @@
     </record>
 
     <record id="country_vu" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">VU</field>
         <field name="display">Vanuatu</field>
         <field name="definition">Melanesia</field>
@@ -1998,7 +2004,7 @@
     </record>
 
     <record id="country_wf" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">WF</field>
         <field name="display">Wallis and Futuna</field>
         <field name="definition">Polynesia</field>
@@ -2007,14 +2013,14 @@
 
     <!-- UNASSIGNED -->
     <record id="country_aq" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">AQ</field>
         <field name="display">Antarctica</field>
         <field name="sequence">2480</field>
     </record>
 
     <record id="country_tw" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">TW</field>
         <field name="display">Taiwan, Province of China</field>
         <field name="sequence">2490</field>
@@ -2022,23 +2028,27 @@
 
     <!-- SPECIAL CODES -->
     <record id="country_xa" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">XA</field>
         <field name="display">Stateless</field>
-        <field name="definition">Person without citizenship of any country (stateless person). Uses user-assigned code from ISO 3166-1 range XA-XZ.</field>
+        <field
+            name="definition"
+        >Person without citizenship of any country (stateless person). Uses user-assigned code from ISO 3166-1 range XA-XZ.</field>
         <field name="sequence">2500</field>
     </record>
 
     <record id="country_xk" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">XK</field>
         <field name="display">Kosovo</field>
-        <field name="definition">Kosovo. Uses user-assigned code XK, widely adopted by international organizations pending ISO assignment.</field>
+        <field
+            name="definition"
+        >Kosovo. Uses user-assigned code XK, widely adopted by international organizations pending ISO assignment.</field>
         <field name="sequence">2510</field>
     </record>
 
     <record id="country_zz" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_country"/>
+        <field name="vocabulary_id" ref="vocab_country" />
         <field name="code">ZZ</field>
         <field name="display">Unknown / Not Stated</field>
         <field name="definition">Country unknown, not stated, or not applicable.</field>

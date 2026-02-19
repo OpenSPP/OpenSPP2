@@ -2,12 +2,13 @@
 
 ## Overview
 
-This document describes the implementation of the CEL executor extension for event data queries in
-`/home/user/openspp-modules-v2/spp_cel_event/models/cel_event_executor.py`.
+This document describes the implementation of the CEL executor extension for event data
+queries in `/home/user/openspp-modules-v2/spp_cel_event/models/cel_event_executor.py`.
 
 ## Architecture
 
-The implementation extends `spp.cel.executor` with support for three event query plan types:
+The implementation extends `spp.cel.executor` with support for three event query plan
+types:
 
 1. **EventValueCompare**: Compare field values from registrant events
 2. **EventExists**: Check for event existence
@@ -212,20 +213,17 @@ Currently supports:
 ## Testing Recommendations
 
 1. **SQL Path Coverage**
-
    - Test each selection mode (active, latest, latest_active, first)
    - Test each temporal filter type
    - Test each field type (bool, numeric, string, null)
    - Test each aggregation function (count, sum, avg, min, max)
 
 2. **Python Path Coverage**
-
    - Test with default values
    - Test error handling
    - Test type coercion
 
 3. **Performance Testing**
-
    - Benchmark with 100K, 500K, 1M registrants
    - Test with varying event counts per registrant
    - Measure query execution times
@@ -240,22 +238,18 @@ Currently supports:
 ## Future Enhancements
 
 1. **SQL where_predicate Support**
-
    - Parse simple CEL predicates to SQL WHERE clauses
    - Enable SQL fast path for filtered aggregations
 
 2. **Event Type Registry Cache**
-
    - Cache `is_one_active_per_registrant` flag
    - Avoid repeated lookups in `_resolve_select_mode`
 
 3. **Query Result Caching**
-
    - Cache results for identical queries within request
    - Invalidate on event data changes
 
 4. **Extended Period Support**
-
    - Add half-year and ISO week parsing
    - Support dynamic period functions (this_quarter(), last_year())
 

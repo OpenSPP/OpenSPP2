@@ -354,6 +354,7 @@ class AsymmetricKeyStorage(models.Model):
             algorithm = self._get_default_signing_algorithm()
 
         # Update last used timestamp
+        # nosemgrep: odoo-sudo-without-context — updating usage timestamp, no sensitive data exposure
         self.sudo().write({"last_used": fields.Datetime.now()})
 
         # Route to appropriate signing method based on storage mode

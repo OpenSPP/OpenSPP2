@@ -20,7 +20,7 @@ class SPPPhoneValidation(models.Model):
     def _compute_name(self):
         for record in self:
             if record.is_with_prefix and record.prefix:
-                record.name = f"{record.prefix}{'X'*record.number_of_digits}"
+                record.name = f"{record.prefix}{'X' * record.number_of_digits}"
             else:
                 record.name = "X" * record.number_of_digits
 

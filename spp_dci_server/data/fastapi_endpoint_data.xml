@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-        <!-- DCI API Endpoint Registration -->
-        <record id="fastapi_endpoint_dci_api" model="fastapi.endpoint">
-            <field name="name">OpenSPP DCI API</field>
-            <field name="root_path">/dci_api/v1</field>
-            <field name="app">dci_api</field>
-            <field name="user_id" ref="base.public_user" />
-            <field name="save_http_session" eval="False" />
-            <field name="description">
+    <!-- DCI API Endpoint Registration -->
+    <record id="fastapi_endpoint_dci_api" model="fastapi.endpoint">
+        <field name="name">OpenSPP DCI API</field>
+        <field name="root_path">/dci_api/v1</field>
+        <field name="app">dci_api</field>
+        <field name="user_id" ref="base.public_user" />
+        <field name="save_http_session" eval="False" />
+        <field name="description">
 # OpenSPP DCI API Server
 
 Digital Convergence Initiative (DCI) API server for social registry data exchange.
@@ -39,5 +39,5 @@ This API uses HTTP Signatures (draft-cavage-http-signatures):
 - DCI Specification: `docs/specs/dci-api-v2/SPEC.md`
 - Integration Guide: `docs/architecture/decisions/ADR-018-dci-api-v2.md`
             </field>
-        </record>
+    </record>
 </odoo>

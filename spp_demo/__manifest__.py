@@ -8,31 +8,9 @@
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Stable",
+    "development_status": "Production/Stable",
     "maintainers": ["jeremi", "gonzalesedwin1123", "reichie020212", "emjay0921"],
     "summary": "Core demo module with data generator and sample data for OpenSPP",
-    "description": """
-OpenSPP Demo
-============
-
-This module consolidates core demo functionality for OpenSPP, including:
-
-- Demo data generator with locale-specific providers
-- Sample user data
-- Demo stories for realistic test scenarios
-- Configuration settings for demo generation
-
-Features:
-- Locale providers for Kenya (en_KE, sw_KE), Laos (lo_LA), Sri Lanka (si_LK, ta_LK)
-- Configurable demo data generation
-
-This module provides the foundation for domain-specific demo modules:
-- spp_base_farmer_registry_demo (farmer-specific demo data)
-- spp_case_demo (case management demo data)
-- spp_grm_demo (GRM demo data)
-- spp_event_demo (event demo data)
-- spp_mis_demo_v2 (MIS programs and indicators demo data)
-    """,
     "depends": [
         "base",
         "spp_base_common",

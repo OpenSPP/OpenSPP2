@@ -374,7 +374,7 @@ ul.auto-toc {
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! source digest: sha256:259bdca5af42fb3094c757cd0f112a8721556223538e761483ed767f669130d7
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-<p><a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_gis"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Production/Stable" src="https://img.shields.io/badge/maturity-Production%2FStable-green.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_gis"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
 <p>PostGIS integration for geospatial data management, map visualization,
 and spatial querying. Adds geo field types (point, line, polygon) to any
 model, renders interactive maps with configurable layers, and enables
@@ -390,8 +390,8 @@ any model using PostGIS spatial types</li>
 imagery)</li>
 <li>Configure data layers with basic or choropleth (color-by-value)
 rendering</li>
-<li>Perform spatial queries (intersects, contains, within,
-distance-based) via <tt class="docutils literal">gis_locational_query()</tt></li>
+<li>Perform spatial queries (intersects, contains, within, distance-based)
+via <tt class="docutils literal">gis_locational_query()</tt></li>
 <li>Import area boundaries from GeoJSON/shapefiles via area import wizard</li>
 <li>Manage color schemes for thematic mapping with sequential, diverging,
 or qualitative palettes</li>
@@ -401,8 +401,8 @@ or qualitative palettes</li>
 <h2>Key Models</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="46%" />
-<col width="54%" />
+<col width="45%" />
+<col width="55%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Model</th>
@@ -457,8 +457,8 @@ functionality is accessed through existing models</li>
 <h2>Security</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="53%" />
+<col width="47%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Group</th>
@@ -469,8 +469,7 @@ functionality is accessed through existing models</li>
 <tr><td><tt class="docutils literal">spp_security.group_spp_admin</tt></td>
 <td>Full CRUD on all GIS models</td>
 </tr>
-<tr><td><tt class="docutils literal">sp
-p_registry.group_registry_read</tt></td>
+<tr><td><tt class="docutils literal">spp_registry.group_registry_read</tt></td>
 <td>Read-only on color schemes and
 layers</td>
 </tr>

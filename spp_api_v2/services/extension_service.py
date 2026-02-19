@@ -41,6 +41,7 @@ class ExtensionService:
             return {}
 
         # Get all applicable extensions (use sudo() for permission)
+        # nosemgrep: odoo-sudo-without-context
         all_extensions = self.env["spp.api.extension"].sudo().get_extensions_for_resource(resource_type)
 
         # Determine which extensions to include
@@ -49,9 +50,11 @@ class ExtensionService:
         else:
             # Filter to requested extensions (by name, URL, or derived key)
             extensions_to_include = all_extensions.filtered(
-                lambda e: e.name in extension_names
-                or e.url in extension_names
-                or self._get_extension_key(e) in extension_names
+                lambda e: (
+                    e.name in extension_names
+                    or e.url in extension_names
+                    or self._get_extension_key(e) in extension_names
+                )
             )
 
         if not extensions_to_include:

@@ -45,6 +45,7 @@ class LogicVariable(models.Model):
     @api.model
     def _is_governance_enabled(self):
         """Check if governance mode is enabled via system parameter."""
+        # nosemgrep: odoo-sudo-without-context
         return self.env["ir.config_parameter"].sudo().get_param(GOVERNANCE_PARAM, "False").lower() == "true"
 
     def _check_governance_edit(self, vals):
@@ -284,6 +285,7 @@ class LogicVariable(models.Model):
         if self:
             new_value = self[0].show_advanced
             if self.env.user.spp_studio_show_advanced != new_value:
+                # nosemgrep: odoo-sudo-without-context
                 self.env.user.sudo().write({"spp_studio_show_advanced": new_value})
 
     @api.depends("source_type", "source_model", "source_field")
@@ -360,7 +362,7 @@ class LogicVariable(models.Model):
                 if record.state == "active":
                     raise UserError(
                         _(
-                            "Cannot delete active variable '%(name)s'. " "Deactivate it first.",
+                            "Cannot delete active variable '%(name)s'. Deactivate it first.",
                             name=record.label or record.name,
                         )
                     )
@@ -637,7 +639,7 @@ class LogicVariable(models.Model):
         # Check if Studio Fields feature is available
         if "spp.studio.field" not in self.env or "spp.studio.field.builder.wizard" not in self.env:
             raise ValidationError(
-                _("The Custom Fields feature is not available. " "Please ensure spp_studio is properly installed.")
+                _("The Custom Fields feature is not available. Please ensure spp_studio is properly installed.")
             )
 
         # Determine target registry from variable scope

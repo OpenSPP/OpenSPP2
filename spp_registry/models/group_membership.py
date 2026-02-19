@@ -50,6 +50,7 @@ class SPPGroupMembership(models.Model):
         """Validate unique membership types (e.g., only one 'head' per group)."""
         # Get the 'head' vocabulary code - this is a unique membership type
         # Use sudo() because this validation should work regardless of user permissions
+        # nosemgrep: odoo-sudo-without-context — public reference data
         head_code = self.env["spp.vocabulary.code"].sudo().get_code("urn:openspp:vocab:group-membership-type", "head")
         if not head_code:
             return

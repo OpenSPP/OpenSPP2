@@ -6,10 +6,14 @@
         <field name="model">spp.grm.ticket.subcategory</field>
         <field name="arch" type="xml">
             <form string="Subcategory">
-                <header>
-                </header>
+                <header />
                 <sheet>
-                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" invisible="active" />
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="bg-danger"
+                        invisible="active"
+                    />
 
                     <div class="oe_title">
                         <label for="name" class="oe_edit_only" />
@@ -30,8 +34,8 @@
                             <field name="ticket_count" />
                         </group>
                     </group>
-                    <separator string="Description"/>
-                    <field name="description" nolabel="1" class="oe_inline"/>
+                    <separator string="Description" />
+                    <field name="description" nolabel="1" class="oe_inline" />
                 </sheet>
             </form>
         </field>
@@ -61,14 +65,26 @@
         <field name="model">spp.grm.ticket.subcategory</field>
         <field name="arch" type="xml">
             <search string="Grievance Redress Mechanism Subcategory Search">
-                <field name="name"/>
-                <field name="category_id"/>
-                <field name="code"/>
-                <filter string="Archived" name="inactive" domain="[('active','=',False)]"/>
-                <separator/>
+                <field name="name" />
+                <field name="category_id" />
+                <field name="code" />
+                <filter
+                    string="Archived"
+                    name="inactive"
+                    domain="[('active','=',False)]"
+                />
+                <separator />
                 <group name="group_by">
-                    <filter string="Category" name="group_by_category" context="{'group_by': 'category_id'}"/>
-                    <filter string="Severity" name="group_by_severity" context="{'group_by': 'default_severity'}"/>
+                    <filter
+                        string="Category"
+                        name="group_by_category"
+                        context="{'group_by': 'category_id'}"
+                    />
+                    <filter
+                        string="Severity"
+                        name="group_by_severity"
+                        context="{'group_by': 'default_severity'}"
+                    />
                 </group>
             </search>
         </field>
@@ -91,5 +107,4 @@
         action="spp_grm_ticket_subcategory_action"
         sequence="16"
     />
-
 </odoo>

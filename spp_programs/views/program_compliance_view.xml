@@ -7,7 +7,6 @@ Compliance determines if enrolled beneficiaries meet ONGOING conditions,
 separate from eligibility which determines WHO can enroll.
 -->
 <odoo>
-
     <!-- ==================== Compliance Manager (Wrapper) ==================== -->
 
     <record id="view_compliance_manager_tree" model="ir.ui.view">
@@ -53,7 +52,12 @@ separate from eligibility which determines WHO can enroll.
             <list sample="1">
                 <field name="name" />
                 <field name="program_id" />
-                <field name="compliance_cel_is_valid" widget="boolean_toggle" readonly="1" string="Valid" />
+                <field
+                    name="compliance_cel_is_valid"
+                    widget="boolean_toggle"
+                    readonly="1"
+                    string="Valid"
+                />
             </list>
         </field>
     </record>
@@ -69,7 +73,11 @@ separate from eligibility which determines WHO can enroll.
                     <div class="oe_title mb24">
                         <label for="name" string="Name:" />
                         <h1>
-                            <field id="name" name="name" placeholder="Enter the Compliance Manager Name..." />
+                            <field
+                                id="name"
+                                name="name"
+                                placeholder="Enter the Compliance Manager Name..."
+                            />
                         </h1>
                         <field name="program_id" invisible="1" />
                     </div>
@@ -93,7 +101,11 @@ separate from eligibility which determines WHO can enroll.
                                 readonly="1"
                             />
                             <!-- Lock indicator -->
-                            <div colspan="2" invisible="not is_compliance_locked" class="text-warning">
+                            <div
+                                colspan="2"
+                                invisible="not is_compliance_locked"
+                                class="text-warning"
+                            >
                                 <i class="fa fa-lock" title="Locked" />
                                 <span class="ms-1 fw-bold">Locked</span>
                             </div>
@@ -116,7 +128,8 @@ separate from eligibility which determines WHO can enroll.
                             invisible="not is_compliance_locked"
                         >
                             <i class="fa fa-lock me-1" title="Locked" />
-                            This compliance criteria is <strong>locked</strong> and cannot be modified.
+                            This compliance criteria is <strong
+                        >locked</strong> and cannot be modified.
                             The expression is standardized for compliance purposes.
                             Contact an administrator to unlock if changes are required.
                         </div>
@@ -162,7 +175,12 @@ separate from eligibility which determines WHO can enroll.
                             >
                                 <i class="fa fa-check-circle" title="Success" />
                                 Expression is valid.
-                                <strong><field name="compliance_cel_preview_count" class="oe_inline" /></strong>
+                                <strong>
+                                <field
+                                    name="compliance_cel_preview_count"
+                                    class="oe_inline"
+                                />
+                            </strong>
                                 enrolled beneficiaries match this compliance criteria.
                             </div>
 
@@ -172,7 +190,11 @@ separate from eligibility which determines WHO can enroll.
                                 invisible="not compliance_cel_preview_error"
                             >
                                 <i class="fa fa-exclamation-triangle" title="Warning" />
-                                <field name="compliance_cel_preview_error" nolabel="1" class="oe_inline" />
+                                <field
+                                    name="compliance_cel_preview_error"
+                                    nolabel="1"
+                                    class="oe_inline"
+                                />
                             </div>
                         </div>
                     </group>
@@ -190,10 +212,22 @@ separate from eligibility which determines WHO can enroll.
                 <field name="name" />
                 <field name="program_id" />
                 <separator />
-                <filter string="Has Expression" name="has_expression" domain="[('compliance_cel_expression', '!=', False)]" />
-                <filter string="No Expression" name="no_expression" domain="[('compliance_cel_expression', '=', False)]" />
+                <filter
+                    string="Has Expression"
+                    name="has_expression"
+                    domain="[('compliance_cel_expression', '!=', False)]"
+                />
+                <filter
+                    string="No Expression"
+                    name="no_expression"
+                    domain="[('compliance_cel_expression', '=', False)]"
+                />
                 <separator />
-                <filter string="Program" name="grp_program_id" context="{'group_by': 'program_id'}" />
+                <filter
+                    string="Program"
+                    name="grp_program_id"
+                    context="{'group_by': 'program_id'}"
+                />
             </search>
         </field>
     </record>
@@ -210,11 +244,11 @@ separate from eligibility which determines WHO can enroll.
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Add a Compliance Manager!
-            </p><p>
+            </p>
+            <p>
                 Click the create button to configure compliance criteria.
                 Compliance criteria define ongoing conditions beneficiaries must meet.
             </p>
         </field>
     </record>
-
 </odoo>

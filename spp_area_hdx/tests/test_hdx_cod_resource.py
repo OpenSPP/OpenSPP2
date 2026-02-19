@@ -38,8 +38,10 @@ class TestHdxCodResource(common.TransactionCase):
 
     def test_required_fields(self):
         """Test that required fields are enforced."""
+        from odoo.exceptions import ValidationError
+
         # source_id is required
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValidationError):
             self.env["spp.hdx.cod.resource"].create(
                 {
                     "name": "Test",
@@ -48,7 +50,7 @@ class TestHdxCodResource(common.TransactionCase):
             )
 
         # name is required
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValidationError):
             self.env["spp.hdx.cod.resource"].create(
                 {
                     "source_id": self.source.id,
@@ -57,7 +59,7 @@ class TestHdxCodResource(common.TransactionCase):
             )
 
         # admin_level is required
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValidationError):
             self.env["spp.hdx.cod.resource"].create(
                 {
                     "source_id": self.source.id,

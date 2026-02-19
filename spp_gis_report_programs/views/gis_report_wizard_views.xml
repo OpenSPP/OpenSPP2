@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Extend GIS Report Wizard to add program_id field -->
     <record id="view_gis_report_wizard_form_programs" model="ir.ui.view">
@@ -7,9 +7,11 @@
         <field name="inherit_id" ref="spp_gis_report.view_gis_report_wizard_form" />
         <field name="arch" type="xml">
             <xpath expr="//group[@name='context_filters']" position="inside">
-                <field name="program_id"
-                       invisible="not template_requires_program"
-                       options="{'no_create': True}" />
+                <field
+                    name="program_id"
+                    invisible="not template_requires_program"
+                    options="{'no_create': True}"
+                />
             </xpath>
         </field>
     </record>

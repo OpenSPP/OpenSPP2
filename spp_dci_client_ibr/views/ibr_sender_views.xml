@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Tree View -->
     <record id="view_spp_dci_ibr_sender_tree" model="ir.ui.view">
@@ -38,13 +38,20 @@
                             class="oe_stat_button"
                             icon="fa-archive"
                         >
-                            <field name="active" widget="boolean_button" options='{"terminology": "archive"}' />
+                            <field
+                                name="active"
+                                widget="boolean_button"
+                                options='{"terminology": "archive"}'
+                            />
                         </button>
                     </div>
                     <div class="oe_title">
                         <label for="name" />
                         <h1>
-                            <field name="name" placeholder="e.g., National Beneficiary Registry" />
+                            <field
+                                name="name"
+                                placeholder="e.g., National Beneficiary Registry"
+                            />
                         </h1>
                     </div>
                     <group>
@@ -78,10 +85,22 @@
             <search>
                 <field name="name" />
                 <field name="sender_id" />
-                <filter string="Active" name="active" domain="[('active', '=', True)]" />
-                <filter string="Archived" name="archived" domain="[('active', '=', False)]" />
+                <filter
+                    string="Active"
+                    name="active"
+                    domain="[('active', '=', True)]"
+                />
+                <filter
+                    string="Archived"
+                    name="archived"
+                    domain="[('active', '=', False)]"
+                />
                 <separator />
-                <filter string="Algorithm" name="group_algorithm" context="{'group_by': 'algorithm'}" />
+                <filter
+                    string="Algorithm"
+                    name="group_algorithm"
+                    context="{'group_by': 'algorithm'}"
+                />
             </search>
         </field>
     </record>

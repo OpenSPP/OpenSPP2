@@ -147,7 +147,9 @@ export class LogicTestPanel extends Component {
     getSummary() {
         const total = this.props.tests.length;
         const passed = this.props.tests.filter((t) => t.passed === true).length;
-        const failed = this.props.tests.filter((t) => t.passed === false || t.error_message).length;
+        const failed = this.props.tests.filter(
+            (t) => t.passed === false || t.error_message
+        ).length;
         const pending = total - passed - failed;
 
         return {total, passed, failed, pending};

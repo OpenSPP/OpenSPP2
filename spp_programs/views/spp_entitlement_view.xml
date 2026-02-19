@@ -95,7 +95,10 @@
     <!-- Odoo 19: Fixed field name from groups_id to group_ids -->
     <record model="ir.actions.server" id="reset_to_pending_entitlement_modal">
         <field name="name">Reset to Pending</field>
-        <field name="model_id" ref="spp_programs.model_spp_reset_pending_entitlement_wizard" />
+        <field
+            name="model_id"
+            ref="spp_programs.model_spp_reset_pending_entitlement_wizard"
+        />
         <field name="binding_model_id" ref="spp_programs.model_spp_entitlement" />
         <field name="binding_view_types">list,form</field>
         <field name="state">code</field>

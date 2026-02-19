@@ -105,7 +105,13 @@ menus:
   # Main Hazard menu - accessible to all hazard groups
   - id: hazard_main_menu_root
     name: "Hazard & Emergency"
-    groups: [spp_security.group_spp_admin, group_hazard_viewer, group_hazard_officer, group_hazard_manager]
+    groups:
+      [
+        spp_security.group_spp_admin,
+        group_hazard_viewer,
+        group_hazard_officer,
+        group_hazard_manager,
+      ]
 
   # Incidents submenu
   - id: menu_hazard_incidents_main

@@ -1,9 +1,9 @@
 """DCI constants and enumerations."""
 
-from enum import Enum
+from enum import Enum, StrEnum
 
 
-class RegistryType(str, Enum):
+class RegistryType(StrEnum):
     """DCI Registry types."""
 
     SOCIAL_REGISTRY = "SOCIAL_REGISTRY"
@@ -13,7 +13,7 @@ class RegistryType(str, Enum):
     FUNCTIONAL_REGISTRY = "FR"
 
 
-class RegistryEventType(str, Enum):
+class RegistryEventType(StrEnum):
     """DCI Registry event types."""
 
     # Common events
@@ -33,7 +33,7 @@ class RegistryEventType(str, Enum):
     BENEFIT_DISBURSEMENT = "BENEFIT_DISBURSEMENT"
 
 
-class QueryType(str, Enum):
+class QueryType(StrEnum):
     """DCI query types for search operations."""
 
     IDTYPE_VALUE = "idtype-value"
@@ -42,7 +42,7 @@ class QueryType(str, Enum):
     GRAPHQL = "graphql"
 
 
-class RequestStatus(str, Enum):
+class RequestStatus(StrEnum):
     """DCI request status codes."""
 
     RECEIVED = "rcvd"
@@ -51,7 +51,7 @@ class RequestStatus(str, Enum):
     REJECTED = "rjct"
 
 
-class RegistryRecordType(str, Enum):
+class RegistryRecordType(StrEnum):
     """DCI registry record types."""
 
     PERSON = "PERSON"
@@ -61,7 +61,7 @@ class RegistryRecordType(str, Enum):
     PWD_PERSON = "PWD_PERSON"
 
 
-class SexCategory(str, Enum):
+class SexCategory(StrEnum):
     """DCI sex category values (ISO 5218)."""
 
     MALE = "male"
@@ -70,7 +70,7 @@ class SexCategory(str, Enum):
     UNKNOWN = "unknown"
 
 
-class MaritalStatus(str, Enum):
+class MaritalStatus(StrEnum):
     """DCI marital status codes."""
 
     SINGLE = "S"
@@ -82,7 +82,7 @@ class MaritalStatus(str, Enum):
     UNKNOWN = "U"
 
 
-class IdentifierType(str, Enum):
+class IdentifierType(StrEnum):
     """Standard DCI identifier types."""
 
     UIN = "UIN"  # Unique Identification Number
@@ -100,7 +100,7 @@ class FunctionalSeverity(int, Enum):
     CANNOT_DO = 4
 
 
-class DisabilityType(str, Enum):
+class DisabilityType(StrEnum):
     """DCI disability/functional limitation types."""
 
     VISION = "Vision"
@@ -111,7 +111,7 @@ class DisabilityType(str, Enum):
     COMMUNICATION = "Communication"
 
 
-class AssistanceUnitEnum(str, Enum):
+class AssistanceUnitEnum(StrEnum):
     """DCI assistance unit types (group_type)."""
 
     MEMBER = "Member"
@@ -119,7 +119,7 @@ class AssistanceUnitEnum(str, Enum):
     FAMILY = "Family"
 
 
-class EmploymentStatusEnum(str, Enum):
+class EmploymentStatusEnum(StrEnum):
     """DCI employment status categories."""
 
     EMPLOYED = "Employed"
@@ -132,7 +132,7 @@ class EmploymentStatusEnum(str, Enum):
     SELF_EMPLOYED_FAMILY_WORKER = "Self employment: Contributing family workers"
 
 
-class OccupationEnum(str, Enum):
+class OccupationEnum(StrEnum):
     """DCI occupation categories (ISCO-08 based)."""
 
     ARMED_FORCES = "Armed forces occupation"
@@ -147,7 +147,7 @@ class OccupationEnum(str, Enum):
     ELEMENTARY = "Elementary occupation"
 
 
-class IncomeLevelEnum(str, Enum):
+class IncomeLevelEnum(StrEnum):
     """DCI income level categories."""
 
     LEVEL_1 = "1"
@@ -156,7 +156,7 @@ class IncomeLevelEnum(str, Enum):
     HIGH = "High"
 
 
-class LanguageCodeEnum(str, Enum):
+class LanguageCodeEnum(StrEnum):
     """DCI language codes (ISO 639-1)."""
 
     EN = "en"
@@ -170,7 +170,7 @@ class LanguageCodeEnum(str, Enum):
     DE = "de"
 
 
-class EducationCodeEnum(str, Enum):
+class EducationCodeEnum(StrEnum):
     """DCI education level codes (ISCED based)."""
 
     EARLY_CHILDHOOD = "Early childhood education"
@@ -184,7 +184,7 @@ class EducationCodeEnum(str, Enum):
     DOCTORATE = "Doctorate or equivalent"
 
 
-class RelationshipTypeEnum(str, Enum):
+class RelationshipTypeEnum(StrEnum):
     """DCI relationship type codes."""
 
     SELF = "SELF"
@@ -216,7 +216,7 @@ class RelationshipTypeEnum(str, Enum):
     SIGNIFICANT_OTHER = "SIGOTHR"
 
 
-class SearchStatusReasonCode(str, Enum):
+class SearchStatusReasonCode(StrEnum):
     """SPDCI Search status reason codes.
 
     From social_api_v1.0.0.yaml SearchStatusReasonCode enum.
@@ -233,7 +233,7 @@ class SearchStatusReasonCode(str, Enum):
     TOO_MANY_RECORDS = "rjct.search.too_many_records_found"
 
 
-class MsgHeaderStatusReasonCode(str, Enum):
+class MsgHeaderStatusReasonCode(StrEnum):
     """SPDCI Message header status reason codes.
 
     From social_api_v1.0.0.yaml MsgHeaderStatusReasonCode enum.
@@ -250,7 +250,7 @@ class MsgHeaderStatusReasonCode(str, Enum):
     ERRORS_TOO_MANY = "rjct.errors.too_many"
 
 
-class SubscribeStatusReasonCode(str, Enum):
+class SubscribeStatusReasonCode(StrEnum):
     """SPDCI Subscribe status reason codes.
 
     From social_api_v1.0.0.yaml SubscribeStatusReasonCode enum.
@@ -266,7 +266,7 @@ class SubscribeStatusReasonCode(str, Enum):
     ALREADY_SUBSCRIBED = "rjct.event.already_subscribed"
 
 
-class UnsubscribeStatusReasonCode(str, Enum):
+class UnsubscribeStatusReasonCode(StrEnum):
     """SPDCI Unsubscribe status reason codes.
 
     From social_api_v1.0.0.yaml UnsubscribeStatusReasonCode enum.

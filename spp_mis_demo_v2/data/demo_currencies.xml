@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <!--
     Demo Currencies for SP-MIS Demo V2
 
@@ -8,8 +8,8 @@
 -->
 <odoo>
     <!-- Activate Philippine Peso (PHP) using function call -->
-        <function model="res.currency" name="write">
-            <value eval="[ref('base.PHP')]"/>
-            <value eval="{'active': True}"/>
-        </function>
+    <function model="res.currency" name="write">
+        <value eval="[ref('base.PHP')]" />
+        <value eval="{'active': True}" />
+    </function>
 </odoo>

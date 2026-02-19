@@ -1,41 +1,51 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Extend Approval Review Form View -->
     <record id="view_spp_approval_review_form_multitier" model="ir.ui.view">
         <field name="name">spp.approval.review.form.multitier</field>
         <field name="model">spp.approval.review</field>
-        <field name="inherit_id" ref="spp_approval.approval_review_view_form"/>
+        <field name="inherit_id" ref="spp_approval.approval_review_view_form" />
         <field name="arch" type="xml">
             <!-- Add multi-tier progress after header -->
             <xpath expr="//sheet" position="inside">
-                <group string="Multi-Tier Progress" invisible="not is_multitier" name="tier_progress">
+                <group
+                    string="Multi-Tier Progress"
+                    invisible="not is_multitier"
+                    name="tier_progress"
+                >
                     <group>
-                        <field name="is_multitier" invisible="1"/>
-                        <field name="current_tier_name"/>
-                        <field name="tier_progress" widget="progressbar"/>
+                        <field name="is_multitier" invisible="1" />
+                        <field name="current_tier_name" />
+                        <field name="tier_progress" widget="progressbar" />
                     </group>
                     <group>
-                        <field name="completed_tiers"/>
-                        <field name="total_tiers"/>
+                        <field name="completed_tiers" />
+                        <field name="total_tiers" />
                     </group>
                 </group>
                 <notebook invisible="not is_multitier">
                     <page string="Tier Reviews" name="tier_reviews">
                         <field name="tier_review_ids" nolabel="1">
                             <list>
-                                <field name="sequence"/>
-                                <field name="tier_name"/>
-                                <field name="status" widget="badge"
-                                       decoration-info="status == 'waiting'"
-                                       decoration-warning="status == 'pending'"
-                                       decoration-success="status == 'approved'"
-                                       decoration-danger="status == 'rejected'"
-                                       decoration-muted="status == 'skipped'"/>
-                                <field name="approved_by_ids" widget="many2many_tags"/>
-                                <field name="approved_date"/>
-                                <field name="rejected_by_id"/>
-                                <field name="is_sla_breached" widget="boolean"
-                                       decoration-danger="is_sla_breached"/>
+                                <field name="sequence" />
+                                <field name="tier_name" />
+                                <field
+                                    name="status"
+                                    widget="badge"
+                                    decoration-info="status == 'waiting'"
+                                    decoration-warning="status == 'pending'"
+                                    decoration-success="status == 'approved'"
+                                    decoration-danger="status == 'rejected'"
+                                    decoration-muted="status == 'skipped'"
+                                />
+                                <field name="approved_by_ids" widget="many2many_tags" />
+                                <field name="approved_date" />
+                                <field name="rejected_by_id" />
+                                <field
+                                    name="is_sla_breached"
+                                    widget="boolean"
+                                    decoration-danger="is_sla_breached"
+                                />
                             </list>
                         </field>
                     </page>
@@ -48,12 +58,12 @@
     <record id="view_spp_approval_review_tree_multitier" model="ir.ui.view">
         <field name="name">spp.approval.review.list.multitier</field>
         <field name="model">spp.approval.review</field>
-        <field name="inherit_id" ref="spp_approval.approval_review_view_tree"/>
+        <field name="inherit_id" ref="spp_approval.approval_review_view_tree" />
         <field name="arch" type="xml">
             <xpath expr="//field[@name='status']" position="after">
-                <field name="is_multitier" optional="hide"/>
-                <field name="current_tier_name" string="Current Tier" optional="show"/>
-                <field name="tier_progress" widget="progressbar" optional="show"/>
+                <field name="is_multitier" optional="hide" />
+                <field name="current_tier_name" string="Current Tier" optional="show" />
+                <field name="tier_progress" widget="progressbar" optional="show" />
             </xpath>
         </field>
     </record>
@@ -62,14 +72,20 @@
     <record id="view_spp_approval_review_search_multitier" model="ir.ui.view">
         <field name="name">spp.approval.review.search.multitier</field>
         <field name="model">spp.approval.review</field>
-        <field name="inherit_id" ref="spp_approval.approval_review_view_search"/>
+        <field name="inherit_id" ref="spp_approval.approval_review_view_search" />
         <field name="arch" type="xml">
             <xpath expr="//filter[@name='pending']" position="after">
-                <separator/>
-                <filter string="Multi-Tier" name="filter_multitier"
-                        domain="[('is_multitier', '=', True)]"/>
-                <filter string="Single-Tier" name="filter_singletier"
-                        domain="[('is_multitier', '=', False)]"/>
+                <separator />
+                <filter
+                    string="Multi-Tier"
+                    name="filter_multitier"
+                    domain="[('is_multitier', '=', True)]"
+                />
+                <filter
+                    string="Single-Tier"
+                    name="filter_singletier"
+                    domain="[('is_multitier', '=', False)]"
+                />
             </xpath>
         </field>
     </record>

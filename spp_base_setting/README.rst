@@ -14,14 +14,17 @@ OpenSPP Base Settings
    !! source digest: sha256:8936465ae7f0a2fe636d24509983a5c32f7618b4ddd2431759adca0ed78b58bc
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+    :target: https://odoo-community.org/page/development-status
+    :alt: Production/Stable
+.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
     :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_base_setting
     :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2|
+|badge1| |badge2| |badge3|
 
 Provides Country Office management and administrative UI configuration
 for OpenSPP implementations. Extends ``res.company`` to represent
@@ -33,13 +36,13 @@ deployments.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  Define Country Offices as administrative units using company records
-   with custom form and list views
--  Organize hierarchical office structures through parent-child company
-   relationships
--  Expose user and group management in the Registry configuration menu
--  Provide standardized Country Office form including address, contact
-   details, currency, and branding
+- Define Country Offices as administrative units using company records
+  with custom form and list views
+- Organize hierarchical office structures through parent-child company
+  relationships
+- Expose user and group management in the Registry configuration menu
+- Provide standardized Country Office form including address, contact
+  details, currency, and branding
 
 Key Models
 ~~~~~~~~~~
@@ -67,19 +70,19 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
--  **User Management**: Registry > Configuration > Users
--  **Group Management**: Registry > Configuration > Groups (system
-   admins only, ``base.group_no_one``)
--  **Country Offices**: No standalone menu; accessed via
-   ``action_res_country_office`` action or Settings
+- **User Management**: Registry > Configuration > Users
+- **Group Management**: Registry > Configuration > Groups (system admins
+  only, ``base.group_no_one``)
+- **Country Offices**: No standalone menu; accessed via
+  ``action_res_country_office`` action or Settings
 
 Form Views
 ~~~~~~~~~~
 
 The Country Office form (``view_country_office_form``) includes one tab:
 
--  **General Information**: Address fields, phone, email, website, VAT,
-   currency, and parent office
+- **General Information**: Address fields, phone, email, website, VAT,
+  currency, and parent office
 
 Security
 ~~~~~~~~
@@ -88,19 +91,19 @@ This module does not define custom security groups. Access to Country
 Office management and user/group configuration follows standard Odoo
 security rules:
 
--  User management requires standard Odoo access rights
--  Group management restricted to ``base.group_no_one`` (system admins)
--  Country Office (company) records follow ``res.company`` access rules
+- User management requires standard Odoo access rights
+- Group management restricted to ``base.group_no_one`` (system admins)
+- Country Office (company) records follow ``res.company`` access rules
 
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Inherit ``res.company`` to add Country Office-specific fields (e.g.,
-   office codes, regional metadata)
--  Override ``view_country_office_form`` to customize the Country Office
-   form layout
--  Extend the "social_media" placeholder group in the Country Office
-   form to add social media fields
+- Inherit ``res.company`` to add Country Office-specific fields (e.g.,
+  office codes, regional metadata)
+- Override ``view_country_office_form`` to customize the Country Office
+  form layout
+- Extend the "social_media" placeholder group in the Country Office form
+  to add social media fields
 
 Dependencies
 ~~~~~~~~~~~~

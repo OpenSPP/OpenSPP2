@@ -11,7 +11,7 @@
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Stable",
+    "development_status": "Production/Stable",
     "maintainers": ["jeremi", "gonzalesedwin1123", "reichie020212", "emjay0921"],
     "depends": [
         "base",
@@ -43,6 +43,8 @@
         "views/group_views.xml",
         "views/role.xml",
         "views/user.xml",
+        "views/area.xml",
+        "views/area_import.xml",
     ],
     "assets": {},
     "demo": [],

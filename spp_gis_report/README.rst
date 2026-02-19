@@ -14,14 +14,17 @@ OpenSPP GIS Reports
    !! source digest: sha256:87f7bd430de441edc5f24a4ad9bd086f2947376016d613f5e9a2b69386752692
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+    :target: https://odoo-community.org/page/development-status
+    :alt: Production/Stable
+.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
     :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_gis_report
     :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2|
+|badge1| |badge2| |badge3|
 
 Generates geographic reports by aggregating social protection data to
 administrative areas and rendering them as choropleth maps. Users create
@@ -33,46 +36,46 @@ for external tool integration.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  Template-based wizard guides users through report creation with three
-   steps
--  Aggregates registrant, program, or disaster data by administrative
-   area using configurable field paths
--  Normalizes values per km², per capita, per household, or as
-   percentages
--  Rolls up data through area hierarchy from base level to all parent
-   levels
--  Auto-calculates thresholds using quartiles, equal intervals, Jenks
-   breaks, or standard deviation
--  Scheduled or on-demand data refresh with background job processing
--  GeoJSON API endpoints using report codes (not database IDs) for
-   external tools
--  Supports multiple geometry types: polygon choropleth, point markers,
-   clusters, heatmaps
+- Template-based wizard guides users through report creation with three
+  steps
+- Aggregates registrant, program, or disaster data by administrative
+  area using configurable field paths
+- Normalizes values per km², per capita, per household, or as
+  percentages
+- Rolls up data through area hierarchy from base level to all parent
+  levels
+- Auto-calculates thresholds using quartiles, equal intervals, Jenks
+  breaks, or standard deviation
+- Scheduled or on-demand data refresh with background job processing
+- GeoJSON API endpoints using report codes (not database IDs) for
+  external tools
+- Supports multiple geometry types: polygon choropleth, point markers,
+  clusters, heatmaps
 
 Key Models
 ~~~~~~~~~~
 
-+------------------------------+--------------------------------------+
-| Model                        | Description                          |
-+==============================+======================================+
-| ``spp.gis.report``           | Report configuration defining        |
-|                              | source, aggregation, and display     |
-+------------------------------+--------------------------------------+
-| ``spp.gis.report.data``      | Cached computed values for each      |
-|                              | area, updated on schedule            |
-+------------------------------+--------------------------------------+
-| ``spp.gis.report.template``  | Pre-built report definitions with    |
-|                              | JSON configuration                   |
-+------------------------------+--------------------------------------+
-| ``spp.gis.report.category``  | Categories for organizing reports    |
-|                              | and templates                        |
-+------------------------------+--------------------------------------+
-| ``spp.gis.report.threshold`` | Color threshold definitions for map  |
-|                              | visualization                        |
-+------------------------------+--------------------------------------+
-| ``spp.gis.report.wizard``    | Three-step wizard for creating       |
-|                              | reports from templates               |
-+------------------------------+--------------------------------------+
++------------------------------+---------------------------------------+
+| Model                        | Description                           |
++==============================+=======================================+
+| ``spp.gis.report``           | Report configuration defining source, |
+|                              | aggregation, and display              |
++------------------------------+---------------------------------------+
+| ``spp.gis.report.data``      | Cached computed values for each area, |
+|                              | updated on schedule                   |
++------------------------------+---------------------------------------+
+| ``spp.gis.report.template``  | Pre-built report definitions with     |
+|                              | JSON configuration                    |
++------------------------------+---------------------------------------+
+| ``spp.gis.report.category``  | Categories for organizing reports and |
+|                              | templates                             |
++------------------------------+---------------------------------------+
+| ``spp.gis.report.threshold`` | Color threshold definitions for map   |
+|                              | visualization                         |
++------------------------------+---------------------------------------+
+| ``spp.gis.report.wizard``    | Three-step wizard for creating        |
+|                              | reports from templates                |
++------------------------------+---------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -83,61 +86,60 @@ loaded automatically and accessible via the wizard.
 UI Location
 ~~~~~~~~~~~
 
--  **Menu**: GIS Reports > Reports
--  **Templates**: GIS Reports > Templates
--  **Configuration**: GIS Reports > Configuration > Categories and Color
-   Schemes (admin only)
--  **Wizard**: Create reports by opening a template and clicking "Create
-   Report"
--  **Form Tabs**: General, Data Source, Aggregation, Normalization,
-   Visualization, Rollup, Schedule, Access, Map Layer
+- **Menu**: GIS Reports > Reports
+- **Templates**: GIS Reports > Templates
+- **Configuration**: GIS Reports > Configuration > Categories and Color
+  Schemes (admin only)
+- **Wizard**: Create reports by opening a template and clicking "Create
+  Report"
+- **Form Tabs**: General, Data Source, Aggregation, Normalization,
+  Visualization, Rollup, Schedule, Access, Map Layer
 
 Security
 ~~~~~~~~
 
-+----------------------------------+----------------------------------+
-| Group                            | Access                           |
-+==================================+==================================+
-| ``base.group_user``              | Read reports and data            |
-+----------------------------------+----------------------------------+
-| ``group_gis_report_user``        | Read reports, write data for     |
-|                                  | refresh                          |
-+----------------------------------+----------------------------------+
-| ``group_gis_report_officer``     | Read/Write/Create (no delete)    |
-+----------------------------------+----------------------------------+
-| ``group_gis_report_manager``     | Full CRUD                        |
-+----------------------------------+----------------------------------+
-| ``spp_r                          | Read reports and data            |
-| egistry.group_registry_officer`` |                                  |
-+----------------------------------+----------------------------------+
-| ``spp_security.group_spp_admin`` | Full CRUD and configuration      |
-+----------------------------------+----------------------------------+
++-----------------------------------------+----------------------------------+
+| Group                                   | Access                           |
++=========================================+==================================+
+| ``base.group_user``                     | Read reports and data            |
++-----------------------------------------+----------------------------------+
+| ``group_gis_report_user``               | Read reports, write data for     |
+|                                         | refresh                          |
++-----------------------------------------+----------------------------------+
+| ``group_gis_report_officer``            | Read/Write/Create (no delete)    |
++-----------------------------------------+----------------------------------+
+| ``group_gis_report_manager``            | Full CRUD                        |
++-----------------------------------------+----------------------------------+
+| ``spp_registry.group_registry_officer`` | Read reports and data            |
++-----------------------------------------+----------------------------------+
+| ``spp_security.group_spp_admin``        | Full CRUD and configuration      |
++-----------------------------------------+----------------------------------+
 
 API Endpoints
 ~~~~~~~~~~~~~
 
 All endpoints use report ``code`` as identifier, not database IDs:
 
--  ``GET /api/v2/GISReport`` - List available reports
--  ``GET /api/v2/GISReport/<code>/geojson`` - Get report data as GeoJSON
-   FeatureCollection
--  ``GET /api/v2/GISReport/<code>/summary`` - Get aggregate statistics
--  ``POST /api/v2/GISReport/<code>/refresh`` - Trigger manual data
-   refresh
+- ``GET /api/v2/GISReport`` - List available reports
+- ``GET /api/v2/GISReport/<code>/geojson`` - Get report data as GeoJSON
+  FeatureCollection
+- ``GET /api/v2/GISReport/<code>/summary`` - Get aggregate statistics
+- ``POST /api/v2/GISReport/<code>/refresh`` - Trigger manual data
+  refresh
 
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Override ``_get_gis_report_source_models()`` on ``spp.gis.report`` to
-   add models as data sources
--  Override ``_apply_context_filters()`` on ``spp.gis.report`` to add
-   module-specific filtering (e.g., program context)
--  Inherit ``spp.gis.report.wizard`` and override
-   ``_validate_context_requirements()`` and
-   ``_get_context_filter_vals()`` to add wizard steps for program or
-   incident selection
--  Add report templates via data XML files with JSON configuration
--  Extend ``spp.area`` to add reference data fields for normalization
+- Override ``_get_gis_report_source_models()`` on ``spp.gis.report`` to
+  add models as data sources
+- Override ``_apply_context_filters()`` on ``spp.gis.report`` to add
+  module-specific filtering (e.g., program context)
+- Inherit ``spp.gis.report.wizard`` and override
+  ``_validate_context_requirements()`` and
+  ``_get_context_filter_vals()`` to add wizard steps for program or
+  incident selection
+- Add report templates via data XML files with JSON configuration
+- Extend ``spp.area`` to add reference data fields for normalization
 
 Dependencies
 ~~~~~~~~~~~~
@@ -166,6 +168,7 @@ Credits
 Authors
 -------
 
+* OpenSPP.org
 * OpenSPP
 
 Maintainers

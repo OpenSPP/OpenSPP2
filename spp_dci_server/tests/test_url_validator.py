@@ -217,7 +217,7 @@ class TestBlockedLists(TransactionCase):
             "172.16.0.0/12",
             "192.168.0.0/16",
         ]
-        blocked_networks = [str(net) for net in BLOCKED_IP_RANGES]
+        [str(net) for net in BLOCKED_IP_RANGES]
         for rfc_range in rfc1918_ranges:
             self.assertIn(
                 ipaddress.ip_network(rfc_range),

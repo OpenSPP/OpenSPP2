@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Vocabulary Domain Privilege -->
     <!-- Single consolidated privilege for all vocabulary access levels -->
 
     <record id="privilege_vocabulary" model="res.groups.privilege">
         <field name="name">Vocabulary</field>
-        <field name="category_id" ref="spp_security.category_spp"/>
+        <field name="category_id" ref="spp_security.category_spp" />
         <field name="description">Access to vocabulary management system</field>
     </record>
 </odoo>

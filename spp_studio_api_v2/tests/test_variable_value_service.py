@@ -315,8 +315,6 @@ class TestVariableValueServiceEdgeCases(TransactionCase):
 
     def test_value_json_without_value_key(self):
         """Test handling of value_json that doesn't have 'value' key."""
-        import time
-
         from ..services.variable_value_service import VariableValueService
 
         unique_id = int(time.time() * 1000)
@@ -358,8 +356,6 @@ class TestVariableValueServiceEdgeCases(TransactionCase):
 
     def test_value_json_complex_structure(self):
         """Test handling of complex value_json structure."""
-        import time
-
         from ..services.variable_value_service import VariableValueService
 
         unique_id = int(time.time() * 1000)
@@ -404,8 +400,6 @@ class TestVariableValueServiceEdgeCases(TransactionCase):
 
     def test_get_available_variables_no_category(self):
         """Test get_available_variables with variables that have no category."""
-        import time
-
         from ..services.variable_value_service import VariableValueService
 
         unique_id = int(time.time() * 1000)

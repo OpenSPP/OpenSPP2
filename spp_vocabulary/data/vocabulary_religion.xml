@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
     <!--
         Religion Vocabulary based on UN Principles and Recommendations for Population Censuses
@@ -25,8 +25,12 @@
         <field name="name">Religion (UN Census Framework)</field>
         <field name="namespace_uri">urn:un:unsd:pop-census:religion</field>
         <field name="version">2017</field>
-        <field name="description">Religious affiliation categories based on UN census recommendations. Major world religions provided as framework; deployments should customize for local context. Collection is sensitive and may be subject to legal restrictions.</field>
-        <field name="reference_url">https://unstats.un.org/unsd/publication/seriesM/Series_M67Rev3en.pdf</field>
+        <field
+            name="description"
+        >Religious affiliation categories based on UN census recommendations. Major world religions provided as framework; deployments should customize for local context. Collection is sensitive and may be subject to legal restrictions.</field>
+        <field
+            name="reference_url"
+        >https://unstats.un.org/unsd/publication/seriesM/Series_M67Rev3en.pdf</field>
         <field name="is_system">False</field>
         <field name="is_hierarchical">False</field>
         <field name="domain">core</field>
@@ -35,84 +39,104 @@
     <!-- Major World Religions (alphabetical order) -->
 
     <record id="religion_buddhism" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_religion"/>
+        <field name="vocabulary_id" ref="vocab_religion" />
         <field name="code">buddhism</field>
         <field name="display">Buddhism</field>
-        <field name="definition">Buddhist religious traditions including Theravada, Mahayana, Vajrayana, and other schools.</field>
+        <field
+            name="definition"
+        >Buddhist religious traditions including Theravada, Mahayana, Vajrayana, and other schools.</field>
         <field name="sequence">10</field>
     </record>
 
     <record id="religion_christianity" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_religion"/>
+        <field name="vocabulary_id" ref="vocab_religion" />
         <field name="code">christianity</field>
         <field name="display">Christianity</field>
-        <field name="definition">Christian religious traditions including Catholic, Protestant, Orthodox, and other denominations.</field>
+        <field
+            name="definition"
+        >Christian religious traditions including Catholic, Protestant, Orthodox, and other denominations.</field>
         <field name="sequence">20</field>
     </record>
 
     <record id="religion_hinduism" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_religion"/>
+        <field name="vocabulary_id" ref="vocab_religion" />
         <field name="code">hinduism</field>
         <field name="display">Hinduism</field>
-        <field name="definition">Hindu religious traditions including Vaishnavism, Shaivism, Shaktism, and other schools.</field>
+        <field
+            name="definition"
+        >Hindu religious traditions including Vaishnavism, Shaivism, Shaktism, and other schools.</field>
         <field name="sequence">30</field>
     </record>
 
     <record id="religion_islam" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_religion"/>
+        <field name="vocabulary_id" ref="vocab_religion" />
         <field name="code">islam</field>
         <field name="display">Islam</field>
-        <field name="definition">Islamic religious traditions including Sunni, Shia, and other schools.</field>
+        <field
+            name="definition"
+        >Islamic religious traditions including Sunni, Shia, and other schools.</field>
         <field name="sequence">40</field>
     </record>
 
     <record id="religion_judaism" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_religion"/>
+        <field name="vocabulary_id" ref="vocab_religion" />
         <field name="code">judaism</field>
         <field name="display">Judaism</field>
-        <field name="definition">Jewish religious traditions including Orthodox, Conservative, Reform, and other movements.</field>
+        <field
+            name="definition"
+        >Jewish religious traditions including Orthodox, Conservative, Reform, and other movements.</field>
         <field name="sequence">50</field>
     </record>
 
     <record id="religion_sikhism" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_religion"/>
+        <field name="vocabulary_id" ref="vocab_religion" />
         <field name="code">sikhism</field>
         <field name="display">Sikhism</field>
-        <field name="definition">Sikh religious tradition founded in the Punjab region.</field>
+        <field
+            name="definition"
+        >Sikh religious tradition founded in the Punjab region.</field>
         <field name="sequence">60</field>
     </record>
 
     <!-- Other Categories -->
 
     <record id="religion_traditional" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_religion"/>
+        <field name="vocabulary_id" ref="vocab_religion" />
         <field name="code">traditional</field>
         <field name="display">Traditional / Indigenous Beliefs</field>
-        <field name="definition">Traditional, indigenous, or folk religious practices not classified elsewhere. Deployments should add specific local traditions as needed.</field>
+        <field
+            name="definition"
+        >Traditional, indigenous, or folk religious practices not classified elsewhere. Deployments should add specific local traditions as needed.</field>
         <field name="sequence">70</field>
     </record>
 
     <record id="religion_other" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_religion"/>
+        <field name="vocabulary_id" ref="vocab_religion" />
         <field name="code">other</field>
         <field name="display">Other Religion</field>
-        <field name="definition">Other religious affiliations not listed above. Use for religions that require local customization.</field>
+        <field
+            name="definition"
+        >Other religious affiliations not listed above. Use for religions that require local customization.</field>
         <field name="sequence">80</field>
     </record>
 
     <record id="religion_none" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_religion"/>
+        <field name="vocabulary_id" ref="vocab_religion" />
         <field name="code">none</field>
         <field name="display">No Religion / Atheist / Agnostic</field>
-        <field name="definition">No religious affiliation, including atheism, agnosticism, secular, or non-religious.</field>
+        <field
+            name="definition"
+        >No religious affiliation, including atheism, agnosticism, secular, or non-religious.</field>
         <field name="sequence">90</field>
     </record>
 
     <record id="religion_not_stated" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_religion"/>
+        <field name="vocabulary_id" ref="vocab_religion" />
         <field name="code">not_stated</field>
         <field name="display">Prefer Not to Say / Not Stated</field>
-        <field name="definition">Religious affiliation not stated, refused, or respondent prefers not to disclose. This option should always be available.</field>
+        <field
+            name="definition"
+        >Religious affiliation not stated, refused, or respondent prefers not to disclose. This option should always be available.</field>
         <field name="sequence">99</field>
     </record>
 </odoo>

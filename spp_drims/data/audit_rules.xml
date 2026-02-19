@@ -1,17 +1,19 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <odoo noupdate="1">
-        <!--
+    <!--
             Audit Rules for DRIMS Models
             ============================
             Tracks operations on all DRIMS models for compliance,
             accountability, and activity feed purposes.
         -->
 
-        <!-- Return Audit -->
-        <function model="spp.audit.rule" name="create_rules">
-            <value name="rule_name">DRIMS Return Audit</value>
-            <value name="model">spp.drims.return</value>
-            <value name="fields_to_log" eval="[
+    <!-- Return Audit -->
+    <function model="spp.audit.rule" name="create_rules">
+        <value name="rule_name">DRIMS Return Audit</value>
+        <value name="model">spp.drims.return</value>
+        <value
+            name="fields_to_log"
+            eval="[
                 'state',
                 'incident_id',
                 'warehouse_id',
@@ -19,18 +21,21 @@
                 'returned_by',
                 'total_quantity',
                 'total_value',
-            ]"/>
-            <value name="log_create" eval="True"/>
-            <value name="log_write" eval="True"/>
-            <value name="log_unlink" eval="True"/>
-            <value name="view_logs" eval="True"/>
-        </function>
+            ]"
+        />
+        <value name="log_create" eval="True" />
+        <value name="log_write" eval="True" />
+        <value name="log_unlink" eval="True" />
+        <value name="view_logs" eval="True" />
+    </function>
 
-        <!-- Donation Audit -->
-        <function model="spp.audit.rule" name="create_rules">
-            <value name="rule_name">DRIMS Donation Audit</value>
-            <value name="model">spp.drims.donation</value>
-            <value name="fields_to_log" eval="[
+    <!-- Donation Audit -->
+    <function model="spp.audit.rule" name="create_rules">
+        <value name="rule_name">DRIMS Donation Audit</value>
+        <value name="model">spp.drims.donation</value>
+        <value
+            name="fields_to_log"
+            eval="[
                 'state',
                 'incident_id',
                 'warehouse_id',
@@ -39,18 +44,21 @@
                 'total_value',
                 'date_announced',
                 'date_received',
-            ]"/>
-            <value name="log_create" eval="True"/>
-            <value name="log_write" eval="True"/>
-            <value name="log_unlink" eval="True"/>
-            <value name="view_logs" eval="True"/>
-        </function>
+            ]"
+        />
+        <value name="log_create" eval="True" />
+        <value name="log_write" eval="True" />
+        <value name="log_unlink" eval="True" />
+        <value name="view_logs" eval="True" />
+    </function>
 
-        <!-- Request Audit -->
-        <function model="spp.audit.rule" name="create_rules">
-            <value name="rule_name">DRIMS Request Audit</value>
-            <value name="model">spp.drims.request</value>
-            <value name="fields_to_log" eval="[
+    <!-- Request Audit -->
+    <function model="spp.audit.rule" name="create_rules">
+        <value name="rule_name">DRIMS Request Audit</value>
+        <value name="model">spp.drims.request</value>
+        <value
+            name="fields_to_log"
+            eval="[
                 'state',
                 'approval_state',
                 'incident_id',
@@ -59,18 +67,21 @@
                 'date_needed',
                 'total_value',
                 'affected_population',
-            ]"/>
-            <value name="log_create" eval="True"/>
-            <value name="log_write" eval="True"/>
-            <value name="log_unlink" eval="True"/>
-            <value name="view_logs" eval="True"/>
-        </function>
+            ]"
+        />
+        <value name="log_create" eval="True" />
+        <value name="log_write" eval="True" />
+        <value name="log_unlink" eval="True" />
+        <value name="view_logs" eval="True" />
+    </function>
 
-        <!-- Alert Audit -->
-        <function model="spp.audit.rule" name="create_rules">
-            <value name="rule_name">DRIMS Alert Audit</value>
-            <value name="model">spp.drims.alert</value>
-            <value name="fields_to_log" eval="[
+    <!-- Alert Audit -->
+    <function model="spp.audit.rule" name="create_rules">
+        <value name="rule_name">DRIMS Alert Audit</value>
+        <value name="model">spp.drims.alert</value>
+        <value
+            name="fields_to_log"
+            eval="[
                 'state',
                 'priority',
                 'title',
@@ -78,18 +89,21 @@
                 'warehouse_id',
                 'product_id',
                 'request_id',
-            ]"/>
-            <value name="log_create" eval="True"/>
-            <value name="log_write" eval="True"/>
-            <value name="log_unlink" eval="False"/>
-            <value name="view_logs" eval="True"/>
-        </function>
+            ]"
+        />
+        <value name="log_create" eval="True" />
+        <value name="log_write" eval="True" />
+        <value name="log_unlink" eval="False" />
+        <value name="view_logs" eval="True" />
+    </function>
 
-        <!-- Stock Picking Audit (DRIMS operations) -->
-        <function model="spp.audit.rule" name="create_rules">
-            <value name="rule_name">DRIMS Stock Movement Audit</value>
-            <value name="model">stock.picking</value>
-            <value name="fields_to_log" eval="[
+    <!-- Stock Picking Audit (DRIMS operations) -->
+    <function model="spp.audit.rule" name="create_rules">
+        <value name="rule_name">DRIMS Stock Movement Audit</value>
+        <value name="model">stock.picking</value>
+        <value
+            name="fields_to_log"
+            eval="[
                 'state',
                 'drims_type_id',
                 'incident_id',
@@ -98,10 +112,11 @@
                 'beneficiary_count',
                 'beneficiary_area_id',
                 'is_pod_confirmed',
-            ]"/>
-            <value name="log_create" eval="True"/>
-            <value name="log_write" eval="True"/>
-            <value name="log_unlink" eval="False"/>
-            <value name="view_logs" eval="True"/>
-        </function>
+            ]"
+        />
+        <value name="log_create" eval="True" />
+        <value name="log_write" eval="True" />
+        <value name="log_unlink" eval="False" />
+        <value name="view_logs" eval="True" />
+    </function>
 </odoo>

@@ -23,7 +23,8 @@ const config = [
                 maptilersdk: "readonly",
                 maptilersdkMaptilerGeocoder: "readonly",
                 turf: "readonly",
-                L: "readonly", // Leaflet
+                L: "readonly",
+                MapboxDraw: "readonly",
                 ...globals.browser,
             },
 
@@ -150,7 +151,7 @@ const config = [
             "no-unused-expressions": "error",
             "no-unused-labels": "error",
             "no-unused-vars": "error",
-            "no-use-before-define": "error",
+            "no-use-before-define": ["error", {functions: false}],
             "no-useless-call": "warn",
             "no-useless-computed-key": "warn",
             "no-useless-concat": "warn",
@@ -168,7 +169,7 @@ const config = [
             strict: ["error", "function"],
             "use-isnan": "error",
 
-            "jsdoc/check-tag-names": "warn",
+            "jsdoc/check-tag-names": ["warn", {definedTags: ["odoo-module", "component"]}],
             "jsdoc/check-types": "warn",
             "jsdoc/require-param-description": "off",
             "jsdoc/require-return": "off",
@@ -206,12 +207,20 @@ const config = [
             },
         },
     },
+    // Odoo module files in static/src use ES modules
     {
-        files: ["**/*.esm.js", "**/*test.js"],
+        files: ["**/static/src/**/*.js", "**/static/tests/**/*.js", "**/*.esm.js", "**/*test.js"],
 
         languageOptions: {
             ecmaVersion: 2024,
             sourceType: "module",
+        },
+
+        rules: {
+            // Disable strict mode rule for ES modules (they are always strict)
+            strict: "off",
+            // sort-imports conflicts with Odoo's import conventions
+            "sort-imports": "off",
         },
     },
 ];

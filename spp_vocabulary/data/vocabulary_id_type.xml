@@ -1,44 +1,54 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
     <record id="vocab_id_type" model="spp.vocabulary">
         <field name="name">ID Type</field>
         <field name="namespace_uri">urn:openspp:vocab:id-type</field>
         <field name="is_system">True</field>
         <field name="domain">core</field>
-        <field name="description">Types of IDs in the registry (e.g., NSO ID, Driver's License, Passport)</field>
+        <field
+            name="description"
+        >Types of IDs in the registry (e.g., NSO ID, Driver's License, Passport)</field>
     </record>
 
     <record id="code_id_type_national_id" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_id_type"/>
+        <field name="vocabulary_id" ref="vocab_id_type" />
         <field name="code">national_id</field>
         <field name="display">National ID</field>
-        <field name="definition">National identification document issued by the government.</field>
+        <field
+            name="definition"
+        >National identification document issued by the government.</field>
         <field name="sequence">1</field>
     </record>
 
     <record id="code_id_type_passport" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_id_type"/>
+        <field name="vocabulary_id" ref="vocab_id_type" />
         <field name="code">passport</field>
         <field name="display">Passport</field>
         <field name="target_type">individual</field>
-        <field name="definition">International travel document issued by a national government.</field>
+        <field
+            name="definition"
+        >International travel document issued by a national government.</field>
         <field name="sequence">2</field>
     </record>
 
     <record id="code_id_type_tax_id" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_id_type"/>
+        <field name="vocabulary_id" ref="vocab_id_type" />
         <field name="code">tax_id</field>
         <field name="display">Tax ID</field>
-        <field name="definition">Tax identification number assigned by tax authorities.</field>
+        <field
+            name="definition"
+        >Tax identification number assigned by tax authorities.</field>
         <field name="sequence">3</field>
     </record>
 
     <record id="code_id_type_birth_certificate" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_id_type"/>
+        <field name="vocabulary_id" ref="vocab_id_type" />
         <field name="code">birth_certificate</field>
         <field name="display">Birth Certificate</field>
         <field name="target_type">individual</field>
-        <field name="definition">Official document certifying the birth of a person.</field>
+        <field
+            name="definition"
+        >Official document certifying the birth of a person.</field>
         <field name="sequence">4</field>
     </record>
 </odoo>

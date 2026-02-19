@@ -22,11 +22,13 @@
 
     <!-- Hard-reset menu security to admin-only to avoid lingering manager visibility from previous versions -->
     <record id="spp_configuration_menu_root" model="ir.ui.menu">
-        <field name="group_ids" eval="[Command.set([ref('spp_security.group_spp_admin'), ref('spp_registry.group_registry_config_admin')])]" />
+        <field
+            name="group_ids"
+            eval="[Command.set([ref('spp_security.group_spp_admin'), ref('spp_registry.group_registry_config_admin')])]"
+        />
     </record>
 
     <record id="contacts.res_partner_menu_contacts" model="ir.ui.menu">
         <field name="group_ids" eval="[Command.set([ref('base.group_system')])]" />
     </record>
-
 </odoo>

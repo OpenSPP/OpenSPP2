@@ -1,21 +1,27 @@
 # OpenSPP DRIMS - Disaster Response Inventory Management
 
-DRIMS is a comprehensive disaster relief inventory management system built on OpenSPP. It manages the full lifecycle of
-emergency supplies from donation receipt through distribution to affected populations.
+DRIMS is a comprehensive disaster relief inventory management system built on OpenSPP.
+It manages the full lifecycle of emergency supplies from donation receipt through
+distribution to affected populations.
 
 ## Features
 
 ### Core Workflows
 
-- **Donations** - Track pledged and received donations from UN agencies, NGOs, governments, and private donors
-- **Requests** - Multi-tier approval workflow for relief supply requests from field locations
-- **Dispatches** - Warehouse picking operations with waybill generation and proof of delivery
-- **Returns** - Handle damaged, expired, or excess items returned from distribution points
+- **Donations** - Track pledged and received donations from UN agencies, NGOs,
+  governments, and private donors
+- **Requests** - Multi-tier approval workflow for relief supply requests from field
+  locations
+- **Dispatches** - Warehouse picking operations with waybill generation and proof of
+  delivery
+- **Returns** - Handle damaged, expired, or excess items returned from distribution
+  points
 
 ### Inventory Management
 
 - **Warehouse Dashboard** - Real-time visibility into stock levels across all warehouses
-- **Stock Health Indicators** - Color-coded health status (critical/warning/good) based on alerts
+- **Stock Health Indicators** - Color-coded health status (critical/warning/good) based
+  on alerts
 - **Lot Tracking** - Batch and expiry date tracking for perishable items
 - **Multi-warehouse** - Central, regional, and mobile warehouse support
 
@@ -30,7 +36,8 @@ emergency supplies from donation receipt through distribution to affected popula
 
 - **Incident Linking** - All operations tied to specific disaster incidents
 - **OCHA Clusters** - Standard humanitarian sector classification
-- **Multi-agency** - Coordination modes for lead agency, cluster, or consortium responses
+- **Multi-agency** - Coordination modes for lead agency, cluster, or consortium
+  responses
 - **Personnel Directory** - Track deployed staff by role, organization, and location
 
 ### Reporting
@@ -74,7 +81,8 @@ Navigate to **DRIMS > Inventory > Warehouses** and mark warehouses for DRIMS use
 
 ### 2. Create an Incident
 
-DRIMS operations are linked to disaster incidents. Create one in **DRIMS > Dashboard** or via the Hazard module.
+DRIMS operations are linked to disaster incidents. Create one in **DRIMS > Dashboard**
+or via the Hazard module.
 
 ### 3. Receive a Donation
 

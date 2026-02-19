@@ -38,7 +38,7 @@ class IndividualService:
             res.partner record or empty recordset (in sudo context)
         """
         reg_id = (
-            self.env["spp.registry.id"]
+            self.env["spp.registry.id"]  # nosemgrep: odoo-sudo-without-context — API auth
             .sudo()
             .search(
                 [
@@ -50,7 +50,9 @@ class IndividualService:
         )
         if reg_id and reg_id.partner_id:
             # Return sudo partner - API handlers run as Public user
+            # nosemgrep: odoo-sudo-on-sensitive-models, odoo-sudo-without-context — API auth
             return self.env["res.partner"].sudo().browse(reg_id.partner_id.id)
+        # nosemgrep: odoo-sudo-on-sensitive-models, odoo-sudo-without-context
         return self.env["res.partner"].sudo()
 
     def find_by_identifiers(self, identifiers: list[tuple[str, str]]):
@@ -79,6 +81,7 @@ class IndividualService:
         else:
             domain = or_domains
 
+        # nosemgrep: odoo-sudo-without-context — API auth; batch identifier lookup
         reg_ids = self.env["spp.registry.id"].sudo().search(domain)
 
         # Build result map
@@ -86,6 +89,7 @@ class IndividualService:
         for reg_id in reg_ids:
             key = f"{reg_id.id_type_id.uri}|{reg_id.value}"
             if reg_id.partner_id:
+                # nosemgrep: odoo-sudo-on-sensitive-models, odoo-sudo-without-context — API auth
                 result[key] = self.env["res.partner"].sudo().browse(reg_id.partner_id.id)
 
         return result
@@ -349,7 +353,7 @@ class IndividualService:
         if schema.gender and schema.gender.coding:
             gender_coding = schema.gender.coding[0]
             gender_code = (
-                self.env["spp.vocabulary.code"]
+                self.env["spp.vocabulary.code"]  # nosemgrep: odoo-sudo-without-context
                 .sudo()
                 .search(
                     [
@@ -446,7 +450,7 @@ class IndividualService:
             # URI format: {vocabulary.namespace_uri}#{code}
             # spp.registry.id.id_type_id expects spp.vocabulary.code, NOT spp.id.type
             id_type = (
-                self.env["spp.vocabulary.code"]
+                self.env["spp.vocabulary.code"]  # nosemgrep: odoo-sudo-without-context
                 .sudo()
                 .search(
                     [("uri", "=", ident.system)],
@@ -502,9 +506,11 @@ class IndividualService:
 
         # Use sudo() for cross-program individual creation while enforcing authorization above
         partner = (
-            self.env["res.partner"]
+            self.env["res.partner"]  # nosemgrep: odoo-sudo-on-sensitive-models, odoo-sudo-without-context
             .sudo()
-            .with_context(  # nosemgrep: odoo-sudo-on-sensitive-models - Individual creation is restricted to group_api_v2_manager and uses external identifiers only.
+            .with_context(
+                # Individual creation is restricted to group_api_v2_manager and
+                # uses external identifiers only.
                 source_system=source
             )
             .create(vals)
@@ -549,7 +555,7 @@ class IndividualService:
         _logger.info("Updated individual %s via API from %s", identifier_str, source)
         return partner
 
-    def partial_update(self, partner, patch: IndividualPatch, source: str) -> Any:
+    def partial_update(self, partner, patch: IndividualPatch, source: str) -> Any:  # noqa: C901
         """
         Partially update Individual with source tracking (JSON Merge Patch).
 
@@ -735,6 +741,7 @@ class IndividualService:
             domain.append(("status", "=", "inactive"))
 
         # Search for memberships
+        # nosemgrep: odoo-sudo-without-context — API auth; membership lookup
         memberships = self.env["spp.group.membership"].sudo().search(domain, limit=limit, order="start_date desc")
 
         # Convert each membership to response format

@@ -10,7 +10,7 @@
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Stable",
+    "development_status": "Production/Stable",
     "maintainers": ["jeremi", "gonzalesedwin1123", "emjay0921"],
     "depends": [
         "base",
@@ -34,6 +34,8 @@
     "assets": {
         "web.assets_backend": [
             "spp_base_common/static/src/scss/navbar.scss",
+            "spp_base_common/static/src/js/custom_list_create.js",
+            "spp_base_common/static/src/xml/custom_list_create_template.xml",
         ],
         "web._assets_primary_variables": [
             "spp_base_common/static/src/scss/colors.scss",

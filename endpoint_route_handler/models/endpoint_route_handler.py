@@ -66,7 +66,7 @@ class EndpointRouteHandler(models.AbstractModel):
                 clashing_models.append(model)
         if clashing_models:
             raise exceptions.UserError(
-                _("Non unique route(s): %(routes)s.\n" "Found in model(s): %(models)s.\n")
+                _("Non unique route(s): %(routes)s.\nFound in model(s): %(models)s.\n")
                 % {"routes": ", ".join(routes), "models": ", ".join(clashing_models)}
             )
 
@@ -200,7 +200,7 @@ class EndpointRouteHandler(models.AbstractModel):
 
     def _default_endpoint_options_handler(self):
         self._logger.warning(
-            "No specific endpoint handler options defined for: %s, falling back to " "default",
+            "No specific endpoint handler options defined for: %s, falling back to default",
             self._name,
         )
         base_path = "odoo.addons.endpoint_route_handler.controllers.main"

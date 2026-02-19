@@ -5,7 +5,6 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 Scheduled actions for consent management.
 -->
 <odoo noupdate="1">
-
     <!-- Cron job to check for expired consents -->
     <record id="ir_cron_check_expired_consents" model="ir.cron">
         <field name="name">Consent: Check for Expired Consents</field>
@@ -16,5 +15,4 @@ Scheduled actions for consent management.
         <field name="interval_type">days</field>
         <field name="active">1</field>
     </record>
-
 </odoo>

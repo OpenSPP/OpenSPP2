@@ -53,21 +53,24 @@ groups:
     tier: 2
     privilege_id: privilege_studio_viewer
     implied_ids: [group_studio_read]
-    comment: "Can view all Studio configurations and audit logs. Cannot create or modify."
+    comment:
+      "Can view all Studio configurations and audit logs. Cannot create or modify."
 
   - id: group_studio_editor_officer
     tier: 2
     privilege_id: privilege_studio_editor_officer
     implied_ids: [group_studio_viewer]
     comment:
-      "Can create and edit draft configurations. Cannot activate or delete. (Named 'editor' instead of 'officer' for
-      Studio context)"
+      "Can create and edit draft configurations. Cannot activate or delete. (Named
+      'editor' instead of 'officer' for Studio context)"
 
   - id: group_studio_manager
     tier: 2
     privilege_id: privilege_studio_manager
     implied_ids: [group_studio_editor_officer]
-    comment: "Full access: can activate, deactivate, delete configurations and manage external connections."
+    comment:
+      "Full access: can activate, deactivate, delete configurations and manage external
+      connections."
 
 # Admin linkage - manager group links to spp_security.group_spp_admin
 admin_link_group: group_studio_manager
@@ -199,18 +202,6 @@ model_access:
     manager: [read, write, create, unlink]
     note: "Wizard preview for pack installation - managers only"
 
-  - model: spp.cel.variable.sync
-    viewer: []
-    officer: []
-    manager: [read, write, create, unlink]
-    note: "Variable synchronization model - managers only"
-
-  - model: spp.cel.variable.sync.wizard
-    viewer: []
-    officer: []
-    manager: [read, write, create, unlink]
-    note: "Wizard for variable synchronization - managers only"
-
   - model: spp.studio.variable.remap.wizard
     viewer: []
     officer: []
@@ -247,7 +238,9 @@ record_rules:
     perm_write: false
     perm_create: false
     perm_unlink: false
-    note: "Viewers see stable, published expressions only. Draft/deprecated expressions hidden."
+    note:
+      "Viewers see stable, published expressions only. Draft/deprecated expressions
+      hidden."
 
   - id: rule_expression_editor_all
     model: spp.cel.expression
@@ -292,7 +285,13 @@ menus:
   # Root Studio menu
   - id: menu_spp_studio_root
     name: "Studio"
-    groups: [spp_security.group_spp_admin, group_studio_viewer, group_studio_editor_officer, group_studio_manager]
+    groups:
+      [
+        spp_security.group_spp_admin,
+        group_studio_viewer,
+        group_studio_editor_officer,
+        group_studio_manager,
+      ]
 
   # Dashboard submenu
   - id: menu_spp_studio_dashboard

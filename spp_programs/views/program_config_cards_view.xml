@@ -6,7 +6,6 @@ User-friendly card-based configuration view for programs.
 Replaces the technical manager configuration with intuitive sections.
 -->
 <odoo>
-
     <!-- Card-Based Configuration Tab -->
     <record id="view_program_form_config_cards" model="ir.ui.view">
         <field name="name">spp.program.form.config.cards</field>
@@ -16,22 +15,36 @@ Replaces the technical manager configuration with intuitive sections.
         <field name="arch" type="xml">
             <!-- Replace the Configuration tab content -->
             <xpath expr="//page[@name='configuration']" position="replace">
-                <page name="configuration" string="Configuration" groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_validator">
+                <page
+                    name="configuration"
+                    string="Configuration"
+                    groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_validator"
+                >
                     <!-- Hidden field for access control -->
-                    <field name="can_edit_configuration" invisible="1"/>
+                    <field name="can_edit_configuration" invisible="1" />
 
                     <!-- ==================== ELIGIBILITY SECTION ==================== -->
                     <div class="card mb-3 shadow-sm">
-                        <div class="card-header d-flex justify-content-between align-items-center py-2 bg-primary-subtle">
+                        <div
+                            class="card-header d-flex justify-content-between align-items-center py-2 bg-primary-subtle"
+                        >
                             <div class="d-flex align-items-center">
-                                <i class="fa fa-filter fa-lg me-3 text-primary" title="Eligibility"/>
+                                <i
+                                    class="fa fa-filter fa-lg me-3 text-primary"
+                                    title="Eligibility"
+                                />
                                 <div>
                                     <h5 class="mb-0">Who Qualifies?</h5>
-                                    <small class="text-muted">Define eligibility criteria for this program</small>
+                                    <small
+                                        class="text-muted"
+                                    >Define eligibility criteria for this program</small>
                                 </div>
                             </div>
                             <div class="d-flex align-items-center gap-2">
-                                <span class="badge rounded-pill bg-success" invisible="not eligibility_configured">
+                                <span
+                                    class="badge rounded-pill bg-success"
+                                    invisible="not eligibility_configured"
+                                >
                                     <i class="fa fa-check me-1" />Configured
                                 </span>
                                 <button
@@ -53,10 +66,18 @@ Replaces the technical manager configuration with intuitive sections.
                         <div class="card-body py-3">
                             <group invisible="not eligibility_configured">
                                 <group>
-                                    <field name="eligibility_manager_type" string="Method" readonly="1" />
+                                    <field
+                                        name="eligibility_manager_type"
+                                        string="Method"
+                                        readonly="1"
+                                    />
                                 </group>
                                 <group>
-                                    <field name="eligibility_manager_summary" string="Details" readonly="1" />
+                                    <field
+                                        name="eligibility_manager_summary"
+                                        string="Details"
+                                        readonly="1"
+                                    />
                                 </group>
                             </group>
                             <separator string="Eligibility Method" />
@@ -87,16 +108,26 @@ Replaces the technical manager configuration with intuitive sections.
 
                     <!-- ==================== ENTITLEMENT SECTION ==================== -->
                     <div class="card mb-3 shadow-sm">
-                        <div class="card-header d-flex justify-content-between align-items-center py-2 bg-success-subtle">
+                        <div
+                            class="card-header d-flex justify-content-between align-items-center py-2 bg-success-subtle"
+                        >
                             <div class="d-flex align-items-center">
-                                <i class="fa fa-gift fa-lg me-3 text-success" title="Entitlement"/>
+                                <i
+                                    class="fa fa-gift fa-lg me-3 text-success"
+                                    title="Entitlement"
+                                />
                                 <div>
                                     <h5 class="mb-0">What Do They Receive?</h5>
-                                    <small class="text-muted">Configure benefits and entitlement amounts</small>
+                                    <small
+                                        class="text-muted"
+                                    >Configure benefits and entitlement amounts</small>
                                 </div>
                             </div>
                             <div class="d-flex align-items-center gap-2">
-                                <span class="badge rounded-pill bg-success" invisible="not entitlement_configured">
+                                <span
+                                    class="badge rounded-pill bg-success"
+                                    invisible="not entitlement_configured"
+                                >
                                     <i class="fa fa-check me-1" />Configured
                                 </span>
                                 <button
@@ -118,10 +149,18 @@ Replaces the technical manager configuration with intuitive sections.
                         <div class="card-body py-3">
                             <group invisible="not entitlement_configured">
                                 <group>
-                                    <field name="entitlement_manager_type" string="Type" readonly="1" />
+                                    <field
+                                        name="entitlement_manager_type"
+                                        string="Type"
+                                        readonly="1"
+                                    />
                                 </group>
                                 <group>
-                                    <field name="entitlement_manager_summary" string="Details" readonly="1" />
+                                    <field
+                                        name="entitlement_manager_summary"
+                                        string="Details"
+                                        readonly="1"
+                                    />
                                 </group>
                             </group>
                             <separator string="Entitlement Type" />
@@ -152,16 +191,26 @@ Replaces the technical manager configuration with intuitive sections.
 
                     <!-- ==================== SCHEDULE SECTION ==================== -->
                     <div class="card mb-3 shadow-sm">
-                        <div class="card-header d-flex justify-content-between align-items-center py-2 bg-info-subtle">
+                        <div
+                            class="card-header d-flex justify-content-between align-items-center py-2 bg-info-subtle"
+                        >
                             <div class="d-flex align-items-center">
-                                <i class="fa fa-calendar fa-lg me-3 text-info" title="Schedule"/>
+                                <i
+                                    class="fa fa-calendar fa-lg me-3 text-info"
+                                    title="Schedule"
+                                />
                                 <div>
                                     <h5 class="mb-0">Program Schedule</h5>
-                                    <small class="text-muted">Configure cycle timing and recurrence</small>
+                                    <small
+                                        class="text-muted"
+                                    >Configure cycle timing and recurrence</small>
                                 </div>
                             </div>
                             <div class="d-flex align-items-center gap-2">
-                                <span class="badge rounded-pill bg-success" invisible="not cycle_configured">
+                                <span
+                                    class="badge rounded-pill bg-success"
+                                    invisible="not cycle_configured"
+                                >
                                     <i class="fa fa-check me-1" />Configured
                                 </span>
                                 <button
@@ -183,7 +232,11 @@ Replaces the technical manager configuration with intuitive sections.
                         <div class="card-body py-3">
                             <group invisible="not cycle_configured">
                                 <group>
-                                    <field name="cycle_manager_summary" string="Schedule" readonly="1" />
+                                    <field
+                                        name="cycle_manager_summary"
+                                        string="Schedule"
+                                        readonly="1"
+                                    />
                                 </group>
                             </group>
                             <separator string="Schedule Type" />
@@ -214,16 +267,26 @@ Replaces the technical manager configuration with intuitive sections.
 
                     <!-- ==================== COMPLIANCE SECTION ==================== -->
                     <div class="card mb-3 shadow-sm">
-                        <div class="card-header d-flex justify-content-between align-items-center py-2 bg-danger-subtle">
+                        <div
+                            class="card-header d-flex justify-content-between align-items-center py-2 bg-danger-subtle"
+                        >
                             <div class="d-flex align-items-center">
-                                <i class="fa fa-check-circle fa-lg me-3 text-danger" title="Compliance"/>
+                                <i
+                                    class="fa fa-check-circle fa-lg me-3 text-danger"
+                                    title="Compliance"
+                                />
                                 <div>
                                     <h5 class="mb-0">Compliance Criteria</h5>
-                                    <small class="text-muted">Define ongoing conditions beneficiaries must meet</small>
+                                    <small
+                                        class="text-muted"
+                                    >Define ongoing conditions beneficiaries must meet</small>
                                 </div>
                             </div>
                             <div class="d-flex align-items-center gap-2">
-                                <span class="badge rounded-pill bg-success" invisible="not compliance_configured">
+                                <span
+                                    class="badge rounded-pill bg-success"
+                                    invisible="not compliance_configured"
+                                >
                                     <i class="fa fa-check me-1" />Configured
                                 </span>
                                 <button
@@ -245,10 +308,18 @@ Replaces the technical manager configuration with intuitive sections.
                         <div class="card-body py-3">
                             <group invisible="not compliance_configured">
                                 <group>
-                                    <field name="compliance_manager_type" string="Method" readonly="1" />
+                                    <field
+                                        name="compliance_manager_type"
+                                        string="Method"
+                                        readonly="1"
+                                    />
                                 </group>
                                 <group>
-                                    <field name="compliance_manager_summary" string="Criteria" readonly="1" />
+                                    <field
+                                        name="compliance_manager_summary"
+                                        string="Criteria"
+                                        readonly="1"
+                                    />
                                 </group>
                             </group>
                             <separator string="Compliance Method" />
@@ -279,16 +350,26 @@ Replaces the technical manager configuration with intuitive sections.
 
                     <!-- ==================== PAYMENT SECTION ==================== -->
                     <div class="card mb-3 shadow-sm">
-                        <div class="card-header d-flex justify-content-between align-items-center py-2 bg-warning-subtle">
+                        <div
+                            class="card-header d-flex justify-content-between align-items-center py-2 bg-warning-subtle"
+                        >
                             <div class="d-flex align-items-center">
-                                <i class="fa fa-credit-card fa-lg me-3 text-warning" title="Payment"/>
+                                <i
+                                    class="fa fa-credit-card fa-lg me-3 text-warning"
+                                    title="Payment"
+                                />
                                 <div>
                                     <h5 class="mb-0">Payment Processing</h5>
-                                    <small class="text-muted">Configure how payments are made</small>
+                                    <small
+                                        class="text-muted"
+                                    >Configure how payments are made</small>
                                 </div>
                             </div>
                             <div class="d-flex align-items-center gap-2">
-                                <span class="badge rounded-pill bg-success" invisible="not payment_configured">
+                                <span
+                                    class="badge rounded-pill bg-success"
+                                    invisible="not payment_configured"
+                                >
                                     <i class="fa fa-check me-1" />Configured
                                 </span>
                                 <button
@@ -310,7 +391,11 @@ Replaces the technical manager configuration with intuitive sections.
                         <div class="card-body py-3">
                             <group invisible="not payment_configured">
                                 <group>
-                                    <field name="payment_manager_summary" string="Settings" readonly="1" />
+                                    <field
+                                        name="payment_manager_summary"
+                                        string="Settings"
+                                        readonly="1"
+                                    />
                                 </group>
                             </group>
                             <separator string="Payment Method" />
@@ -348,7 +433,12 @@ Replaces the technical manager configuration with intuitive sections.
                             <div class="mb-2 text-muted small" colspan="2">
                                 Check for duplicate beneficiaries by phone, ID, etc.
                             </div>
-                            <field name="deduplication_manager_summary" string="Method" readonly="1" invisible="not deduplication_configured" />
+                            <field
+                                name="deduplication_manager_summary"
+                                string="Method"
+                                readonly="1"
+                                invisible="not deduplication_configured"
+                            />
                             <field
                                 name="deduplication_manager_ids"
                                 readonly="state == 'ended' or not can_edit_configuration"
@@ -379,7 +469,12 @@ Replaces the technical manager configuration with intuitive sections.
                             <div class="mb-2 text-muted small" colspan="2">
                                 Send SMS or other notifications to beneficiaries.
                             </div>
-                            <field name="notification_manager_summary" string="Channel" readonly="1" invisible="not notification_configured" />
+                            <field
+                                name="notification_manager_summary"
+                                string="Channel"
+                                readonly="1"
+                                invisible="not notification_configured"
+                            />
                             <field
                                 name="notification_manager_ids"
                                 readonly="state == 'ended' or not can_edit_configuration"
@@ -418,16 +513,17 @@ Replaces the technical manager configuration with intuitive sections.
                             />
                         </group>
                         <group>
-                            <field name="is_one_time_distribution" readonly="state == 'ended' or not can_edit_configuration" />
+                            <field
+                                name="is_one_time_distribution"
+                                readonly="state == 'ended' or not can_edit_configuration"
+                            />
                         </group>
                     </group>
 
                     <!-- Hidden program manager (usually not user-configured) -->
                     <field name="program_manager_ids" invisible="1" />
-
                 </page>
             </xpath>
         </field>
     </record>
-
 </odoo>

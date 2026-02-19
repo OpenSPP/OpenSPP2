@@ -887,7 +887,7 @@ class TestDataAPIEndpoints(TransactionCase):
             partner = self.env["res.partner"].create(
                 {
                     "name": f"Test Student {i}",
-                    "ref": f"EDU-{100+i}",
+                    "ref": f"EDU-{100 + i}",
                 }
             )
             partners.append(partner)
@@ -905,7 +905,7 @@ class TestDataAPIEndpoints(TransactionCase):
         DataValue.upsert_values(values_to_push)
 
         # Pull with limit
-        external_ids = ",".join([f"EDU-{100+i}" for i in range(20)])
+        external_ids = ",".join([f"EDU-{100 + i}" for i in range(20)])
         result = await pull_values(
             env=self.env,
             api_client=self.api_client,
@@ -1254,9 +1254,8 @@ class TestDataAPIEndpoints(TransactionCase):
         assert len(result1.items) == 5
 
         # Get second page
-        last_id = result1.items[-1].cel_accessor  # This won't work - we need the actual ID
         # The endpoint expects the ID, not the accessor
-        # Let's search for the last variable to get its ID
+        # Search for the last variable to get its ID
         last_var = self.env["spp.cel.variable"].search([("cel_accessor", "=", result1.items[-1].cel_accessor)], limit=1)
 
         result2 = await list_variables(

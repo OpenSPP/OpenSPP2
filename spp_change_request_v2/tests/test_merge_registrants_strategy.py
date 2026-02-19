@@ -5,6 +5,8 @@ from odoo import fields
 from odoo.exceptions import ValidationError
 from odoo.tests import TransactionCase
 
+from .common import get_or_create_cr_type
+
 
 class TestMergeRegistrantsStrategy(TransactionCase):
     """Tests for Merge Registrants custom strategy."""
@@ -79,16 +81,11 @@ class TestMergeRegistrantsStrategy(TransactionCase):
             }
         )
 
-        # Get CR type
-        cls.cr_type = cls.env.ref(
-            "spp_change_request_v2.cr_type_merge_registrants",
-            raise_if_not_found=False,
-        )
+        # Get or create CR type
+        cls.cr_type = get_or_create_cr_type(cls.env, "merge_registrants")
 
     def test_merge_deactivates_duplicates(self):
         """Test merging deactivates duplicate registrants."""
-        if not self.cr_type:
-            self.skipTest("Merge registrants CR type not found")
 
         cr = self.cr_model.create(
             {
@@ -118,8 +115,6 @@ class TestMergeRegistrantsStrategy(TransactionCase):
 
     def test_merge_transfers_memberships(self):
         """Test merging transfers memberships to primary."""
-        if not self.cr_type:
-            self.skipTest("Merge registrants CR type not found")
 
         cr = self.cr_model.create(
             {
@@ -149,8 +144,6 @@ class TestMergeRegistrantsStrategy(TransactionCase):
 
     def test_merge_transfers_ids(self):
         """Test merging transfers IDs to primary."""
-        if not self.cr_type:
-            self.skipTest("Merge registrants CR type not found")
 
         cr = self.cr_model.create(
             {
@@ -180,8 +173,6 @@ class TestMergeRegistrantsStrategy(TransactionCase):
 
     def test_merge_multiple_duplicates(self):
         """Test merging multiple duplicates at once."""
-        if not self.cr_type:
-            self.skipTest("Merge registrants CR type not found")
 
         # Create more duplicates
         dup3 = self.partner_model.create(
@@ -221,8 +212,6 @@ class TestMergeRegistrantsStrategy(TransactionCase):
 
     def test_merge_same_type_only(self):
         """Test cannot merge individuals with groups."""
-        if not self.cr_type:
-            self.skipTest("Merge registrants CR type not found")
 
         cr = self.cr_model.create(
             {
@@ -244,8 +233,6 @@ class TestMergeRegistrantsStrategy(TransactionCase):
 
     def test_merge_cannot_include_primary(self):
         """Test cannot include primary in duplicates list."""
-        if not self.cr_type:
-            self.skipTest("Merge registrants CR type not found")
 
         cr = self.cr_model.create(
             {
@@ -267,8 +254,6 @@ class TestMergeRegistrantsStrategy(TransactionCase):
 
     def test_merge_all_reasons(self):
         """Test all merge reasons work."""
-        if not self.cr_type:
-            self.skipTest("Merge registrants CR type not found")
 
         reasons = [
             "duplicate_entry",
@@ -320,8 +305,6 @@ class TestMergeRegistrantsStrategy(TransactionCase):
 
     def test_merge_preview(self):
         """Test preview returns expected structure."""
-        if not self.cr_type:
-            self.skipTest("Merge registrants CR type not found")
 
         cr = self.cr_model.create(
             {

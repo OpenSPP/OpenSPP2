@@ -36,7 +36,8 @@ class OpenSPPHome(Home):
                 query = url_encode(args)
                 # Redirect target is always the internal /web endpoint with preserved query string
                 # (relative URL only), so this is not an open redirect.
-                return request.redirect(  # nosemgrep: odoo-unvalidated-redirect - Target is fixed internal path, not user-controlled URL.
+                return request.redirect(  # nosemgrep: odoo-unvalidated-redirect
+                    # Target is fixed internal path, not user-controlled URL.
                     "/web" + (f"?{query}" if query else "")
                 )
 

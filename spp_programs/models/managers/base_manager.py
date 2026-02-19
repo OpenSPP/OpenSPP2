@@ -31,6 +31,9 @@ class BaseManager(models.AbstractModel):
         # Domain and expression strings here come from admin-managed configuration
         # (e.g., eligibility and payment managers), and the evaluation context only
         # exposes datetime/dateutil/time and the current user.
-        return safe_eval.safe_eval(  # nosemgrep: odoo-unsafe-safe-eval - Used for admin-defined domains/expressions with a restricted evaluation context.
-            string, eval_context
+        return safe_eval.safe_eval(  # nosemgrep: odoo-unsafe-safe-eval
+            # Used for admin-defined domains/expressions with a restricted
+            # evaluation context.
+            string,
+            eval_context,
         )

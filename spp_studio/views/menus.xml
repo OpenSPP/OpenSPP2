@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!--
         OpenSPP Studio Menu Structure
@@ -57,7 +57,8 @@
         parent="menu_studio_logic_design"
         action="action_logic_list"
         sequence="10"
-        groups="group_studio_viewer"/>
+        groups="group_studio_viewer"
+    />
 
     <!-- Variables - Define data to use in rules -->
     <menuitem
@@ -65,14 +66,16 @@
         name="Variables"
         parent="menu_studio_logic_design"
         sequence="20"
-        groups="group_studio_editor_officer"/>
+        groups="group_studio_editor_officer"
+    />
 
     <menuitem
         id="menu_logic_variable_list"
         name="All Variables"
         parent="menu_logic_variables"
         action="action_logic_variable_list"
-        sequence="10"/>
+        sequence="10"
+    />
 
     <menuitem
         id="menu_logic_variable_category"
@@ -80,7 +83,8 @@
         parent="menu_logic_variables"
         action="action_logic_variable_category_list"
         sequence="20"
-        groups="group_studio_manager"/>
+        groups="group_studio_manager"
+    />
 
     <!-- Packages - Ready-made rule templates -->
     <menuitem
@@ -89,7 +93,8 @@
         parent="menu_studio_logic_design"
         action="action_logic_pack_list"
         sequence="30"
-        groups="group_studio_editor_officer"/>
+        groups="group_studio_editor_officer"
+    />
 
     <!-- Test Personas - Test your rules with sample people -->
     <menuitem
@@ -98,7 +103,8 @@
         parent="menu_studio_logic_design"
         action="action_logic_test_persona_list"
         sequence="40"
-        groups="group_studio_editor_officer"/>
+        groups="group_studio_editor_officer"
+    />
 
     <!-- ========================== -->
     <!-- 3. FORMS & FIELDS (seq 20) -->
@@ -121,7 +127,8 @@
         parent="menu_studio_type_builders"
         action="action_studio_field"
         sequence="10"
-        groups="group_studio_viewer" />
+        groups="group_studio_viewer"
+    />
 
     <!-- =================== -->
     <!-- 4. PRIVACY (seq 30) -->
@@ -177,7 +184,8 @@
         parent="menu_settings_expression"
         action="action_logic_tag_list"
         sequence="10"
-        groups="group_studio_manager"/>
+        groups="group_studio_manager"
+    />
 
     <!-- Registry Settings - under Settings -->
     <menuitem
@@ -195,7 +203,8 @@
         parent="menu_settings_registry"
         action="action_placement_zone"
         sequence="10"
-        groups="group_studio_manager" />
+        groups="group_studio_manager"
+    />
 
     <!-- ID Types - under Registry Settings -->
     <menuitem
@@ -204,7 +213,8 @@
         parent="menu_settings_registry"
         action="spp_registry.action_id_type"
         sequence="20"
-        groups="group_studio_manager" />
+        groups="group_studio_manager"
+    />
 
     <!-- Registrant Tags - under Registry Settings -->
     <menuitem
@@ -213,7 +223,8 @@
         parent="menu_settings_registry"
         action="spp_registry.action_registrant_tags"
         sequence="30"
-        groups="group_studio_manager" />
+        groups="group_studio_manager"
+    />
 
     <!-- General Settings - under Settings -->
     <menuitem
@@ -231,7 +242,8 @@
         parent="menu_settings_general"
         action="base.action_res_bank_form"
         sequence="10"
-        groups="group_studio_manager" />
+        groups="group_studio_manager"
+    />
 
     <!-- Phone Validation - under General Settings -->
     <menuitem
@@ -240,7 +252,8 @@
         parent="menu_settings_general"
         action="spp_base_common.action_phone_validation"
         sequence="20"
-        groups="group_studio_manager" />
+        groups="group_studio_manager"
+    />
 
     <!-- Versioning - under Settings -->
     <menuitem
@@ -258,7 +271,8 @@
         parent="menu_settings_versioning"
         action="spp_versioning.action_scheduled_versions"
         sequence="10"
-        groups="group_studio_manager"/>
+        groups="group_studio_manager"
+    />
 
     <!-- Version History - under Versioning -->
     <menuitem
@@ -267,7 +281,8 @@
         parent="menu_settings_versioning"
         action="spp_versioning.action_spp_artifact_version"
         sequence="20"
-        groups="group_studio_manager"/>
+        groups="group_studio_manager"
+    />
 
     <!-- Artifact Usages - under Versioning -->
     <menuitem
@@ -276,7 +291,8 @@
         parent="menu_settings_versioning"
         action="spp_versioning.action_spp_artifact_usage"
         sequence="30"
-        groups="group_studio_manager"/>
+        groups="group_studio_manager"
+    />
 
     <!-- ==================== -->
     <!-- 7. HISTORY (seq 90) -->

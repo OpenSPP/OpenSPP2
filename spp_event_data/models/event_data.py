@@ -217,7 +217,7 @@ class OpenSPPEventData(models.Model):
                 if isinstance(item, dict | list):
                     self._collect_json_items(f"[{idx}]", item, items_list, level + 1)
                 else:
-                    items_list.append((f"Item {idx+1}", item, "value", level + 1))
+                    items_list.append((f"Item {idx + 1}", item, "value", level + 1))
         else:
             items_list.append((key, value, "value", level))
 
@@ -494,7 +494,7 @@ class OpenSPPEventData(models.Model):
 
         # Check if change_request_type_id field exists (from spp_change_request module)
         if not hasattr(event_type, "change_request_type_id"):
-            _logger.debug("Change request integration not available - " "install spp_change_request module")
+            _logger.debug("Change request integration not available - install spp_change_request module")
             return
 
         cr_type = getattr(event_type, "change_request_type_id", None)

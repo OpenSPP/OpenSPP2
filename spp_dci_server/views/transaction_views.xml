@@ -5,12 +5,22 @@
         <field name="name">spp.dci.transaction.tree</field>
         <field name="model">spp.dci.transaction</field>
         <field name="arch" type="xml">
-            <list decoration-danger="state == 'rejected'" decoration-warning="state == 'callback_failed'" decoration-success="state == 'callback_sent'">
+            <list
+                decoration-danger="state == 'rejected'"
+                decoration-warning="state == 'callback_failed'"
+                decoration-success="state == 'callback_sent'"
+            >
                 <field name="transaction_id" />
                 <field name="action" />
                 <field name="reg_type" />
                 <field name="sender_id" />
-                <field name="state" widget="badge" decoration-success="state in ('success', 'callback_sent')" decoration-warning="state in ('pending', 'processing')" decoration-danger="state in ('rejected', 'callback_failed')" />
+                <field
+                    name="state"
+                    widget="badge"
+                    decoration-success="state in ('success', 'callback_sent')"
+                    decoration-warning="state in ('pending', 'processing')"
+                    decoration-danger="state in ('rejected', 'callback_failed')"
+                />
                 <field name="received_at" />
                 <field name="processed_at" />
             </list>
@@ -37,7 +47,11 @@
                         type="object"
                         invisible="not job_uuid"
                     />
-                    <field name="state" widget="statusbar" statusbar_visible="received,processing,success,callback_sent" />
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="received,processing,success,callback_sent"
+                    />
                 </header>
                 <sheet>
                     <div class="oe_title">
@@ -86,10 +100,18 @@
 
                     <notebook>
                         <page string="Request Payload" name="request">
-                            <field name="request_payload" widget="ace" options="{'mode': 'javascript'}" />
+                            <field
+                                name="request_payload"
+                                widget="ace"
+                                options="{'mode': 'javascript'}"
+                            />
                         </page>
                         <page string="Response Payload" name="response">
-                            <field name="response_payload" widget="ace" options="{'mode': 'javascript'}" />
+                            <field
+                                name="response_payload"
+                                widget="ace"
+                                options="{'mode': 'javascript'}"
+                            />
                         </page>
                     </notebook>
                 </sheet>
@@ -106,17 +128,57 @@
                 <field name="transaction_id" />
                 <field name="message_id" />
                 <field name="sender_id" />
-                <filter string="Search" name="filter_search" domain="[('action', '=', 'search')]" />
-                <filter string="Subscribe" name="filter_subscribe" domain="[('action', '=', 'subscribe')]" />
-                <filter string="Success" name="filter_success" domain="[('state', 'in', ('success', 'callback_sent'))]" />
-                <filter string="Failed" name="filter_failed" domain="[('state', 'in', ('rejected', 'callback_failed'))]" />
-                <filter string="Pending" name="filter_pending" domain="[('state', 'in', ('received', 'pending', 'processing'))]" />
-                <filter string="Today" name="filter_today" domain="[('received_at', '&gt;=', (context_today()).strftime('%Y-%m-%d'))]" />
+                <filter
+                    string="Search"
+                    name="filter_search"
+                    domain="[('action', '=', 'search')]"
+                />
+                <filter
+                    string="Subscribe"
+                    name="filter_subscribe"
+                    domain="[('action', '=', 'subscribe')]"
+                />
+                <filter
+                    string="Success"
+                    name="filter_success"
+                    domain="[('state', 'in', ('success', 'callback_sent'))]"
+                />
+                <filter
+                    string="Failed"
+                    name="filter_failed"
+                    domain="[('state', 'in', ('rejected', 'callback_failed'))]"
+                />
+                <filter
+                    string="Pending"
+                    name="filter_pending"
+                    domain="[('state', 'in', ('received', 'pending', 'processing'))]"
+                />
+                <filter
+                    string="Today"
+                    name="filter_today"
+                    domain="[('received_at', '&gt;=', (context_today()).strftime('%Y-%m-%d'))]"
+                />
                 <group>
-                    <filter string="Action" name="group_by_action" context="{'group_by': 'action'}" />
-                    <filter string="State" name="group_by_state" context="{'group_by': 'state'}" />
-                    <filter string="Sender" name="group_by_sender" context="{'group_by': 'sender_id'}" />
-                    <filter string="Date" name="group_by_date" context="{'group_by': 'received_at:day'}" />
+                    <filter
+                        string="Action"
+                        name="group_by_action"
+                        context="{'group_by': 'action'}"
+                    />
+                    <filter
+                        string="State"
+                        name="group_by_state"
+                        context="{'group_by': 'state'}"
+                    />
+                    <filter
+                        string="Sender"
+                        name="group_by_sender"
+                        context="{'group_by': 'sender_id'}"
+                    />
+                    <filter
+                        string="Date"
+                        name="group_by_date"
+                        context="{'group_by': 'received_at:day'}"
+                    />
                 </group>
             </search>
         </field>

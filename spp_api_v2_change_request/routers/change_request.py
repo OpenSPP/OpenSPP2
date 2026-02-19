@@ -40,6 +40,11 @@ _logger = logging.getLogger(__name__)
 change_request_router = APIRouter(tags=["ChangeRequest"], prefix="/ChangeRequest")
 
 
+def _build_reference(p1: str, p2: str, p3: str) -> str:
+    """Reconstruct CR reference from path segments (e.g., CR/2026/00001)."""
+    return f"{p1}/{p2}/{p3}"
+
+
 @change_request_router.post(
     "",
     response_model=ChangeRequestResponse,
@@ -87,9 +92,11 @@ async def create_change_request(
     return service.to_api_schema(cr)
 
 
-@change_request_router.get("/{reference}", response_model=ChangeRequestResponse)
+@change_request_router.get("/{p1}/{p2}/{p3}", response_model=ChangeRequestResponse)
 async def read_change_request(
-    reference: Annotated[str, Path(description="CR reference (e.g., CR/2024/00001)")],
+    p1: Annotated[str, Path(description="Reference part 1 (e.g., CR)")],
+    p2: Annotated[str, Path(description="Reference part 2 (e.g., 2026)")],
+    p3: Annotated[str, Path(description="Reference part 3 (e.g., 00001)")],
     env: Annotated[Environment, Depends(odoo_env)],
     api_client: Annotated[dict, Depends(get_authenticated_client)],
     response: Response,
@@ -106,6 +113,7 @@ async def read_change_request(
             detail="Client does not have permission to read change requests",
         )
 
+    reference = _build_reference(p1, p2, p3)
     service = ChangeRequestService(env)
     cr = service.find_by_reference(reference)
 
@@ -224,9 +232,11 @@ async def search_change_requests(
     )
 
 
-@change_request_router.put("/{reference}", response_model=ChangeRequestResponse)
+@change_request_router.put("/{p1}/{p2}/{p3}", response_model=ChangeRequestResponse)
 async def update_change_request(
-    reference: Annotated[str, Path()],
+    p1: Annotated[str, Path(description="Reference part 1 (e.g., CR)")],
+    p2: Annotated[str, Path(description="Reference part 2 (e.g., 2026)")],
+    p3: Annotated[str, Path(description="Reference part 3 (e.g., 00001)")],
     update_data: ChangeRequestUpdate,
     env: Annotated[Environment, Depends(odoo_env)],
     api_client: Annotated[dict, Depends(get_authenticated_client)],
@@ -245,6 +255,7 @@ async def update_change_request(
             detail="Client does not have permission to update change requests",
         )
 
+    reference = _build_reference(p1, p2, p3)
     service = ChangeRequestService(env)
     cr = service.find_by_reference(reference)
 
@@ -284,9 +295,11 @@ async def update_change_request(
 # === Actions ===
 
 
-@change_request_router.post("/{reference}/$submit", response_model=ChangeRequestResponse)
+@change_request_router.post("/{p1}/{p2}/{p3}/$submit", response_model=ChangeRequestResponse)
 async def submit_change_request(
-    reference: Annotated[str, Path()],
+    p1: Annotated[str, Path(description="Reference part 1 (e.g., CR)")],
+    p2: Annotated[str, Path(description="Reference part 2 (e.g., 2026)")],
+    p3: Annotated[str, Path(description="Reference part 3 (e.g., 00001)")],
     env: Annotated[Environment, Depends(odoo_env)],
     api_client: Annotated[dict, Depends(get_authenticated_client)],
 ):
@@ -301,6 +314,7 @@ async def submit_change_request(
             detail="Client does not have permission to submit change requests",
         )
 
+    reference = _build_reference(p1, p2, p3)
     service = ChangeRequestService(env)
     cr = service.find_by_reference(reference)
 
@@ -321,9 +335,11 @@ async def submit_change_request(
     return service.to_api_schema(cr)
 
 
-@change_request_router.post("/{reference}/$approve", response_model=ChangeRequestResponse)
+@change_request_router.post("/{p1}/{p2}/{p3}/$approve", response_model=ChangeRequestResponse)
 async def approve_change_request(
-    reference: Annotated[str, Path()],
+    p1: Annotated[str, Path(description="Reference part 1 (e.g., CR)")],
+    p2: Annotated[str, Path(description="Reference part 2 (e.g., 2026)")],
+    p3: Annotated[str, Path(description="Reference part 3 (e.g., 00001)")],
     env: Annotated[Environment, Depends(odoo_env)],
     api_client: Annotated[dict, Depends(get_authenticated_client)],
     action_data: ApproveActionData | None = None,
@@ -339,6 +355,7 @@ async def approve_change_request(
             detail="Client does not have permission to approve change requests",
         )
 
+    reference = _build_reference(p1, p2, p3)
     service = ChangeRequestService(env)
     cr = service.find_by_reference(reference)
 
@@ -360,9 +377,11 @@ async def approve_change_request(
     return service.to_api_schema(cr)
 
 
-@change_request_router.post("/{reference}/$reject", response_model=ChangeRequestResponse)
+@change_request_router.post("/{p1}/{p2}/{p3}/$reject", response_model=ChangeRequestResponse)
 async def reject_change_request(
-    reference: Annotated[str, Path()],
+    p1: Annotated[str, Path(description="Reference part 1 (e.g., CR)")],
+    p2: Annotated[str, Path(description="Reference part 2 (e.g., 2026)")],
+    p3: Annotated[str, Path(description="Reference part 3 (e.g., 00001)")],
     action_data: RejectActionData,
     env: Annotated[Environment, Depends(odoo_env)],
     api_client: Annotated[dict, Depends(get_authenticated_client)],
@@ -378,6 +397,7 @@ async def reject_change_request(
             detail="Client does not have permission to reject change requests",
         )
 
+    reference = _build_reference(p1, p2, p3)
     service = ChangeRequestService(env)
     cr = service.find_by_reference(reference)
 
@@ -398,9 +418,11 @@ async def reject_change_request(
     return service.to_api_schema(cr)
 
 
-@change_request_router.post("/{reference}/$request-revision", response_model=ChangeRequestResponse)
+@change_request_router.post("/{p1}/{p2}/{p3}/$request-revision", response_model=ChangeRequestResponse)
 async def request_revision_change_request(
-    reference: Annotated[str, Path()],
+    p1: Annotated[str, Path(description="Reference part 1 (e.g., CR)")],
+    p2: Annotated[str, Path(description="Reference part 2 (e.g., 2026)")],
+    p3: Annotated[str, Path(description="Reference part 3 (e.g., 00001)")],
     action_data: RequestRevisionActionData,
     env: Annotated[Environment, Depends(odoo_env)],
     api_client: Annotated[dict, Depends(get_authenticated_client)],
@@ -416,6 +438,7 @@ async def request_revision_change_request(
             detail="Client does not have permission to request revision",
         )
 
+    reference = _build_reference(p1, p2, p3)
     service = ChangeRequestService(env)
     cr = service.find_by_reference(reference)
 
@@ -436,9 +459,11 @@ async def request_revision_change_request(
     return service.to_api_schema(cr)
 
 
-@change_request_router.post("/{reference}/$apply", response_model=ChangeRequestResponse)
+@change_request_router.post("/{p1}/{p2}/{p3}/$apply", response_model=ChangeRequestResponse)
 async def apply_change_request(
-    reference: Annotated[str, Path()],
+    p1: Annotated[str, Path(description="Reference part 1 (e.g., CR)")],
+    p2: Annotated[str, Path(description="Reference part 2 (e.g., 2026)")],
+    p3: Annotated[str, Path(description="Reference part 3 (e.g., 00001)")],
     env: Annotated[Environment, Depends(odoo_env)],
     api_client: Annotated[dict, Depends(get_authenticated_client)],
 ):
@@ -453,6 +478,7 @@ async def apply_change_request(
             detail="Client does not have permission to apply change requests",
         )
 
+    reference = _build_reference(p1, p2, p3)
     service = ChangeRequestService(env)
     cr = service.find_by_reference(reference)
 
@@ -473,9 +499,11 @@ async def apply_change_request(
     return service.to_api_schema(cr)
 
 
-@change_request_router.post("/{reference}/$reset", response_model=ChangeRequestResponse)
+@change_request_router.post("/{p1}/{p2}/{p3}/$reset", response_model=ChangeRequestResponse)
 async def reset_change_request(
-    reference: Annotated[str, Path()],
+    p1: Annotated[str, Path(description="Reference part 1 (e.g., CR)")],
+    p2: Annotated[str, Path(description="Reference part 2 (e.g., 2026)")],
+    p3: Annotated[str, Path(description="Reference part 3 (e.g., 00001)")],
     env: Annotated[Environment, Depends(odoo_env)],
     api_client: Annotated[dict, Depends(get_authenticated_client)],
 ):
@@ -490,6 +518,7 @@ async def reset_change_request(
             detail="Client does not have permission to reset change requests",
         )
 
+    reference = _build_reference(p1, p2, p3)
     service = ChangeRequestService(env)
     cr = service.find_by_reference(reference)
 

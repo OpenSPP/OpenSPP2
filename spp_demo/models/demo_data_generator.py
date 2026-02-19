@@ -22,19 +22,19 @@ class SPPDemoDataGenerator(models.Model):
     _regex_cache = {}
 
     def _default_number_of_groups(self):
-        default_settings = self.env["ir.config_parameter"].sudo()
+        default_settings = self.env["ir.config_parameter"].sudo()  # nosemgrep: odoo-sudo-without-context
         return int(default_settings.get_param("spp_demo.number_of_groups", 10))
 
     def _default_members_range_from(self):
-        default_settings = self.env["ir.config_parameter"].sudo()
+        default_settings = self.env["ir.config_parameter"].sudo()  # nosemgrep: odoo-sudo-without-context
         return int(default_settings.get_param("spp_demo.members_range_from", 1))
 
     def _default_members_range_to(self):
-        default_settings = self.env["ir.config_parameter"].sudo()
+        default_settings = self.env["ir.config_parameter"].sudo()  # nosemgrep: odoo-sudo-without-context
         return int(default_settings.get_param("spp_demo.members_range_to", 10))
 
     def _default_batch_size(self):
-        default_settings = self.env["ir.config_parameter"].sudo()
+        default_settings = self.env["ir.config_parameter"].sudo()  # nosemgrep: odoo-sudo-without-context
         return int(default_settings.get_param("spp_demo.batch_size", 100))
 
     def _default_locale_origin(self):
@@ -44,11 +44,11 @@ class SPPDemoDataGenerator(models.Model):
         return self.env.ref("base.us").id
 
     def _default_queue_job_minimum_size(self):
-        default_settings = self.env["ir.config_parameter"].sudo()
+        default_settings = self.env["ir.config_parameter"].sudo()  # nosemgrep: odoo-sudo-without-context
         return int(default_settings.get_param("spp_demo.queue_job_minimum_size", 500))
 
     def _default_days_back(self):
-        default_settings = self.env["ir.config_parameter"].sudo()
+        default_settings = self.env["ir.config_parameter"].sudo()  # nosemgrep: odoo-sudo-without-context
         return int(default_settings.get_param("spp_demo.days_back", 90))
 
     # Gender codes matching ISO 5218 vocabulary (urn:iso:std:iso:5218)
@@ -160,8 +160,7 @@ class SPPDemoDataGenerator(models.Model):
             self.members_range_from = self._default_members_range_from()
             self.members_range_to = self._default_members_range_to()
             raise ValidationError(
-                "Members per Group (From) cannot be greater than Members per Group (To)."
-                " Resetting to default values."
+                "Members per Group (From) cannot be greater than Members per Group (To). Resetting to default values."
             )
 
         self.state = "in_progress"

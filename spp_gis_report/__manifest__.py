@@ -3,33 +3,10 @@
     "version": "19.0.2.0.0",
     "category": "OpenSPP",
     "summary": "Geographic visualization and reporting for social protection data",
-    "description": """
-OpenSPP GIS Report Module
-=========================
-
-This module enables non-technical users to create, configure, and view
-geographic visualizations of social protection data.
-
-Features:
----------
-* Template-based report creation wizard
-* Configurable data aggregation by administrative area
-* Multiple normalization methods (per km², per capita, percentage)
-* Hierarchical rollup to all administrative levels
-* Color-blind safe palettes by default
-* GeoJSON API for external tool integration (QGIS, Power BI)
-* Scheduled and trigger-based data refresh
-
-Pre-built Templates:
---------------------
-* Coverage Analysis: Beneficiary density, coverage rate, gap analysis
-* Disaster Response: Affected population, request status, fulfillment
-* Demographics: Age, gender, disability distributions
-    """,
-    "author": "OpenSPP",
+    "author": "OpenSPP.org, OpenSPP",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Stable",
+    "development_status": "Production/Stable",
     "depends": [
         "spp_area",
         "spp_gis",

@@ -112,7 +112,7 @@ GRM_STORY_TICKETS = {
             },
             {
                 "title": "Update bank account information",
-                "description": ("Need to update bank account to new provider. " "Previous bank closed local branch."),
+                "description": ("Need to update bank account to new provider. Previous bank closed local branch."),
                 "category": "registration",
                 "priority": "medium",
                 "days_back": 10,
@@ -350,7 +350,7 @@ class SPPGRMDemoGenerator(models.TransientModel):
         # Validate that at least one generation option is enabled
         if not self.enroll_demo_stories and not self.generate_volume:
             raise UserError(
-                _("Please enable at least one generation option: " "'Enroll Demo Stories' or 'Generate Volume Data'.")
+                _("Please enable at least one generation option: 'Enroll Demo Stories' or 'Generate Volume Data'.")
             )
 
         # Initialize Faker
@@ -524,6 +524,7 @@ class SPPGRMDemoGenerator(models.TransientModel):
             "create_date": ticket_date,
         }
 
+        # nosemgrep: odoo-sudo-without-context — demo data generation runs as admin
         ticket = self.env["spp.grm.ticket"].sudo().create(vals)
 
         # Backdate creation
@@ -547,7 +548,7 @@ class SPPGRMDemoGenerator(models.TransientModel):
 
         for i, note in enumerate(notes):
             note_date = ticket_date + timedelta(days=int((i + 1) * resolution_days / (len(notes) + 1)))
-            ticket.sudo().message_post(
+            ticket.sudo().message_post(  # nosemgrep: odoo-sudo-without-context — demo data generation runs as admin
                 body=f"<p>{note.get('text', '')}</p>",
                 message_type="comment",
                 subtype_xmlid="mail.mt_note",
@@ -566,7 +567,7 @@ class SPPGRMDemoGenerator(models.TransientModel):
             close_date = ticket_date + timedelta(days=resolution_days)
             decision = resolution.get("decision", "upheld")
 
-            ticket.sudo().write(
+            ticket.sudo().write(  # nosemgrep: odoo-sudo-without-context — demo data generation runs as admin
                 {
                     "stage_id": closed_stage.id,
                     "decision": decision,
@@ -700,6 +701,7 @@ class SPPGRMDemoGenerator(models.TransientModel):
             "create_date": ticket_date,
         }
 
+        # nosemgrep: odoo-sudo-without-context — demo data generation runs as admin
         ticket = self.env["spp.grm.ticket"].sudo().create(vals)
 
         # Backdate creation
@@ -752,7 +754,7 @@ class SPPGRMDemoGenerator(models.TransientModel):
             note_date = ticket.create_date + timedelta(days=days_offset)
 
             # Post message
-            ticket.sudo().message_post(
+            ticket.sudo().message_post(  # nosemgrep: odoo-sudo-without-context — demo data generation runs as admin
                 body=f"<p>{step}</p>",
                 message_type="comment",
                 subtype_xmlid="mail.mt_note",
@@ -771,7 +773,7 @@ class SPPGRMDemoGenerator(models.TransientModel):
         escalation = scenario.get("escalation", {})
         case_type = escalation.get("case_type", "general_investigation")
 
-        ticket.sudo().message_post(
+        ticket.sudo().message_post(  # nosemgrep: odoo-sudo-without-context — demo data generation runs as admin
             body=f"<p>Ticket escalated to case management ({case_type})</p>",
             message_type="comment",
             subtype_xmlid="mail.mt_note",
@@ -801,7 +803,7 @@ class SPPGRMDemoGenerator(models.TransientModel):
                 decision_choices, weights = zip(*decisions, strict=False)
                 decision = random.choices(decision_choices, weights=weights, k=1)[0]
 
-            ticket.sudo().write(
+            ticket.sudo().write(  # nosemgrep: odoo-sudo-without-context — demo data generation runs as admin
                 {
                     "stage_id": closed_stage.id,
                     "decision": decision,
@@ -819,6 +821,7 @@ class SPPGRMDemoGenerator(models.TransientModel):
         users = self.env["res.users"].search([("active", "=", True)], limit=20)
         if users:
             user = random.choice(users)
+            # nosemgrep: odoo-sudo-without-context — demo data generation runs as admin
             ticket.sudo().write({"user_id": user.id})
 
     def _render_description_template(self, template, fake, programs):
@@ -904,6 +907,7 @@ class SPPGRMDemoGenerator(models.TransientModel):
             except Exception:
                 # Create new category
                 category = (
+                    # nosemgrep: odoo-sudo-without-context — demo data generation runs as admin
                     self.env["spp.grm.ticket.category"]
                     .sudo()
                     .create(

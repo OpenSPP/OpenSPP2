@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <record id="group_hide_menus_user" model="res.groups">
         <field name="name">Show Non-OpenSPP Menu</field>
-        <field name="privilege_id" ref="privilege_hide_menus_user"/>
-        <field name="comment">Can view and manage visibility of non-OpenSPP navigation menus.</field>
+        <field name="privilege_id" ref="privilege_hide_menus_user" />
+        <field
+            name="comment"
+        >Can view and manage visibility of non-OpenSPP navigation menus.</field>
     </record>
-
 </odoo>

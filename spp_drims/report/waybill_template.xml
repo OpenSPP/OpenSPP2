@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Waybill Report Action -->
     <record id="action_report_drims_waybill" model="ir.actions.report">
@@ -7,8 +7,10 @@
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">spp_drims.report_waybill</field>
         <field name="report_file">spp_drims.report_waybill</field>
-        <field name="print_report_name">'Waybill - %s' % object.waybill_number or object.name</field>
-        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field
+            name="print_report_name"
+        >'Waybill - %s' % object.waybill_number or object.name</field>
+        <field name="binding_model_id" ref="stock.model_stock_picking" />
         <field name="binding_type">report</field>
     </record>
 
@@ -22,12 +24,14 @@
                         <div class="row mb-4">
                             <div class="col-8">
                                 <h2>WAYBILL</h2>
-                                <h3 t-field="doc.waybill_number"/>
+                                <h3 t-field="doc.waybill_number" />
                             </div>
                             <div class="col-4 text-end">
-                                <img t-if="doc.company_id.logo"
-                                     t-att-src="image_data_uri(doc.company_id.logo)"
-                                     style="max-height: 80px;"/>
+                                <img
+                                    t-if="doc.company_id.logo"
+                                    t-att-src="image_data_uri(doc.company_id.logo)"
+                                    style="max-height: 80px;"
+                                />
                             </div>
                         </div>
 
@@ -37,19 +41,34 @@
                                 <table class="table table-sm table-borderless">
                                     <tr>
                                         <th style="width: 40%;">Date:</th>
-                                        <td><span t-field="doc.scheduled_date" t-options='{"widget": "date"}'/></td>
+                                        <td>
+                                            <span
+                                                t-field="doc.scheduled_date"
+                                                t-options='{"widget": "date"}'
+                                            />
+                                        </td>
                                     </tr>
                                     <tr>
                                         <th>Incident:</th>
-                                        <td><span t-field="doc.incident_id.name"/></td>
+                                        <td>
+                                            <span t-field="doc.incident_id.name" />
+                                        </td>
                                     </tr>
                                     <tr t-if="doc.drims_request_id">
                                         <th>Request:</th>
-                                        <td><span t-field="doc.drims_request_id.reference"/></td>
+                                        <td>
+                                            <span
+                                                t-field="doc.drims_request_id.reference"
+                                            />
+                                        </td>
                                     </tr>
                                     <tr t-if="doc.drims_donation_id">
                                         <th>Donation:</th>
-                                        <td><span t-field="doc.drims_donation_id.reference"/></td>
+                                        <td>
+                                            <span
+                                                t-field="doc.drims_donation_id.reference"
+                                            />
+                                        </td>
                                     </tr>
                                 </table>
                             </div>
@@ -57,18 +76,24 @@
                                 <table class="table table-sm table-borderless">
                                     <tr>
                                         <th style="width: 40%;">Transport:</th>
-                                        <td><span t-field="doc.transport_mode_id.display"/></td>
+                                        <td>
+                                            <span
+                                                t-field="doc.transport_mode_id.display"
+                                            />
+                                        </td>
                                     </tr>
                                     <tr t-if="doc.vehicle_registration">
                                         <th>Vehicle:</th>
-                                        <td><span t-field="doc.vehicle_registration"/></td>
+                                        <td>
+                                            <span t-field="doc.vehicle_registration" />
+                                        </td>
                                     </tr>
                                     <tr t-if="doc.driver_name">
                                         <th>Driver:</th>
                                         <td>
-                                            <span t-field="doc.driver_name"/>
+                                            <span t-field="doc.driver_name" />
                                             <t t-if="doc.driver_phone">
-                                                (<span t-field="doc.driver_phone"/>)
+                                                (<span t-field="doc.driver_phone" />)
                                             </t>
                                         </td>
                                     </tr>
@@ -84,9 +109,14 @@
                                         <strong>FROM (Origin)</strong>
                                     </div>
                                     <div class="card-body">
-                                        <strong t-field="doc.location_id.warehouse_id.name"/>
-                                        <br/>
-                                        <span t-field="doc.location_id.warehouse_id.partner_id" t-options='{"widget": "contact", "fields": ["address"]}'/>
+                                        <strong
+                                            t-field="doc.location_id.warehouse_id.name"
+                                        />
+                                        <br />
+                                        <span
+                                            t-field="doc.location_id.warehouse_id.partner_id"
+                                            t-options='{"widget": "contact", "fields": ["address"]}'
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -96,9 +126,12 @@
                                         <strong>TO (Destination)</strong>
                                     </div>
                                     <div class="card-body">
-                                        <strong t-field="doc.partner_id"/>
-                                        <br/>
-                                        <span t-field="doc.partner_id" t-options='{"widget": "contact", "fields": ["address"]}'/>
+                                        <strong t-field="doc.partner_id" />
+                                        <br />
+                                        <span
+                                            t-field="doc.partner_id"
+                                            t-options='{"widget": "contact", "fields": ["address"]}'
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -117,16 +150,24 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <t t-set="line_num" t-value="0"/>
+                                <t t-set="line_num" t-value="0" />
                                 <tr t-foreach="doc.move_ids" t-as="move">
-                                    <t t-set="line_num" t-value="line_num + 1"/>
-                                    <td><t t-esc="line_num"/></td>
-                                    <td><span t-field="move.product_id.display_name"/></td>
-                                    <td class="text-end"><span t-field="move.product_uom_qty"/></td>
-                                    <td><span t-field="move.product_uom"/></td>
+                                    <t t-set="line_num" t-value="line_num + 1" />
+                                    <td>
+                                        <t t-esc="line_num" />
+                                    </td>
+                                    <td>
+                                        <span t-field="move.product_id.display_name" />
+                                    </td>
+                                    <td class="text-end">
+                                        <span t-field="move.product_uom_qty" />
+                                    </td>
+                                    <td>
+                                        <span t-field="move.product_uom" />
+                                    </td>
                                     <td>
                                         <t t-foreach="move.move_line_ids" t-as="ml">
-                                            <span t-field="ml.lot_id.name"/>
+                                            <span t-field="ml.lot_id.name" />
                                             <t t-if="not ml_last">, </t>
                                         </t>
                                     </td>
@@ -135,8 +176,10 @@
                             <tfoot>
                                 <tr class="fw-bold">
                                     <td colspan="2">Total Items</td>
-                                    <td class="text-end"><t t-esc="len(doc.move_ids)"/></td>
-                                    <td colspan="2"></td>
+                                    <td class="text-end">
+                                        <t t-esc="len(doc.move_ids)" />
+                                    </td>
+                                    <td colspan="2" />
                                 </tr>
                             </tfoot>
                         </table>
@@ -144,23 +187,29 @@
                         <!-- Signatures Section -->
                         <div class="row mt-5">
                             <div class="col-4 text-center">
-                                <div style="border-top: 1px solid #000; margin-top: 120px; padding-top: 8px;">
+                                <div
+                                    style="border-top: 1px solid #000; margin-top: 120px; padding-top: 8px;"
+                                >
                                     <strong>Dispatched By</strong>
-                                    <br/>
+                                    <br />
                                     <small>Name / Signature / Date</small>
                                 </div>
                             </div>
                             <div class="col-4 text-center">
-                                <div style="border-top: 1px solid #000; margin-top: 120px; padding-top: 8px;">
+                                <div
+                                    style="border-top: 1px solid #000; margin-top: 120px; padding-top: 8px;"
+                                >
                                     <strong>Transported By</strong>
-                                    <br/>
+                                    <br />
                                     <small>Name / Signature / Date</small>
                                 </div>
                             </div>
                             <div class="col-4 text-center">
-                                <div style="border-top: 1px solid #000; margin-top: 120px; padding-top: 8px;">
+                                <div
+                                    style="border-top: 1px solid #000; margin-top: 120px; padding-top: 8px;"
+                                >
                                     <strong>Received By</strong>
-                                    <br/>
+                                    <br />
                                     <small>Name / Signature / Date</small>
                                 </div>
                             </div>
@@ -170,17 +219,19 @@
                         <div class="row mt-4" t-if="doc.note">
                             <div class="col-12">
                                 <strong>Notes:</strong>
-                                <p t-field="doc.note"/>
+                                <p t-field="doc.note" />
                             </div>
                         </div>
 
                         <!-- Barcode -->
                         <div class="row mt-4">
                             <div class="col-12 text-center">
-                                <img t-if="doc.waybill_number"
-                                     t-att-src="'/report/barcode/?barcode_type=Code128&amp;value=%s&amp;width=300&amp;height=50' % doc.waybill_number"/>
-                                <br/>
-                                <small t-field="doc.waybill_number"/>
+                                <img
+                                    t-if="doc.waybill_number"
+                                    t-att-src="'/report/barcode/?barcode_type=Code128&amp;value=%s&amp;width=300&amp;height=50' % doc.waybill_number"
+                                />
+                                <br />
+                                <small t-field="doc.waybill_number" />
                             </div>
                         </div>
                     </div>

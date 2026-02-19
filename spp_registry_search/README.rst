@@ -14,14 +14,17 @@ OpenSPP Registry Search Portal
    !! source digest: sha256:511d70e7a15e0921c0520c44fcbe3d34ca5fde27202e9eeeb35faf1156675269
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+    :target: https://odoo-community.org/page/development-status
+    :alt: Production/Stable
+.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
     :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_registry_search
     :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2|
+|badge1| |badge2| |badge3|
 
 Search-first registry interface that protects beneficiary privacy by
 requiring users to search before viewing registrants. Replaces
@@ -32,30 +35,30 @@ bypass for compliance purposes.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  Search-first landing page with no records loaded by default
-   (privacy-by-design)
--  Quick search across name, ID numbers, phone, and email with
-   3-character minimum
--  Advanced filters for registrant type (individual/group) and
-   registration date range
--  Recently viewed section showing user's last 10 accessed registrants
-   with avatars
--  Automatic view tracking when registrant forms are opened
--  Archive/unarchive permission enforcement (officers and managers only)
--  Auditor bypass group for browse-all access to full registrant lists
+- Search-first landing page with no records loaded by default
+  (privacy-by-design)
+- Quick search across name, ID numbers, phone, and email with
+  3-character minimum
+- Advanced filters for registrant type (individual/group) and
+  registration date range
+- Recently viewed section showing user's last 10 accessed registrants
+  with avatars
+- Automatic view tracking when registrant forms are opened
+- Archive/unarchive permission enforcement (officers and managers only)
+- Auditor bypass group for browse-all access to full registrant lists
 
 Key Models
 ~~~~~~~~~~
 
-+-------------------------------+-------------------------------------+
-| Model                         | Description                         |
-+===============================+=====================================+
-| ``spp.registry.view.history`` | Tracks user's recently viewed       |
-|                               | registrants with timestamps         |
-+-------------------------------+-------------------------------------+
-| ``res.partner`` (extended)    | Adds view tracking on form open and |
-|                               | archive restrictions                |
-+-------------------------------+-------------------------------------+
++-------------------------------+--------------------------------------+
+| Model                         | Description                          |
++===============================+======================================+
+| ``spp.registry.view.history`` | Tracks user's recently viewed        |
+|                               | registrants with timestamps          |
++-------------------------------+--------------------------------------+
+| ``res.partner`` (extended)    | Adds view tracking on form open and  |
+|                               | archive restrictions                 |
++-------------------------------+--------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -73,44 +76,44 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
--  **Default landing**: Registry > Search (replaces individuals/groups
-   menus for non-auditors)
--  **Auditor menus**: Registry > Browse All (Audit) > All Individuals /
-   All Groups
--  **Recently viewed**: Displayed in search portal below the search form
+- **Default landing**: Registry > Search (replaces individuals/groups
+  menus for non-auditors)
+- **Auditor menus**: Registry > Browse All (Audit) > All Individuals /
+  All Groups
+- **Recently viewed**: Displayed in search portal below the search form
 
 Security
 ~~~~~~~~
 
-+----------------------------------+----------------------------------+
-| Group                            | Access                           |
-+==================================+==================================+
-| ``sp                             | Full CRUD on view history        |
-| p_registry.group_registry_read`` | (restricted to own records via   |
-|                                  | IR rule)                         |
-+----------------------------------+----------------------------------+
-| ``spp_registry_search            | Bypass search requirement,       |
-| .group_registry_search_auditor`` | access browse-all menus          |
-+----------------------------------+----------------------------------+
++-------------------------------------------------------+----------------------------------+
+| Group                                                 | Access                           |
++=======================================================+==================================+
+| ``spp_registry.group_registry_read``                  | Full CRUD on view history        |
+|                                                       | (restricted to own records via   |
+|                                                       | IR rule)                         |
++-------------------------------------------------------+----------------------------------+
+| ``spp_registry_search.group_registry_search_auditor`` | Bypass search requirement,       |
+|                                                       | access browse-all menus          |
++-------------------------------------------------------+----------------------------------+
 
 Archive/unarchive permission check enforces these groups:
 
--  ``base.group_system``
--  ``spp_security.group_spp_admin``
--  ``spp_registry.group_registry_manager``
--  ``spp_registry.group_registry_officer``
+- ``base.group_system``
+- ``spp_security.group_spp_admin``
+- ``spp_registry.group_registry_manager``
+- ``spp_registry.group_registry_officer``
 
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Override ``res.partner.get_formview_action()`` to customize view
-   tracking behavior
--  Inherit ``spp.registry.view.history.get_recent_registrants()`` to
-   modify area filtering or result format
--  Override ``res.partner._check_archive_permission()`` to add custom
-   permission logic
--  Extend OWL component ``spp_registry_search.search_portal`` to modify
-   search interface
+- Override ``res.partner.get_formview_action()`` to customize view
+  tracking behavior
+- Inherit ``spp.registry.view.history.get_recent_registrants()`` to
+  modify area filtering or result format
+- Override ``res.partner._check_archive_permission()`` to add custom
+  permission logic
+- Extend OWL component ``spp_registry_search.search_portal`` to modify
+  search interface
 
 Dependencies
 ~~~~~~~~~~~~
