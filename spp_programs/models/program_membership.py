@@ -353,7 +353,9 @@ class SPPProgramMembership(models.Model):
                 # through the ORM and audit hooks.
                 batch_memberships = super(
                     SPPProgramMembership,
-                    self.sudo(),  # nosemgrep: odoo-sudo-without-context - Bulk enrollment helper used by trusted background managers (e.g. CEL load tests); still goes through ORM and audit hooks.
+                    self.sudo(),  # nosemgrep: odoo-sudo-without-context
+                    # Bulk enrollment helper used by trusted background managers
+                    # (e.g. CEL load tests); still goes through ORM and audit hooks.
                 ).create(batch_vals)
                 all_memberships |= batch_memberships
             return all_memberships

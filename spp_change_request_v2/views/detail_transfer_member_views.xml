@@ -30,7 +30,10 @@
                 <sheet>
                     <group>
                         <group string="Source">
-                            <field name="source_group_id" />
+                            <field
+                                name="source_group_id"
+                                options="{'no_create': True, 'no_open': True}"
+                            />
                             <field name="available_individual_ids" invisible="1" />
                             <field
                                 name="individual_id"
@@ -47,7 +50,10 @@
                                 options="{'no_create': True}"
                                 required="1"
                             />
-                            <field name="new_role_id" options="{'no_create': True}" />
+                            <field
+                                name="new_role_id"
+                                options="{'no_create': True, 'no_open': True}"
+                            />
                         </group>
                     </group>
                     <group>

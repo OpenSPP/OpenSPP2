@@ -2,9 +2,10 @@
 
 ## Overview
 
-This module provides Demo Generator V2 for SP-MIS programs, following the simplified "Fixed Stories + Volume"
-architecture. It creates predictable demo data that integrates with the demo stories from `spp_demo` and showcases CEL
-expressions with Logic Packs from `spp_studio`.
+This module provides Demo Generator V2 for SP-MIS programs, following the simplified
+"Fixed Stories + Volume" architecture. It creates predictable demo data that integrates
+with the demo stories from `spp_demo` and showcases CEL expressions with Logic Packs
+from `spp_studio`.
 
 ## Features
 
@@ -17,7 +18,8 @@ expressions with Logic Packs from `spp_studio`.
 
 ## Demo Programs
 
-The 6 demo programs showcase different CEL expression patterns using **activated registry variables**:
+The 6 demo programs showcase different CEL expression patterns using **activated
+registry variables**:
 
 | Program                  | Target     | CEL Pattern                                   | Logic Pack               |
 | ------------------------ | ---------- | --------------------------------------------- | ------------------------ |
@@ -53,7 +55,8 @@ The 6 demo programs showcase different CEL expression patterns using **activated
 
 ## CEL Expression Examples
 
-These expressions use **activated registry variables** for cleaner, more maintainable eligibility rules.
+These expressions use **activated registry variables** for cleaner, more maintainable
+eligibility rules.
 
 ### Universal Child Grant
 
@@ -77,7 +80,8 @@ Uses the `age` computed variable and `retirement_age` constant (default: 60).
 r.is_group == true and (dependency_ratio >= 1.5 or (is_female_headed and elderly_count > 0))
 ```
 
-Uses `dependency_ratio`, `is_female_headed`, and `elderly_count` variables for vulnerability targeting.
+Uses `dependency_ratio`, `is_female_headed`, and `elderly_count` variables for
+vulnerability targeting.
 
 ### Cash Transfer Program
 
@@ -93,7 +97,8 @@ Uses `hh_total_income` aggregate, `poverty_line` constant, and `hh_size` aggrega
 r.is_group == true and has_disabled_member
 ```
 
-Uses the `has_disabled_member` computed variable (checks `is_person_with_disability` on members).
+Uses the `has_disabled_member` computed variable (checks `is_person_with_disability` on
+members).
 
 ## Cross-Module Integration
 
@@ -116,11 +121,13 @@ MIS Demo V2 is designed to work seamlessly with GRM and Case Management demos:
 
 ### Automatic Cross-Module Generation
 
-The MIS Demo wizard can automatically generate GRM tickets and Cases when those modules are installed. Simply enable the
-options in the wizard:
+The MIS Demo wizard can automatically generate GRM tickets and Cases when those modules
+are installed. Simply enable the options in the wizard:
 
-- **Generate GRM Demo**: Creates story-based tickets + volume tickets (requires `spp_grm_demo`)
-- **Generate Case Demo**: Creates story-based cases + volume cases (requires `spp_case_demo`)
+- **Generate GRM Demo**: Creates story-based tickets + volume tickets (requires
+  `spp_grm_demo`)
+- **Generate Case Demo**: Creates story-based cases + volume cases (requires
+  `spp_case_demo`)
 
 This eliminates the need to run separate wizards for each module.
 
@@ -252,8 +259,9 @@ installed = install_demo_packs(env)
 
 ## Registry Variables
 
-On module installation, registry variables are **automatically activated** and ready for use in Logic Studio and program
-expressions. This includes both standard variables from `spp_studio` and demo-specific variables.
+On module installation, registry variables are **automatically activated** and ready for
+use in Logic Studio and program expressions. This includes both standard variables from
+`spp_studio` and demo-specific variables.
 
 ### Standard Variables (from spp_studio)
 

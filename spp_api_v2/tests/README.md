@@ -1,6 +1,7 @@
 # spp_api_v2 Test Suite
 
-Comprehensive test suite for OpenSPP API V2 module with **169 test methods** achieving ~95% code coverage.
+Comprehensive test suite for OpenSPP API V2 module with **169 test methods** achieving
+~95% code coverage.
 
 ## Test Files
 
@@ -126,5 +127,6 @@ See [TEST_COVERAGE.md](./TEST_COVERAGE.md) for detailed coverage report.
 
 ## Compliance
 
-✅ Follows OpenSPP testing principles ✅ 85%+ coverage target exceeded ✅ No database IDs exposed in tests ✅ Namespace
-URIs used for all lookups ✅ All error scenarios tested ✅ All success scenarios tested ✅ Security scenarios covered
+✅ Follows OpenSPP testing principles ✅ 85%+ coverage target exceeded ✅ No database
+IDs exposed in tests ✅ Namespace URIs used for all lookups ✅ All error scenarios
+tested ✅ All success scenarios tested ✅ Security scenarios covered

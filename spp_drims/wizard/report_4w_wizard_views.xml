@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- 4W Report Wizard Form -->
     <record id="view_drims_report_4w_wizard_form" model="ir.ui.view">
@@ -8,7 +8,8 @@
             <form string="4W Humanitarian Coordination Report">
                 <group>
                     <div class="alert alert-info" role="alert">
-                        <p>Generate a 4W (Who, What, Where, When) report for humanitarian coordination.</p>
+                        <p
+                        >Generate a 4W (Who, What, Where, When) report for humanitarian coordination.</p>
                         <ul>
                             <li><b>Who:</b> Organizations providing assistance</li>
                             <li><b>What:</b> Type of assistance (clusters/sectors)</li>
@@ -19,35 +20,41 @@
                 </group>
                 <group string="Report Parameters">
                     <group string="Who &amp; When">
-                        <field name="incident_id"
-                               options="{'no_create': True, 'no_create_edit': True}"/>
-                        <field name="date_from"/>
-                        <field name="date_to"/>
+                        <field
+                            name="incident_id"
+                            options="{'no_create': True, 'no_create_edit': True}"
+                        />
+                        <field name="date_from" />
+                        <field name="date_to" />
                     </group>
                     <group string="What &amp; Where">
-                        <field name="cluster_ids_domain" invisible="1"/>
-                        <field name="cluster_ids"
-                               widget="many2many_tags"
-                               options="{'no_create': True, 'no_create_edit': True}"
-                               domain="cluster_ids_domain"/>
-                        <field name="area_id"
-                               options="{'no_create': True, 'no_create_edit': True}"/>
+                        <field name="cluster_ids_domain" invisible="1" />
+                        <field
+                            name="cluster_ids"
+                            widget="many2many_tags"
+                            options="{'no_create': True, 'no_create_edit': True}"
+                            domain="cluster_ids_domain"
+                        />
+                        <field
+                            name="area_id"
+                            options="{'no_create': True, 'no_create_edit': True}"
+                        />
                     </group>
                 </group>
                 <group string="Status Filters">
                     <group>
-                        <field name="include_planned"/>
-                        <field name="include_completed"/>
+                        <field name="include_planned" />
+                        <field name="include_completed" />
                     </group>
                 </group>
                 <footer>
-                    <button name="generate_report"
-                            string="Generate Report"
-                            type="object"
-                            class="btn-primary"/>
-                    <button string="Cancel"
-                            class="btn-secondary"
-                            special="cancel"/>
+                    <button
+                        name="generate_report"
+                        string="Generate Report"
+                        type="object"
+                        class="btn-primary"
+                    />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
                 </footer>
             </form>
         </field>
@@ -59,16 +66,16 @@
         <field name="res_model">spp.drims.report.4w.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
-        <field name="binding_model_id" eval="False"/>
+        <field name="binding_model_id" eval="False" />
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Generate a 4W Report
             </p>
             <p>
-                The 4W report provides humanitarian coordination data showing:<br/>
-                - <b>Who</b> is providing assistance (organizations)<br/>
-                - <b>What</b> type of assistance (clusters/sectors)<br/>
-                - <b>Where</b> assistance is being provided (areas)<br/>
+                The 4W report provides humanitarian coordination data showing:<br />
+                - <b>Who</b> is providing assistance (organizations)<br />
+                - <b>What</b> type of assistance (clusters/sectors)<br />
+                - <b>Where</b> assistance is being provided (areas)<br />
                 - <b>When</b> assistance is provided (time period)
             </p>
         </field>
@@ -79,15 +86,13 @@
         <field name="name">spp.drims.request.4w.pivot</field>
         <field name="model">spp.drims.request</field>
         <field name="arch" type="xml">
-            <pivot string="4W Report"
-                   sample="1"
-                   disable_linking="1">
-                <field name="destination_area_id" type="row"/>
-                <field name="requester_id" type="row"/>
-                <field name="date_requested" interval="month" type="col"/>
-                <field name="total_value" type="measure"/>
-                <field name="total_quantity" type="measure"/>
-                <field name="affected_population" type="measure"/>
+            <pivot string="4W Report" sample="1" disable_linking="1">
+                <field name="destination_area_id" type="row" />
+                <field name="requester_id" type="row" />
+                <field name="date_requested" interval="month" type="col" />
+                <field name="total_value" type="measure" />
+                <field name="total_quantity" type="measure" />
+                <field name="affected_population" type="measure" />
             </pivot>
         </field>
     </record>
@@ -97,12 +102,9 @@
         <field name="name">spp.drims.request.4w.graph</field>
         <field name="model">spp.drims.request</field>
         <field name="arch" type="xml">
-            <graph string="4W Report"
-                   sample="1"
-                   type="bar"
-                   stacked="True">
-                <field name="destination_area_id"/>
-                <field name="total_value" type="measure"/>
+            <graph string="4W Report" sample="1" type="bar" stacked="True">
+                <field name="destination_area_id" />
+                <field name="total_value" type="measure" />
             </graph>
         </field>
     </record>
@@ -113,34 +115,46 @@
         <field name="model">spp.drims.request</field>
         <field name="arch" type="xml">
             <search string="4W Report Filters">
-                <field name="destination_area_id" string="Area (Where)"/>
-                <field name="requester_id" string="Organization (Who)"/>
-                <field name="incident_id"/>
-                <field name="priority_id"/>
-                <separator/>
-                <filter string="By Area"
-                        name="group_area"
-                        context="{'group_by': 'destination_area_id'}"/>
-                <filter string="By Organization"
-                        name="group_requester"
-                        context="{'group_by': 'requester_id'}"/>
-                <filter string="By Priority"
-                        name="group_priority"
-                        context="{'group_by': 'priority_id'}"/>
-                <filter string="By Month"
-                        name="group_month"
-                        context="{'group_by': 'date_requested:month'}"/>
-                <filter string="By State"
-                        name="group_state"
-                        context="{'group_by': 'state_id'}"/>
+                <field name="destination_area_id" string="Area (Where)" />
+                <field name="requester_id" string="Organization (Who)" />
+                <field name="incident_id" />
+                <field name="priority_id" />
+                <separator />
+                <filter
+                    string="By Area"
+                    name="group_area"
+                    context="{'group_by': 'destination_area_id'}"
+                />
+                <filter
+                    string="By Organization"
+                    name="group_requester"
+                    context="{'group_by': 'requester_id'}"
+                />
+                <filter
+                    string="By Priority"
+                    name="group_priority"
+                    context="{'group_by': 'priority_id'}"
+                />
+                <filter
+                    string="By Month"
+                    name="group_month"
+                    context="{'group_by': 'date_requested:month'}"
+                />
+                <filter
+                    string="By State"
+                    name="group_state"
+                    context="{'group_by': 'state_id'}"
+                />
             </search>
         </field>
     </record>
 
     <!-- 4W Report Menu Item -->
-    <menuitem id="menu_drims_report_4w"
-              name="4W Coordination Report"
-              parent="menu_drims_reports"
-              action="action_drims_report_4w"
-              sequence="10"/>
+    <menuitem
+        id="menu_drims_report_4w"
+        name="4W Coordination Report"
+        parent="menu_drims_reports"
+        action="action_drims_report_4w"
+        sequence="10"
+    />
 </odoo>

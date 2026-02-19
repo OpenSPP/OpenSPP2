@@ -14,9 +14,9 @@ OpenSPP DRIMS - Disaster Response Inventory Management
    !! source digest: sha256:422d6d6dbaba23ffface3af336834c37ae4f39a3bc4657377b1674f6f8017e32
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/maturity-Alpha-red.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Beta-yellow.png
     :target: https://odoo-community.org/page/development-status
-    :alt: Alpha
+    :alt: Beta
 .. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
@@ -174,11 +174,6 @@ Dependencies
 ``spp_vocabulary``, ``spp_area``, ``spp_hazard``, ``spp_gis``,
 ``spp_gis_report``, ``spp_service_points``, ``spp_approval``,
 ``spp_cel_domain``, ``spp_audit``, ``queue_job``
-
-.. IMPORTANT::
-   This is an alpha version, the data model and design can change at any time without warning.
-   Only for development or testing purpose, do not use in production.
-   `More details on development status <https://odoo-community.org/page/development-status>`_
 
 **Table of contents**
 

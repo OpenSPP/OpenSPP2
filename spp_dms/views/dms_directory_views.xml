@@ -1,5 +1,4 @@
 <odoo>
-
     <record id="action_spp_dms_directories_directory" model="ir.actions.act_window">
         <field name="name">action_spp_dms_directories_directory</field>
         <field name="res_model">spp.dms.directory</field>
@@ -98,7 +97,11 @@
         <field name="arch" type="xml">
             <search>
                 <field name="complete_name" />
-                <filter string="My Directories" name="filter_user" domain="[('create_uid', '=', uid)]" />
+                <filter
+                    string="My Directories"
+                    name="filter_user"
+                    domain="[('create_uid', '=', uid)]"
+                />
                 <separator />
                 <filter
                     string="Root Directories"
@@ -106,10 +109,24 @@
                     domain="[('is_root_directory', '=', True)]"
                 />
                 <separator />
-                <filter string="Creation Date" name="filter_create" date="create_date" />
-                <filter string="Modification Date" name="filter_write" date="write_date" />
+                <filter
+                    string="Creation Date"
+                    name="filter_create"
+                    date="create_date"
+                />
+                <filter
+                    string="Modification Date"
+                    name="filter_write"
+                    date="write_date"
+                />
                 <searchpanel>
-                    <field name="parent_id" icon="fa-folder" limit="0" enable_counters="1" operator="=" />
+                    <field
+                        name="parent_id"
+                        icon="fa-folder"
+                        limit="0"
+                        enable_counters="1"
+                        operator="="
+                    />
                 </searchpanel>
             </search>
         </field>
@@ -134,7 +151,7 @@
         <field name="model">spp.dms.directory</field>
         <field name="arch" type="xml">
             <form string="Directory">
-                <header/>
+                <header />
                 <sheet>
                     <!-- Smart Buttons -->
                     <div class="oe_button_box" name="button_box">
@@ -142,9 +159,13 @@
                             type="object"
                             name="action_spp_dms_directories_all_directory"
                             class="oe_stat_button"
-                            icon="fa-folder-open">
+                            icon="fa-folder-open"
+                        >
                             <div class="o_stat_info">
-                                <field name="count_total_directories" class="o_stat_value"/>
+                                <field
+                                    name="count_total_directories"
+                                    class="o_stat_value"
+                                />
                                 <span class="o_stat_text">Subdirectories</span>
                             </div>
                         </button>
@@ -152,9 +173,10 @@
                             type="object"
                             name="action_spp_dms_files_all_directory"
                             class="oe_stat_button"
-                            icon="fa-file-text">
+                            icon="fa-file-text"
+                        >
                             <div class="o_stat_info">
-                                <field name="count_total_files" class="o_stat_value"/>
+                                <field name="count_total_files" class="o_stat_value" />
                                 <span class="o_stat_text">Files</span>
                             </div>
                         </button>
@@ -162,70 +184,111 @@
 
                     <!-- Title Section -->
                     <div class="oe_title">
-                        <label for="name" class="oe_edit_only"/>
+                        <label for="name" class="oe_edit_only" />
                         <h1>
-                            <field name="name" placeholder="Directory Name..."/>
+                            <field name="name" placeholder="Directory Name..." />
                         </h1>
                         <div class="text-muted">
-                            <field name="complete_name" invisible="1"/>
+                            <field name="complete_name" invisible="1" />
                         </div>
                     </div>
 
                     <!-- Directory Information -->
                     <group name="settings">
                         <group string="Directory Details">
-                            <field name="is_root_directory" invisible="1"/>
-                            <field name="parent_id"
-                                   options="{'no_quick_create': True}"
-                                   invisible="is_root_directory"
-                                   required="not is_root_directory"/>
+                            <field name="is_root_directory" invisible="1" />
+                            <field
+                                name="parent_id"
+                                options="{'no_quick_create': True}"
+                                invisible="is_root_directory"
+                                required="not is_root_directory"
+                            />
                         </group>
                     </group>
                     <group name="data">
                         <group>
-                            <field name="human_size" string="Total Size"/>
-                            <field name="count_elements" string="Items"/>
+                            <field name="human_size" string="Total Size" />
+                            <field name="count_elements" string="Items" />
                         </group>
                     </group>
 
                     <!-- Contents -->
                     <notebook>
                         <page name="page_directories" string="Subdirectories">
-                            <field name="child_directory_ids"
-                                   context="{'default_parent_id': id, 'mail_create_nolog': True}"
-                                   nolabel="1">
+                            <field
+                                name="child_directory_ids"
+                                context="{'default_parent_id': id, 'mail_create_nolog': True}"
+                                nolabel="1"
+                            >
                                 <list limit="10">
-                                    <field name="name"/>
-                                    <field name="count_directories" string="Subdirectories" optional="show"/>
-                                    <field name="count_total_files" string="Files" optional="show"/>
-                                    <field name="human_size" optional="show"/>
-                                    <field name="write_date" string="Modified" optional="hide" widget="datetime"/>
+                                    <field name="name" />
+                                    <field
+                                        name="count_directories"
+                                        string="Subdirectories"
+                                        optional="show"
+                                    />
+                                    <field
+                                        name="count_total_files"
+                                        string="Files"
+                                        optional="show"
+                                    />
+                                    <field name="human_size" optional="show" />
+                                    <field
+                                        name="write_date"
+                                        string="Modified"
+                                        optional="hide"
+                                        widget="datetime"
+                                    />
                                 </list>
                             </field>
                         </page>
                         <page name="page_files" string="Files">
-                            <field name="file_ids"
-                                   context="{'default_directory_id': id, 'mail_create_nolog': True}"
-                                   nolabel="1">
+                            <field
+                                name="file_ids"
+                                context="{'default_directory_id': id, 'mail_create_nolog': True}"
+                                nolabel="1"
+                            >
                                 <list limit="10">
                                     <field name="content" widget="preview_widget" />
-                                    <field name="name"/>
-                                    <field name="extension" column_invisible="1"/>
-                                    <field name="mimetype" optional="show"/>
-                                    <field name="human_size" optional="show"/>
-                                    <field name="write_date" string="Modified" widget="datetime"/>
+                                    <field name="name" />
+                                    <field name="extension" column_invisible="1" />
+                                    <field name="mimetype" optional="show" />
+                                    <field name="human_size" optional="show" />
+                                    <field
+                                        name="write_date"
+                                        string="Modified"
+                                        widget="datetime"
+                                    />
                                 </list>
                             </field>
                         </page>
                         <page name="page_meta" string="Information">
                             <group>
                                 <group>
-                                    <field name="create_uid" string="Created By" readonly="1"/>
-                                    <field name="create_date" string="Created On" readonly="1" widget="datetime"/>
+                                    <field
+                                        name="create_uid"
+                                        string="Created By"
+                                        readonly="1"
+                                    />
+                                    <field
+                                        name="create_date"
+                                        string="Created On"
+                                        readonly="1"
+                                        widget="datetime"
+                                    />
                                 </group>
                                 <group>
-                                    <field name="write_uid" string="Last Updated By" readonly="1"/>
-                                    <field name="write_date" string="Last Updated On" readonly="1" widget="datetime"/>
+                                    <field
+                                        name="write_uid"
+                                        string="Last Updated By"
+                                        readonly="1"
+                                    />
+                                    <field
+                                        name="write_date"
+                                        string="Last Updated On"
+                                        readonly="1"
+                                        widget="datetime"
+                                    />
                                 </group>
                             </group>
                         </page>
@@ -305,5 +368,4 @@
         <field name="target">new</field>
         <field name="view_id" ref="view_spp_dms_directory_new_form" />
     </record>
-
 </odoo>

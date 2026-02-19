@@ -132,7 +132,7 @@ class CelVocabularyTranslator(models.AbstractModel):
         group = self.env["spp.vocabulary.concept.group"].search([("name", "=", group_name)], limit=1)
 
         if not group:
-            _logger.warning(f"[CEL Vocabulary] Concept group '{group_name}' not found, " f"returning empty domain")
+            _logger.warning(f"[CEL Vocabulary] Concept group '{group_name}' not found, returning empty domain")
             # Return domain that matches nothing
             return (
                 LeafDomain(field_model or model, [("id", "=", 0)]),
@@ -211,7 +211,7 @@ class CelVocabularyTranslator(models.AbstractModel):
 
         if not group:
             _logger.warning(
-                f"[CEL Vocabulary] Concept group '{group_name}' not found for {func_name}(), " f"returning empty domain"
+                f"[CEL Vocabulary] Concept group '{group_name}' not found for {func_name}(), returning empty domain"
             )
             return (
                 LeafDomain(field_model or model, [("id", "=", 0)]),
@@ -290,7 +290,7 @@ class CelVocabularyTranslator(models.AbstractModel):
 
         if not target_code:
             _logger.warning(
-                f"[CEL Vocabulary] Could not resolve code identifier '{identifier}', " f"returning empty domain"
+                f"[CEL Vocabulary] Could not resolve code identifier '{identifier}', returning empty domain"
             )
             return (
                 LeafDomain(field_model or model, [("id", "=", 0)]),
@@ -351,7 +351,7 @@ class CelVocabularyTranslator(models.AbstractModel):
 
         # Only support equality/inequality for code comparisons
         if op not in ("=", "!="):
-            _logger.warning(f"[CEL Vocabulary] code() comparisons only support == and !=, " f"got {node.op}")
+            _logger.warning(f"[CEL Vocabulary] code() comparisons only support == and !=, got {node.op}")
             return super()._to_plan(model, node, cfg, ctx)
 
         # Resolve the field

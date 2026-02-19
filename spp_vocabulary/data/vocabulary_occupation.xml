@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
     <!--
         International Standard Classification of Occupations (ISCO-08)
@@ -18,8 +18,12 @@
         <field name="name">Occupation (ISCO-08)</field>
         <field name="namespace_uri">urn:ilo:isco-08</field>
         <field name="version">2008</field>
-        <field name="description">International Standard Classification of Occupations (ISCO-08). A tool for organizing jobs into a clearly defined set of groups according to the tasks and duties undertaken in the job. Developed and maintained by the International Labour Organization (ILO).</field>
-        <field name="reference_url">https://ilostat.ilo.org/methods/concepts-and-definitions/classification-occupation/</field>
+        <field
+            name="description"
+        >International Standard Classification of Occupations (ISCO-08). A tool for organizing jobs into a clearly defined set of groups according to the tasks and duties undertaken in the job. Developed and maintained by the International Labour Organization (ILO).</field>
+        <field
+            name="reference_url"
+        >https://ilostat.ilo.org/methods/concepts-and-definitions/classification-occupation/</field>
         <field name="is_system">True</field>
         <field name="is_hierarchical">True</field>
         <field name="domain">labor</field>
@@ -29,36 +33,44 @@
          MAJOR GROUP 0: Armed Forces Occupations
          ========================================================= -->
     <record id="isco_0" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">0</field>
         <field name="display">Armed Forces Occupations</field>
-        <field name="definition">Occupations in this major group include all jobs held by members of the armed forces. Members of the armed forces are those personnel who are currently serving in the armed forces, including auxiliary services, whether on a voluntary or compulsory basis.</field>
+        <field
+            name="definition"
+        >Occupations in this major group include all jobs held by members of the armed forces. Members of the armed forces are those personnel who are currently serving in the armed forces, including auxiliary services, whether on a voluntary or compulsory basis.</field>
         <field name="sequence">10</field>
     </record>
 
     <!-- Sub-major groups for Armed Forces -->
     <record id="isco_01" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">01</field>
         <field name="display">Commissioned Armed Forces Officers</field>
-        <field name="definition">Officers who hold a commission in the armed forces, including those in the army, navy, air force, and other military branches.</field>
-        <field name="parent_id" ref="isco_0"/>
+        <field
+            name="definition"
+        >Officers who hold a commission in the armed forces, including those in the army, navy, air force, and other military branches.</field>
+        <field name="parent_id" ref="isco_0" />
         <field name="sequence">11</field>
     </record>
     <record id="isco_02" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">02</field>
         <field name="display">Non-commissioned Armed Forces Officers</field>
-        <field name="definition">Enlisted personnel who hold non-commissioned officer ranks in the armed forces.</field>
-        <field name="parent_id" ref="isco_0"/>
+        <field
+            name="definition"
+        >Enlisted personnel who hold non-commissioned officer ranks in the armed forces.</field>
+        <field name="parent_id" ref="isco_0" />
         <field name="sequence">12</field>
     </record>
     <record id="isco_03" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">03</field>
         <field name="display">Armed Forces Occupations, Other Ranks</field>
-        <field name="definition">Enlisted personnel who hold ranks below non-commissioned officers in the armed forces.</field>
-        <field name="parent_id" ref="isco_0"/>
+        <field
+            name="definition"
+        >Enlisted personnel who hold ranks below non-commissioned officers in the armed forces.</field>
+        <field name="parent_id" ref="isco_0" />
         <field name="sequence">13</field>
     </record>
 
@@ -66,44 +78,54 @@
          MAJOR GROUP 1: Managers
          ========================================================= -->
     <record id="isco_1" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">1</field>
         <field name="display">Managers</field>
-        <field name="definition">Managers plan, direct, coordinate and evaluate the overall activities of enterprises, governments and other organizations, or of organizational units within them, and formulate and review their policies, laws, rules and regulations.</field>
+        <field
+            name="definition"
+        >Managers plan, direct, coordinate and evaluate the overall activities of enterprises, governments and other organizations, or of organizational units within them, and formulate and review their policies, laws, rules and regulations.</field>
         <field name="sequence">100</field>
     </record>
 
     <!-- Sub-major groups for Managers -->
     <record id="isco_11" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">11</field>
         <field name="display">Chief Executives, Senior Officials and Legislators</field>
-        <field name="definition">Chief executives, senior officials and legislators determine and formulate policies and plan, direct, coordinate and evaluate the overall activities of governments, enterprises, organizations and legislative bodies.</field>
-        <field name="parent_id" ref="isco_1"/>
+        <field
+            name="definition"
+        >Chief executives, senior officials and legislators determine and formulate policies and plan, direct, coordinate and evaluate the overall activities of governments, enterprises, organizations and legislative bodies.</field>
+        <field name="parent_id" ref="isco_1" />
         <field name="sequence">110</field>
     </record>
     <record id="isco_12" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">12</field>
         <field name="display">Administrative and Commercial Managers</field>
-        <field name="definition">Administrative and commercial managers plan, organize, direct, control and coordinate the financial, administrative, human resource, policy, planning, research and development, advertising, public relations, and sales and marketing activities of enterprises.</field>
-        <field name="parent_id" ref="isco_1"/>
+        <field
+            name="definition"
+        >Administrative and commercial managers plan, organize, direct, control and coordinate the financial, administrative, human resource, policy, planning, research and development, advertising, public relations, and sales and marketing activities of enterprises.</field>
+        <field name="parent_id" ref="isco_1" />
         <field name="sequence">120</field>
     </record>
     <record id="isco_13" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">13</field>
         <field name="display">Production and Specialized Services Managers</field>
-        <field name="definition">Production and specialized services managers plan, direct, coordinate and evaluate the overall production, operations or service delivery activities of enterprises and organizations.</field>
-        <field name="parent_id" ref="isco_1"/>
+        <field
+            name="definition"
+        >Production and specialized services managers plan, direct, coordinate and evaluate the overall production, operations or service delivery activities of enterprises and organizations.</field>
+        <field name="parent_id" ref="isco_1" />
         <field name="sequence">130</field>
     </record>
     <record id="isco_14" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">14</field>
         <field name="display">Hospitality, Retail and Other Services Managers</field>
-        <field name="definition">Hospitality, retail and other services managers plan, organize, direct, control and coordinate the activities of establishments that provide hospitality, retail and other services.</field>
-        <field name="parent_id" ref="isco_1"/>
+        <field
+            name="definition"
+        >Hospitality, retail and other services managers plan, organize, direct, control and coordinate the activities of establishments that provide hospitality, retail and other services.</field>
+        <field name="parent_id" ref="isco_1" />
         <field name="sequence">140</field>
     </record>
 
@@ -111,60 +133,76 @@
          MAJOR GROUP 2: Professionals
          ========================================================= -->
     <record id="isco_2" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">2</field>
         <field name="display">Professionals</field>
-        <field name="definition">Professionals increase the existing stock of knowledge; apply scientific or artistic concepts and theories; teach about the foregoing in a systematic manner; or engage in any combination of these activities. Competent performance typically requires skills at the fourth ISCO skill level.</field>
+        <field
+            name="definition"
+        >Professionals increase the existing stock of knowledge; apply scientific or artistic concepts and theories; teach about the foregoing in a systematic manner; or engage in any combination of these activities. Competent performance typically requires skills at the fourth ISCO skill level.</field>
         <field name="sequence">200</field>
     </record>
 
     <!-- Sub-major groups for Professionals -->
     <record id="isco_21" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">21</field>
         <field name="display">Science and Engineering Professionals</field>
-        <field name="definition">Science and engineering professionals conduct research; improve or develop concepts, theories and operational methods; or apply scientific knowledge relating to fields such as physics, astronomy, meteorology, chemistry, geophysics, geology, biology, ecology, pharmacology, medicine, mathematics, statistics, architecture, engineering, design and technology.</field>
-        <field name="parent_id" ref="isco_2"/>
+        <field
+            name="definition"
+        >Science and engineering professionals conduct research; improve or develop concepts, theories and operational methods; or apply scientific knowledge relating to fields such as physics, astronomy, meteorology, chemistry, geophysics, geology, biology, ecology, pharmacology, medicine, mathematics, statistics, architecture, engineering, design and technology.</field>
+        <field name="parent_id" ref="isco_2" />
         <field name="sequence">210</field>
     </record>
     <record id="isco_22" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">22</field>
         <field name="display">Health Professionals</field>
-        <field name="definition">Health professionals conduct research; improve or develop concepts, theories and operational methods; and apply scientific knowledge relating to medicine, nursing, dentistry, veterinary medicine, pharmacy and promotion of health.</field>
-        <field name="parent_id" ref="isco_2"/>
+        <field
+            name="definition"
+        >Health professionals conduct research; improve or develop concepts, theories and operational methods; and apply scientific knowledge relating to medicine, nursing, dentistry, veterinary medicine, pharmacy and promotion of health.</field>
+        <field name="parent_id" ref="isco_2" />
         <field name="sequence">220</field>
     </record>
     <record id="isco_23" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">23</field>
         <field name="display">Teaching Professionals</field>
-        <field name="definition">Teaching professionals teach the theory and practice of one or more disciplines at different educational levels; conduct research; improve or develop concepts, theories and operational methods pertaining to their particular discipline; and prepare scholarly papers and books.</field>
-        <field name="parent_id" ref="isco_2"/>
+        <field
+            name="definition"
+        >Teaching professionals teach the theory and practice of one or more disciplines at different educational levels; conduct research; improve or develop concepts, theories and operational methods pertaining to their particular discipline; and prepare scholarly papers and books.</field>
+        <field name="parent_id" ref="isco_2" />
         <field name="sequence">230</field>
     </record>
     <record id="isco_24" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">24</field>
         <field name="display">Business and Administration Professionals</field>
-        <field name="definition">Business and administration professionals apply concepts, principles and techniques relating to the fields of finance, management, human resources, marketing, public relations and enterprise restructuring and development.</field>
-        <field name="parent_id" ref="isco_2"/>
+        <field
+            name="definition"
+        >Business and administration professionals apply concepts, principles and techniques relating to the fields of finance, management, human resources, marketing, public relations and enterprise restructuring and development.</field>
+        <field name="parent_id" ref="isco_2" />
         <field name="sequence">240</field>
     </record>
     <record id="isco_25" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">25</field>
-        <field name="display">Information and Communications Technology Professionals</field>
-        <field name="definition">Information and communications technology professionals conduct research; plan, design, write, test, provide advice and improve information technology systems, hardware, software and related concepts for specific applications.</field>
-        <field name="parent_id" ref="isco_2"/>
+        <field
+            name="display"
+        >Information and Communications Technology Professionals</field>
+        <field
+            name="definition"
+        >Information and communications technology professionals conduct research; plan, design, write, test, provide advice and improve information technology systems, hardware, software and related concepts for specific applications.</field>
+        <field name="parent_id" ref="isco_2" />
         <field name="sequence">250</field>
     </record>
     <record id="isco_26" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">26</field>
         <field name="display">Legal, Social and Cultural Professionals</field>
-        <field name="definition">Legal, social and cultural professionals conduct research; improve or develop concepts, theories, operational methods, software and tests; and apply knowledge related to law, social sciences, cultural industries, libraries, archives, museums, religion, arts, entertainment and sport.</field>
-        <field name="parent_id" ref="isco_2"/>
+        <field
+            name="definition"
+        >Legal, social and cultural professionals conduct research; improve or develop concepts, theories, operational methods, software and tests; and apply knowledge related to law, social sciences, cultural industries, libraries, archives, museums, religion, arts, entertainment and sport.</field>
+        <field name="parent_id" ref="isco_2" />
         <field name="sequence">260</field>
     </record>
 
@@ -172,52 +210,68 @@
          MAJOR GROUP 3: Technicians and Associate Professionals
          ========================================================= -->
     <record id="isco_3" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">3</field>
         <field name="display">Technicians and Associate Professionals</field>
-        <field name="definition">Technicians and associate professionals perform mostly technical and related tasks connected with research and the application of scientific or artistic concepts and operational methods, and government or business regulations. Competent performance typically requires skills at the third ISCO skill level.</field>
+        <field
+            name="definition"
+        >Technicians and associate professionals perform mostly technical and related tasks connected with research and the application of scientific or artistic concepts and operational methods, and government or business regulations. Competent performance typically requires skills at the third ISCO skill level.</field>
         <field name="sequence">300</field>
     </record>
 
     <!-- Sub-major groups for Technicians and Associate Professionals -->
     <record id="isco_31" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">31</field>
         <field name="display">Science and Engineering Associate Professionals</field>
-        <field name="definition">Science and engineering associate professionals perform technical tasks connected with research and operational methods in science and engineering.</field>
-        <field name="parent_id" ref="isco_3"/>
+        <field
+            name="definition"
+        >Science and engineering associate professionals perform technical tasks connected with research and operational methods in science and engineering.</field>
+        <field name="parent_id" ref="isco_3" />
         <field name="sequence">310</field>
     </record>
     <record id="isco_32" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">32</field>
         <field name="display">Health Associate Professionals</field>
-        <field name="definition">Health associate professionals perform technical tasks and provide support services related to medicine, nursing, midwifery, dentistry, pharmacy, and promotion of health.</field>
-        <field name="parent_id" ref="isco_3"/>
+        <field
+            name="definition"
+        >Health associate professionals perform technical tasks and provide support services related to medicine, nursing, midwifery, dentistry, pharmacy, and promotion of health.</field>
+        <field name="parent_id" ref="isco_3" />
         <field name="sequence">320</field>
     </record>
     <record id="isco_33" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">33</field>
-        <field name="display">Business and Administration Associate Professionals</field>
-        <field name="definition">Business and administration associate professionals perform mostly technical tasks connected with the practical application of knowledge relating to financial accounting and transaction matters, mathematical calculations, human resource development, and selling and buying financial instruments and services.</field>
-        <field name="parent_id" ref="isco_3"/>
+        <field
+            name="display"
+        >Business and Administration Associate Professionals</field>
+        <field
+            name="definition"
+        >Business and administration associate professionals perform mostly technical tasks connected with the practical application of knowledge relating to financial accounting and transaction matters, mathematical calculations, human resource development, and selling and buying financial instruments and services.</field>
+        <field name="parent_id" ref="isco_3" />
         <field name="sequence">330</field>
     </record>
     <record id="isco_34" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">34</field>
-        <field name="display">Legal, Social, Cultural and Related Associate Professionals</field>
-        <field name="definition">Legal, social, cultural and related associate professionals provide technical support to professionals in legal, social and religious fields, and provide various social services to the community.</field>
-        <field name="parent_id" ref="isco_3"/>
+        <field
+            name="display"
+        >Legal, Social, Cultural and Related Associate Professionals</field>
+        <field
+            name="definition"
+        >Legal, social, cultural and related associate professionals provide technical support to professionals in legal, social and religious fields, and provide various social services to the community.</field>
+        <field name="parent_id" ref="isco_3" />
         <field name="sequence">340</field>
     </record>
     <record id="isco_35" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">35</field>
         <field name="display">Information and Communications Technicians</field>
-        <field name="definition">Information and communications technicians provide support for the day-to-day running of computer systems, communications systems and networks, and perform technical tasks related to telecommunications and the broadcasting and recording of image and sound.</field>
-        <field name="parent_id" ref="isco_3"/>
+        <field
+            name="definition"
+        >Information and communications technicians provide support for the day-to-day running of computer systems, communications systems and networks, and perform technical tasks related to telecommunications and the broadcasting and recording of image and sound.</field>
+        <field name="parent_id" ref="isco_3" />
         <field name="sequence">350</field>
     </record>
 
@@ -225,44 +279,54 @@
          MAJOR GROUP 4: Clerical Support Workers
          ========================================================= -->
     <record id="isco_4" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">4</field>
         <field name="display">Clerical Support Workers</field>
-        <field name="definition">Clerical support workers record, organize, store, compute and retrieve information and perform a number of clerical duties in connection with money-handling operations, travel arrangements, requests for information, and appointments. Competent performance typically requires skills at the second ISCO skill level.</field>
+        <field
+            name="definition"
+        >Clerical support workers record, organize, store, compute and retrieve information and perform a number of clerical duties in connection with money-handling operations, travel arrangements, requests for information, and appointments. Competent performance typically requires skills at the second ISCO skill level.</field>
         <field name="sequence">400</field>
     </record>
 
     <!-- Sub-major groups for Clerical Support Workers -->
     <record id="isco_41" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">41</field>
         <field name="display">General and Keyboard Clerks</field>
-        <field name="definition">General and keyboard clerks record, organize, store, compute and retrieve information, and perform a number of general clerical duties.</field>
-        <field name="parent_id" ref="isco_4"/>
+        <field
+            name="definition"
+        >General and keyboard clerks record, organize, store, compute and retrieve information, and perform a number of general clerical duties.</field>
+        <field name="parent_id" ref="isco_4" />
         <field name="sequence">410</field>
     </record>
     <record id="isco_42" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">42</field>
         <field name="display">Customer Services Clerks</field>
-        <field name="definition">Customer services clerks deal with clients and customers with respect to travel arrangements, requests for information, appointments, and operation of telephone switchboards and directory assistance services.</field>
-        <field name="parent_id" ref="isco_4"/>
+        <field
+            name="definition"
+        >Customer services clerks deal with clients and customers with respect to travel arrangements, requests for information, appointments, and operation of telephone switchboards and directory assistance services.</field>
+        <field name="parent_id" ref="isco_4" />
         <field name="sequence">420</field>
     </record>
     <record id="isco_43" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">43</field>
         <field name="display">Numerical and Material Recording Clerks</field>
-        <field name="definition">Numerical and material recording clerks obtain, compile and compute accounting, bookkeeping, statistical, financial and other numerical data and take charge of cash register operations and of receiving, storing, issuing and dispatching money or materials.</field>
-        <field name="parent_id" ref="isco_4"/>
+        <field
+            name="definition"
+        >Numerical and material recording clerks obtain, compile and compute accounting, bookkeeping, statistical, financial and other numerical data and take charge of cash register operations and of receiving, storing, issuing and dispatching money or materials.</field>
+        <field name="parent_id" ref="isco_4" />
         <field name="sequence">430</field>
     </record>
     <record id="isco_44" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">44</field>
         <field name="display">Other Clerical Support Workers</field>
-        <field name="definition">Other clerical support workers file, copy and circulate documents; sort and distribute mail; prepare mailings; perform proof-reading tasks; encode and code data and proof-read copy; and undertake a number of clerical duties related to library operations and duties of a general clerical nature.</field>
-        <field name="parent_id" ref="isco_4"/>
+        <field
+            name="definition"
+        >Other clerical support workers file, copy and circulate documents; sort and distribute mail; prepare mailings; perform proof-reading tasks; encode and code data and proof-read copy; and undertake a number of clerical duties related to library operations and duties of a general clerical nature.</field>
+        <field name="parent_id" ref="isco_4" />
         <field name="sequence">440</field>
     </record>
 
@@ -270,44 +334,54 @@
          MAJOR GROUP 5: Service and Sales Workers
          ========================================================= -->
     <record id="isco_5" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">5</field>
         <field name="display">Service and Sales Workers</field>
-        <field name="definition">Service and sales workers provide personal and protective services related to travel, housekeeping, catering, personal care, or protection against fire and unlawful acts; or demonstrate and sell goods in wholesale or retail shops and similar establishments, as well as at stalls and markets. Competent performance typically requires skills at the second ISCO skill level.</field>
+        <field
+            name="definition"
+        >Service and sales workers provide personal and protective services related to travel, housekeeping, catering, personal care, or protection against fire and unlawful acts; or demonstrate and sell goods in wholesale or retail shops and similar establishments, as well as at stalls and markets. Competent performance typically requires skills at the second ISCO skill level.</field>
         <field name="sequence">500</field>
     </record>
 
     <!-- Sub-major groups for Service and Sales Workers -->
     <record id="isco_51" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">51</field>
         <field name="display">Personal Service Workers</field>
-        <field name="definition">Personal service workers provide personal services related to travel, housekeeping, food preparation and serving, hairdressing, beauty treatment, companionship, and other personal services.</field>
-        <field name="parent_id" ref="isco_5"/>
+        <field
+            name="definition"
+        >Personal service workers provide personal services related to travel, housekeeping, food preparation and serving, hairdressing, beauty treatment, companionship, and other personal services.</field>
+        <field name="parent_id" ref="isco_5" />
         <field name="sequence">510</field>
     </record>
     <record id="isco_52" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">52</field>
         <field name="display">Sales Workers</field>
-        <field name="definition">Sales workers sell and demonstrate goods in wholesale or retail shops, at stalls and markets, door to door, via telephone and over the Internet. They may record and accept payment for goods and services purchased, and may operate small retail outlets.</field>
-        <field name="parent_id" ref="isco_5"/>
+        <field
+            name="definition"
+        >Sales workers sell and demonstrate goods in wholesale or retail shops, at stalls and markets, door to door, via telephone and over the Internet. They may record and accept payment for goods and services purchased, and may operate small retail outlets.</field>
+        <field name="parent_id" ref="isco_5" />
         <field name="sequence">520</field>
     </record>
     <record id="isco_53" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">53</field>
         <field name="display">Personal Care Workers</field>
-        <field name="definition">Personal care workers provide personal care and assistance to children in schools, residences and other settings; and provide home-based personal care and support to elderly, convalescent and disabled persons.</field>
-        <field name="parent_id" ref="isco_5"/>
+        <field
+            name="definition"
+        >Personal care workers provide personal care and assistance to children in schools, residences and other settings; and provide home-based personal care and support to elderly, convalescent and disabled persons.</field>
+        <field name="parent_id" ref="isco_5" />
         <field name="sequence">530</field>
     </record>
     <record id="isco_54" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">54</field>
         <field name="display">Protective Services Workers</field>
-        <field name="definition">Protective services workers protect individuals and property against fire and other hazards, unlawful acts and other risks. They maintain order and enforce laws, regulations and organizational or enterprise rules.</field>
-        <field name="parent_id" ref="isco_5"/>
+        <field
+            name="definition"
+        >Protective services workers protect individuals and property against fire and other hazards, unlawful acts and other risks. They maintain order and enforce laws, regulations and organizational or enterprise rules.</field>
+        <field name="parent_id" ref="isco_5" />
         <field name="sequence">540</field>
     </record>
 
@@ -315,36 +389,48 @@
          MAJOR GROUP 6: Skilled Agricultural, Forestry and Fishery Workers
          ========================================================= -->
     <record id="isco_6" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">6</field>
         <field name="display">Skilled Agricultural, Forestry and Fishery Workers</field>
-        <field name="definition">Skilled agricultural, forestry and fishery workers grow and harvest field or tree and shrub crops; gather wild fruits and plants; breed, tend or hunt animals; produce a variety of animal husbandry products; cultivate, conserve and exploit forests; breed or catch fish; and cultivate or gather other forms of aquatic life. Competent performance typically requires skills at the second ISCO skill level.</field>
+        <field
+            name="definition"
+        >Skilled agricultural, forestry and fishery workers grow and harvest field or tree and shrub crops; gather wild fruits and plants; breed, tend or hunt animals; produce a variety of animal husbandry products; cultivate, conserve and exploit forests; breed or catch fish; and cultivate or gather other forms of aquatic life. Competent performance typically requires skills at the second ISCO skill level.</field>
         <field name="sequence">600</field>
     </record>
 
     <!-- Sub-major groups for Skilled Agricultural, Forestry and Fishery Workers -->
     <record id="isco_61" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">61</field>
         <field name="display">Market-oriented Skilled Agricultural Workers</field>
-        <field name="definition">Market-oriented skilled agricultural workers plan, organize and perform farming operations to grow and harvest field or tree and shrub crops, and to produce a variety of animals and animal products for sale or delivery on a regular basis to wholesale buyers, marketing organizations or at markets.</field>
-        <field name="parent_id" ref="isco_6"/>
+        <field
+            name="definition"
+        >Market-oriented skilled agricultural workers plan, organize and perform farming operations to grow and harvest field or tree and shrub crops, and to produce a variety of animals and animal products for sale or delivery on a regular basis to wholesale buyers, marketing organizations or at markets.</field>
+        <field name="parent_id" ref="isco_6" />
         <field name="sequence">610</field>
     </record>
     <record id="isco_62" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">62</field>
-        <field name="display">Market-oriented Skilled Forestry, Fishery and Hunting Workers</field>
-        <field name="definition">Market-oriented skilled forestry, fishery and hunting workers plan, organize and perform operations to cultivate, conserve and exploit natural and plantation forests; breed or catch fish; and cultivate and gather other forms of aquatic life, or hunt and trap animals, for sale or delivery to wholesale buyers, marketing organizations or at markets.</field>
-        <field name="parent_id" ref="isco_6"/>
+        <field
+            name="display"
+        >Market-oriented Skilled Forestry, Fishery and Hunting Workers</field>
+        <field
+            name="definition"
+        >Market-oriented skilled forestry, fishery and hunting workers plan, organize and perform operations to cultivate, conserve and exploit natural and plantation forests; breed or catch fish; and cultivate and gather other forms of aquatic life, or hunt and trap animals, for sale or delivery to wholesale buyers, marketing organizations or at markets.</field>
+        <field name="parent_id" ref="isco_6" />
         <field name="sequence">620</field>
     </record>
     <record id="isco_63" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">63</field>
-        <field name="display">Subsistence Farmers, Fishers, Hunters and Gatherers</field>
-        <field name="definition">Subsistence farmers, fishers, hunters and gatherers grow and harvest field or tree and shrub crops; gather wild fruits and plants; tend or hunt animals; catch fish and gather various forms of aquatic life in order to provide food, shelter and a minimum of cash income for themselves and their households.</field>
-        <field name="parent_id" ref="isco_6"/>
+        <field
+            name="display"
+        >Subsistence Farmers, Fishers, Hunters and Gatherers</field>
+        <field
+            name="definition"
+        >Subsistence farmers, fishers, hunters and gatherers grow and harvest field or tree and shrub crops; gather wild fruits and plants; tend or hunt animals; catch fish and gather various forms of aquatic life in order to provide food, shelter and a minimum of cash income for themselves and their households.</field>
+        <field name="parent_id" ref="isco_6" />
         <field name="sequence">630</field>
     </record>
 
@@ -352,52 +438,68 @@
          MAJOR GROUP 7: Craft and Related Trades Workers
          ========================================================= -->
     <record id="isco_7" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">7</field>
         <field name="display">Craft and Related Trades Workers</field>
-        <field name="definition">Craft and related trades workers apply specific technical and practical knowledge and skills to construct and maintain buildings; form metal; erect metal structures; set machine tools or make, fit, maintain and repair machinery, equipment or tools; carry out printing work; and produce or process foodstuffs, textiles, wooden, metal and other articles, including handicraft goods. Competent performance typically requires skills at the second ISCO skill level.</field>
+        <field
+            name="definition"
+        >Craft and related trades workers apply specific technical and practical knowledge and skills to construct and maintain buildings; form metal; erect metal structures; set machine tools or make, fit, maintain and repair machinery, equipment or tools; carry out printing work; and produce or process foodstuffs, textiles, wooden, metal and other articles, including handicraft goods. Competent performance typically requires skills at the second ISCO skill level.</field>
         <field name="sequence">700</field>
     </record>
 
     <!-- Sub-major groups for Craft and Related Trades Workers -->
     <record id="isco_71" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">71</field>
-        <field name="display">Building and Related Trades Workers, Excluding Electricians</field>
-        <field name="definition">Building and related trades workers, excluding electricians, construct, maintain and repair buildings and other structures; and shape, cut, fit and furnish stone, bricks, tiles, concrete and similar materials.</field>
-        <field name="parent_id" ref="isco_7"/>
+        <field
+            name="display"
+        >Building and Related Trades Workers, Excluding Electricians</field>
+        <field
+            name="definition"
+        >Building and related trades workers, excluding electricians, construct, maintain and repair buildings and other structures; and shape, cut, fit and furnish stone, bricks, tiles, concrete and similar materials.</field>
+        <field name="parent_id" ref="isco_7" />
         <field name="sequence">710</field>
     </record>
     <record id="isco_72" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">72</field>
         <field name="display">Metal, Machinery and Related Trades Workers</field>
-        <field name="definition">Metal, machinery and related trades workers make moulds and cores for the casting of metal; weld and cut metal parts; shape and form metal stock, cast and other metal items; erect, maintain and repair heavy metal structures, rigging, cables and related equipment; set up and set machine tools; fit, maintain, adjust and repair engines, vehicles, agricultural and industrial machinery and mechanical equipment; or make, fit, maintain and repair machinery and equipment.</field>
-        <field name="parent_id" ref="isco_7"/>
+        <field
+            name="definition"
+        >Metal, machinery and related trades workers make moulds and cores for the casting of metal; weld and cut metal parts; shape and form metal stock, cast and other metal items; erect, maintain and repair heavy metal structures, rigging, cables and related equipment; set up and set machine tools; fit, maintain, adjust and repair engines, vehicles, agricultural and industrial machinery and mechanical equipment; or make, fit, maintain and repair machinery and equipment.</field>
+        <field name="parent_id" ref="isco_7" />
         <field name="sequence">720</field>
     </record>
     <record id="isco_73" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">73</field>
         <field name="display">Handicraft and Printing Workers</field>
-        <field name="definition">Handicraft and printing workers produce precision instruments, musical instruments, jewellery, household and other articles of precious metals, pottery, glass products and handicraft articles; perform printing work or produce printed products.</field>
-        <field name="parent_id" ref="isco_7"/>
+        <field
+            name="definition"
+        >Handicraft and printing workers produce precision instruments, musical instruments, jewellery, household and other articles of precious metals, pottery, glass products and handicraft articles; perform printing work or produce printed products.</field>
+        <field name="parent_id" ref="isco_7" />
         <field name="sequence">730</field>
     </record>
     <record id="isco_74" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">74</field>
         <field name="display">Electrical and Electronic Trades Workers</field>
-        <field name="definition">Electrical and electronic trades workers install, fit, maintain and repair electrical wiring systems and related equipment, electrical machinery, and electrical and electronic equipment used in buildings and structures and for other purposes.</field>
-        <field name="parent_id" ref="isco_7"/>
+        <field
+            name="definition"
+        >Electrical and electronic trades workers install, fit, maintain and repair electrical wiring systems and related equipment, electrical machinery, and electrical and electronic equipment used in buildings and structures and for other purposes.</field>
+        <field name="parent_id" ref="isco_7" />
         <field name="sequence">740</field>
     </record>
     <record id="isco_75" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">75</field>
-        <field name="display">Food Processing, Woodworking, Garment and Other Craft and Related Trades Workers</field>
-        <field name="definition">Food processing, woodworking, garment and other craft and related trades workers slaughter animals, and prepare the carcasses and fish for sale and further processing; bake bread and other flour products; process and preserve fruit, vegetables and related foods; tan, treat and otherwise process hides, skins and leather; make and repair shoes, bags and similar leather products; prepare tobacco and make tobacco products; perform woodworking tasks; prepare natural textile fibres and manufacture and repair a variety of garments.</field>
-        <field name="parent_id" ref="isco_7"/>
+        <field
+            name="display"
+        >Food Processing, Woodworking, Garment and Other Craft and Related Trades Workers</field>
+        <field
+            name="definition"
+        >Food processing, woodworking, garment and other craft and related trades workers slaughter animals, and prepare the carcasses and fish for sale and further processing; bake bread and other flour products; process and preserve fruit, vegetables and related foods; tan, treat and otherwise process hides, skins and leather; make and repair shoes, bags and similar leather products; prepare tobacco and make tobacco products; perform woodworking tasks; prepare natural textile fibres and manufacture and repair a variety of garments.</field>
+        <field name="parent_id" ref="isco_7" />
         <field name="sequence">750</field>
     </record>
 
@@ -405,36 +507,44 @@
          MAJOR GROUP 8: Plant and Machine Operators and Assemblers
          ========================================================= -->
     <record id="isco_8" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">8</field>
         <field name="display">Plant and Machine Operators and Assemblers</field>
-        <field name="definition">Plant and machine operators and assemblers operate and monitor industrial and agricultural machinery and equipment on the spot or by remote control; drive and operate trains, motor vehicles and mobile machinery and equipment; or assemble products from component parts according to strict specifications and procedures. Competent performance typically requires skills at the second ISCO skill level.</field>
+        <field
+            name="definition"
+        >Plant and machine operators and assemblers operate and monitor industrial and agricultural machinery and equipment on the spot or by remote control; drive and operate trains, motor vehicles and mobile machinery and equipment; or assemble products from component parts according to strict specifications and procedures. Competent performance typically requires skills at the second ISCO skill level.</field>
         <field name="sequence">800</field>
     </record>
 
     <!-- Sub-major groups for Plant and Machine Operators and Assemblers -->
     <record id="isco_81" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">81</field>
         <field name="display">Stationary Plant and Machine Operators</field>
-        <field name="definition">Stationary plant and machine operators operate and monitor stationary industrial plant, machinery and equipment; or assemble products from component parts according to strict specifications and procedures.</field>
-        <field name="parent_id" ref="isco_8"/>
+        <field
+            name="definition"
+        >Stationary plant and machine operators operate and monitor stationary industrial plant, machinery and equipment; or assemble products from component parts according to strict specifications and procedures.</field>
+        <field name="parent_id" ref="isco_8" />
         <field name="sequence">810</field>
     </record>
     <record id="isco_82" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">82</field>
         <field name="display">Assemblers</field>
-        <field name="definition">Assemblers assemble component parts of industrial products according to strict specifications and procedures.</field>
-        <field name="parent_id" ref="isco_8"/>
+        <field
+            name="definition"
+        >Assemblers assemble component parts of industrial products according to strict specifications and procedures.</field>
+        <field name="parent_id" ref="isco_8" />
         <field name="sequence">820</field>
     </record>
     <record id="isco_83" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">83</field>
         <field name="display">Drivers and Mobile Plant Operators</field>
-        <field name="definition">Drivers and mobile plant operators drive and operate trains, motor vehicles and mobile machinery and equipment to transport passengers and goods, move materials, dig earth, and move or lift other heavy objects.</field>
-        <field name="parent_id" ref="isco_8"/>
+        <field
+            name="definition"
+        >Drivers and mobile plant operators drive and operate trains, motor vehicles and mobile machinery and equipment to transport passengers and goods, move materials, dig earth, and move or lift other heavy objects.</field>
+        <field name="parent_id" ref="isco_8" />
         <field name="sequence">830</field>
     </record>
 
@@ -442,60 +552,76 @@
          MAJOR GROUP 9: Elementary Occupations
          ========================================================= -->
     <record id="isco_9" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">9</field>
         <field name="display">Elementary Occupations</field>
-        <field name="definition">Elementary occupations involve the performance of simple and routine tasks which may require the use of hand-held tools and considerable physical effort. Competent performance typically requires skills at the first ISCO skill level.</field>
+        <field
+            name="definition"
+        >Elementary occupations involve the performance of simple and routine tasks which may require the use of hand-held tools and considerable physical effort. Competent performance typically requires skills at the first ISCO skill level.</field>
         <field name="sequence">900</field>
     </record>
 
     <!-- Sub-major groups for Elementary Occupations -->
     <record id="isco_91" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">91</field>
         <field name="display">Cleaners and Helpers</field>
-        <field name="definition">Cleaners and helpers perform simple tasks connected with cleaning, laundry and ironing, food and drink preparation, and running errands.</field>
-        <field name="parent_id" ref="isco_9"/>
+        <field
+            name="definition"
+        >Cleaners and helpers perform simple tasks connected with cleaning, laundry and ironing, food and drink preparation, and running errands.</field>
+        <field name="parent_id" ref="isco_9" />
         <field name="sequence">910</field>
     </record>
     <record id="isco_92" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">92</field>
         <field name="display">Agricultural, Forestry and Fishery Labourers</field>
-        <field name="definition">Agricultural, forestry and fishery labourers perform simple and routine tasks in the production of crops and livestock, cultivation and maintenance of gardens and parks, exploitation and conservation of forests, and conduct of fishing and hunting operations.</field>
-        <field name="parent_id" ref="isco_9"/>
+        <field
+            name="definition"
+        >Agricultural, forestry and fishery labourers perform simple and routine tasks in the production of crops and livestock, cultivation and maintenance of gardens and parks, exploitation and conservation of forests, and conduct of fishing and hunting operations.</field>
+        <field name="parent_id" ref="isco_9" />
         <field name="sequence">920</field>
     </record>
     <record id="isco_93" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">93</field>
-        <field name="display">Labourers in Mining, Construction, Manufacturing and Transport</field>
-        <field name="definition">Labourers in mining, construction, manufacturing and transport perform simple and routine manual tasks in mining, quarrying, civil engineering and building construction, and in the manufacturing and transport industries.</field>
-        <field name="parent_id" ref="isco_9"/>
+        <field
+            name="display"
+        >Labourers in Mining, Construction, Manufacturing and Transport</field>
+        <field
+            name="definition"
+        >Labourers in mining, construction, manufacturing and transport perform simple and routine manual tasks in mining, quarrying, civil engineering and building construction, and in the manufacturing and transport industries.</field>
+        <field name="parent_id" ref="isco_9" />
         <field name="sequence">930</field>
     </record>
     <record id="isco_94" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">94</field>
         <field name="display">Food Preparation Assistants</field>
-        <field name="definition">Food preparation assistants prepare and cook to order a small variety of pre-cooked foods and beverages and clear tables and wash dishes in fast food outlets, cafeterias and kitchens; and prepare and sell food and beverages at counters or from street stalls or carts.</field>
-        <field name="parent_id" ref="isco_9"/>
+        <field
+            name="definition"
+        >Food preparation assistants prepare and cook to order a small variety of pre-cooked foods and beverages and clear tables and wash dishes in fast food outlets, cafeterias and kitchens; and prepare and sell food and beverages at counters or from street stalls or carts.</field>
+        <field name="parent_id" ref="isco_9" />
         <field name="sequence">940</field>
     </record>
     <record id="isco_95" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">95</field>
         <field name="display">Street and Related Sales and Service Workers</field>
-        <field name="definition">Street and related sales and service workers sell goods from stalls at markets or on street corners; provide various street services; and collect refuse, recover recyclable material, and sweep streets and similar places.</field>
-        <field name="parent_id" ref="isco_9"/>
+        <field
+            name="definition"
+        >Street and related sales and service workers sell goods from stalls at markets or on street corners; provide various street services; and collect refuse, recover recyclable material, and sweep streets and similar places.</field>
+        <field name="parent_id" ref="isco_9" />
         <field name="sequence">950</field>
     </record>
     <record id="isco_96" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_occupation"/>
+        <field name="vocabulary_id" ref="vocab_occupation" />
         <field name="code">96</field>
         <field name="display">Refuse Workers and Other Elementary Workers</field>
-        <field name="definition">Refuse workers and other elementary workers collect refuse; recover recyclable material and perform other elementary tasks connected with keeping the environment clean; deliver and carry messages, documents and packages; and carry bags and luggage.</field>
-        <field name="parent_id" ref="isco_9"/>
+        <field
+            name="definition"
+        >Refuse workers and other elementary workers collect refuse; recover recyclable material and perform other elementary tasks connected with keeping the environment clean; deliver and carry messages, documents and packages; and carry bags and luggage.</field>
+        <field name="parent_id" ref="isco_9" />
         <field name="sequence">960</field>
     </record>
 </odoo>

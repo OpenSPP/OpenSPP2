@@ -152,6 +152,7 @@ class TestTransferMemberStrategy(TransactionCase):
 
     def test_transfer_to_same_group_fails(self):
         """Test cannot transfer to same group."""
+        from odoo.exceptions import ValidationError
 
         cr = self.cr_model.create(
             {
@@ -162,7 +163,7 @@ class TestTransferMemberStrategy(TransactionCase):
 
         detail = cr.get_detail()
 
-        with self.assertRaises(Exception):  # ValidationError
+        with self.assertRaises(ValidationError):
             detail.write(
                 {
                     "membership_id": self.membership.id,

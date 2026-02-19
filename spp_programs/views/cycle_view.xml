@@ -3,7 +3,6 @@
 Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 -->
 <odoo>
-
     <!-- ========================================== -->
     <!-- CYCLE LIST VIEW                            -->
     <!-- ========================================== -->
@@ -18,7 +17,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                 <field name="start_date" />
                 <field name="end_date" />
                 <field name="members_count" string="Beneficiaries" optional="show" />
-                <field name="entitlements_count" string="Entitlements" optional="show" />
+                <field
+                    name="entitlements_count"
+                    string="Entitlements"
+                    optional="show"
+                />
                 <field
                     name="state"
                     decoration-primary="state == 'draft'"
@@ -27,7 +30,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     decoration-danger="state in ('ended', 'cancelled')"
                     widget="badge"
                 />
-                <field name="company_id" groups="base.group_multi_company" optional="hide" />
+                <field
+                    name="company_id"
+                    groups="base.group_multi_company"
+                    optional="hide"
+                />
             </list>
         </field>
     </record>
@@ -44,20 +51,68 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                 <field name="name" />
                 <field name="program_id" />
                 <separator />
-                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]" />
-                <filter string="To Approve" name="to_approve" domain="[('state', '=', 'to_approve')]" />
-                <filter string="Approved" name="approved" domain="[('state', '=', 'approved')]" />
-                <filter string="Distributed" name="distributed" domain="[('state', '=', 'distributed')]" />
-                <filter string="Ended" name="ended" domain="[('state', '=', 'ended')]" />
-                <filter string="Cancelled" name="cancelled" domain="[('state', '=', 'cancelled')]" />
+                <filter
+                    string="Draft"
+                    name="draft"
+                    domain="[('state', '=', 'draft')]"
+                />
+                <filter
+                    string="To Approve"
+                    name="to_approve"
+                    domain="[('state', '=', 'to_approve')]"
+                />
+                <filter
+                    string="Approved"
+                    name="approved"
+                    domain="[('state', '=', 'approved')]"
+                />
+                <filter
+                    string="Distributed"
+                    name="distributed"
+                    domain="[('state', '=', 'distributed')]"
+                />
+                <filter
+                    string="Ended"
+                    name="ended"
+                    domain="[('state', '=', 'ended')]"
+                />
+                <filter
+                    string="Cancelled"
+                    name="cancelled"
+                    domain="[('state', '=', 'cancelled')]"
+                />
                 <separator />
-                <filter string="Current Period" name="current" domain="[('start_date', '&lt;=', context_today()), ('end_date', '&gt;=', context_today())]" />
-                <filter string="Past Cycles" name="past" domain="[('end_date', '&lt;', context_today())]" />
-                <filter string="Future Cycles" name="future" domain="[('start_date', '&gt;', context_today())]" />
+                <filter
+                    string="Current Period"
+                    name="current"
+                    domain="[('start_date', '&lt;=', context_today()), ('end_date', '&gt;=', context_today())]"
+                />
+                <filter
+                    string="Past Cycles"
+                    name="past"
+                    domain="[('end_date', '&lt;', context_today())]"
+                />
+                <filter
+                    string="Future Cycles"
+                    name="future"
+                    domain="[('start_date', '&gt;', context_today())]"
+                />
                 <separator />
-                <filter string="Program" name="group_by_program" context="{'group_by': 'program_id'}" />
-                <filter string="State" name="group_by_state" context="{'group_by': 'state'}" />
-                <filter string="Start Date" name="group_by_start" context="{'group_by': 'start_date:month'}" />
+                <filter
+                    string="Program"
+                    name="group_by_program"
+                    context="{'group_by': 'program_id'}"
+                />
+                <filter
+                    string="State"
+                    name="group_by_state"
+                    context="{'group_by': 'state'}"
+                />
+                <filter
+                    string="Start Date"
+                    name="group_by_start"
+                    context="{'group_by': 'start_date:month'}"
+                />
             </search>
         </field>
     </record>
@@ -173,7 +228,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         invisible="state in ('ended', 'cancelled')"
                         groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_validator"
                     />
-                    <field name="state" widget="statusbar" statusbar_visible="draft,to_approve,approved,distributed,ended" />
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="draft,to_approve,approved,distributed,ended"
+                    />
                 </header>
 
                 <!-- Locked Warning -->
@@ -182,7 +241,10 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     role="status"
                     invisible="not is_locked"
                 >
-                    <i class="fa fa-spinner fa-spin" title="Loading" /> Operation in progress:
+                    <i
+                    class="fa fa-spinner fa-spin"
+                    title="Loading"
+                /> Operation in progress:
                     <field name="locked_reason" class="fw-bold" />
                 </div>
 
@@ -192,7 +254,14 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     role="alert"
                     invisible="has_sufficient_funds or state not in ('to_approve', 'approved') or not fund_availability_message"
                 >
-                    <span><i class="fa fa-exclamation-triangle" title="Warning" /> <field name="fund_availability_message" nolabel="1" style="display: inline; white-space: pre-line;" /></span>
+                    <span>
+                        <i class="fa fa-exclamation-triangle" title="Warning" />
+                        <field
+                            name="fund_availability_message"
+                            nolabel="1"
+                            style="display: inline; white-space: pre-line;"
+                        />
+                    </span>
                 </div>
 
                 <div
@@ -200,7 +269,14 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     role="alert"
                     invisible="not has_sufficient_funds or state not in ('to_approve', 'approved') or not fund_availability_message"
                 >
-                    <span><i class="fa fa-check-circle" title="Success" /> <field name="fund_availability_message" nolabel="1" style="display: inline; white-space: pre-line;" /></span>
+                    <span>
+                        <i class="fa fa-check-circle" title="Success" />
+                        <field
+                            name="fund_availability_message"
+                            nolabel="1"
+                            style="display: inline; white-space: pre-line;"
+                        />
+                    </span>
                 </div>
 
                 <!-- Approval Waiting Message -->
@@ -210,8 +286,8 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     invisible="not show_approval_waiting_message"
                     style="margin: 0;"
                 >
-                    <field name="show_approval_waiting_message" invisible="1"/>
-                    <field name="approval_waiting_message" readonly="1" nolabel="1"/>
+                    <field name="show_approval_waiting_message" invisible="1" />
+                    <field name="approval_waiting_message" readonly="1" nolabel="1" />
                 </div>
 
                 <sheet>
@@ -223,7 +299,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                             icon="fa-users"
                             name="open_members_form"
                         >
-                            <field name="members_count" widget="statinfo" string="Beneficiaries" />
+                            <field
+                                name="members_count"
+                                widget="statinfo"
+                                string="Beneficiaries"
+                            />
                         </button>
                         <button
                             type="object"
@@ -231,7 +311,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                             icon="fa-list"
                             name="open_entitlements_form"
                         >
-                            <field name="total_entitlements_count" widget="statinfo" string="Entitlements" />
+                            <field
+                                name="total_entitlements_count"
+                                widget="statinfo"
+                                string="Entitlements"
+                            />
                         </button>
                         <button
                             type="object"
@@ -239,18 +323,37 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                             icon="fa-credit-card"
                             name="open_payments_form"
                         >
-                            <field name="payments_count" widget="statinfo" string="Payments" />
+                            <field
+                                name="payments_count"
+                                widget="statinfo"
+                                string="Payments"
+                            />
                         </button>
                     </div>
 
                     <!-- Ribbons -->
-                    <widget name="web_ribbon" title="Cancelled" bg_color="bg-danger" invisible="state != 'cancelled'" />
-                    <widget name="web_ribbon" title="Ended" bg_color="bg-secondary" invisible="state != 'ended'" />
+                    <widget
+                        name="web_ribbon"
+                        title="Cancelled"
+                        bg_color="bg-danger"
+                        invisible="state != 'cancelled'"
+                    />
+                    <widget
+                        name="web_ribbon"
+                        title="Ended"
+                        bg_color="bg-secondary"
+                        invisible="state != 'ended'"
+                    />
 
                     <!-- Title Section -->
                     <div class="oe_title">
                         <h1>
-                            <field name="name" placeholder="Cycle Name" required="1" readonly="state not in ('draft', 'to_approve')" />
+                            <field
+                                name="name"
+                                placeholder="Cycle Name"
+                                required="1"
+                                readonly="state not in ('draft', 'to_approve')"
+                            />
                         </h1>
                     </div>
 
@@ -275,13 +378,28 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                             <!-- Basic Info Section - 2 columns -->
                             <group name="basic_info_section" col="2">
                                 <group name="cycle_info">
-                                    <field name="program_id" options="{'no_open': True, 'no_create': True}" readonly="state not in ('draft',)" />
+                                    <field
+                                        name="program_id"
+                                        options="{'no_open': True, 'no_create': True}"
+                                        readonly="state not in ('draft',)"
+                                    />
                                     <field name="sequence" readonly="1" />
-                                    <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}" readonly="state not in ('draft',)" />
+                                    <field
+                                        name="company_id"
+                                        groups="base.group_multi_company"
+                                        options="{'no_create': True}"
+                                        readonly="state not in ('draft',)"
+                                    />
                                 </group>
                                 <group name="period_info">
-                                    <field name="start_date" readonly="state not in ('draft', 'to_approve')" />
-                                    <field name="end_date" readonly="state not in ('draft', 'to_approve')" />
+                                    <field
+                                        name="start_date"
+                                        readonly="state not in ('draft', 'to_approve')"
+                                    />
+                                    <field
+                                        name="end_date"
+                                        readonly="state not in ('draft', 'to_approve')"
+                                    />
                                 </group>
                             </group>
 
@@ -290,7 +408,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                             <group name="financial_section" col="2">
                                 <group>
                                     <field name="total_amount" readonly="1" />
-                                    <field name="currency_id" options="{'no_open': True}" readonly="1" />
+                                    <field
+                                        name="currency_id"
+                                        options="{'no_open': True}"
+                                        readonly="1"
+                                    />
                                 </group>
                                 <group>
                                     <field name="total_amount_in_words" readonly="1" />
@@ -304,10 +426,17 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         </page>
 
                         <!-- ==================== CONFIGURATION TAB ==================== -->
-                        <page name="configuration" string="Configuration" groups="spp_security.group_spp_admin,spp_programs.group_programs_manager">
+                        <page
+                            name="configuration"
+                            string="Configuration"
+                            groups="spp_security.group_spp_admin,spp_programs.group_programs_manager"
+                        >
                             <group name="settings_section" col="2">
                                 <group>
-                                    <field name="auto_approve_entitlements" readonly="state not in ('draft', 'to_approve')" />
+                                    <field
+                                        name="auto_approve_entitlements"
+                                        readonly="state not in ('draft', 'to_approve')"
+                                    />
                                 </group>
                                 <group>
                                     <!-- Extension point for additional settings -->
@@ -324,40 +453,84 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         <page name="approval_tracking" string="Approval">
                             <group string="Approval Status">
                                 <group>
-                                    <field name="cycle_approval_definition_id" readonly="1" string="Approval Definition" />
-                                    <field name="approval_state" readonly="1" widget="badge" string="Approval Status"
-                                           decoration-info="approval_state == 'draft'"
-                                           decoration-warning="approval_state == 'pending'"
-                                           decoration-success="approval_state == 'approved'"
-                                           decoration-danger="approval_state == 'rejected'" />
+                                    <field
+                                        name="cycle_approval_definition_id"
+                                        readonly="1"
+                                        string="Approval Definition"
+                                    />
+                                    <field
+                                        name="approval_state"
+                                        readonly="1"
+                                        widget="badge"
+                                        string="Approval Status"
+                                        decoration-info="approval_state == 'draft'"
+                                        decoration-warning="approval_state == 'pending'"
+                                        decoration-success="approval_state == 'approved'"
+                                        decoration-danger="approval_state == 'rejected'"
+                                    />
                                 </group>
                                 <group>
-                                    <field name="submitted_by_id" readonly="1" string="Submitted By" />
-                                    <field name="submitted_date" readonly="1" string="Submitted On" />
+                                    <field
+                                        name="submitted_by_id"
+                                        readonly="1"
+                                        string="Submitted By"
+                                    />
+                                    <field
+                                        name="submitted_date"
+                                        readonly="1"
+                                        string="Submitted On"
+                                    />
                                 </group>
                             </group>
-                            <group string="Approval Decision" invisible="not approved_date and not rejected_date">
+                            <group
+                                string="Approval Decision"
+                                invisible="not approved_date and not rejected_date"
+                            >
                                 <group>
                                     <field name="approved_date" readonly="1" />
                                     <field name="approved_by" readonly="1" />
                                 </group>
                                 <group>
-                                    <field name="rejected_by_id" readonly="1" string="Rejected By" />
-                                    <field name="rejected_date" readonly="1" string="Rejected On" />
+                                    <field
+                                        name="rejected_by_id"
+                                        readonly="1"
+                                        string="Rejected By"
+                                    />
+                                    <field
+                                        name="rejected_date"
+                                        readonly="1"
+                                        string="Rejected On"
+                                    />
                                 </group>
                             </group>
-                            <group string="Rejection Reason" invisible="not rejection_reason">
-                                <field name="rejection_reason" readonly="1" nolabel="1" colspan="2" />
+                            <group
+                                string="Rejection Reason"
+                                invisible="not rejection_reason"
+                            >
+                                <field
+                                    name="rejection_reason"
+                                    readonly="1"
+                                    nolabel="1"
+                                    colspan="2"
+                                />
                             </group>
                             <group string="Approval History">
-                                <field name="approval_review_ids" nolabel="1" readonly="1" colspan="2">
+                                <field
+                                    name="approval_review_ids"
+                                    nolabel="1"
+                                    readonly="1"
+                                    colspan="2"
+                                >
                                     <list>
                                         <field name="requested_date" />
                                         <field name="reviewer_id" />
-                                        <field name="status" widget="badge"
-                                               decoration-info="status == 'pending'"
-                                               decoration-success="status == 'approved'"
-                                               decoration-danger="status == 'rejected'" />
+                                        <field
+                                            name="status"
+                                            widget="badge"
+                                            decoration-info="status == 'pending'"
+                                            decoration-success="status == 'approved'"
+                                            decoration-danger="status == 'rejected'"
+                                        />
                                         <field name="review_date" />
                                         <field name="comment" />
                                     </list>
@@ -429,5 +602,4 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
     </record>
 
     <!-- Cycles menu removed - accessible from Program form -->
-
 </odoo>

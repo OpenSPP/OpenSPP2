@@ -169,13 +169,11 @@ class CelRuleWizard(models.TransientModel):
 
         parts = []
         # Expression echo
-        parts.append(
-            f'<div class="mb-2"><strong>Expression:</strong> ' f"<code>{Markup.escape(expression)}</code></div>"
-        )
+        parts.append(f'<div class="mb-2"><strong>Expression:</strong> <code>{Markup.escape(expression)}</code></div>')
         # Translation
         if translated:
             parts.append(
-                f'<div class="mb-2"><strong>Translates to:</strong> ' f"<code>{Markup.escape(translated)}</code></div>"
+                f'<div class="mb-2"><strong>Translates to:</strong> <code>{Markup.escape(translated)}</code></div>'
             )
         # Execution path
         path_labels = {

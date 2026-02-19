@@ -1,6 +1,7 @@
 # CEL Vocabulary Functions - Usage Guide
 
-This guide provides practical examples of using vocabulary-aware CEL functions in OpenSPP eligibility rules and filters.
+This guide provides practical examples of using vocabulary-aware CEL functions in
+OpenSPP eligibility rules and filters.
 
 ## Quick Reference
 
@@ -480,7 +481,8 @@ is_female(me.gender)
 ## References
 
 - [Module README](README.md) - Module overview and installation
-- [ADR-016](../../docs/architecture/decisions/ADR-016-vocabulary-profiles-and-code-uris.md) - Design documentation
+- [ADR-016](../../docs/architecture/decisions/ADR-016-vocabulary-profiles-and-code-uris.md) -
+  Design documentation
 - [Data README](data/README.md) - Configuring concept groups
 
 ## Getting Help

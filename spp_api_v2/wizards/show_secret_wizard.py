@@ -33,5 +33,6 @@ class ShowSecretWizard(models.TransientModel):
         """Close the wizard and clear the secret from the client record."""
         if self.client_id:
             # Clear the plaintext secret from the client record
+            # nosemgrep: odoo-sudo-without-context — wizard ACL controls access
             self.client_id.sudo().write({"client_secret": False})
         return {"type": "ir.actions.act_window_close"}

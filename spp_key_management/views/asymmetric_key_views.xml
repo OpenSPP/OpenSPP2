@@ -1,25 +1,30 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <!-- Asymmetric Key Tree View -->
     <record id="spp_asymmetric_key_view_tree" model="ir.ui.view">
         <field name="name">spp.asymmetric.key.view.tree</field>
         <field name="model">spp.asymmetric.key</field>
         <field name="arch" type="xml">
             <list string="Asymmetric Keys">
-                <field name="name"/>
-                <field name="key_type" widget="badge"
-                       decoration-info="key_type == 'ed25519'"
-                       decoration-success="key_type == 'ec'"
-                       decoration-warning="key_type == 'rsa'"/>
-                <field name="curve" optional="show"/>
-                <field name="storage_mode" widget="badge"
-                       decoration-info="storage_mode == 'local'"
-                       decoration-success="storage_mode == 'kms'"/>
-                <field name="kid" optional="show"/>
-                <field name="purpose_id" optional="show"/>
-                <field name="last_used" optional="show"/>
-                <field name="active" widget="boolean_toggle"/>
+                <field name="name" />
+                <field
+                    name="key_type"
+                    widget="badge"
+                    decoration-info="key_type == 'ed25519'"
+                    decoration-success="key_type == 'ec'"
+                    decoration-warning="key_type == 'rsa'"
+                />
+                <field name="curve" optional="show" />
+                <field
+                    name="storage_mode"
+                    widget="badge"
+                    decoration-info="storage_mode == 'local'"
+                    decoration-success="storage_mode == 'kms'"
+                />
+                <field name="kid" optional="show" />
+                <field name="purpose_id" optional="show" />
+                <field name="last_used" optional="show" />
+                <field name="active" widget="boolean_toggle" />
             </list>
         </field>
     </record>
@@ -31,48 +36,62 @@
         <field name="arch" type="xml">
             <form string="Asymmetric Key">
                 <header>
-                    <button name="action_generate_key" type="object"
-                            string="Generate Key Pair" icon="fa-key"
-                            class="oe_highlight"
-                            invisible="kid"
-                            confirm="This will generate a new cryptographic key pair. Continue?"/>
-                    <button name="action_generate_key" type="object"
-                            string="Regenerate Key" icon="fa-refresh"
-                            class="btn-secondary"
-                            invisible="not kid"
-                            confirm="Warning: Regenerating will invalidate all signatures made with the current key. Continue?"/>
+                    <button
+                        name="action_generate_key"
+                        type="object"
+                        string="Generate Key Pair"
+                        icon="fa-key"
+                        class="oe_highlight"
+                        invisible="kid"
+                        confirm="This will generate a new cryptographic key pair. Continue?"
+                    />
+                    <button
+                        name="action_generate_key"
+                        type="object"
+                        string="Regenerate Key"
+                        icon="fa-refresh"
+                        class="btn-secondary"
+                        invisible="not kid"
+                        confirm="Warning: Regenerating will invalidate all signatures made with the current key. Continue?"
+                    />
                 </header>
                 <sheet>
-                    <div class="oe_button_box" name="button_box">
-                    </div>
+                    <div class="oe_button_box" name="button_box" />
                     <div class="oe_title">
-                        <label for="name"/>
+                        <label for="name" />
                         <h1>
-                            <field name="name" placeholder="e.g., Production Signing Key"/>
+                            <field
+                                name="name"
+                                placeholder="e.g., Production Signing Key"
+                            />
                         </h1>
                     </div>
 
                     <!-- Warning when key not generated -->
                     <div class="alert alert-warning" role="alert" invisible="kid">
-                        <i class="fa fa-exclamation-triangle" title="Warning"/> <strong>Key Not Generated</strong>
+                        <i class="fa fa-exclamation-triangle" title="Warning" />
+                        <strong>Key Not Generated</strong>
                         <p class="mb-0 mt-1">
                             Configure the key parameters below, then click
-                            <strong>Generate Key Pair</strong> to create the cryptographic key.
+                            <strong
+                        >Generate Key Pair</strong> to create the cryptographic key.
                         </p>
                     </div>
 
                     <group>
                         <group string="Key Configuration">
-                            <field name="key_type"/>
-                            <field name="key_size" invisible="key_type != 'rsa'"/>
-                            <field name="curve" invisible="key_type != 'ec'"/>
-                            <field name="purpose_id"/>
+                            <field name="key_type" />
+                            <field name="key_size" invisible="key_type != 'rsa'" />
+                            <field name="curve" invisible="key_type != 'ec'" />
+                            <field name="purpose_id" />
                         </group>
                         <group string="Storage">
-                            <field name="storage_mode"/>
-                            <field name="provider_registry_id"
-                                   invisible="storage_mode != 'kms'"
-                                   required="storage_mode == 'kms'"/>
+                            <field name="storage_mode" />
+                            <field
+                                name="provider_registry_id"
+                                invisible="storage_mode != 'kms'"
+                                required="storage_mode == 'kms'"
+                            />
                         </group>
                     </group>
 
@@ -80,44 +99,62 @@
                         <page string="Key Details" name="key_details">
                             <group>
                                 <group string="Key Identifiers">
-                                    <field name="kid" readonly="1"/>
-                                    <field name="kms_key_id" readonly="1"
-                                           invisible="storage_mode != 'kms'"/>
+                                    <field name="kid" readonly="1" />
+                                    <field
+                                        name="kms_key_id"
+                                        readonly="1"
+                                        invisible="storage_mode != 'kms'"
+                                    />
                                 </group>
                                 <group string="Timestamps">
-                                    <field name="create_date" readonly="1"/>
-                                    <field name="last_used" readonly="1"/>
+                                    <field name="create_date" readonly="1" />
+                                    <field name="last_used" readonly="1" />
                                 </group>
                             </group>
                             <div class="mt-3 mx-2">
                                 <h4>Public Key (JWK)</h4>
-                                <field name="public_key_jwk" readonly="1" widget="text"
-                                       nolabel="1"/>
+                                <field
+                                    name="public_key_jwk"
+                                    readonly="1"
+                                    widget="text"
+                                    nolabel="1"
+                                />
                             </div>
                         </page>
                         <page string="Help" name="help">
                             <div class="row mt-3 mx-2">
                                 <div class="col-6">
                                     <div class="alert alert-info" role="alert">
-                                        <h4><i class="fa fa-info-circle" title="Info"/> Key Type Recommendations</h4>
+                                        <h4><i
+                                            class="fa fa-info-circle"
+                                            title="Info"
+                                        /> Key Type Recommendations</h4>
                                         <ul class="mb-0">
-                                            <li><strong>Ed25519:</strong> Recommended for most use cases.
+                                            <li><strong
+                                            >Ed25519:</strong> Recommended for most use cases.
                                                 Fast, compact signatures, excellent security.
                                                 Best for Claim 169 credentials.</li>
-                                            <li><strong>EC (P-256):</strong> Required for AWS KMS, Azure Key Vault,
+                                            <li><strong
+                                            >EC (P-256):</strong> Required for AWS KMS, Azure Key Vault,
                                                 or GCP KMS. Widely supported in enterprise environments.</li>
-                                            <li><strong>RSA:</strong> Legacy compatibility only.
+                                            <li><strong
+                                            >RSA:</strong> Legacy compatibility only.
                                                 Use 2048+ bits. Not recommended for new deployments.</li>
                                         </ul>
                                     </div>
                                 </div>
                                 <div class="col-6">
                                     <div class="alert alert-secondary" role="alert">
-                                        <h4><i class="fa fa-shield" title="Security"/> Storage Mode</h4>
+                                        <h4><i
+                                            class="fa fa-shield"
+                                            title="Security"
+                                        /> Storage Mode</h4>
                                         <ul class="mb-0">
-                                            <li><strong>Local:</strong> Key encrypted with master key and stored
+                                            <li><strong
+                                            >Local:</strong> Key encrypted with master key and stored
                                                 in database. Suitable for development and small deployments.</li>
-                                            <li><strong>KMS:</strong> Key stored in Hardware Security Module (HSM)
+                                            <li><strong
+                                            >KMS:</strong> Key stored in Hardware Security Module (HSM)
                                                 via cloud provider. Recommended for production.
                                                 Private key never leaves the HSM.</li>
                                         </ul>
@@ -137,22 +174,62 @@
         <field name="model">spp.asymmetric.key</field>
         <field name="arch" type="xml">
             <search string="Asymmetric Keys">
-                <field name="name"/>
-                <field name="kid"/>
-                <field name="purpose_id"/>
-                <filter string="Active" name="filter_active" domain="[('active', '=', True)]"/>
-                <filter string="Archived" name="filter_archived" domain="[('active', '=', False)]"/>
-                <separator/>
-                <filter string="Ed25519" name="filter_ed25519" domain="[('key_type', '=', 'ed25519')]"/>
-                <filter string="EC" name="filter_ec" domain="[('key_type', '=', 'ec')]"/>
-                <filter string="RSA" name="filter_rsa" domain="[('key_type', '=', 'rsa')]"/>
-                <separator/>
-                <filter string="Local Storage" name="filter_local" domain="[('storage_mode', '=', 'local')]"/>
-                <filter string="KMS Storage" name="filter_kms" domain="[('storage_mode', '=', 'kms')]"/>
-                <separator/>
-                <filter string="Key Type" name="group_by_key_type" context="{'group_by': 'key_type'}"/>
-                <filter string="Storage Mode" name="group_by_storage" context="{'group_by': 'storage_mode'}"/>
-                <filter string="Purpose" name="group_by_purpose" context="{'group_by': 'purpose_id'}"/>
+                <field name="name" />
+                <field name="kid" />
+                <field name="purpose_id" />
+                <filter
+                    string="Active"
+                    name="filter_active"
+                    domain="[('active', '=', True)]"
+                />
+                <filter
+                    string="Archived"
+                    name="filter_archived"
+                    domain="[('active', '=', False)]"
+                />
+                <separator />
+                <filter
+                    string="Ed25519"
+                    name="filter_ed25519"
+                    domain="[('key_type', '=', 'ed25519')]"
+                />
+                <filter
+                    string="EC"
+                    name="filter_ec"
+                    domain="[('key_type', '=', 'ec')]"
+                />
+                <filter
+                    string="RSA"
+                    name="filter_rsa"
+                    domain="[('key_type', '=', 'rsa')]"
+                />
+                <separator />
+                <filter
+                    string="Local Storage"
+                    name="filter_local"
+                    domain="[('storage_mode', '=', 'local')]"
+                />
+                <filter
+                    string="KMS Storage"
+                    name="filter_kms"
+                    domain="[('storage_mode', '=', 'kms')]"
+                />
+                <separator />
+                <filter
+                    string="Key Type"
+                    name="group_by_key_type"
+                    context="{'group_by': 'key_type'}"
+                />
+                <filter
+                    string="Storage Mode"
+                    name="group_by_storage"
+                    context="{'group_by': 'storage_mode'}"
+                />
+                <filter
+                    string="Purpose"
+                    name="group_by_purpose"
+                    context="{'group_by': 'purpose_id'}"
+                />
             </search>
         </field>
     </record>
@@ -175,5 +252,4 @@
             </p>
         </field>
     </record>
-
 </odoo>

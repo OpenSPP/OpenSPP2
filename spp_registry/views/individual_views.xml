@@ -11,7 +11,11 @@
                 <field name="phone" string="Phone" optional="show" />
                 <field name="tags_ids" widget="many2many_tags" optional="show" />
                 <field name="birthdate" string="Date of Birth" optional="show" />
-                <field name="registration_date" string="Registration Date" optional="show" />
+                <field
+                    name="registration_date"
+                    string="Registration Date"
+                    optional="show"
+                />
             </list>
         </field>
     </record>
@@ -27,12 +31,15 @@
                 <field name="phone" />
                 <field name="email" />
                 <!-- Archive filter restricted to officers/managers who can modify records -->
-                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"
-                        groups="spp_registry.group_registry_officer,spp_registry.group_registry_manager" />
+                <filter
+                    string="Archived"
+                    name="inactive"
+                    domain="[('active', '=', False)]"
+                    groups="spp_registry.group_registry_officer,spp_registry.group_registry_manager"
+                />
             </search>
         </field>
     </record>
-
 
     <!-- Enhanced Individual List View with Avatar -->
     <record id="view_individuals_list_enhanced" model="ir.ui.view">
@@ -71,18 +78,38 @@
         <field name="arch" type="xml">
             <!-- Add disabled filter -->
             <xpath expr="//filter[@name='inactive']" position="after">
-                <filter string="Disabled" name="disabled" domain="[('disabled', '=', True)]" />
+                <filter
+                    string="Disabled"
+                    name="disabled"
+                    domain="[('disabled', '=', True)]"
+                />
                 <separator />
-                <filter string="Male" name="male" domain="[('gender_id.display', '=', 'Male')]" />
-                <filter string="Female" name="female" domain="[('gender_id.display', '=', 'Female')]" />
+                <filter
+                    string="Male"
+                    name="male"
+                    domain="[('gender_id.display', '=', 'Male')]"
+                />
+                <filter
+                    string="Female"
+                    name="female"
+                    domain="[('gender_id.display', '=', 'Female')]"
+                />
                 <separator />
             </xpath>
 
             <!-- Add group by options -->
             <xpath expr="//search" position="inside">
                 <separator />
-                <filter string="Gender" name="group_by_gender" context="{'group_by': 'gender_id'}" />
-                <filter string="Registration Date" name="group_by_registration_date" context="{'group_by': 'registration_date'}" />
+                <filter
+                    string="Gender"
+                    name="group_by_gender"
+                    context="{'group_by': 'gender_id'}"
+                />
+                <filter
+                    string="Registration Date"
+                    name="group_by_registration_date"
+                    context="{'group_by': 'registration_date'}"
+                />
                 <filter
                     string="Registration Month"
                     name="group_by_registration_month"
@@ -139,8 +166,18 @@
                         </button>
                     </div>
 
-                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" invisible="active" />
-                    <widget name="web_ribbon" title="Disabled" bg_color="bg-warning" invisible="not disabled" />
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="bg-danger"
+                        invisible="active"
+                    />
+                    <widget
+                        name="web_ribbon"
+                        title="Disabled"
+                        bg_color="bg-warning"
+                        invisible="not disabled"
+                    />
 
                     <!-- Hidden flags to evaluate visibility conditions -->
                     <group invisible="1">
@@ -175,34 +212,44 @@
                                 <div class="oe_title_container">
                                     <group name="header_section">
                                         <group>
-                                            <field name="family_name"
-                                                   required="not is_group"
-                                                   readonly="disabled"
-                                                   help="Last Name, Surname"/>
-                                            <field name="given_name"
-                                                   required="not is_group"
-                                                   readonly="disabled"
-                                                   help="First Name"/>
-                                            <field name="addl_name"
-                                                   string="Middle Name"
-                                                   readonly="disabled"
-                                                   help="Additional Name"/>
+                                            <field
+                                                name="family_name"
+                                                required="not is_group"
+                                                readonly="disabled"
+                                                help="Last Name, Surname"
+                                            />
+                                            <field
+                                                name="given_name"
+                                                required="not is_group"
+                                                readonly="disabled"
+                                                help="First Name"
+                                            />
+                                            <field
+                                                name="addl_name"
+                                                string="Middle Name"
+                                                readonly="disabled"
+                                                help="Additional Name"
+                                            />
                                         </group>
                                         <group>
-                                            <field name="registration_date"
-                                                   readonly="disabled or registration_date"
-                                                   help="Date when the individual was registered"/>
-                                            <field name="lang"
-                                                   readonly="disabled"
-                                                   invisible="active_lang_count &lt;= 1"
-                                                   help="Preferred language"/>
+                                            <field
+                                                name="registration_date"
+                                                readonly="disabled or registration_date"
+                                                help="Date when the individual was registered"
+                                            />
+                                            <field
+                                                name="lang"
+                                                readonly="disabled"
+                                                invisible="active_lang_count &lt;= 1"
+                                                help="Preferred language"
+                                            />
                                         </group>
                                     </group>
                                 </div>
                             </div>
 
                             <!-- Tags Section -->
-                            <separator string="Tags"/>
+                            <separator string="Tags" />
                             <group name="tags_section">
                                 <field
                                     name="tags_ids"
@@ -219,10 +266,18 @@
                             <separator string="Demographics" />
                             <group name="demographics_section" col="3">
                                 <group>
-                                    <field name="birthdate" readonly="disabled" help="Date of Birth - mm/dd/yyyy" />
+                                    <field
+                                        name="birthdate"
+                                        readonly="disabled"
+                                        help="Date of Birth - mm/dd/yyyy"
+                                    />
                                 </group>
                                 <group>
-                                    <field name="gender_id" readonly="disabled" options="{'no_create': True, 'no_open': True}" />
+                                    <field
+                                        name="gender_id"
+                                        readonly="disabled"
+                                        options="{'no_create': True, 'no_open': True}"
+                                    />
                                 </group>
                                 <group>
                                     <field name="age" />
@@ -231,7 +286,10 @@
                                     <field name="birth_place" readonly="disabled" />
                                 </group>
                                 <group>
-                                    <field name="birthdate_not_exact" readonly="disabled" />
+                                    <field
+                                        name="birthdate_not_exact"
+                                        readonly="disabled"
+                                    />
                                 </group>
                                 <group>
                                     <field
@@ -249,20 +307,25 @@
                                     />
                                 </group>
                                 <group>
-                                    <field name="income" string="Income" readonly="disabled" />
+                                    <field
+                                        name="income"
+                                        string="Income"
+                                        readonly="disabled"
+                                    />
                                 </group>
                             </group>
 
                             <!-- Contact Section -->
-                            <separator string="Contact Information"/>
+                            <separator string="Contact Information" />
                             <group name="contact_section">
                                 <group>
-                                    <field name="address"
-                                           readonly="disabled"/>
-                                    <field name="email"
-                                           widget="email"
-                                           readonly="disabled"
-                                           help="Email address (e.g., email@example.com)"/>
+                                    <field name="address" readonly="disabled" />
+                                    <field
+                                        name="email"
+                                        widget="email"
+                                        readonly="disabled"
+                                        help="Email address (e.g., email@example.com)"
+                                    />
                                 </group>
                             </group>
                             <group name="phone_section" string="Phone Numbers">
@@ -273,11 +336,27 @@
                                     nolabel="1"
                                     colspan="2"
                                 >
-                                    <list decoration-danger="disabled" editable="bottom">
-                                        <field name="phone_no" string="Number" widget="phone" options="{'enable_sms': false}"/>
-                                        <field name="country_id" string="Country" optional="show"/>
-                                        <field name="date_collected" string="Collected" optional="hide"/>
-                                        <field name="disabled" column_invisible="1"/>
+                                    <list
+                                        decoration-danger="disabled"
+                                        editable="bottom"
+                                    >
+                                        <field
+                                            name="phone_no"
+                                            string="Number"
+                                            widget="phone"
+                                            options="{'enable_sms': false}"
+                                        />
+                                        <field
+                                            name="country_id"
+                                            string="Country"
+                                            optional="show"
+                                        />
+                                        <field
+                                            name="date_collected"
+                                            string="Collected"
+                                            optional="hide"
+                                        />
+                                        <field name="disabled" column_invisible="1" />
                                     </list>
                                 </field>
                             </group>
@@ -294,9 +373,17 @@
                             <!-- IDs Section -->
                             <separator string="Identity Documents" />
                             <group name="ids_section">
-                                <field name="reg_ids" readonly="disabled" nolabel="1" colspan="2">
-                                    <list editable="bottom">
-                                        <field name="available_id_type_ids" column_invisible="1" />
+                                <field
+                                    name="reg_ids"
+                                    readonly="1"
+                                    nolabel="1"
+                                    colspan="2"
+                                >
+                                    <list>
+                                        <field
+                                            name="available_id_type_ids"
+                                            column_invisible="1"
+                                        />
                                         <field
                                             name="id_type_id"
                                             domain="[('id', 'in', available_id_type_ids)]"
@@ -322,10 +409,21 @@
                             </div>
                             <group name="relationships_section" col="2">
                                 <group>
-                                    <separator string="Others Related to This Person" colspan="2" />
-                                    <field name="related_1_ids" readonly="disabled" nolabel="1" colspan="2">
-                                        <list editable="bottom" decoration-danger="disabled">
-                                            <field name="available_relation_ids" column_invisible="1" />
+                                    <separator
+                                        string="Others Related to This Person"
+                                        colspan="2"
+                                    />
+                                    <field
+                                        name="related_1_ids"
+                                        readonly="1"
+                                        nolabel="1"
+                                        colspan="2"
+                                    >
+                                        <list decoration-danger="disabled">
+                                            <field
+                                                name="available_relation_ids"
+                                                column_invisible="1"
+                                            />
                                             <button
                                                 name="open_relationship1_form"
                                                 type="object"
@@ -354,10 +452,21 @@
                                     </field>
                                 </group>
                                 <group>
-                                    <separator string="This Person is Related to" colspan="2" />
-                                    <field name="related_2_ids" readonly="disabled" nolabel="1" colspan="2">
-                                        <list editable="bottom" decoration-danger="disabled">
-                                            <field name="available_relation_ids" column_invisible="1" />
+                                    <separator
+                                        string="This Person is Related to"
+                                        colspan="2"
+                                    />
+                                    <field
+                                        name="related_2_ids"
+                                        readonly="1"
+                                        nolabel="1"
+                                        colspan="2"
+                                    >
+                                        <list decoration-danger="disabled">
+                                            <field
+                                                name="available_relation_ids"
+                                                column_invisible="1"
+                                            />
                                             <button
                                                 name="open_relationship2_form"
                                                 type="object"
@@ -460,11 +569,13 @@
                                 <div class="oe_title_container">
                                     <group name="group_header_section">
                                         <group>
-                                            <field name="name"
-                                                   string="Group Name"
-                                                   required="is_group"
-                                                   readonly="disabled"
-                                                   help="Name of the group (e.g., Household, Family)"/>
+                                            <field
+                                                name="name"
+                                                string="Group Name"
+                                                required="is_group"
+                                                readonly="disabled"
+                                                help="Name of the group (e.g., Household, Family)"
+                                            />
                                             <field
                                                 name="group_type_id"
                                                 string="Group Type"
@@ -474,20 +585,24 @@
                                             />
                                         </group>
                                         <group>
-                                            <field name="registration_date"
-                                                   readonly="disabled or registration_date"
-                                                   help="Date when the group was registered"/>
-                                            <field name="lang"
-                                                   readonly="disabled"
-                                                   invisible="active_lang_count &lt;= 1"
-                                                   help="Preferred language"/>
+                                            <field
+                                                name="registration_date"
+                                                readonly="disabled or registration_date"
+                                                help="Date when the group was registered"
+                                            />
+                                            <field
+                                                name="lang"
+                                                readonly="disabled"
+                                                invisible="active_lang_count &lt;= 1"
+                                                help="Preferred language"
+                                            />
                                         </group>
                                     </group>
                                 </div>
                             </div>
 
                             <!-- Tags Section -->
-                            <separator string="Tags"/>
+                            <separator string="Tags" />
                             <group name="group_tags_section">
                                 <field
                                     name="tags_ids"
@@ -501,17 +616,21 @@
                             </group>
 
                             <!-- Contact Section -->
-                            <separator string="Contact Information"/>
+                            <separator string="Contact Information" />
                             <group name="group_contact_section">
                                 <group>
-                                    <field name="address"
-                                           readonly="disabled"
-                                           class="o_text_overflow"/>
-                                    <field name="email"
-                                           widget="email"
-                                           readonly="disabled"
-                                           class="o_text_overflow"
-                                           help="Email address (e.g., email@example.com)"/>
+                                    <field
+                                        name="address"
+                                        readonly="disabled"
+                                        class="o_text_overflow"
+                                    />
+                                    <field
+                                        name="email"
+                                        widget="email"
+                                        readonly="disabled"
+                                        class="o_text_overflow"
+                                        help="Email address (e.g., email@example.com)"
+                                    />
                                 </group>
                             </group>
                             <group name="group_phone_section" string="Phone Numbers">
@@ -522,11 +641,27 @@
                                     nolabel="1"
                                     colspan="2"
                                 >
-                                    <list decoration-danger="disabled" editable="bottom">
-                                        <field name="phone_no" string="Number" widget="phone" options="{'enable_sms': false}"/>
-                                        <field name="country_id" string="Country" optional="show"/>
-                                        <field name="date_collected" string="Collected" optional="hide"/>
-                                        <field name="disabled" column_invisible="1"/>
+                                    <list
+                                        decoration-danger="disabled"
+                                        editable="bottom"
+                                    >
+                                        <field
+                                            name="phone_no"
+                                            string="Number"
+                                            widget="phone"
+                                            options="{'enable_sms': false}"
+                                        />
+                                        <field
+                                            name="country_id"
+                                            string="Country"
+                                            optional="show"
+                                        />
+                                        <field
+                                            name="date_collected"
+                                            string="Collected"
+                                            optional="hide"
+                                        />
+                                        <field name="disabled" column_invisible="1" />
                                     </list>
                                 </field>
                             </group>
@@ -543,9 +678,17 @@
                             <!-- IDs Section -->
                             <separator string="Identity Documents" />
                             <group name="group_ids_section">
-                                <field name="reg_ids" readonly="disabled" nolabel="1" colspan="2">
-                                    <list editable="bottom">
-                                        <field name="available_id_type_ids" column_invisible="1" />
+                                <field
+                                    name="reg_ids"
+                                    readonly="1"
+                                    nolabel="1"
+                                    colspan="2"
+                                >
+                                    <list>
+                                        <field
+                                            name="available_id_type_ids"
+                                            column_invisible="1"
+                                        />
                                         <field
                                             name="id_type_id"
                                             domain="[('id', 'in', available_id_type_ids)]"
@@ -564,10 +707,21 @@
                             </div>
                             <group name="group_relationships_section" col="2">
                                 <group>
-                                    <separator string="Others Related to This Group" colspan="2" />
-                                    <field name="related_1_ids" readonly="disabled" nolabel="1" colspan="2">
-                                        <list editable="bottom" decoration-danger="disabled">
-                                            <field name="available_relation_ids" column_invisible="1" />
+                                    <separator
+                                        string="Others Related to This Group"
+                                        colspan="2"
+                                    />
+                                    <field
+                                        name="related_1_ids"
+                                        readonly="1"
+                                        nolabel="1"
+                                        colspan="2"
+                                    >
+                                        <list decoration-danger="disabled">
+                                            <field
+                                                name="available_relation_ids"
+                                                column_invisible="1"
+                                            />
                                             <button
                                                 name="open_relationship1_form"
                                                 type="object"
@@ -595,10 +749,21 @@
                                     </field>
                                 </group>
                                 <group>
-                                    <separator string="This Group is Related to" colspan="2" />
-                                    <field name="related_2_ids" readonly="disabled" nolabel="1" colspan="2">
-                                        <list editable="bottom" decoration-danger="disabled">
-                                            <field name="available_relation_ids" column_invisible="1" />
+                                    <separator
+                                        string="This Group is Related to"
+                                        colspan="2"
+                                    />
+                                    <field
+                                        name="related_2_ids"
+                                        readonly="1"
+                                        nolabel="1"
+                                        colspan="2"
+                                    >
+                                        <list decoration-danger="disabled">
+                                            <field
+                                                name="available_relation_ids"
+                                                column_invisible="1"
+                                            />
                                             <button
                                                 name="open_relationship2_form"
                                                 type="object"
@@ -694,8 +859,13 @@
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">res.partner</field>
         <field name="view_mode">list,form</field>
-        <field name="search_view_id" ref="spp_registry.view_registry_individuals_filter" />
-        <field name="context">{'default_is_registrant': True, 'default_is_group': False, 'registrant_form': True}</field>
+        <field
+            name="search_view_id"
+            ref="spp_registry.view_registry_individuals_filter"
+        />
+        <field
+            name="context"
+        >{'default_is_registrant': True, 'default_is_group': False, 'registrant_form': True}</field>
         <field name="domain">[('is_registrant','=',True),('is_group','=',False)]</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
@@ -721,5 +891,4 @@
         <field name="view_id" ref="view_individuals_form" />
         <field name="act_window_id" ref="action_individuals_list" />
     </record>
-
 </odoo>

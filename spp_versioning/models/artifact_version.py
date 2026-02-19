@@ -603,6 +603,7 @@ class ArtifactVersion(models.Model):
             bool: True if approval required, False to allow direct scheduling
         """
         # Check system parameter (global setting)
+        # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
         IrConfigParameter = self.env["ir.config_parameter"].sudo()
         if IrConfigParameter.get_param("spp_versioning.require_approval", "False") == "True":
             return True

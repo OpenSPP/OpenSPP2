@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- ========================================================================== -->
     <!-- TIER 3: Technical Base Groups                                             -->
@@ -6,19 +6,31 @@
 
     <record id="group_service_points_read" model="res.groups">
         <field name="name">Service Points: Read</field>
-        <field name="comment">Technical group for read access to service point models.</field>
+        <field
+            name="comment"
+        >Technical group for read access to service point models.</field>
     </record>
 
     <record id="group_service_points_write" model="res.groups">
         <field name="name">Service Points: Write</field>
-        <field name="comment">Technical group for write access to service point models.</field>
-        <field name="implied_ids" eval="[Command.link(ref('group_service_points_read'))]"/>
+        <field
+            name="comment"
+        >Technical group for write access to service point models.</field>
+        <field
+            name="implied_ids"
+            eval="[Command.link(ref('group_service_points_read'))]"
+        />
     </record>
 
     <record id="group_service_points_create" model="res.groups">
         <field name="name">Service Points: Create</field>
-        <field name="comment">Technical group for service point create access. Grants permission to create new service points and types.</field>
-        <field name="implied_ids" eval="[Command.link(ref('group_service_points_read'))]"/>
+        <field
+            name="comment"
+        >Technical group for service point create access. Grants permission to create new service points and types.</field>
+        <field
+            name="implied_ids"
+            eval="[Command.link(ref('group_service_points_read'))]"
+        />
     </record>
 
     <!-- ========================================================================== -->
@@ -27,32 +39,50 @@
 
     <record id="group_service_points_viewer" model="res.groups">
         <field name="name">Viewer</field>
-        <field name="privilege_id" ref="privilege_service_points"/>
-        <field name="comment">Can view service points and types. Cannot modify data. Useful for users who need to reference service points.</field>
-        <field name="implied_ids" eval="[Command.link(ref('group_service_points_read'))]"/>
+        <field name="privilege_id" ref="privilege_service_points" />
+        <field
+            name="comment"
+        >Can view service points and types. Cannot modify data. Useful for users who need to reference service points.</field>
+        <field
+            name="implied_ids"
+            eval="[Command.link(ref('group_service_points_read'))]"
+        />
     </record>
 
     <record id="group_service_points_officer" model="res.groups">
         <field name="name">Officer</field>
-        <field name="privilege_id" ref="privilege_service_points"/>
-        <field name="comment">Can view and edit service points and types. Can create new service points. Cannot delete. Standard role for service point coordinators.</field>
-        <field name="implied_ids" eval="[
+        <field name="privilege_id" ref="privilege_service_points" />
+        <field
+            name="comment"
+        >Can view and edit service points and types. Can create new service points. Cannot delete. Standard role for service point coordinators.</field>
+        <field
+            name="implied_ids"
+            eval="[
             Command.link(ref('group_service_points_viewer')),
             Command.link(ref('group_service_points_write')),
             Command.link(ref('group_service_points_create')),
-        ]"/>
+        ]"
+        />
     </record>
 
     <record id="group_service_points_manager" model="res.groups">
         <field name="name">Manager</field>
-        <field name="privilege_id" ref="privilege_service_points"/>
-        <field name="comment">Full service point management including delete operations and configuration access. For service point administrators.</field>
-        <field name="implied_ids" eval="[Command.link(ref('group_service_points_officer'))]"/>
+        <field name="privilege_id" ref="privilege_service_points" />
+        <field
+            name="comment"
+        >Full service point management including delete operations and configuration access. For service point administrators.</field>
+        <field
+            name="implied_ids"
+            eval="[Command.link(ref('group_service_points_officer'))]"
+        />
     </record>
 
     <!-- Link manager to admin -->
     <record id="spp_security.group_spp_admin" model="res.groups">
-        <field name="implied_ids" eval="[Command.link(ref('group_service_points_manager'))]"/>
+        <field
+            name="implied_ids"
+            eval="[Command.link(ref('group_service_points_manager'))]"
+        />
     </record>
 
     <!-- ========================================================================== -->
@@ -62,15 +92,23 @@
     <!-- Deprecated: Use group_service_points_officer instead -->
     <record id="group_service_points_user" model="res.groups">
         <field name="name">User (Deprecated)</field>
-        <field name="privilege_id" ref="privilege_service_points"/>
-        <field name="comment">Deprecated: Use group_service_points_officer instead. Can access service point management features.</field>
-        <field name="implied_ids" eval="[Command.link(ref('group_service_points_officer'))]"/>
+        <field name="privilege_id" ref="privilege_service_points" />
+        <field
+            name="comment"
+        >Deprecated: Use group_service_points_officer instead. Can access service point management features.</field>
+        <field
+            name="implied_ids"
+            eval="[Command.link(ref('group_service_points_officer'))]"
+        />
     </record>
 
     <!-- Backward compatibility (keep until all dependent modules migrated) -->
     <record id="service_point_users" model="res.groups">
         <field name="name">Service Point User (Deprecated)</field>
         <field name="comment">Deprecated: Use group_service_points_user instead.</field>
-        <field name="implied_ids" eval="[Command.link(ref('group_service_points_user'))]"/>
+        <field
+            name="implied_ids"
+            eval="[Command.link(ref('group_service_points_user'))]"
+        />
     </record>
 </odoo>

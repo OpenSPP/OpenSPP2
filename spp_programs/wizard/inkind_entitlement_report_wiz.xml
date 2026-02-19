@@ -8,19 +8,19 @@
                     <div>
                         Filter Program:
                         <h2>
-                            <field
-                                name="program_id"
-                                options="{'no_open':True, 'no_create':True, 'no_edit':True}"
-                            />
-                        </h2>
+                        <field
+                            name="program_id"
+                            options="{'no_open':True, 'no_create':True, 'no_edit':True}"
+                        />
+                    </h2>
                         Filter Cycle:
                         <h2>
-                            <field
-                                name="cycle_id"
-                                options="{'no_open':True, 'no_create':True, 'no_edit':True}"
-                                domain="cycle_id_domain"
-                            />
-                        </h2>
+                        <field
+                            name="cycle_id"
+                            options="{'no_open':True, 'no_create':True, 'no_edit':True}"
+                            domain="cycle_id_domain"
+                        />
+                    </h2>
                     </div>
                     <field name="cycle_id_domain" invisible="1" />
                 </sheet>
@@ -52,5 +52,4 @@
         sequence="10"
         groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_validator"
     />
-
 </odoo>

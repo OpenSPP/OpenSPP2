@@ -172,7 +172,7 @@ class DataProvider(models.Model):
         for rec in self:
             if not pattern.match(rec.code):
                 raise ValidationError(
-                    _("Provider code must be lowercase alphanumeric with underscores, " "starting with a letter.")
+                    _("Provider code must be lowercase alphanumeric with underscores, starting with a letter.")
                 )
 
     @api.constrains("default_ttl_seconds")
@@ -254,7 +254,7 @@ class DataProvider(models.Model):
                 headers["Authorization"] = f"Bearer {self.api_key}"
 
             # Simple HEAD request to test connectivity
-            response = requests.head(
+            response = requests.head(  # nosec B113 — explicit timeout via self.timeout_ms
                 self.base_url,
                 headers=headers,
                 timeout=self.timeout_ms / 1000,  # Convert ms to seconds

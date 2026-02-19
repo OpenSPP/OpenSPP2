@@ -4,7 +4,10 @@
     <function model="spp.audit.rule" name="create_rules">
         <value name="rule_name">Program Rule</value>
         <value name="model">spp.program</value>
-        <value name="fields_to_log" eval="['name', 'eligible_beneficiaries_count', 'has_members']" />
+        <value
+            name="fields_to_log"
+            eval="['name', 'eligible_beneficiaries_count', 'has_members']"
+        />
     </function>
 
     <!-- Cycle Rule -->
@@ -135,5 +138,4 @@
         <value name="parent_rule_name">Program Rule</value>
         <value name="connecting_field_name">program_id</value>
     </function>
-
 </odoo>

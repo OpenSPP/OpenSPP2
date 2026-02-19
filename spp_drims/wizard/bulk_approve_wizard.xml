@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Bulk Approve Wizard Form -->
     <record id="view_drims_bulk_approve_wizard_form" model="ir.ui.view">
@@ -8,25 +8,33 @@
             <form string="Bulk Approve Requests">
                 <group>
                     <div class="alert alert-info" role="alert">
-                        <field name="summary" nolabel="1" readonly="1"/>
+                        <field name="summary" nolabel="1" readonly="1" />
                     </div>
                 </group>
                 <group string="Selected Requests">
                     <field name="request_ids" nolabel="1" readonly="1">
                         <list>
-                            <field name="reference"/>
-                            <field name="destination_area_id"/>
-                            <field name="priority_id" widget="badge"/>
-                            <field name="total_value" sum="Total"/>
+                            <field name="reference" />
+                            <field name="destination_area_id" />
+                            <field name="priority_id" widget="badge" />
+                            <field name="total_value" sum="Total" />
                         </list>
                     </field>
                 </group>
                 <footer>
-                    <button name="action_approve" string="Approve All"
-                            type="object" class="btn-primary"/>
-                    <button name="action_reject" string="Reject All"
-                            type="object" class="btn-danger"/>
-                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    <button
+                        name="action_approve"
+                        string="Approve All"
+                        type="object"
+                        class="btn-primary"
+                    />
+                    <button
+                        name="action_reject"
+                        string="Reject All"
+                        type="object"
+                        class="btn-danger"
+                    />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
                 </footer>
             </form>
         </field>
@@ -40,15 +48,21 @@
             <form string="Reject Requests">
                 <group>
                     <div class="alert alert-warning" role="alert">
-                        <p>You are about to reject <b><field name="request_ids" invisible="1"/></b>
+                        <p>You are about to reject <b>
+                            <field name="request_ids" invisible="1" />
+                        </b>
                         requests. Please provide a reason.</p>
                     </div>
-                    <field name="reason" placeholder="Enter rejection reason..."/>
+                    <field name="reason" placeholder="Enter rejection reason..." />
                 </group>
                 <footer>
-                    <button name="action_reject" string="Reject All"
-                            type="object" class="btn-danger"/>
-                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    <button
+                        name="action_reject"
+                        string="Reject All"
+                        type="object"
+                        class="btn-danger"
+                    />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
                 </footer>
             </form>
         </field>
@@ -57,8 +71,8 @@
     <!-- Server Action to Open Bulk Approve Wizard -->
     <record id="action_drims_bulk_approve" model="ir.actions.server">
         <field name="name">Bulk Approve</field>
-        <field name="model_id" ref="model_spp_drims_request"/>
-        <field name="binding_model_id" ref="model_spp_drims_request"/>
+        <field name="model_id" ref="model_spp_drims_request" />
+        <field name="binding_model_id" ref="model_spp_drims_request" />
         <field name="binding_view_types">list</field>
         <field name="state">code</field>
         <field name="code">

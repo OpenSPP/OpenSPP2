@@ -250,7 +250,7 @@ class PackInstallWizard(models.TransientModel):
             message += _("Test personas installed: %d\n") % len(installed_personas)
 
         if self.install_as_draft:
-            message += _("\nAll items installed as Draft. " "Review and test before publishing.")
+            message += _("\nAll items installed as Draft. Review and test before publishing.")
 
         self.result_message = message
         self.installed_logic_ids = installed_logic

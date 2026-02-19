@@ -11,7 +11,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         <field name="model">spp.gis.report.template</field>
         <field name="priority">10</field>
         <field name="arch" type="xml">
-            <kanban default_group_by="category_id" quick_create="false" class="o_kanban_mobile">
+            <kanban
+                default_group_by="category_id"
+                quick_create="false"
+                class="o_kanban_mobile"
+            >
                 <field name="id" />
                 <field name="name" />
                 <field name="description" />
@@ -108,12 +112,24 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 
                 <separator />
 
-                <filter name="requires_program" string="Requires Program" domain="[('requires_program', '=', True)]" />
-                <filter name="requires_incident" string="Requires Incident" domain="[('requires_incident', '=', True)]" />
+                <filter
+                    name="requires_program"
+                    string="Requires Program"
+                    domain="[('requires_program', '=', True)]"
+                />
+                <filter
+                    name="requires_incident"
+                    string="Requires Incident"
+                    domain="[('requires_incident', '=', True)]"
+                />
 
                 <separator />
 
-                <filter name="group_category" string="Category" context="{'group_by': 'category_id'}" />
+                <filter
+                    name="group_category"
+                    string="Category"
+                    context="{'group_by': 'category_id'}"
+                />
             </search>
         </field>
     </record>
@@ -131,7 +147,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     <field name="preview_image" widget="image" class="oe_avatar" />
                     <div class="oe_title">
                         <h1>
-                            <field name="name" placeholder="Template Name" required="1" />
+                            <field
+                                name="name"
+                                placeholder="Template Name"
+                                required="1"
+                            />
                         </h1>
                     </div>
 
@@ -150,7 +170,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     </group>
 
                     <separator string="Description" />
-                    <field name="description" nolabel="1" placeholder="Describe what this template creates..." />
+                    <field
+                        name="description"
+                        nolabel="1"
+                        placeholder="Describe what this template creates..."
+                    />
 
                     <separator string="Configuration" />
                     <field name="config" widget="ace" options="{'mode': 'json'}" />
@@ -171,7 +195,8 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
             <div class="text-center text-muted py-5">
                 <i class="fa fa-puzzle-piece fa-3x mb-3 opacity-50" />
                 <h5>No Templates Available</h5>
-                <p>Templates provide pre-configured report setups for common use cases.</p>
+                <p
+                >Templates provide pre-configured report setups for common use cases.</p>
             </div>
         </field>
     </record>

@@ -92,7 +92,7 @@ class EncryptionKey(models.Model):
 
     def unlink(self):
         """Prevent deletion of encryption keys."""
-        raise UserError(_("Encryption keys cannot be deleted. " "Archive old versions by setting is_current=False."))
+        raise UserError(_("Encryption keys cannot be deleted. Archive old versions by setting is_current=False."))
 
     @api.model
     def get_current_version(self, key_id):

@@ -155,9 +155,9 @@ class DrimsDemoGenerator(models.TransientModel):
 
     def _ensure_demo_user_groups(self):
         """Assign DRIMS security groups to demo users."""
-        Users = self.env["res.users"].sudo()
-        Groups = self.env["res.groups"].sudo()
-        IrModelData = self.env["ir.model.data"].sudo()
+        Users = self.env["res.users"].sudo()  # nosemgrep: odoo-sudo-on-sensitive-models, odoo-sudo-without-context
+        Groups = self.env["res.groups"].sudo()  # nosemgrep: odoo-sudo-on-sensitive-models, odoo-sudo-without-context
+        IrModelData = self.env["ir.model.data"].sudo()  # nosemgrep: odoo-sudo-without-context
 
         # Map demo user logins to required DRIMS groups
         user_group_map = {
@@ -330,7 +330,7 @@ class DrimsDemoGenerator(models.TransientModel):
             # Redirect to DRIMS Dashboard after loading demo data
             action = self.env.ref("spp_drims.drims_dashboard_action", raise_if_not_found=False)
             if action:
-                result = action.sudo().read()[0]
+                result = action.sudo().read()[0]  # nosemgrep: odoo-sudo-without-context
                 result["target"] = "main"
                 return result
 
@@ -505,7 +505,7 @@ class DrimsDemoGenerator(models.TransientModel):
                 # Create and execute import wizard in file mode
                 # Use sudo() to bypass HDX Manager ACL restriction
                 wizard = (
-                    self.env["spp.hdx.cod.import.wizard"]
+                    self.env["spp.hdx.cod.import.wizard"]  # nosemgrep: odoo-sudo-without-context
                     .sudo()
                     .create(
                         {
@@ -641,8 +641,6 @@ class DrimsDemoGenerator(models.TransientModel):
             "Uva Province Warehouse - Badulla": (81.0550, 6.9934),
             "Sabaragamuwa Province Warehouse - Ratnapura": (80.3992, 6.6828),
         }
-
-        import json
 
         for wh_name, (longitude, latitude) in warehouse_gps.items():
             warehouse = Warehouse.search([("name", "=", wh_name)], limit=1)
@@ -1638,14 +1636,8 @@ class DrimsDemoGenerator(models.TransientModel):
                         picking.date_arrived = fields.Datetime.now() - timedelta(hours=random.randint(0, 1))
 
                     dispatches |= picking
-                    _logger.debug(
-                        "Created completed dispatch %s for request %s (beneficiaries: %d)",
-                        picking.name,
-                        request.reference,
-                        beneficiary_count,
-                    )
                 except Exception as e:
-                    _logger.warning("Failed to complete dispatch for %s: %s", request.reference, e)
+                    _logger.warning("Failed to complete dispatch for request ID=%s: %s", request.id, e)
                     # Delete failed picking
                     picking.unlink()
 

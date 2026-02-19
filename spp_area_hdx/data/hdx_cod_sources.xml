@@ -4,69 +4,89 @@
     <record id="cod_source_lka" model="spp.hdx.cod.source">
         <field name="country_id" ref="base.lk" />
         <field name="hdx_dataset_id">cod-ab-lka</field>
-        <field name="hdx_dataset_url">https://data.humdata.org/dataset/cod-ab-lka</field>
+        <field
+            name="hdx_dataset_url"
+        >https://data.humdata.org/dataset/cod-ab-lka</field>
     </record>
 
     <!-- Philippines COD Source -->
     <record id="cod_source_phl" model="spp.hdx.cod.source">
         <field name="country_id" ref="base.ph" />
         <field name="hdx_dataset_id">cod-ab-phl</field>
-        <field name="hdx_dataset_url">https://data.humdata.org/dataset/cod-ab-phl</field>
+        <field
+            name="hdx_dataset_url"
+        >https://data.humdata.org/dataset/cod-ab-phl</field>
     </record>
 
     <!-- Nepal COD Source -->
     <record id="cod_source_npl" model="spp.hdx.cod.source">
         <field name="country_id" ref="base.np" />
         <field name="hdx_dataset_id">cod-ab-npl</field>
-        <field name="hdx_dataset_url">https://data.humdata.org/dataset/cod-ab-npl</field>
+        <field
+            name="hdx_dataset_url"
+        >https://data.humdata.org/dataset/cod-ab-npl</field>
     </record>
 
     <!-- Bangladesh COD Source -->
     <record id="cod_source_bgd" model="spp.hdx.cod.source">
         <field name="country_id" ref="base.bd" />
         <field name="hdx_dataset_id">cod-ab-bgd</field>
-        <field name="hdx_dataset_url">https://data.humdata.org/dataset/cod-ab-bgd</field>
+        <field
+            name="hdx_dataset_url"
+        >https://data.humdata.org/dataset/cod-ab-bgd</field>
     </record>
 
     <!-- Pakistan COD Source -->
     <record id="cod_source_pak" model="spp.hdx.cod.source">
         <field name="country_id" ref="base.pk" />
         <field name="hdx_dataset_id">cod-ab-pak</field>
-        <field name="hdx_dataset_url">https://data.humdata.org/dataset/cod-ab-pak</field>
+        <field
+            name="hdx_dataset_url"
+        >https://data.humdata.org/dataset/cod-ab-pak</field>
     </record>
 
     <!-- Afghanistan COD Source -->
     <record id="cod_source_afg" model="spp.hdx.cod.source">
         <field name="country_id" ref="base.af" />
         <field name="hdx_dataset_id">cod-ab-afg</field>
-        <field name="hdx_dataset_url">https://data.humdata.org/dataset/cod-ab-afg</field>
+        <field
+            name="hdx_dataset_url"
+        >https://data.humdata.org/dataset/cod-ab-afg</field>
     </record>
 
     <!-- Myanmar COD Source -->
     <record id="cod_source_mmr" model="spp.hdx.cod.source">
         <field name="country_id" ref="base.mm" />
         <field name="hdx_dataset_id">cod-ab-mmr</field>
-        <field name="hdx_dataset_url">https://data.humdata.org/dataset/cod-ab-mmr</field>
+        <field
+            name="hdx_dataset_url"
+        >https://data.humdata.org/dataset/cod-ab-mmr</field>
     </record>
 
     <!-- Yemen COD Source -->
     <record id="cod_source_yem" model="spp.hdx.cod.source">
         <field name="country_id" ref="base.ye" />
         <field name="hdx_dataset_id">cod-ab-yem</field>
-        <field name="hdx_dataset_url">https://data.humdata.org/dataset/cod-ab-yem</field>
+        <field
+            name="hdx_dataset_url"
+        >https://data.humdata.org/dataset/cod-ab-yem</field>
     </record>
 
     <!-- Somalia COD Source -->
     <record id="cod_source_som" model="spp.hdx.cod.source">
         <field name="country_id" ref="base.so" />
         <field name="hdx_dataset_id">cod-ab-som</field>
-        <field name="hdx_dataset_url">https://data.humdata.org/dataset/cod-ab-som</field>
+        <field
+            name="hdx_dataset_url"
+        >https://data.humdata.org/dataset/cod-ab-som</field>
     </record>
 
     <!-- South Sudan COD Source -->
     <record id="cod_source_ssd" model="spp.hdx.cod.source">
         <field name="country_id" ref="base.ss" />
         <field name="hdx_dataset_id">cod-ab-ssd</field>
-        <field name="hdx_dataset_url">https://data.humdata.org/dataset/cod-ab-ssd</field>
+        <field
+            name="hdx_dataset_url"
+        >https://data.humdata.org/dataset/cod-ab-ssd</field>
     </record>
 </odoo>

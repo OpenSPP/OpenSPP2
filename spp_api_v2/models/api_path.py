@@ -59,7 +59,7 @@ class SppApiPath(models.Model):
 
     # Static filter domain (applied to all requests)
     filter_domain = fields.Char(
-        help="Static domain filter applied to all requests (Python expression). " "Example: [('active', '=', True)]",
+        help="Static domain filter applied to all requests (Python expression). Example: [('active', '=', True)]",
     )
 
     active = fields.Boolean(default=True)
@@ -81,7 +81,7 @@ class SppApiPath(models.Model):
             ]
             if self.search(domain, limit=1):
                 raise ValidationError(
-                    _("API path name must be unique. " "A path named '%s' already exists.") % record.name
+                    _("API path name must be unique. A path named '%s' already exists.") % record.name
                 )
 
     @api.depends("filter_ids")

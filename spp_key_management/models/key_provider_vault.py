@@ -61,7 +61,7 @@ class VaultKeyProvider(models.AbstractModel):
         """
         if not HVAC_AVAILABLE:
             raise UserError(
-                "HashiCorp Vault integration requires the 'hvac' library. " "Install it with: pip install hvac"
+                "HashiCorp Vault integration requires the 'hvac' library. Install it with: pip install hvac"
             )
 
         # Get configuration from odoo.conf or environment
@@ -70,7 +70,7 @@ class VaultKeyProvider(models.AbstractModel):
 
         if not vault_url:
             raise UserError(
-                "Vault URL not configured. Set spp_vault_url in odoo.conf " "or VAULT_ADDR environment variable."
+                "Vault URL not configured. Set spp_vault_url in odoo.conf or VAULT_ADDR environment variable."
             )
 
         client = hvac.Client(url=vault_url, namespace=vault_namespace)
@@ -78,7 +78,7 @@ class VaultKeyProvider(models.AbstractModel):
         # Authenticate based on configured method
         auth_method = config.get("spp_vault_auth_method", "token")
 
-        if (
+        if (  # nosemgrep: odoo-timing-attack-password
             auth_method == "token"
         ):  # nosemgrep: odoo-timing-attack-password - Comparing auth method selector, not a secret token.
             self._auth_token(client)
@@ -99,7 +99,7 @@ class VaultKeyProvider(models.AbstractModel):
         token = config.get("spp_vault_token") or os.environ.get("VAULT_TOKEN")
         if not token:
             raise UserError(
-                "Vault token not configured. Set spp_vault_token in odoo.conf " "or VAULT_TOKEN environment variable."
+                "Vault token not configured. Set spp_vault_token in odoo.conf or VAULT_TOKEN environment variable."
             )
         client.token = token
 
@@ -110,8 +110,7 @@ class VaultKeyProvider(models.AbstractModel):
 
         if not role_id or not secret_id:
             raise UserError(
-                "Vault AppRole credentials not configured. "
-                "Set spp_vault_role_id and spp_vault_secret_id in odoo.conf."
+                "Vault AppRole credentials not configured. Set spp_vault_role_id and spp_vault_secret_id in odoo.conf."
             )
 
         response = client.auth.approle.login(role_id=role_id, secret_id=secret_id)
@@ -122,7 +121,7 @@ class VaultKeyProvider(models.AbstractModel):
         role = config.get("spp_vault_k8s_role") or os.environ.get("VAULT_K8S_ROLE")
 
         if not role:
-            raise UserError("Vault Kubernetes role not configured. " "Set spp_vault_k8s_role in odoo.conf.")
+            raise UserError("Vault Kubernetes role not configured. Set spp_vault_k8s_role in odoo.conf.")
 
         # Read the service account token
         token_path = "/var/run/secrets/kubernetes.io/serviceaccount/token"
@@ -130,9 +129,7 @@ class VaultKeyProvider(models.AbstractModel):
             with open(token_path) as f:
                 jwt = f.read()
         except FileNotFoundError as err:
-            raise UserError(
-                "Kubernetes service account token not found. " "Ensure running in a Kubernetes pod."
-            ) from err
+            raise UserError("Kubernetes service account token not found. Ensure running in a Kubernetes pod.") from err
 
         mount_point = config.get("spp_vault_k8s_mount", "kubernetes")
         response = client.auth.kubernetes.login(role=role, jwt=jwt, mount_point=mount_point)

@@ -9,7 +9,7 @@
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Stable",
+    "development_status": "Production/Stable",
     "maintainers": ["jeremi", "gonzalesedwin1123"],
     "depends": [
         # Social Registry Foundation
@@ -34,32 +34,4 @@
     "application": False,
     "installable": True,
     "auto_install": False,
-    "description": """
-OpenSPP Starter: SP-MIS
-=======================
-
-A comprehensive bundle for Social Protection Management Information System
-deployments. Extends the Social Registry with program management capabilities.
-
-Included Capabilities
----------------------
-Everything in ``spp_starter_social_registry`` plus:
-
-- **Program Management**: Define programs with eligibility criteria
-- **Enrollment**: Manage beneficiary enrollment and membership
-- **Cycles**: Payment and distribution cycle management
-- **Event Data**: Audit trail for program activities
-- **Service Points**: Manage distribution and service delivery locations
-- **Approval Workflows**: Multi-level approval for sensitive operations
-
-Use Cases
----------
-- Cash Transfer Programs
-- Conditional Cash Transfers
-- Social Assistance Programs
-- Food Distribution Programs
-- In-Kind Transfer Programs
-
-For demo data and sample programs, also install ``spp_mis_demo_v2``.
-    """,
 }

@@ -482,7 +482,7 @@ class Claim169Credential(models.Model):
         # Return download action
         return {
             "type": "ir.actions.act_url",
-            "url": f"/web/image/{self._name}/{self.id}/qr_image/" f"qr_{self.name}.png?download=true",
+            "url": f"/web/image/{self._name}/{self.id}/qr_image/qr_{self.name}.png?download=true",
             "target": "self",
         }
 

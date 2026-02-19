@@ -1,18 +1,29 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Approval Freeze Tree View -->
     <record id="approval_freeze_view_tree" model="ir.ui.view">
         <field name="name">spp.approval.freeze.tree</field>
         <field name="model">spp.approval.freeze</field>
         <field name="arch" type="xml">
-            <list decoration-warning="state == 'draft'" decoration-danger="state == 'active'" decoration-muted="state in ('ended', 'cancelled')">
-                <field name="name"/>
-                <field name="reason"/>
-                <field name="date_start"/>
-                <field name="date_end"/>
-                <field name="state" widget="badge" decoration-warning="state == 'draft'" decoration-danger="state == 'active'" decoration-success="state == 'ended'" decoration-muted="state == 'cancelled'"/>
-                <field name="company_id" groups="base.group_multi_company"/>
-                <field name="created_by_id"/>
+            <list
+                decoration-warning="state == 'draft'"
+                decoration-danger="state == 'active'"
+                decoration-muted="state in ('ended', 'cancelled')"
+            >
+                <field name="name" />
+                <field name="reason" />
+                <field name="date_start" />
+                <field name="date_end" />
+                <field
+                    name="state"
+                    widget="badge"
+                    decoration-warning="state == 'draft'"
+                    decoration-danger="state == 'active'"
+                    decoration-success="state == 'ended'"
+                    decoration-muted="state == 'cancelled'"
+                />
+                <field name="company_id" groups="base.group_multi_company" />
+                <field name="created_by_id" />
             </list>
         </field>
     </record>
@@ -24,32 +35,66 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name="action_activate" type="object" string="Activate Now" invisible="state != 'draft'" class="btn-primary"/>
-                    <button name="action_end" type="object" string="End Now" invisible="state != 'active'" class="btn-warning"/>
-                    <button name="action_cancel" type="object" string="Cancel" invisible="state in ('ended', 'cancelled')" confirm="Are you sure you want to cancel this freeze period?"/>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,active,ended"/>
+                    <button
+                        name="action_activate"
+                        type="object"
+                        string="Activate Now"
+                        invisible="state != 'draft'"
+                        class="btn-primary"
+                    />
+                    <button
+                        name="action_end"
+                        type="object"
+                        string="End Now"
+                        invisible="state != 'active'"
+                        class="btn-warning"
+                    />
+                    <button
+                        name="action_cancel"
+                        type="object"
+                        string="Cancel"
+                        invisible="state in ('ended', 'cancelled')"
+                        confirm="Are you sure you want to cancel this freeze period?"
+                    />
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="draft,active,ended"
+                    />
                 </header>
                 <sheet>
                     <div class="oe_title">
                         <h1>
-                            <field name="name" placeholder="Freeze Period Name"/>
+                            <field name="name" placeholder="Freeze Period Name" />
                         </h1>
                     </div>
                     <group>
                         <group>
-                            <field name="reason"/>
-                            <field name="date_start"/>
-                            <field name="date_end"/>
+                            <field name="reason" />
+                            <field name="date_start" />
+                            <field name="date_end" />
                         </group>
                         <group>
-                            <field name="company_id" groups="base.group_multi_company"/>
-                            <field name="created_by_id" readonly="1"/>
+                            <field
+                                name="company_id"
+                                groups="base.group_multi_company"
+                            />
+                            <field name="created_by_id" readonly="1" />
                         </group>
                     </group>
-                    <separator string="Description"/>
-                    <field name="description" nolabel="1" placeholder="Detailed description of the freeze reason..."/>
-                    <separator string="Affected Models"/>
-                    <field name="model_ids" widget="many2many_tags" nolabel="1" options="{'no_create': True}"/>
+                    <separator string="Description" />
+                    <field
+                        name="description"
+                        nolabel="1"
+                        placeholder="Detailed description of the freeze reason..."
+                    />
+                    <separator string="Affected Models" />
+                    <field
+                        name="model_ids"
+                        widget="many2many_tags"
+                        nolabel="1"
+                        options="{'no_create': True}"
+                    />
                     <div class="text-muted">
                         <em>Leave empty to affect all approval-enabled models.</em>
                     </div>
@@ -64,18 +109,50 @@
         <field name="model">spp.approval.freeze</field>
         <field name="arch" type="xml">
             <search>
-                <field name="name"/>
-                <field name="reason"/>
-                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
-                <filter string="Active" name="active" domain="[('state', '=', 'active')]"/>
-                <filter string="Ended" name="ended" domain="[('state', '=', 'ended')]"/>
-                <filter string="Cancelled" name="cancelled" domain="[('state', '=', 'cancelled')]"/>
-                <separator/>
-                <filter string="Current &amp; Upcoming" name="current_upcoming" domain="[('state', 'in', ('draft', 'active'))]"/>
+                <field name="name" />
+                <field name="reason" />
+                <filter
+                    string="Draft"
+                    name="draft"
+                    domain="[('state', '=', 'draft')]"
+                />
+                <filter
+                    string="Active"
+                    name="active"
+                    domain="[('state', '=', 'active')]"
+                />
+                <filter
+                    string="Ended"
+                    name="ended"
+                    domain="[('state', '=', 'ended')]"
+                />
+                <filter
+                    string="Cancelled"
+                    name="cancelled"
+                    domain="[('state', '=', 'cancelled')]"
+                />
+                <separator />
+                <filter
+                    string="Current &amp; Upcoming"
+                    name="current_upcoming"
+                    domain="[('state', 'in', ('draft', 'active'))]"
+                />
                 <group>
-                    <filter string="Reason" name="group_reason" context="{'group_by': 'reason'}"/>
-                    <filter string="State" name="group_state" context="{'group_by': 'state'}"/>
-                    <filter string="Company" name="group_company" context="{'group_by': 'company_id'}"/>
+                    <filter
+                        string="Reason"
+                        name="group_reason"
+                        context="{'group_by': 'reason'}"
+                    />
+                    <filter
+                        string="State"
+                        name="group_state"
+                        context="{'group_by': 'state'}"
+                    />
+                    <filter
+                        string="Company"
+                        name="group_company"
+                        context="{'group_by': 'company_id'}"
+                    />
                 </group>
             </search>
         </field>

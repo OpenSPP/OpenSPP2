@@ -442,7 +442,7 @@ class TestDuplicationCheck(TransactionCase):
 
     def test_ordering_by_check_date(self):
         """Test records ordered by check_date descending."""
-        check1 = self.DuplicationCheck.create(
+        self.DuplicationCheck.create(
             {
                 "partner_id": self.partner.id,
                 "identifier_type": "UIN",

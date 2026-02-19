@@ -2,8 +2,8 @@
 
 ## Overview
 
-Implemented impact warnings when deactivating Studio configurations in OpenSPP Studio, as specified in section 2.3 of
-the spec:
+Implemented impact warnings when deactivating Studio configurations in OpenSPP Studio,
+as specified in section 2.3 of the spec:
 
 > "Deactivating shows impact warning ('This field is used by 1,247 records')"
 
@@ -55,25 +55,26 @@ Each Studio model implements `_get_deactivation_impact()`:
 #### **Studio Fields** (`spp_studio_fields/models/studio_field.py`, lines 288-306)
 
 - Counts records where field has non-empty values
-- Returns message: "This field contains data in N records. Deactivating will hide the field but preserve the data."
+- Returns message: "This field contains data in N records. Deactivating will hide the
+  field but preserve the data."
 
 #### **Event Types** (`spp_studio_events/models/studio_event_type.py`, lines 257-273)
 
 - Counts `spp.event.data` records using this event type
-- Returns message: "This event type is used by N event record(s). Deactivating will hide the event type but preserve
-  existing events."
+- Returns message: "This event type is used by N event record(s). Deactivating will hide
+  the event type but preserve existing events."
 
 #### **Change Request Types** (`spp_studio_change_requests/models/studio_change_request_type.py`, lines 263-279)
 
 - Counts active/pending change requests of this type
-- Returns message: "This change request type has N active or pending requests. Deactivating will prevent new requests
-  but existing ones will remain."
+- Returns message: "This change request type has N active or pending requests.
+  Deactivating will prevent new requests but existing ones will remain."
 
 #### **Eligibility Rules** (`spp_studio_eligibility/models/studio_eligibility_rule.py`, lines 265-278)
 
 - Checks if rule is linked to a program
-- Returns message: "This rule is linked to program 'X'. Deactivating will not remove the eligibility manager, but the
-  rule can no longer be edited."
+- Returns message: "This rule is linked to program 'X'. Deactivating will not remove the
+  eligibility manager, but the rule can no longer be edited."
 
 ### 4. Security Access
 
@@ -115,22 +116,18 @@ Each Studio model implements `_get_deactivation_impact()`:
 ### User Flow
 
 1. **User clicks "Deactivate" on a Studio configuration**
-
    - System calls `action_deactivate()` on the configuration
 
 2. **System checks for impact**
-
    - Calls model-specific `_get_deactivation_impact()`
    - Each model type has custom logic to count affected records
 
 3. **If no impact (no data)**
-
    - Proceeds directly with `_do_deactivate()`
    - Configuration becomes inactive
    - No wizard shown
 
 4. **If impact exists (data would be affected)**
-
    - Returns wizard action with impact message in context
    - Wizard opens showing:
      - Configuration name and type

@@ -1,6 +1,7 @@
 # Concept Groups Data Files
 
-This directory contains XML data files for common concept groups used in vocabulary-aware CEL functions.
+This directory contains XML data files for common concept groups used in
+vocabulary-aware CEL functions.
 
 ## Concept Groups Included
 
@@ -9,7 +10,8 @@ The `concept_groups.xml` file defines the following groups:
 - **feminine_gender** / `is_female()` - Feminine gender codes
 - **masculine_gender** / `is_male()` - Masculine gender codes
 - **head_of_household** / `is_head()` - Head of household relationship codes
-- **pregnant_eligible** / `is_pregnant()` - Pregnancy status codes eligible for maternal benefits
+- **pregnant_eligible** / `is_pregnant()` - Pregnancy status codes eligible for maternal
+  benefits
 - **climate_hazards** - Climate-related disaster codes
 - **geophysical_hazards** - Earthquake, volcanic, landslide codes
 - **children** - Child age group codes
@@ -19,7 +21,8 @@ The `concept_groups.xml` file defines the following groups:
 
 ## Customizing for Your Deployment
 
-These groups are created **empty** by default. You need to add your vocabulary codes to them.
+These groups are created **empty** by default. You need to add your vocabulary codes to
+them.
 
 ### Option 1: Through UI
 
@@ -34,26 +37,38 @@ These groups are created **empty** by default. You need to add your vocabulary c
 Create a data file in your deployment module:
 
 ```xml
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <data noupdate="1">
-        <!-- Add gender codes to feminine_gender group -->
-        <record id="spp_cel_vocabulary.group_feminine_gender" model="spp.vocabulary.concept.group">
-            <field name="code_ids" eval="[
+  <data noupdate="1">
+    <!-- Add gender codes to feminine_gender group -->
+    <record
+      id="spp_cel_vocabulary.group_feminine_gender"
+      model="spp.vocabulary.concept.group"
+    >
+      <field
+        name="code_ids"
+        eval="[
                 (4, ref('spp_vocabulary.code_female')),
                 (4, ref('spp_vocabulary.code_non_binary')),
                 (4, ref('my_module.code_babae')),
-            ]"/>
-        </record>
+            ]"
+      />
+    </record>
 
-        <!-- Add gender codes to masculine_gender group -->
-        <record id="spp_cel_vocabulary.group_masculine_gender" model="spp.vocabulary.concept.group">
-            <field name="code_ids" eval="[
+    <!-- Add gender codes to masculine_gender group -->
+    <record
+      id="spp_cel_vocabulary.group_masculine_gender"
+      model="spp.vocabulary.concept.group"
+    >
+      <field
+        name="code_ids"
+        eval="[
                 (4, ref('spp_vocabulary.code_male')),
                 (4, ref('my_module.code_lalaki')),
-            ]"/>
-        </record>
-    </data>
+            ]"
+      />
+    </record>
+  </data>
 </odoo>
 ```
 
@@ -85,51 +100,81 @@ def add_codes_to_groups(env):
 ## Example: Philippines 4Ps Deployment
 
 ```xml
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <data noupdate="1">
-        <!-- Gender codes with local terminology -->
-        <record id="spp_cel_vocabulary.group_feminine_gender" model="spp.vocabulary.concept.group">
-            <field name="code_ids" eval="[
+  <data noupdate="1">
+    <!-- Gender codes with local terminology -->
+    <record
+      id="spp_cel_vocabulary.group_feminine_gender"
+      model="spp.vocabulary.concept.group"
+    >
+      <field
+        name="code_ids"
+        eval="[
                 (4, ref('spp_vocabulary_iso.code_female')),
                 (4, ref('spp_vocabulary_ph.code_babae')),
-            ]"/>
-        </record>
+            ]"
+      />
+    </record>
 
-        <record id="spp_cel_vocabulary.group_masculine_gender" model="spp.vocabulary.concept.group">
-            <field name="code_ids" eval="[
+    <record
+      id="spp_cel_vocabulary.group_masculine_gender"
+      model="spp.vocabulary.concept.group"
+    >
+      <field
+        name="code_ids"
+        eval="[
                 (4, ref('spp_vocabulary_iso.code_male')),
                 (4, ref('spp_vocabulary_ph.code_lalaki')),
-            ]"/>
-        </record>
+            ]"
+      />
+    </record>
 
-        <!-- Head of household -->
-        <record id="spp_cel_vocabulary.group_head_of_household" model="spp.vocabulary.concept.group">
-            <field name="code_ids" eval="[
+    <!-- Head of household -->
+    <record
+      id="spp_cel_vocabulary.group_head_of_household"
+      model="spp.vocabulary.concept.group"
+    >
+      <field
+        name="code_ids"
+        eval="[
                 (4, ref('spp_4ps.relationship_head')),
                 (4, ref('spp_4ps.relationship_household_head')),
-            ]"/>
-        </record>
+            ]"
+      />
+    </record>
 
-        <!-- Pregnant eligible -->
-        <record id="spp_cel_vocabulary.group_pregnant_eligible" model="spp.vocabulary.concept.group">
-            <field name="code_ids" eval="[
+    <!-- Pregnant eligible -->
+    <record
+      id="spp_cel_vocabulary.group_pregnant_eligible"
+      model="spp.vocabulary.concept.group"
+    >
+      <field
+        name="code_ids"
+        eval="[
                 (4, ref('spp_4ps.pregnancy_pregnant')),
                 (4, ref('spp_4ps.pregnancy_expecting')),
-            ]"/>
-        </record>
+            ]"
+      />
+    </record>
 
-        <!-- Climate hazards (Philippines specific) -->
-        <record id="spp_cel_vocabulary.group_climate_hazards" model="spp.vocabulary.concept.group">
-            <field name="code_ids" eval="[
+    <!-- Climate hazards (Philippines specific) -->
+    <record
+      id="spp_cel_vocabulary.group_climate_hazards"
+      model="spp.vocabulary.concept.group"
+    >
+      <field
+        name="code_ids"
+        eval="[
                 (4, ref('spp_vocabulary_ph.hazard_bagyong')),     # Typhoon (local)
                 (4, ref('spp_vocabulary_ph.hazard_pagbaha')),     # Flood (local)
                 (4, ref('spp_vocabulary.hazard_typhoon')),        # Standard
                 (4, ref('spp_vocabulary.hazard_flood')),          # Standard
                 (4, ref('spp_vocabulary.hazard_drought')),        # Standard
-            ]"/>
-        </record>
-    </data>
+            ]"
+      />
+    </record>
+  </data>
 </odoo>
 ```
 
@@ -160,14 +205,17 @@ If you need additional concept groups:
 
 ```xml
 <record id="my_custom_group" model="spp.vocabulary.concept.group">
-    <field name="name">my_custom_group</field>
-    <field name="display_name">My Custom Group</field>
-    <field name="cel_function">is_my_custom</field>
-    <field name="description">Description of what this group represents</field>
-    <field name="code_ids" eval="[
+  <field name="name">my_custom_group</field>
+  <field name="display_name">My Custom Group</field>
+  <field name="cel_function">is_my_custom</field>
+  <field name="description">Description of what this group represents</field>
+  <field
+    name="code_ids"
+    eval="[
         (4, ref('my_module.code_1')),
         (4, ref('my_module.code_2')),
-    ]"/>
+    ]"
+  />
 </record>
 ```
 
@@ -180,7 +228,8 @@ in_group(me.some_field_id, "my_custom_group")
 
 ## Best Practices
 
-1. **Use semantic names** - Group names should describe the concept, not the specific codes
+1. **Use semantic names** - Group names should describe the concept, not the specific
+   codes
 2. **Document in descriptions** - Explain what codes should be in this group
 3. **Include local codes** - Add both standard and local vocabulary codes
 4. **Test thoroughly** - Verify groups work in actual CEL expressions

@@ -237,6 +237,6 @@ class TestDemoFormulaCELParsing(TransactionCase):
         from odoo.addons.spp_cel_domain.services.cel_parser import parse
 
         # Expression pattern used in EMERGENCY_PRIORITY formula
-        expression = "(household.is_displaced ? 40 : 0) + " "(household.days_since_registration < 30 ? 20 : 0) + 40"
+        expression = "(household.is_displaced ? 40 : 0) + (household.days_since_registration < 30 ? 20 : 0) + 40"
         ast = parse(expression)
         self.assertIsNotNone(ast)

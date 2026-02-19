@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- DMS Privilege -->
     <!-- Note: category_spp_dms should be added to spp_security in Phase 0 -->
@@ -6,7 +6,7 @@
 
     <record id="privilege_dms" model="res.groups.privilege">
         <field name="name">Document Management</field>
-        <field name="category_id" ref="spp_security.category_spp_registry"/>
+        <field name="category_id" ref="spp_security.category_spp_registry" />
         <field name="sequence">10</field>
     </record>
 
@@ -15,8 +15,10 @@
 
     <record id="privilege_dms_specialized" model="res.groups.privilege">
         <field name="name">Document Management: Specialized Roles</field>
-        <field name="category_id" ref="spp_security.category_spp_registry"/>
-        <field name="description">Specialized functional roles for document security (Restrict to Own Documents)</field>
+        <field name="category_id" ref="spp_security.category_spp_registry" />
+        <field
+            name="description"
+        >Specialized functional roles for document security (Restrict to Own Documents)</field>
         <field name="sequence">20</field>
     </record>
 </odoo>

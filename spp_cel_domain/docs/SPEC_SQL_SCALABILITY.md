@@ -6,11 +6,11 @@
 
 ## 1. Executive Summary
 
-This specification defines improvements to the CEL (Common Expression Language) domain evaluation system to support
-scaling from 100K to 10M+ beneficiaries.
+This specification defines improvements to the CEL (Common Expression Language) domain
+evaluation system to support scaling from 100K to 10M+ beneficiaries.
 
-**Core Principle**: Generate SQL subqueries that execute entirely in PostgreSQL, avoiding Python memory materialization
-of large ID lists.
+**Core Principle**: Generate SQL subqueries that execute entirely in PostgreSQL,
+avoiding Python memory materialization of large ID lists.
 
 **Key Decisions**:
 
@@ -54,9 +54,11 @@ of large ID lists.
 
 ### 3.1 Design Principles
 
-1. **SQL-first**: Always attempt SQL generation; fall back to Python only when impossible
+1. **SQL-first**: Always attempt SQL generation; fall back to Python only when
+   impossible
 2. **No hybrid mode**: Either entire expression is SQL, or entire expression is Python
-3. **Record rules via ORM**: Use `expression.expression()` for all subqueries to ensure security
+3. **Record rules via ORM**: Use `expression.expression()` for all subqueries to ensure
+   security
 4. **Bounded memory**: Never load all IDs; use `search_count()` + `search(limit=N)`
 5. **Clear feedback**: Return execution path and warnings in response
 
@@ -131,7 +133,8 @@ compile_expression(expr):
 
 **Problem**: SQL JOINs can bypass Odoo record rules on joined tables.
 
-**Solution**: Always use `expression.expression()` to generate subqueries, which automatically includes record rules.
+**Solution**: Always use `expression.expression()` to generate subqueries, which
+automatically includes record rules.
 
 ```
 # WRONG - bypasses record rules on res_partner:
@@ -147,8 +150,8 @@ WHERE m.individual IN (
 )
 ```
 
-**Implementation Rule**: Every reference to a model MUST go through `_domain_to_id_sql()` which uses
-`expression.expression()`.
+**Implementation Rule**: Every reference to a model MUST go through
+`_domain_to_id_sql()` which uses `expression.expression()`.
 
 ---
 
@@ -1035,7 +1038,8 @@ count = result["count"]
 | MySQL 5.7        | ✗         | ✓     | ✗   | Limited (no INTERSECT) |
 | SQLite 3.8+      | ✓         | ✓     | ✓   | Not tested             |
 
-**Note**: OpenSPP officially supports PostgreSQL only. MySQL compatibility is best-effort.
+**Note**: OpenSPP officially supports PostgreSQL only. MySQL compatibility is
+best-effort.
 
 ### B. Memory Comparison
 

@@ -152,7 +152,7 @@ async def list_studio_fields(
 
     # sudo() required: Studio field definitions are system config. Authorization
     # is done via API scope check above (studio:read), not Odoo ACLs.
-    StudioField = env["spp.studio.field"].sudo()
+    StudioField = env["spp.studio.field"].sudo()  # nosemgrep: odoo-sudo-without-context
 
     domain = [("state", "=", "active")]
 
@@ -243,7 +243,7 @@ async def get_field_schema(
 
     # sudo() required: Studio field definitions are system config. Authorization
     # is done via API scope check above (studio:read), not Odoo ACLs.
-    StudioField = env["spp.studio.field"].sudo()
+    StudioField = env["spp.studio.field"].sudo()  # nosemgrep: odoo-sudo-without-context
 
     # Find the field by technical name
     field = StudioField.search(
@@ -373,7 +373,7 @@ async def list_variables(
 
     # sudo() required: Variable definitions are system config. Authorization
     # is done via API scope check above (studio:read), not Odoo ACLs.
-    Variable = env["spp.cel.variable"].sudo()
+    Variable = env["spp.cel.variable"].sudo()  # nosemgrep: odoo-sudo-without-context
 
     domain = [("state", "=", "active")]
 
@@ -476,7 +476,7 @@ async def get_subject_variables(
     # sudo() required: Registry ID lookup needs system access to resolve
     # the identifier to a partner. Authorization is via API scope checks.
     reg_id = (
-        env["spp.registry.id"]
+        env["spp.registry.id"]  # nosemgrep: odoo-sudo-without-context
         .sudo()
         .search(
             [("namespace_uri", "=", system), ("value", "=", value)],

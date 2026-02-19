@@ -53,7 +53,10 @@
 
     <!-- Data Layer: DRIMS Warehouses (points) - attached to base GIS view -->
     <record id="gis_data_layer_warehouses" model="spp.gis.data.layer">
-        <field name="geo_field_id" ref="spp_drims.field_stock_warehouse__gis_location" />
+        <field
+            name="geo_field_id"
+            ref="spp_drims.field_stock_warehouse__gis_location"
+        />
         <field name="name">Warehouses</field>
         <field name="sequence">2</field>
         <field name="view_id" ref="spp_gis.view_spp_area_gis" />
@@ -96,7 +99,7 @@
     </record>
 
     <!-- GIS view mode for the action - use base GIS view with all layers -->
-    <record id="action_drims_operations_map_view" model="ir.actions.act_window.view">
+    <record id="action_drims_operations_gis_view" model="ir.actions.act_window.view">
         <field name="sequence">1</field>
         <field name="view_mode">gis</field>
         <field name="view_id" ref="spp_gis.view_spp_area_gis" />

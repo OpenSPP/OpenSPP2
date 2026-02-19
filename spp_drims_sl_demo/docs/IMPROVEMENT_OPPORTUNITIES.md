@@ -2,7 +2,8 @@
 
 Analysis of current implementation vs Sri Lanka DMC requirements.
 
-> **Last Updated:** 2026-01-06 **Status:** Most critical gaps have been addressed. See "Recently Implemented" section.
+> **Last Updated:** 2026-01-06 **Status:** Most critical gaps have been addressed. See
+> "Recently Implemented" section.
 
 ## Coverage Matrix
 
@@ -114,7 +115,8 @@ Analysis of current implementation vs Sri Lanka DMC requirements.
 
 ### 2. Incident Quick Filters
 
-**Current:** Must navigate to incident to see its data **Needed:** Filter all views by active incident
+**Current:** Must navigate to incident to see its data **Needed:** Filter all views by
+active incident
 
 **Implementation:**
 
@@ -135,7 +137,8 @@ Analysis of current implementation vs Sri Lanka DMC requirements.
 
 ### 3. Dashboard KPI Summary Cards
 
-**Current:** KPIs only on incident form **Needed:** Global KPIs visible on main dashboard
+**Current:** KPIs only on incident form **Needed:** Global KPIs visible on main
+dashboard
 
 **Add computed fields to a dashboard model:**
 
@@ -156,7 +159,8 @@ class DrimsDashboard(models.Model):
 
 ### 4. Priority Visual Enhancement
 
-**Current:** Priority is a field, no visual distinction **Needed:** Critical/high priority requests visually highlighted
+**Current:** Priority is a field, no visual distinction **Needed:** Critical/high
+priority requests visually highlighted
 
 **Implementation:**
 
@@ -176,7 +180,8 @@ class DrimsDashboard(models.Model):
 
 **Implementation delivered:**
 
-- `spp.drims.return` model with full state machine (draft→confirmed→received→inspected→restocked)
+- `spp.drims.return` model with full state machine
+  (draft→confirmed→received→inspected→restocked)
 - `create_return_wizard` for creating returns from dispatches
 - Condition tracking per line (good, damaged, unusable)
 - Disposition workflow (restock, quarantine, dispose)
@@ -240,13 +245,11 @@ def _create_overdue_requests(self):
 Add more realistic scenarios:
 
 1. **Scenario: Stock Shortage Crisis**
-
    - Multiple requests for same item
    - Low stock alert triggered
    - Show allocation conflict resolution
 
 2. **Scenario: Expiry Management**
-
    - Items nearing expiry
    - FEFO allocation prioritizing oldest stock
    - Donation with expired items (rejection flow)
@@ -305,17 +308,14 @@ Add more realistic scenarios:
 ### Issues to Address
 
 1. **Dashboard KPIs use computed fields**
-
    - May be slow with large datasets
    - Consider SQL views or stored computeds
 
 2. **Alert cron jobs use raw SQL**
-
    - Good for performance
    - Need to maintain when schema changes
 
 3. **Demo generator creates lots inline**
-
    - Works but verbose
    - Consider extracting to helper methods
 

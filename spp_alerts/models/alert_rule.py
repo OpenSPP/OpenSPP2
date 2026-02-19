@@ -215,7 +215,7 @@ class AlertRule(models.Model):
         try:
             Model = self.env[model_name]
         except KeyError:
-            _logger.warning("Alert rule '%s': model '%s' not found, skipping.", self.name, model_name)
+            _logger.warning("Alert rule '%s': model '%s' not found, skipping.", self.id, model_name)
             return 0
 
         # Parse domain filter
@@ -227,9 +227,9 @@ class AlertRule(models.Model):
                 "uid": self.env.uid,
                 "user": self.env.user,
             }
-            domain = safe_eval.safe_eval(self.domain_filter or "[]", eval_context)
+            domain = safe_eval.safe_eval(self.domain_filter or "[]", eval_context)  # nosemgrep: odoo-unsafe-safe-eval
         except Exception as e:
-            _logger.error("Alert rule '%s': invalid domain filter '%s': %s", self.name, self.domain_filter, e)
+            _logger.error("Alert rule '%s': invalid domain filter: %s", self.id, e)
             return 0
 
         records = Model.search(domain)

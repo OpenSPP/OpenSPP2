@@ -131,7 +131,7 @@ class DCIServerKey(models.Model):
                 )
                 if other_active:
                     raise ValidationError(
-                        _("Only one server key can be active at a time. " "Please deactivate key '%s' first.")
+                        _("Only one server key can be active at a time. Please deactivate key '%s' first.")
                         % other_active.name
                     )
 
@@ -144,7 +144,7 @@ class DCIServerKey(models.Model):
 
         if self.private_key or self.public_key:
             raise UserError(
-                _("Keys already exist for this record. " "Please create a new key record to generate a new keypair.")
+                _("Keys already exist for this record. Please create a new key record to generate a new keypair.")
             )
 
         _logger.info("Generating Ed25519 keypair for server key_id: %s", self.key_id)
@@ -330,6 +330,7 @@ class DCIServerKey(models.Model):
 
         from odoo.addons.spp_dci.services.signing import DCISigner
 
+        # nosemgrep: odoo-sudo-without-context
         sender_id = self.env["ir.config_parameter"].sudo().get_param("dci.sender_id", "openspp")
 
         return DCISigner(

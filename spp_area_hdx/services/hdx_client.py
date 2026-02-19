@@ -199,7 +199,6 @@ class HdxClient:
                 break
 
         # Detect local name field
-        local_candidates = ["name_local", "name_si", "name_ta", "adm_local"]
         for key in properties.keys():
             key_lower = key.lower()
             if any(pattern in key_lower for pattern in ["_si", "_ta", "_local", "_alt"]):

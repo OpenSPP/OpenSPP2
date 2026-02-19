@@ -121,7 +121,7 @@ def parse_period(period: str) -> tuple[date, date]:
 
         return start_date, end_date
 
-    raise ValueError(f"Invalid period format: {period}. " f"Expected: YYYY, YYYY-QN, YYYY-HN, YYYY-MM, or YYYY-WNN")
+    raise ValueError(f"Invalid period format: {period}. Expected: YYYY, YYYY-QN, YYYY-HN, YYYY-MM, or YYYY-WNN")
 
 
 # ══════════════════════════════════════════════════════════════════════════════

@@ -148,6 +148,7 @@ async def async_search(
         # SECURITY: Use verified_sender_id from signature verification
         # instead of reading from envelope.header to prevent spoofing
         # Use sudo() for API access - authentication is handled by signature verification
+        # nosemgrep: odoo-sudo-without-context — DCI protocol handler with JWT/signature verification
         sender = env["spp.dci.sender.registry"].sudo().search([("sender_id", "=", verified_sender_id)], limit=1)
 
         # Get callback URI from header
@@ -160,6 +161,7 @@ async def async_search(
         # Store correlation_id from request - this will be echoed in callback
         correlation_id = getattr(search_request, "correlation_id", None) or str(uuid.uuid4())
         transaction = (
+            # nosemgrep: odoo-sudo-without-context — DCI protocol handler with JWT/signature verification
             env["spp.dci.transaction"]
             .sudo()
             .create(
@@ -244,6 +246,7 @@ async def subscribe(
 
         # SECURITY: Use verified_sender_id from signature verification
         # Use sudo() for API access - authentication is handled by signature verification
+        # nosemgrep: odoo-sudo-without-context — DCI protocol handler with JWT/signature verification
         sender = env["spp.dci.sender.registry"].sudo().search([("sender_id", "=", verified_sender_id)], limit=1)
         if not sender:
             raise HTTPException(
@@ -288,6 +291,7 @@ async def subscribe(
                 # Create subscription (URL validation happens in model create)
                 # Use sudo() for API access - authentication is handled by signature verification
                 subscription = (
+                    # nosemgrep: odoo-sudo-without-context — DCI protocol handler with JWT/signature verification
                     env["spp.dci.subscription"]
                     .sudo()
                     .create(
@@ -326,6 +330,7 @@ async def subscribe(
         # Store correlation_id from request - this will be echoed in callback
         correlation_id = getattr(sub_request, "correlation_id", None) or str(uuid.uuid4())
         transaction = (
+            # nosemgrep: odoo-sudo-without-context — DCI protocol handler with JWT/signature verification
             env["spp.dci.transaction"]
             .sudo()
             .create(
@@ -403,6 +408,7 @@ async def unsubscribe(
             ) from e
 
         # Get sender for transaction record
+        # nosemgrep: odoo-sudo-without-context — DCI protocol handler with JWT/signature verification
         sender = env["spp.dci.sender.registry"].sudo().search([("sender_id", "=", verified_sender_id)], limit=1)
 
         success_count = 0
@@ -413,6 +419,7 @@ async def unsubscribe(
             # cancel their own subscriptions
             # Use sudo() for API access - authentication is handled by signature verification
             subscription = (
+                # nosemgrep: odoo-sudo-without-context — DCI protocol handler with JWT/signature verification
                 env["spp.dci.subscription"]
                 .sudo()
                 .search(
@@ -444,6 +451,7 @@ async def unsubscribe(
         # Store correlation_id from request - this will be echoed in callback
         correlation_id = getattr(unsub_request, "correlation_id", None) or str(uuid.uuid4())
         transaction = (
+            # nosemgrep: odoo-sudo-without-context — DCI protocol handler with JWT/signature verification
             env["spp.dci.transaction"]
             .sudo()
             .create(
@@ -546,6 +554,7 @@ async def txn_status(
             domain.append(("message_id", "in", ref_ids))
 
         # Use sudo() for API access - authentication is handled by signature verification
+        # nosemgrep: odoo-sudo-without-context — DCI protocol handler with JWT/signature verification
         transactions = env["spp.dci.transaction"].sudo().search(domain, limit=1)
 
         # Per SPDCI spec, txnstatus_response contains:

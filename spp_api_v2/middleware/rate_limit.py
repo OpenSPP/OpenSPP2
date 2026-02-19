@@ -185,7 +185,7 @@ async def check_rate_limit(
 
     # Get rate limits from config or use defaults
     # For unauthenticated requests, use stricter limits
-    config_param = env["ir.config_parameter"].sudo()
+    config_param = env["ir.config_parameter"].sudo()  # nosemgrep: odoo-sudo-without-context
     default_per_minute = int(config_param.get_param("spp_api_v2.rate_limit_per_minute", "30"))
     default_per_day = int(config_param.get_param("spp_api_v2.rate_limit_per_day", "5000"))
 

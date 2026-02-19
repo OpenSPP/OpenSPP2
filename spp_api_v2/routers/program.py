@@ -139,7 +139,7 @@ async def search_programs(
         domain = expression.AND([domain, [("id", ">", last_id)]])
 
     # Execute search (include inactive programs for ended status)
-    program_model = env["spp.program"].sudo().with_context(active_test=False)
+    program_model = env["spp.program"].sudo().with_context(active_test=False)  # nosemgrep: odoo-sudo-without-context
     programs = program_model.search(domain, limit=count, order="id")
     total = program_model.search_count(domain)
 

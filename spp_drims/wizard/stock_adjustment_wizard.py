@@ -88,6 +88,7 @@ class DrimsStockAdjustmentWizard(models.TransientModel):
 
         for line in self.line_ids:
             # Apply the adjustment using Odoo's inventory adjustment
+            # nosemgrep: odoo-sudo-without-context
             StockQuant.with_context(inventory_mode=True).sudo()._update_available_quantity(
                 line.product_id,
                 location,

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!--
         DRIMS Personnel Views
@@ -12,21 +12,27 @@
         <field name="name">spp.drims.personnel.list</field>
         <field name="model">spp.drims.personnel</field>
         <field name="arch" type="xml">
-            <list sample="1" decoration-muted="status == 'returned'"
-                  decoration-info="status == 'standby'">
-                <field name="name"/>
-                <field name="role_id"/>
-                <field name="organization_id"/>
-                <field name="incident_id" optional="hide"/>
-                <field name="deployment_area_id"/>
-                <field name="phone" optional="hide"/>
-                <field name="deployment_date" optional="hide"/>
-                <field name="days_deployed"/>
-                <field name="status" widget="badge"
-                       decoration-success="status == 'deployed'"
-                       decoration-info="status == 'standby'"
-                       decoration-warning="status == 'on_leave'"
-                       decoration-muted="status == 'returned'"/>
+            <list
+                sample="1"
+                decoration-muted="status == 'returned'"
+                decoration-info="status == 'standby'"
+            >
+                <field name="name" />
+                <field name="role_id" />
+                <field name="organization_id" />
+                <field name="incident_id" optional="hide" />
+                <field name="deployment_area_id" />
+                <field name="phone" optional="hide" />
+                <field name="deployment_date" optional="hide" />
+                <field name="days_deployed" />
+                <field
+                    name="status"
+                    widget="badge"
+                    decoration-success="status == 'deployed'"
+                    decoration-info="status == 'standby'"
+                    decoration-warning="status == 'on_leave'"
+                    decoration-muted="status == 'returned'"
+                />
             </list>
         </field>
     </record>
@@ -38,76 +44,97 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name="action_mark_deployed"
-                            string="Mark Deployed"
-                            type="object"
-                            class="btn-primary"
-                            invisible="status == 'deployed'"/>
-                    <button name="action_mark_standby"
-                            string="Standby"
-                            type="object"
-                            class="btn-secondary"
-                            invisible="status in ('standby', 'returned')"/>
-                    <button name="action_mark_on_leave"
-                            string="On Leave"
-                            type="object"
-                            class="btn-secondary"
-                            invisible="status in ('on_leave', 'returned')"/>
-                    <button name="action_mark_returned"
-                            string="Mark Returned"
-                            type="object"
-                            class="btn-warning"
-                            invisible="status == 'returned'"/>
-                    <field name="status" widget="statusbar"
-                           statusbar_visible="deployed,standby,on_leave,returned"/>
+                    <button
+                        name="action_mark_deployed"
+                        string="Mark Deployed"
+                        type="object"
+                        class="btn-primary"
+                        invisible="status == 'deployed'"
+                    />
+                    <button
+                        name="action_mark_standby"
+                        string="Standby"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="status in ('standby', 'returned')"
+                    />
+                    <button
+                        name="action_mark_on_leave"
+                        string="On Leave"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="status in ('on_leave', 'returned')"
+                    />
+                    <button
+                        name="action_mark_returned"
+                        string="Mark Returned"
+                        type="object"
+                        class="btn-warning"
+                        invisible="status == 'returned'"
+                    />
+                    <field
+                        name="status"
+                        widget="statusbar"
+                        statusbar_visible="deployed,standby,on_leave,returned"
+                    />
                 </header>
                 <sheet>
                     <div class="oe_title">
-                        <label for="name"/>
+                        <label for="name" />
                         <h1>
-                            <field name="name" placeholder="Personnel Name"/>
+                            <field name="name" placeholder="Personnel Name" />
                         </h1>
                     </div>
 
                     <group>
                         <group string="Assignment" name="assignment">
-                            <field name="incident_id"/>
-                            <field name="organization_id"/>
-                            <field name="role_id" options="{'no_create': True}"/>
-                            <field name="cluster_id" options="{'no_create': True}"/>
+                            <field name="incident_id" />
+                            <field name="organization_id" />
+                            <field name="role_id" options="{'no_create': True}" />
+                            <field name="cluster_id" options="{'no_create': True}" />
                         </group>
                         <group string="Location" name="location">
-                            <field name="deployment_area_id"/>
-                            <field name="warehouse_id"/>
+                            <field name="deployment_area_id" />
+                            <field name="warehouse_id" />
                         </group>
                     </group>
 
                     <group>
                         <group string="Contact" name="contact">
-                            <field name="partner_id"/>
-                            <field name="phone"/>
-                            <field name="email"/>
-                            <field name="radio_callsign"/>
+                            <field name="partner_id" />
+                            <field name="phone" />
+                            <field name="email" />
+                            <field name="radio_callsign" />
                         </group>
                         <group string="Deployment Period" name="deployment">
-                            <field name="deployment_date"/>
-                            <field name="expected_return_date"/>
-                            <field name="actual_return_date" invisible="status != 'returned'"/>
-                            <field name="days_deployed"/>
+                            <field name="deployment_date" />
+                            <field name="expected_return_date" />
+                            <field
+                                name="actual_return_date"
+                                invisible="status != 'returned'"
+                            />
+                            <field name="days_deployed" />
                         </group>
                     </group>
 
                     <group>
                         <group string="Qualifications" name="qualifications">
-                            <field name="languages"/>
-                            <field name="skills" placeholder="List skills, certifications, qualifications..."/>
+                            <field name="languages" />
+                            <field
+                                name="skills"
+                                placeholder="List skills, certifications, qualifications..."
+                            />
                         </group>
                         <group string="Notes" name="notes">
-                            <field name="notes" nolabel="1" placeholder="Additional notes..."/>
+                            <field
+                                name="notes"
+                                nolabel="1"
+                                placeholder="Additional notes..."
+                            />
                         </group>
                     </group>
                 </sheet>
-                <chatter/>
+                <chatter />
             </form>
         </field>
     </record>
@@ -118,38 +145,44 @@
         <field name="model">spp.drims.personnel</field>
         <field name="arch" type="xml">
             <kanban default_group_by="status">
-                <field name="name"/>
-                <field name="role_id"/>
-                <field name="organization_id"/>
-                <field name="deployment_area_id"/>
-                <field name="phone"/>
-                <field name="status"/>
-                <field name="days_deployed"/>
+                <field name="name" />
+                <field name="role_id" />
+                <field name="organization_id" />
+                <field name="deployment_area_id" />
+                <field name="phone" />
+                <field name="status" />
+                <field name="days_deployed" />
                 <templates>
                     <t t-name="card">
                         <div class="oe_kanban_global_click">
                             <div class="o_kanban_record_top">
                                 <strong class="o_kanban_record_title">
-                                    <field name="name"/>
+                                    <field name="name" />
                                 </strong>
                             </div>
                             <div class="o_kanban_record_body">
                                 <div t-if="record.role_id.value">
-                                    <i class="fa fa-id-badge text-primary"/> <field name="role_id"/>
+                                    <i class="fa fa-id-badge text-primary" />
+                                    <field name="role_id" />
                                 </div>
                                 <div t-if="record.organization_id.value">
-                                    <i class="fa fa-building text-muted"/> <field name="organization_id"/>
+                                    <i class="fa fa-building text-muted" />
+                                    <field name="organization_id" />
                                 </div>
                                 <div t-if="record.deployment_area_id.value">
-                                    <i class="fa fa-map-marker text-info"/> <field name="deployment_area_id"/>
+                                    <i class="fa fa-map-marker text-info" />
+                                    <field name="deployment_area_id" />
                                 </div>
                                 <div t-if="record.phone.value">
-                                    <i class="fa fa-phone text-success"/> <field name="phone"/>
+                                    <i class="fa fa-phone text-success" />
+                                    <field name="phone" />
                                 </div>
                             </div>
                             <div class="o_kanban_record_bottom">
                                 <span class="text-muted small">
-                                    <i class="fa fa-calendar"/> <field name="days_deployed"/> days
+                                    <i class="fa fa-calendar" /> <field
+                                    name="days_deployed"
+                                /> days
                                 </span>
                             </div>
                         </div>
@@ -165,39 +198,74 @@
         <field name="model">spp.drims.personnel</field>
         <field name="arch" type="xml">
             <search>
-                <field name="name"/>
-                <field name="organization_id"/>
-                <field name="role_id"/>
-                <field name="incident_id"/>
-                <field name="deployment_area_id"/>
-                <separator/>
-                <filter name="deployed" string="Deployed"
-                        domain="[('status', '=', 'deployed')]"/>
-                <filter name="standby" string="Standby"
-                        domain="[('status', '=', 'standby')]"/>
-                <filter name="on_leave" string="On Leave"
-                        domain="[('status', '=', 'on_leave')]"/>
-                <filter name="returned" string="Returned"
-                        domain="[('status', '=', 'returned')]"/>
-                <separator/>
+                <field name="name" />
+                <field name="organization_id" />
+                <field name="role_id" />
+                <field name="incident_id" />
+                <field name="deployment_area_id" />
+                <separator />
+                <filter
+                    name="deployed"
+                    string="Deployed"
+                    domain="[('status', '=', 'deployed')]"
+                />
+                <filter
+                    name="standby"
+                    string="Standby"
+                    domain="[('status', '=', 'standby')]"
+                />
+                <filter
+                    name="on_leave"
+                    string="On Leave"
+                    domain="[('status', '=', 'on_leave')]"
+                />
+                <filter
+                    name="returned"
+                    string="Returned"
+                    domain="[('status', '=', 'returned')]"
+                />
+                <separator />
                 <group>
-                    <filter name="group_status" string="Status"
-                            context="{'group_by': 'status'}"/>
-                    <filter name="group_incident" string="Incident"
-                            context="{'group_by': 'incident_id'}"/>
-                    <filter name="group_area" string="Area"
-                            context="{'group_by': 'deployment_area_id'}"/>
-                    <filter name="group_organization" string="Organization"
-                            context="{'group_by': 'organization_id'}"/>
-                    <filter name="group_role" string="Role"
-                            context="{'group_by': 'role_id'}"/>
-                    <filter name="group_cluster" string="Cluster"
-                            context="{'group_by': 'cluster_id'}"/>
+                    <filter
+                        name="group_status"
+                        string="Status"
+                        context="{'group_by': 'status'}"
+                    />
+                    <filter
+                        name="group_incident"
+                        string="Incident"
+                        context="{'group_by': 'incident_id'}"
+                    />
+                    <filter
+                        name="group_area"
+                        string="Area"
+                        context="{'group_by': 'deployment_area_id'}"
+                    />
+                    <filter
+                        name="group_organization"
+                        string="Organization"
+                        context="{'group_by': 'organization_id'}"
+                    />
+                    <filter
+                        name="group_role"
+                        string="Role"
+                        context="{'group_by': 'role_id'}"
+                    />
+                    <filter
+                        name="group_cluster"
+                        string="Cluster"
+                        context="{'group_by': 'cluster_id'}"
+                    />
                 </group>
                 <searchpanel>
-                    <field name="incident_id" select="multi" icon="fa-bolt" enable_counters="1"/>
-                    <field name="status" icon="fa-flag" select="multi"/>
-                    <field name="organization_id" icon="fa-building" select="multi"/>
+                    <field
+                        name="incident_id"
+                        select="multi"
+                        icon="fa-bolt"
+                        enable_counters="1"
+                    />
+                    <field name="status" icon="fa-flag" select="multi" />
+                    <field name="organization_id" icon="fa-building" select="multi" />
                 </searchpanel>
             </search>
         </field>
@@ -208,18 +276,20 @@
         <field name="name">spp.drims.personnel.calendar</field>
         <field name="model">spp.drims.personnel</field>
         <field name="arch" type="xml">
-            <calendar string="Personnel Deployment"
-                      date_start="deployment_date"
-                      date_stop="expected_return_date"
-                      color="status"
-                      mode="month"
-                      event_limit="5"
-                      quick_create="0">
-                <field name="name"/>
-                <field name="role_id"/>
-                <field name="deployment_area_id"/>
-                <field name="status"/>
-                <field name="organization_id"/>
+            <calendar
+                string="Personnel Deployment"
+                date_start="deployment_date"
+                date_stop="expected_return_date"
+                color="status"
+                mode="month"
+                event_limit="5"
+                quick_create="0"
+            >
+                <field name="name" />
+                <field name="role_id" />
+                <field name="deployment_area_id" />
+                <field name="status" />
+                <field name="organization_id" />
             </calendar>
         </field>
     </record>
@@ -231,7 +301,7 @@
         <field name="res_model">spp.drims.personnel</field>
         <field name="view_mode">list,calendar,kanban,form</field>
         <field name="context">{'search_default_deployed': 1}</field>
-        <field name="search_view_id" ref="spp_drims_personnel_search"/>
+        <field name="search_view_id" ref="spp_drims_personnel_search" />
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Track deployed personnel

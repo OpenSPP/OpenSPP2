@@ -102,7 +102,12 @@ export const celLanguageMode = {
         }
 
         // Handle operators
-        if (stream.match("==") || stream.match("!=") || stream.match(">=") || stream.match("<=")) {
+        if (
+            stream.match("==") ||
+            stream.match("!=") ||
+            stream.match(">=") ||
+            stream.match("<=")
+        ) {
             state.afterDot = false;
             return "operator";
         }

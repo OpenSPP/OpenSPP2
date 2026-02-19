@@ -1,44 +1,61 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Studio Field List View (unified editable view with state-based permissions) -->
     <record id="view_studio_field_list" model="ir.ui.view">
         <field name="name">spp.studio.field.list</field>
         <field name="model">spp.studio.field</field>
         <field name="arch" type="xml">
-            <list string="Custom Fields"
-                  editable="bottom"
-                  decoration-muted="state == 'inactive'"
-                  decoration-info="state == 'draft'"
-                  default_order="placement_zone_id, sequence, id">
+            <list
+                string="Custom Fields"
+                editable="bottom"
+                decoration-muted="state == 'inactive'"
+                decoration-info="state == 'draft'"
+                default_order="placement_zone_id, sequence, id"
+            >
                 <field name="sequence" widget="handle" readonly="state != 'draft'" />
                 <field name="label" readonly="state != 'draft'" />
                 <field name="target_type" readonly="state != 'draft'" />
                 <field name="field_type" readonly="state != 'draft'" />
-                <field name="placement_zone_id"
-                       readonly="state != 'draft'"
-                       options="{'no_create': True}" />
+                <field
+                    name="placement_zone_id"
+                    readonly="state != 'draft'"
+                    options="{'no_create': True}"
+                />
                 <field name="is_required" readonly="state != 'draft'" />
-                <field name="is_searchable" readonly="state != 'draft'" optional="show" />
-                <field name="selection_options"
-                       readonly="state != 'draft'"
-                       optional="hide"
-                       invisible="field_type not in ('selection', 'multi_select')" />
-                <field name="state" widget="badge"
-                       decoration-success="state == 'active'"
-                       decoration-warning="state == 'draft'"
-                       decoration-danger="state == 'inactive'" />
-                <button name="action_activate"
-                        string="Activate"
-                        type="object"
-                        icon="fa-check"
-                        class="btn-link text-success"
-                        invisible="state != 'draft'" />
-                <button name="action_deactivate"
-                        string="Deactivate"
-                        type="object"
-                        icon="fa-pause"
-                        class="btn-link text-warning"
-                        invisible="state != 'active'" />
+                <field
+                    name="is_searchable"
+                    readonly="state != 'draft'"
+                    optional="show"
+                />
+                <field
+                    name="selection_options"
+                    readonly="state != 'draft'"
+                    optional="hide"
+                    invisible="field_type not in ('selection', 'multi_select')"
+                />
+                <field
+                    name="state"
+                    widget="badge"
+                    decoration-success="state == 'active'"
+                    decoration-warning="state == 'draft'"
+                    decoration-danger="state == 'inactive'"
+                />
+                <button
+                    name="action_activate"
+                    string="Activate"
+                    type="object"
+                    icon="fa-check"
+                    class="btn-link text-success"
+                    invisible="state != 'draft'"
+                />
+                <button
+                    name="action_deactivate"
+                    string="Deactivate"
+                    type="object"
+                    icon="fa-pause"
+                    class="btn-link text-warning"
+                    invisible="state != 'active'"
+                />
             </list>
         </field>
     </record>
@@ -63,45 +80,69 @@
         <field name="arch" type="xml">
             <form string="Custom Field">
                 <header>
-                    <button name="action_activate"
-                            string="Activate"
-                            type="object"
-                            class="btn-primary"
-                            invisible="state != 'draft'"
-                            groups="spp_studio.group_studio_manager" />
-                    <button name="action_deactivate"
-                            string="Deactivate"
-                            type="object"
-                            class="btn-warning"
-                            invisible="state != 'active'"
-                            groups="spp_studio.group_studio_manager" />
-                    <button name="action_reactivate"
-                            string="Reactivate"
-                            type="object"
-                            class="btn-primary"
-                            invisible="state != 'inactive'"
-                            groups="spp_studio.group_studio_manager" />
-                    <button name="action_set_draft"
-                            string="Set to Draft"
-                            type="object"
-                            class="btn-secondary"
-                            invisible="state != 'inactive'"
-                            groups="spp_studio.group_studio_manager" />
-                    <field name="state" widget="statusbar" statusbar_visible="draft,active,inactive" />
+                    <button
+                        name="action_activate"
+                        string="Activate"
+                        type="object"
+                        class="btn-primary"
+                        invisible="state != 'draft'"
+                        groups="spp_studio.group_studio_manager"
+                    />
+                    <button
+                        name="action_deactivate"
+                        string="Deactivate"
+                        type="object"
+                        class="btn-warning"
+                        invisible="state != 'active'"
+                        groups="spp_studio.group_studio_manager"
+                    />
+                    <button
+                        name="action_reactivate"
+                        string="Reactivate"
+                        type="object"
+                        class="btn-primary"
+                        invisible="state != 'inactive'"
+                        groups="spp_studio.group_studio_manager"
+                    />
+                    <button
+                        name="action_set_draft"
+                        string="Set to Draft"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="state != 'inactive'"
+                        groups="spp_studio.group_studio_manager"
+                    />
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="draft,active,inactive"
+                    />
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button name="%(spp_audit.spp_audit_log_action_window)d"
-                                type="action"
-                                class="oe_stat_button"
-                                icon="fa-history"
-                                context="{'search_default_res_model': 'spp.studio.field', 'search_default_res_id': id}">
+                        <button
+                            name="%(spp_audit.spp_audit_log_action_window)d"
+                            type="action"
+                            class="oe_stat_button"
+                            icon="fa-history"
+                            context="{'search_default_res_model': 'spp.studio.field', 'search_default_res_id': id}"
+                        >
                             <span class="o_stat_text">History</span>
                         </button>
                     </div>
 
-                    <widget name="web_ribbon" title="Draft" bg_color="bg-info" invisible="state != 'draft'" />
-                    <widget name="web_ribbon" title="Inactive" bg_color="bg-danger" invisible="state != 'inactive'" />
+                    <widget
+                        name="web_ribbon"
+                        title="Draft"
+                        bg_color="bg-info"
+                        invisible="state != 'draft'"
+                    />
+                    <widget
+                        name="web_ribbon"
+                        title="Inactive"
+                        bg_color="bg-danger"
+                        invisible="state != 'inactive'"
+                    />
 
                     <group>
                         <group string="Field Definition">
@@ -112,9 +153,11 @@
                         <group string="Target">
                             <field name="target_type" readonly="state == 'active'" />
                             <field name="target_model" invisible="1" />
-                            <field name="placement_zone_id"
-                                   readonly="state == 'active'"
-                                   options="{'no_create': True}" />
+                            <field
+                                name="placement_zone_id"
+                                readonly="state == 'active'"
+                                options="{'no_create': True}"
+                            />
                             <field name="sequence" readonly="state == 'active'" />
                         </group>
                     </group>
@@ -122,16 +165,22 @@
                     <group>
                         <group string="Type Configuration">
                             <field name="field_type" readonly="state == 'active'" />
-                            <field name="selection_options"
-                                   readonly="state == 'active'"
-                                   invisible="field_type not in ('selection', 'multi_select')" />
-                            <field name="link_model_id"
-                                   readonly="state == 'active'"
-                                   invisible="field_type != 'link'"
-                                   options="{'no_create': True}" />
-                            <field name="link_domain"
-                                   readonly="state == 'active'"
-                                   invisible="field_type != 'link'" />
+                            <field
+                                name="selection_options"
+                                readonly="state == 'active'"
+                                invisible="field_type not in ('selection', 'multi_select')"
+                            />
+                            <field
+                                name="link_model_id"
+                                readonly="state == 'active'"
+                                invisible="field_type != 'link'"
+                                options="{'no_create': True}"
+                            />
+                            <field
+                                name="link_domain"
+                                readonly="state == 'active'"
+                                invisible="field_type != 'link'"
+                            />
                         </group>
                         <group string="Options">
                             <field name="is_required" readonly="state == 'active'" />
@@ -141,21 +190,34 @@
                     </group>
 
                     <group string="Conditional Visibility" col="4">
-                        <field name="visibility_condition" readonly="state == 'active'" />
-                        <field name="visibility_field_id"
-                               readonly="state == 'active'"
-                               invisible="visibility_condition != 'conditional'"
-                               options="{'no_create': True}" />
-                        <field name="visibility_operator"
-                               readonly="state == 'active'"
-                               invisible="visibility_condition != 'conditional'" />
-                        <field name="visibility_value"
-                               readonly="state == 'active'"
-                               invisible="visibility_condition != 'conditional' or visibility_operator in ('set', 'not_set')" />
+                        <field
+                            name="visibility_condition"
+                            readonly="state == 'active'"
+                        />
+                        <field
+                            name="visibility_field_id"
+                            readonly="state == 'active'"
+                            invisible="visibility_condition != 'conditional'"
+                            options="{'no_create': True}"
+                        />
+                        <field
+                            name="visibility_operator"
+                            readonly="state == 'active'"
+                            invisible="visibility_condition != 'conditional'"
+                        />
+                        <field
+                            name="visibility_value"
+                            readonly="state == 'active'"
+                            invisible="visibility_condition != 'conditional' or visibility_operator in ('set', 'not_set')"
+                        />
                     </group>
 
                     <notebook>
-                        <page string="Technical" name="technical" groups="base.group_no_one">
+                        <page
+                            string="Technical"
+                            name="technical"
+                            groups="base.group_no_one"
+                        >
                             <group>
                                 <group string="Odoo Objects">
                                     <field name="ir_model_fields_id" readonly="1" />
@@ -188,18 +250,54 @@
                 <field name="technical_name" />
                 <field name="field_type" />
                 <field name="placement_zone_id" />
-                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]" />
-                <filter string="Active" name="active" domain="[('state', '=', 'active')]" />
-                <filter string="Inactive" name="inactive" domain="[('state', '=', 'inactive')]" />
+                <filter
+                    string="Draft"
+                    name="draft"
+                    domain="[('state', '=', 'draft')]"
+                />
+                <filter
+                    string="Active"
+                    name="active"
+                    domain="[('state', '=', 'active')]"
+                />
+                <filter
+                    string="Inactive"
+                    name="inactive"
+                    domain="[('state', '=', 'inactive')]"
+                />
                 <separator />
-                <filter string="Individual Fields" name="individual" domain="[('target_type', '=', 'individual')]" />
-                <filter string="Group Fields" name="group" domain="[('target_type', '=', 'group')]" />
+                <filter
+                    string="Individual Fields"
+                    name="individual"
+                    domain="[('target_type', '=', 'individual')]"
+                />
+                <filter
+                    string="Group Fields"
+                    name="group"
+                    domain="[('target_type', '=', 'group')]"
+                />
                 <separator />
                 <group>
-                    <filter string="Status" name="group_state" context="{'group_by': 'state'}" />
-                    <filter string="Target" name="group_target" context="{'group_by': 'target_type'}" />
-                    <filter string="Field Type" name="group_type" context="{'group_by': 'field_type'}" />
-                    <filter string="Placement Zone" name="group_zone" context="{'group_by': 'placement_zone_id'}" />
+                    <filter
+                        string="Status"
+                        name="group_state"
+                        context="{'group_by': 'state'}"
+                    />
+                    <filter
+                        string="Target"
+                        name="group_target"
+                        context="{'group_by': 'target_type'}"
+                    />
+                    <filter
+                        string="Field Type"
+                        name="group_type"
+                        context="{'group_by': 'field_type'}"
+                    />
+                    <filter
+                        string="Placement Zone"
+                        name="group_zone"
+                        context="{'group_by': 'placement_zone_id'}"
+                    />
                 </group>
             </search>
         </field>
@@ -219,8 +317,10 @@
                 Create your first custom field
             </p>
             <p>
-                Add fields directly in the table below, or use the wizard for guided creation.<br/>
-                <strong>Tip:</strong> Draft fields (blue) can be edited inline. Active fields are locked.
+                Add fields directly in the table below, or use the wizard for guided creation.<br
+            />
+                <strong
+            >Tip:</strong> Draft fields (blue) can be edited inline. Active fields are locked.
             </p>
         </field>
     </record>
@@ -248,19 +348,33 @@
         <field name="name">spp.studio.placement.zone.list</field>
         <field name="model">spp.studio.placement.zone</field>
         <field name="arch" type="xml">
-            <list string="Placement Zones" default_order="target_type, tab_sequence, sequence">
+            <list
+                string="Placement Zones"
+                default_order="target_type, tab_sequence, sequence"
+            >
                 <field name="sequence" widget="handle" />
                 <field name="icon" widget="badge" optional="hide" />
                 <field name="name" />
-                <field name="target_type" widget="badge"
-                       decoration-info="target_type == 'individual'"
-                       decoration-success="target_type == 'group'"
-                       decoration-warning="target_type == 'both'" />
+                <field
+                    name="target_type"
+                    widget="badge"
+                    decoration-info="target_type == 'individual'"
+                    decoration-success="target_type == 'group'"
+                    decoration-warning="target_type == 'both'"
+                />
                 <field name="tab_name" />
                 <field name="description" />
                 <field name="field_count" string="Fields" />
-                <field name="xpath_expression" groups="base.group_no_one" optional="hide" />
-                <field name="xpath_position" groups="base.group_no_one" optional="hide" />
+                <field
+                    name="xpath_expression"
+                    groups="base.group_no_one"
+                    optional="hide"
+                />
+                <field
+                    name="xpath_position"
+                    groups="base.group_no_one"
+                    optional="hide"
+                />
             </list>
         </field>
     </record>
@@ -280,12 +394,16 @@
                 <field name="form_preview_hint" />
                 <templates>
                     <t t-name="card">
-                        <div class="oe_kanban_global_click o_kanban_record_has_image_fill">
+                        <div
+                            class="oe_kanban_global_click o_kanban_record_has_image_fill"
+                        >
                             <div class="oe_kanban_details">
                                 <div class="o_kanban_record_top">
                                     <div class="o_kanban_record_headings">
                                         <strong class="o_kanban_record_title">
-                                            <i t-attf-class="fa #{record.icon.raw_value} me-1" />
+                                            <i
+                                                t-attf-class="fa #{record.icon.raw_value} me-1"
+                                            />
                                             <field name="name" />
                                         </strong>
                                     </div>
@@ -295,14 +413,19 @@
                                 </div>
                                 <div class="o_kanban_record_body">
                                     <div class="text-muted small mb-1">
-                                        <i class="fa fa-folder-open me-1" title="Tab"/>
+                                        <i class="fa fa-folder-open me-1" title="Tab" />
                                         <field name="tab_name" /> tab
                                     </div>
                                     <field name="description" class="text-muted" />
                                 </div>
                                 <div class="o_kanban_record_bottom mt-2">
                                     <div class="oe_kanban_bottom_left text-muted small">
-                                        <pre class="mb-0 small" style="white-space: pre-wrap; font-size: 0.75em;"><field name="form_preview_hint" /></pre>
+                                        <pre
+                                            class="mb-0 small"
+                                            style="white-space: pre-wrap; font-size: 0.75em;"
+                                        >
+                                            <field name="form_preview_hint" />
+                                        </pre>
                                     </div>
                                 </div>
                             </div>
@@ -328,20 +451,35 @@
                     <group>
                         <group string="Zone Settings">
                             <field name="code" />
-                            <field name="icon" widget="radio" options="{'horizontal': true}" />
-                            <field name="target_type" widget="radio" options="{'horizontal': true}" />
+                            <field
+                                name="icon"
+                                widget="radio"
+                                options="{'horizontal': true}"
+                            />
+                            <field
+                                name="target_type"
+                                widget="radio"
+                                options="{'horizontal': true}"
+                            />
                             <field name="tab_name" />
                             <field name="sequence" />
                         </group>
                         <group string="Form Location Preview">
                             <div class="alert alert-info p-3" role="alert">
-                                <pre class="mb-0" style="white-space: pre-wrap;"><field name="form_preview_hint" nolabel="1" /></pre>
+                                <pre class="mb-0" style="white-space: pre-wrap;">
+                                    <field name="form_preview_hint" nolabel="1" />
+                                </pre>
                             </div>
                             <field name="field_count" />
                         </group>
                     </group>
-                    <separator string="Description"/>
-                    <field name="description" nolabel="1" placeholder="Describe what kind of fields should go in this zone..." class="oe_inline"/>
+                    <separator string="Description" />
+                    <field
+                        name="description"
+                        nolabel="1"
+                        placeholder="Describe what kind of fields should go in this zone..."
+                        class="oe_inline"
+                    />
                     <group string="Technical Settings" groups="base.group_no_one">
                         <field name="xpath_expression" />
                         <field name="xpath_position" />
@@ -362,12 +500,28 @@
                 <field name="name" />
                 <field name="tab_name" />
                 <separator />
-                <filter string="Individual" name="individual" domain="[('target_type', 'in', ['individual', 'both'])]" />
-                <filter string="Group" name="group" domain="[('target_type', 'in', ['group', 'both'])]" />
+                <filter
+                    string="Individual"
+                    name="individual"
+                    domain="[('target_type', 'in', ['individual', 'both'])]"
+                />
+                <filter
+                    string="Group"
+                    name="group"
+                    domain="[('target_type', 'in', ['group', 'both'])]"
+                />
                 <separator />
                 <group>
-                    <filter string="Registry Type" name="group_target" context="{'group_by': 'target_type'}" />
-                    <filter string="Tab" name="group_tab" context="{'group_by': 'tab_name'}" />
+                    <filter
+                        string="Registry Type"
+                        name="group_target"
+                        context="{'group_by': 'target_type'}"
+                    />
+                    <filter
+                        string="Tab"
+                        name="group_tab"
+                        context="{'group_by': 'tab_name'}"
+                    />
                 </group>
             </search>
         </field>

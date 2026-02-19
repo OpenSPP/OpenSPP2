@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- ════════════════════════════════════════════════════════════════════ -->
     <!-- EVENT TYPE VIEWS -->
@@ -28,14 +28,25 @@
             <form>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button name="toggle_active" type="object"
-                                class="oe_stat_button" icon="fa-archive">
-                            <field name="active" widget="boolean_button"
-                                options='{"terminology": "archive"}'/>
+                        <button
+                            name="toggle_active"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-archive"
+                        >
+                            <field
+                                name="active"
+                                widget="boolean_button"
+                                options='{"terminology": "archive"}'
+                            />
                         </button>
                     </div>
-                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
-                            invisible="active"/>
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="text-bg-danger"
+                        invisible="active"
+                    />
                     <group>
                         <group>
                             <field name="name" />
@@ -55,9 +66,11 @@
                         <page string="Data Structure" name="data_structure">
                             <group>
                                 <group>
-                                    <field name="data_model_id"
-                                           options="{'no_create': True}"
-                                           invisible="field_ids" />
+                                    <field
+                                        name="data_model_id"
+                                        options="{'no_create': True}"
+                                        invisible="field_ids"
+                                    />
                                 </group>
                             </group>
                             <field name="field_ids" invisible="data_model_id">
@@ -90,19 +103,27 @@
                                     <field name="registrant_id_type_id" />
                                 </group>
                             </group>
-                            <field name="mapping_ids"
-                                   invisible="source_type == 'internal'">
+                            <field
+                                name="mapping_ids"
+                                invisible="source_type == 'internal'"
+                            >
                                 <list editable="bottom">
                                     <field name="sequence" widget="handle" />
                                     <field name="external_field" />
                                     <field name="internal_field" />
                                     <field name="transform" />
-                                    <field name="transform_expression"
-                                           invisible="transform != 'expression'" />
-                                    <field name="lookup_model"
-                                           invisible="transform != 'lookup'" />
-                                    <field name="lookup_field"
-                                           invisible="transform != 'lookup'" />
+                                    <field
+                                        name="transform_expression"
+                                        invisible="transform != 'expression'"
+                                    />
+                                    <field
+                                        name="lookup_model"
+                                        invisible="transform != 'lookup'"
+                                    />
+                                    <field
+                                        name="lookup_field"
+                                        invisible="transform != 'lookup'"
+                                    />
                                 </list>
                             </field>
                         </page>
@@ -116,10 +137,12 @@
                                 </group>
                                 <group string="Approval">
                                     <field name="is_requires_approval" />
-                                    <field name="approval_definition_id"
-                                           invisible="not is_requires_approval"
-                                           required="is_requires_approval"
-                                           options="{'no_create': True}"/>
+                                    <field
+                                        name="approval_definition_id"
+                                        invisible="not is_requires_approval"
+                                        required="is_requires_approval"
+                                        options="{'no_create': True}"
+                                    />
                                 </group>
                             </group>
                         </page>
@@ -145,17 +168,53 @@
             <search>
                 <field name="name" />
                 <field name="code" />
-                <filter name="active" string="Active" domain="[('active', '=', True)]" />
-                <filter name="inactive" string="Archived" domain="[('active', '=', False)]" />
+                <filter
+                    name="active"
+                    string="Active"
+                    domain="[('active', '=', True)]"
+                />
+                <filter
+                    name="inactive"
+                    string="Archived"
+                    domain="[('active', '=', False)]"
+                />
                 <separator />
-                <filter name="survey" string="Surveys" domain="[('category', '=', 'survey')]" />
-                <filter name="visit" string="Field Visits" domain="[('category', '=', 'visit')]" />
-                <filter name="sync" string="External Sync" domain="[('category', '=', 'sync')]" />
-                <filter name="manual" string="Manual Entry" domain="[('category', '=', 'manual')]" />
+                <filter
+                    name="survey"
+                    string="Surveys"
+                    domain="[('category', '=', 'survey')]"
+                />
+                <filter
+                    name="visit"
+                    string="Field Visits"
+                    domain="[('category', '=', 'visit')]"
+                />
+                <filter
+                    name="sync"
+                    string="External Sync"
+                    domain="[('category', '=', 'sync')]"
+                />
+                <filter
+                    name="manual"
+                    string="Manual Entry"
+                    domain="[('category', '=', 'manual')]"
+                />
                 <separator />
-                <filter name="group_category" string="Category" context="{'group_by': 'category'}" />
-                <filter name="group_source" string="Source Type" context="{'group_by': 'source_type'}" />
-                <filter name="group_target" string="Target Type" context="{'group_by': 'target_type'}" />
+                <filter
+                    name="group_category"
+                    string="Category"
+                    context="{'group_by': 'category'}"
+                />
+                <filter
+                    name="group_source"
+                    string="Source Type"
+                    context="{'group_by': 'source_type'}"
+                />
+                <filter
+                    name="group_target"
+                    string="Target Type"
+                    context="{'group_by': 'target_type'}"
+                />
             </search>
         </field>
     </record>
@@ -176,5 +235,4 @@
             </p>
         </field>
     </record>
-
 </odoo>

@@ -3,16 +3,20 @@
     <!-- HDX User Group - Can view HDX COD sources and resources -->
     <record id="group_hdx_user" model="res.groups">
         <field name="name">HDX User</field>
-        <field name="privilege_id" ref="privilege_hdx_user"/>
-        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
-        <field name="comment">View access to HDX COD sources and resources for humanitarian data.</field>
+        <field name="privilege_id" ref="privilege_hdx_user" />
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]" />
+        <field
+            name="comment"
+        >View access to HDX COD sources and resources for humanitarian data.</field>
     </record>
 
     <!-- HDX Manager Group - Full HDX management access -->
     <record id="group_hdx_manager" model="res.groups">
         <field name="name">HDX Manager</field>
-        <field name="privilege_id" ref="privilege_hdx_manager"/>
-        <field name="implied_ids" eval="[(4, ref('group_hdx_user'))]"/>
-        <field name="comment">Manage HDX COD sources, sync from HDX API, and import boundary data.</field>
+        <field name="privilege_id" ref="privilege_hdx_manager" />
+        <field name="implied_ids" eval="[(4, ref('group_hdx_user'))]" />
+        <field
+            name="comment"
+        >Manage HDX COD sources, sync from HDX API, and import boundary data.</field>
     </record>
 </odoo>

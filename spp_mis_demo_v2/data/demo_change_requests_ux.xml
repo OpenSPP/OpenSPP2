@@ -32,22 +32,28 @@
     <!-- Conflict Rule: Same registrant, same field update -->
     <record id="conflict_rule_address_update" model="spp.cr.conflict.rule">
         <field name="name">Duplicate Address Update</field>
-        <field name="cr_type_id" ref="spp_cr_types_base.cr_type_edit_individual"/>
-        <field name="conflict_type_ids" eval="[(4, ref('spp_cr_types_base.cr_type_edit_individual'))]"/>
+        <field name="cr_type_id" ref="spp_cr_types_base.cr_type_edit_individual" />
+        <field
+            name="conflict_type_ids"
+            eval="[(4, ref('spp_cr_types_base.cr_type_edit_individual'))]"
+        />
         <field name="scope">field</field>
         <field name="conflict_fields">address_line1</field>
         <field name="action">warn</field>
-        <field name="active" eval="True"/>
+        <field name="active" eval="True" />
     </record>
 
     <!-- Blocking conflict: Exit while other pending CRs -->
     <record id="conflict_rule_exit_blocking" model="spp.cr.conflict.rule">
         <field name="name">Exit Blocks Other Changes</field>
-        <field name="cr_type_id" ref="spp_cr_types_advanced.cr_type_exit_registrant"/>
-        <field name="conflict_type_ids" eval="[(4, ref('spp_cr_types_advanced.cr_type_add_member'))]"/>
+        <field name="cr_type_id" ref="spp_cr_types_advanced.cr_type_exit_registrant" />
+        <field
+            name="conflict_type_ids"
+            eval="[(4, ref('spp_cr_types_advanced.cr_type_add_member'))]"
+        />
         <field name="scope">registrant</field>
         <field name="action">block</field>
-        <field name="active" eval="True"/>
+        <field name="active" eval="True" />
     </record>
 
     <!-- ═══════════════════════════════════════════════════════════════════════ -->
@@ -66,5 +72,4 @@
         <field name="is_active" eval="False"/>
     </record>
     -->
-
 </odoo>

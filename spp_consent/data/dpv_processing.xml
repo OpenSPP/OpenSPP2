@@ -6,7 +6,6 @@ Based on W3C Data Privacy Vocabulary (DPV) v2.
 See: https://w3id.org/dpv#Processing
 -->
 <odoo noupdate="1">
-
     <!-- ================================================================== -->
     <!-- OBTAIN OPERATIONS -->
     <!-- ================================================================== -->
@@ -16,7 +15,9 @@ See: https://w3id.org/dpv#Processing
         <field name="name">Collect</field>
         <field name="dpv_uri">https://w3id.org/dpv#Collect</field>
         <field name="dpv_concept">dpv:Collect</field>
-        <field name="description">Gathering data from the data subject or other sources</field>
+        <field
+            name="description"
+        >Gathering data from the data subject or other sources</field>
         <field name="category">obtain</field>
         <field name="risk_level">low</field>
         <field name="sequence">10</field>
@@ -191,5 +192,4 @@ See: https://w3id.org/dpv#Processing
         <field name="risk_level">low</field>
         <field name="sequence">150</field>
     </record>
-
 </odoo>
