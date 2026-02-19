@@ -7,7 +7,7 @@
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Stable",
+    "development_status": "Production/Stable",
     "maintainers": ["jeremi", "gonzalesedwin1123", "reichie020212"],
     "depends": [
         "spp_api_v2",
@@ -24,24 +24,5 @@
     "auto_install": ["spp_api_v2", "spp_vocabulary"],
     "summary": """
         REST API endpoints for Vocabulary lookup.
-    """,
-    "description": """
-OpenSPP API V2 - Vocabulary
-===========================
-
-Extends OpenSPP API V2 with Vocabulary lookup endpoints.
-
-Endpoints
----------
-- ``GET /Vocabulary`` - List all vocabularies
-- ``GET /Vocabulary/{namespace_uri}/codes`` - Get codes for a vocabulary
-
-Design Principles
------------------
-- Uses namespace URI as identifier, NOT database IDs
-- Vocabularies are public (no consent required)
-- Supports filtering and pagination
-- Follows OpenSPP API V2 patterns
-- Requires authentication via OAuth 2.0
     """,
 }

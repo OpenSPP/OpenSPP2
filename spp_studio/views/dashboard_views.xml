@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!--
         OpenSPP Studio Dashboard
@@ -33,10 +33,12 @@
                                         <p class="card-text text-muted">
                                             Build eligibility rules, benefit calculations, and compliance checks.
                                         </p>
-                                        <button name="action_open_expressions"
-                                                string="Open Expressions →"
-                                                type="object"
-                                                class="btn btn-primary"/>
+                                        <button
+                                            name="action_open_expressions"
+                                            string="Open Expressions →"
+                                            type="object"
+                                            class="btn btn-primary"
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -49,10 +51,12 @@
                                         <p class="card-text text-muted">
                                             Define reusable variables for expressions (fields, computed values, aggregates).
                                         </p>
-                                        <button name="action_open_variables"
-                                                string="Open Variables →"
-                                                type="object"
-                                                class="btn btn-primary"/>
+                                        <button
+                                            name="action_open_variables"
+                                            string="Open Variables →"
+                                            type="object"
+                                            class="btn btn-primary"
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -65,10 +69,12 @@
                                         <p class="card-text text-muted">
                                             Add custom fields to individual and group registries.
                                         </p>
-                                        <button name="action_manage_registry_fields"
-                                                string="Open Custom Fields →"
-                                                type="object"
-                                                class="btn btn-primary"/>
+                                        <button
+                                            name="action_manage_registry_fields"
+                                            string="Open Custom Fields →"
+                                            type="object"
+                                            class="btn btn-primary"
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -81,10 +87,12 @@
                                         <p class="card-text text-muted">
                                             Define data collection forms for surveys, assessments, and field visits.
                                         </p>
-                                        <button name="action_manage_event_types"
-                                                string="Open Event Types →"
-                                                type="object"
-                                                class="btn btn-primary"/>
+                                        <button
+                                            name="action_manage_event_types"
+                                            string="Open Event Types →"
+                                            type="object"
+                                            class="btn btn-primary"
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -97,10 +105,12 @@
                                         <p class="card-text text-muted">
                                             Configure change request types for updating registrant information.
                                         </p>
-                                        <button name="action_manage_change_request_types"
-                                                string="Open Change Requests →"
-                                                type="object"
-                                                class="btn btn-primary"/>
+                                        <button
+                                            name="action_manage_change_request_types"
+                                            string="Open Change Requests →"
+                                            type="object"
+                                            class="btn btn-primary"
+                                        />
                                     </div>
                                 </div>
                             </div>

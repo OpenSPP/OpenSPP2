@@ -1,16 +1,15 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <!-- Encryption Key Tree View -->
     <record id="spp_encryption_key_view_tree" model="ir.ui.view">
         <field name="name">spp.encryption.key.view.tree</field>
         <field name="model">spp.encryption.key</field>
         <field name="arch" type="xml">
             <list string="Encryption Keys" create="false" delete="false">
-                <field name="key_id"/>
-                <field name="version"/>
-                <field name="is_current" widget="boolean"/>
-                <field name="create_date"/>
+                <field name="key_id" />
+                <field name="version" />
+                <field name="is_current" widget="boolean" />
+                <field name="create_date" />
             </list>
         </field>
     </record>
@@ -24,17 +23,17 @@
                 <sheet>
                     <group>
                         <group>
-                            <field name="key_id"/>
-                            <field name="version"/>
-                            <field name="is_current"/>
+                            <field name="key_id" />
+                            <field name="version" />
+                            <field name="is_current" />
                         </group>
                         <group>
-                            <field name="create_date"/>
-                            <field name="write_date"/>
+                            <field name="create_date" />
+                            <field name="write_date" />
                         </group>
                     </group>
                     <group string="Encrypted Key Data">
-                        <field name="encrypted_key" readonly="1" password="True"/>
+                        <field name="encrypted_key" readonly="1" password="True" />
                     </group>
                 </sheet>
             </form>
@@ -56,5 +55,4 @@
             </p>
         </field>
     </record>
-
 </odoo>

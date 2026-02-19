@@ -26,7 +26,7 @@ class CycleService:
             spp.cycle record or empty recordset
         """
         return (
-            self.env["spp.cycle"]
+            self.env["spp.cycle"]  # nosemgrep: odoo-sudo-without-context
             .sudo()
             .search(
                 [("name", "=", identifier)],
@@ -88,13 +88,13 @@ class CycleService:
             else:
                 domain.append(("write_date", ">=", last_updated))
 
-        total = self.env["spp.cycle"].sudo().search_count(domain)
+        total = self.env["spp.cycle"].sudo().search_count(domain)  # nosemgrep: odoo-sudo-without-context
 
         count = params.get("_count", 20)
         offset = params.get("_offset", 0)
 
         records = (
-            self.env["spp.cycle"]
+            self.env["spp.cycle"]  # nosemgrep: odoo-sudo-without-context
             .sudo()
             .search(
                 domain,

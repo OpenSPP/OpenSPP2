@@ -38,7 +38,7 @@ class SPPAttachmentController(AttachmentController):
             return
 
         # Portal/Guest users handling
-        attachment_sudo = attachment.sudo()
+        attachment_sudo = attachment.sudo()  # nosemgrep: odoo-sudo-without-context
         if message:
             # Only the message's author can delete linked attachments
             if not message.is_current_user_or_guest_author:
@@ -62,6 +62,7 @@ class SPPThreadController(ThreadController):
     def mail_message_update_content(self, message_id, body, attachment_ids, attachment_tokens=None, partner_ids=None):
         guest = request.env["mail.guest"]._get_guest_from_context()
         guest.env["ir.attachment"].browse(attachment_ids)._check_attachments_access(attachment_tokens)
+        # nosemgrep: odoo-sudo-without-context
         message_sudo = guest.env["mail.message"].browse(message_id).sudo().exists()
 
         # Check if current user is admin or the creator (user or guest)

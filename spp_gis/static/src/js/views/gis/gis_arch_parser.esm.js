@@ -31,12 +31,20 @@ export class GisArchParser {
             createGroup: exprToBoolean(xmlDoc.getAttribute("group_create"), true),
             deleteGroup: exprToBoolean(xmlDoc.getAttribute("group_delete"), true),
             editGroup: exprToBoolean(xmlDoc.getAttribute("group_edit"), true),
-            quickCreate: activeActions.create && exprToBoolean(xmlDoc.getAttribute("quick_create"), true),
+            quickCreate:
+                activeActions.create &&
+                exprToBoolean(xmlDoc.getAttribute("quick_create"), true),
         });
 
         visitXML(xmlDoc, (node) => {
             if (node.tagName === "field") {
-                const fieldInfo = Field.parseFieldNode(node, models, modelName, "gis", jsClass);
+                const fieldInfo = Field.parseFieldNode(
+                    node,
+                    models,
+                    modelName,
+                    "gis",
+                    jsClass
+                );
                 fieldNodes[fieldInfo.name] = fieldInfo;
                 node.setAttribute("field_id", fieldInfo.name);
             }

@@ -62,7 +62,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         invisible="state != 'cancelled'"
                         string="Reset to Draft"
                     />
-                    <field name="state" widget="statusbar" statusbar_visible="draft,posted,cancelled" />
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="draft,posted,cancelled"
+                    />
                 </header>
                 <div
                     class="alert alert-danger"
@@ -70,12 +74,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     style="margin-bottom:0px;"
                     invisible="state != 'cancelled'"
                 > This fund was cancelled on <bold>
-                        <field name="write_date" readonly="1" />
-                    </bold>
+                    <field name="write_date" readonly="1" />
+                </bold>
                 </div>
                 <sheet>
-                    <div class="oe_button_box" name="button_box">
-                    </div>
+                    <div class="oe_button_box" name="button_box" />
                     <div class="oe_title mb24">
                         <label for="name" string="Reference Number:" />
                         <h2>
@@ -91,7 +94,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                             />
                         </h2>
                         <div class="o_row">
-                            <label for="company_id" string="Company: " groups="base.group_multi_company" />
+                            <label
+                                for="company_id"
+                                string="Company: "
+                                groups="base.group_multi_company"
+                            />
                             <field
                                 name="company_id"
                                 groups="base.group_multi_company"
@@ -102,7 +109,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         </div>
                     </div>
                     <group colspan="4" col="4">
-                        <field name="journal_id" options="{'no_open':True}" readonly="1" />
+                        <field
+                            name="journal_id"
+                            options="{'no_open':True}"
+                            readonly="1"
+                        />
                         <field name="create_date" string="Date Entered" readonly="1" />
                         <field name="amount" readonly="state != 'draft'" />
                         <field
@@ -110,7 +121,6 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                             options="{'no_open':True,'no_quick_create':True,'no_create':True}"
                         />
                         <field name="remarks" readonly="state != 'draft'" />
-
                     </group>
                     <group string="Accounting Journal Entry">
                         <field name="date_posted" readonly="state != 'draft'" />
@@ -141,14 +151,38 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                 <separator />
                 <filter name="filter_date_posted" date="date_posted" />
                 <separator />
-                <filter name="draft_state" string="Draft" domain="[('state','=','draft')]" />
-                <filter name="posted_state" string="Posted" domain="[('state','=','posted')]" />
-                <filter name="cancelled_state" string="Cancelled" domain="[('state','=','cancelled')]" />
+                <filter
+                    name="draft_state"
+                    string="Draft"
+                    domain="[('state','=','draft')]"
+                />
+                <filter
+                    name="posted_state"
+                    string="Posted"
+                    domain="[('state','=','posted')]"
+                />
+                <filter
+                    name="cancelled_state"
+                    string="Cancelled"
+                    domain="[('state','=','cancelled')]"
+                />
                 <separator />
-                    <filter string="Date Posted" name="date_posted" context="{'group_by':'date_posted'}" />
-                    <separator orientation="vertical" />
-                    <filter string="State" name="grp_state" context="{'group_by': 'state'}" />
-                    <filter string="Company" name="grp_company_id" context="{'group_by': 'company_id'}" />
+                <filter
+                    string="Date Posted"
+                    name="date_posted"
+                    context="{'group_by':'date_posted'}"
+                />
+                <separator orientation="vertical" />
+                <filter
+                    string="State"
+                    name="grp_state"
+                    context="{'group_by': 'state'}"
+                />
+                <filter
+                    string="Company"
+                    name="grp_company_id"
+                    context="{'group_by': 'company_id'}"
+                />
                 <searchpanel>
                     <field name="journal_id" icon="fa-book" />
                 </searchpanel>
@@ -197,5 +231,4 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         sequence="20"
         parent="spp_programs.spp_programs_payments_menu_root"
     />
-
 </odoo>

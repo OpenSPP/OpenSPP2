@@ -1,21 +1,25 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
     <record id="vocab_group_membership_type" model="spp.vocabulary">
         <field name="name">Group Membership Type</field>
         <field name="namespace_uri">urn:openspp:vocab:group-membership-type</field>
         <field name="is_system">True</field>
         <field name="domain">core</field>
-        <field name="description">Types of membership roles within a group (e.g., head, child, spouse)</field>
+        <field
+            name="description"
+        >Types of membership roles within a group (e.g., head, child, spouse)</field>
     </record>
 
     <record id="code_membership_type_head" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_group_membership_type"/>
+        <field name="vocabulary_id" ref="vocab_group_membership_type" />
         <field name="code">head</field>
         <field name="display">Head</field>
-        <field name="definition">Head of the group/household. Only one head is allowed per group.</field>
+        <field
+            name="definition"
+        >Head of the group/household. Only one head is allowed per group.</field>
         <field name="sequence">1</field>
     </record>
-<!--
+    <!--
     <record id="code_membership_type_child" model="spp.vocabulary.code">
         <field name="vocabulary_id" ref="vocab_group_membership_type"/>
         <field name="code">child</field>

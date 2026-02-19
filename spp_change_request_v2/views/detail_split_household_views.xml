@@ -6,22 +6,55 @@
         <field name="model">spp.cr.detail.split_household</field>
         <field name="arch" type="xml">
             <form string="Split Household Details">
+                <header>
+                    <button
+                        name="action_submit_for_approval"
+                        string="Submit for Approval"
+                        type="object"
+                        class="btn-primary"
+                        invisible="approval_state != 'draft'"
+                    />
+                    <button
+                        name="action_submit_for_approval"
+                        string="Resubmit for Review"
+                        type="object"
+                        class="btn-primary"
+                        invisible="approval_state != 'revision'"
+                    />
+                    <field
+                        name="approval_state"
+                        widget="statusbar"
+                        statusbar_visible="draft,pending,approved,applied"
+                    />
+                </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
                         <button class="oe_stat_button" icon="fa-user-minus">
-                            <field name="members_to_split_count" widget="statinfo" string="Moving" />
+                            <field
+                                name="members_to_split_count"
+                                widget="statinfo"
+                                string="Moving"
+                            />
                         </button>
                         <button class="oe_stat_button" icon="fa-users">
-                            <field name="remaining_members_count" widget="statinfo" string="Remaining" />
+                            <field
+                                name="remaining_members_count"
+                                widget="statinfo"
+                                string="Remaining"
+                            />
                         </button>
                     </div>
 
                     <group>
                         <group string="Source Household">
-                            <field name="source_group_id" required="1"/>
+                            <field
+                                name="source_group_id"
+                                required="1"
+                                options="{'no_create': True, 'no_open': True}"
+                            />
                             <field name="source_group_name" invisible="1" />
-                            <field name="available_member_ids" invisible="1"/>
-                            <field name="members_to_split_ids" invisible="1"/>
+                            <field name="available_member_ids" invisible="1" />
+                            <field name="members_to_split_ids" invisible="1" />
                         </group>
                         <group string="Split Details">
                             <field name="split_reason" />
@@ -34,27 +67,34 @@
                         Select individuals to move from the source household to create a new household.
                         The household head cannot be moved.
                     </p>
-                    <field name="registrant_member_to_split_ids"
-                           widget="many2many_tags"
-                           domain="[('id', 'in', available_member_ids)]"
-                           options="{'no_create': True}"
-                           required="1"/>
+                    <field
+                        name="registrant_member_to_split_ids"
+                        widget="many2many_tags"
+                        domain="[('id', 'in', available_member_ids)]"
+                        options="{'no_create': True}"
+                        required="1"
+                    />
 
                     <group>
                         <group string="New Household Head">
-                            <field name="new_head_individual_id"
-                                   domain="[('id', 'in', registrant_member_to_split_ids)]"
-                                   options="{'no_create': True}"
-                                   required="1"/>
-                            <field name="new_head_membership_id" invisible="1"/>
+                            <field
+                                name="new_head_individual_id"
+                                domain="[('id', 'in', registrant_member_to_split_ids)]"
+                                options="{'no_create': True}"
+                                required="1"
+                            />
+                            <field name="new_head_membership_id" invisible="1" />
                         </group>
                     </group>
 
                     <separator string="New Household Information" />
                     <group>
                         <group>
-                            <field name="new_group_name" required="1"/>
-                            <field name="new_group_type_id" options="{'no_create': True}" />
+                            <field name="new_group_name" required="1" />
+                            <field
+                                name="new_group_type_id"
+                                options="{'no_create': True, 'no_open': True}"
+                            />
                         </group>
                         <group>
                             <field name="copy_address" />
@@ -68,9 +108,15 @@
                             <field name="city" />
                         </group>
                         <group string="Location">
-                            <field name="state_id" options="{'no_create': True}" />
+                            <field
+                                name="state_id"
+                                options="{'no_create': True, 'no_open': True}"
+                            />
                             <field name="postal_code" />
-                            <field name="country_id" options="{'no_create': True}" />
+                            <field
+                                name="country_id"
+                                options="{'no_create': True, 'no_open': True}"
+                            />
                         </group>
                         <group string="Contact">
                             <field name="phone" />
@@ -79,7 +125,10 @@
                     </group>
 
                     <group string="Additional Information">
-                        <field name="remarks" placeholder="Enter any additional notes..." />
+                        <field
+                            name="remarks"
+                            placeholder="Enter any additional notes..."
+                        />
                     </group>
 
                     <group invisible="1">

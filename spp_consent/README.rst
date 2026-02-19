@@ -37,66 +37,65 @@ groups.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  Record consent with ISO 27560 four-section structure (metadata,
-   parties, processing, consent specifics)
--  Track consent lifecycle with state validation: requested →
-   given/refused, given → renewed/withdrawn/expired/invalidated
--  Two-mode recipients: specific organizations OR organization
-   categories (e.g., "all NGOs but not private sector")
--  Maintain audit history per GDPR Article 7 requirements (who, what,
-   when, why, how)
--  Handle delegation (guardian, parent, power of attorney) with evidence
-   attachment support
--  Enforce notice-as-boundary: consent terms cannot exceed privacy
-   notice scope
--  Export consent records as JSON-LD or generate ISO 27560 receipts for
-   interoperability
--  Automatically expire consents via scheduled cron job (batch
-   processing)
--  Protect consent terms from modification after given (immutable
-   fields)
+- Record consent with ISO 27560 four-section structure (metadata,
+  parties, processing, consent specifics)
+- Track consent lifecycle with state validation: requested →
+  given/refused, given → renewed/withdrawn/expired/invalidated
+- Two-mode recipients: specific organizations OR organization categories
+  (e.g., "all NGOs but not private sector")
+- Maintain audit history per GDPR Article 7 requirements (who, what,
+  when, why, how)
+- Handle delegation (guardian, parent, power of attorney) with evidence
+  attachment support
+- Enforce notice-as-boundary: consent terms cannot exceed privacy notice
+  scope
+- Export consent records as JSON-LD or generate ISO 27560 receipts for
+  interoperability
+- Automatically expire consents via scheduled cron job (batch
+  processing)
+- Protect consent terms from modification after given (immutable fields)
 
 Key Models
 ~~~~~~~~~~
 
-+----------------------------------+----------------------------------+
-| Model                            | Description                      |
-+==================================+==================================+
-| ``spp.consent``                  | Consent record implementing ISO  |
-|                                  | 27560 structure with DPV fields  |
-+----------------------------------+----------------------------------+
-| ``spp.consent.history``          | Audit trail of consent changes   |
-|                                  | (action, status, user,           |
-|                                  | timestamp)                       |
-+----------------------------------+----------------------------------+
-| ``spp.consent.notice``           | Privacy notices per ISO 29184    |
-|                                  | with version tracking            |
-+----------------------------------+----------------------------------+
-| ``spp.consent.purpose``          | DPV-aligned purpose taxonomy     |
-|                                  | (service delivery, research,     |
-|                                  | etc.)                            |
-+----------------------------------+----------------------------------+
-| ``spp.consent.personal.data``    | DPV-aligned data categories      |
-|                                  | (GDPR Article 9 sensitivity      |
-|                                  | tagging)                         |
-+----------------------------------+----------------------------------+
-| ``spp.consent.processing``       | DPV-aligned processing           |
-|                                  | operations (collect, store,      |
-|                                  | share, etc.)                     |
-+----------------------------------+----------------------------------+
-| ``spp.consent.org.type``         | Organization type categories for |
-|                                  | category-based consent           |
-+----------------------------------+----------------------------------+
-| ``spp.consent.mixin``            | Abstract mixin to add consent    |
-|                                  | tracking to any model            |
-+----------------------------------+----------------------------------+
-| ``spp.record.consent.wizard``    | Wizard for recording individual  |
-|                                  | consent                          |
-+----------------------------------+----------------------------------+
-| ``                               | Wizard for bulk consent          |
-| spp.bulk.record.consent.wizard`` | recording across multiple        |
-|                                  | beneficiaries                    |
-+----------------------------------+----------------------------------+
++------------------------------------+----------------------------------+
+| Model                              | Description                      |
++====================================+==================================+
+| ``spp.consent``                    | Consent record implementing ISO  |
+|                                    | 27560 structure with DPV fields  |
++------------------------------------+----------------------------------+
+| ``spp.consent.history``            | Audit trail of consent changes   |
+|                                    | (action, status, user,           |
+|                                    | timestamp)                       |
++------------------------------------+----------------------------------+
+| ``spp.consent.notice``             | Privacy notices per ISO 29184    |
+|                                    | with version tracking            |
++------------------------------------+----------------------------------+
+| ``spp.consent.purpose``            | DPV-aligned purpose taxonomy     |
+|                                    | (service delivery, research,     |
+|                                    | etc.)                            |
++------------------------------------+----------------------------------+
+| ``spp.consent.personal.data``      | DPV-aligned data categories      |
+|                                    | (GDPR Article 9 sensitivity      |
+|                                    | tagging)                         |
++------------------------------------+----------------------------------+
+| ``spp.consent.processing``         | DPV-aligned processing           |
+|                                    | operations (collect, store,      |
+|                                    | share, etc.)                     |
++------------------------------------+----------------------------------+
+| ``spp.consent.org.type``           | Organization type categories for |
+|                                    | category-based consent           |
++------------------------------------+----------------------------------+
+| ``spp.consent.mixin``              | Abstract mixin to add consent    |
+|                                    | tracking to any model            |
++------------------------------------+----------------------------------+
+| ``spp.record.consent.wizard``      | Wizard for recording individual  |
+|                                    | consent                          |
++------------------------------------+----------------------------------+
+| ``spp.bulk.record.consent.wizard`` | Wizard for bulk consent          |
+|                                    | recording across multiple        |
+|                                    | beneficiaries                    |
++------------------------------------+----------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -117,58 +116,55 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
--  **Menu**: Registry > Configuration > Consent Management > Consent
-   Records
--  **Configuration Submenus**:
+- **Menu**: Registry > Configuration > Consent Management > Consent
+  Records
+- **Configuration Submenus**:
 
-   -  Registry > Configuration > Consent Management > Configuration >
-      Purposes (DPV)
-   -  Registry > Configuration > Consent Management > Configuration >
-      Personal Data Categories
-   -  Registry > Configuration > Consent Management > Configuration >
-      Processing Operations
-   -  Registry > Configuration > Consent Management > Configuration >
-      Privacy Notices
-   -  Registry > Configuration > Consent Management > Configuration >
-      Organization Types
+  - Registry > Configuration > Consent Management > Configuration >
+    Purposes (DPV)
+  - Registry > Configuration > Consent Management > Configuration >
+    Personal Data Categories
+  - Registry > Configuration > Consent Management > Configuration >
+    Processing Operations
+  - Registry > Configuration > Consent Management > Configuration >
+    Privacy Notices
+  - Registry > Configuration > Consent Management > Configuration >
+    Organization Types
 
--  **Registrant Access**: "Record Consent" stat button on individual and
-   group forms (added by ``spp.consent.mixin``)
--  **Form Tabs**: Consent form has Processing, Consent Details, Audit
-   Trail, and Technical tabs
--  **Notice Tabs**: Privacy Notice form has Summary, Full Notice, ISO
-   29184 Elements, Contact, DPV Taxonomy, and Consent Boundaries tabs
+- **Registrant Access**: "Record Consent" stat button on individual and
+  group forms (added by ``spp.consent.mixin``)
+- **Form Tabs**: Consent form has Processing, Consent Details, Audit
+  Trail, and Technical tabs
+- **Notice Tabs**: Privacy Notice form has Summary, Full Notice, ISO
+  29184 Elements, Contact, DPV Taxonomy, and Consent Boundaries tabs
 
 Security
 ~~~~~~~~
 
-+----------------------+----------------------+----------------------+
-| Group                | Model                | Access               |
-+======================+======================+======================+
-| ``spp_registry.gro   | All models           | Read                 |
-| up_registry_viewer`` |                      |                      |
-+----------------------+----------------------+----------------------+
-| ``spp_registry.grou  | ``spp.consent``      | Read/Write/Create    |
-| p_registry_officer`` |                      | (no delete)          |
-+----------------------+----------------------+----------------------+
-| ``spp_registry.grou  | Wizards              | Read/Write/Create    |
-| p_registry_officer`` |                      | (no delete)          |
-+----------------------+----------------------+----------------------+
-| ``spp_registry.grou  | DPV taxonomies and   | Read                 |
-| p_registry_officer`` | notices              |                      |
-+----------------------+----------------------+----------------------+
-| ``spp_registry.grou  | ``spp.consent``      | Full CRUD            |
-| p_registry_manager`` |                      |                      |
-+----------------------+----------------------+----------------------+
-| ``spp_registry.grou  | ``s                  | Read/Create (no      |
-| p_registry_manager`` | pp.consent.history`` | write/delete)        |
-+----------------------+----------------------+----------------------+
-| ``spp_registry.grou  | Taxonomies, notices, | Full CRUD            |
-| p_registry_manager`` | org types            |                      |
-+----------------------+----------------------+----------------------+
-| ``spp_securi         | All models           | Full CRUD            |
-| ty.group_spp_admin`` |                      |                      |
-+----------------------+----------------------+----------------------+
++-----------------------------------------+-------------------------+----------------------+
+| Group                                   | Model                   | Access               |
++=========================================+=========================+======================+
+| ``spp_registry.group_registry_viewer``  | All models              | Read                 |
++-----------------------------------------+-------------------------+----------------------+
+| ``spp_registry.group_registry_officer`` | ``spp.consent``         | Read/Write/Create    |
+|                                         |                         | (no delete)          |
++-----------------------------------------+-------------------------+----------------------+
+| ``spp_registry.group_registry_officer`` | Wizards                 | Read/Write/Create    |
+|                                         |                         | (no delete)          |
++-----------------------------------------+-------------------------+----------------------+
+| ``spp_registry.group_registry_officer`` | DPV taxonomies and      | Read                 |
+|                                         | notices                 |                      |
++-----------------------------------------+-------------------------+----------------------+
+| ``spp_registry.group_registry_manager`` | ``spp.consent``         | Full CRUD            |
++-----------------------------------------+-------------------------+----------------------+
+| ``spp_registry.group_registry_manager`` | ``spp.consent.history`` | Read/Create (no      |
+|                                         |                         | write/delete)        |
++-----------------------------------------+-------------------------+----------------------+
+| ``spp_registry.group_registry_manager`` | Taxonomies, notices,    | Full CRUD            |
+|                                         | org types               |                      |
++-----------------------------------------+-------------------------+----------------------+
+| ``spp_security.group_spp_admin``        | All models              | Full CRUD            |
++-----------------------------------------+-------------------------+----------------------+
 
 Note: Configuration menu requires ``spp_security.group_spp_admin`` or
 ``spp_registry.group_registry_config_admin``.
@@ -176,17 +172,17 @@ Note: Configuration menu requires ``spp_security.group_spp_admin`` or
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Inherit ``spp.consent.mixin`` to add consent tracking to custom
-   models (provides ``consent_ids`` field and wizard launcher)
--  Override ``check_consent()`` on ``spp.consent`` to add custom consent
-   validation logic for API filtering
--  Extend DPV taxonomy models (``spp.consent.purpose``,
-   ``spp.consent.personal.data``, ``spp.consent.processing``) with
-   domain-specific terms
--  Override ``_compute_consent_summary()`` on ``res.partner`` to
-   customize cached consent summary for fast API lookups
--  Inherit ``spp.consent`` and add hook methods for consent lifecycle
-   events (e.g., ``_on_consent_given``, ``_on_consent_withdrawn``)
+- Inherit ``spp.consent.mixin`` to add consent tracking to custom models
+  (provides ``consent_ids`` field and wizard launcher)
+- Override ``check_consent()`` on ``spp.consent`` to add custom consent
+  validation logic for API filtering
+- Extend DPV taxonomy models (``spp.consent.purpose``,
+  ``spp.consent.personal.data``, ``spp.consent.processing``) with
+  domain-specific terms
+- Override ``_compute_consent_summary()`` on ``res.partner`` to
+  customize cached consent summary for fast API lookups
+- Inherit ``spp.consent`` and add hook methods for consent lifecycle
+  events (e.g., ``_on_consent_given``, ``_on_consent_withdrawn``)
 
 Dependencies
 ~~~~~~~~~~~~

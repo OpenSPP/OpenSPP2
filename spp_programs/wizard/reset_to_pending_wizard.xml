@@ -37,7 +37,10 @@
         </field>
     </record>
 
-    <record id="action_reset_to_pending_entitlement_wizard" model="ir.actions.act_window">
+    <record
+        id="action_reset_to_pending_entitlement_wizard"
+        model="ir.actions.act_window"
+    >
         <field name="name">Reset to Pending Entitlement</field>
         <field name="res_model">spp.reset.pending.entitlement.wizard</field>
         <field name="view_mode">form</field>

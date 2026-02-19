@@ -48,7 +48,7 @@ async def receive_ibr_search_response(
             verified_sender_id,
         )
 
-        header = envelope.header.model_dump()
+        envelope.header.model_dump()
         message = envelope.message
 
         # Extract search response data
@@ -162,6 +162,7 @@ def _process_ibr_search_result(
         # Use sudo() for API access - authentication is handled by signature verification
         if correlation_id:
             pending_check = (
+                # nosemgrep: odoo-sudo-without-context — DCI protocol handler with JWT/signature verification
                 env["spp.dci.duplication.check"]
                 .sudo()
                 .search(

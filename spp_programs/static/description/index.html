@@ -374,7 +374,7 @@ ul.auto-toc {
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! source digest: sha256:4d35575e0372ff77264029580b6650220f51faee2d07c3d752e59f6330a1e872
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-<p><a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_programs"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Production/Stable" src="https://img.shields.io/badge/maturity-Production%2FStable-green.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_programs"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
 <p>Core program management for social protection. Implements programs,
 cycles, beneficiary enrollment, entitlements (cash and in-kind),
 payments, and fund tracking. Uses manager pattern for extensible
@@ -397,21 +397,21 @@ workflows, fund balance validation, and CEL expression support</li>
 reconcile payments via accounting integration</li>
 <li><strong>Fund Tracking</strong>: Monitor program budgets, available funds, and
 journal entries through Odoo accounting</li>
-<li><strong>Stock Integration</strong>: Link in-kind entitlements to inventory,
-trigger procurements, track warehouse movements</li>
-<li><strong>Compliance</strong>: Define ongoing beneficiary conditions and filter
-cycle members by compliance status</li>
+<li><strong>Stock Integration</strong>: Link in-kind entitlements to inventory, trigger
+procurements, track warehouse movements</li>
+<li><strong>Compliance</strong>: Define ongoing beneficiary conditions and filter cycle
+members by compliance status</li>
 <li><strong>Manager Architecture</strong>: Extensible pattern for eligibility,
-deduplication, notification, program, cycle, entitlement, payment,
-and compliance logic</li>
+deduplication, notification, program, cycle, entitlement, payment, and
+compliance logic</li>
 </ul>
 </div>
 <div class="section" id="key-models">
 <h2>Key Models</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="57%" />
+<col width="43%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Model</th>
@@ -459,13 +459,11 @@ batches</td>
 <td>Wrapper for eligibility manager
 implementations</td>
 </tr>
-<tr><td>``
-spp.program.membership.manager``</td>
+<tr><td><tt class="docutils literal">spp.program.membership.manager</tt></td>
 <td>Base eligibility manager
 (abstract)</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.prog
-ram.membership.manager.default</tt></td>
+<tr><td><tt class="docutils literal">spp.program.membership.manager.default</tt></td>
 <td>Default eligibility
 implementation</td>
 </tr>
@@ -473,8 +471,7 @@ implementation</td>
 <td>Wrapper for deduplication
 manager implementations</td>
 </tr>
-<tr><td><tt class="docutils literal">sp
-p.program.notification.manager</tt></td>
+<tr><td><tt class="docutils literal">spp.program.notification.manager</tt></td>
 <td>Notification manager for
 beneficiary communications</td>
 </tr>
@@ -494,23 +491,19 @@ implementations</td>
 <td>Default cycle manager
 implementation</td>
 </tr>
-<tr><td><tt class="docutils literal">s
-pp.program.entitlement.manager</tt></td>
+<tr><td><tt class="docutils literal">spp.program.entitlement.manager</tt></td>
 <td>Wrapper for entitlement manager
 implementations</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.progr
-am.entitlement.manager.default</tt></td>
+<tr><td><tt class="docutils literal">spp.program.entitlement.manager.default</tt></td>
 <td>Default entitlement manager
 implementation</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.pr
-ogram.entitlement.manager.cash</tt></td>
+<tr><td><tt class="docutils literal">spp.program.entitlement.manager.cash</tt></td>
 <td>Cash entitlement manager with
 amount calculation</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.prog
-ram.entitlement.manager.inkind</tt></td>
+<tr><td><tt class="docutils literal">spp.program.entitlement.manager.inkind</tt></td>
 <td>In-kind entitlement manager with
 product configuration</td>
 </tr>
@@ -518,8 +511,7 @@ product configuration</td>
 <td>Wrapper for payment manager
 implementations</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.p
-rogram.payment.manager.default</tt></td>
+<tr><td><tt class="docutils literal">spp.program.payment.manager.default</tt></td>
 <td>Default payment manager
 implementation</td>
 </tr>
@@ -527,8 +519,7 @@ implementation</td>
 <td>Wrapper for compliance manager
 implementations</td>
 </tr>
-<tr><td>``
-spp.compliance.manager.default``</td>
+<tr><td><tt class="docutils literal">spp.compliance.manager.default</tt></td>
 <td>Default compliance manager with
 CEL support</td>
 </tr>
@@ -539,8 +530,7 @@ utilization</td>
 <tr><td><tt class="docutils literal">spp.program.fund.report.view</tt></td>
 <td>Fund balance reporting view</td>
 </tr>
-<tr><td><tt class="docutils literal">sp
-p.program.membership.duplicate</tt></td>
+<tr><td><tt class="docutils literal">spp.program.membership.duplicate</tt></td>
 <td>Tracks duplicate membership
 records</td>
 </tr>
@@ -563,8 +553,7 @@ or in-kind)</li>
 <li><strong>Payment Manager</strong>: Prepares and sends payment batches</li>
 <li><strong>Deduplication Manager</strong> (optional): Identify duplicate
 beneficiaries</li>
-<li><strong>Notification Manager</strong> (optional): Send beneficiary
-notifications</li>
+<li><strong>Notification Manager</strong> (optional): Send beneficiary notifications</li>
 <li><strong>Compliance Manager</strong> (optional): Define ongoing compliance
 conditions</li>
 </ul>
@@ -581,8 +570,8 @@ Configuration</strong> or via Create Journal button</li>
 <li><strong>Programs</strong>: Programs &gt; Programs</li>
 <li><strong>Cycles</strong>: Accessed via “Cycles” stat button on program form (no
 standalone menu)</li>
-<li><strong>Beneficiaries</strong>: Accessed via “Beneficiaries” stat button on
-program form (no standalone menu)</li>
+<li><strong>Beneficiaries</strong>: Accessed via “Beneficiaries” stat button on program
+form (no standalone menu)</li>
 <li><strong>Cash Entitlements</strong>: Accessed via entitlement buttons on cycle form
 (no standalone menu)</li>
 <li><strong>In-Kind Entitlements</strong>: Programs &gt; In-Kind &gt; Entitlements</li>
@@ -596,8 +585,8 @@ program form (no standalone menu)</li>
 <h2>Security</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="59%" />
+<col width="41%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Group</th>
@@ -605,35 +594,29 @@ program form (no standalone menu)</li>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td><tt class="docutils literal">spp_
-programs.group_programs_viewer</tt></td>
+<tr><td><tt class="docutils literal">spp_programs.group_programs_viewer</tt></td>
 <td>Read-only on all program data</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_p
-rograms.group_programs_officer</tt></td>
+<tr><td><tt class="docutils literal">spp_programs.group_programs_officer</tt></td>
 <td>Read/write/create on all models
 (no delete)</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_p
-rograms.group_programs_manager</tt></td>
+<tr><td><tt class="docutils literal">spp_programs.group_programs_manager</tt></td>
 <td>Full CRUD on cycles and
 memberships, RWC on programs (no
 program delete)</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_pro
-grams.group_programs_validator</tt></td>
+<tr><td><tt class="docutils literal">spp_programs.group_programs_validator</tt></td>
 <td>Read/write/create on
 entitlements and cycles (finance
 validation role)</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_programs
-.group_programs_cycle_approver</tt></td>
+<tr><td><tt class="docutils literal">spp_programs.group_programs_cycle_approver</tt></td>
 <td>Read/write/create on
 entitlements and cycles
 (approval role)</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_pr
-ograms.group_programs_rejector</tt></td>
+<tr><td><tt class="docutils literal">spp_programs.group_programs_rejector</tt></td>
 <td>Read/write/create on
 entitlements (rejection role)</td>
 </tr>

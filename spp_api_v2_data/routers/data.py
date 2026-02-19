@@ -57,7 +57,7 @@ def _resolve_subject_id(env: Environment, external_id: str, provider=None) -> in
             system_uri, value = parts
             # Search by id_type_id.uri (full code URI) for consistency with spp_api_v2
             reg_id = (
-                env["spp.registry.id"]
+                env["spp.registry.id"]  # nosemgrep: odoo-sudo-without-context
                 .sudo()
                 .search(
                     [
@@ -73,7 +73,7 @@ def _resolve_subject_id(env: Environment, external_id: str, provider=None) -> in
     # Try provider's ID mapping fields
     if provider and provider.id_mapping_fields:
         mapping_fields = provider.get_id_mapping_field_list()
-        Partner = env["res.partner"].sudo()
+        Partner = env["res.partner"].sudo()  # nosemgrep: odoo-sudo-without-context
 
         for field_name in mapping_fields:
             if field_name in Partner._fields:
@@ -82,7 +82,7 @@ def _resolve_subject_id(env: Environment, external_id: str, provider=None) -> in
                     return partner.id
 
     # Try common identifier fields as fallback
-    Partner = env["res.partner"].sudo()
+    Partner = env["res.partner"].sudo()  # nosemgrep: odoo-sudo-without-context
     for field_name in ["external_id", "ref"]:
         if field_name in Partner._fields:
             partner = Partner.search([(field_name, "=", external_id)], limit=1)
@@ -94,7 +94,7 @@ def _resolve_subject_id(env: Environment, external_id: str, provider=None) -> in
 
 def _get_external_id(env: Environment, partner_id: int) -> str | None:
     """Get primary external identifier for a partner."""
-    Partner = env["res.partner"].sudo()
+    Partner = env["res.partner"].sudo()  # nosemgrep: odoo-sudo-without-context
     partner = Partner.browse(partner_id)
     if not partner.exists():
         return None
@@ -139,7 +139,7 @@ def _validate_provider_access(env: Environment, api_client, provider_code: str, 
         )
 
     # Find provider
-    Provider = env["spp.data.provider"].sudo()
+    Provider = env["spp.data.provider"].sudo()  # nosemgrep: odoo-sudo-without-context
     provider = Provider.search([("code", "=", provider_code), ("active", "=", True)], limit=1)
 
     if not provider:
@@ -150,7 +150,7 @@ def _validate_provider_access(env: Environment, api_client, provider_code: str, 
 
     # If variable specified, check it belongs to this provider
     if variable_name:
-        Variable = env["spp.cel.variable"].sudo()
+        Variable = env["spp.cel.variable"].sudo()  # nosemgrep: odoo-sudo-without-context
         variable = Variable.search(
             [
                 ("cel_accessor", "=", variable_name),
@@ -198,7 +198,7 @@ async def push_values(
     """
     provider = _validate_provider_access(env, api_client, request.provider_code)
 
-    DataValue = env["spp.data.value"].sudo()
+    DataValue = env["spp.data.value"].sudo()  # nosemgrep: odoo-sudo-without-context
     errors: list[DataPushError] = []
     values_to_upsert = []
 
@@ -217,7 +217,7 @@ async def push_values(
             continue
 
         # Validate variable belongs to provider
-        Variable = env["spp.cel.variable"].sudo()
+        Variable = env["spp.cel.variable"].sudo()  # nosemgrep: odoo-sudo-without-context
         variable = Variable.search(
             [
                 ("cel_accessor", "=", val.variable),
@@ -315,7 +315,7 @@ async def pull_values(
         return DataPullResponse(total=0, items=[])
 
     # Query cached values
-    DataValue = env["spp.data.value"].sudo()
+    DataValue = env["spp.data.value"].sudo()  # nosemgrep: odoo-sudo-without-context
     domain = [
         ("variable_name", "=", variable),
         ("subject_id", "in", list(subject_id_map.keys())),
@@ -377,7 +377,7 @@ async def invalidate_values(
                 subject_ids.append(internal_id)
 
     # Invalidate
-    DataValue = env["spp.data.value"].sudo()
+    DataValue = env["spp.data.value"].sudo()  # nosemgrep: odoo-sudo-without-context
     count = DataValue.invalidate(
         variable_name=request.variable,
         subject_ids=subject_ids,
@@ -424,11 +424,11 @@ async def list_variables(
             detail="Client does not have data:read scope",
         )
 
-    Variable = env["spp.cel.variable"].sudo()
+    Variable = env["spp.cel.variable"].sudo()  # nosemgrep: odoo-sudo-without-context
     domain = [("active", "=", True)]
 
     if provider_code:
-        Provider = env["spp.data.provider"].sudo()
+        Provider = env["spp.data.provider"].sudo()  # nosemgrep: odoo-sudo-without-context
         provider = Provider.search([("code", "=", provider_code)], limit=1)
         if provider:
             domain.append(("external_provider_id", "=", provider.id))

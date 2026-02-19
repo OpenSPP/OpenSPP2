@@ -374,7 +374,7 @@ ul.auto-toc {
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! source digest: sha256:9f556672f0563cfd8cc4e06263bc05fc5116a207a2958f6bb25a8fadfea1d370
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-<p><a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_base_common"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Production/Stable" src="https://img.shields.io/badge/maturity-Production%2FStable-green.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_base_common"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
 <p>Foundation module that aggregates OpenSPP core dependencies and provides
 phone number validation, menu icon customization, and base user role
 configuration. Acts as the primary dependency for
@@ -383,16 +383,15 @@ validation rules and UI theming across the platform.</p>
 <div class="section" id="key-capabilities">
 <h2>Key Capabilities</h2>
 <ul class="simple">
-<li>Define configurable phone validation rules with digit count and
-prefix requirements</li>
+<li>Define configurable phone validation rules with digit count and prefix
+requirements</li>
 <li>Automatically validate phone numbers on create/write against active
 validation rules</li>
 <li>Customize menu icons for Registry, Apps, Settings, and standard Odoo
 modules</li>
 <li>Configure global and local registrar user roles with implied
 permissions</li>
-<li>Auto-populate partner phone field from structured phone number
-records</li>
+<li>Auto-populate partner phone field from structured phone number records</li>
 </ul>
 </div>
 <div class="section" id="key-models">
@@ -482,8 +481,8 @@ Structure &gt; Models</li>
 customize validation logic</li>
 <li>Extend <tt class="docutils literal">ICON_MAP</tt> in <tt class="docutils literal">ir.module.module</tt> to add menu icons for
 additional modules</li>
-<li>Inherit global/local role definitions in <tt class="docutils literal">data/global_roles.xml</tt>
-and <tt class="docutils literal">data/local_roles.xml</tt></li>
+<li>Inherit global/local role definitions in <tt class="docutils literal">data/global_roles.xml</tt> and
+<tt class="docutils literal">data/local_roles.xml</tt></li>
 </ul>
 </div>
 <div class="section" id="dependencies">

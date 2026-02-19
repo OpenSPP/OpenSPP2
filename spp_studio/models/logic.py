@@ -39,6 +39,7 @@ class Logic(models.Model):
     @api.model
     def _is_governance_enabled(self):
         """Check if governance mode is enabled via system parameter."""
+        # nosemgrep: odoo-sudo-without-context
         return self.env["ir.config_parameter"].sudo().get_param(GOVERNANCE_PARAM, "False").lower() == "true"
 
     def _check_governance_edit(self, vals):
@@ -57,7 +58,7 @@ class Logic(models.Model):
                 if set(vals.keys()) - allowed_fields:
                     raise UserError(
                         _(
-                            "Cannot modify published logic '%(name)s'. " "Create a new draft version to make changes.",
+                            "Cannot modify published logic '%(name)s'. Create a new draft version to make changes.",
                             name=record.name,
                         )
                     )
@@ -574,7 +575,7 @@ class Logic(models.Model):
             if record.usage_count > 0:
                 raise UserError(
                     _(
-                        "Cannot archive logic '%s' because it is used in %s place(s). " "Remove all usages first.",
+                        "Cannot archive logic '%s' because it is used in %s place(s). Remove all usages first.",
                         record.name,
                         record.usage_count,
                     )

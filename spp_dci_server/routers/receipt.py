@@ -120,6 +120,7 @@ async def submit_receipt(
         receipt_info = receipt_request.receipt_information
 
         # Find the notification log entry by notification_id or subscription_code
+        # nosemgrep: odoo-sudo-without-context — DCI protocol handler with JWT/signature verification
         NotificationLog = env["spp.dci.notification.log"].sudo()
         notification_log = None
 
@@ -133,6 +134,7 @@ async def submit_receipt(
         if not notification_log and receipt_info.subscription_code:
             # Find the most recent unacknowledged notification for this subscription
             subscription = (
+                # nosemgrep: odoo-sudo-without-context — DCI protocol handler with JWT/signature verification
                 env["spp.dci.subscription"]
                 .sudo()
                 .search(

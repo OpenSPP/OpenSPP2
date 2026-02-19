@@ -115,8 +115,8 @@ class SPPInKindEntitlementManager(models.Model):
 
             # Prefetch product_id and uom_id to avoid N+1 queries in inner loop
             # Note: rec is the entitlement item, not in the loop
-            rec.product_id  # Access to ensure it's prefetched
-            rec.uom_id  # Access to ensure it's prefetched
+            _ = rec.product_id  # Access to ensure it's prefetched
+            _ = rec.uom_id  # Access to ensure it's prefetched
 
             entitlements = []
 

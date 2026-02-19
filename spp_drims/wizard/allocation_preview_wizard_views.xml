@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Allocation Preview Wizard Form -->
     <record id="spp_drims_allocation_preview_wizard_form" model="ir.ui.view">
@@ -9,51 +9,69 @@
                 <sheet>
                     <div class="oe_title">
                         <h1>
-                            <field name="request_id" readonly="1" options="{'no_open': True}"/>
+                            <field
+                                name="request_id"
+                                readonly="1"
+                                options="{'no_open': True}"
+                            />
                         </h1>
                     </div>
 
                     <group>
                         <group>
-                            <field name="warehouse_id" options="{'no_create': True}"/>
+                            <field name="warehouse_id" options="{'no_create': True}" />
                         </group>
                         <group>
-                            <field name="total_requested"/>
-                            <field name="total_available"/>
-                            <field name="total_to_allocate"/>
+                            <field name="total_requested" />
+                            <field name="total_available" />
+                            <field name="total_to_allocate" />
                         </group>
                     </group>
 
                     <!-- Warning for shortfall -->
-                    <div class="alert alert-warning" role="alert"
-                         invisible="not has_shortfall">
+                    <div
+                        class="alert alert-warning"
+                        role="alert"
+                        invisible="not has_shortfall"
+                    >
                         <strong>Warning:</strong> Some items have insufficient stock.
                         Consider using an alternative warehouse or accepting partial allocation.
                     </div>
 
                     <!-- Alternative warehouses suggestion -->
                     <group invisible="not has_shortfall">
-                        <field name="alternative_warehouse_ids" widget="many2many_tags"
-                               string="Warehouses with Stock"
-                               readonly="1"/>
+                        <field
+                            name="alternative_warehouse_ids"
+                            widget="many2many_tags"
+                            string="Warehouses with Stock"
+                            readonly="1"
+                        />
                     </group>
 
                     <notebook>
                         <page string="Allocation Lines" name="lines">
                             <field name="line_ids">
                                 <list editable="bottom">
-                                    <field name="product_id" readonly="1"/>
-                                    <field name="uom_id" readonly="1"/>
-                                    <field name="quantity_requested"/>
-                                    <field name="available_qty"/>
-                                    <field name="quantity_to_allocate"/>
-                                    <field name="shortfall"
-                                           decoration-danger="shortfall > 0"/>
-                                    <field name="allocation_status" widget="badge"
-                                           decoration-success="allocation_status == 'full'"
-                                           decoration-warning="allocation_status == 'partial'"
-                                           decoration-danger="allocation_status == 'none'"/>
-                                    <field name="request_line_id" column_invisible="True"/>
+                                    <field name="product_id" readonly="1" />
+                                    <field name="uom_id" readonly="1" />
+                                    <field name="quantity_requested" />
+                                    <field name="available_qty" />
+                                    <field name="quantity_to_allocate" />
+                                    <field
+                                        name="shortfall"
+                                        decoration-danger="shortfall > 0"
+                                    />
+                                    <field
+                                        name="allocation_status"
+                                        widget="badge"
+                                        decoration-success="allocation_status == 'full'"
+                                        decoration-warning="allocation_status == 'partial'"
+                                        decoration-danger="allocation_status == 'none'"
+                                    />
+                                    <field
+                                        name="request_line_id"
+                                        column_invisible="True"
+                                    />
                                 </list>
                             </field>
                         </page>
@@ -61,11 +79,13 @@
                 </sheet>
 
                 <footer>
-                    <button name="action_confirm_allocation"
-                            string="Confirm Allocation"
-                            type="object"
-                            class="btn-primary"/>
-                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    <button
+                        name="action_confirm_allocation"
+                        string="Confirm Allocation"
+                        type="object"
+                        class="btn-primary"
+                    />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
                 </footer>
             </form>
         </field>

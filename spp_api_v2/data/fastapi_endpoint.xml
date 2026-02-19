@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-        <!-- API V2 Endpoint Registration -->
-        <record id="fastapi_endpoint_api_v2" model="fastapi.endpoint">
-            <field name="name">OpenSPP API V2</field>
-            <field name="root_path">/api/v2/spp</field>
-            <field name="app">api_v2</field>
-            <field name="user_id" ref="base.public_user" />
-            <field name="save_http_session" eval="False" />
-            <field name="description">
+    <!-- API V2 Endpoint Registration -->
+    <record id="fastapi_endpoint_api_v2" model="fastapi.endpoint">
+        <field name="name">OpenSPP API V2</field>
+        <field name="root_path">/api/v2/spp</field>
+        <field name="app">api_v2</field>
+        <field name="user_id" ref="base.public_user" />
+        <field name="save_http_session" eval="False" />
+        <field name="description">
 # OpenSPP API V2
 
 Standards-aligned, consent-respecting API for social protection data exchange.
@@ -42,5 +42,5 @@ This API uses OAuth 2.0 Client Credentials flow:
 - OpenAPI schema: `GET /api/v2/spp/openapi.json`
 - Capability statement: `GET /api/v2/spp/metadata`
             </field>
-        </record>
+    </record>
 </odoo>

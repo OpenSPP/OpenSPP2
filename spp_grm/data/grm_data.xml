@@ -3,7 +3,9 @@
     <data>
         <record model="ir.module.category" id="module_openspp_grm_category">
             <field name="name">Grievance Redress Mechanism</field>
-            <field name="description">Grievance Redress Mechanism (GRM) for OpenSPP.</field>
+            <field
+                name="description"
+            >Grievance Redress Mechanism (GRM) for OpenSPP.</field>
             <field name="sequence">9</field>
         </record>
     </data>

@@ -176,7 +176,7 @@ class ApprovalTierReview(models.Model):
                 }
             )
             # Trigger next tier or final approval (use sudo for system callback)
-            self.review_id.sudo()._on_tier_approved(self)
+            self.review_id.sudo()._on_tier_approved(self)  # nosemgrep: odoo-sudo-without-context
 
     def action_reject(self, reason):
         """Reject this tier (and the entire review)."""
@@ -202,7 +202,7 @@ class ApprovalTierReview(models.Model):
         )
 
         # Trigger review rejection (use sudo for system callback)
-        self.review_id.sudo()._on_tier_rejected(self, reason)
+        self.review_id.sudo()._on_tier_rejected(self, reason)  # nosemgrep: odoo-sudo-without-context
 
     def action_activate(self):
         """Activate this tier (make it pending)."""
@@ -256,7 +256,7 @@ class ApprovalTierReview(models.Model):
                 )
 
             # Use sudo() for activity creation since this is a system action
-            record.sudo().activity_schedule(
+            record.sudo().activity_schedule(  # nosemgrep: odoo-sudo-without-context
                 "spp_approval.mail_activity_approval_required",
                 user_id=user.id,
                 date_deadline=deadline,

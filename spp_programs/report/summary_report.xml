@@ -51,12 +51,14 @@
                                         <strong>Cycle Approved Date:</strong>
                                     </td>
                                     <td>
-                                        <span t-if="doc.approved_date"><t
+                                        <span t-if="doc.approved_date">
+                                            <t
                                                 t-esc="doc.approved_date.strftime('%d %b %Y')"
-                                            /> </span>
+                                            />
+                                        </span>
                                     </td>
                                 </tr>
-                                 <tr>
+                                <tr>
                                     <td>
                                         <strong>Cycle Approved By:</strong>
                                     </td>
@@ -80,8 +82,8 @@
                                 <tr>
                                     <td>
                                         <strong>Total Amount(in <span
-                                                t-esc="doc.currency_id.name"
-                                            />):</strong>
+                                            t-esc="doc.currency_id.name"
+                                        />):</strong>
                                     </td>
                                     <td>
                                         <span t-esc="doc.total_amount" />

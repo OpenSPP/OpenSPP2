@@ -2,3 +2,4 @@
 from . import common
 from . import test_alert
 from . import test_alert_rule
+from . import test_rule_evaluation

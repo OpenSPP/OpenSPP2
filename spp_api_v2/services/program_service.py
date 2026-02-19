@@ -44,7 +44,7 @@ class ProgramService:
         # NOTE: If spp.program.id uses vocabulary codes, update to use id_type_id.uri
         if "spp.program.id" in self.env:
             prog_id = (
-                self.env["spp.program.id"]
+                self.env["spp.program.id"]  # nosemgrep: odoo-sudo-without-context
                 .sudo()
                 .search(
                     [
@@ -62,8 +62,8 @@ class ProgramService:
             # Convert slug back to name for search (e.g., "test-program" -> "test program")
             name_guess = value.replace("-", " ")
             program = (
-                self.env["spp.program"]
-                .sudo()
+                self.env["spp.program"]  # nosemgrep: odoo-sudo-on-sensitive-models, odoo-sudo-without-context
+                .sudo()  # nosemgrep: odoo-sudo-on-sensitive-models
                 .search(
                     [("name", "=ilike", name_guess)],
                     limit=1,

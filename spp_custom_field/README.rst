@@ -14,14 +14,17 @@ OpenSPP Custom Fields
    !! source digest: sha256:4e1ff7f0e0d9441f7324e6677d0af345d7d7e5de71b600d55b0378c237fa8e77
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+    :target: https://odoo-community.org/page/development-status
+    :alt: Production/Stable
+.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
     :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_custom_field
     :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2|
+|badge1| |badge2| |badge3|
 
 Dynamically adds custom fields to registrant profiles without code
 changes. Administrators create fields on ``res.partner`` following
@@ -32,31 +35,31 @@ grouping and read-only indicator fields for program metrics.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  Define custom fields with ``x_cst_grp_*`` (group) or ``x_cst_indv_*``
-   (individual) naming pattern
--  Define read-only indicator fields with ``x_ind_grp_*`` or
-   ``x_ind_indv_*`` naming pattern
--  Organize fields into named groups with sequence-based ordering
--  Automatically inject fields into registrant forms based on registrant
-   type
--  Display custom fields under "Additional Details" tab, indicators
-   under "Indicators" tab
+- Define custom fields with ``x_cst_grp_*`` (group) or ``x_cst_indv_*``
+  (individual) naming pattern
+- Define read-only indicator fields with ``x_ind_grp_*`` or
+  ``x_ind_indv_*`` naming pattern
+- Organize fields into named groups with sequence-based ordering
+- Automatically inject fields into registrant forms based on registrant
+  type
+- Display custom fields under "Additional Details" tab, indicators under
+  "Indicators" tab
 
 Key Models
 ~~~~~~~~~~
 
-+------------------------------+--------------------------------------+
-| Model                        | Description                          |
-+==============================+======================================+
-| ``spp.custom.field.group``   | Groups custom fields for organized   |
-|                              | display in UI                        |
-+------------------------------+--------------------------------------+
-| ``ir.model.fields`` (extend) | Adds ``field_group_id`` and          |
-|                              | ``sequence`` for field order         |
-+------------------------------+--------------------------------------+
-| ``res.partner`` (extend)     | Dynamically injects custom fields    |
-|                              | into forms                           |
-+------------------------------+--------------------------------------+
++------------------------------+---------------------------------------+
+| Model                        | Description                           |
++==============================+=======================================+
+| ``spp.custom.field.group``   | Groups custom fields for organized    |
+|                              | display in UI                         |
++------------------------------+---------------------------------------+
+| ``ir.model.fields`` (extend) | Adds ``field_group_id`` and           |
+|                              | ``sequence`` for field order          |
++------------------------------+---------------------------------------+
+| ``res.partner`` (extend)     | Dynamically injects custom fields     |
+|                              | into forms                            |
++------------------------------+---------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -69,22 +72,22 @@ After installing:
 3. Navigate to **Settings > Technical > Database Structure > Models**
 4. Select **Contact (res.partner)** and create custom fields:
 
-   -  For group registrants: ``x_cst_grp_fieldname`` or
-      ``x_ind_grp_fieldname``
-   -  For individuals: ``x_cst_indv_fieldname`` or
-      ``x_ind_indv_fieldname``
+   - For group registrants: ``x_cst_grp_fieldname`` or
+     ``x_ind_grp_fieldname``
+   - For individuals: ``x_cst_indv_fieldname`` or
+     ``x_ind_indv_fieldname``
 
 5. Assign ``field_group_id`` and ``sequence`` to organize field display
 
 UI Location
 ~~~~~~~~~~~
 
--  **Field Groups**: No menu defined; access via Settings > Technical >
-   Actions > Window Actions
--  **Custom fields**: Appear on registrant forms under "Additional
-   Details" tab
--  **Indicator fields**: Appear on registrant forms under "Indicators"
-   tab (read-only)
+- **Field Groups**: No menu defined; access via Settings > Technical >
+  Actions > Window Actions
+- **Custom fields**: Appear on registrant forms under "Additional
+  Details" tab
+- **Indicator fields**: Appear on registrant forms under "Indicators"
+  tab (read-only)
 
 Security
 ~~~~~~~~
@@ -99,12 +102,12 @@ Group                 Access
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Override ``_inject_custom_pages()`` to customize tab and field
-   injection logic
--  Override ``_group_fields_by_group()`` to modify field grouping and
-   sorting
--  Extend ``spp.custom.field.group`` to add metadata or classification
-   fields
+- Override ``_inject_custom_pages()`` to customize tab and field
+  injection logic
+- Override ``_group_fields_by_group()`` to modify field grouping and
+  sorting
+- Extend ``spp.custom.field.group`` to add metadata or classification
+  fields
 
 Dependencies
 ~~~~~~~~~~~~

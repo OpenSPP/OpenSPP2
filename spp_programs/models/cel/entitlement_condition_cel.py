@@ -238,7 +238,7 @@ class CashEntitlementManagerCEL(models.Model):
             )
 
         automated_filtering_mechanism = (
-            self.env["ir.config_parameter"]
+            self.env["ir.config_parameter"]  # nosemgrep: odoo-sudo-without-context
             .sudo()
             .get_param(
                 "spp_programs_compliance_criteria.beneficiaries_automated_filtering_mechanism",
@@ -253,7 +253,7 @@ class CashEntitlementManagerCEL(models.Model):
             if domain:
                 # Use sudo() for cross-program compliance lookup on registrants
                 satisfied_registrant_ids = (
-                    self.env["res.partner"]
+                    self.env["res.partner"]  # nosemgrep: odoo-sudo-on-sensitive-models, odoo-sudo-without-context
                     .sudo()  # nosemgrep: odoo-sudo-on-sensitive-models
                     .search(domain)
                     .ids

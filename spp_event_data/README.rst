@@ -14,14 +14,17 @@ OpenSPP Event Data
    !! source digest: sha256:aec1d29c5b22a4919b99a125d7255b7f791d8911ebf9501faf60a2fe11b31aec
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+    :target: https://odoo-community.org/page/development-status
+    :alt: Production/Stable
+.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
     :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_event_data
     :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2|
+|badge1| |badge2| |badge3|
 
 Records and tracks events for registrants from surveys, field visits,
 and external systems. Supports flexible data storage (JSON, custom
@@ -32,46 +35,46 @@ request generation when event data differs from registrant records.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  Configure event types with categories (survey, visit, sync, manual),
-   target types, and storage modes
--  Record events with collection metadata (date, collector, source
-   reference) and expiry tracking
--  Store event data in JSON, define custom fields, or link to dedicated
-   Odoo models
--  Automatically supersede previous active events when new ones arrive
-   for the same registrant
--  Auto-expire events after a configurable number of days via scheduled
-   cron
--  Require approval for new events before activation using configurable
-   workflows
--  Integrate with external sources (ODK Central, KoBoToolbox, APIs) with
-   field mapping and transformations
--  Generate change requests when event data differs from registrant
-   fields (requires ``spp_change_request``)
--  Track event history with state transitions: draft → pending → active
-   → superseded/expired/cancelled
+- Configure event types with categories (survey, visit, sync, manual),
+  target types, and storage modes
+- Record events with collection metadata (date, collector, source
+  reference) and expiry tracking
+- Store event data in JSON, define custom fields, or link to dedicated
+  Odoo models
+- Automatically supersede previous active events when new ones arrive
+  for the same registrant
+- Auto-expire events after a configurable number of days via scheduled
+  cron
+- Require approval for new events before activation using configurable
+  workflows
+- Integrate with external sources (ODK Central, KoBoToolbox, APIs) with
+  field mapping and transformations
+- Generate change requests when event data differs from registrant
+  fields (requires ``spp_change_request``)
+- Track event history with state transitions: draft → pending → active →
+  superseded/expired/cancelled
 
 Key Models
 ~~~~~~~~~~
 
-+-----------------------------+---------------------------------------+
-| Model                       | Description                           |
-+=============================+=======================================+
-| ``spp.event.data``          | Event record with registrant link,    |
-|                             | collection metadata                   |
-+-----------------------------+---------------------------------------+
-| ``spp.event.type``          | Event type configuration (category,   |
-|                             | lifecycle, source)                    |
-+-----------------------------+---------------------------------------+
-| ``spp.event.field``         | Custom field definition for           |
-|                             | JSON-based event types                |
-+-----------------------------+---------------------------------------+
-| ``spp.event.type.mapping``  | Field mapping for external source     |
-|                             | data transformation                   |
-+-----------------------------+---------------------------------------+
-| ``spp.create.event.wizard`` | Wizard to create new event records    |
-|                             | from registrant form                  |
-+-----------------------------+---------------------------------------+
++-----------------------------+----------------------------------------+
+| Model                       | Description                            |
++=============================+========================================+
+| ``spp.event.data``          | Event record with registrant link,     |
+|                             | collection metadata                    |
++-----------------------------+----------------------------------------+
+| ``spp.event.type``          | Event type configuration (category,    |
+|                             | lifecycle, source)                     |
++-----------------------------+----------------------------------------+
+| ``spp.event.field``         | Custom field definition for JSON-based |
+|                             | event types                            |
++-----------------------------+----------------------------------------+
+| ``spp.event.type.mapping``  | Field mapping for external source data |
+|                             | transformation                         |
++-----------------------------+----------------------------------------+
+| ``spp.create.event.wizard`` | Wizard to create new event records     |
+|                             | from registrant form                   |
++-----------------------------+----------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -94,14 +97,14 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
--  **Registrant Form**: "Event Data" stat button in button box opens
-   create wizard
--  **Registrant Form**: Events section displays event history list with
-   state badges
--  **Event Data**: Access via window action ``action_spp_event_data``
-   (no menu defined in this module)
--  **Event Form Tabs**: Event Data, Source, History, Legacy Data,
-   Approval
+- **Registrant Form**: "Event Data" stat button in button box opens
+  create wizard
+- **Registrant Form**: Events section displays event history list with
+  state badges
+- **Event Data**: Access via window action ``action_spp_event_data`` (no
+  menu defined in this module)
+- **Event Form Tabs**: Event Data, Source, History, Legacy Data,
+  Approval
 
 Security
 ~~~~~~~~
@@ -121,15 +124,15 @@ Group                                   Access
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Inherit ``spp.event.type`` and override ``get_connector()`` to add
-   custom external source connectors
--  Inherit ``spp.event.data`` and override ``_create_change_requests()``
-   to customize change request logic
--  Use ``_get_active_event_id()``, ``get_active_event()``, and
-   ``get_event_data_value()`` methods on ``res.partner`` for O(1) event
-   lookup
--  Call ``_refresh_active_event_cache()`` on registrants when events are
-   activated/deactivated for cache consistency
+- Inherit ``spp.event.type`` and override ``get_connector()`` to add
+  custom external source connectors
+- Inherit ``spp.event.data`` and override ``_create_change_requests()``
+  to customize change request logic
+- Use ``_get_active_event_id()``, ``get_active_event()``, and
+  ``get_event_data_value()`` methods on ``res.partner`` for O(1) event
+  lookup
+- Call ``_refresh_active_event_cache()`` on registrants when events are
+  activated/deactivated for cache consistency
 
 Dependencies
 ~~~~~~~~~~~~

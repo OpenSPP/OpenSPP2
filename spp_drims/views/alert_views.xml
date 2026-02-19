@@ -1,126 +1,361 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <!--
-    DRIMS Alert Views - Inherit and extend base spp.alert views
-    These views add DRIMS-specific fields (incident, warehouse, product, request)
-    to the base alert views provided by spp_alerts module.
-    -->
-
-    <!-- Alert List View - Inherit base and add DRIMS fields -->
+    <!-- ══════════════════════════════════════════════════════════════════════════
+         DRIMS ALERT LIST VIEW
+         ══════════════════════════════════════════════════════════════════════════ -->
     <record id="spp_drims_alert_view_list" model="ir.ui.view">
         <field name="name">spp.drims.alert.list</field>
         <field name="model">spp.drims.alert</field>
-        <field name="inherit_id" ref="spp_alerts.spp_alert_view_list"/>
+        <field name="inherit_id" eval="False" />
         <field name="arch" type="xml">
-            <!-- Add DRIMS-specific fields after state -->
-            <field name="state" position="after">
-                <field name="incident_id" optional="show"/>
-                <field name="warehouse_id" optional="hide"/>
-                <field name="product_id" optional="hide"/>
-                <field name="request_id" optional="hide"/>
-            </field>
+            <list
+                decoration-danger="priority == 'critical'"
+                decoration-warning="priority == 'high'"
+                decoration-muted="state == 'resolved'"
+                sample="1"
+            >
+                <field name="reference" decoration-bf="1" />
+                <field name="title" />
+                <field name="alert_type_id" />
+                <field name="incident_id" />
+                <field
+                    name="priority"
+                    widget="badge"
+                    decoration-danger="priority == 'critical'"
+                    decoration-warning="priority == 'high'"
+                    decoration-info="priority == 'medium'"
+                />
+                <field
+                    name="state"
+                    widget="badge"
+                    decoration-danger="state == 'active'"
+                    decoration-warning="state == 'acknowledged'"
+                    decoration-success="state == 'resolved'"
+                />
+                <field name="warehouse_id" optional="show" />
+                <field name="product_id" optional="show" />
+                <field name="request_id" optional="hide" />
+                <field
+                    name="assigned_to_id"
+                    widget="many2one_avatar_user"
+                    optional="show"
+                />
+                <field
+                    name="create_date"
+                    string="Created"
+                    widget="datetime"
+                    optional="hide"
+                />
+                <field
+                    name="company_id"
+                    optional="hide"
+                    groups="base.group_multi_company"
+                />
+            </list>
         </field>
     </record>
 
-    <!-- Alert Form View - Inherit base and add DRIMS fields -->
+    <!-- ══════════════════════════════════════════════════════════════════════════
+         DRIMS ALERT FORM VIEW
+         ══════════════════════════════════════════════════════════════════════════ -->
     <record id="spp_drims_alert_view_form" model="ir.ui.view">
         <field name="name">spp.drims.alert.form</field>
         <field name="model">spp.drims.alert</field>
-        <field name="inherit_id" ref="spp_alerts.spp_alert_view_form"/>
+        <field name="inherit_id" eval="False" />
         <field name="arch" type="xml">
-            <!-- Add DRIMS-specific fields after priority in first group -->
-            <field name="priority" position="after">
-                <field name="incident_id"/>
-            </field>
-            <!-- Replace the second group to add DRIMS-specific fields -->
-            <xpath expr="//group[1]/group[2]" position="replace">
-                <group>
-                    <field name="warehouse_id"/>
-                    <field name="product_id"/>
-                    <field name="request_id"/>
-                    <field name="current_value"/>
-                    <field name="threshold_value"/>
-                    <field name="days_until"/>
-                </group>
-            </xpath>
-            <!-- Add quick action links (GAP-ALT-003) -->
-            <xpath expr="//sheet" position="inside">
-                <group string="Quick Actions" invisible="not incident_id and not warehouse_id and not product_id and not request_id">
-                    <div class="d-flex gap-2">
-                        <button name="action_view_incident"
-                                string="View Incident"
-                                type="object"
-                                class="btn btn-link"
-                                icon="fa-exclamation-triangle"
-                                invisible="not incident_id"/>
-                        <button name="action_view_warehouse"
-                                string="View Warehouse"
-                                type="object"
-                                class="btn btn-link"
-                                icon="fa-home"
-                                invisible="not warehouse_id"/>
-                        <button name="action_view_product"
-                                string="View Product"
-                                type="object"
-                                class="btn btn-link"
-                                icon="fa-cube"
-                                invisible="not product_id"/>
-                        <button name="action_view_request"
-                                string="View Request"
-                                type="object"
-                                class="btn btn-link"
-                                icon="fa-file-text"
-                                invisible="not request_id"/>
+            <form string="Alert">
+                <header>
+                    <button
+                        name="action_acknowledge"
+                        type="object"
+                        string="Acknowledge"
+                        class="btn-primary"
+                        invisible="state != 'active'"
+                        data-hotkey="a"
+                    />
+                    <button
+                        name="action_resolve"
+                        type="object"
+                        string="Resolve"
+                        class="btn-success"
+                        invisible="state == 'resolved'"
+                        data-hotkey="r"
+                    />
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="active,acknowledged,resolved"
+                    />
+                </header>
+                <sheet>
+                    <!-- Button Box -->
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="action_view_incident"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-exclamation-triangle"
+                            invisible="not incident_id"
+                        >
+                            <field
+                                name="incident_id"
+                                widget="statinfo"
+                                string="Incident"
+                            />
+                        </button>
+                        <button
+                            name="action_view_warehouse"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-home"
+                            invisible="not warehouse_id"
+                        >
+                            <field
+                                name="warehouse_id"
+                                widget="statinfo"
+                                string="Warehouse"
+                            />
+                        </button>
+                        <button
+                            name="action_view_product"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-cube"
+                            invisible="not product_id"
+                        >
+                            <field
+                                name="product_id"
+                                widget="statinfo"
+                                string="Product"
+                            />
+                        </button>
+                        <button
+                            name="action_view_request"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-file-text"
+                            invisible="not request_id"
+                        >
+                            <field
+                                name="request_id"
+                                widget="statinfo"
+                                string="Request"
+                            />
+                        </button>
                     </div>
-                </group>
-            </xpath>
+
+                    <!-- Title -->
+                    <div class="oe_title">
+                        <label for="reference" />
+                        <h1>
+                            <field name="reference" readonly="1" />
+                        </h1>
+                        <h2>
+                            <field name="title" placeholder="Alert Title" />
+                        </h2>
+                    </div>
+
+                    <!-- Main Info Groups (Two Column Layout) -->
+                    <group>
+                        <group string="Alert Details">
+                            <field name="alert_type_id" options="{'no_create': True}" />
+                            <field name="priority" />
+                            <field name="incident_id" options="{'no_create': True}" />
+                            <field name="assigned_to_id" />
+                            <field
+                                name="company_id"
+                                groups="base.group_multi_company"
+                            />
+                        </group>
+                        <group string="Monitoring">
+                            <field name="warehouse_id" options="{'no_create': True}" />
+                            <field name="product_id" options="{'no_create': True}" />
+                            <field name="request_id" options="{'no_create': True}" />
+                            <field name="current_value" readonly="1" />
+                            <field name="threshold_value" readonly="1" />
+                            <field name="days_until" readonly="1" />
+                        </group>
+                    </group>
+
+                    <!-- Notebook with Tabs -->
+                    <notebook>
+                        <page string="Details" name="details">
+                            <field
+                                name="description"
+                                placeholder="Description of the alert condition..."
+                            />
+                        </page>
+                        <page
+                            string="Resolution"
+                            name="resolution"
+                            invisible="state == 'active'"
+                        >
+                            <group>
+                                <group>
+                                    <field name="resolved_by_id" readonly="1" />
+                                    <field name="resolved_at" readonly="1" />
+                                </group>
+                            </group>
+                            <separator string="Resolution Notes" />
+                            <field
+                                name="resolution_notes"
+                                placeholder="Notes about how this alert was resolved..."
+                            />
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
         </field>
     </record>
 
-    <!-- Alert Search View - Inherit base and add DRIMS-specific filters -->
+    <!-- ══════════════════════════════════════════════════════════════════════════
+         DRIMS ALERT SEARCH VIEW
+         ══════════════════════════════════════════════════════════════════════════ -->
     <record id="spp_drims_alert_view_search" model="ir.ui.view">
         <field name="name">spp.drims.alert.search</field>
         <field name="model">spp.drims.alert</field>
-        <field name="inherit_id" ref="spp_alerts.spp_alert_view_search"/>
+        <field name="inherit_id" eval="False" />
         <field name="arch" type="xml">
-            <!-- Add incident to searchpanel -->
-            <searchpanel position="inside">
-                <field name="incident_id" icon="fa-exclamation-triangle" enable_counters="1"/>
-            </searchpanel>
+            <search string="Search Alerts">
+                <!-- Searchpanel for quick filtering -->
+                <searchpanel>
+                    <field
+                        name="incident_id"
+                        icon="fa-exclamation-triangle"
+                        enable_counters="1"
+                    />
+                    <field
+                        name="state"
+                        select="multi"
+                        icon="fa-tasks"
+                        enable_counters="1"
+                    />
+                    <field
+                        name="priority"
+                        select="multi"
+                        icon="fa-flag"
+                        enable_counters="1"
+                    />
+                    <field
+                        name="alert_type_id"
+                        select="multi"
+                        icon="fa-bell"
+                        enable_counters="1"
+                    />
+                </searchpanel>
 
-            <!-- Add DRIMS-specific search fields -->
-            <field name="title" position="after">
-                <field name="incident_id"/>
-                <field name="warehouse_id"/>
-                <field name="product_id"/>
-                <field name="request_id"/>
-            </field>
+                <field name="reference" />
+                <field name="title" />
+                <field name="alert_type_id" />
+                <field name="incident_id" />
+                <field name="warehouse_id" />
+                <field name="product_id" />
+                <field name="request_id" />
+                <separator />
 
-            <!-- Add DRIMS-specific filters for alert types -->
-            <filter name="filter_high" position="after">
-                <separator/>
-                <filter name="filter_low_stock" string="Low Stock" domain="[('alert_type', '=', 'low_stock')]"/>
-                <filter name="filter_expiry" string="Expiry" domain="[('alert_type', '=', 'expiry')]"/>
-                <filter name="filter_sla" string="SLA" domain="[('alert_type', 'in', ['sla_warning', 'sla_breach'])]"/>
-                <separator/>
+                <!-- State Filters -->
+                <filter
+                    name="filter_active"
+                    string="Active"
+                    domain="[('state', '=', 'active')]"
+                />
+                <filter
+                    name="filter_acknowledged"
+                    string="Acknowledged"
+                    domain="[('state', '=', 'acknowledged')]"
+                />
+                <filter
+                    name="filter_resolved"
+                    string="Resolved"
+                    domain="[('state', '=', 'resolved')]"
+                />
+                <separator />
+
+                <!-- Priority Filters -->
+                <filter
+                    name="filter_critical"
+                    string="Critical"
+                    domain="[('priority', '=', 'critical')]"
+                />
+                <filter
+                    name="filter_high"
+                    string="High Priority"
+                    domain="[('priority', '=', 'high')]"
+                />
+                <separator />
+
+                <!-- Type Filters -->
+                <filter
+                    name="filter_low_stock"
+                    string="Low Stock"
+                    domain="[('alert_type_id.code', '=', 'low_stock')]"
+                />
+                <filter
+                    name="filter_expiry"
+                    string="Expiry"
+                    domain="[('alert_type_id.code', '=', 'expiry')]"
+                />
+                <filter
+                    name="filter_sla"
+                    string="SLA"
+                    domain="[('alert_type_id.code', 'in', ['sla_warning', 'sla_breach'])]"
+                />
+                <separator />
+
                 <!-- Date Presets -->
-                <filter name="last_24h" string="Last 24 Hours"
-                        domain="[('create_date', '&gt;=', (context_today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d'))]"/>
-                <filter name="last_7d" string="Last 7 Days"
-                        domain="[('create_date', '&gt;=', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"/>
-                <filter name="last_30d" string="Last 30 Days"
-                        domain="[('create_date', '&gt;=', (context_today() - datetime.timedelta(days=30)).strftime('%Y-%m-%d'))]"/>
-            </filter>
+                <filter
+                    name="last_24h"
+                    string="Last 24 Hours"
+                    domain="[('create_date', '&gt;=', (context_today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d'))]"
+                />
+                <filter
+                    name="last_7d"
+                    string="Last 7 Days"
+                    domain="[('create_date', '&gt;=', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"
+                />
+                <filter
+                    name="last_30d"
+                    string="Last 30 Days"
+                    domain="[('create_date', '&gt;=', (context_today() - datetime.timedelta(days=30)).strftime('%Y-%m-%d'))]"
+                />
+                <separator />
 
-            <!-- Add DRIMS-specific groupby options -->
-            <filter name="groupby_type" position="after">
-                <filter name="groupby_incident" string="Incident" context="{'group_by': 'incident_id'}"/>
-                <filter name="groupby_warehouse" string="Warehouse" context="{'group_by': 'warehouse_id'}"/>
-            </filter>
+                <!-- Group By -->
+                <group>
+                    <filter
+                        name="groupby_state"
+                        string="State"
+                        context="{'group_by': 'state'}"
+                    />
+                    <filter
+                        name="groupby_priority"
+                        string="Priority"
+                        context="{'group_by': 'priority'}"
+                    />
+                    <filter
+                        name="groupby_type"
+                        string="Type"
+                        context="{'group_by': 'alert_type_id'}"
+                    />
+                    <filter
+                        name="groupby_incident"
+                        string="Incident"
+                        context="{'group_by': 'incident_id'}"
+                    />
+                    <filter
+                        name="groupby_warehouse"
+                        string="Warehouse"
+                        context="{'group_by': 'warehouse_id'}"
+                    />
+                </group>
+            </search>
         </field>
     </record>
 
-    <!-- Alert Action -->
+    <!-- ══════════════════════════════════════════════════════════════════════════
+         DRIMS ALERT ACTION
+         ══════════════════════════════════════════════════════════════════════════ -->
     <record id="action_spp_drims_alert" model="ir.actions.act_window">
         <field name="name">Alerts</field>
         <field name="res_model">spp.drims.alert</field>
@@ -142,8 +377,8 @@
     <!-- Bulk Actions -->
     <record id="action_bulk_acknowledge_alerts" model="ir.actions.server">
         <field name="name">Acknowledge Selected</field>
-        <field name="model_id" ref="model_spp_drims_alert"/>
-        <field name="binding_model_id" ref="model_spp_drims_alert"/>
+        <field name="model_id" ref="model_spp_drims_alert" />
+        <field name="binding_model_id" ref="model_spp_drims_alert" />
         <field name="binding_view_types">list,kanban</field>
         <field name="state">code</field>
         <field name="code">
@@ -154,8 +389,8 @@ if records:
 
     <record id="action_bulk_resolve_alerts" model="ir.actions.server">
         <field name="name">Resolve Selected</field>
-        <field name="model_id" ref="model_spp_drims_alert"/>
-        <field name="binding_model_id" ref="model_spp_drims_alert"/>
+        <field name="model_id" ref="model_spp_drims_alert" />
+        <field name="binding_model_id" ref="model_spp_drims_alert" />
         <field name="binding_view_types">list,kanban</field>
         <field name="state">code</field>
         <field name="code">

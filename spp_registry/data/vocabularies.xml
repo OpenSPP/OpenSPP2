@@ -1,10 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
     <!-- Registrant Tags Vocabulary -->
     <record id="vocab_registrant_tags" model="spp.vocabulary">
         <field name="name">Registrant Tags</field>
         <field name="namespace_uri">urn:openspp:vocab:registrant-tags</field>
-        <field name="description">Tags for categorizing and organizing registrants in the registry.</field>
+        <field
+            name="description"
+        >Tags for categorizing and organizing registrants in the registry.</field>
         <field name="domain">core</field>
         <field name="is_system">False</field>
         <field name="is_hierarchical">False</field>

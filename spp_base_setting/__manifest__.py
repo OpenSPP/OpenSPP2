@@ -8,7 +8,7 @@
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Stable",
+    "development_status": "Production/Stable",
     "maintainers": ["jeremi", "gonzalesedwin1123", "reichie020212", "emjay0921"],
     "depends": [
         "spp_security",
@@ -18,6 +18,10 @@
     "data": [
         "views/country_office_views.xml",
         # "views/res_users_views.xml",
+    ],
+    "oca_data_manual": [
+        "security/ir.model.access.csv",
+        "views/res_users_views.xml",
     ],
     "assets": {},
     "demo": [],

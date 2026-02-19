@@ -9,7 +9,7 @@
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Stable",
+    "development_status": "Production/Stable",
     "maintainers": ["openspp-dev"],
     "depends": [
         "base",
@@ -18,6 +18,7 @@
     "external_dependencies": {
         "python": [
             "cryptography",
+            "jwcrypto",
         ],
     },
     "data": [

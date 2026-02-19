@@ -14,14 +14,17 @@ OpenSPP Starter: Social Registry
    !! source digest: sha256:a3c1a42487040fd4f0540256c3b1ed12e50b5db497d74d1cc5a381b8c99a1701
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+    :target: https://odoo-community.org/page/development-status
+    :alt: Production/Stable
+.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
     :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_starter_social_registry
     :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2|
+|badge1| |badge2| |badge3|
 
 Bundle module that installs the complete OpenSPP Social Registry stack
 in a single operation. Combines registry management, REST API, DCI
@@ -33,12 +36,12 @@ enrollment or entitlement management.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  One-click installation of all Social Registry dependencies
--  Automatically configures ``spp_starter.registry_type`` parameter to
-   ``social_registry``
--  Bundles core registry, API, DCI clients, change requests, and no-code
-   tools
--  Installs async job processing infrastructure via ``queue_job``
+- One-click installation of all Social Registry dependencies
+- Automatically configures ``spp_starter.registry_type`` parameter to
+  ``social_registry``
+- Bundles core registry, API, DCI clients, change requests, and no-code
+  tools
+- Installs async job processing infrastructure via ``queue_job``
 
 Configuration
 ~~~~~~~~~~~~~
@@ -54,10 +57,10 @@ After installing:
 Use Cases
 ~~~~~~~~~
 
--  National Social Registries tracking population demographics
--  Humanitarian registration systems without program management
--  Civil registration databases requiring external data synchronization
--  ID management systems as standalone deployments
+- National Social Registries tracking population demographics
+- Humanitarian registration systems without program management
+- Civil registration databases requiring external data synchronization
+- ID management systems as standalone deployments
 
 For SP-MIS deployments with program enrollment and entitlements, use
 ``spp_starter_sp_mis`` instead.

@@ -85,7 +85,9 @@ class ApiExtension(models.Model):
             _logger.warning("Unknown resource type: %s", resource_type)
             return self.env["spp.api.extension"]
 
-        return self.sudo().search(  # nosemgrep: odoo-sudo-without-context - API extensions are configuration records; sudo() is used to read active extensions regardless of caller ACLs.
+        return self.sudo().search(  # nosemgrep: odoo-sudo-without-context
+            # API extensions are configuration records; sudo() is used to read
+            # active extensions regardless of caller ACLs.
             domain
         )
 

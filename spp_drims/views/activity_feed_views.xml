@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
     <!--
         DRIMS Activity Feed Views
@@ -12,23 +12,33 @@
         <field name="name">spp.audit.log.drims.list</field>
         <field name="model">spp.audit.log</field>
         <field name="arch" type="xml">
-            <list create="false" edit="false" sample="1"
-                  decoration-info="method == 'create'"
-                  decoration-warning="method == 'write'"
-                  decoration-danger="method == 'unlink'">
-                <field name="create_date" string="When" widget="timeago"/>
-                <field name="user_id" string="User" widget="many2one_avatar_user"/>
-                <field name="model" string="Type"/>
-                <field name="name" string="Record"/>
-                <field name="method" string="Action" widget="badge"
-                       decoration-info="method == 'create'"
-                       decoration-warning="method == 'write'"
-                       decoration-danger="method == 'unlink'"/>
-                <button name="action_view_record"
-                        type="object"
-                        string="View"
-                        class="btn-link"
-                        icon="fa-external-link"/>
+            <list
+                create="false"
+                edit="false"
+                sample="1"
+                decoration-info="method == 'create'"
+                decoration-warning="method == 'write'"
+                decoration-danger="method == 'unlink'"
+            >
+                <field name="create_date" string="When" widget="timeago" />
+                <field name="user_id" string="User" widget="many2one_avatar_user" />
+                <field name="model" string="Type" />
+                <field name="name" string="Record" />
+                <field
+                    name="method"
+                    string="Action"
+                    widget="badge"
+                    decoration-info="method == 'create'"
+                    decoration-warning="method == 'write'"
+                    decoration-danger="method == 'unlink'"
+                />
+                <button
+                    name="action_view_record"
+                    type="object"
+                    string="View"
+                    class="btn-link"
+                    icon="fa-external-link"
+                />
             </list>
         </field>
     </record>
@@ -39,42 +49,84 @@
         <field name="model">spp.audit.log</field>
         <field name="arch" type="xml">
             <search>
-                <field name="user_id"/>
-                <field name="name"/>
-                <field name="model"/>
-                <separator/>
-                <filter name="filter_donations" string="Donations"
-                        domain="[('model', '=', 'spp.drims.donation')]"/>
-                <filter name="filter_requests" string="Requests"
-                        domain="[('model', '=', 'spp.drims.request')]"/>
-                <filter name="filter_alerts" string="Alerts"
-                        domain="[('model', '=', 'spp.drims.alert')]"/>
-                <filter name="filter_returns" string="Returns"
-                        domain="[('model', '=', 'spp.drims.return')]"/>
-                <filter name="filter_pickings" string="Stock Movements"
-                        domain="[('model', '=', 'stock.picking')]"/>
-                <separator/>
-                <filter name="filter_create" string="Created"
-                        domain="[('method', '=', 'create')]"/>
-                <filter name="filter_write" string="Updated"
-                        domain="[('method', '=', 'write')]"/>
-                <separator/>
-                <filter name="last_24h" string="Last 24 Hours"
-                        domain="[('create_date', '&gt;=', (context_today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d'))]"/>
-                <filter name="last_7d" string="Last 7 Days"
-                        domain="[('create_date', '&gt;=', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"/>
-                <filter name="last_30d" string="Last 30 Days"
-                        domain="[('create_date', '&gt;=', (context_today() - datetime.timedelta(days=30)).strftime('%Y-%m-%d'))]"/>
-                <separator/>
+                <field name="user_id" />
+                <field name="name" />
+                <field name="model" />
+                <separator />
+                <filter
+                    name="filter_donations"
+                    string="Donations"
+                    domain="[('model', '=', 'spp.drims.donation')]"
+                />
+                <filter
+                    name="filter_requests"
+                    string="Requests"
+                    domain="[('model', '=', 'spp.drims.request')]"
+                />
+                <filter
+                    name="filter_alerts"
+                    string="Alerts"
+                    domain="[('model', '=', 'spp.drims.alert')]"
+                />
+                <filter
+                    name="filter_returns"
+                    string="Returns"
+                    domain="[('model', '=', 'spp.drims.return')]"
+                />
+                <filter
+                    name="filter_pickings"
+                    string="Stock Movements"
+                    domain="[('model', '=', 'stock.picking')]"
+                />
+                <separator />
+                <filter
+                    name="filter_create"
+                    string="Created"
+                    domain="[('method', '=', 'create')]"
+                />
+                <filter
+                    name="filter_write"
+                    string="Updated"
+                    domain="[('method', '=', 'write')]"
+                />
+                <separator />
+                <filter
+                    name="last_24h"
+                    string="Last 24 Hours"
+                    domain="[('create_date', '&gt;=', (context_today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d'))]"
+                />
+                <filter
+                    name="last_7d"
+                    string="Last 7 Days"
+                    domain="[('create_date', '&gt;=', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"
+                />
+                <filter
+                    name="last_30d"
+                    string="Last 30 Days"
+                    domain="[('create_date', '&gt;=', (context_today() - datetime.timedelta(days=30)).strftime('%Y-%m-%d'))]"
+                />
+                <separator />
                 <group>
-                    <filter name="groupby_model" string="Type"
-                            context="{'group_by': 'model'}"/>
-                    <filter name="groupby_user" string="User"
-                            context="{'group_by': 'user_id'}"/>
-                    <filter name="groupby_method" string="Action"
-                            context="{'group_by': 'method'}"/>
-                    <filter name="groupby_date" string="Date"
-                            context="{'group_by': 'create_date:day'}"/>
+                    <filter
+                        name="groupby_model"
+                        string="Type"
+                        context="{'group_by': 'model'}"
+                    />
+                    <filter
+                        name="groupby_user"
+                        string="User"
+                        context="{'group_by': 'user_id'}"
+                    />
+                    <filter
+                        name="groupby_method"
+                        string="Action"
+                        context="{'group_by': 'method'}"
+                    />
+                    <filter
+                        name="groupby_date"
+                        string="Date"
+                        context="{'group_by': 'create_date:day'}"
+                    />
                 </group>
             </search>
         </field>
@@ -96,10 +148,13 @@
             ])
         ]</field>
         <field name="context">{'search_default_last_7d': 1}</field>
-        <field name="view_ids" eval="[(5, 0, 0),
+        <field
+            name="view_ids"
+            eval="[(5, 0, 0),
             (0, 0, {'view_mode': 'list', 'view_id': ref('spp_drims_activity_feed_list')}),
-        ]"/>
-        <field name="search_view_id" ref="spp_drims_activity_feed_search"/>
+        ]"
+        />
+        <field name="search_view_id" ref="spp_drims_activity_feed_search" />
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 No activity recorded yet

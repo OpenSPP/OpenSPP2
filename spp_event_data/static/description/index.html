@@ -374,7 +374,7 @@ ul.auto-toc {
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! source digest: sha256:aec1d29c5b22a4919b99a125d7255b7f791d8911ebf9501faf60a2fe11b31aec
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-<p><a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_event_data"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Production/Stable" src="https://img.shields.io/badge/maturity-Production%2FStable-green.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_event_data"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
 <p>Records and tracks events for registrants from surveys, field visits,
 and external systems. Supports flexible data storage (JSON, custom
 fields, or dedicated models), configurable lifecycle rules
@@ -399,16 +399,16 @@ workflows</li>
 field mapping and transformations</li>
 <li>Generate change requests when event data differs from registrant
 fields (requires <tt class="docutils literal">spp_change_request</tt>)</li>
-<li>Track event history with state transitions: draft → pending → active
-→ superseded/expired/cancelled</li>
+<li>Track event history with state transitions: draft → pending → active →
+superseded/expired/cancelled</li>
 </ul>
 </div>
 <div class="section" id="key-models">
 <h2>Key Models</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="43%" />
-<col width="57%" />
+<col width="42%" />
+<col width="58%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Model</th>
@@ -425,12 +425,12 @@ collection metadata</td>
 lifecycle, source)</td>
 </tr>
 <tr><td><tt class="docutils literal">spp.event.field</tt></td>
-<td>Custom field definition for
-JSON-based event types</td>
+<td>Custom field definition for JSON-based
+event types</td>
 </tr>
 <tr><td><tt class="docutils literal">spp.event.type.mapping</tt></td>
-<td>Field mapping for external source
-data transformation</td>
+<td>Field mapping for external source data
+transformation</td>
 </tr>
 <tr><td><tt class="docutils literal">spp.create.event.wizard</tt></td>
 <td>Wizard to create new event records
@@ -464,8 +464,8 @@ mappings (requires <tt class="docutils literal">spp_change_request</tt>)</li>
 create wizard</li>
 <li><strong>Registrant Form</strong>: Events section displays event history list with
 state badges</li>
-<li><strong>Event Data</strong>: Access via window action <tt class="docutils literal">action_spp_event_data</tt>
-(no menu defined in this module)</li>
+<li><strong>Event Data</strong>: Access via window action <tt class="docutils literal">action_spp_event_data</tt> (no
+menu defined in this module)</li>
 <li><strong>Event Form Tabs</strong>: Event Data, Source, History, Legacy Data,
 Approval</li>
 </ul>

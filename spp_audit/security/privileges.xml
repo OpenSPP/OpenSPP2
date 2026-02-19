@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Audit Privileges -->
     <record id="privilege_audit_manager" model="res.groups.privilege">
         <field name="name">Manager</field>
-        <field name="category_id" ref="spp_security.category_spp_audit"/>
+        <field name="category_id" ref="spp_security.category_spp_audit" />
         <field name="sequence">20</field>
     </record>
 </odoo>

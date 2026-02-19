@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <record id="res_config_settings_programs_view_form" model="ir.ui.view">
         <field name="name">
             res.config.settings.view.form.inherit.programs
@@ -10,7 +9,11 @@
         <field name="inherit_id" ref="base.res_config_settings_view_form" />
         <field name="arch" type="xml">
             <xpath expr="//form" position="inside">
-                <app string="Programs Settings" name="program_settings" logo="/spp_programs/static/description/icon.png">
+                <app
+                    string="Programs Settings"
+                    name="program_settings"
+                    logo="/spp_programs/static/description/icon.png"
+                >
                     <block title="Programs Settings">
                         <setting string="Beneficiaries Automated Filtering Mechanism">
                             <field name="beneficiaries_automated_filtering_mechanism" />
@@ -31,7 +34,6 @@
         <field name="context">{'module' : 'spp_programs'}</field>
     </record>
 
-
     <menuitem
         id="menu_programs_settings_general"
         name="General Settings"
@@ -40,5 +42,4 @@
         action="res_config_settings_menu_programs_action"
         groups="base.group_system"
     />
-
 </odoo>

@@ -1,303 +1,353 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-        <!-- API Path Filter Action - Must be defined before form view that references it -->
-        <record id="action_api_path_filter" model="ir.actions.act_window">
-            <field name="name">API Filters</field>
-            <field name="res_model">spp.api.path.filter</field>
-            <field name="view_mode">list,form</field>
-            <field name="help" type="html">
-                <p class="o_view_nocontent_smiling_face">
+    <!-- API Path Filter Action - Must be defined before form view that references it -->
+    <record id="action_api_path_filter" model="ir.actions.act_window">
+        <field name="name">API Filters</field>
+        <field name="res_model">spp.api.path.filter</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
                     Configure API Filters
                 </p>
-                <p>
+            <p>
                     Filters define which fields can be searched via API query parameters.
                 </p>
-            </field>
-        </record>
+        </field>
+    </record>
 
-        <!-- API Filter Preset Action - Must be defined before form view that references it -->
-        <record id="action_api_filter_preset" model="ir.actions.act_window">
-            <field name="name">Filter Presets</field>
-            <field name="res_model">spp.api.filter.preset</field>
-            <field name="view_mode">list,form</field>
-            <field name="help" type="html">
-                <p class="o_view_nocontent_smiling_face">
+    <!-- API Filter Preset Action - Must be defined before form view that references it -->
+    <record id="action_api_filter_preset" model="ir.actions.act_window">
+        <field name="name">Filter Presets</field>
+        <field name="res_model">spp.api.filter.preset</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
                     Create Filter Presets
                 </p>
-                <p>
+            <p>
                     Presets are saved filter combinations that API consumers can reference by name.
                 </p>
-            </field>
-        </record>
+        </field>
+    </record>
 
-        <!-- API Path Tree View -->
-        <record id="view_api_path_list" model="ir.ui.view">
-            <field name="name">spp.api.path.list</field>
-            <field name="model">spp.api.path</field>
-            <field name="arch" type="xml">
-                <list string="API Paths">
-                    <field name="sequence" widget="handle" />
-                    <field name="name" />
-                    <field name="model_name" />
-                    <field name="filter_count" />
-                    <field name="preset_count" />
-                    <field name="allow_custom_filters" />
-                    <field name="active" />
-                </list>
-            </field>
-        </record>
+    <!-- API Path Tree View -->
+    <record id="view_api_path_list" model="ir.ui.view">
+        <field name="name">spp.api.path.list</field>
+        <field name="model">spp.api.path</field>
+        <field name="arch" type="xml">
+            <list string="API Paths">
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="model_name" />
+                <field name="filter_count" />
+                <field name="preset_count" />
+                <field name="allow_custom_filters" />
+                <field name="active" />
+            </list>
+        </field>
+    </record>
 
-        <!-- API Path Form View -->
-        <record id="view_api_path_form" model="ir.ui.view">
-            <field name="name">spp.api.path.form</field>
-            <field name="model">spp.api.path</field>
-            <field name="arch" type="xml">
-                <form string="API Path">
-                    <sheet>
-                        <div class="oe_button_box" name="button_box">
-                            <button
-                                name="%(action_api_path_filter)d"
-                                type="action"
-                                class="oe_stat_button"
-                                icon="fa-filter"
-                                context="{'default_path_id': id, 'search_default_path_id': id}"
-                            >
-                                <field name="filter_count" widget="statinfo" string="Filters" />
-                            </button>
-                            <button
-                                name="%(action_api_filter_preset)d"
-                                type="action"
-                                class="oe_stat_button"
-                                icon="fa-bookmark"
-                                context="{'default_path_id': id, 'search_default_path_id': id}"
-                            >
-                                <field name="preset_count" widget="statinfo" string="Presets" />
-                            </button>
-                        </div>
-                        <widget
-                            name="web_ribbon"
-                            title="Archived"
-                            bg_color="bg-danger"
-                            invisible="active"
+    <!-- API Path Form View -->
+    <record id="view_api_path_form" model="ir.ui.view">
+        <field name="name">spp.api.path.form</field>
+        <field name="model">spp.api.path</field>
+        <field name="arch" type="xml">
+            <form string="API Path">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="%(action_api_path_filter)d"
+                            type="action"
+                            class="oe_stat_button"
+                            icon="fa-filter"
+                            context="{'default_path_id': id, 'search_default_path_id': id}"
+                        >
+                            <field
+                                name="filter_count"
+                                widget="statinfo"
+                                string="Filters"
+                            />
+                        </button>
+                        <button
+                            name="%(action_api_filter_preset)d"
+                            type="action"
+                            class="oe_stat_button"
+                            icon="fa-bookmark"
+                            context="{'default_path_id': id, 'search_default_path_id': id}"
+                        >
+                            <field
+                                name="preset_count"
+                                widget="statinfo"
+                                string="Presets"
+                            />
+                        </button>
+                    </div>
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="bg-danger"
+                        invisible="active"
+                    />
+                    <group>
+                        <group name="basic">
+                            <field name="name" />
+                            <field name="model_id" options="{'no_create': True}" />
+                            <field name="active" invisible="1" />
+                        </group>
+                        <group name="settings">
+                            <field name="sequence" />
+                            <field name="allow_custom_filters" />
+                            <field name="max_filter_complexity" />
+                        </group>
+                    </group>
+                    <separator string="Description" />
+                    <field name="description" nolabel="1" class="oe_inline" />
+                    <group string="Static Filter Domain">
+                        <field
+                            name="filter_domain"
+                            placeholder="[('active', '=', True)]"
                         />
-                        <group>
-                            <group name="basic">
-                                <field name="name" />
-                                <field name="model_id" options="{'no_create': True}" />
-                                <field name="active" invisible="1" />
-                            </group>
-                            <group name="settings">
-                                <field name="sequence" />
-                                <field name="allow_custom_filters" />
-                                <field name="max_filter_complexity" />
-                            </group>
-                        </group>
-                        <separator string="Description"/>
-                        <field name="description" nolabel="1" class="oe_inline"/>
-                        <group string="Static Filter Domain">
-                            <field name="filter_domain" placeholder="[('active', '=', True)]" />
-                        </group>
-                        <notebook>
-                            <page name="filters" string="Filters">
-                                <field name="filter_ids">
-                                    <list editable="bottom">
-                                        <field name="sequence" widget="handle" />
-                                        <field name="name" />
-                                        <field name="field_path" />
-                                        <field name="filter_type" />
-                                        <field name="allowed_operators" />
-                                        <field name="required" />
-                                        <field name="is_indexed" />
-                                        <field name="active" />
-                                    </list>
-                                </field>
-                            </page>
-                            <page name="presets" string="Presets">
-                                <field name="filter_preset_ids">
-                                    <list editable="bottom">
-                                        <field name="name" />
-                                        <field name="description" />
-                                        <field name="is_public" />
-                                        <field name="active" />
-                                    </list>
-                                </field>
-                            </page>
-                        </notebook>
-                    </sheet>
-                </form>
-            </field>
-        </record>
+                    </group>
+                    <notebook>
+                        <page name="filters" string="Filters">
+                            <field name="filter_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle" />
+                                    <field name="name" />
+                                    <field name="field_path" />
+                                    <field name="filter_type" />
+                                    <field name="allowed_operators" />
+                                    <field name="required" />
+                                    <field name="is_indexed" />
+                                    <field name="active" />
+                                </list>
+                            </field>
+                        </page>
+                        <page name="presets" string="Presets">
+                            <field name="filter_preset_ids">
+                                <list editable="bottom">
+                                    <field name="name" />
+                                    <field name="description" />
+                                    <field name="is_public" />
+                                    <field name="active" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
 
-        <!-- API Path Action -->
-        <record id="action_api_path" model="ir.actions.act_window">
-            <field name="name">API Paths</field>
-            <field name="res_model">spp.api.path</field>
-            <field name="view_mode">list,form</field>
-            <field name="help" type="html">
-                <p class="o_view_nocontent_smiling_face">
+    <!-- API Path Action -->
+    <record id="action_api_path" model="ir.actions.act_window">
+        <field name="name">API Paths</field>
+        <field name="res_model">spp.api.path</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
                     Configure API Path Settings
                 </p>
-                <p>
+            <p>
                     API Paths define which resources are available via the V2 API
                     and how they can be filtered.
                 </p>
-            </field>
-        </record>
+        </field>
+    </record>
 
-        <!-- API Path Filter Tree View -->
-        <record id="view_api_path_filter_list" model="ir.ui.view">
-            <field name="name">spp.api.path.filter.list</field>
-            <field name="model">spp.api.path.filter</field>
-            <field name="arch" type="xml">
-                <list string="API Filters">
-                    <field name="sequence" widget="handle" />
-                    <field name="path_id" />
-                    <field name="name" />
-                    <field name="field_path" />
-                    <field name="filter_type" />
-                    <field name="label" />
-                    <field name="required" />
-                    <field name="is_indexed" />
-                    <field name="active" />
-                </list>
-            </field>
-        </record>
+    <!-- API Path Filter Tree View -->
+    <record id="view_api_path_filter_list" model="ir.ui.view">
+        <field name="name">spp.api.path.filter.list</field>
+        <field name="model">spp.api.path.filter</field>
+        <field name="arch" type="xml">
+            <list string="API Filters">
+                <field name="sequence" widget="handle" />
+                <field name="path_id" />
+                <field name="name" />
+                <field name="field_path" />
+                <field name="filter_type" />
+                <field name="label" />
+                <field name="required" />
+                <field name="is_indexed" />
+                <field name="active" />
+            </list>
+        </field>
+    </record>
 
-        <!-- API Path Filter Form View -->
-        <record id="view_api_path_filter_form" model="ir.ui.view">
-            <field name="name">spp.api.path.filter.form</field>
-            <field name="model">spp.api.path.filter</field>
-            <field name="arch" type="xml">
-                <form string="API Filter">
-                    <sheet>
-                        <widget
-                            name="web_ribbon"
-                            title="Archived"
-                            bg_color="bg-danger"
-                            invisible="active"
-                        />
-                        <group>
-                            <group name="basic">
-                                <field name="path_id" />
-                                <field name="name" />
-                                <field name="field_path" />
-                                <field name="sequence" />
-                                <field name="active" invisible="1" />
-                            </group>
-                            <group name="type">
-                                <field name="filter_type" />
-                                <field name="allowed_operators" />
-                                <field name="max_values" invisible="filter_type not in ['in', 'nin']" />
-                            </group>
+    <!-- API Path Filter Form View -->
+    <record id="view_api_path_filter_form" model="ir.ui.view">
+        <field name="name">spp.api.path.filter.form</field>
+        <field name="model">spp.api.path.filter</field>
+        <field name="arch" type="xml">
+            <form string="API Filter">
+                <sheet>
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="bg-danger"
+                        invisible="active"
+                    />
+                    <group>
+                        <group name="basic">
+                            <field name="path_id" />
+                            <field name="name" />
+                            <field name="field_path" />
+                            <field name="sequence" />
+                            <field name="active" invisible="1" />
                         </group>
-                        <group>
-                            <group name="documentation">
-                                <field name="label" />
-                                <field name="description" />
-                            </group>
-                            <group name="validation">
-                                <field name="required" />
-                                <field name="default_value" />
-                            </group>
+                        <group name="type">
+                            <field name="filter_type" />
+                            <field name="allowed_operators" />
+                            <field
+                                name="max_values"
+                                invisible="filter_type not in ['in', 'nin']"
+                            />
                         </group>
-                        <group>
-                            <group name="performance">
-                                <field name="is_indexed" />
-                            </group>
-                            <group name="security">
-                                <field name="requires_scope" />
-                            </group>
-                        </group>
-                    </sheet>
-                </form>
-            </field>
-        </record>
-
-        <!-- API Path Filter Search View -->
-        <record id="view_api_path_filter_search" model="ir.ui.view">
-            <field name="name">spp.api.path.filter.search</field>
-            <field name="model">spp.api.path.filter</field>
-            <field name="arch" type="xml">
-                <search string="API Filters">
-                    <field name="name" />
-                    <field name="path_id" />
-                    <field name="field_path" />
-                    <separator />
-                    <filter name="required" string="Required" domain="[('required', '=', True)]" />
-                    <filter name="indexed" string="Indexed" domain="[('is_indexed', '=', True)]" />
-                    <separator />
-                    <filter name="inactive" string="Archived" domain="[('active', '=', False)]" />
-                    <separator />
-                    <filter name="group_path_id" string="API Path" context="{'group_by': 'path_id'}" />
-                    <filter name="group_filter_type" string="Filter Type" context="{'group_by': 'filter_type'}" />
-                </search>
-            </field>
-        </record>
-
-        <!-- API Filter Preset Tree View -->
-        <record id="view_api_filter_preset_list" model="ir.ui.view">
-            <field name="name">spp.api.filter.preset.list</field>
-            <field name="model">spp.api.filter.preset</field>
-            <field name="arch" type="xml">
-                <list string="Filter Presets">
-                    <field name="name" />
-                    <field name="path_id" />
-                    <field name="description" />
-                    <field name="is_public" />
-                    <field name="active" />
-                </list>
-            </field>
-        </record>
-
-        <!-- API Filter Preset Form View -->
-        <record id="view_api_filter_preset_form" model="ir.ui.view">
-            <field name="name">spp.api.filter.preset.form</field>
-            <field name="model">spp.api.filter.preset</field>
-            <field name="arch" type="xml">
-                <form string="Filter Preset">
-                    <sheet>
-                        <widget
-                            name="web_ribbon"
-                            title="Archived"
-                            bg_color="bg-danger"
-                            invisible="active"
-                        />
-                        <group>
-                            <group name="basic">
-                                <field name="name" />
-                                <field name="path_id" />
-                            </group>
-                            <group name="settings">
-                                <field name="is_public" />
-                                <field name="active" invisible="1" />
-                            </group>
-                        </group>
-                        <group>
+                    </group>
+                    <group>
+                        <group name="documentation">
+                            <field name="label" />
                             <field name="description" />
                         </group>
-                        <group string="Filter Configuration (JSON)">
-                            <field name="filter_json" widget="ace" options="{'mode': 'javascript'}" />
+                        <group name="validation">
+                            <field name="required" />
+                            <field name="default_value" />
                         </group>
-                    </sheet>
-                </form>
-            </field>
-        </record>
+                    </group>
+                    <group>
+                        <group name="performance">
+                            <field name="is_indexed" />
+                        </group>
+                        <group name="security">
+                            <field name="requires_scope" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
 
-        <!-- API Filter Preset Search View -->
-        <record id="view_api_filter_preset_search" model="ir.ui.view">
-            <field name="name">spp.api.filter.preset.search</field>
-            <field name="model">spp.api.filter.preset</field>
-            <field name="arch" type="xml">
-                <search string="Filter Presets">
-                    <field name="name" />
-                    <field name="path_id" />
-                    <separator />
-                    <filter name="public" string="Public" domain="[('is_public', '=', True)]" />
-                    <separator />
-                    <filter name="inactive" string="Archived" domain="[('active', '=', False)]" />
-                    <separator />
-                    <filter name="group_path_id" string="API Path" context="{'group_by': 'path_id'}" />
-                </search>
-            </field>
-        </record>
+    <!-- API Path Filter Search View -->
+    <record id="view_api_path_filter_search" model="ir.ui.view">
+        <field name="name">spp.api.path.filter.search</field>
+        <field name="model">spp.api.path.filter</field>
+        <field name="arch" type="xml">
+            <search string="API Filters">
+                <field name="name" />
+                <field name="path_id" />
+                <field name="field_path" />
+                <separator />
+                <filter
+                    name="required"
+                    string="Required"
+                    domain="[('required', '=', True)]"
+                />
+                <filter
+                    name="indexed"
+                    string="Indexed"
+                    domain="[('is_indexed', '=', True)]"
+                />
+                <separator />
+                <filter
+                    name="inactive"
+                    string="Archived"
+                    domain="[('active', '=', False)]"
+                />
+                <separator />
+                <filter
+                    name="group_path_id"
+                    string="API Path"
+                    context="{'group_by': 'path_id'}"
+                />
+                <filter
+                    name="group_filter_type"
+                    string="Filter Type"
+                    context="{'group_by': 'filter_type'}"
+                />
+            </search>
+        </field>
+    </record>
+
+    <!-- API Filter Preset Tree View -->
+    <record id="view_api_filter_preset_list" model="ir.ui.view">
+        <field name="name">spp.api.filter.preset.list</field>
+        <field name="model">spp.api.filter.preset</field>
+        <field name="arch" type="xml">
+            <list string="Filter Presets">
+                <field name="name" />
+                <field name="path_id" />
+                <field name="description" />
+                <field name="is_public" />
+                <field name="active" />
+            </list>
+        </field>
+    </record>
+
+    <!-- API Filter Preset Form View -->
+    <record id="view_api_filter_preset_form" model="ir.ui.view">
+        <field name="name">spp.api.filter.preset.form</field>
+        <field name="model">spp.api.filter.preset</field>
+        <field name="arch" type="xml">
+            <form string="Filter Preset">
+                <sheet>
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="bg-danger"
+                        invisible="active"
+                    />
+                    <group>
+                        <group name="basic">
+                            <field name="name" />
+                            <field name="path_id" />
+                        </group>
+                        <group name="settings">
+                            <field name="is_public" />
+                            <field name="active" invisible="1" />
+                        </group>
+                    </group>
+                    <group>
+                        <field name="description" />
+                    </group>
+                    <group string="Filter Configuration (JSON)">
+                        <field
+                            name="filter_json"
+                            widget="ace"
+                            options="{'mode': 'javascript'}"
+                        />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- API Filter Preset Search View -->
+    <record id="view_api_filter_preset_search" model="ir.ui.view">
+        <field name="name">spp.api.filter.preset.search</field>
+        <field name="model">spp.api.filter.preset</field>
+        <field name="arch" type="xml">
+            <search string="Filter Presets">
+                <field name="name" />
+                <field name="path_id" />
+                <separator />
+                <filter
+                    name="public"
+                    string="Public"
+                    domain="[('is_public', '=', True)]"
+                />
+                <separator />
+                <filter
+                    name="inactive"
+                    string="Archived"
+                    domain="[('active', '=', False)]"
+                />
+                <separator />
+                <filter
+                    name="group_path_id"
+                    string="API Path"
+                    context="{'group_by': 'path_id'}"
+                />
+            </search>
+        </field>
+    </record>
 </odoo>

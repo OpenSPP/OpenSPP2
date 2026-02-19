@@ -10,12 +10,12 @@ completing the reliable delivery pattern for DCI subscriptions.
 """
 
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field
 
 
-class ReceiptType(str, Enum):
+class ReceiptType(StrEnum):
     """Receipt types per SPDCI RegistryEventType.
 
     Indicates what kind of notification is being acknowledged.

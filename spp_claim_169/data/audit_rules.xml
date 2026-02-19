@@ -12,10 +12,10 @@
                    'issued_at', 'expires_at', 'revoked_at', 'revoked_by_id',
                    'revocation_reason']"
         />
-        <value name="view_logs" eval="True"/>
-        <value name="log_create" eval="True"/>
-        <value name="log_write" eval="True"/>
-        <value name="log_unlink" eval="True"/>
+        <value name="view_logs" eval="True" />
+        <value name="log_create" eval="True" />
+        <value name="log_write" eval="True" />
+        <value name="log_unlink" eval="True" />
     </function>
 
     <!-- Issuer Config Audit Rule -->
@@ -27,9 +27,9 @@
             eval="['name', 'issuer_did', 'signing_key_id', 'default_validity_days',
                    'active', 'is_default']"
         />
-        <value name="view_logs" eval="True"/>
-        <value name="log_create" eval="True"/>
-        <value name="log_write" eval="True"/>
-        <value name="log_unlink" eval="True"/>
+        <value name="view_logs" eval="True" />
+        <value name="log_create" eval="True" />
+        <value name="log_write" eval="True" />
+        <value name="log_unlink" eval="True" />
     </function>
 </odoo>

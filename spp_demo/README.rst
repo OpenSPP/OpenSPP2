@@ -14,14 +14,17 @@ OpenSPP Demo
    !! source digest: sha256:9c3d9955f0f40c97ec6fdcbc67bd4c786bb651f28d5658fd2530c6d6af61f4c7
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+    :target: https://odoo-community.org/page/development-status
+    :alt: Production/Stable
+.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
     :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_demo
     :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2|
+|badge1| |badge2| |badge3|
 
 Demo data generator for OpenSPP with Faker-based random registrant
 creation and fixed demo stories. Generates realistic individuals and
@@ -32,42 +35,42 @@ for large datasets.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  Generate random registrants using Faker library with locale-specific
-   providers (Kenya, Laos, Sri Lanka)
--  Create fixed demo stories with memorable names for repeatable demos
-   (e.g., "Maria Santos", "Juan Dela Cruz")
--  Generate IDs from regex patterns with validation and error logging
--  Batch process large datasets using queue_job (configurable threshold)
--  Configure percentages for IDs, GPS coordinates, and bank accounts
--  Track generation failures with diagnostic logging
--  Extend ``res.country`` with Faker locale and GPS boundaries
--  Create demo user accounts (viewer, officer, supervisor, manager,
-   admin)
+- Generate random registrants using Faker library with locale-specific
+  providers (Kenya, Laos, Sri Lanka)
+- Create fixed demo stories with memorable names for repeatable demos
+  (e.g., "Maria Santos", "Juan Dela Cruz")
+- Generate IDs from regex patterns with validation and error logging
+- Batch process large datasets using queue_job (configurable threshold)
+- Configure percentages for IDs, GPS coordinates, and bank accounts
+- Track generation failures with diagnostic logging
+- Extend ``res.country`` with Faker locale and GPS boundaries
+- Create demo user accounts (viewer, officer, supervisor, manager,
+  admin)
 
 Key Models
 ~~~~~~~~~~
 
-+----------------------------------+----------------------------------+
-| Model                            | Description                      |
-+==================================+==================================+
-| ``spp.demo.data.generator``      | Main generator with              |
-|                                  | configuration and batch controls |
-+----------------------------------+----------------------------------+
-| ``spp.demo.data.generation.log`` | Logs failed generation attempts  |
-|                                  | with diagnostics                 |
-+----------------------------------+----------------------------------+
-| ``spp.demo.data.id.types``       | ID type configuration for        |
-|                                  | individual/group generation      |
-+----------------------------------+----------------------------------+
-| ``spp.demo.data.bank.types``     | Bank type configuration for      |
-|                                  | account generation               |
-+----------------------------------+----------------------------------+
-| ``spp.apps.wizard``              | Wizard for installing missing    |
-|                                  | demo modules                     |
-+----------------------------------+----------------------------------+
-| ``spp.missing.module``           | Transient model for tracking     |
-|                                  | missing modules                  |
-+----------------------------------+----------------------------------+
++----------------------------------+-----------------------------------+
+| Model                            | Description                       |
++==================================+===================================+
+| ``spp.demo.data.generator``      | Main generator with configuration |
+|                                  | and batch controls                |
++----------------------------------+-----------------------------------+
+| ``spp.demo.data.generation.log`` | Logs failed generation attempts   |
+|                                  | with diagnostics                  |
++----------------------------------+-----------------------------------+
+| ``spp.demo.data.id.types``       | ID type configuration for         |
+|                                  | individual/group generation       |
++----------------------------------+-----------------------------------+
+| ``spp.demo.data.bank.types``     | Bank type configuration for       |
+|                                  | account generation                |
++----------------------------------+-----------------------------------+
+| ``spp.apps.wizard``              | Wizard for installing missing     |
+|                                  | demo modules                      |
++----------------------------------+-----------------------------------+
+| ``spp.missing.module``           | Transient model for tracking      |
+|                                  | missing modules                   |
++----------------------------------+-----------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -77,9 +80,9 @@ After installing:
 1. Navigate to **Settings > General Settings > SPP Demo Data Generator
    Settings** to set defaults:
 
-   -  Number of groups
-   -  Members per group range
-   -  Batch size and queue job threshold
+   - Number of groups
+   - Members per group range
+   - Batch size and queue job threshold
 
 2. Access generator via action ``spp_demo.action_demo_data_generator``
    (no standalone menu)
@@ -90,47 +93,46 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
--  **Action**: ``spp_demo.action_demo_data_generator`` (no standalone
-   menu item)
--  **Configuration**: Settings > General Settings > SPP Demo Data
-   Generator Settings
--  **Form tabs**: Generated Groups, Generated Individuals, ID Types,
-   Bank Types, Generation Logs
+- **Action**: ``spp_demo.action_demo_data_generator`` (no standalone
+  menu item)
+- **Configuration**: Settings > General Settings > SPP Demo Data
+  Generator Settings
+- **Form tabs**: Generated Groups, Generated Individuals, ID Types, Bank
+  Types, Generation Logs
 
 Security
 ~~~~~~~~
 
-+----------------------------------+----------------------------------+
-| Group                            | Access                           |
-+==================================+==================================+
-| ``base.group_system``            | Full CRUD on all models          |
-+----------------------------------+----------------------------------+
-| ``sp                             | Read access to all models        |
-| p_registry.group_registry_read`` |                                  |
-+----------------------------------+----------------------------------+
-| ``spp                            | Read/Write on generator and logs |
-| _registry.group_registry_write`` | (delete ID/Bank types)           |
-+----------------------------------+----------------------------------+
-| ``spp_                           | Read/Create access (delete       |
-| registry.group_registry_create`` | ID/Bank types)                   |
-+----------------------------------+----------------------------------+
++----------------------------------------+----------------------------------+
+| Group                                  | Access                           |
++========================================+==================================+
+| ``base.group_system``                  | Full CRUD on all models          |
++----------------------------------------+----------------------------------+
+| ``spp_registry.group_registry_read``   | Read access to all models        |
++----------------------------------------+----------------------------------+
+| ``spp_registry.group_registry_write``  | Read/Write on generator and logs |
+|                                        | (delete ID/Bank types)           |
++----------------------------------------+----------------------------------+
+| ``spp_registry.group_registry_create`` | Read/Create access (delete       |
+|                                        | ID/Bank types)                   |
++----------------------------------------+----------------------------------+
 
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Override ``_create_individual_story()``, ``_create_farmer_story()``,
-   ``_create_household_story()`` for custom story generation
--  Add custom stories to ``models/demo_stories.py`` (``DEMO_STORIES`` or
-   ``BACKGROUND_STORIES`` lists)
--  Extend ``res.country`` with ``faker_locale`` field for custom locale
-   providers
--  Use utility methods:
+- Override ``_create_individual_story()``, ``_create_farmer_story()``,
+  ``_create_household_story()`` for custom story generation
+- Add custom stories to ``models/demo_stories.py`` (``DEMO_STORIES`` or
+  ``BACKGROUND_STORIES`` lists)
+- Extend ``res.country`` with ``faker_locale`` field for custom locale
+  providers
+- Use utility methods:
 
-   -  ``create_individual_from_params(name, gender, age, extra_vals)`` -
-      Create individual without full generator session
-   -  ``create_group_from_params(name, extra_vals)`` - Create group from
-      parameters
-   -  ``lookup_gender_id(gender)`` - Look up gender vocabulary code ID
+  - ``create_individual_from_params(name, gender, age, extra_vals)`` -
+    Create individual without full generator session
+  - ``create_group_from_params(name, extra_vals)`` - Create group from
+    parameters
+  - ``lookup_gender_id(gender)`` - Look up gender vocabulary code ID
 
 Dependencies
 ~~~~~~~~~~~~

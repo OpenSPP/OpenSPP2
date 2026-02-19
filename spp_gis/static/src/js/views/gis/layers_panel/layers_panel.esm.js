@@ -34,7 +34,9 @@ export class LayersPanel extends Component {
                 // Ensure gisLayers.actives is an array before iterating
                 if (Array.isArray(this.state.gisLayers.actives)) {
                     this.state.gisLayers.actives.forEach((val) => {
-                        const element = this.props.dataLayerModel.records.find((el) => el.resId === val.id);
+                        const element = this.props.dataLayerModel.records.find(
+                            (el) => el.resId === val.id
+                        );
                         // Check if element is found to avoid assigning undefined properties
                         if (element) {
                             const obj = {id: element.id, resId: element.resId};
@@ -67,7 +69,9 @@ export class LayersPanel extends Component {
 
     async loadLayers() {
         try {
-            const result = await this.orm.call(this.props.model, "get_gis_layers", [this.env.config.viewId]);
+            const result = await this.orm.call(this.props.model, "get_gis_layers", [
+                this.env.config.viewId,
+            ]);
             // Ensure result has the expected structure with arrays
             this.state.gisLayers = {
                 actives: result?.actives || [],
@@ -99,10 +103,14 @@ export class LayersPanel extends Component {
     }
 
     resquence(dataRowId, refId) {
-        const fromIndex = this.state.gisLayers.actives.findIndex((layer) => layer.id === dataRowId);
+        const fromIndex = this.state.gisLayers.actives.findIndex(
+            (layer) => layer.id === dataRowId
+        );
         const record = this.state.gisLayers.actives.splice(fromIndex, 1)[0];
 
-        let toIndex = refId ? this.state.gisLayers.actives.findIndex((layer) => layer.id === refId) : 0;
+        let toIndex = refId
+            ? this.state.gisLayers.actives.findIndex((layer) => layer.id === refId)
+            : 0;
         toIndex += fromIndex < toIndex ? 1 : 0;
 
         this.state.gisLayers.actives.splice(toIndex, 0, record);
@@ -114,7 +122,11 @@ export class LayersPanel extends Component {
                 handleField: "sequence",
             });
             this.props.dataLayerModel.records.forEach((element) => {
-                this.onDataLayerChange(element, "onSequenceChanged", element.data.sequence);
+                this.onDataLayerChange(
+                    element,
+                    "onSequenceChanged",
+                    element.data.sequence
+                );
             });
         } catch (error) {
             console.error("Error updating sequence:", error);
@@ -170,12 +182,16 @@ export class LayersPanel extends Component {
                     break;
                 }
                 case "onLayerChanged": {
-                    const geo_field_id = await this.orm.call(dataLayer.resModel, "set_gis_field_name", [
-                        value.geo_field_id,
-                    ]);
-                    const attribute_field_id = await this.orm.call(dataLayer.resModel, "set_gis_field_name", [
-                        value.attribute_field_id,
-                    ]);
+                    const geo_field_id = await this.orm.call(
+                        dataLayer.resModel,
+                        "set_gis_field_name",
+                        [value.geo_field_id]
+                    );
+                    const attribute_field_id = await this.orm.call(
+                        dataLayer.resModel,
+                        "set_gis_field_name",
+                        [value.attribute_field_id]
+                    );
                     Object.assign(dataLayer, {
                         ...value,
                         geo_field_id,
@@ -212,7 +228,8 @@ export class LayersPanel extends Component {
             resModel: dataLayer.resModel,
             title: _t("Editing Data layer"),
             resId: dataLayer.resId,
-            onRecordSaved: (record) => this.onDataLayerChange(dataLayer, "onLayerChanged", record.data),
+            onRecordSaved: (record) =>
+                this.onDataLayerChange(dataLayer, "onLayerChanged", record.data),
         });
     }
 
@@ -238,7 +255,9 @@ export class LayersPanel extends Component {
             title: _t("Creating Raster Layer"),
             onRecordSaved: async () => {
                 await this.loadLayers();
-                rasterLayersStore.onRasterLayerChanged(this.state.gisLayers.backgrounds);
+                rasterLayersStore.onRasterLayerChanged(
+                    this.state.gisLayers.backgrounds
+                );
             },
         });
     }

@@ -1,13 +1,22 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <templates xml:space="preserve">
 
     <t t-name="spp_cel_widget.CelSymbolBrowser">
-        <div class="o_cel_symbol_browser mt-2 border rounded" id="celSymbolBrowser" role="region" aria-label="Symbol browser" t-on-click="onBrowserClick" t-on-mousedown="onBrowserMousedown">
+        <div
+            class="o_cel_symbol_browser mt-2 border rounded"
+            id="celSymbolBrowser"
+            role="region"
+            aria-label="Symbol browser"
+            t-on-click="onBrowserClick"
+            t-on-mousedown="onBrowserMousedown"
+        >
             <!-- Header with search and close -->
-            <div class="o_cel_browser_header d-flex align-items-center p-2 border-bottom bg-light">
+            <div
+                class="o_cel_browser_header d-flex align-items-center p-2 border-bottom bg-light"
+            >
                 <div class="input-group input-group-sm flex-grow-1 me-2">
                     <span class="input-group-text" id="symbolSearchLabel">
-                        <i class="fa fa-search" aria-hidden="true"/>
+                        <i class="fa fa-search" aria-hidden="true" />
                     </span>
                     <input
                         type="search"
@@ -26,12 +35,16 @@
                     title="Close"
                     aria-label="Close symbol browser"
                 >
-                    <i class="fa fa-times" aria-hidden="true"/>
+                    <i class="fa fa-times" aria-hidden="true" />
                 </button>
             </div>
 
             <!-- Tabs: Fields | Variables | Library | Functions -->
-            <div class="o_cel_browser_tabs d-flex border-bottom" role="tablist" aria-label="Symbol categories">
+            <div
+                class="o_cel_browser_tabs d-flex border-bottom"
+                role="tablist"
+                aria-label="Symbol categories"
+            >
                 <button
                     type="button"
                     role="tab"
@@ -41,7 +54,7 @@
                     aria-controls="fieldsPanel"
                     id="fieldsTab"
                 >
-                    <i class="fa fa-database me-1" aria-hidden="true"/>
+                    <i class="fa fa-database me-1" aria-hidden="true" />
                     Fields
                 </button>
                 <button
@@ -53,7 +66,7 @@
                     aria-controls="variablesPanel"
                     id="variablesTab"
                 >
-                    <i class="fa fa-cube me-1" aria-hidden="true"/>
+                    <i class="fa fa-cube me-1" aria-hidden="true" />
                     Variables
                 </button>
                 <button
@@ -65,7 +78,7 @@
                     aria-controls="libraryPanel"
                     id="libraryTab"
                 >
-                    <i class="fa fa-bookmark me-1" aria-hidden="true"/>
+                    <i class="fa fa-bookmark me-1" aria-hidden="true" />
                     Library
                 </button>
                 <button
@@ -77,7 +90,7 @@
                     aria-controls="functionsPanel"
                     id="functionsTab"
                 >
-                    <i class="fa fa-code me-1" aria-hidden="true"/>
+                    <i class="fa fa-code me-1" aria-hidden="true" />
                     Functions
                 </button>
             </div>
@@ -92,8 +105,11 @@
                         aria-label="Filter by value type"
                     >
                         <t t-foreach="valueTypeOptions" t-as="opt" t-key="opt.value">
-                            <option t-att-value="opt.value" t-att-selected="state.valueTypeFilter === opt.value">
-                                <t t-esc="opt.label"/>
+                            <option
+                                t-att-value="opt.value"
+                                t-att-selected="state.valueTypeFilter === opt.value"
+                            >
+                                <t t-esc="opt.label" />
                             </option>
                         </t>
                     </select>
@@ -105,8 +121,11 @@
                     >
                         <option value="">All Categories</option>
                         <t t-foreach="availableCategories" t-as="cat" t-key="cat">
-                            <option t-att-value="cat" t-att-selected="state.categoryFilter === cat">
-                                <t t-esc="cat"/>
+                            <option
+                                t-att-value="cat"
+                                t-att-selected="state.categoryFilter === cat"
+                            >
+                                <t t-esc="cat" />
                             </option>
                         </t>
                     </select>
@@ -115,7 +134,6 @@
 
             <!-- Content -->
             <div class="o_cel_browser_content p-2">
-
                 <!-- ═══ FIELDS TAB ═══════════════════════════════════════════ -->
                 <div
                     t-if="state.activeTab === 'fields'"
@@ -125,14 +143,26 @@
                 >
                     <t t-if="filteredFields.length === 0">
                         <div class="text-muted text-center py-3" role="status">
-                            <i class="fa fa-info-circle me-1" aria-hidden="true"/>
+                            <i class="fa fa-info-circle me-1" aria-hidden="true" />
                             No fields found
                         </div>
                     </t>
                     <t t-else="">
-                        <div class="o_cel_field_list" role="tree" aria-label="Available fields">
-                            <t t-foreach="filteredFields" t-as="variable" t-key="variable.name">
-                                <div class="o_cel_variable_item mb-2" role="treeitem" t-att-aria-expanded="isVariableExpanded(variable.name)">
+                        <div
+                            class="o_cel_field_list"
+                            role="tree"
+                            aria-label="Available fields"
+                        >
+                            <t
+                                t-foreach="filteredFields"
+                                t-as="variable"
+                                t-key="variable.name"
+                            >
+                                <div
+                                    class="o_cel_variable_item mb-2"
+                                    role="treeitem"
+                                    t-att-aria-expanded="isVariableExpanded(variable.name)"
+                                >
                                     <!-- Variable header -->
                                     <div
                                         class="o_cel_variable_header d-flex align-items-center py-1 px-2 rounded bg-light cursor-pointer"
@@ -142,12 +172,17 @@
                                         t-att-aria-label="'Expand ' + variable.name + ' variable'"
                                         t-on-keydown="(ev) => this.isActivationKey(ev) &amp;&amp; this.toggleVariable(variable.name)"
                                     >
-                                        <i t-att-class="'fa ' + getVariableIcon(variable) + ' me-2 text-primary'" aria-hidden="true"/>
+                                        <i
+                                            t-att-class="'fa ' + getVariableIcon(variable) + ' me-2 text-primary'"
+                                            aria-hidden="true"
+                                        />
                                         <span class="fw-bold flex-grow-1">
-                                            <t t-esc="variable.name"/>
+                                            <t t-esc="variable.name" />
                                         </span>
                                         <span class="text-muted small me-2">
-                                            <t t-esc="variable.model || variable.type"/>
+                                            <t
+                                                t-esc="variable.model || variable.type"
+                                            />
                                         </span>
                                         <button
                                             type="button"
@@ -156,15 +191,31 @@
                                             title="Insert variable"
                                             t-att-aria-label="'Insert ' + variable.name"
                                         >
-                                            <i class="fa fa-plus-circle" aria-hidden="true"/>
+                                            <i
+                                                class="fa fa-plus-circle"
+                                                aria-hidden="true"
+                                            />
                                         </button>
-                                        <i t-att-class="'fa fa-chevron-' + (isVariableExpanded(variable.name) ? 'down' : 'right')" aria-hidden="true"/>
+                                        <i
+                                            t-att-class="'fa fa-chevron-' + (isVariableExpanded(variable.name) ? 'down' : 'right')"
+                                            aria-hidden="true"
+                                        />
                                     </div>
 
                                     <!-- Variable fields (collapsed) -->
-                                    <t t-if="isVariableExpanded(variable.name) and variable.fields">
-                                        <div class="o_cel_field_list ps-4 mt-1" role="group" t-att-aria-label="'Fields for ' + variable.name">
-                                            <t t-foreach="getFilteredModelFields(variable)" t-as="field" t-key="field.name">
+                                    <t
+                                        t-if="isVariableExpanded(variable.name) and variable.fields"
+                                    >
+                                        <div
+                                            class="o_cel_field_list ps-4 mt-1"
+                                            role="group"
+                                            t-att-aria-label="'Fields for ' + variable.name"
+                                        >
+                                            <t
+                                                t-foreach="getFilteredModelFields(variable)"
+                                                t-as="field"
+                                                t-key="field.name"
+                                            >
                                                 <div
                                                     class="o_cel_field_item d-flex align-items-center py-1 px-2 rounded hover-bg-light cursor-pointer"
                                                     t-on-click="() => this.insertField(variable.name, field.name)"
@@ -174,18 +225,27 @@
                                                     t-att-aria-label="'Insert field ' + variable.name + '.' + field.name + ', type: ' + field.type"
                                                     t-on-keydown="(ev) => this.isActivationKey(ev) &amp;&amp; this.insertField(variable.name, field.name)"
                                                 >
-                                                    <i t-att-class="'fa ' + getFieldTypeIcon(field.type) + ' me-2 text-muted'" style="width: 16px;" aria-hidden="true"/>
+                                                    <i
+                                                        t-att-class="'fa ' + getFieldTypeIcon(field.type) + ' me-2 text-muted'"
+                                                        style="width: 16px;"
+                                                        aria-hidden="true"
+                                                    />
                                                     <span class="flex-grow-1">
-                                                        <t t-esc="field.name"/>
+                                                        <t t-esc="field.name" />
                                                     </span>
                                                     <span class="text-muted small">
-                                                        <t t-esc="field.type"/>
+                                                        <t t-esc="field.type" />
                                                     </span>
                                                 </div>
                                             </t>
 
-                                            <t t-if="getFilteredModelFields(variable).length === 0">
-                                                <div class="text-muted small py-1 px-2" role="status">
+                                            <t
+                                                t-if="getFilteredModelFields(variable).length === 0"
+                                            >
+                                                <div
+                                                    class="text-muted small py-1 px-2"
+                                                    role="status"
+                                                >
                                                     No fields match filter
                                                 </div>
                                             </t>
@@ -206,13 +266,21 @@
                 >
                     <t t-if="filteredCelVariables.length === 0">
                         <div class="text-muted text-center py-3" role="status">
-                            <i class="fa fa-info-circle me-1" aria-hidden="true"/>
+                            <i class="fa fa-info-circle me-1" aria-hidden="true" />
                             No variables found
                         </div>
                     </t>
                     <t t-else="">
-                        <div class="o_cel_variable_list" role="listbox" aria-label="Available CEL variables">
-                            <t t-foreach="filteredCelVariables" t-as="variable" t-key="variable.name">
+                        <div
+                            class="o_cel_variable_list"
+                            role="listbox"
+                            aria-label="Available CEL variables"
+                        >
+                            <t
+                                t-foreach="filteredCelVariables"
+                                t-as="variable"
+                                t-key="variable.name"
+                            >
                                 <div
                                     class="o_cel_variable_item d-flex align-items-start py-2 px-2 rounded hover-bg-light cursor-pointer border-bottom"
                                     t-on-click="() => this.insertCelVariable(variable)"
@@ -222,25 +290,31 @@
                                     t-att-aria-label="'Insert variable ' + variable.label + ': ' + variable.description"
                                     t-on-keydown="(ev) => this.isActivationKey(ev) &amp;&amp; this.insertCelVariable(variable)"
                                 >
-                                    <i t-att-class="'fa ' + getFieldTypeIcon(variable.value_type) + ' me-2 mt-1 text-primary'" aria-hidden="true"/>
+                                    <i
+                                        t-att-class="'fa ' + getFieldTypeIcon(variable.value_type) + ' me-2 mt-1 text-primary'"
+                                        aria-hidden="true"
+                                    />
                                     <div class="flex-grow-1">
                                         <div class="d-flex align-items-center">
                                             <span class="fw-bold me-2">
-                                                <t t-esc="variable.label"/>
+                                                <t t-esc="variable.label" />
                                             </span>
                                             <span class="badge bg-secondary small">
-                                                <t t-esc="variable.value_type"/>
+                                                <t t-esc="variable.value_type" />
                                             </span>
                                         </div>
                                         <t t-if="variable.description">
                                             <div class="text-muted small mt-1">
-                                                <t t-esc="variable.description"/>
+                                                <t t-esc="variable.description" />
                                             </div>
                                         </t>
                                         <t t-if="variable.category">
                                             <div class="text-muted small">
-                                                <i class="fa fa-folder-o me-1" aria-hidden="true"/>
-                                                <t t-esc="variable.category"/>
+                                                <i
+                                                    class="fa fa-folder-o me-1"
+                                                    aria-hidden="true"
+                                                />
+                                                <t t-esc="variable.category" />
                                             </div>
                                         </t>
                                     </div>
@@ -251,7 +325,10 @@
                                         t-att-aria-label="'Insert ' + variable.label"
                                         tabindex="-1"
                                     >
-                                        <i class="fa fa-plus-circle" aria-hidden="true"/>
+                                        <i
+                                            class="fa fa-plus-circle"
+                                            aria-hidden="true"
+                                        />
                                     </button>
                                 </div>
                             </t>
@@ -268,12 +345,16 @@
                 >
                     <t t-if="filteredLibrary.length === 0">
                         <div class="text-muted text-center py-3" role="status">
-                            <i class="fa fa-info-circle me-1" aria-hidden="true"/>
+                            <i class="fa fa-info-circle me-1" aria-hidden="true" />
                             No library expressions found
                         </div>
                     </t>
                     <t t-else="">
-                        <div class="o_cel_library_list" role="listbox" aria-label="Library expressions">
+                        <div
+                            class="o_cel_library_list"
+                            role="listbox"
+                            aria-label="Library expressions"
+                        >
                             <t t-foreach="filteredLibrary" t-as="expr" t-key="expr.id">
                                 <div
                                     class="o_cel_library_item d-flex align-items-start py-2 px-2 rounded hover-bg-light cursor-pointer border-bottom"
@@ -284,22 +365,31 @@
                                     t-att-aria-label="'Insert expression ' + expr.name + ': ' + expr.description"
                                     t-on-keydown="(ev) => this.isActivationKey(ev) &amp;&amp; this.insertLibraryExpression(expr)"
                                 >
-                                    <i t-att-class="'fa ' + getExpressionTypeIcon(expr.expression_type) + ' me-2 mt-1 text-info'" aria-hidden="true"/>
+                                    <i
+                                        t-att-class="'fa ' + getExpressionTypeIcon(expr.expression_type) + ' me-2 mt-1 text-info'"
+                                        aria-hidden="true"
+                                    />
                                     <div class="flex-grow-1">
-                                        <div class="d-flex align-items-center flex-wrap gap-1">
+                                        <div
+                                            class="d-flex align-items-center flex-wrap gap-1"
+                                        >
                                             <span class="fw-bold me-2">
-                                                <t t-esc="expr.name"/>
+                                                <t t-esc="expr.name" />
                                             </span>
-                                            <span t-att-class="'badge small ' + getExpressionTypeBadgeClass(expr.expression_type)">
-                                                <t t-esc="expr.expression_type"/>
+                                            <span
+                                                t-att-class="'badge small ' + getExpressionTypeBadgeClass(expr.expression_type)"
+                                            >
+                                                <t t-esc="expr.expression_type" />
                                             </span>
-                                            <span class="badge bg-light text-dark small">
-                                                → <t t-esc="expr.output_type"/>
+                                            <span
+                                                class="badge bg-light text-dark small"
+                                            >
+                                                → <t t-esc="expr.output_type" />
                                             </span>
                                         </div>
                                         <t t-if="expr.description">
                                             <div class="text-muted small mt-1">
-                                                <t t-esc="expr.description"/>
+                                                <t t-esc="expr.description" />
                                             </div>
                                         </t>
                                     </div>
@@ -310,7 +400,10 @@
                                         t-att-aria-label="'Insert ' + expr.name"
                                         tabindex="-1"
                                     >
-                                        <i class="fa fa-plus-circle" aria-hidden="true"/>
+                                        <i
+                                            class="fa fa-plus-circle"
+                                            aria-hidden="true"
+                                        />
                                     </button>
                                 </div>
                             </t>
@@ -327,13 +420,21 @@
                 >
                     <t t-if="filteredFunctions.length === 0">
                         <div class="text-muted text-center py-3" role="status">
-                            <i class="fa fa-info-circle me-1" aria-hidden="true"/>
+                            <i class="fa fa-info-circle me-1" aria-hidden="true" />
                             No functions found
                         </div>
                     </t>
                     <t t-else="">
-                        <div class="o_cel_function_list" role="listbox" aria-label="Available functions">
-                            <t t-foreach="filteredFunctions" t-as="func" t-key="func.name">
+                        <div
+                            class="o_cel_function_list"
+                            role="listbox"
+                            aria-label="Available functions"
+                        >
+                            <t
+                                t-foreach="filteredFunctions"
+                                t-as="func"
+                                t-key="func.name"
+                            >
                                 <div
                                     class="o_cel_function_item d-flex align-items-start py-2 px-2 rounded hover-bg-light cursor-pointer border-bottom"
                                     t-on-click="() => this.insertFunction(func)"
@@ -343,17 +444,22 @@
                                     t-att-aria-label="'Insert function ' + func.name + ': ' + (func.doc || func.signature)"
                                     t-on-keydown="(ev) => this.isActivationKey(ev) &amp;&amp; this.insertFunction(func)"
                                 >
-                                    <i class="fa fa-code me-2 text-info mt-1" aria-hidden="true"/>
+                                    <i
+                                        class="fa fa-code me-2 text-info mt-1"
+                                        aria-hidden="true"
+                                    />
                                     <div class="flex-grow-1">
                                         <div class="fw-bold">
-                                            <t t-esc="func.name"/>
+                                            <t t-esc="func.name" />
                                         </div>
                                         <div class="text-muted small">
-                                            <code><t t-esc="func.signature"/></code>
+                                            <code>
+                                                <t t-esc="func.signature" />
+                                            </code>
                                         </div>
                                         <t t-if="func.doc">
                                             <div class="text-muted small mt-1">
-                                                <t t-esc="func.doc"/>
+                                                <t t-esc="func.doc" />
                                             </div>
                                         </t>
                                     </div>
@@ -364,7 +470,10 @@
                                         t-att-aria-label="'Insert ' + func.name"
                                         tabindex="-1"
                                     >
-                                        <i class="fa fa-plus-circle" aria-hidden="true"/>
+                                        <i
+                                            class="fa fa-plus-circle"
+                                            aria-hidden="true"
+                                        />
                                     </button>
                                 </div>
                             </t>
@@ -374,7 +483,10 @@
             </div>
 
             <!-- Footer with keyboard shortcuts -->
-            <div class="o_cel_browser_footer p-2 border-top bg-light small text-muted" aria-label="Keyboard shortcuts">
+            <div
+                class="o_cel_browser_footer p-2 border-top bg-light small text-muted"
+                aria-label="Keyboard shortcuts"
+            >
                 <kbd>Tab</kbd> to accept suggestion |
                 <kbd>Esc</kbd> to close |
                 <kbd>Enter</kbd> to insert

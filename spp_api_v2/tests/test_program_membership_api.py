@@ -465,8 +465,6 @@ class TestProgramMembershipAPIEndpoints(ApiV2HttpTestCase):
 
         data = json.loads(response.content)
         # enrollment_date is a computed field (from state), set to today when state=enrolled
-        from datetime import date
-
         self.assertEqual(data["enrollmentDate"], date.today().isoformat())
 
     def test_search_empty_results(self):

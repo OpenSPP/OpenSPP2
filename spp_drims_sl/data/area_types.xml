@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
     <!-- Sri Lanka 4-Level Administrative Hierarchy -->
     <record id="area_type_province" model="spp.area.type">
@@ -6,14 +6,14 @@
     </record>
     <record id="area_type_district" model="spp.area.type">
         <field name="name">District</field>
-        <field name="parent_id" ref="area_type_province"/>
+        <field name="parent_id" ref="area_type_province" />
     </record>
     <record id="area_type_ds_division" model="spp.area.type">
         <field name="name">DS Division</field>
-        <field name="parent_id" ref="area_type_district"/>
+        <field name="parent_id" ref="area_type_district" />
     </record>
     <record id="area_type_gn_division" model="spp.area.type">
         <field name="name">GN Division</field>
-        <field name="parent_id" ref="area_type_ds_division"/>
+        <field name="parent_id" ref="area_type_ds_division" />
     </record>
 </odoo>

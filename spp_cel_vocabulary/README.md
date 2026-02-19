@@ -2,8 +2,8 @@
 
 **ADR-016 Phase 3: CEL Integration for vocabulary-aware expressions**
 
-This module extends the CEL (Common Expression Language) system with vocabulary-aware functions that enable robust
-eligibility rules across different deployment vocabularies.
+This module extends the CEL (Common Expression Language) system with vocabulary-aware
+functions that enable robust eligibility rules across different deployment vocabularies.
 
 ## Features
 
@@ -126,14 +126,17 @@ Create concept groups via UI or data files:
 
 ```xml
 <record id="group_feminine_gender" model="spp.vocabulary.concept.group">
-    <field name="name">feminine_gender</field>
-    <field name="display_name">Feminine Gender</field>
-    <field name="cel_function">is_female</field>
-    <field name="description">Codes representing feminine gender identity</field>
-    <field name="code_ids" eval="[
+  <field name="name">feminine_gender</field>
+  <field name="display_name">Feminine Gender</field>
+  <field name="cel_function">is_female</field>
+  <field name="description">Codes representing feminine gender identity</field>
+  <field
+    name="code_ids"
+    eval="[
         (4, ref('spp_vocabulary.code_female')),
         (4, ref('spp_vocabulary_ph.code_babae'))
-    ]"/>
+    ]"
+  />
 </record>
 ```
 
@@ -143,12 +146,12 @@ Map local codes to standard codes:
 
 ```xml
 <record id="code_babae" model="spp.vocabulary.code">
-    <field name="vocabulary_id" ref="vocab_gender_ph"/>
-    <field name="code">babae</field>
-    <field name="display">Babae (Female)</field>
-    <field name="is_local">True</field>
-    <field name="reference_uri">urn:iso:std:iso:5218#2</field>
-    <field name="equivalence">equivalent</field>
+  <field name="vocabulary_id" ref="vocab_gender_ph" />
+  <field name="code">babae</field>
+  <field name="display">Babae (Female)</field>
+  <field name="is_local">True</field>
+  <field name="reference_uri">urn:iso:std:iso:5218#2</field>
+  <field name="equivalence">equivalent</field>
 </record>
 ```
 

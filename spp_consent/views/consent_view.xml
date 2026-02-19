@@ -66,25 +66,45 @@ DPV-Aligned Consent Management Views.
                             class="oe_stat_button"
                             icon="fa-history"
                         >
-                            <field name="history_count" widget="statinfo" string="History" />
+                            <field
+                                name="history_count"
+                                widget="statinfo"
+                                string="History"
+                            />
                         </button>
                     </div>
                     <div class="oe_title">
                         <h1>
-                            <field name="name" placeholder="Consent Name" readonly="status != 'requested'" />
+                            <field
+                                name="name"
+                                placeholder="Consent Name"
+                                readonly="status != 'requested'"
+                            />
                         </h1>
                         <field name="external_id" readonly="1" />
                     </div>
 
                     <group>
                         <group string="Data Subject" name="data_subject_section">
-                            <field name="signatory_id" readonly="status != 'requested'" />
+                            <field
+                                name="signatory_id"
+                                readonly="status != 'requested'"
+                            />
                             <field name="group_id" readonly="status != 'requested'" />
-                            <field name="indicated_by_id" readonly="status != 'requested'" />
-                            <field name="delegation_type" readonly="status != 'requested'" />
+                            <field
+                                name="indicated_by_id"
+                                readonly="status != 'requested'"
+                            />
+                            <field
+                                name="delegation_type"
+                                readonly="status != 'requested'"
+                            />
                         </group>
                         <group string="Data Controller" name="data_controller_section">
-                            <field name="controller_id" readonly="status != 'requested'" />
+                            <field
+                                name="controller_id"
+                                readonly="status != 'requested'"
+                            />
                         </group>
                     </group>
 
@@ -135,7 +155,10 @@ DPV-Aligned Consent Management Views.
                                         help="Country or legal jurisdiction governing this consent (e.g., Kenya, EU)"
                                     />
                                 </group>
-                                <group string="Privacy Notice" name="privacy_notice_section">
+                                <group
+                                    string="Privacy Notice"
+                                    name="privacy_notice_section"
+                                >
                                     <field
                                         name="notice_id"
                                         readonly="status != 'requested'"
@@ -148,8 +171,16 @@ DPV-Aligned Consent Management Views.
                                     />
                                 </group>
                             </group>
-                            <separator string="Purposes" help="Why you are processing personal data (e.g., Service Provision, Research, Statistics)"/>
-                            <field name="purpose_ids" nolabel="1" widget="many2many_tags" readonly="status != 'requested'">
+                            <separator
+                                string="Purposes"
+                                help="Why you are processing personal data (e.g., Service Provision, Research, Statistics)"
+                            />
+                            <field
+                                name="purpose_ids"
+                                nolabel="1"
+                                widget="many2many_tags"
+                                readonly="status != 'requested'"
+                            >
                                 <list>
                                     <field name="name" />
                                     <field name="dpv_uri" />
@@ -157,16 +188,32 @@ DPV-Aligned Consent Management Views.
                                 </list>
                             </field>
                             <group col="2">
-                                <group string="Personal Data Categories" name="personal_data_section">
-                                    <field name="personal_data_ids" nolabel="1" widget="many2many_tags" readonly="status != 'requested'">
+                                <group
+                                    string="Personal Data Categories"
+                                    name="personal_data_section"
+                                >
+                                    <field
+                                        name="personal_data_ids"
+                                        nolabel="1"
+                                        widget="many2many_tags"
+                                        readonly="status != 'requested'"
+                                    >
                                         <list>
                                             <field name="name" />
                                             <field name="is_sensitive" />
                                         </list>
                                     </field>
                                 </group>
-                                <group string="Processing Operations" name="processing_ops_section">
-                                    <field name="processing_ids" nolabel="1" widget="many2many_tags" readonly="status != 'requested'">
+                                <group
+                                    string="Processing Operations"
+                                    name="processing_ops_section"
+                                >
+                                    <field
+                                        name="processing_ids"
+                                        nolabel="1"
+                                        widget="many2many_tags"
+                                        readonly="status != 'requested'"
+                                    >
                                         <list>
                                             <field name="name" />
                                             <field name="category" />
@@ -191,8 +238,14 @@ DPV-Aligned Consent Management Views.
                         <page string="Consent Details" name="consent_details">
                             <group>
                                 <group string="Validity" name="validity_section">
-                                    <field name="effective_date" readonly="status != 'requested'" />
-                                    <field name="expiry" readonly="status != 'requested'" />
+                                    <field
+                                        name="effective_date"
+                                        readonly="status != 'requested'"
+                                    />
+                                    <field
+                                        name="expiry"
+                                        readonly="status != 'requested'"
+                                    />
                                     <field name="days_until_expiry" />
                                     <field name="is_valid" />
                                 </group>
@@ -217,9 +270,15 @@ DPV-Aligned Consent Management Views.
                                     filename="delegation_evidence_filename"
                                     help="Upload proof of authority for guardian/representative to consent on behalf of beneficiary"
                                 />
-                                <field name="delegation_evidence_filename" invisible="1" />
+                                <field
+                                    name="delegation_evidence_filename"
+                                    invisible="1"
+                                />
                             </group>
-                            <group string="Withdrawal Mechanism" name="withdrawal_section">
+                            <group
+                                string="Withdrawal Mechanism"
+                                name="withdrawal_section"
+                            >
                                 <!-- Withdrawal info remains editable - informational only -->
                                 <field
                                     name="withdrawal_uri"
@@ -301,12 +360,15 @@ DPV-Aligned Consent Management Views.
                 <field name="name" />
                 <field name="signatory_id" />
                 <field name="group_id" optional="hide" />
-                <field name="status" widget="badge"
-                       decoration-success="status in ('given', 'renewed')"
-                       decoration-warning="status == 'requested'"
-                       decoration-danger="status in ('withdrawn', 'expired', 'invalidated')"
-                       decoration-muted="status == 'refused'"
-                       icon="fa-check" />
+                <field
+                    name="status"
+                    widget="badge"
+                    decoration-success="status in ('given', 'renewed')"
+                    decoration-warning="status == 'requested'"
+                    decoration-danger="status in ('withdrawn', 'expired', 'invalidated')"
+                    decoration-muted="status == 'refused'"
+                    icon="fa-check"
+                />
                 <field name="legal_basis" />
                 <field name="effective_date" />
                 <field name="expiry" />
@@ -359,10 +421,26 @@ DPV-Aligned Consent Management Views.
                     domain="[('status', 'in', ['given', 'renewed']), ('expiry', '&lt;=', (context_today() + relativedelta(days=30)).strftime('%Y-%m-%d'))]"
                 />
                 <separator />
-                <filter name="group_status" string="Group By: Status" context="{'group_by': 'status'}" />
-                <filter name="group_legal_basis" string="Group By: Legal Basis" context="{'group_by': 'legal_basis'}" />
-                <filter name="group_controller" string="Group By: Data Controller" context="{'group_by': 'controller_id'}" />
-                <filter name="group_collection" string="Group By: Collection Method" context="{'group_by': 'collection_method'}" />
+                <filter
+                    name="group_status"
+                    string="Group By: Status"
+                    context="{'group_by': 'status'}"
+                />
+                <filter
+                    name="group_legal_basis"
+                    string="Group By: Legal Basis"
+                    context="{'group_by': 'legal_basis'}"
+                />
+                <filter
+                    name="group_controller"
+                    string="Group By: Data Controller"
+                    context="{'group_by': 'controller_id'}"
+                />
+                <filter
+                    name="group_collection"
+                    string="Group By: Collection Method"
+                    context="{'group_by': 'collection_method'}"
+                />
             </search>
         </field>
     </record>
@@ -381,7 +459,8 @@ DPV-Aligned Consent Management Views.
                 <strong>No Consent Records Yet</strong>
             </p>
             <p>
-                Click the <strong>Record Consent</strong> button on a beneficiary record to create your first consent.
+                Click the <strong
+            >Record Consent</strong> button on a beneficiary record to create your first consent.
             </p>
             <p class="text-muted">
                 Consent records document beneficiary authorization for data processing, aligned with GDPR and data protection standards.
@@ -494,8 +573,8 @@ DPV-Aligned Consent Management Views.
                             <field name="active" />
                         </group>
                     </group>
-                    <separator string="Description"/>
-                    <field name="description" nolabel="1" class="oe_inline"/>
+                    <separator string="Description" />
+                    <field name="description" nolabel="1" class="oe_inline" />
                 </sheet>
             </form>
         </field>
@@ -546,14 +625,17 @@ DPV-Aligned Consent Management Views.
                     <group>
                         <group string="Sensitivity">
                             <field name="is_sensitive" />
-                            <field name="sensitivity_reason" invisible="not is_sensitive" />
+                            <field
+                                name="sensitivity_reason"
+                                invisible="not is_sensitive"
+                            />
                         </group>
                         <group string="Classification">
                             <field name="is_social_protection" />
                         </group>
                     </group>
-                    <separator string="Description"/>
-                    <field name="description" nolabel="1" class="oe_inline"/>
+                    <separator string="Description" />
+                    <field name="description" nolabel="1" class="oe_inline" />
                     <group string="Example Fields">
                         <field name="example_fields" nolabel="1" />
                     </group>
@@ -605,8 +687,8 @@ DPV-Aligned Consent Management Views.
                             <field name="active" />
                         </group>
                     </group>
-                    <separator string="Description"/>
-                    <field name="description" nolabel="1" class="oe_inline"/>
+                    <separator string="Description" />
+                    <field name="description" nolabel="1" class="oe_inline" />
                 </sheet>
             </form>
         </field>
@@ -628,11 +710,14 @@ DPV-Aligned Consent Management Views.
                 <field name="code" />
                 <field name="name" />
                 <field name="version" />
-                <field name="state" widget="badge"
-                       decoration-success="state == 'active'"
-                       decoration-info="state == 'draft'"
-                       decoration-muted="state == 'archived'"
-                       icon="fa-file-text-o" />
+                <field
+                    name="state"
+                    widget="badge"
+                    decoration-success="state == 'active'"
+                    decoration-info="state == 'draft'"
+                    decoration-muted="state == 'archived'"
+                    icon="fa-file-text-o"
+                />
                 <field name="effective_date" />
                 <field name="language" />
             </list>
@@ -704,19 +789,37 @@ DPV-Aligned Consent Management Views.
                         <page string="DPV Taxonomy" name="dpv_taxonomy">
                             <group>
                                 <group string="Purposes" name="purposes_section">
-                                    <field name="purpose_ids" nolabel="1" widget="many2many_tags" />
+                                    <field
+                                        name="purpose_ids"
+                                        nolabel="1"
+                                        widget="many2many_tags"
+                                    />
                                 </group>
-                                <group string="Data Categories" name="data_categories_section">
-                                    <field name="data_category_ids" nolabel="1" widget="many2many_tags" />
+                                <group
+                                    string="Data Categories"
+                                    name="data_categories_section"
+                                >
+                                    <field
+                                        name="data_category_ids"
+                                        nolabel="1"
+                                        widget="many2many_tags"
+                                    />
                                 </group>
                             </group>
-                            <group string="Processing Types" name="processing_types_section">
-                                <field name="processing_type_ids" nolabel="1" widget="many2many_tags" />
+                            <group
+                                string="Processing Types"
+                                name="processing_types_section"
+                            >
+                                <field
+                                    name="processing_type_ids"
+                                    nolabel="1"
+                                    widget="many2many_tags"
+                                />
                             </group>
                         </page>
                         <page string="Consent Boundaries" name="consent_boundaries">
                             <div class="alert alert-info" role="alert">
-                                <i class="fa fa-info-circle me-2" title="Info"/>
+                                <i class="fa fa-info-circle me-2" title="Info" />
                                 <strong>Notice as Boundary</strong>
                                 <p class="mb-0 mt-2">
                                     When a consent record uses this notice, it can only include
@@ -726,7 +829,10 @@ DPV-Aligned Consent Management Views.
                                 </p>
                             </div>
                             <group>
-                                <group string="Allowed Recipient Types" name="allowed_org_types_section">
+                                <group
+                                    string="Allowed Recipient Types"
+                                    name="allowed_org_types_section"
+                                >
                                     <field
                                         name="max_recipient_types"
                                         nolabel="1"
@@ -848,8 +954,8 @@ DPV-Aligned Consent Management Views.
                             <field name="active" />
                         </group>
                     </group>
-                    <separator string="Description"/>
-                    <field name="description" nolabel="1" class="oe_inline"/>
+                    <separator string="Description" />
+                    <field name="description" nolabel="1" class="oe_inline" />
                 </sheet>
             </form>
         </field>
@@ -865,7 +971,8 @@ DPV-Aligned Consent Management Views.
                 <strong>No Organization Types Defined</strong>
             </p>
             <p>
-                Click <strong>Create</strong> to define organization categories for data sharing consent.
+                Click <strong
+            >Create</strong> to define organization categories for data sharing consent.
             </p>
             <p class="text-muted">
                 Organization types allow beneficiaries to consent to data sharing with categories of organizations
@@ -882,5 +989,4 @@ DPV-Aligned Consent Management Views.
         parent="menu_spp_consent_config"
         sequence="45"
     />
-
 </odoo>

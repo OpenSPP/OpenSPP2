@@ -1,5 +1,4 @@
 <odoo noupdate="1">
-
     <!-- Admin -->
     <record id="global_role_admin" model="res.users.role">
         <field name="name">System Admin</field>
@@ -37,7 +36,9 @@
     <record id="global_role_finance" model="res.users.role">
         <field name="name">Global Finance</field>
         <field name="role_type">global</field>
-        <field name="comment">This role has access to financial data across all areas.</field>
+        <field
+            name="comment"
+        >This role has access to financial data across all areas.</field>
         <field
             name="implied_ids"
             eval="
@@ -95,7 +96,7 @@
         />
     </record>
 
-        <!-- Support Manager -->
+    <!-- Support Manager -->
     <record id="global_role_support_manager" model="res.users.role">
         <field name="name">Global Support Manager</field>
         <field name="role_type">global</field>
@@ -110,5 +111,4 @@
             ]"
         />
     </record>
-
 </odoo>

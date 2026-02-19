@@ -8,6 +8,7 @@ faker
 fastapi>=0.110.0
 geojson
 httpx
+jwcrypto
 numpy>=1.22.2
 openpyxl
 parse-accept-language

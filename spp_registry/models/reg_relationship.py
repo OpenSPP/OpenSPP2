@@ -273,7 +273,6 @@ class SPPRelationship(models.Model):
     @api.model
     def get_partner_types(self):
         """A partner can be an organisation or an individual."""
-        # pylint: disable=no-self-use
         return [("g", _("Group")), ("i", _("Individual"))]
 
     @api.constrains("name")

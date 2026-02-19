@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Request Template Tree View -->
     <record id="drims_request_template_view_tree" model="ir.ui.view">
@@ -6,17 +6,19 @@
         <field name="model">spp.drims.request.template</field>
         <field name="arch" type="xml">
             <list sample="1">
-                <field name="name"/>
-                <field name="user_id"/>
-                <field name="is_shared" widget="boolean_toggle"/>
-                <field name="line_count" string="Items"/>
-                <field name="priority_id" optional="hide"/>
-                <field name="description" optional="hide"/>
-                <button name="action_create_request"
-                        type="object"
-                        string="Use Template"
-                        class="btn-primary"
-                        icon="fa-plus"/>
+                <field name="name" />
+                <field name="user_id" />
+                <field name="is_shared" widget="boolean_toggle" />
+                <field name="line_count" string="Items" />
+                <field name="priority_id" optional="hide" />
+                <field name="description" optional="hide" />
+                <button
+                    name="action_create_request"
+                    type="object"
+                    string="Use Template"
+                    class="btn-primary"
+                    icon="fa-plus"
+                />
             </list>
         </field>
     </record>
@@ -28,33 +30,39 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name="action_create_request"
-                            type="object"
-                            string="Create Request from Template"
-                            class="btn-primary"/>
+                    <button
+                        name="action_create_request"
+                        type="object"
+                        string="Create Request from Template"
+                        class="btn-primary"
+                    />
                 </header>
                 <sheet>
                     <group>
                         <group>
-                            <field name="name"/>
-                            <field name="user_id"/>
+                            <field name="name" />
+                            <field name="user_id" />
                         </group>
                         <group>
-                            <field name="is_shared"/>
-                            <field name="priority_id"/>
+                            <field name="is_shared" />
+                            <field name="priority_id" />
                         </group>
                     </group>
-                    <separator string="Description"/>
-                    <field name="description" nolabel="1" placeholder="Optional description of this template..."/>
+                    <separator string="Description" />
+                    <field
+                        name="description"
+                        nolabel="1"
+                        placeholder="Optional description of this template..."
+                    />
                     <notebook>
                         <page string="Template Items" name="items">
                             <field name="line_ids">
                                 <list editable="bottom">
-                                    <field name="sequence" widget="handle"/>
-                                    <field name="product_id"/>
-                                    <field name="quantity"/>
-                                    <field name="uom_id"/>
-                                    <field name="notes"/>
+                                    <field name="sequence" widget="handle" />
+                                    <field name="product_id" />
+                                    <field name="quantity" />
+                                    <field name="uom_id" />
+                                    <field name="notes" />
                                 </list>
                             </field>
                         </page>
@@ -70,17 +78,31 @@
         <field name="model">spp.drims.request.template</field>
         <field name="arch" type="xml">
             <search>
-                <field name="name"/>
-                <field name="user_id"/>
-                <field name="description"/>
-                <filter string="My Templates" name="my_templates"
-                        domain="[('user_id', '=', uid)]"/>
-                <filter string="Shared Templates" name="shared"
-                        domain="[('is_shared', '=', True)]"/>
-                <separator/>
+                <field name="name" />
+                <field name="user_id" />
+                <field name="description" />
+                <filter
+                    string="My Templates"
+                    name="my_templates"
+                    domain="[('user_id', '=', uid)]"
+                />
+                <filter
+                    string="Shared Templates"
+                    name="shared"
+                    domain="[('is_shared', '=', True)]"
+                />
+                <separator />
                 <group>
-                    <filter string="Owner" name="group_user" context="{'group_by': 'user_id'}"/>
-                    <filter string="Priority" name="group_priority" context="{'group_by': 'priority_id'}"/>
+                    <filter
+                        string="Owner"
+                        name="group_user"
+                        context="{'group_by': 'user_id'}"
+                    />
+                    <filter
+                        string="Priority"
+                        name="group_priority"
+                        context="{'group_by': 'priority_id'}"
+                    />
                 </group>
             </search>
         </field>

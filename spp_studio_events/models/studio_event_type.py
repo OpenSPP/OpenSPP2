@@ -196,7 +196,7 @@ class StudioEventType(models.Model):
                 if set(vals.keys()) - allowed_fields:
                     raise UserError(
                         _(
-                            "Cannot modify active event type '%(name)s'. " "Deactivate it first to make changes.",
+                            "Cannot modify active event type '%(name)s'. Deactivate it first to make changes.",
                             name=record.name,
                         )
                     )
@@ -247,7 +247,7 @@ class StudioEventType(models.Model):
         self.ensure_one()
 
         if not self.data_fields:
-            raise UserError(_("Cannot activate event type without fields. " "Please add at least one field."))
+            raise UserError(_("Cannot activate event type without fields. Please add at least one field."))
 
         if self.spp_event_type_id:
             # Reactivation - update existing records
@@ -262,6 +262,7 @@ class StudioEventType(models.Model):
 
         # Create the actual event type
         event_type_vals = self._prepare_event_type_vals()
+        # nosemgrep: odoo-sudo-without-context — studio framework requires event type creation as system operations
         event_type = self.env["spp.event.type"].sudo().create(event_type_vals)
 
         # Store reference
@@ -289,10 +290,12 @@ class StudioEventType(models.Model):
 
         # Delete old wizard view if exists
         if self.wizard_view_id:
+            # nosemgrep: odoo-sudo-without-context — studio framework requires view/model creation as system operations
             self.wizard_view_id.sudo().unlink()
 
         # Delete old wizard fields (dynamic x_evt_* fields)
         if self.wizard_field_ids:
+            # nosemgrep: odoo-sudo-without-context — studio framework requires model/field creation as system operations
             self.wizard_field_ids.sudo().unlink()
 
         # Clear references
@@ -364,6 +367,7 @@ class StudioEventType(models.Model):
             if field.field_type == "link" and field.link_model_id:
                 field_vals["relation_model"] = field.link_model_id.model
 
+            # nosemgrep: odoo-sudo-without-context — studio framework requires event field creation as system operations
             EventField.sudo().create(field_vals)
 
     def _generate_wizard_view(self):
@@ -391,6 +395,7 @@ class StudioEventType(models.Model):
             "active": True,
         }
 
+        # nosemgrep: odoo-sudo-without-context — studio framework requires view/model creation as system operations
         view = self.env["ir.ui.view"].sudo().create(view_vals)
         self.with_context(force_write=True).write(
             {
@@ -413,7 +418,9 @@ class StudioEventType(models.Model):
             ir.model.fields recordset: The created field records
         """
         self.ensure_one()
+        # nosemgrep: odoo-sudo-without-context — studio framework requires model/field creation as system operations
         IrModelFields = self.env["ir.model.fields"].sudo()
+        # nosemgrep: odoo-sudo-without-context — studio framework requires model/field creation as system operations
         wizard_model = self.env["ir.model"].sudo().search([("model", "=", "spp.event.data.entry.wizard")], limit=1)
 
         if not wizard_model:
@@ -666,8 +673,10 @@ class StudioEventType(models.Model):
     def _post_deactivate(self):
         """Deactivate the linked event type and wizard view when deactivating."""
         if self.spp_event_type_id:
+            # nosemgrep: odoo-sudo-without-context — studio framework requires event type creation as system operations
             self.spp_event_type_id.sudo().write({"active": False})
         if self.wizard_view_id:
+            # nosemgrep: odoo-sudo-without-context — studio framework requires view/model creation as system operations
             self.wizard_view_id.sudo().write({"active": False})
         # Note: We don't delete wizard_field_ids on deactivation.
         # They remain in the database but are unused until reactivation.
@@ -725,7 +734,7 @@ class StudioEventType(models.Model):
         if self.state != "active":
             raise UserError(
                 _(
-                    "Event type '%(name)s' is not active. " "Please activate it first to enter event data.",
+                    "Event type '%(name)s' is not active. Please activate it first to enter event data.",
                     name=self.name,
                 )
             )
@@ -1068,7 +1077,7 @@ class StudioEventField(models.Model):
                 if not record.selection_options:
                     raise ValidationError(
                         _(
-                            "Selection options are required for selection fields " "in field '%(label)s'.",
+                            "Selection options are required for selection fields in field '%(label)s'.",
                             label=record.label,
                         )
                     )

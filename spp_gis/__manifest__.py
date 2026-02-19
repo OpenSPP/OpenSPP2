@@ -9,7 +9,7 @@
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Stable",
+    "development_status": "Production/Stable",
     "maintainers": ["jeremi", "gonzalesedwin1123", "reichie020212"],
     "depends": ["base", "web", "contacts", "spp_security", "spp_area"],
     "external_dependencies": {"python": ["shapely", "pyproj", "geojson"]},

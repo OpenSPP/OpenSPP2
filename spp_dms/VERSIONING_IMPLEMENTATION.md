@@ -2,7 +2,8 @@
 
 ## Overview
 
-This document describes the native versioning feature implemented in the `spp_dms` module for OpenSPP.
+This document describes the native versioning feature implemented in the `spp_dms`
+module for OpenSPP.
 
 ## Implementation Date
 

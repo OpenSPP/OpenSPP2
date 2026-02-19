@@ -14,14 +14,17 @@ OpenSPP Key Management
    !! source digest: sha256:207a1271f3b160d8d4f4d16d8b6a9110e4e3837e2b71735bb317cbde9312bd6a
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+    :target: https://odoo-community.org/page/development-status
+    :alt: Production/Stable
+.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
     :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_key_management
     :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2|
+|badge1| |badge2| |badge3|
 
 Centralized cryptographic key management with pluggable provider
 architecture. Supports symmetric encryption (AES-256-GCM) and asymmetric
@@ -33,61 +36,60 @@ index computation, and audit logging of key operations.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  Symmetric encryption/decryption using AES-256-GCM with envelope
-   encryption pattern
--  Asymmetric key management for JWT signing and credential issuance
-   (RSA, EC, Ed25519)
--  Blind index computation using HMAC-SHA256 for searchable encrypted
-   data
--  Key rotation with versioning (old versions remain available for
-   decryption)
--  Pluggable provider system: switch between local database storage and
-   enterprise KMS
--  HSM/KMS signing operations where private keys never leave secure
-   hardware
--  Audit logging of all key access operations (without logging sensitive
-   key material)
+- Symmetric encryption/decryption using AES-256-GCM with envelope
+  encryption pattern
+- Asymmetric key management for JWT signing and credential issuance
+  (RSA, EC, Ed25519)
+- Blind index computation using HMAC-SHA256 for searchable encrypted
+  data
+- Key rotation with versioning (old versions remain available for
+  decryption)
+- Pluggable provider system: switch between local database storage and
+  enterprise KMS
+- HSM/KMS signing operations where private keys never leave secure
+  hardware
+- Audit logging of all key access operations (without logging sensitive
+  key material)
 
 Key Models
 ~~~~~~~~~~
 
-+----------------------------------+----------------------------------+
-| Model                            | Description                      |
-+==================================+==================================+
-| ``spp.key.manager``              | Main service interface for all   |
-|                                  | key operations                   |
-+----------------------------------+----------------------------------+
-| ``spp.encryption.key``           | Encrypted key storage with       |
-|                                  | versioning support               |
-+----------------------------------+----------------------------------+
-| ``spp.key.provider``             | Abstract base class for key      |
-|                                  | provider implementations         |
-+----------------------------------+----------------------------------+
-| ``spp.key.provider.registry``    | Registry configuring which       |
-|                                  | provider serves which purpose    |
-+----------------------------------+----------------------------------+
-| ``spp.key.purpose``              | Purpose definitions (PII,        |
-|                                  | financial, credentials, etc)     |
-+----------------------------------+----------------------------------+
-| ``spp.asymmetric.key``           | RSA/EC/Ed25519 key pairs for     |
-|                                  | signing operations               |
-+----------------------------------+----------------------------------+
-| ``spp.key.provider.config``      | Configuration file provider      |
-|                                  | (development)                    |
-+----------------------------------+----------------------------------+
-| ``spp.key.provider.database``    | Database provider using envelope |
-|                                  | encryption                       |
-+----------------------------------+----------------------------------+
-| ``spp.key.provider.vault``       | HashiCorp Vault integration      |
-+----------------------------------+----------------------------------+
-| ``spp.key.provider.aws.kms``     | AWS Key Management Service       |
-|                                  | integration                      |
-+----------------------------------+----------------------------------+
-| ``spp.key.provider.gcp.kms``     | Google Cloud KMS integration     |
-+----------------------------------+----------------------------------+
-| ``s                              | Azure Key Vault integration      |
-| pp.key.provider.azure.keyvault`` |                                  |
-+----------------------------------+----------------------------------+
++-------------------------------------+----------------------------------+
+| Model                               | Description                      |
++=====================================+==================================+
+| ``spp.key.manager``                 | Main service interface for all   |
+|                                     | key operations                   |
++-------------------------------------+----------------------------------+
+| ``spp.encryption.key``              | Encrypted key storage with       |
+|                                     | versioning support               |
++-------------------------------------+----------------------------------+
+| ``spp.key.provider``                | Abstract base class for key      |
+|                                     | provider implementations         |
++-------------------------------------+----------------------------------+
+| ``spp.key.provider.registry``       | Registry configuring which       |
+|                                     | provider serves which purpose    |
++-------------------------------------+----------------------------------+
+| ``spp.key.purpose``                 | Purpose definitions (PII,        |
+|                                     | financial, credentials, etc)     |
++-------------------------------------+----------------------------------+
+| ``spp.asymmetric.key``              | RSA/EC/Ed25519 key pairs for     |
+|                                     | signing operations               |
++-------------------------------------+----------------------------------+
+| ``spp.key.provider.config``         | Configuration file provider      |
+|                                     | (development)                    |
++-------------------------------------+----------------------------------+
+| ``spp.key.provider.database``       | Database provider using envelope |
+|                                     | encryption                       |
++-------------------------------------+----------------------------------+
+| ``spp.key.provider.vault``          | HashiCorp Vault integration      |
++-------------------------------------+----------------------------------+
+| ``spp.key.provider.aws.kms``        | AWS Key Management Service       |
+|                                     | integration                      |
++-------------------------------------+----------------------------------+
+| ``spp.key.provider.gcp.kms``        | Google Cloud KMS integration     |
++-------------------------------------+----------------------------------+
+| ``spp.key.provider.azure.keyvault`` | Azure Key Vault integration      |
++-------------------------------------+----------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -109,29 +111,29 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
--  **Menu**: Settings > Administration > Key Management
--  **Submenus**:
+- **Menu**: Settings > Administration > Key Management
+- **Submenus**:
 
-   -  Key Providers (configure which KMS backend to use)
-   -  Encryption Keys (view stored keys and versions)
-   -  Asymmetric Keys (manage signing keys for credentials)
-   -  Key Purposes (define key segregation policies)
+  - Key Providers (configure which KMS backend to use)
+  - Encryption Keys (view stored keys and versions)
+  - Asymmetric Keys (manage signing keys for credentials)
+  - Key Purposes (define key segregation policies)
 
 Security
 ~~~~~~~~
 
-+----------------------------------+----------------------------------+
-| Group                            | Access                           |
-+==================================+==================================+
-| ``spp_                           | Read/Write/Create on all models, |
-| key_management.group_key_admin`` | key rotation                     |
-+----------------------------------+----------------------------------+
-| ``spp_key_managem                | Read encryption keys for use in  |
-| ent.group_key_operator_officer`` | operations                       |
-+----------------------------------+----------------------------------+
-| ``base.group_system``            | Full access to all key           |
-|                                  | management features              |
-+----------------------------------+----------------------------------+
++---------------------------------------------------+----------------------------------+
+| Group                                             | Access                           |
++===================================================+==================================+
+| ``spp_key_management.group_key_admin``            | Read/Write/Create on all models, |
+|                                                   | key rotation                     |
++---------------------------------------------------+----------------------------------+
+| ``spp_key_management.group_key_operator_officer`` | Read encryption keys for use in  |
+|                                                   | operations                       |
++---------------------------------------------------+----------------------------------+
+| ``base.group_system``                             | Full access to all key           |
+|                                                   | management features              |
++---------------------------------------------------+----------------------------------+
 
 Encryption keys and asymmetric keys cannot be deleted (enforced by
 Python ``unlink()`` override). All key access operations are logged with
@@ -141,16 +143,16 @@ material).
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Inherit ``spp.key.provider`` and implement ``get_data_key()`` and
-   ``get_index_salt()`` to add custom KMS backends
--  Override ``spp.key.manager.encrypt()`` or ``decrypt()`` to customize
-   encryption behavior
--  Call ``key_manager.get_key(purpose, key_id)`` from other modules to
-   retrieve keys for encryption
--  Call ``key_manager.compute_blind_index(value, purpose, salt_id)`` to
-   create searchable indexes for encrypted fields
--  Use ``spp.asymmetric.key.sign(data)`` for HSM-backed signing without
-   exposing private keys
+- Inherit ``spp.key.provider`` and implement ``get_data_key()`` and
+  ``get_index_salt()`` to add custom KMS backends
+- Override ``spp.key.manager.encrypt()`` or ``decrypt()`` to customize
+  encryption behavior
+- Call ``key_manager.get_key(purpose, key_id)`` from other modules to
+  retrieve keys for encryption
+- Call ``key_manager.compute_blind_index(value, purpose, salt_id)`` to
+  create searchable indexes for encrypted fields
+- Use ``spp.asymmetric.key.sign(data)`` for HSM-backed signing without
+  exposing private keys
 
 Dependencies
 ~~~~~~~~~~~~

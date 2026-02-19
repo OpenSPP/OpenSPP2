@@ -7,12 +7,12 @@
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Stable",
+    "development_status": "Production/Stable",
     "depends": [
         "spp_change_request_v2",
     ],
     "data": [
-        # Security for detail models (models are defined in spp_change_request_v2)
+        "security/ir.model.access.csv",
         # CR type data definitions with editability flags
         # Note: Detail models, views, and strategies are provided by spp_change_request_v2
         "data/cr_types.xml",

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- DRIMS Dashboard Action -->
     <record id="drims_dashboard_action" model="ir.actions.act_window">
@@ -25,70 +25,100 @@
         <field name="model">spp.hazard.incident</field>
         <field name="arch" type="xml">
             <kanban class="o_kanban_mobile">
-                <field name="name"/>
-                <field name="start_date"/>
-                <field name="status"/>
-                <field name="drims_donation_count"/>
-                <field name="drims_donation_value"/>
-                <field name="drims_request_count"/>
-                <field name="drims_request_pending"/>
-                <field name="drims_stock_value"/>
-                <field name="drims_distributed_value"/>
-                <field name="drims_total_stock_units"/>
-                <field name="drims_stock_item_count"/>
-                <field name="drims_beneficiaries_served"/>
-                <field name="drims_alert_count"/>
-                <field name="drims_critical_alert_count"/>
-                <field name="drims_return_count"/>
+                <field name="name" />
+                <field name="start_date" />
+                <field name="status" />
+                <field name="drims_donation_count" />
+                <field name="drims_donation_value" />
+                <field name="drims_request_count" />
+                <field name="drims_request_pending" />
+                <field name="drims_stock_value" />
+                <field name="drims_distributed_value" />
+                <field name="drims_total_stock_units" />
+                <field name="drims_stock_item_count" />
+                <field name="drims_beneficiaries_served" />
+                <field name="drims_alert_count" />
+                <field name="drims_critical_alert_count" />
+                <field name="drims_return_count" />
                 <templates>
                     <t t-name="card">
                         <div class="oe_kanban_global_click">
                             <div class="o_kanban_record_top">
                                 <div class="o_kanban_record_headings">
                                     <strong class="o_kanban_record_title">
-                                        <field name="name"/>
+                                        <field name="name" />
                                     </strong>
                                 </div>
                                 <div class="float-end">
                                     <!-- Alert indicator (clickable) -->
-                                    <a t-if="record.drims_alert_count.raw_value > 0"
-                                       type="object"
-                                       name="action_view_drims_alerts"
-                                       class="text-decoration-none">
-                                        <span t-if="record.drims_critical_alert_count.raw_value > 0"
-                                              class="badge text-bg-danger me-1"
-                                              title="Critical Alerts - Click to view">
-                                            <i class="fa fa-exclamation-triangle" title="Warning"/> <t t-out="record.drims_critical_alert_count.raw_value"/>
+                                    <a
+                                        t-if="record.drims_alert_count.raw_value > 0"
+                                        type="object"
+                                        name="action_view_drims_alerts"
+                                        class="text-decoration-none"
+                                    >
+                                        <span
+                                            t-if="record.drims_critical_alert_count.raw_value > 0"
+                                            class="badge text-bg-danger me-1"
+                                            title="Critical Alerts - Click to view"
+                                        >
+                                            <i
+                                                class="fa fa-exclamation-triangle"
+                                                title="Warning"
+                                            />
+                                            <t
+                                                t-out="record.drims_critical_alert_count.raw_value"
+                                            />
                                         </span>
-                                        <span t-else=""
-                                              class="badge text-bg-warning me-1"
-                                              title="Active Alerts - Click to view">
-                                            <i class="fa fa-bell"/> <t t-out="record.drims_alert_count.raw_value"/>
+                                        <span
+                                            t-else=""
+                                            class="badge text-bg-warning me-1"
+                                            title="Active Alerts - Click to view"
+                                        >
+                                            <i class="fa fa-bell" />
+                                            <t
+                                                t-out="record.drims_alert_count.raw_value"
+                                            />
                                         </span>
                                     </a>
                                     <!-- Status badge -->
-                                    <span class="badge rounded-pill"
-                                          t-attf-class="text-bg-{{record.status.raw_value == 'active' and 'success' or 'secondary'}}">
-                                        <field name="status"/>
+                                    <span
+                                        class="badge rounded-pill"
+                                        t-attf-class="text-bg-{{record.status.raw_value == 'active' and 'success' or 'secondary'}}"
+                                    >
+                                        <field name="status" />
                                     </span>
                                 </div>
                             </div>
                             <div class="o_kanban_record_body">
                                 <div class="text-muted">
-                                    <i class="fa fa-calendar"/> <field name="start_date"/>
+                                    <i class="fa fa-calendar" />
+                                    <field name="start_date" />
                                 </div>
 
                                 <!-- KPI Cards Row 1: Donations & Requests -->
                                 <div class="row mt-2 g-2">
                                     <div class="col-6">
                                         <div class="border rounded p-2 h-100">
-                                            <a type="object" name="action_view_drims_donations" class="text-decoration-none">
+                                            <a
+                                                type="object"
+                                                name="action_view_drims_donations"
+                                                class="text-decoration-none"
+                                            >
                                                 <div class="d-flex align-items-center">
-                                                    <i class="fa fa-gift fa-lg text-success me-2" title="Donations"/>
+                                                    <i
+                                                        class="fa fa-gift fa-lg text-success me-2"
+                                                        title="Donations"
+                                                    />
                                                     <div>
-                                                        <div class="fw-bold"><field name="drims_donation_count"/> Donations</div>
+                                                        <div class="fw-bold"><field
+                                                            name="drims_donation_count"
+                                                        /> Donations</div>
                                                         <div class="text-muted small">
-                                                            <field name="drims_donation_value" widget="monetary"/>
+                                                            <field
+                                                                name="drims_donation_value"
+                                                                widget="monetary"
+                                                            />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -97,14 +127,30 @@
                                     </div>
                                     <div class="col-6">
                                         <div class="border rounded p-2 h-100">
-                                            <a type="object" name="action_view_drims_requests" class="text-decoration-none">
+                                            <a
+                                                type="object"
+                                                name="action_view_drims_requests"
+                                                class="text-decoration-none"
+                                            >
                                                 <div class="d-flex align-items-center">
-                                                    <i class="fa fa-clipboard fa-lg text-primary me-2" title="Requests"/>
+                                                    <i
+                                                        class="fa fa-clipboard fa-lg text-primary me-2"
+                                                        title="Requests"
+                                                    />
                                                     <div>
-                                                        <div class="fw-bold"><field name="drims_request_count"/> Requests</div>
-                                                        <div t-attf-class="small {{record.drims_request_pending.raw_value > 0 and 'text-warning fw-bold' or 'text-muted'}}">
-                                                            <i t-if="record.drims_request_pending.raw_value > 0" class="fa fa-clock-o"/>
-                                                            <field name="drims_request_pending"/> pending
+                                                        <div class="fw-bold"><field
+                                                            name="drims_request_count"
+                                                        /> Requests</div>
+                                                        <div
+                                                            t-attf-class="small {{record.drims_request_pending.raw_value > 0 and 'text-warning fw-bold' or 'text-muted'}}"
+                                                        >
+                                                            <i
+                                                            t-if="record.drims_request_pending.raw_value > 0"
+                                                            class="fa fa-clock-o"
+                                                        />
+                                                            <field
+                                                            name="drims_request_pending"
+                                                        /> pending
                                                         </div>
                                                     </div>
                                                 </div>
@@ -118,11 +164,18 @@
                                     <div class="col-6">
                                         <div class="border rounded p-2 h-100">
                                             <div class="d-flex align-items-center">
-                                                <i class="fa fa-cubes fa-lg text-info me-2" title="Inventory"/>
+                                                <i
+                                                    class="fa fa-cubes fa-lg text-info me-2"
+                                                    title="Inventory"
+                                                />
                                                 <div>
-                                                    <div class="fw-bold"><field name="drims_total_stock_units"/> units</div>
+                                                    <div class="fw-bold"><field
+                                                        name="drims_total_stock_units"
+                                                    /> units</div>
                                                     <div class="text-muted small">
-                                                        <field name="drims_stock_item_count"/> products
+                                                        <field
+                                                        name="drims_stock_item_count"
+                                                    /> products
                                                     </div>
                                                 </div>
                                             </div>
@@ -131,11 +184,19 @@
                                     <div class="col-6">
                                         <div class="border rounded p-2 h-100">
                                             <div class="d-flex align-items-center">
-                                                <i class="fa fa-truck fa-lg text-secondary me-2" title="Dispatched"/>
+                                                <i
+                                                    class="fa fa-truck fa-lg text-secondary me-2"
+                                                    title="Dispatched"
+                                                />
                                                 <div>
-                                                    <div class="fw-bold">Distributed</div>
+                                                    <div
+                                                        class="fw-bold"
+                                                    >Distributed</div>
                                                     <div class="text-muted small">
-                                                        <field name="drims_distributed_value" widget="monetary"/>
+                                                        <field
+                                                            name="drims_distributed_value"
+                                                            widget="monetary"
+                                                        />
                                                     </div>
                                                 </div>
                                             </div>
@@ -148,23 +209,40 @@
                                     <div class="col-6">
                                         <div class="border rounded p-2 h-100 bg-light">
                                             <div class="d-flex align-items-center">
-                                                <i class="fa fa-users fa-lg text-success me-2" title="Users"/>
+                                                <i
+                                                    class="fa fa-users fa-lg text-success me-2"
+                                                    title="Users"
+                                                />
                                                 <div>
                                                     <div class="fw-bold text-success">
-                                                        <field name="drims_beneficiaries_served"/>
+                                                        <field
+                                                            name="drims_beneficiaries_served"
+                                                        />
                                                     </div>
-                                                    <div class="text-muted small">beneficiaries (30d)</div>
+                                                    <div
+                                                        class="text-muted small"
+                                                    >beneficiaries (30d)</div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-6" t-if="record.drims_return_count.raw_value > 0">
+                                    <div
+                                        class="col-6"
+                                        t-if="record.drims_return_count.raw_value > 0"
+                                    >
                                         <div class="border rounded p-2 h-100">
                                             <div class="d-flex align-items-center">
-                                                <i class="fa fa-undo fa-lg text-muted me-2" title="Returns"/>
+                                                <i
+                                                    class="fa fa-undo fa-lg text-muted me-2"
+                                                    title="Returns"
+                                                />
                                                 <div>
-                                                    <div class="fw-bold"><field name="drims_return_count"/> Returns</div>
-                                                    <div class="text-muted small">processed</div>
+                                                    <div class="fw-bold"><field
+                                                        name="drims_return_count"
+                                                    /> Returns</div>
+                                                    <div
+                                                        class="text-muted small"
+                                                    >processed</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -183,46 +261,94 @@
         <field name="name">spp.hazard.incident.list.drims</field>
         <field name="model">spp.hazard.incident</field>
         <field name="arch" type="xml">
-            <list decoration-danger="drims_critical_alert_count > 0"
-                  decoration-warning="drims_alert_count > 0 and drims_critical_alert_count == 0">
-                <field name="name"/>
-                <field name="start_date"/>
-                <field name="status" widget="badge"
-                       decoration-success="status == 'active'"
-                       decoration-muted="status == 'closed'"/>
-                <field name="drims_critical_alert_count" string="Critical"
-                       decoration-danger="drims_critical_alert_count > 0"
-                       optional="show"/>
-                <field name="drims_alert_count" string="Alerts"
-                       decoration-warning="drims_alert_count > 0"
-                       optional="hide"/>
-                <field name="drims_donation_count" string="Donations"/>
-                <field name="drims_donation_value" widget="monetary" sum="Total Donations" optional="hide"/>
-                <field name="drims_request_count" string="Requests"/>
-                <field name="drims_request_pending" string="Pending"
-                       decoration-warning="drims_request_pending > 0"/>
-                <field name="drims_total_stock_units" sum="Total Units" string="Stock Units" optional="hide"/>
-                <field name="drims_stock_item_count" sum="Total Items" string="Products" optional="hide"/>
-                <field name="drims_stock_value" widget="monetary" sum="Total Stock Value" optional="hide"/>
-                <field name="drims_distributed_value" widget="monetary" sum="Total Distributed"/>
-                <field name="drims_beneficiaries_served" sum="Total Beneficiaries" string="Beneficiaries"
-                       decoration-success="drims_beneficiaries_served > 0"/>
-                <button name="action_view_drims_alerts"
-                        type="object"
-                        string="Alerts"
-                        class="btn-link"
-                        icon="fa-exclamation-triangle"
-                        invisible="drims_alert_count == 0"/>
-                <button name="action_view_drims_donations"
-                        type="object"
-                        string="Donations"
-                        class="btn-link"
-                        icon="fa-gift"/>
-                <button name="action_view_drims_requests"
-                        type="object"
-                        string="Requests"
-                        class="btn-link"
-                        icon="fa-list-alt"/>
+            <list
+                decoration-danger="drims_critical_alert_count > 0"
+                decoration-warning="drims_alert_count > 0 and drims_critical_alert_count == 0"
+            >
+                <field name="name" />
+                <field name="start_date" />
+                <field
+                    name="status"
+                    widget="badge"
+                    decoration-success="status == 'active'"
+                    decoration-muted="status == 'closed'"
+                />
+                <field
+                    name="drims_critical_alert_count"
+                    string="Critical"
+                    decoration-danger="drims_critical_alert_count > 0"
+                    optional="show"
+                />
+                <field
+                    name="drims_alert_count"
+                    string="Alerts"
+                    decoration-warning="drims_alert_count > 0"
+                    optional="hide"
+                />
+                <field name="drims_donation_count" string="Donations" />
+                <field
+                    name="drims_donation_value"
+                    widget="monetary"
+                    sum="Total Donations"
+                    optional="hide"
+                />
+                <field name="drims_request_count" string="Requests" />
+                <field
+                    name="drims_request_pending"
+                    string="Pending"
+                    decoration-warning="drims_request_pending > 0"
+                />
+                <field
+                    name="drims_total_stock_units"
+                    sum="Total Units"
+                    string="Stock Units"
+                    optional="hide"
+                />
+                <field
+                    name="drims_stock_item_count"
+                    sum="Total Items"
+                    string="Products"
+                    optional="hide"
+                />
+                <field
+                    name="drims_stock_value"
+                    widget="monetary"
+                    sum="Total Stock Value"
+                    optional="hide"
+                />
+                <field
+                    name="drims_distributed_value"
+                    widget="monetary"
+                    sum="Total Distributed"
+                />
+                <field
+                    name="drims_beneficiaries_served"
+                    sum="Total Beneficiaries"
+                    string="Beneficiaries"
+                    decoration-success="drims_beneficiaries_served > 0"
+                />
+                <button
+                    name="action_view_drims_alerts"
+                    type="object"
+                    string="Alerts"
+                    class="btn-link"
+                    icon="fa-exclamation-triangle"
+                    invisible="drims_alert_count == 0"
+                />
+                <button
+                    name="action_view_drims_donations"
+                    type="object"
+                    string="Donations"
+                    class="btn-link"
+                    icon="fa-gift"
+                />
+                <button
+                    name="action_view_drims_requests"
+                    type="object"
+                    string="Requests"
+                    class="btn-link"
+                    icon="fa-list-alt"
+                />
             </list>
         </field>
     </record>
@@ -231,57 +357,68 @@
     <record id="drims_hazard_incident_view_form" model="ir.ui.view">
         <field name="name">spp.hazard.incident.form.drims</field>
         <field name="model">spp.hazard.incident</field>
-        <field name="inherit_id" ref="spp_hazard.view_hazard_incident_form"/>
+        <field name="inherit_id" ref="spp_hazard.view_hazard_incident_form" />
         <field name="arch" type="xml">
             <!-- Add coordination mode field in main info group -->
             <xpath expr="//group[@name='main_info']" position="inside">
-                <field name="coordination_mode_id" options="{'no_create': True, 'no_open': True}"/>
+                <field
+                    name="coordination_mode_id"
+                    options="{'no_create': True, 'no_open': True}"
+                />
             </xpath>
 
             <!-- Add DRIMS stats buttons in button box -->
             <xpath expr="//div[@name='button_box']" position="inside">
-                <button name="action_view_drims_donations"
-                        type="object"
-                        class="oe_stat_button"
-                        icon="fa-gift">
+                <button
+                    name="action_view_drims_donations"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-gift"
+                >
                     <div class="o_field_widget o_stat_info">
                         <span class="o_stat_value">
-                            <field name="drims_donation_count"/>
+                            <field name="drims_donation_count" />
                         </span>
                         <span class="o_stat_text">Donations</span>
                     </div>
                 </button>
-                <button name="action_view_drims_requests"
-                        type="object"
-                        class="oe_stat_button"
-                        icon="fa-list-alt">
+                <button
+                    name="action_view_drims_requests"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-list-alt"
+                >
                     <div class="o_field_widget o_stat_info">
                         <span class="o_stat_value">
-                            <field name="drims_request_count"/>
+                            <field name="drims_request_count" />
                         </span>
                         <span class="o_stat_text">Requests</span>
                     </div>
                 </button>
-                <button name="action_view_drims_alerts"
-                        type="object"
-                        class="oe_stat_button"
-                        icon="fa-exclamation-triangle"
-                        invisible="drims_critical_alert_count == 0">
+                <button
+                    name="action_view_drims_alerts"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-exclamation-triangle"
+                    invisible="drims_critical_alert_count == 0"
+                >
                     <div class="o_field_widget o_stat_info">
                         <span class="o_stat_value text-danger">
-                            <field name="drims_critical_alert_count"/>
+                            <field name="drims_critical_alert_count" />
                         </span>
                         <span class="o_stat_text">Critical Alerts</span>
                     </div>
                 </button>
-                <button name="action_view_drims_alerts"
-                        type="object"
-                        class="oe_stat_button"
-                        icon="fa-bell"
-                        invisible="drims_critical_alert_count > 0 or drims_alert_count == 0">
+                <button
+                    name="action_view_drims_alerts"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-bell"
+                    invisible="drims_critical_alert_count > 0 or drims_alert_count == 0"
+                >
                     <div class="o_field_widget o_stat_info">
                         <span class="o_stat_value text-warning">
-                            <field name="drims_alert_count"/>
+                            <field name="drims_alert_count" />
                         </span>
                         <span class="o_stat_text">Alerts</span>
                     </div>
@@ -293,23 +430,23 @@
                 <page string="DRIMS KPIs" name="drims_kpis">
                     <group>
                         <group string="Donations">
-                            <field name="drims_donation_count"/>
-                            <field name="drims_donation_value" widget="monetary"/>
+                            <field name="drims_donation_count" />
+                            <field name="drims_donation_value" widget="monetary" />
                         </group>
                         <group string="Requests">
-                            <field name="drims_request_count"/>
-                            <field name="drims_request_pending"/>
+                            <field name="drims_request_count" />
+                            <field name="drims_request_pending" />
                         </group>
                     </group>
                     <group>
                         <group string="Inventory">
-                            <field name="drims_total_stock_units"/>
-                            <field name="drims_stock_item_count"/>
-                            <field name="drims_stock_value" widget="monetary"/>
-                            <field name="drims_distributed_value" widget="monetary"/>
+                            <field name="drims_total_stock_units" />
+                            <field name="drims_stock_item_count" />
+                            <field name="drims_stock_value" widget="monetary" />
+                            <field name="drims_distributed_value" widget="monetary" />
                         </group>
                         <group string="Distribution">
-                            <field name="drims_beneficiaries_served"/>
+                            <field name="drims_beneficiaries_served" />
                         </group>
                     </group>
                 </page>

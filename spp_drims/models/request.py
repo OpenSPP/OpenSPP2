@@ -348,6 +348,7 @@ class DrimsRequest(models.Model):
                 rec.sla_due_datetime = False
                 rec.sla_status = False
 
+    @api.depends("sla_due_datetime")
     def _compute_sla_hours_remaining(self):
         """Compute hours remaining until SLA breach."""
         now = fields.Datetime.now()

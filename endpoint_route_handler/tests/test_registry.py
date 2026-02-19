@@ -153,7 +153,7 @@ class TestRegistry(TransactionCase):
         msg = 'duplicate key value violates unique constraint "endpoint_route__key_uniq"'
         with self.assertRaisesRegex(DatabaseError, msg), self.env.cr.savepoint():
             self.reg._create({rule1.key: rule1.to_row()})
-        msg = "duplicate key value violates unique constraint " '"endpoint_route__endpoint_hash_uniq"'
+        msg = 'duplicate key value violates unique constraint "endpoint_route__endpoint_hash_uniq"'
         with self.assertRaisesRegex(DatabaseError, msg), self.env.cr.savepoint():
             rule2.endpoint_hash = rule1.endpoint_hash
             rule2.key = "key3"
@@ -179,7 +179,7 @@ class TestRegistry(TransactionCase):
     def test_endpoint_lookup_ok(self):
         rule = self._make_rules(stop=2)[0]
         expected = (
-            "<bound method CTRLFake.handler1 of " "<odoo.addons.endpoint_route_handler.tests.fake_controllers.CTRLFake"
+            "<bound method CTRLFake.handler1 of <odoo.addons.endpoint_route_handler.tests.fake_controllers.CTRLFake"
         )
         self.assertTrue(str(rule.endpoint.func).startswith(expected))
         self.assertEqual(rule.endpoint("one"), ("one", 2))
@@ -194,7 +194,7 @@ class TestRegistry(TransactionCase):
         }
         rule = self._make_rules(stop=2, options=options)[0]
         expected = (
-            "<bound method CTRLFake.handler1 of " "<odoo.addons.endpoint_route_handler.tests.fake_controllers.CTRLFake"
+            "<bound method CTRLFake.handler1 of <odoo.addons.endpoint_route_handler.tests.fake_controllers.CTRLFake"
         )
         self.assertTrue(str(rule.endpoint.func).startswith(expected))
         self.assertEqual(rule.endpoint(), ("one", 2))

@@ -59,7 +59,7 @@ class SPPCycle(models.Model):
                 payment_batches_page[0].set("modifiers", modifiers)
 
                 parser = etree.XMLParser(resolve_entities=False, no_network=True)
-                arch = etree.fromstring(etree.tostring(doc, encoding="unicode"), parser=parser)
+                arch = etree.fromstring(etree.tostring(doc, encoding="unicode"), parser=parser)  # nosec B320 — internal view XML with restricted parser (no entities, no network)
 
         return arch, view
 

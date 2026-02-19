@@ -356,7 +356,7 @@ class TestCredentialGeneration(TestClaim169Base):
     def test_generate_cwt_for_partner(self):
         """Test generating a signed credential for a partner."""
         try:
-            import claim169
+            import claim169  # noqa: F401
         except ImportError:
             self.skipTest("claim169 library not installed")
 
@@ -372,7 +372,7 @@ class TestCredentialGeneration(TestClaim169Base):
     def test_generate_credential_full_flow(self):
         """Test full credential generation and storage."""
         try:
-            import claim169
+            import claim169  # noqa: F401
         except ImportError:
             self.skipTest("claim169 library not installed")
 
@@ -401,7 +401,7 @@ class TestCredentialGeneration(TestClaim169Base):
     def test_decode_from_qr(self):
         """Test decoding QR data back to claims."""
         try:
-            import claim169
+            import claim169  # noqa: F401
         except ImportError:
             self.skipTest("claim169 library not installed")
 
@@ -419,7 +419,7 @@ class TestCredentialGeneration(TestClaim169Base):
     def test_verify_credential(self):
         """Test credential verification with signature check."""
         try:
-            import claim169
+            import claim169  # noqa: F401
         except ImportError:
             self.skipTest("claim169 library not installed")
 
@@ -437,7 +437,7 @@ class TestCredentialGeneration(TestClaim169Base):
     def test_verify_credential_wrong_key(self):
         """Test credential verification fails with wrong key."""
         try:
-            import claim169
+            import claim169  # noqa: F401
         except ImportError:
             self.skipTest("claim169 library not installed")
 

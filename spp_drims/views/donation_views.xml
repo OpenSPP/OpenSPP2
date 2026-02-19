@@ -1,30 +1,35 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Donation List View -->
     <record id="view_drims_donation_list" model="ir.ui.view">
         <field name="name">spp.drims.donation.list</field>
         <field name="model">spp.drims.donation</field>
         <field name="arch" type="xml">
-            <list decoration-info="state == 'announced'"
-                  decoration-success="state == 'stocked'"
-                  decoration-warning="state == 'inspected'">
-                <field name="reference"/>
-                <field name="name" optional="hide"/>
-                <field name="incident_id"/>
-                <field name="donor_id"/>
-                <field name="donor_name" optional="hide"/>
-                <field name="source_type_id" optional="hide"/>
-                <field name="warehouse_id"/>
-                <field name="date_announced" optional="hide"/>
-                <field name="date_expected" optional="hide"/>
-                <field name="date_received" optional="show"/>
-                <field name="state" widget="badge"
+            <list
+                decoration-info="state == 'announced'"
+                decoration-success="state == 'stocked'"
+                decoration-warning="state == 'inspected'"
+            >
+                <field name="reference" />
+                <field name="name" optional="hide" />
+                <field name="incident_id" />
+                <field name="donor_id" />
+                <field name="donor_name" optional="hide" />
+                <field name="source_type_id" optional="hide" />
+                <field name="warehouse_id" />
+                <field name="date_announced" optional="hide" />
+                <field name="date_expected" optional="hide" />
+                <field name="date_received" optional="show" />
+                <field
+                    name="state"
+                    widget="badge"
                     decoration-info="state == 'announced'"
                     decoration-success="state == 'stocked'"
                     decoration-warning="state == 'inspected'"
-                    decoration-muted="state == 'rejected'"/>
-                <field name="line_count" string="Items" optional="hide"/>
-                <field name="total_value" sum="Total Value"/>
+                    decoration-muted="state == 'rejected'"
+                />
+                <field name="line_count" string="Items" optional="hide" />
+                <field name="total_value" sum="Total Value" />
             </list>
         </field>
     </record>
@@ -36,98 +41,160 @@
         <field name="arch" type="xml">
             <form string="Donation">
                 <header>
-                    <button name="action_mark_received" string="Mark Received"
-                            type="object" class="btn-primary"
-                            invisible="state != 'announced'"/>
-                    <button name="action_inspect" string="Mark Inspected"
-                            type="object" class="btn-primary"
-                            invisible="state != 'received'"/>
-                    <button name="action_stock" string="Stock Items"
-                            type="object" class="btn-success"
-                            invisible="state != 'inspected'"
-                            confirm="This will add items to warehouse inventory. Continue?"/>
-                    <button name="action_reject" string="Reject"
-                            type="object" class="btn-outline-danger"
-                            invisible="state != 'inspected'"
-                            confirm="Reject this donation? Items will not be added to inventory."/>
-                    <button name="action_cancel" string="Cancel"
-                            type="object" class="btn-secondary"
-                            invisible="state in ('stocked', 'rejected', 'cancelled')"
-                            confirm="Cancel this donation? Any pending transfers will be cancelled."/>
-                    <field name="state_id" widget="statusbar" options="{'clickable': '1'}"/>
+                    <button
+                        name="action_mark_received"
+                        string="Mark Received"
+                        type="object"
+                        class="btn-primary"
+                        invisible="state != 'announced'"
+                    />
+                    <button
+                        name="action_inspect"
+                        string="Mark Inspected"
+                        type="object"
+                        class="btn-primary"
+                        invisible="state != 'received'"
+                    />
+                    <button
+                        name="action_stock"
+                        string="Stock Items"
+                        type="object"
+                        class="btn-success"
+                        invisible="state != 'inspected'"
+                        confirm="This will add items to warehouse inventory. Continue?"
+                    />
+                    <button
+                        name="action_reject"
+                        string="Reject"
+                        type="object"
+                        class="btn-outline-danger"
+                        invisible="state != 'inspected'"
+                        confirm="Reject this donation? Items will not be added to inventory."
+                    />
+                    <button
+                        name="action_cancel"
+                        string="Cancel"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="state in ('stocked', 'rejected', 'cancelled')"
+                        confirm="Cancel this donation? Any pending transfers will be cancelled."
+                    />
+                    <field
+                        name="state_id"
+                        widget="statusbar"
+                        options="{'clickable': '1'}"
+                    />
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button name="action_view_pickings"
+                        <button
+                            name="action_view_pickings"
                             type="object"
                             class="oe_stat_button"
                             icon="fa-truck"
-                            invisible="picking_count == 0">
-                            <field name="picking_count" widget="statinfo" string="Transfers"/>
+                            invisible="picking_count == 0"
+                        >
+                            <field
+                                name="picking_count"
+                                widget="statinfo"
+                                string="Transfers"
+                            />
                         </button>
                     </div>
                     <div class="oe_title">
-                        <label for="reference"/>
+                        <label for="reference" />
                         <h1>
-                            <field name="reference" readonly="1"/>
+                            <field name="reference" readonly="1" />
                         </h1>
                     </div>
                     <group>
                         <group name="donor_info">
-                            <field name="incident_id" options="{'no_create': True}"/>
-                            <field name="donor_id" options="{'no_create_edit': True}"/>
-                            <field name="donor_name" invisible="donor_id"/>
-                            <field name="source_type_id" options="{'no_create': True}"/>
+                            <field name="incident_id" options="{'no_create': True}" />
+                            <field name="donor_id" options="{'no_create_edit': True}" />
+                            <field name="donor_name" invisible="donor_id" />
+                            <field
+                                name="source_type_id"
+                                options="{'no_create': True}"
+                            />
                         </group>
                         <group name="logistics_info">
-                            <field name="warehouse_id" options="{'no_create': True}"/>
-                            <field name="date_announced"/>
-                            <field name="date_expected"/>
-                            <field name="date_received" readonly="1"/>
+                            <field name="warehouse_id" options="{'no_create': True}" />
+                            <field name="date_announced" />
+                            <field name="date_expected" />
+                            <field name="date_received" readonly="1" />
                         </group>
                     </group>
                     <group>
                         <group name="summary_info">
-                            <field name="line_count"/>
-                            <field name="total_value"/>
+                            <field name="line_count" />
+                            <field name="total_value" />
                         </group>
                         <group name="state_info">
-                            <field name="state" invisible="1"/>
+                            <field name="state" invisible="1" />
                         </group>
                     </group>
                     <notebook>
                         <page string="Donation Items" name="items">
                             <field name="line_ids">
                                 <list editable="bottom">
-                                    <field name="sequence" widget="handle"/>
-                                    <field name="product_id" options="{'no_create_edit': True}"
-                                           readonly="parent.state != 'announced'"/>
-                                    <field name="description" readonly="parent.state != 'announced'"/>
-                                    <field name="quantity_pledged" string="Pledged"
-                                           readonly="parent.state != 'announced'"/>
-                                    <field name="quantity_received" string="Received"
-                                           readonly="parent.state not in ('announced', 'received')"/>
-                                    <field name="receipt_variance" string="Variance"
-                                           decoration-danger="receipt_variance &lt; 0"
-                                           optional="show"/>
-                                    <field name="quantity" invisible="1"/>
-                                    <field name="uom_id" options="{'no_create': True}"/>
-                                    <field name="unit_value"/>
-                                    <field name="value"/>
-                                    <field name="condition_id" optional="show" options="{'no_create': True}"
-                                           readonly="parent.state != 'inspected'"/>
-                                    <field name="disposition_id" optional="hide" options="{'no_create': True}"/>
-                                    <field name="lot_number" optional="hide"/>
-                                    <field name="expiry_date" optional="hide"/>
+                                    <field name="sequence" widget="handle" />
+                                    <field
+                                        name="product_id"
+                                        options="{'no_create_edit': True}"
+                                        readonly="parent.state != 'announced'"
+                                    />
+                                    <field
+                                        name="description"
+                                        readonly="parent.state != 'announced'"
+                                    />
+                                    <field
+                                        name="quantity_pledged"
+                                        string="Pledged"
+                                        readonly="parent.state != 'announced'"
+                                    />
+                                    <field
+                                        name="quantity_received"
+                                        string="Received"
+                                        readonly="parent.state not in ('announced', 'received')"
+                                    />
+                                    <field
+                                        name="receipt_variance"
+                                        string="Variance"
+                                        decoration-danger="receipt_variance &lt; 0"
+                                        optional="show"
+                                    />
+                                    <field name="quantity" invisible="1" />
+                                    <field
+                                        name="uom_id"
+                                        options="{'no_create': True}"
+                                    />
+                                    <field name="unit_value" />
+                                    <field name="value" />
+                                    <field
+                                        name="condition_id"
+                                        optional="show"
+                                        options="{'no_create': True}"
+                                        readonly="parent.state != 'inspected'"
+                                    />
+                                    <field
+                                        name="disposition_id"
+                                        optional="hide"
+                                        options="{'no_create': True}"
+                                    />
+                                    <field name="lot_number" optional="hide" />
+                                    <field name="expiry_date" optional="hide" />
                                 </list>
                             </field>
                         </page>
                         <page string="Notes" name="notes">
-                            <field name="notes" placeholder="Additional notes about this donation..."/>
+                            <field
+                                name="notes"
+                                placeholder="Additional notes about this donation..."
+                            />
                         </page>
                     </notebook>
                 </sheet>
-                <chatter/>
+                <chatter />
             </form>
         </field>
     </record>
@@ -140,45 +207,123 @@
             <search>
                 <!-- Searchpanel for quick filtering -->
                 <searchpanel>
-                    <field name="incident_id" icon="fa-exclamation-triangle" enable_counters="1"/>
-                    <field name="state_id" select="multi" icon="fa-tasks" enable_counters="1"/>
-                    <field name="warehouse_id" select="multi" icon="fa-warehouse" enable_counters="1"/>
+                    <field
+                        name="incident_id"
+                        icon="fa-exclamation-triangle"
+                        enable_counters="1"
+                    />
+                    <field
+                        name="state_id"
+                        select="multi"
+                        icon="fa-tasks"
+                        enable_counters="1"
+                    />
+                    <field
+                        name="warehouse_id"
+                        select="multi"
+                        icon="fa-warehouse"
+                        enable_counters="1"
+                    />
                 </searchpanel>
 
-                <field name="reference"/>
-                <field name="name"/>
-                <field name="incident_id"/>
-                <field name="donor_id"/>
-                <field name="donor_name"/>
-                <field name="warehouse_id"/>
-                <separator/>
-                <filter name="announced" string="Announced" domain="[('state', '=', 'announced')]"/>
-                <filter name="received" string="Received" domain="[('state', '=', 'received')]"/>
-                <filter name="inspected" string="Inspected" domain="[('state', '=', 'inspected')]"/>
-                <filter name="stocked" string="Stocked" domain="[('state', '=', 'stocked')]"/>
-                <filter name="rejected" string="Rejected" domain="[('state', '=', 'rejected')]"/>
-                <filter name="cancelled" string="Cancelled" domain="[('state', '=', 'cancelled')]"/>
-                <separator/>
-                <filter name="expected_soon" string="Expected This Week"
+                <field name="reference" />
+                <field name="name" />
+                <field name="incident_id" />
+                <field name="donor_id" />
+                <field name="donor_name" />
+                <field name="warehouse_id" />
+                <separator />
+                <filter
+                    name="announced"
+                    string="Announced"
+                    domain="[('state', '=', 'announced')]"
+                />
+                <filter
+                    name="received"
+                    string="Received"
+                    domain="[('state', '=', 'received')]"
+                />
+                <filter
+                    name="inspected"
+                    string="Inspected"
+                    domain="[('state', '=', 'inspected')]"
+                />
+                <filter
+                    name="stocked"
+                    string="Stocked"
+                    domain="[('state', '=', 'stocked')]"
+                />
+                <filter
+                    name="rejected"
+                    string="Rejected"
+                    domain="[('state', '=', 'rejected')]"
+                />
+                <filter
+                    name="cancelled"
+                    string="Cancelled"
+                    domain="[('state', '=', 'cancelled')]"
+                />
+                <separator />
+                <filter
+                    name="expected_soon"
+                    string="Expected This Week"
                     domain="[('date_expected', '&gt;=', (context_today()).strftime('%Y-%m-%d')),
-                             ('date_expected', '&lt;=', (context_today() + datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"/>
-                <separator/>
+                             ('date_expected', '&lt;=', (context_today() + datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"
+                />
+                <separator />
                 <!-- Date Presets -->
-                <filter name="last_24h" string="Last 24 Hours"
-                        domain="[('date_announced', '&gt;=', (context_today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d'))]"/>
-                <filter name="last_7d" string="Last 7 Days"
-                        domain="[('date_announced', '&gt;=', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"/>
-                <filter name="last_30d" string="Last 30 Days"
-                        domain="[('date_announced', '&gt;=', (context_today() - datetime.timedelta(days=30)).strftime('%Y-%m-%d'))]"/>
-                <separator/>
+                <filter
+                    name="last_24h"
+                    string="Last 24 Hours"
+                    domain="[('date_announced', '&gt;=', (context_today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d'))]"
+                />
+                <filter
+                    name="last_7d"
+                    string="Last 7 Days"
+                    domain="[('date_announced', '&gt;=', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"
+                />
+                <filter
+                    name="last_30d"
+                    string="Last 30 Days"
+                    domain="[('date_announced', '&gt;=', (context_today() - datetime.timedelta(days=30)).strftime('%Y-%m-%d'))]"
+                />
+                <separator />
                 <group>
-                    <filter name="grp_incident" string="Incident" context="{'group_by': 'incident_id'}"/>
-                    <filter name="grp_donor" string="Donor" context="{'group_by': 'donor_id'}"/>
-                    <filter name="grp_warehouse" string="Warehouse" context="{'group_by': 'warehouse_id'}"/>
-                    <filter name="grp_state" string="State" context="{'group_by': 'state'}"/>
-                    <filter name="grp_donor_type" string="Donor Type" context="{'group_by': 'source_type_id'}"/>
-                    <filter name="grp_date_announced" string="Date Announced" context="{'group_by': 'date_announced:month'}"/>
-                    <filter name="grp_date_received" string="Date Received" context="{'group_by': 'date_received:month'}"/>
+                    <filter
+                        name="grp_incident"
+                        string="Incident"
+                        context="{'group_by': 'incident_id'}"
+                    />
+                    <filter
+                        name="grp_donor"
+                        string="Donor"
+                        context="{'group_by': 'donor_id'}"
+                    />
+                    <filter
+                        name="grp_warehouse"
+                        string="Warehouse"
+                        context="{'group_by': 'warehouse_id'}"
+                    />
+                    <filter
+                        name="grp_state"
+                        string="State"
+                        context="{'group_by': 'state'}"
+                    />
+                    <filter
+                        name="grp_donor_type"
+                        string="Donor Type"
+                        context="{'group_by': 'source_type_id'}"
+                    />
+                    <filter
+                        name="grp_date_announced"
+                        string="Date Announced"
+                        context="{'group_by': 'date_announced:month'}"
+                    />
+                    <filter
+                        name="grp_date_received"
+                        string="Date Received"
+                        context="{'group_by': 'date_received:month'}"
+                    />
                 </group>
             </search>
         </field>
@@ -190,8 +335,8 @@
         <field name="model">spp.drims.donation</field>
         <field name="arch" type="xml">
             <graph string="Donation Trend" type="line" sample="1">
-                <field name="date_announced" interval="week"/>
-                <field name="total_value" type="measure"/>
+                <field name="date_announced" interval="week" />
+                <field name="total_value" type="measure" />
             </graph>
         </field>
     </record>
@@ -202,10 +347,10 @@
         <field name="model">spp.drims.donation</field>
         <field name="arch" type="xml">
             <pivot string="Donation Analysis" sample="1">
-                <field name="incident_id" type="row"/>
-                <field name="source_type_id" type="col"/>
-                <field name="total_value" type="measure"/>
-                <field name="line_count" type="measure"/>
+                <field name="incident_id" type="row" />
+                <field name="source_type_id" type="col" />
+                <field name="total_value" type="measure" />
+                <field name="line_count" type="measure" />
             </pivot>
         </field>
     </record>
@@ -215,43 +360,57 @@
         <field name="name">spp.drims.donation.kanban</field>
         <field name="model">spp.drims.donation</field>
         <field name="arch" type="xml">
-            <kanban default_group_by="state" class="o_kanban_small_column"
-                    quick_create="false" sample="1">
-                <field name="state"/>
-                <field name="reference"/>
-                <field name="donor_name"/>
-                <field name="warehouse_id"/>
-                <field name="date_expected"/>
-                <field name="total_value"/>
-                <field name="line_count"/>
-                <progressbar field="state"
-                             colors='{"announced": "info", "received": "warning", "inspected": "primary", "stocked": "success", "cancelled": "muted", "rejected": "danger"}'/>
+            <kanban
+                default_group_by="state"
+                class="o_kanban_small_column"
+                quick_create="false"
+                sample="1"
+            >
+                <field name="state" />
+                <field name="reference" />
+                <field name="donor_name" />
+                <field name="warehouse_id" />
+                <field name="date_expected" />
+                <field name="total_value" />
+                <field name="line_count" />
+                <progressbar
+                    field="state"
+                    colors='{"announced": "info", "received": "warning", "inspected": "primary", "stocked": "success", "cancelled": "muted", "rejected": "danger"}'
+                />
                 <templates>
                     <t t-name="card">
                         <div class="oe_kanban_global_click">
                             <div class="o_kanban_record_top">
                                 <div class="o_kanban_record_headings">
                                     <strong class="o_kanban_record_title">
-                                        <field name="reference"/>
+                                        <field name="reference" />
                                     </strong>
                                 </div>
                             </div>
                             <div class="o_kanban_record_body">
-                                <div><strong><field name="donor_name"/></strong></div>
-                                <div><field name="warehouse_id"/></div>
-                                <div t-if="record.date_expected.raw_value"
-                                     t-attf-class="#{(new Date(record.date_expected.raw_value) &lt; new Date()) ? 'text-danger fw-bold' : ''}">
-                                    Expected: <field name="date_expected"/>
+                                <div>
+                                    <strong>
+                                        <field name="donor_name" />
+                                    </strong>
+                                </div>
+                                <div>
+                                    <field name="warehouse_id" />
+                                </div>
+                                <div
+                                    t-if="record.date_expected.raw_value"
+                                    t-attf-class="#{(new Date(record.date_expected.raw_value) &lt; new Date()) ? 'text-danger fw-bold' : ''}"
+                                >
+                                    Expected: <field name="date_expected" />
                                 </div>
                             </div>
                             <div class="o_kanban_record_bottom">
                                 <div class="oe_kanban_bottom_left">
                                     <span class="badge bg-secondary">
-                                        <field name="line_count"/> items
+                                        <field name="line_count" /> items
                                     </span>
                                 </div>
                                 <div class="oe_kanban_bottom_right">
-                                    <field name="total_value" widget="monetary"/>
+                                    <field name="total_value" widget="monetary" />
                                 </div>
                             </div>
                         </div>
@@ -287,17 +446,17 @@
         <field name="model">spp.drims.donation.line</field>
         <field name="arch" type="xml">
             <list editable="bottom">
-                <field name="donation_id" readonly="1"/>
-                <field name="sequence" widget="handle"/>
-                <field name="product_id"/>
-                <field name="description"/>
-                <field name="quantity"/>
-                <field name="uom_id"/>
-                <field name="unit_value"/>
-                <field name="value"/>
-                <field name="condition_id" optional="show"/>
-                <field name="lot_number" optional="hide"/>
-                <field name="expiry_date" optional="hide"/>
+                <field name="donation_id" readonly="1" />
+                <field name="sequence" widget="handle" />
+                <field name="product_id" />
+                <field name="description" />
+                <field name="quantity" />
+                <field name="uom_id" />
+                <field name="unit_value" />
+                <field name="value" />
+                <field name="condition_id" optional="show" />
+                <field name="lot_number" optional="hide" />
+                <field name="expiry_date" optional="hide" />
             </list>
         </field>
     </record>
@@ -311,30 +470,33 @@
                 <sheet>
                     <group>
                         <group name="product_info">
-                            <field name="donation_id"/>
-                            <field name="product_id"/>
-                            <field name="description"/>
-                            <field name="sequence"/>
+                            <field name="donation_id" />
+                            <field name="product_id" />
+                            <field name="description" />
+                            <field name="sequence" />
                         </group>
                         <group name="quantity_info">
-                            <field name="quantity"/>
-                            <field name="uom_id"/>
-                            <field name="unit_value"/>
-                            <field name="value"/>
+                            <field name="quantity" />
+                            <field name="uom_id" />
+                            <field name="unit_value" />
+                            <field name="value" />
                         </group>
                     </group>
                     <group>
                         <group name="condition_info">
-                            <field name="condition_id"/>
-                            <field name="disposition_id"/>
+                            <field name="condition_id" />
+                            <field name="disposition_id" />
                         </group>
                         <group name="tracking_info">
-                            <field name="lot_number"/>
-                            <field name="expiry_date"/>
+                            <field name="lot_number" />
+                            <field name="expiry_date" />
                         </group>
                     </group>
                     <group>
-                        <field name="notes" placeholder="Additional notes about this item..."/>
+                        <field
+                            name="notes"
+                            placeholder="Additional notes about this item..."
+                        />
                     </group>
                 </sheet>
             </form>

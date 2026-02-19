@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <template id="external_layout_standard">
-        <div t-attf-class="header o_company_#{company.id}_layout" t-att-style="report_header_style">
+        <div
+            t-attf-class="header o_company_#{company.id}_layout"
+            t-att-style="report_header_style"
+        >
             <div class="row">
                 <div class="col-3 mb4">
                     <img
@@ -19,7 +21,10 @@
                     name="moto"
                 />
             </div>
-            <div t-if="company.logo or company.report_header" class="row zero_min_height">
+            <div
+                t-if="company.logo or company.report_header"
+                class="row zero_min_height"
+            >
                 <div class="col-12">
                     <div style="border-bottom: 1px solid black;" />
                 </div>
@@ -81,8 +86,9 @@
             </t>
         </t>
 
-        <t t-call="spp_programs.external_layout_standard"><t t-out="0" /></t>
-
+        <t t-call="spp_programs.external_layout_standard">
+            <t t-out="0" />
+        </t>
     </template>
 
     <template id="print_program_approval_receipt">
@@ -95,37 +101,56 @@
                             <span t-field="o.name" />
                         </h2>
                         <div id="informations" class="row mt32 mb32">
-                            <div class="col-auto mw-100 mb-2" name="program_target_type">
+                            <div
+                                class="col-auto mw-100 mb-2"
+                                name="program_target_type"
+                            >
                                 <strong>Target Type:</strong>
                                 <p class="m-0" t-field="o.target_type" />
                             </div>
-                            <div class="col-auto mw-100 mb-2" name="program_beneficiaries_count">
+                            <div
+                                class="col-auto mw-100 mb-2"
+                                name="program_beneficiaries_count"
+                            >
                                 <strong>Beneficiaries:</strong>
-                                <p class="m-0" t-field="o.eligible_beneficiaries_count" />
+                                <p
+                                    class="m-0"
+                                    t-field="o.eligible_beneficiaries_count"
+                                />
                             </div>
                         </div>
-                        <table class="table table-sm o_main_table" name="cycle_line_table">
+                        <table
+                            class="table table-sm o_main_table"
+                            name="cycle_line_table"
+                        >
                             <thead>
                                 <tr>
-                                    <th name="th_name" class="text-left"><span>Cycle Name</span></th>
-                                    <th name="th_state" class="text-left"><span>State</span></th>
+                                    <th name="th_name" class="text-left">
+                                        <span>Cycle Name</span>
+                                    </th>
+                                    <th name="th_state" class="text-left">
+                                        <span>State</span>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody class="cycle_tbody">
-                                 <t t-set="cycles" t-value="o.cycle_ids" />
-                                 <t t-foreach="cycles" t-as="cycle">
+                                <t t-set="cycles" t-value="o.cycle_ids" />
+                                <t t-foreach="cycles" t-as="cycle">
                                     <tr>
-                                        <td class="text-left"><span t-field="cycle.name" /></td>
-                                        <td class="text-left"><span t-field="cycle.state" /></td>
+                                        <td class="text-left">
+                                            <span t-field="cycle.name" />
+                                        </td>
+                                        <td class="text-left">
+                                            <span t-field="cycle.state" />
+                                        </td>
                                     </tr>
                                 </t>
                             </tbody>
                         </table>
                     </div>
-                    <p style="page-break-before:always;"> </p>
+                    <p style="page-break-before:always;" />
                 </t>
             </t>
         </t>
     </template>
-
 </odoo>

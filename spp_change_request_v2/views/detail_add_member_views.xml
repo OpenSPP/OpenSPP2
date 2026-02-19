@@ -6,6 +6,27 @@
         <field name="model">spp.cr.detail.add_member</field>
         <field name="arch" type="xml">
             <form>
+                <header>
+                    <button
+                        name="action_submit_for_approval"
+                        string="Submit for Approval"
+                        type="object"
+                        class="btn-primary"
+                        invisible="approval_state != 'draft'"
+                    />
+                    <button
+                        name="action_submit_for_approval"
+                        string="Resubmit for Review"
+                        type="object"
+                        class="btn-primary"
+                        invisible="approval_state != 'revision'"
+                    />
+                    <field
+                        name="approval_state"
+                        widget="statusbar"
+                        statusbar_visible="draft,pending,approved,applied"
+                    />
+                </header>
                 <sheet>
                     <div class="oe_title">
                         <h1>Add Member to Group</h1>
@@ -13,39 +34,44 @@
 
                     <!-- Target Group -->
                     <group string="Target Group">
-                        <field name="registrant_id" readonly="1"/>
-                        <field name="change_request_id" invisible="1"/>
+                        <field name="registrant_id" readonly="1" />
+                        <field name="change_request_id" invisible="1" />
                     </group>
 
                     <!-- Member Details -->
                     <group string="New Member Information">
                         <group>
-                            <field name="given_name" required="1"/>
-                            <field name="family_name" required="1"/>
-                            <field name="member_name" readonly="1" force_save="1"/>
+                            <field name="given_name" required="1" />
+                            <field name="family_name" required="1" />
+                            <field name="member_name" readonly="1" force_save="1" />
                         </group>
                         <group>
-                            <field name="birthdate"/>
-                            <field name="gender_id"/>
-                            <field name="relationship_id"/>
+                            <field name="birthdate" />
+                            <field
+                                name="gender_id"
+                                options="{'no_create': True, 'no_open': True}"
+                            />
+                            <field
+                                name="relationship_id"
+                                options="{'no_create': True, 'no_open': True}"
+                            />
                         </group>
                     </group>
 
                     <group string="Contact Information">
                         <group>
-                            <field name="phone"/>
-                            <field name="id_number"/>
+                            <field name="phone" />
+                            <field name="id_number" />
                         </group>
                     </group>
 
                     <!-- Result (after apply) -->
                     <group string="Result" invisible="not created_individual_id">
-                        <field name="created_individual_id"/>
+                        <field name="created_individual_id" />
                     </group>
                 </sheet>
-                <chatter/>
+                <chatter />
             </form>
         </field>
     </record>
-
 </odoo>

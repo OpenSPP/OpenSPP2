@@ -14,14 +14,17 @@ OpenSPP API V2 - Entitlements
    !! source digest: sha256:4691281f6b5c7e9098412ed53a704afe09c7841ae0aab93df8e49246e2735f56
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+    :target: https://odoo-community.org/page/development-status
+    :alt: Production/Stable
+.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
     :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_api_v2_entitlements
     :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2|
+|badge1| |badge2| |badge3|
 
 REST API endpoints for querying cash and in-kind entitlements via OAuth
 2.0 authenticated clients. Exposes entitlement data by external
@@ -31,29 +34,29 @@ by beneficiary, program, cycle, state, and validity dates.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  **Read Entitlement**: Retrieve entitlement by code (UUID-based
-   identifier) via ``GET /Entitlement/{identifier}``
--  **Search Entitlements**: Query with filters (beneficiary, program,
-   cycle, state, type, dates) via ``GET /Entitlement``
--  **Cash and In-Kind**: Supports both ``spp.entitlement`` (cash) and
-   ``spp.entitlement.inkind`` models
--  **Pagination**: Returns paginated bundles with next/previous links
-   (max 100 per page)
--  **Scope-Based Access**: Requires ``entitlement:read`` OAuth scope for
-   all operations
+- **Read Entitlement**: Retrieve entitlement by code (UUID-based
+  identifier) via ``GET /Entitlement/{identifier}``
+- **Search Entitlements**: Query with filters (beneficiary, program,
+  cycle, state, type, dates) via ``GET /Entitlement``
+- **Cash and In-Kind**: Supports both ``spp.entitlement`` (cash) and
+  ``spp.entitlement.inkind`` models
+- **Pagination**: Returns paginated bundles with next/previous links
+  (max 100 per page)
+- **Scope-Based Access**: Requires ``entitlement:read`` OAuth scope for
+  all operations
 
 Key Models
 ~~~~~~~~~~
 
-+--------------------------+------------------------------------------+
-| Model                    | Description                              |
-+==========================+==========================================+
-| ``spp.api.client.scope`` | Extended to add ``entitlement`` as       |
-|                          | resource type                            |
-+--------------------------+------------------------------------------+
-| ``fastapi.endpoint``     | Extended to register entitlement router  |
-|                          | for ``api_v2`` app                       |
-+--------------------------+------------------------------------------+
++--------------------------+-------------------------------------------+
+| Model                    | Description                               |
++==========================+===========================================+
+| ``spp.api.client.scope`` | Extended to add ``entitlement`` as        |
+|                          | resource type                             |
++--------------------------+-------------------------------------------+
+| ``fastapi.endpoint``     | Extended to register entitlement router   |
+|                          | for ``api_v2`` app                        |
++--------------------------+-------------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -71,9 +74,9 @@ UI Location
 
 No UI components. This is a backend API module accessed via HTTP:
 
--  **Read**: ``GET /api/v2/spp/Entitlement/{code}``
--  **Search**:
-   ``GET /api/v2/spp/Entitlement?beneficiary={system|value}&program={name}...``
+- **Read**: ``GET /api/v2/spp/Entitlement/{code}``
+- **Search**:
+  ``GET /api/v2/spp/Entitlement?beneficiary={system|value}&program={name}...``
 
 Security
 ~~~~~~~~
@@ -81,22 +84,22 @@ Security
 No model access rules defined in this module. Security is enforced via
 OAuth 2.0 client scopes:
 
--  API clients must have ``entitlement:read`` scope (via
-   ``spp.api.client.scope`` records)
--  Authorization is validated at the router level via
-   ``api_client.has_scope("entitlement", "read")``
--  Underlying entitlement model access is governed by ``spp_programs``
-   module security
+- API clients must have ``entitlement:read`` scope (via
+  ``spp.api.client.scope`` records)
+- Authorization is validated at the router level via
+  ``api_client.has_scope("entitlement", "read")``
+- Underlying entitlement model access is governed by ``spp_programs``
+  module security
 
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Inherit ``EntitlementService`` and override ``to_api_schema()`` to
-   add custom fields to the API response
--  Extend ``Entitlement`` Pydantic schema to expose additional
-   entitlement attributes
--  Override ``_search_cash()`` or ``_search_inkind()`` to customize
-   search domain logic
+- Inherit ``EntitlementService`` and override ``to_api_schema()`` to add
+  custom fields to the API response
+- Extend ``Entitlement`` Pydantic schema to expose additional
+  entitlement attributes
+- Override ``_search_cash()`` or ``_search_inkind()`` to customize
+  search domain logic
 
 Dependencies
 ~~~~~~~~~~~~

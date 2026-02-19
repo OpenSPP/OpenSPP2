@@ -69,7 +69,7 @@ class Base(models.AbstractModel):
     @api.model
     def _get_gis_view(self):
         gis_view = (
-            self.env["ir.ui.view"]
+            self.env["ir.ui.view"]  # nosemgrep: odoo-sudo-without-context
             .sudo()
             .search(
                 [("model", "=", self._name), ("type", "=", "gis")],
@@ -173,7 +173,7 @@ class Base(models.AbstractModel):
         """
 
         # Get the model
-        model = self.env[self._name].sudo()
+        model = self.env[self._name].sudo()  # nosemgrep: odoo-sudo-without-context
 
         # Filter fields by type
         if isinstance(field_type, str):

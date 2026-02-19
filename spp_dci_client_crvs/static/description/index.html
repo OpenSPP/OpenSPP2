@@ -400,8 +400,8 @@ CRVS registries</li>
 <h2>Key Models</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="37%" />
-<col width="63%" />
+<col width="36%" />
+<col width="64%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Model</th>
@@ -437,8 +437,8 @@ OpenSPP DCI API</li>
 <h2>UI Location</h2>
 <ul class="simple">
 <li><strong>Events</strong>: Settings &gt; Technical &gt; DCI &gt; Activity Logs &gt; CRVS Events</li>
-<li><strong>Sender Registry</strong>: Settings &gt; Technical &gt; DCI &gt; Configuration &gt;
-CRVS Sender Registry</li>
+<li><strong>Sender Registry</strong>: Settings &gt; Technical &gt; DCI &gt; Configuration &gt; CRVS
+Sender Registry</li>
 <li><strong>Event form tabs</strong>: “Raw Data”, “Notes”</li>
 <li><strong>Sender form tabs</strong>: “Public Key”, “Notes”</li>
 </ul>
@@ -475,10 +475,10 @@ CRVS Sender Registry</li>
 <li>Override <tt class="docutils literal">_process_birth_event()</tt>, <tt class="docutils literal">_process_death_event()</tt>,
 <tt class="docutils literal">_process_marriage_event()</tt>, <tt class="docutils literal">_process_divorce_event()</tt> to
 customize partner record updates based on event type</li>
-<li>Override <tt class="docutils literal">_find_person_by_identifier()</tt> to implement custom
-matching logic</li>
-<li>Inherit <tt class="docutils literal">spp.dci.crvs.event</tt> to add fields for domain-specific
-event metadata</li>
+<li>Override <tt class="docutils literal">_find_person_by_identifier()</tt> to implement custom matching
+logic</li>
+<li>Inherit <tt class="docutils literal">spp.dci.crvs.event</tt> to add fields for domain-specific event
+metadata</li>
 <li>Use <tt class="docutils literal">CRVSService</tt> class for programmatic access to verify_birth(),
 check_death(), subscribe_events()</li>
 </ul>

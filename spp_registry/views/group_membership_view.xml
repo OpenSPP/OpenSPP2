@@ -52,7 +52,10 @@
                             />
                         </h1>
                         <div class="o_row">
-                            <label for="membership_type_ids" string="Membership Types:" />
+                            <label
+                                for="membership_type_ids"
+                                string="Membership Types:"
+                            />
                             <field
                                 name="membership_type_ids"
                                 widget="many2many_tags"
@@ -78,9 +81,17 @@
                 <field name="group" />
                 <field name="individual" />
                 <field name="membership_type_ids" />
-                <separator/>
-                <filter string="Group" name="grp_group" context="{'group_by': 'group'}" />
-                <filter string="Individual" name="grp_individual" context="{'group_by': 'individual'}" />
+                <separator />
+                <filter
+                    string="Group"
+                    name="grp_group"
+                    context="{'group_by': 'group'}"
+                />
+                <filter
+                    string="Individual"
+                    name="grp_individual"
+                    context="{'group_by': 'individual'}"
+                />
                 <!-- <searchpanel>
                     <field name="group" icon="fa-users"/>
                 </searchpanel> -->
@@ -99,7 +110,8 @@
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Add an individual to a group!
-            </p><p>
+            </p>
+            <p>
                 Click the create button to enter the new group information.
             </p>
         </field>
@@ -118,5 +130,4 @@
         <field name="view_id" ref="view_group_membership_form" />
         <field name="act_window_id" ref="action_group_membership" />
     </record>
-
 </odoo>

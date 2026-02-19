@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- CR Type Builder Wizard Form View -->
     <record id="view_studio_cr_type_wizard_form" model="ir.ui.view">
@@ -10,35 +10,54 @@
                     <!-- Progress indicator -->
                     <div class="oe_title">
                         <h1>
-                            <field name="step" invisible="1"/>
-                            <span invisible="step != 'basic'">Step 1: Basic Information</span>
-                            <span invisible="step != 'fields'">Step 2: Select Fields</span>
-                            <span invisible="step != 'review'">Step 3: Review and Create</span>
+                            <field name="step" invisible="1" />
+                            <span
+                                invisible="step != 'basic'"
+                            >Step 1: Basic Information</span>
+                            <span
+                                invisible="step != 'fields'"
+                            >Step 2: Select Fields</span>
+                            <span
+                                invisible="step != 'review'"
+                            >Step 3: Review and Create</span>
                         </h1>
                     </div>
 
                     <!-- Step 1: Basic Info -->
                     <group invisible="step != 'basic'">
                         <div class="alert alert-info" role="alert" colspan="2">
-                            <strong>What are change request types?</strong><br/>
+                            <strong>What are change request types?</strong><br />
                             Change request types allow beneficiaries or field workers to propose updates to registry information.
                             You can control who approves these changes and which fields can be updated.
-                            <br/><br/>
-                            <em>Example: A beneficiary moves to a new address and submits a request to update their contact details.</em>
+                            <br /><br />
+                            <em
+                        >Example: A beneficiary moves to a new address and submits a request to update their contact details.</em>
                         </div>
                         <group>
-                            <field name="name" placeholder="e.g., Address Update Request"/>
-                            <field name="target_type" widget="radio"/>
+                            <field
+                                name="name"
+                                placeholder="e.g., Address Update Request"
+                            />
+                            <field name="target_type" widget="radio" />
                         </group>
-                        <separator string="Description"/>
-                        <field name="description" nolabel="1" placeholder="What is this change request for?" class="oe_inline"/>
+                        <separator string="Description" />
+                        <field
+                            name="description"
+                            nolabel="1"
+                            placeholder="What is this change request for?"
+                            class="oe_inline"
+                        />
                         <group string="Approval Settings" colspan="2">
-                            <field name="requires_approval"/>
-                            <field name="approval_group_id"
-                                   invisible="not requires_approval"
-                                   required="requires_approval"/>
-                            <field name="auto_apply"
-                                   invisible="not requires_approval"/>
+                            <field name="requires_approval" />
+                            <field
+                                name="approval_group_id"
+                                invisible="not requires_approval"
+                                required="requires_approval"
+                            />
+                            <field
+                                name="auto_apply"
+                                invisible="not requires_approval"
+                            />
                         </group>
                     </group>
 
@@ -46,20 +65,24 @@
                     <group invisible="step != 'fields'" colspan="2">
                         <group string="Instructions" colspan="2">
                             <div class="alert alert-info" role="alert">
-                                <strong>Select which fields can be changed</strong><br/>
+                                <strong>Select which fields can be changed</strong><br
+                            />
                                 Choose the fields that people can request to update through this change request type.
                                 Only the selected fields will appear in the change request form.
-                                <br/><br/>
-                                <em>Example: For an "Address Update Request", select fields like Street, City, Zip Code.</em>
+                                <br /><br />
+                                <em
+                            >Example: For an "Address Update Request", select fields like Street, City, Zip Code.</em>
                             </div>
                         </group>
-                        <field name="available_field_ids" invisible="1"/>
+                        <field name="available_field_ids" invisible="1" />
                         <group colspan="2">
-                            <field name="selected_field_ids"
-                                   widget="many2many_tags"
-                                   domain="[('id', 'in', available_field_ids)]"
-                                   options="{'color_field': 'ttype'}"
-                                   placeholder="Click to select fields..."/>
+                            <field
+                                name="selected_field_ids"
+                                widget="many2many_tags"
+                                domain="[('id', 'in', available_field_ids)]"
+                                options="{'color_field': 'ttype'}"
+                                placeholder="Click to select fields..."
+                            />
                         </group>
                     </group>
 
@@ -67,37 +90,52 @@
                     <group invisible="step != 'review'" colspan="2">
                         <group string="Summary" colspan="2">
                             <div class="alert alert-success" role="alert">
-                                <p><strong>Ready to create!</strong></p>
-                                <p>Review the details below and click Create to save as a draft.</p>
+                                <p>
+                                    <strong>Ready to create!</strong>
+                                </p>
+                                <p
+                                >Review the details below and click Create to save as a draft.</p>
                             </div>
                         </group>
                         <group>
-                            <field name="preview_technical_name" readonly="1"/>
-                            <field name="preview_field_count" readonly="1"/>
+                            <field name="preview_technical_name" readonly="1" />
+                            <field name="preview_field_count" readonly="1" />
                         </group>
                         <group>
-                            <label for="name" string="Change Request Type"/>
+                            <label for="name" string="Change Request Type" />
                             <div>
-                                <strong><field name="name" readonly="1" class="oe_inline"/></strong>
+                                <strong>
+                                    <field name="name" readonly="1" class="oe_inline" />
+                                </strong>
                             </div>
-                            <label for="target_type" string="Target Registry"/>
+                            <label for="target_type" string="Target Registry" />
                             <div>
-                                <field name="target_type" readonly="1" class="oe_inline"/>
+                                <field
+                                    name="target_type"
+                                    readonly="1"
+                                    class="oe_inline"
+                                />
                             </div>
                         </group>
                         <group string="Approval Configuration" colspan="2">
-                            <field name="requires_approval" readonly="1"/>
-                            <field name="approval_group_id" readonly="1"
-                                   invisible="not requires_approval"/>
-                            <field name="auto_apply" readonly="1"
-                                   invisible="not requires_approval"/>
+                            <field name="requires_approval" readonly="1" />
+                            <field
+                                name="approval_group_id"
+                                readonly="1"
+                                invisible="not requires_approval"
+                            />
+                            <field
+                                name="auto_apply"
+                                readonly="1"
+                                invisible="not requires_approval"
+                            />
                         </group>
                         <group string="Selected Fields" colspan="2">
                             <field name="selected_field_ids" readonly="1" nolabel="1">
                                 <list>
-                                    <field name="field_description"/>
-                                    <field name="name"/>
-                                    <field name="ttype"/>
+                                    <field name="field_description" />
+                                    <field name="name" />
+                                    <field name="ttype" />
                                 </list>
                             </field>
                         </group>
@@ -106,24 +144,28 @@
 
                 <!-- Footer buttons -->
                 <footer>
-                    <button name="action_previous"
-                            string="Previous"
-                            type="object"
-                            class="btn-secondary"
-                            invisible="step == 'basic'"/>
-                    <button name="action_next"
-                            string="Next"
-                            type="object"
-                            class="btn-primary"
-                            invisible="step == 'review'"/>
-                    <button name="action_create_cr_type"
-                            string="Create"
-                            type="object"
-                            class="btn-primary"
-                            invisible="step != 'review'"/>
-                    <button string="Cancel"
-                            class="btn-secondary"
-                            special="cancel"/>
+                    <button
+                        name="action_previous"
+                        string="Previous"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="step == 'basic'"
+                    />
+                    <button
+                        name="action_next"
+                        string="Next"
+                        type="object"
+                        class="btn-primary"
+                        invisible="step == 'review'"
+                    />
+                    <button
+                        name="action_create_cr_type"
+                        string="Create"
+                        type="object"
+                        class="btn-primary"
+                        invisible="step != 'review'"
+                    />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
                 </footer>
             </form>
         </field>
@@ -135,7 +177,7 @@
         <field name="res_model">spp.studio.cr.type.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
-        <field name="binding_model_id" ref="model_spp_studio_change_request_type"/>
+        <field name="binding_model_id" ref="model_spp_studio_change_request_type" />
         <field name="binding_view_types">form,list</field>
     </record>
 </odoo>

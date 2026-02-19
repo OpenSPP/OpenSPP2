@@ -14,9 +14,9 @@ CEL Registry Search
    !! source digest: sha256:4bc5a26f6fcaebded34ffc239c124f8d348f0141b34d9170a0ecbe507d743f5d
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/maturity-Alpha-red.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Beta-yellow.png
     :target: https://odoo-community.org/page/development-status
-    :alt: Alpha
+    :alt: Beta
 .. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
@@ -35,16 +35,16 @@ eligibility criteria, or custom data fields. Auto-installs when
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  **CEL Expression Editor**: Write and validate CEL expressions with
-   syntax highlighting, autocomplete, and real-time validation
--  **Profile Selection**: Search across Individuals or Groups with
-   profile-specific field validation
--  **Live Validation**: See match counts before executing the search,
-   with inline error messages for invalid syntax
--  **Clickable Results**: View search results in a list, click any
-   registrant to open their form view
--  **Result Limiting**: Displays up to 50 results with a count indicator
-   when more matches exist
+- **CEL Expression Editor**: Write and validate CEL expressions with
+  syntax highlighting, autocomplete, and real-time validation
+- **Profile Selection**: Search across Individuals or Groups with
+  profile-specific field validation
+- **Live Validation**: See match counts before executing the search,
+  with inline error messages for invalid syntax
+- **Clickable Results**: View search results in a list, click any
+  registrant to open their form view
+- **Result Limiting**: Displays up to 50 results with a count indicator
+  when more matches exist
 
 Key Models
 ~~~~~~~~~~
@@ -63,22 +63,21 @@ menu appears automatically under Registry.
 UI Location
 ~~~~~~~~~~~
 
--  **Menu**: Registry > Advanced Search
--  **URL Path**: ``/odoo/registry-cel``
--  **Results**: Click any search result to open the registrant form view
+- **Menu**: Registry > Advanced Search
+- **URL Path**: ``/odoo/registry-cel``
+- **Results**: Click any search result to open the registrant form view
 
 Security
 ~~~~~~~~
 
-+----------------------------------+----------------------------------+
-| Group                            | Access                           |
-+==================================+==================================+
-| ``spp_cel_registr                | Access to Advanced Search portal |
-| y_search.group_cel_search_user`` |                                  |
-+----------------------------------+----------------------------------+
-| ``spp_r                          | Automatically includes CEL       |
-| egistry.group_registry_officer`` | Search access                    |
-+----------------------------------+----------------------------------+
++---------------------------------------------------+----------------------------------+
+| Group                                             | Access                           |
++===================================================+==================================+
+| ``spp_cel_registry_search.group_cel_search_user`` | Access to Advanced Search portal |
++---------------------------------------------------+----------------------------------+
+| ``spp_registry.group_registry_officer``           | Automatically includes CEL       |
+|                                                   | Search access                    |
++---------------------------------------------------+----------------------------------+
 
 The ``group_cel_search_user`` group implies
 ``spp_registry.group_registry_viewer``, ensuring users can only search
@@ -87,23 +86,18 @@ registrants they have permission to view.
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  **Inherit ``CelSearchPortal`` component**: Override
-   ``performSearch()`` to customize query logic or add filters
--  **Extend result display**: Modify the QWeb template
-   ``spp_cel_registry_search.CelSearchPortal`` to show additional
-   registrant fields
--  **Add custom actions**: Override ``openRegistrant()`` to trigger
-   custom workflows when clicking search results
+- **Inherit ``CelSearchPortal`` component**: Override
+  ``performSearch()`` to customize query logic or add filters
+- **Extend result display**: Modify the QWeb template
+  ``spp_cel_registry_search.CelSearchPortal`` to show additional
+  registrant fields
+- **Add custom actions**: Override ``openRegistrant()`` to trigger
+  custom workflows when clicking search results
 
 Dependencies
 ~~~~~~~~~~~~
 
 ``spp_registry``, ``spp_cel_domain``, ``spp_cel_widget``
-
-.. IMPORTANT::
-   This is an alpha version, the data model and design can change at any time without warning.
-   Only for development or testing purpose, do not use in production.
-   `More details on development status <https://odoo-community.org/page/development-status>`_
 
 **Table of contents**
 
@@ -126,6 +120,7 @@ Credits
 Authors
 -------
 
+* OpenSPP.org
 * OpenSPP Community
 
 Maintainers

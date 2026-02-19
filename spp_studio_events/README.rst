@@ -14,14 +14,17 @@ OpenSPP Studio - Events
    !! source digest: sha256:ac6c7eba60fde6024b5ab1d06a40d2357dd9287b9be453a632c7377c76c9f6bd
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+    :target: https://odoo-community.org/page/development-status
+    :alt: Production/Stable
+.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
     :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_studio_events
     :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2|
+|badge1| |badge2| |badge3|
 
 No-code event type designer for defining custom data collection forms.
 Allows users to create event types through a 3-step wizard, defining
@@ -32,49 +35,49 @@ registrants.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  Create event types through a 3-step wizard (basic info, fields,
-   review)
--  Define custom fields with 10 field types: text, long text, integer,
-   decimal, date, datetime, boolean, selection, multi-select, link
--  Apply field validation rules: range constraints for numbers, regex
-   patterns for text
--  Configure conditional field visibility based on other field values
--  Group fields into tabs for organized data entry forms
--  Apply reusable field templates to accelerate event type creation
--  Generate dynamic data entry wizards with proper widgets for each
-   field type
--  Target events to individuals, groups, or both
--  Draft/Active lifecycle prevents editing active event types
--  Optional Kobo form integration for external data collection
--  Optional approval workflow configuration
+- Create event types through a 3-step wizard (basic info, fields,
+  review)
+- Define custom fields with 10 field types: text, long text, integer,
+  decimal, date, datetime, boolean, selection, multi-select, link
+- Apply field validation rules: range constraints for numbers, regex
+  patterns for text
+- Configure conditional field visibility based on other field values
+- Group fields into tabs for organized data entry forms
+- Apply reusable field templates to accelerate event type creation
+- Generate dynamic data entry wizards with proper widgets for each field
+  type
+- Target events to individuals, groups, or both
+- Draft/Active lifecycle prevents editing active event types
+- Optional Kobo form integration for external data collection
+- Optional approval workflow configuration
 
 Key Models
 ~~~~~~~~~~
 
-+----------------------------------+----------------------------------+
-| Model                            | Description                      |
-+==================================+==================================+
-| ``spp.studio.event.type``        | Custom event type definition     |
-|                                  | with draft/active lifecycle      |
-+----------------------------------+----------------------------------+
-| ``spp.studio.event.field``       | Field definition with type,      |
-|                                  | validation, and visibility       |
-+----------------------------------+----------------------------------+
-| ``spp.studio.event.field.group`` | Groups fields into tabs in the   |
-|                                  | data entry wizard                |
-+----------------------------------+----------------------------------+
-| ``s                              | Reusable template containing     |
-| pp.studio.event.field.template`` | field definitions                |
-+----------------------------------+----------------------------------+
-| ``spp.st                         | Field definition within a        |
-| udio.event.field.template.line`` | template                         |
-+----------------------------------+----------------------------------+
-| ``spp.studio.event.type.wizard`` | 3-step wizard for creating event |
-|                                  | types                            |
-+----------------------------------+----------------------------------+
-| ``spp.event.data.entry.wizard``  | Generated wizard for entering    |
-|                                  | event data                       |
-+----------------------------------+----------------------------------+
++------------------------------------------+----------------------------------+
+| Model                                    | Description                      |
++==========================================+==================================+
+| ``spp.studio.event.type``                | Custom event type definition     |
+|                                          | with draft/active lifecycle      |
++------------------------------------------+----------------------------------+
+| ``spp.studio.event.field``               | Field definition with type,      |
+|                                          | validation, and visibility       |
++------------------------------------------+----------------------------------+
+| ``spp.studio.event.field.group``         | Groups fields into tabs in the   |
+|                                          | data entry wizard                |
++------------------------------------------+----------------------------------+
+| ``spp.studio.event.field.template``      | Reusable template containing     |
+|                                          | field definitions                |
++------------------------------------------+----------------------------------+
+| ``spp.studio.event.field.template.line`` | Field definition within a        |
+|                                          | template                         |
++------------------------------------------+----------------------------------+
+| ``spp.studio.event.type.wizard``         | 3-step wizard for creating event |
+|                                          | types                            |
++------------------------------------------+----------------------------------+
+| ``spp.event.data.entry.wizard``          | Generated wizard for entering    |
+|                                          | event data                       |
++------------------------------------------+----------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -92,40 +95,38 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
--  **Menu**: Studio > Forms & Fields > Event Types
--  **Wizard**: 3-step builder accessed via Create button
--  **Data Entry**: Generated wizard form specific to each event type,
-   launched from event type form or registrant profile
+- **Menu**: Studio > Forms & Fields > Event Types
+- **Wizard**: 3-step builder accessed via Create button
+- **Data Entry**: Generated wizard form specific to each event type,
+  launched from event type form or registrant profile
 
 Security
 ~~~~~~~~
 
-+----------------------------------+----------------------------------+
-| Group                            | Access                           |
-+==================================+==================================+
-| ``                               | Read event types and templates   |
-| spp_studio.group_studio_viewer`` |                                  |
-+----------------------------------+----------------------------------+
-| ``spp_stud                       | Read/Write/Create on event       |
-| io.group_studio_editor_officer`` | types, fields, and templates (no |
-|                                  | delete on event                  |
-|                                  | types/fields/templates)          |
-+----------------------------------+----------------------------------+
-| ``s                              | Full CRUD                        |
-| pp_studio.group_studio_manager`` |                                  |
-+----------------------------------+----------------------------------+
++--------------------------------------------+----------------------------------+
+| Group                                      | Access                           |
++============================================+==================================+
+| ``spp_studio.group_studio_viewer``         | Read event types and templates   |
++--------------------------------------------+----------------------------------+
+| ``spp_studio.group_studio_editor_officer`` | Read/Write/Create on event       |
+|                                            | types, fields, and templates (no |
+|                                            | delete on event                  |
+|                                            | types/fields/templates)          |
++--------------------------------------------+----------------------------------+
+| ``spp_studio.group_studio_manager``        | Full CRUD                        |
++--------------------------------------------+----------------------------------+
 
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Override ``_generate_wizard_view()`` on ``spp.studio.event.type`` to
-   customize generated wizard form layout
--  Inherit ``spp.studio.event.field`` and override ``validate_value()``
-   to add custom validation logic
--  Extend ``spp.event.data.entry.wizard`` to add pre-save hooks for
-   event data processing
--  Create predefined field templates via data files in
-   ``data/event_field_templates.xml``
+- Override ``_generate_wizard_view()`` on ``spp.studio.event.type`` to
+  customize generated wizard form layout
+- Inherit ``spp.studio.event.field`` and override ``validate_value()``
+  to add custom validation logic
+- Extend ``spp.event.data.entry.wizard`` to add pre-save hooks for event
+  data processing
+- Create predefined field templates via data files in
+  ``data/event_field_templates.xml``
 
 Dependencies
 ~~~~~~~~~~~~

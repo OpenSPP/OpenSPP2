@@ -26,6 +26,7 @@ class ProductCategoryService:
             product.category record or empty recordset
         """
         return (
+            # nosemgrep: odoo-sudo-without-context — API auth
             self.env["product.category"]
             .sudo()
             .search(
@@ -49,12 +50,14 @@ class ProductCategoryService:
         if params.get("name"):
             domain.append(("name", "ilike", params["name"]))
 
+        # nosemgrep: odoo-sudo-without-context — API auth
         total = self.env["product.category"].sudo().search_count(domain)
 
         count = params.get("_count", 20)
         offset = params.get("_offset", 0)
 
         records = (
+            # nosemgrep: odoo-sudo-without-context — API auth
             self.env["product.category"]
             .sudo()
             .search(

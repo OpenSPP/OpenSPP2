@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Event Type Builder Wizard Form View -->
     <record id="view_event_type_wizard_form" model="ir.ui.view">
@@ -8,108 +8,153 @@
             <form string="Create Event Type">
                 <header>
                     <!-- Progress indicator -->
-                    <field name="step" widget="statusbar" statusbar_visible="basic,fields,review"/>
+                    <field
+                        name="step"
+                        widget="statusbar"
+                        statusbar_visible="basic,fields,review"
+                    />
                 </header>
                 <sheet>
                     <!-- Step 1: Basic Info -->
                     <div invisible="step != 'basic'">
                         <div class="oe_title">
-                            <label for="name" string="Event Type Name"/>
+                            <label for="name" string="Event Type Name" />
                             <h1>
-                                <field name="name" placeholder="e.g., Health Screening, Household Visit"/>
+                                <field
+                                    name="name"
+                                    placeholder="e.g., Health Screening, Household Visit"
+                                />
                             </h1>
                         </div>
                         <group>
                             <group>
-                                <field name="target_type" widget="radio"/>
+                                <field name="target_type" widget="radio" />
                             </group>
                             <group>
-                                <field name="description" placeholder="Describe what this event type is used for..."/>
+                                <field
+                                    name="description"
+                                    placeholder="Describe what this event type is used for..."
+                                />
                             </group>
                         </group>
                         <div class="alert alert-info" role="alert">
-                            <strong>What are event types?</strong><br/>
+                            <strong>What are event types?</strong><br />
                             Event types let you record activities or data collection about individuals or groups over time.
                             Examples: health screenings, field visits, vulnerability assessments, training sessions.
-                            <br/><br/>
-                            <em>Similar to: Creating a new form in KoboToolbox for repeated data collection.</em>
+                            <br /><br />
+                            <em
+                        >Similar to: Creating a new form in KoboToolbox for repeated data collection.</em>
                         </div>
                     </div>
 
                     <!-- Step 2: Add Fields -->
                     <div invisible="step != 'fields'">
                         <div class="alert alert-info" role="alert">
-                            <strong>Define your event fields</strong><br/>
+                            <strong>Define your event fields</strong><br />
                             Add the information you want to collect each time this event occurs.
                             Similar to adding questions to a KoboToolbox form.
                         </div>
                         <div class="oe_title">
                             <h1>Define Event Fields</h1>
                             <p class="text-muted">
-                                Add the fields you want to collect for each <field name="name" readonly="1" class="oe_inline"/> event.
+                                Add the fields you want to collect for each <field
+                                name="name"
+                                readonly="1"
+                                class="oe_inline"
+                            /> event.
                             </p>
                         </div>
                         <group>
                             <field name="field_line_ids" nolabel="1" colspan="2">
                                 <list string="Event Fields" editable="bottom">
-                                    <field name="sequence" widget="handle"/>
-                                    <field name="label" required="1"/>
-                                    <field name="field_type" required="1"/>
-                                    <field name="selection_options"
-                                           invisible="field_type not in ('selection', 'multi_select')"
-                                           optional="show"/>
-                                    <field name="link_model_id"
-                                           invisible="field_type != 'link'"
-                                           options="{'no_create': True}"
-                                           optional="show"/>
-                                    <field name="is_required"/>
-                                    <field name="validation_type" optional="hide"/>
-                                    <field name="help_text" optional="hide"/>
+                                    <field name="sequence" widget="handle" />
+                                    <field name="label" required="1" />
+                                    <field name="field_type" required="1" />
+                                    <field
+                                        name="selection_options"
+                                        invisible="field_type not in ('selection', 'multi_select')"
+                                        optional="show"
+                                    />
+                                    <field
+                                        name="link_model_id"
+                                        invisible="field_type != 'link'"
+                                        options="{'no_create': True}"
+                                        optional="show"
+                                    />
+                                    <field name="is_required" />
+                                    <field name="validation_type" optional="hide" />
+                                    <field name="help_text" optional="hide" />
                                 </list>
                                 <form string="Field Details">
                                     <group>
                                         <group string="Field Definition">
-                                            <field name="label" required="1"/>
-                                            <field name="field_type" required="1"/>
-                                            <field name="is_required"/>
+                                            <field name="label" required="1" />
+                                            <field name="field_type" required="1" />
+                                            <field name="is_required" />
                                         </group>
                                         <group string="Type Options">
-                                            <field name="selection_options"
-                                                   invisible="field_type not in ('selection', 'multi_select')"
-                                                   placeholder="value1|Label 1&#10;value2|Label 2"/>
-                                            <field name="link_model_id"
-                                                   invisible="field_type != 'link'"
-                                                   options="{'no_create': True}"/>
-                                            <field name="link_domain"
-                                                   invisible="field_type != 'link'"
-                                                   placeholder="[('active', '=', True)]"/>
+                                            <field
+                                                name="selection_options"
+                                                invisible="field_type not in ('selection', 'multi_select')"
+                                                placeholder="value1|Label 1&#10;value2|Label 2"
+                                            />
+                                            <field
+                                                name="link_model_id"
+                                                invisible="field_type != 'link'"
+                                                options="{'no_create': True}"
+                                            />
+                                            <field
+                                                name="link_domain"
+                                                invisible="field_type != 'link'"
+                                                placeholder="[('active', '=', True)]"
+                                            />
                                         </group>
                                     </group>
-                                    <group string="Validation" invisible="field_type in ('boolean', 'link')">
+                                    <group
+                                        string="Validation"
+                                        invisible="field_type in ('boolean', 'link')"
+                                    >
                                         <group>
-                                            <field name="validation_type"/>
+                                            <field name="validation_type" />
                                         </group>
                                         <group>
-                                            <field name="validation_min"
-                                                   invisible="validation_type != 'range' or field_type not in ('integer', 'decimal')"/>
-                                            <field name="validation_max"
-                                                   invisible="validation_type != 'range' or field_type not in ('integer', 'decimal')"/>
-                                            <field name="validation_regex"
-                                                   invisible="validation_type != 'regex' or field_type not in ('text', 'long_text')"/>
-                                            <field name="validation_error_message"
-                                                   invisible="validation_type == 'none'"/>
+                                            <field
+                                                name="validation_min"
+                                                invisible="validation_type != 'range' or field_type not in ('integer', 'decimal')"
+                                            />
+                                            <field
+                                                name="validation_max"
+                                                invisible="validation_type != 'range' or field_type not in ('integer', 'decimal')"
+                                            />
+                                            <field
+                                                name="validation_regex"
+                                                invisible="validation_type != 'regex' or field_type not in ('text', 'long_text')"
+                                            />
+                                            <field
+                                                name="validation_error_message"
+                                                invisible="validation_type == 'none'"
+                                            />
                                         </group>
                                     </group>
                                     <group string="Help">
-                                        <field name="help_text" nolabel="1" placeholder="Help text for users..."/>
+                                        <field
+                                            name="help_text"
+                                            nolabel="1"
+                                            placeholder="Help text for users..."
+                                        />
                                     </group>
                                 </form>
                             </field>
                         </group>
-                        <div class="alert alert-info" role="alert" invisible="field_count > 0">
-                            <strong>No fields yet.</strong> Click "Add a line" to add your first field.
+                        <div
+                            class="alert alert-info"
+                            role="alert"
+                            invisible="field_count > 0"
+                        >
+                            <strong
+                        >No fields yet.</strong> Click "Add a line" to add your first field.
                         </div>
-                        <field name="field_count" invisible="1"/>
+                        <field name="field_count" invisible="1" />
                     </div>
 
                     <!-- Step 3: Review -->
@@ -122,29 +167,34 @@
                         </div>
                         <group>
                             <group string="Basic Information">
-                                <field name="name" readonly="1"/>
-                                <field name="preview_technical_name" readonly="1"/>
-                                <field name="target_type" readonly="1"/>
-                                <field name="description" readonly="1"/>
+                                <field name="name" readonly="1" />
+                                <field name="preview_technical_name" readonly="1" />
+                                <field name="target_type" readonly="1" />
+                                <field name="description" readonly="1" />
                             </group>
                             <group string="Options">
-                                <field name="kobo_form_id"/>
-                                <field name="allow_multiple"/>
-                                <field name="requires_approval"/>
+                                <field name="kobo_form_id" />
+                                <field name="allow_multiple" />
+                                <field name="requires_approval" />
                             </group>
                         </group>
                         <group string="Fields">
                             <field name="field_line_ids" nolabel="1" colspan="2">
-                                <list string="Event Fields" create="0" delete="0" edit="0">
-                                    <field name="sequence"/>
-                                    <field name="label"/>
-                                    <field name="field_type"/>
-                                    <field name="is_required"/>
+                                <list
+                                    string="Event Fields"
+                                    create="0"
+                                    delete="0"
+                                    edit="0"
+                                >
+                                    <field name="sequence" />
+                                    <field name="label" />
+                                    <field name="field_type" />
+                                    <field name="is_required" />
                                 </list>
                             </field>
                         </group>
                         <div class="alert alert-success" role="alert">
-                            <strong>Ready to create!</strong><br/>
+                            <strong>Ready to create!</strong><br />
                             Click "Create Event Type" to save as a draft. You can add more configuration
                             and activate it when ready.
                         </div>
@@ -152,22 +202,28 @@
                 </sheet>
                 <footer>
                     <!-- Navigation buttons -->
-                    <button string="Previous"
-                            name="action_previous"
-                            type="object"
-                            class="btn-secondary"
-                            invisible="step == 'basic'"/>
-                    <button string="Next"
-                            name="action_next"
-                            type="object"
-                            class="btn-primary"
-                            invisible="step == 'review'"/>
-                    <button string="Create Event Type"
-                            name="action_create_event_type"
-                            type="object"
-                            class="btn-primary"
-                            invisible="step != 'review'"/>
-                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    <button
+                        string="Previous"
+                        name="action_previous"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="step == 'basic'"
+                    />
+                    <button
+                        string="Next"
+                        name="action_next"
+                        type="object"
+                        class="btn-primary"
+                        invisible="step == 'review'"
+                    />
+                    <button
+                        string="Create Event Type"
+                        name="action_create_event_type"
+                        type="object"
+                        class="btn-primary"
+                        invisible="step != 'review'"
+                    />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
                 </footer>
             </form>
         </field>
@@ -179,7 +235,7 @@
         <field name="res_model">spp.studio.event.type.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
-        <field name="binding_model_id" ref="model_spp_studio_event_type"/>
+        <field name="binding_model_id" ref="model_spp_studio_event_type" />
         <field name="binding_view_types">form,list</field>
     </record>
 </odoo>

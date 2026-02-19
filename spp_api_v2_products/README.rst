@@ -14,14 +14,17 @@ OpenSPP API V2 - Products
    !! source digest: sha256:5f04e64cc23312edbba841e0030f12233180cadb766efa3b2fe82787d897259e
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+    :target: https://odoo-community.org/page/development-status
+    :alt: Production/Stable
+.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
     :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_api_v2_products
     :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2|
+|badge1| |badge2| |badge3|
 
 Extends OpenSPP API V2 to expose product catalog data through REST
 endpoints. Allows external systems to query products, product
@@ -32,29 +35,28 @@ external identifiers.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  Search and retrieve products by default_code (SKU) or name
--  Query product categories for classification and filtering
--  List units of measure with category filtering
--  Paginated search with filters: name, code, category, last updated
-   date
--  OAuth 2.0 authentication with "product" resource scope
--  Returns JSON responses with references to related resources
-   (category, UoM)
+- Search and retrieve products by default_code (SKU) or name
+- Query product categories for classification and filtering
+- List units of measure with category filtering
+- Paginated search with filters: name, code, category, last updated date
+- OAuth 2.0 authentication with "product" resource scope
+- Returns JSON responses with references to related resources (category,
+  UoM)
 
 Key Models
 ~~~~~~~~~~
 
 This module extends existing models rather than introducing new ones:
 
-+--------------------------+------------------------------------------+
-| Model                    | Extension                                |
-+==========================+==========================================+
-| ``spp.api.client.scope`` | Adds "product" resource type for scope   |
-|                          | management                               |
-+--------------------------+------------------------------------------+
-| ``fastapi.endpoint``     | Registers Product, ProductCategory, UoM  |
-|                          | routers                                  |
-+--------------------------+------------------------------------------+
++--------------------------+-------------------------------------------+
+| Model                    | Extension                                 |
++==========================+===========================================+
+| ``spp.api.client.scope`` | Adds "product" resource type for scope    |
+|                          | management                                |
++--------------------------+-------------------------------------------+
+| ``fastapi.endpoint``     | Registers Product, ProductCategory, UoM   |
+|                          | routers                                   |
++--------------------------+-------------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -73,14 +75,14 @@ No standalone menu. This is an API-only module.
 
 **API Endpoints**:
 
--  ``GET /api/v2/spp/Product`` - Search products
--  ``GET /api/v2/spp/Product/{identifier}`` - Read product by code or
-   name
--  ``GET /api/v2/spp/ProductCategory`` - Search categories
--  ``GET /api/v2/spp/ProductCategory/{identifier}`` - Read category by
-   name
--  ``GET /api/v2/spp/UnitOfMeasure`` - Search units of measure
--  ``GET /api/v2/spp/UnitOfMeasure/{identifier}`` - Read UoM by name
+- ``GET /api/v2/spp/Product`` - Search products
+- ``GET /api/v2/spp/Product/{identifier}`` - Read product by code or
+  name
+- ``GET /api/v2/spp/ProductCategory`` - Search categories
+- ``GET /api/v2/spp/ProductCategory/{identifier}`` - Read category by
+  name
+- ``GET /api/v2/spp/UnitOfMeasure`` - Search units of measure
+- ``GET /api/v2/spp/UnitOfMeasure/{identifier}`` - Read UoM by name
 
 **Configuration**: Registry > Configuration > API V2 > API Clients
 
@@ -100,11 +102,11 @@ layer through OAuth scopes.
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Inherit ``ProductService``, ``ProductCategoryService``, or
-   ``UomService`` to customize API responses
--  Override ``to_api_schema()`` methods to add fields to Product,
-   ProductCategory, or UnitOfMeasure schemas
--  Override ``search()`` methods to add custom filtering logic
+- Inherit ``ProductService``, ``ProductCategoryService``, or
+  ``UomService`` to customize API responses
+- Override ``to_api_schema()`` methods to add fields to Product,
+  ProductCategory, or UnitOfMeasure schemas
+- Override ``search()`` methods to add custom filtering logic
 
 Dependencies
 ~~~~~~~~~~~~

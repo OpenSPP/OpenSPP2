@@ -151,7 +151,7 @@ class TestCycleAutoApproveFundCheck(TransactionCase):
         self.cycle.write({"state": "to_approve"})
 
         # Approve cycle with auto-approve enabled
-        result = self.cycle.action_approve()
+        self.cycle.action_approve()
 
         # Cycle should be approved
         self.assertEqual(
@@ -239,7 +239,7 @@ class TestCycleAutoApproveFundCheck(TransactionCase):
         test_cycle.write({"state": "to_approve"})
 
         # Approve cycle with auto-approve enabled
-        result = test_cycle.action_approve()
+        test_cycle.action_approve()
 
         # Cycle should be approved
         self.assertEqual(

@@ -48,8 +48,7 @@ def _setup_admin_group_inheritance(env):
 
         if not system_admin or not spp_admin:
             _logger.warning(
-                "Could not set up admin group inheritance: "
-                "base.group_system or spp_security.group_spp_admin not found"
+                "Could not set up admin group inheritance: base.group_system or spp_security.group_spp_admin not found"
             )
             return
 

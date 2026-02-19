@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Variable Remap Wizard Form -->
     <record id="view_variable_remap_wizard_form" model="ir.ui.view">
@@ -8,9 +8,12 @@
             <form string="Map Variable to Field">
                 <sheet>
                     <!-- Info message for field type -->
-                    <div class="alert alert-info mb-3" role="alert"
-                         invisible="is_type_change">
-                        <i class="fa fa-info-circle me-2"/>
+                    <div
+                        class="alert alert-info mb-3"
+                        role="alert"
+                        invisible="is_type_change"
+                    >
+                        <i class="fa fa-info-circle me-2" />
                         <span>
                             Map this variable to a different field on the target model.
                             Use this when the data exists but under a different field name.
@@ -18,55 +21,78 @@
                     </div>
 
                     <!-- Warning message for type change -->
-                    <div class="alert alert-warning mb-3" role="alert"
-                         invisible="not is_type_change">
-                        <i class="fa fa-exclamation-triangle me-2"/>
+                    <div
+                        class="alert alert-warning mb-3"
+                        role="alert"
+                        invisible="not is_type_change"
+                    >
+                        <i class="fa fa-exclamation-triangle me-2" />
                         <span>
-                            This will change the variable from <strong><field name="current_source_type" readonly="1" nolabel="1" class="d-inline"/></strong>
-                            to <strong>Model Field</strong>. The current expression/configuration will be cleared.
+                            This will change the variable from <strong>
+                            <field
+                                name="current_source_type"
+                                readonly="1"
+                                nolabel="1"
+                                class="d-inline"
+                            />
+                        </strong>
+                            to <strong
+                        >Model Field</strong>. The current expression/configuration will be cleared.
                         </span>
                     </div>
 
                     <group string="Current Configuration">
                         <group>
-                            <field name="variable_label" string="Variable"/>
-                            <field name="variable_name" string="Technical Name"/>
-                            <field name="current_source_type" string="Current Type"/>
+                            <field name="variable_label" string="Variable" />
+                            <field name="variable_name" string="Technical Name" />
+                            <field name="current_source_type" string="Current Type" />
                         </group>
                         <group>
-                            <field name="current_field" string="Current Field"
-                                   invisible="current_source_type != 'field'"/>
-                            <field name="current_expression" string="Current Expression"
-                                   invisible="current_source_type not in ('computed', 'aggregate')"/>
+                            <field
+                                name="current_field"
+                                string="Current Field"
+                                invisible="current_source_type != 'field'"
+                            />
+                            <field
+                                name="current_expression"
+                                string="Current Expression"
+                                invisible="current_source_type not in ('computed', 'aggregate')"
+                            />
                         </group>
                     </group>
 
-                    <separator string="Map to Field"/>
+                    <separator string="Map to Field" />
 
                     <group>
-                        <field name="target_model" string="Model"/>
-                        <field name="new_field_id"
-                               options="{'no_create': True, 'no_open': True}"
-                               placeholder="Select an existing field..."/>
-                        <field name="new_field_preview"
-                               invisible="not new_field_id"
-                               string="Technical Name"/>
+                        <field name="target_model" string="Model" />
+                        <field
+                            name="new_field_id"
+                            options="{'no_create': True, 'no_open': True}"
+                            placeholder="Select an existing field..."
+                        />
+                        <field
+                            name="new_field_preview"
+                            invisible="not new_field_id"
+                            string="Technical Name"
+                        />
                     </group>
 
                     <group>
-                        <field name="update_cel_accessor"/>
+                        <field name="update_cel_accessor" />
                     </group>
 
-                    <field name="variable_id" invisible="1"/>
-                    <field name="is_type_change" invisible="1"/>
+                    <field name="variable_id" invisible="1" />
+                    <field name="is_type_change" invisible="1" />
                 </sheet>
                 <footer>
-                    <button name="action_remap"
-                            string="Map to Field"
-                            type="object"
-                            class="btn-primary"
-                            icon="fa-exchange"/>
-                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    <button
+                        name="action_remap"
+                        string="Map to Field"
+                        type="object"
+                        class="btn-primary"
+                        icon="fa-exchange"
+                    />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
                 </footer>
             </form>
         </field>

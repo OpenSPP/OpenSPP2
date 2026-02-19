@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
     <!-- Priority Levels -->
     <record id="vocab_drims_priority" model="spp.vocabulary">
@@ -160,7 +160,9 @@
         <field name="version">2024</field>
         <field name="is_system">True</field>
         <field name="domain">core</field>
-        <field name="description">Models for coordinating multi-agency disaster response</field>
+        <field
+            name="description"
+        >Models for coordinating multi-agency disaster response</field>
     </record>
 
     <!-- Organization Roles (for 4W reporting) -->
@@ -170,7 +172,9 @@
         <field name="version">2024</field>
         <field name="is_system">True</field>
         <field name="domain">core</field>
-        <field name="description">Roles organizations play in disaster response coordination (4W reporting)</field>
+        <field
+            name="description"
+        >Roles organizations play in disaster response coordination (4W reporting)</field>
     </record>
 
     <!-- OCHA/IASC Humanitarian Clusters -->
@@ -180,8 +184,12 @@
         <field name="version">2024</field>
         <field name="is_system">True</field>
         <field name="domain">core</field>
-        <field name="description">Standard humanitarian cluster coordination sectors defined by OCHA/IASC</field>
-        <field name="reference_url">https://www.humanitarianresponse.info/en/coordination/clusters</field>
+        <field
+            name="description"
+        >Standard humanitarian cluster coordination sectors defined by OCHA/IASC</field>
+        <field
+            name="reference_url"
+        >https://www.humanitarianresponse.info/en/coordination/clusters</field>
     </record>
 
     <!-- Personnel Roles -->
@@ -191,6 +199,8 @@
         <field name="version">2024</field>
         <field name="is_system">True</field>
         <field name="domain">core</field>
-        <field name="description">Roles for deployed personnel in disaster response operations</field>
+        <field
+            name="description"
+        >Roles for deployed personnel in disaster response operations</field>
     </record>
 </odoo>

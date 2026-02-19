@@ -958,7 +958,7 @@ class TestStudioSubjectVariablesFunctional(TestStudioRouterEndpoints):
 
     def test_get_subject_variables_individual(self):
         """GET /variables/Individual/{id} returns cached values for individual."""
-        url = f"{self.api_base_url}/variables/Individual/" f"urn:openspp:vocab:id-type|IND-STUDIO-001"
+        url = f"{self.api_base_url}/variables/Individual/urn:openspp:vocab:id-type|IND-STUDIO-001"
 
         response = self.url_open(url, headers=self._get_headers())
 
@@ -994,7 +994,7 @@ class TestStudioSubjectVariablesFunctional(TestStudioRouterEndpoints):
             }
         )
 
-        url = f"{self.api_base_url}/variables/Group/" f"urn:openspp:vocab:id-type|GRP-STUDIO-001"
+        url = f"{self.api_base_url}/variables/Group/urn:openspp:vocab:id-type|GRP-STUDIO-001"
 
         response = self.url_open(url, headers=self._get_headers())
 
@@ -1005,7 +1005,7 @@ class TestStudioSubjectVariablesFunctional(TestStudioRouterEndpoints):
 
     def test_get_subject_variables_not_found(self):
         """GET /variables/{type}/{id} returns 404 for non-existent subject."""
-        url = f"{self.api_base_url}/variables/Individual/" f"urn:openspp:vocab:id-type|NONEXISTENT"
+        url = f"{self.api_base_url}/variables/Individual/urn:openspp:vocab:id-type|NONEXISTENT"
 
         response = self.url_open(url, headers=self._get_headers())
 
@@ -1027,7 +1027,7 @@ class TestStudioSubjectVariablesFunctional(TestStudioRouterEndpoints):
     def test_get_subject_variables_type_mismatch(self):
         """GET /variables/{type}/{id} returns 400 when ID refers to wrong type."""
         # Try to access individual with Group resource type
-        url = f"{self.api_base_url}/variables/Group/" f"urn:openspp:vocab:id-type|IND-STUDIO-001"
+        url = f"{self.api_base_url}/variables/Group/urn:openspp:vocab:id-type|IND-STUDIO-001"
 
         response = self.url_open(url, headers=self._get_headers())
 
@@ -1038,7 +1038,7 @@ class TestStudioSubjectVariablesFunctional(TestStudioRouterEndpoints):
 
     def test_get_subject_variables_invalid_resource_type(self):
         """GET /variables/{type}/{id} returns 400 for invalid resource type."""
-        url = f"{self.api_base_url}/variables/InvalidType/" f"urn:openspp:vocab:id-type|IND-STUDIO-001"
+        url = f"{self.api_base_url}/variables/InvalidType/urn:openspp:vocab:id-type|IND-STUDIO-001"
 
         response = self.url_open(url, headers=self._get_headers())
 
@@ -1062,7 +1062,7 @@ class TestStudioSubjectVariablesFunctional(TestStudioRouterEndpoints):
             }
         )
 
-        url = f"{self.api_base_url}/variables/Individual/" f"urn:openspp:vocab:id-type|IND-STUDIO-001?variables=age"
+        url = f"{self.api_base_url}/variables/Individual/urn:openspp:vocab:id-type|IND-STUDIO-001?variables=age"
 
         response = self.url_open(url, headers=self._get_headers())
 
@@ -1088,10 +1088,7 @@ class TestStudioSubjectVariablesFunctional(TestStudioRouterEndpoints):
             }
         )
 
-        url = (
-            f"{self.api_base_url}/variables/Individual/"
-            f"urn:openspp:vocab:id-type|IND-STUDIO-001?variables=age,income"
-        )
+        url = f"{self.api_base_url}/variables/Individual/urn:openspp:vocab:id-type|IND-STUDIO-001?variables=age,income"
 
         response = self.url_open(url, headers=self._get_headers())
 
@@ -1117,9 +1114,7 @@ class TestStudioSubjectVariablesFunctional(TestStudioRouterEndpoints):
             }
         )
 
-        url = (
-            f"{self.api_base_url}/variables/Individual/" f"urn:openspp:vocab:id-type|IND-STUDIO-001?period_key=2024-12"
-        )
+        url = f"{self.api_base_url}/variables/Individual/urn:openspp:vocab:id-type|IND-STUDIO-001?period_key=2024-12"
 
         response = self.url_open(url, headers=self._get_headers())
 

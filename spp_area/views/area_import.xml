@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <!-- Add g2p admin group in Area Import Menu -->
     <!-- Odoo 19: Cannot modify menu groups via record, must use menuitem groups attribute
 <record id="spp_area.menu_spparea_import" model="ir.ui.menu">

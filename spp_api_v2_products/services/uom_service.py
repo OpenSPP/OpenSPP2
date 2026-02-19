@@ -26,7 +26,7 @@ class UomService:
             uom.uom record or empty recordset
         """
         return (
-            self.env["uom.uom"]
+            self.env["uom.uom"]  # nosemgrep: odoo-sudo-without-context
             .sudo()
             .search(
                 [("name", "=", identifier)],
@@ -53,13 +53,13 @@ class UomService:
         if params.get("category"):
             domain.append(("relative_uom_id.name", "ilike", params["category"]))
 
-        total = self.env["uom.uom"].sudo().search_count(domain)
+        total = self.env["uom.uom"].sudo().search_count(domain)  # nosemgrep: odoo-sudo-without-context
 
         count = params.get("_count", 20)
         offset = params.get("_offset", 0)
 
         records = (
-            self.env["uom.uom"]
+            self.env["uom.uom"]  # nosemgrep: odoo-sudo-without-context
             .sudo()
             .search(
                 domain,

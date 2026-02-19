@@ -5,6 +5,8 @@ from odoo import Command, fields
 from odoo.exceptions import ValidationError
 from odoo.tests import TransactionCase
 
+from .common import get_or_create_cr_type
+
 
 class TestSplitHouseholdStrategy(TransactionCase):
     """Tests for Split Household custom strategy."""
@@ -96,16 +98,11 @@ class TestSplitHouseholdStrategy(TransactionCase):
             }
         )
 
-        # Get CR type
-        cls.cr_type = cls.env.ref(
-            "spp_change_request_v2.cr_type_split_household",
-            raise_if_not_found=False,
-        )
+        # Get or create CR type
+        cls.cr_type = get_or_create_cr_type(cls.env, "split_household")
 
     def test_split_creates_new_group(self):
         """Test splitting creates new group."""
-        if not self.cr_type:
-            self.skipTest("Split household CR type not found")
 
         cr = self.cr_model.create(
             {
@@ -140,8 +137,6 @@ class TestSplitHouseholdStrategy(TransactionCase):
 
     def test_split_copies_address(self):
         """Test splitting copies address from source."""
-        if not self.cr_type:
-            self.skipTest("Split household CR type not found")
 
         cr = self.cr_model.create(
             {
@@ -173,8 +168,6 @@ class TestSplitHouseholdStrategy(TransactionCase):
 
     def test_split_transfers_members(self):
         """Test splitting transfers selected members."""
-        if not self.cr_type:
-            self.skipTest("Split household CR type not found")
 
         cr = self.cr_model.create(
             {
@@ -218,8 +211,6 @@ class TestSplitHouseholdStrategy(TransactionCase):
 
     def test_split_assigns_head_role(self):
         """Test splitting assigns head role to new head."""
-        if not self.cr_type or not self.head_kind:
-            self.skipTest("Split household CR type or head kind not found")
 
         cr = self.cr_model.create(
             {
@@ -256,8 +247,6 @@ class TestSplitHouseholdStrategy(TransactionCase):
 
     def test_split_cannot_move_all_members(self):
         """Test cannot move all members from source group."""
-        if not self.cr_type:
-            self.skipTest("Split household CR type not found")
 
         # Create group with only 2 members
         small_group = self.partner_model.create(
@@ -306,8 +295,6 @@ class TestSplitHouseholdStrategy(TransactionCase):
 
     def test_split_head_must_be_in_split(self):
         """Test new head must be in members to split."""
-        if not self.cr_type:
-            self.skipTest("Split household CR type not found")
 
         cr = self.cr_model.create(
             {
@@ -321,8 +308,8 @@ class TestSplitHouseholdStrategy(TransactionCase):
         with self.assertRaises(ValidationError):
             detail.write(
                 {
-                    "members_to_split_ids": [(6, 0, [self.membership3.id])],
-                    "new_head_membership_id": self.membership4.id,  # Not in split list
+                    "registrant_member_to_split_ids": [(6, 0, [self.member3.id])],
+                    "new_head_individual_id": self.member4.id,  # Not in split list
                     "new_group_name": "Invalid Head",
                     "split_reason": "other",
                     "effective_date": fields.Date.today(),
@@ -331,8 +318,6 @@ class TestSplitHouseholdStrategy(TransactionCase):
 
     def test_split_all_reasons(self):
         """Test all split reasons work."""
-        if not self.cr_type:
-            self.skipTest("Split household CR type not found")
 
         reasons = [
             "marriage",
@@ -366,7 +351,7 @@ class TestSplitHouseholdStrategy(TransactionCase):
                     "is_group": False,
                 }
             )
-            mem1 = self.membership_model.create(
+            self.membership_model.create(
                 {
                     "group": group.id,
                     "individual": m1.id,
@@ -407,8 +392,6 @@ class TestSplitHouseholdStrategy(TransactionCase):
 
     def test_split_preview(self):
         """Test preview returns expected structure."""
-        if not self.cr_type:
-            self.skipTest("Split household CR type not found")
 
         cr = self.cr_model.create(
             {

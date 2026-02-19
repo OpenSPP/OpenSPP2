@@ -2,6 +2,123 @@
 
 from odoo.tests import TransactionCase, tagged
 
+# Definitions for CR types needed by strategy tests.
+# These mirror what spp_cr_types_base / spp_cr_types_advanced install via XML.
+CR_TYPE_DEFS = {
+    "add_member": {
+        "name": "Add Group Member",
+        "target_type": "group",
+        "detail_model": "spp.cr.detail.add_member",
+        "apply_strategy": "custom",
+        "apply_model": "spp.cr.apply.add_member",
+    },
+    "remove_member": {
+        "name": "Remove Group Member",
+        "target_type": "group",
+        "detail_model": "spp.cr.detail.remove_member",
+        "apply_strategy": "custom",
+        "apply_model": "spp.cr.apply.remove_member",
+    },
+    "change_hoh": {
+        "name": "Change Head of Household",
+        "target_type": "group",
+        "detail_model": "spp.cr.detail.change_hoh",
+        "apply_strategy": "custom",
+        "apply_model": "spp.cr.apply.change_hoh",
+    },
+    "exit_registrant": {
+        "name": "Exit Registrant",
+        "target_type": "both",
+        "detail_model": "spp.cr.detail.exit_registrant",
+        "apply_strategy": "custom",
+        "apply_model": "spp.cr.apply.exit_registrant",
+    },
+    "transfer_member": {
+        "name": "Transfer Member",
+        "target_type": "group",
+        "detail_model": "spp.cr.detail.transfer_member",
+        "apply_strategy": "custom",
+        "apply_model": "spp.cr.apply.transfer_member",
+    },
+    "update_id": {
+        "name": "Update ID Document",
+        "target_type": "both",
+        "detail_model": "spp.cr.detail.update_id",
+        "apply_strategy": "custom",
+        "apply_model": "spp.cr.apply.update_id",
+    },
+    "create_group": {
+        "name": "Create Group",
+        "target_type": "group",
+        "detail_model": "spp.cr.detail.create_group",
+        "apply_strategy": "custom",
+        "apply_model": "spp.cr.apply.create_group",
+    },
+    "split_household": {
+        "name": "Split Household",
+        "target_type": "group",
+        "detail_model": "spp.cr.detail.split_household",
+        "apply_strategy": "custom",
+        "apply_model": "spp.cr.apply.split_household",
+    },
+    "merge_registrants": {
+        "name": "Merge Registrants",
+        "target_type": "both",
+        "detail_model": "spp.cr.detail.merge_registrants",
+        "apply_strategy": "custom",
+        "apply_model": "spp.cr.apply.merge_registrants",
+    },
+    "edit_individual": {
+        "name": "Edit Individual",
+        "target_type": "individual",
+        "detail_model": "spp.cr.detail.edit_individual",
+        "apply_strategy": "field_mapping",
+    },
+    "edit_group": {
+        "name": "Edit Group",
+        "target_type": "group",
+        "detail_model": "spp.cr.detail.edit_group",
+        "apply_strategy": "field_mapping",
+    },
+}
+
+
+def get_or_create_cr_type(env, code):
+    """Get a CR type by code, creating it if not found (for tests)."""
+    cr_type = env["spp.change.request.type"].search([("code", "=", code)], limit=1)
+    if not cr_type:
+        defs = CR_TYPE_DEFS[code]
+        cr_type = env["spp.change.request.type"].create({"code": code, **defs})
+    return cr_type
+
+
+# Vocabulary codes that may not be installed (commented out in default data).
+_MEMBERSHIP_TYPE_CODES = {
+    "spouse": {"display": "Spouse", "sequence": 3},
+    "child": {"display": "Child", "sequence": 2},
+    "other": {"display": "Other", "sequence": 10},
+}
+
+MEMBERSHIP_TYPE_NS = "urn:openspp:vocab:group-membership-type"
+
+
+def get_or_create_membership_kind(env, code):
+    """Get a membership type vocabulary code, creating it if not found."""
+    kind = env["spp.vocabulary.code"].get_code(MEMBERSHIP_TYPE_NS, code)
+    if not kind:
+        vocab = env["spp.vocabulary"].search([("namespace_uri", "=", MEMBERSHIP_TYPE_NS)], limit=1)
+        defs = _MEMBERSHIP_TYPE_CODES[code]
+        kind = env["spp.vocabulary.code"].create(
+            {
+                "vocabulary_id": vocab.id,
+                "code": code,
+                "display": defs["display"],
+                "sequence": defs["sequence"],
+                "is_local": True,
+            }
+        )
+    return kind
+
 
 @tagged("post_install", "-at_install")
 class CRTestCase(TransactionCase):

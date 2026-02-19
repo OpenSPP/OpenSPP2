@@ -374,7 +374,7 @@ ul.auto-toc {
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! source digest: sha256:19c4c319af786088715fe91559ef67701990c466a93b8a5fc474557d9b26f74a
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-<p><a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_studio_change_requests"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Production/Stable" src="https://img.shields.io/badge/maturity-Production%2FStable-green.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_studio_change_requests"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
 <p>No-code builder for creating custom change request types without writing
 Python or XML. Allows program staff to configure simple field-based
 change requests with approval workflows through a three-step wizard.
@@ -400,8 +400,8 @@ models and form views automatically</li>
 <h2>Key Models</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="51%" />
+<col width="49%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Model</th>
@@ -409,8 +409,7 @@ models and form views automatically</li>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td>``
-spp.studio.change.request.type``</td>
+<tr><td><tt class="docutils literal">spp.studio.change.request.type</tt></td>
 <td>Studio-created CR type
 definition with lifecycle
 tracking</td>
@@ -458,8 +457,8 @@ to users</li>
 <h2>Security</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="56%" />
+<col width="44%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Group</th>
@@ -467,18 +466,15 @@ to users</li>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td>``
-spp_studio.group_studio_viewer``</td>
+<tr><td><tt class="docutils literal">spp_studio.group_studio_viewer</tt></td>
 <td>Read CR types and mappings</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_stud
-io.group_studio_editor_officer</tt></td>
+<tr><td><tt class="docutils literal">spp_studio.group_studio_editor_officer</tt></td>
 <td>Read/Write/Create on CR types
 and mappings (no delete on CR
 types)</td>
 </tr>
-<tr><td><tt class="docutils literal">s
-pp_studio.group_studio_manager</tt></td>
+<tr><td><tt class="docutils literal">spp_studio.group_studio_manager</tt></td>
 <td>Full CRUD</td>
 </tr>
 </tbody>
@@ -492,10 +488,10 @@ manager) with create disabled to prevent manual record creation.</p>
 <li>Inherit <tt class="docutils literal">spp.studio.change.request.type</tt> and override
 <tt class="docutils literal">_prepare_cr_type_vals()</tt> to customize generated CR type
 configuration</li>
-<li>Override <tt class="docutils literal">_build_detail_form_arch()</tt> to customize the generated
-form view XML structure</li>
-<li>Extend <tt class="docutils literal">spp.studio.cr.field.mapping._prepare_detail_field_vals()</tt>
-to add custom field properties or domain filters</li>
+<li>Override <tt class="docutils literal">_build_detail_form_arch()</tt> to customize the generated form
+view XML structure</li>
+<li>Extend <tt class="docutils literal">spp.studio.cr.field.mapping._prepare_detail_field_vals()</tt> to
+add custom field properties or domain filters</li>
 </ul>
 </div>
 <div class="section" id="dependencies">

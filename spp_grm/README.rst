@@ -14,14 +14,17 @@ OpenSPP - Grievance Redress Mechanism
    !! source digest: sha256:43265e32349a8a3ecd313501c4fcd953c80923fe27bba7dbb7c55d8ebc8e4540
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+    :target: https://odoo-community.org/page/development-status
+    :alt: Production/Stable
+.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
     :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_grm
     :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2|
+|badge1| |badge2| |badge3|
 
 Centralized grievance and complaint management for social protection
 programs. Receives complaints through multiple channels (email, portal,
@@ -32,57 +35,57 @@ group registrants and supports anonymous submissions.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  Multi-channel intake: Email alias integration creates tickets from
-   inbound messages, portal form for beneficiaries, manual entry by
-   officers
--  Stage-based workflow: Define stages with access control restrictions,
-   approval requirements, and decision enforcement before closure
--  SLA tracking: Automatically compute deadlines based on
-   category/subcategory configuration, monitor status (on track, at
-   risk, breached), post notifications on breach
--  Team assignment: Organize handlers into teams with geographic area
-   responsibilities, auto-assign based on category defaults
--  Appeals and escalation: Reference original tickets for appeals, track
-   escalation history and reasons, mark tickets as escalated
--  Hierarchical categorization: Two-level category/subcategory system
-   with inherited defaults for severity, sensitivity, SLA hours, and
-   team assignment
--  Decision tracking: Record final decisions (upheld, partially upheld,
-   rejected, withdrawn, redirected, referred to case) with resolution
-   summaries
--  Anonymous complaints: Optional contact fields for complainants not in
-   the registry
+- Multi-channel intake: Email alias integration creates tickets from
+  inbound messages, portal form for beneficiaries, manual entry by
+  officers
+- Stage-based workflow: Define stages with access control restrictions,
+  approval requirements, and decision enforcement before closure
+- SLA tracking: Automatically compute deadlines based on
+  category/subcategory configuration, monitor status (on track, at risk,
+  breached), post notifications on breach
+- Team assignment: Organize handlers into teams with geographic area
+  responsibilities, auto-assign based on category defaults
+- Appeals and escalation: Reference original tickets for appeals, track
+  escalation history and reasons, mark tickets as escalated
+- Hierarchical categorization: Two-level category/subcategory system
+  with inherited defaults for severity, sensitivity, SLA hours, and team
+  assignment
+- Decision tracking: Record final decisions (upheld, partially upheld,
+  rejected, withdrawn, redirected, referred to case) with resolution
+  summaries
+- Anonymous complaints: Optional contact fields for complainants not in
+  the registry
 
 Key Models
 ~~~~~~~~~~
 
-+--------------------------------+------------------------------------+
-| Model                          | Description                        |
-+================================+====================================+
-| ``spp.grm.ticket``             | Main complaint/grievance with SLA  |
-|                                | tracking and decision fields       |
-+--------------------------------+------------------------------------+
-| ``spp.grm.ticket.stage``       | Workflow stage with access control |
-|                                | and closure configuration          |
-+--------------------------------+------------------------------------+
-| ``spp.grm.ticket.category``    | Primary classification with        |
-|                                | hierarchical structure             |
-+--------------------------------+------------------------------------+
-| ``spp.grm.ticket.subcategory`` | Second-level classification under  |
-|                                | category                           |
-+--------------------------------+------------------------------------+
-| ``spp.grm.team``               | Team of handlers with manager and  |
-|                                | geographic areas                   |
-+--------------------------------+------------------------------------+
-| ``spp.grm.sla.rule``           | Conditional SLA rules with         |
-|                                | escalation targets                 |
-+--------------------------------+------------------------------------+
-| ``spp.grm.ticket.tag``         | Tags for flexible ticket           |
-|                                | classification                     |
-+--------------------------------+------------------------------------+
-| ``spp.grm.ticket.channel``     | Communication channel (email,      |
-|                                | phone, walk-in, portal, etc.)      |
-+--------------------------------+------------------------------------+
++--------------------------------+-------------------------------------+
+| Model                          | Description                         |
++================================+=====================================+
+| ``spp.grm.ticket``             | Main complaint/grievance with SLA   |
+|                                | tracking and decision fields        |
++--------------------------------+-------------------------------------+
+| ``spp.grm.ticket.stage``       | Workflow stage with access control  |
+|                                | and closure configuration           |
++--------------------------------+-------------------------------------+
+| ``spp.grm.ticket.category``    | Primary classification with         |
+|                                | hierarchical structure              |
++--------------------------------+-------------------------------------+
+| ``spp.grm.ticket.subcategory`` | Second-level classification under   |
+|                                | category                            |
++--------------------------------+-------------------------------------+
+| ``spp.grm.team``               | Team of handlers with manager and   |
+|                                | geographic areas                    |
++--------------------------------+-------------------------------------+
+| ``spp.grm.sla.rule``           | Conditional SLA rules with          |
+|                                | escalation targets                  |
++--------------------------------+-------------------------------------+
+| ``spp.grm.ticket.tag``         | Tags for flexible ticket            |
+|                                | classification                      |
++--------------------------------+-------------------------------------+
+| ``spp.grm.ticket.channel``     | Communication channel (email,       |
+|                                | phone, walk-in, portal, etc.)       |
++--------------------------------+-------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -103,13 +106,13 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
--  **Menu**: Helpdesk (top-level menu item)
--  **Tickets**: Helpdesk > Tickets
--  **Configuration**: Helpdesk > Configuration (manager access required)
--  **Portal**: Beneficiaries can view and create tickets at
-   ``/my/tickets``
--  **Registrant Profile**: Stat button shows ticket count and opens
-   related tickets
+- **Menu**: Helpdesk (top-level menu item)
+- **Tickets**: Helpdesk > Tickets
+- **Configuration**: Helpdesk > Configuration (manager access required)
+- **Portal**: Beneficiaries can view and create tickets at
+  ``/my/tickets``
+- **Registrant Profile**: Stat button shows ticket count and opens
+  related tickets
 
 Security
 ~~~~~~~~
@@ -130,15 +133,15 @@ no direct model access entries.
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Override ``_compute_sla_deadline()`` on ``spp.grm.ticket`` to
-   implement custom SLA calculation logic
--  Install ``spp_grm_cel`` to provide ``spp.grm.escalation.rule`` model,
-   which is automatically invoked when SLA status changes to breached
--  Inherit ``spp.grm.ticket`` to add domain-specific fields (extended by
-   ``spp_grm_registry``, ``spp_grm_programs``)
--  Extend ``spp.grm.ticket.stage`` to add workflow state fields
--  Override ``evaluate_ticket()`` on ``spp.grm.sla.rule`` to add custom
-   matching conditions
+- Override ``_compute_sla_deadline()`` on ``spp.grm.ticket`` to
+  implement custom SLA calculation logic
+- Install ``spp_grm_cel`` to provide ``spp.grm.escalation.rule`` model,
+  which is automatically invoked when SLA status changes to breached
+- Inherit ``spp.grm.ticket`` to add domain-specific fields (extended by
+  ``spp_grm_registry``, ``spp_grm_programs``)
+- Extend ``spp.grm.ticket.stage`` to add workflow state fields
+- Override ``evaluate_ticket()`` on ``spp.grm.sla.rule`` to add custom
+  matching conditions
 
 Dependencies
 ~~~~~~~~~~~~

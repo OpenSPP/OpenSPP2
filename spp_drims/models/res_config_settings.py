@@ -42,6 +42,7 @@ class ResConfigSettings(models.TransientModel):
         Returns:
             int: Hours allowed to approve requests of this priority
         """
+        # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
         ICP = self.env["ir.config_parameter"].sudo()
         defaults = {"critical": 4, "high": 8, "routine": 24, "low": 48}
         param_key = f"drims.sla.hours.{priority_code}"
@@ -54,6 +55,7 @@ class ResConfigSettings(models.TransientModel):
         Returns:
             int: Percentage of SLA time at which to show warning (default 75)
         """
+        # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
         ICP = self.env["ir.config_parameter"].sudo()
         return int(ICP.get_param("drims.sla.warning_threshold_pct", 75))
 
@@ -68,6 +70,7 @@ class ResConfigSettings(models.TransientModel):
         Returns:
             bool: True if delivery SLA alerts should be generated
         """
+        # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
         ICP = self.env["ir.config_parameter"].sudo()
         return ICP.get_param("drims.delivery_sla.enabled", "True") == "True"
 
@@ -78,6 +81,7 @@ class ResConfigSettings(models.TransientModel):
         Returns:
             int: Days before deadline (default 2)
         """
+        # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
         ICP = self.env["ir.config_parameter"].sudo()
         return int(ICP.get_param("drims.delivery_sla.warning_days", 2))
 
@@ -88,6 +92,7 @@ class ResConfigSettings(models.TransientModel):
         Returns:
             int: Days overdue (default 3)
         """
+        # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
         ICP = self.env["ir.config_parameter"].sudo()
         return int(ICP.get_param("drims.delivery_sla.critical_days", 3))
 
@@ -98,6 +103,7 @@ class ResConfigSettings(models.TransientModel):
         Returns:
             int: Days overdue (default 7)
         """
+        # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
         ICP = self.env["ir.config_parameter"].sudo()
         return int(ICP.get_param("drims.delivery_sla.escalate_days", 7))
 
@@ -112,6 +118,7 @@ class ResConfigSettings(models.TransientModel):
         Returns:
             float: Threshold as decimal (default 0.50 = 50%)
         """
+        # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
         ICP = self.env["ir.config_parameter"].sudo()
         pct = float(ICP.get_param("drims.alerts.low_stock_threshold_pct", 50))
         return pct / 100.0
@@ -123,6 +130,7 @@ class ResConfigSettings(models.TransientModel):
         Returns:
             int: Days before expiry (default 30)
         """
+        # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
         ICP = self.env["ir.config_parameter"].sudo()
         return int(ICP.get_param("drims.alerts.expiry_warning_days", 30))
 
@@ -133,6 +141,7 @@ class ResConfigSettings(models.TransientModel):
         Returns:
             int: Days before expiry (default 14)
         """
+        # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
         ICP = self.env["ir.config_parameter"].sudo()
         return int(ICP.get_param("drims.alerts.expiry_high_days", 14))
 
@@ -143,6 +152,7 @@ class ResConfigSettings(models.TransientModel):
         Returns:
             int: Days before expiry (default 7)
         """
+        # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
         ICP = self.env["ir.config_parameter"].sudo()
         return int(ICP.get_param("drims.alerts.expiry_critical_days", 7))
 
@@ -153,6 +163,7 @@ class ResConfigSettings(models.TransientModel):
         Returns:
             bool: True if auto-resolve is enabled (default True)
         """
+        # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
         ICP = self.env["ir.config_parameter"].sudo()
         return ICP.get_param("drims.alerts.auto_resolve", "True") == "True"
 
@@ -167,5 +178,6 @@ class ResConfigSettings(models.TransientModel):
         Returns:
             int: Cache TTL in minutes (default 30)
         """
+        # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
         ICP = self.env["ir.config_parameter"].sudo()
         return int(ICP.get_param("drims.performance.kpi_cache_ttl_minutes", 30))

@@ -374,7 +374,7 @@ ul.auto-toc {
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! source digest: sha256:4bc5a26f6fcaebded34ffc239c124f8d348f0141b34d9170a0ecbe507d743f5d
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Alpha" src="https://img.shields.io/badge/maturity-Alpha-red.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_cel_registry_search"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Beta" src="https://img.shields.io/badge/maturity-Beta-yellow.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_cel_registry_search"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
 <p>Advanced search interface for the registry using CEL (Common Expression
 Language) expressions. Provides a dedicated portal where users can write
 CEL queries to filter registrants based on demographics, income,
@@ -419,8 +419,8 @@ menu appears automatically under Registry.</p>
 <h2>Security</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="60%" />
+<col width="40%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Group</th>
@@ -428,12 +428,10 @@ menu appears automatically under Registry.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td><tt class="docutils literal">spp_cel_registr
-y_search.group_cel_search_user</tt></td>
+<tr><td><tt class="docutils literal">spp_cel_registry_search.group_cel_search_user</tt></td>
 <td>Access to Advanced Search portal</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_r
-egistry.group_registry_officer</tt></td>
+<tr><td><tt class="docutils literal">spp_registry.group_registry_officer</tt></td>
 <td>Automatically includes CEL
 Search access</td>
 </tr>
@@ -458,12 +456,6 @@ custom workflows when clicking search results</li>
 <div class="section" id="dependencies">
 <h2>Dependencies</h2>
 <p><tt class="docutils literal">spp_registry</tt>, <tt class="docutils literal">spp_cel_domain</tt>, <tt class="docutils literal">spp_cel_widget</tt></p>
-<div class="admonition important">
-<p class="first admonition-title">Important</p>
-<p class="last">This is an alpha version, the data model and design can change at any time without warning.
-Only for development or testing purpose, do not use in production.
-<a class="reference external" href="https://odoo-community.org/page/development-status">More details on development status</a></p>
-</div>
 <p><strong>Table of contents</strong></p>
 <div class="contents local topic" id="contents">
 <ul class="simple">
@@ -488,6 +480,7 @@ If you spotted it first, help us to smash it by providing a detailed and welcome
 <div class="section" id="authors">
 <h4><a class="toc-backref" href="#toc-entry-3">Authors</a></h4>
 <ul class="simple">
+<li>OpenSPP.org</li>
 <li>OpenSPP Community</li>
 </ul>
 </div>

@@ -289,7 +289,7 @@ class SPPCreateProgramWizardCEL(models.TransientModel):
 
         # Create dedicated compliance manager if CEL compliance is enabled
         if self.enable_compliance_cel and self.compliance_cel_expression:
-            program = self.env["spp.program"].browse(action["res_id"])
+            program = self.env["spp.program"].browse(action["params"]["program_id"])
             self._create_cel_compliance_manager(program)
 
         return action
@@ -316,6 +316,7 @@ class SPPCreateProgramWizardCEL(models.TransientModel):
             )
 
         # Create the compliance manager implementation
+        # nosemgrep: odoo-sudo-without-context
         compliance_impl = self.env["spp.compliance.manager.default"].sudo().create(vals)
 
         # Create the wrapper and link to program
@@ -581,7 +582,7 @@ class SPPCreateProgramWizardCashItemCEL(models.TransientModel):
     condition_template_id = fields.Many2one(
         comodel_name="spp.cel.expression",
         string="Condition",
-        domain="[" "('expression_type', '=', 'filter'), " "('is_template', '=', True), " "('state', '=', 'active')" "]",
+        domain="[('expression_type', '=', 'filter'), ('is_template', '=', True), ('state', '=', 'active')]",
         help="Select a condition to restrict which beneficiaries receive this item. "
         "Leave empty to apply to all eligible beneficiaries.",
     )
@@ -603,7 +604,7 @@ class SPPCreateProgramWizardCashItemCEL(models.TransientModel):
         "('is_template', '=', True), "
         "('state', '=', 'active')"
         "]",
-        help="Select a formula to calculate the amount. " "Leave empty for a fixed amount.",
+        help="Select a formula to calculate the amount. Leave empty for a fixed amount.",
     )
     amount_is_locked = fields.Boolean(
         string="Amount Formula Locked",
@@ -779,7 +780,7 @@ class SPPCreateProgramWizardInKindItemCEL(models.TransientModel):
     condition_template_id = fields.Many2one(
         comodel_name="spp.cel.expression",
         string="Condition",
-        domain="[" "('expression_type', '=', 'filter'), " "('is_template', '=', True), " "('state', '=', 'active')" "]",
+        domain="[('expression_type', '=', 'filter'), ('is_template', '=', True), ('state', '=', 'active')]",
         help="Select a condition to restrict which beneficiaries receive this item. "
         "Leave empty to apply to all eligible beneficiaries.",
     )
@@ -801,7 +802,7 @@ class SPPCreateProgramWizardInKindItemCEL(models.TransientModel):
         "('is_template', '=', True), "
         "('state', '=', 'active')"
         "]",
-        help="Select a formula to calculate the quantity. " "Leave empty for a fixed quantity.",
+        help="Select a formula to calculate the quantity. Leave empty for a fixed quantity.",
     )
     quantity_is_locked = fields.Boolean(
         string="Quantity Formula Locked",

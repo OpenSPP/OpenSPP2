@@ -51,15 +51,17 @@ groups:
     privilege_id: privilege_approval_approver
     implied_ids: [group_approval_viewer]
     comment:
-      "SPECIALIZED ROLE: Can approve or reject records assigned to them. This is a functional role (not part of
-      Viewer/Officer/Manager hierarchy). Inherits Viewer permissions. Assign alongside or instead of Officer based on
-      workflow needs."
+      "SPECIALIZED ROLE: Can approve or reject records assigned to them. This is a
+      functional role (not part of Viewer/Officer/Manager hierarchy). Inherits Viewer
+      permissions. Assign alongside or instead of Officer based on workflow needs."
 
   # --- Backward compatibility ---
   - id: group_approval_admin
     tier: 2
     implied_ids: [group_approval_manager]
-    comment: "Deprecated: Use group_approval_manager instead. This group is kept for backward compatibility."
+    comment:
+      "Deprecated: Use group_approval_manager instead. This group is kept for backward
+      compatibility."
 
 # Admin linkage - manager group links to spp_security.group_spp_admin
 admin_link_group: group_approval_manager
@@ -124,7 +126,9 @@ record_rules:
   - id: rule_spp_approval_review_approver
     model: spp.approval.review
     groups: [group_approval_approver]
-    domain_description: "Approver can see reviews they requested or are assigned to via user list or group membership"
+    domain_description:
+      "Approver can see reviews they requested or are assigned to via user list or group
+      membership"
     perm_read: true
     perm_write: true
     perm_create: false
@@ -144,7 +148,8 @@ record_rules:
   - id: rule_spp_approval_definition_company
     model: spp.approval.definition
     groups: [] # Global rule (applies to all users)
-    domain_description: "Users can access approval definitions without company or matching their companies"
+    domain_description:
+      "Users can access approval definitions without company or matching their companies"
     perm_read: true
     perm_write: true
     perm_create: true
@@ -155,7 +160,8 @@ record_rules:
   - id: rule_spp_approval_freeze_company
     model: spp.approval.freeze
     groups: [] # Global rule (applies to all users)
-    domain_description: "Users can access freeze periods without company or matching their companies"
+    domain_description:
+      "Users can access freeze periods without company or matching their companies"
     perm_read: true
     perm_write: true
     perm_create: true

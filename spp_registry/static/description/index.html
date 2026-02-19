@@ -374,7 +374,7 @@ ul.auto-toc {
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! source digest: sha256:255a30ace58bb1b02d420cda0f03beb85b9741eb9275a911c78bb59eb4231afc
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-<p><a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_registry"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Production/Stable" src="https://img.shields.io/badge/maturity-Production%2FStable-green.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_registry"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
 <p>Foundation registry module for OpenSPP that manages individuals, groups,
 and their relationships. Consolidates base registrant functionality,
 group membership tracking, ID document management, and relationship
@@ -386,23 +386,23 @@ mapping. Extends <tt class="docutils literal">res.partner</tt> to support social
 (gender, birthdate, civil status, occupation)</li>
 <li>Track group membership with configurable roles, start/end dates, and
 automatic status computation</li>
-<li>Store and validate ID documents with regex-based validation and
-expiry tracking</li>
+<li>Store and validate ID documents with regex-based validation and expiry
+tracking</li>
 <li>Define relationships between registrants (individual-to-individual,
 group-to-group, individual-to-group)</li>
 <li>Manage multiple phone numbers per registrant with validation and
 sanitization</li>
 <li>Tag registrants using vocabulary-based classification</li>
-<li>Disable registrants and relationships with audit trail (disabled
-date, disabled by, reason)</li>
+<li>Disable registrants and relationships with audit trail (disabled date,
+disabled by, reason)</li>
 </ul>
 </div>
 <div class="section" id="key-models">
 <h2>Key Models</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="46%" />
-<col width="54%" />
+<col width="45%" />
+<col width="55%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Model</th>
@@ -419,8 +419,7 @@ date, disabled by, reason)</li>
 roles and dates</td>
 </tr>
 <tr><td><tt class="docutils literal">spp.registry.id</tt></td>
-<td>ID documents attached to
-registrants</td>
+<td>ID documents attached to registrants</td>
 </tr>
 <tr><td><tt class="docutils literal">spp.id.type</tt></td>
 <td>ID type definitions with validation
@@ -455,8 +454,7 @@ vocabularies</li>
 <ul class="simple">
 <li><strong>Menu</strong>: Registry (top-level menu)</li>
 <li><strong>Configuration</strong>: Registry &gt; Configuration</li>
-<li><strong>Form tabs</strong> (Individuals): Profile, Identity, Participation,
-History</li>
+<li><strong>Form tabs</strong> (Individuals): Profile, Identity, Participation, History</li>
 <li><strong>Form tabs</strong> (Groups): Profile, Identity, Participation, History</li>
 <li><strong>Relationships</strong>: Accessible from registrant forms under the
 “Identity” tab</li>
@@ -472,8 +470,8 @@ modules (e.g., <tt class="docutils literal">spp_base_demo</tt>).</p>
 <h2>Security</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="54%" />
-<col width="46%" />
+<col width="60%" />
+<col width="40%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Group</th>
@@ -481,20 +479,16 @@ modules (e.g., <tt class="docutils literal">spp_base_demo</tt>).</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td><tt class="docutils literal">s
-pp_registry.group_registry_viewer</tt></td>
+<tr><td><tt class="docutils literal">spp_registry.group_registry_viewer</tt></td>
 <td>Read-only</td>
 </tr>
-<tr><td><tt class="docutils literal">sp
-p_registry.group_registry_officer</tt></td>
+<tr><td><tt class="docutils literal">spp_registry.group_registry_officer</tt></td>
 <td>Read/Write/Create (no delete)</td>
 </tr>
-<tr><td><tt class="docutils literal">sp
-p_registry.group_registry_manager</tt></td>
+<tr><td><tt class="docutils literal">spp_registry.group_registry_manager</tt></td>
 <td>Full CRUD</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_reg
-istry.group_registry_config_admin</tt></td>
+<tr><td><tt class="docutils literal">spp_registry.group_registry_config_admin</tt></td>
 <td>Configuration menu access</td>
 </tr>
 </tbody>
@@ -503,13 +497,12 @@ istry.group_registry_config_admin</tt></td>
 <div class="section" id="extension-points">
 <h2>Extension Points</h2>
 <ul class="simple">
-<li>Inherit <tt class="docutils literal">res.partner</tt> to add custom fields for individuals or
-groups</li>
+<li>Inherit <tt class="docutils literal">res.partner</tt> to add custom fields for individuals or groups</li>
 <li>Override <tt class="docutils literal">_compute_calc_age()</tt> to customize age computation logic</li>
 <li>Inherit <tt class="docutils literal">spp.group.membership</tt> to add domain-specific membership
 fields</li>
-<li>Override <tt class="docutils literal">count_individuals()</tt> on <tt class="docutils literal">res.partner</tt> to customize
-group member counting with complex filters</li>
+<li>Override <tt class="docutils literal">count_individuals()</tt> on <tt class="docutils literal">res.partner</tt> to customize group
+member counting with complex filters</li>
 <li>Use <tt class="docutils literal">invalidate_group_metrics()</tt> to trigger metric recalculation
 when group composition changes</li>
 </ul>

@@ -14,14 +14,17 @@ OpenSPP API V2 - Service Points
    !! source digest: sha256:e05d839a16fd63671899c485a29175af186ddf10b6c324151a6c5e50f7b9cd2e
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+    :target: https://odoo-community.org/page/development-status
+    :alt: Production/Stable
+.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
     :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_api_v2_service_points
     :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2|
+|badge1| |badge2| |badge3|
 
 REST API extension that exposes Service Point resources through OpenSPP
 API V2. Enables external systems to search and retrieve service point
@@ -31,30 +34,30 @@ external identifiers to avoid exposing database IDs.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  Search service points by name, area, country, contract status, and
-   last updated date
--  Read individual service points by identifier (name)
--  Paginate search results with configurable page size (1-100 records)
--  Filter service points by contract active status and geographic
-   criteria
--  Return metadata including version IDs and last updated timestamps for
-   optimistic locking
--  Enforce OAuth 2.0 authentication and scope-based authorization
+- Search service points by name, area, country, contract status, and
+  last updated date
+- Read individual service points by identifier (name)
+- Paginate search results with configurable page size (1-100 records)
+- Filter service points by contract active status and geographic
+  criteria
+- Return metadata including version IDs and last updated timestamps for
+  optimistic locking
+- Enforce OAuth 2.0 authentication and scope-based authorization
 
 Extended Models
 ~~~~~~~~~~~~~~~
 
 This module extends existing models from dependencies:
 
-+--------------------------+------------------------------------------+
-| Model                    | Description                              |
-+==========================+==========================================+
-| ``spp.api.client.scope`` | Extended to add "service_point" resource |
-|                          | type for OAuth scopes                    |
-+--------------------------+------------------------------------------+
-| ``fastapi.endpoint``     | Extended to register Service Point       |
-|                          | router in API V2 app                     |
-+--------------------------+------------------------------------------+
++--------------------------+-------------------------------------------+
+| Model                    | Description                               |
++==========================+===========================================+
+| ``spp.api.client.scope`` | Extended to add "service_point" resource  |
+|                          | type for OAuth scopes                     |
++--------------------------+-------------------------------------------+
+| ``fastapi.endpoint``     | Extended to register Service Point router |
+|                          | in API V2 app                             |
++--------------------------+-------------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -72,10 +75,10 @@ base module:
 API Endpoints
 ~~~~~~~~~~~~~
 
--  ``GET /api/v2/spp/ServicePoint/{identifier}`` - Read service point by
-   identifier (URL-encoded name)
--  ``GET /api/v2/spp/ServicePoint?name=&area=&country=&contractActive=&_lastUpdated=&_count=&_offset=``
-   - Search service points
+- ``GET /api/v2/spp/ServicePoint/{identifier}`` - Read service point by
+  identifier (URL-encoded name)
+- ``GET /api/v2/spp/ServicePoint?name=&area=&country=&contractActive=&_lastUpdated=&_count=&_offset=``
+  - Search service points
 
 Security
 ~~~~~~~~
@@ -88,12 +91,12 @@ client with appropriate scope. No model-level access rules defined
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Inherit ``ServicePointService.to_api_schema()`` to add custom fields
-   to API response
--  Override ``ServicePointService.search()`` to customize search domain
-   logic
--  Extend ``ServicePoint`` schema to add module-specific fields in
-   ``extension`` attribute
+- Inherit ``ServicePointService.to_api_schema()`` to add custom fields
+  to API response
+- Override ``ServicePointService.search()`` to customize search domain
+  logic
+- Extend ``ServicePoint`` schema to add module-specific fields in
+  ``extension`` attribute
 
 Dependencies
 ~~~~~~~~~~~~

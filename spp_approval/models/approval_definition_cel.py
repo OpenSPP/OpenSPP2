@@ -156,7 +156,7 @@ The expression should return:
             except Exception as e:
                 # FIX: Log the error with context for debugging
                 _logger.error(
-                    "CEL condition evaluation failed for definition '%s' (ID: %s) " "on record %s (ID: %s): %s",
+                    "CEL condition evaluation failed for definition '%s' (ID: %s) on record %s (ID: %s): %s",
                     self.name,
                     self.id,
                     record._name,

@@ -87,7 +87,7 @@ class CRVSSenderRegistry(models.Model):
         for record in self:
             if record.sender_id and not all(c.isalnum() or c in ".-_" for c in record.sender_id):
                 raise ValidationError(
-                    _("Sender ID must contain only alphanumeric characters, " "dots, hyphens, and underscores.")
+                    _("Sender ID must contain only alphanumeric characters, dots, hyphens, and underscores.")
                 )
 
     @api.constrains("jwks_url")
@@ -165,7 +165,7 @@ class CRVSSenderRegistry(models.Model):
 
             if not matching_key:
                 raise UserError(
-                    _("No matching key found in JWKS for CRVS sender %s. " "Expected kid to start with '%s|'")
+                    _("No matching key found in JWKS for CRVS sender %s. Expected kid to start with '%s|'")
                     % (self.sender_id, self.sender_id)
                 )
 
@@ -198,7 +198,9 @@ class CRVSSenderRegistry(models.Model):
                 self.jwks_url,
                 str(e),
             )
-            raise UserError(_("Failed to fetch JWKS from %s: %s") % (self.jwks_url, str(e))) from e
+            raise UserError(
+                _("Failed to fetch JWKS from %(url)s: %(error)s") % {"url": self.jwks_url, "error": str(e)}
+            ) from e
 
     def _jwk_to_pem(self, jwk):
         """Convert JWK (JSON Web Key) to PEM format.
@@ -270,7 +272,10 @@ class CRVSSenderRegistry(models.Model):
                 return pem.decode("utf-8")
 
             else:
-                raise UserError(_("Unsupported JWK key type: %s (curve: %s)") % (kty, jwk.get("crv", "N/A")))
+                raise UserError(
+                    _("Unsupported JWK key type: %(type)s (curve: %(curve)s)")
+                    % {"type": kty, "curve": jwk.get("crv", "N/A")}
+                )
 
         except Exception as e:
             _logger.error("Failed to convert JWK to PEM: %s", str(e), exc_info=True)
@@ -289,7 +294,7 @@ class CRVSSenderRegistry(models.Model):
 
         if not self.public_key:
             raise UserError(
-                _("No public key available for CRVS sender %s. " "Please fetch the public key first.") % self.sender_id
+                _("No public key available for CRVS sender %s. Please fetch the public key first.") % self.sender_id
             )
 
         if not self.algorithm:
@@ -301,7 +306,7 @@ class CRVSSenderRegistry(models.Model):
         except ImportError as e:
             _logger.error("Failed to import DCIVerifier from spp_dci module")
             raise UserError(
-                _("DCI verification service not available. " "Please ensure spp_dci module is installed.")
+                _("DCI verification service not available. Please ensure spp_dci module is installed.")
             ) from e
 
         return DCIVerifier(

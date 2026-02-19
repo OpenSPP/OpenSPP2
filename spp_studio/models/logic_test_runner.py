@@ -336,7 +336,7 @@ class LogicTestRunner(models.Model):
 
         # CEL service is required for evaluation
         error_msg = (
-            "CEL service (spp.cel.service) is not available. " "Please install and configure the spp_cel_domain module."
+            "CEL service (spp.cel.service) is not available. Please install and configure the spp_cel_domain module."
         )
         _logger.error(error_msg)
         steps.append(

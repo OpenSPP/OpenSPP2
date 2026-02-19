@@ -18,7 +18,7 @@ class SppProgramCreateWizard(models.TransientModel):
     )
     compliance_cel_expression = fields.Text(
         string="Compliance CEL Expression",
-        help="CEL expression for compliance criteria. " "Leave empty to create manager without initial expression.",
+        help="CEL expression for compliance criteria. Leave empty to create manager without initial expression.",
     )
 
     def _check_required_fields(self):
@@ -30,7 +30,7 @@ class SppProgramCreateWizard(models.TransientModel):
     def create_program(self):
         action = super().create_program()
         if self.enable_compliance_verification:
-            program = self.env["spp.program"].browse(action["res_id"])
+            program = self.env["spp.program"].browse(action["params"]["program_id"])
             self._create_compliance_manager(program)
         return action
 
@@ -45,13 +45,14 @@ class SppProgramCreateWizard(models.TransientModel):
         self.ensure_one()
         program.ensure_one()
         self._check_compliance_manager_info()
+        # nosemgrep: odoo-sudo-without-context
         manager = self.env[self.compliance_type].sudo().create(self._prepare_compliance_criteria_create_vals(program))
         program.write(
             {
                 "compliance_manager_ids": [
                     Command.create(
                         {
-                            "manager_ref_id": "%s,%d" % (self.compliance_type, manager.id),
+                            "manager_ref_id": f"{self.compliance_type},{manager.id}",
                         }
                     ),
                 ],

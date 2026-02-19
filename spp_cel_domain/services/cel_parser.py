@@ -442,8 +442,8 @@ class Parser:
                             if (
                                 self.cur().kind == "IDENT"
                                 and self.i + 1 < len(self.tokens)
-                                and self.tokens[self.i + 1].kind
-                                == "="  # nosemgrep: odoo-timing-attack-password - Token kind comparison in parser, not a secret value.
+                                and self.tokens[self.i + 1].kind == "="  # nosemgrep: odoo-timing-attack-password
+                                # Token kind comparison in parser, not a secret value.
                             ):
                                 # Parse as keyword argument
                                 param_name = self.eat("IDENT").value

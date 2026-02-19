@@ -374,7 +374,7 @@ ul.auto-toc {
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! source digest: sha256:422d6d6dbaba23ffface3af336834c37ae4f39a3bc4657377b1674f6f8017e32
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Alpha" src="https://img.shields.io/badge/maturity-Alpha-red.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_drims"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Beta" src="https://img.shields.io/badge/maturity-Beta-yellow.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_drims"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
 <p>Disaster relief inventory management for emergency response operations.
 Tracks donations from multiple sources, processes supply requests with
 multi-tier approval workflows, manages warehouse stock, and monitors
@@ -388,10 +388,10 @@ breaches.</p>
 inspected, stocked) and inspection workflow</li>
 <li>Submit supply requests for affected areas with approval workflow, SLA
 tracking, and priority handling</li>
-<li>Allocate stock using FIFO/FEFO logic and create dispatch pickings
-with beneficiary area tracking</li>
-<li>Track returned items with condition assessment and disposition
-routing (restock, repair, dispose)</li>
+<li>Allocate stock using FIFO/FEFO logic and create dispatch pickings with
+beneficiary area tracking</li>
+<li>Track returned items with condition assessment and disposition routing
+(restock, repair, dispose)</li>
 <li>Generate alerts automatically for low stock thresholds, expiring
 inventory, and overdue requests</li>
 <li>Create request templates for rapid response to recurring emergency
@@ -490,16 +490,15 @@ approvals)</li>
 <li><strong>Returns</strong>: DRIMS &gt; Receive Supplies &gt; Returns</li>
 <li><strong>Alerts</strong>: DRIMS &gt; Monitoring &gt; Alerts</li>
 <li><strong>Personnel</strong>: DRIMS &gt; Monitoring &gt; Personnel</li>
-<li><strong>Inventory</strong>: DRIMS &gt; Inventory &gt; Stock On Hand, Warehouses,
-Products</li>
+<li><strong>Inventory</strong>: DRIMS &gt; Inventory &gt; Stock On Hand, Warehouses, Products</li>
 </ul>
 </div>
 <div class="section" id="security">
 <h2>Security</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="60%" />
+<col width="40%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Group</th>
@@ -511,33 +510,27 @@ Products</li>
 <td>Read-only access to donations,
 requests, dispatches</td>
 </tr>
-<tr><td>`
-<cite>spp_drims.group_drims_officer`</cite></td>
+<tr><td><tt class="docutils literal">spp_drims.group_drims_officer</tt></td>
 <td>Create and edit donations,
 requests, returns (no delete)</td>
 </tr>
-<tr><td>``
-spp_drims.group_drims_approver``</td>
+<tr><td><tt class="docutils literal">spp_drims.group_drims_approver</tt></td>
 <td>Approve or reject supply
 requests</td>
 </tr>
-<tr><td>`
-<cite>spp_drims.group_drims_manager`</cite></td>
+<tr><td><tt class="docutils literal">spp_drims.group_drims_manager</tt></td>
 <td>Full CRUD including deletion and
 configuration</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_drim
-s.group_drims_warehouse_worker</tt></td>
+<tr><td><tt class="docutils literal">spp_drims.group_drims_warehouse_worker</tt></td>
 <td>Receive donations, manage stock,
 process dispatches</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_d
-rims.group_drims_field_officer</tt></td>
+<tr><td><tt class="docutils literal">spp_drims.group_drims_field_officer</tt></td>
 <td>Create requests and confirm
 deliveries in the field</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_drims.grou
-p_drims_coordinator_supervisor</tt></td>
+<tr><td><tt class="docutils literal">spp_drims.group_drims_coordinator_supervisor</tt></td>
 <td>Coordinate requests and
 distributions within assigned
 areas</td>
@@ -566,12 +559,6 @@ hooks to add custom approval actions</li>
 <tt class="docutils literal">spp_vocabulary</tt>, <tt class="docutils literal">spp_area</tt>, <tt class="docutils literal">spp_hazard</tt>, <tt class="docutils literal">spp_gis</tt>,
 <tt class="docutils literal">spp_gis_report</tt>, <tt class="docutils literal">spp_service_points</tt>, <tt class="docutils literal">spp_approval</tt>,
 <tt class="docutils literal">spp_cel_domain</tt>, <tt class="docutils literal">spp_audit</tt>, <tt class="docutils literal">queue_job</tt></p>
-<div class="admonition important">
-<p class="first admonition-title">Important</p>
-<p class="last">This is an alpha version, the data model and design can change at any time without warning.
-Only for development or testing purpose, do not use in production.
-<a class="reference external" href="https://odoo-community.org/page/development-status">More details on development status</a></p>
-</div>
 <p><strong>Table of contents</strong></p>
 <div class="contents local topic" id="contents">
 <ul class="simple">

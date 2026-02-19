@@ -14,14 +14,17 @@ OpenSPP Service Points Management
    !! source digest: sha256:6d7145d3ce628ddba175acb33e57748a2c94533d58318982127118d2364b3faa
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+    :target: https://odoo-community.org/page/development-status
+    :alt: Production/Stable
+.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
     :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_service_points
     :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2|
+|badge1| |badge2| |badge3|
 
 Manages physical or virtual service delivery locations (agents, offices,
 or distribution centers) that interact with registrants. Service points
@@ -32,40 +35,42 @@ disabled with reason tracking.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  Create service points with contact information including phone
-   validation and address
--  Link service points to companies and automatically track company
-   contacts as individuals
--  Assign service points to hierarchical geographic areas via
-   ``spp.area``
--  Classify service points using vocabulary codes in the
-   ``urn:openspp:vocab:service-types`` namespace
--  Enable and disable service points with date stamping and reason
-   tracking
--  Create user accounts for service point contacts with security group
-   assignment
--  Track contract status and operational state of each service point
+- Create service points with contact information including phone
+  validation and address
+- Link service points to companies and automatically track company
+  contacts as individuals
+- Assign service points to hierarchical geographic areas via
+  ``spp.area``
+- Classify service points using vocabulary codes in the
+  ``urn:openspp:vocab:service-types`` namespace
+- Enable and disable service points with date stamping and reason
+  tracking
+- Create user accounts for service point contacts with security group
+  assignment
+- Track contract status and operational state of each service point
 
 Key Models
 ~~~~~~~~~~
 
-+-----------------------+---------------------------------------------+
-| Model                 | Description                                 |
-+=======================+=============================================+
-| ``spp.service.point`` | Service delivery location with area         |
-|                       | assignment and type classification          |
-+-----------------------+---------------------------------------------+
++-----------------------+----------------------------------------------+
+| Model                 | Description                                  |
++=======================+==============================================+
+| ``spp.service.point`` | Service delivery location with area          |
+|                       | assignment and type classification           |
++-----------------------+----------------------------------------------+
 
 Extends
 ~~~~~~~
 
-+-----------------+-----------------------------------------------------------+
-| Model           | Fields Added                                              |
-+=================+===========================================================+
-| ``res.partner`` | ``service_point_ids``, ``individual_service_points_ids``  |
-+-----------------+-----------------------------------------------------------+
-| ``res.users``   | ``service_point_ids`` (related to partner service points) |
-+-----------------+-----------------------------------------------------------+
++-----------------+----------------------------------------------------+
+| Model           | Fields Added                                       |
++=================+====================================================+
+| ``res.partner`` | ``service_point_ids``,                             |
+|                 | ``individual_service_points_ids``                  |
++-----------------+----------------------------------------------------+
+| ``res.users``   | ``service_point_ids`` (related to partner service  |
+|                 | points)                                            |
++-----------------+----------------------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -79,9 +84,9 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
--  **Menu**: Service Point > Service Points
--  **Registrant Tab**: Accessible from registrant forms under the
-   "Service Points" tab
+- **Menu**: Service Point > Service Points
+- **Registrant Tab**: Accessible from registrant forms under the
+  "Service Points" tab
 
 Security
 ~~~~~~~~
@@ -101,12 +106,12 @@ Group                                 Access
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Inherit ``spp.service.point`` to add domain-specific fields or custom
-   validation
--  Override ``_compute_phone_sanitized()`` to customize phone formatting
-   logic
--  Extend service point forms via XPath to add tabs for country-specific
-   requirements
+- Inherit ``spp.service.point`` to add domain-specific fields or custom
+  validation
+- Override ``_compute_phone_sanitized()`` to customize phone formatting
+  logic
+- Extend service point forms via XPath to add tabs for country-specific
+  requirements
 
 Dependencies
 ~~~~~~~~~~~~

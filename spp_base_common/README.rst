@@ -14,14 +14,17 @@ OpenSPP Base (Common)
    !! source digest: sha256:9f556672f0563cfd8cc4e06263bc05fc5116a207a2958f6bb25a8fadfea1d370
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+    :target: https://odoo-community.org/page/development-status
+    :alt: Production/Stable
+.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
     :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_base_common
     :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2|
+|badge1| |badge2| |badge3|
 
 Foundation module that aggregates OpenSPP core dependencies and provides
 phone number validation, menu icon customization, and base user role
@@ -32,32 +35,31 @@ validation rules and UI theming across the platform.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  Define configurable phone validation rules with digit count and
-   prefix requirements
--  Automatically validate phone numbers on create/write against active
-   validation rules
--  Customize menu icons for Registry, Apps, Settings, and standard Odoo
-   modules
--  Configure global and local registrar user roles with implied
-   permissions
--  Auto-populate partner phone field from structured phone number
-   records
+- Define configurable phone validation rules with digit count and prefix
+  requirements
+- Automatically validate phone numbers on create/write against active
+  validation rules
+- Customize menu icons for Registry, Apps, Settings, and standard Odoo
+  modules
+- Configure global and local registrar user roles with implied
+  permissions
+- Auto-populate partner phone field from structured phone number records
 
 Key Models
 ~~~~~~~~~~
 
-+--------------------------+------------------------------------------+
-| Model                    | Description                              |
-+==========================+==========================================+
-| ``spp.phone.validation`` | Configurable phone validation rule       |
-|                          | (prefix, digits)                         |
-+--------------------------+------------------------------------------+
++--------------------------+-------------------------------------------+
+| Model                    | Description                               |
++==========================+===========================================+
+| ``spp.phone.validation`` | Configurable phone validation rule        |
+|                          | (prefix, digits)                          |
++--------------------------+-------------------------------------------+
 
 **Extensions:**
 
--  ``spp.phone.number`` - Adds automatic validation on save
--  ``res.partner`` - Adds phone auto-population from phone_number_ids
--  ``ir.module.module`` - Adds menu icon update on module install
+- ``spp.phone.number`` - Adds automatic validation on save
+- ``res.partner`` - Adds phone auto-population from phone_number_ids
+- ``ir.module.module`` - Adds menu icon update on module install
 
 Configuration
 ~~~~~~~~~~~~~
@@ -77,10 +79,10 @@ UI Location
 **No standalone menu.** Phone validation configuration is accessible
 through:
 
--  Technical views (debug mode) via Settings > Technical > Database
-   Structure > Models
--  Registry main menu gets custom OpenSPP icon
--  Apps and Settings menus get custom OpenSPP icons
+- Technical views (debug mode) via Settings > Technical > Database
+  Structure > Models
+- Registry main menu gets custom OpenSPP icon
+- Apps and Settings menus get custom OpenSPP icons
 
 Security
 ~~~~~~~~
@@ -101,12 +103,12 @@ Additional access rules grant registry groups appropriate permissions on
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Override ``_onchange_phone_validation()`` in ``spp.phone.number`` to
-   customize validation logic
--  Extend ``ICON_MAP`` in ``ir.module.module`` to add menu icons for
-   additional modules
--  Inherit global/local role definitions in ``data/global_roles.xml``
-   and ``data/local_roles.xml``
+- Override ``_onchange_phone_validation()`` in ``spp.phone.number`` to
+  customize validation logic
+- Extend ``ICON_MAP`` in ``ir.module.module`` to add menu icons for
+  additional modules
+- Inherit global/local role definitions in ``data/global_roles.xml`` and
+  ``data/local_roles.xml``
 
 Dependencies
 ~~~~~~~~~~~~

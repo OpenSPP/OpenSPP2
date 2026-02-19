@@ -37,11 +37,14 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         <field name="arch" type="xml">
             <form string="Cycle Membership" create="0" edit="0">
                 <header>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,enrolled,paused,exited" />
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="draft,enrolled,paused,exited"
+                    />
                 </header>
                 <sheet>
-                    <div class="oe_button_box" name="button_box">
-                    </div>
+                    <div class="oe_button_box" name="button_box" />
                     <widget
                         name="web_ribbon"
                         title="DRAFT"
@@ -96,19 +99,43 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                 <separator />
                 <filter name="filter_enrollment_date" date="enrollment_date" />
                 <separator />
-                <filter name="draft_state" string="Draft" domain="[('state','=','draft')]" />
-                <filter name="enrolled_state" string="Enrolled" domain="[('state','=','enrolled')]" />
-                <filter name="paused_state" string="Paused" domain="[('state','=','paused')]" />
-                <filter name="exited_state" string="Exited" domain="[('state','=','exited')]" />
-                <filter name="not_eligible" string="Not Eligible" domain="[('state','=','not_eligible')]" />
+                <filter
+                    name="draft_state"
+                    string="Draft"
+                    domain="[('state','=','draft')]"
+                />
+                <filter
+                    name="enrolled_state"
+                    string="Enrolled"
+                    domain="[('state','=','enrolled')]"
+                />
+                <filter
+                    name="paused_state"
+                    string="Paused"
+                    domain="[('state','=','paused')]"
+                />
+                <filter
+                    name="exited_state"
+                    string="Exited"
+                    domain="[('state','=','exited')]"
+                />
+                <filter
+                    name="not_eligible"
+                    string="Not Eligible"
+                    domain="[('state','=','not_eligible')]"
+                />
                 <separator />
-                    <filter
+                <filter
                     string="Enrollment Date"
                     name="enrollment_date"
                     context="{'group_by':'enrollment_date'}"
                 />
-                    <separator orientation="vertical" />
-                    <filter string="State" name="grp_state" context="{'group_by': 'state'}" />
+                <separator orientation="vertical" />
+                <filter
+                    string="State"
+                    name="grp_state"
+                    context="{'group_by': 'state'}"
+                />
                 <!-- <searchpanel>
                     <field name="group" icon="fa-users"/>
                 </searchpanel> -->
@@ -128,7 +155,8 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Add a new cycle membership!
-            </p><p>
+            </p>
+            <p>
                 Click the create button to enter the new cycle membership information.
             </p>
         </field>
@@ -156,5 +184,4 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         sequence="40"
         groups="spp_security.group_spp_admin"
     /> -->
-
 </odoo>

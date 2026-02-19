@@ -112,7 +112,7 @@ class FastApiAppPool:
         cache_sequences = env.registry.cache_sequences
         for key, value in cache_sequences.items():
             if value != self.get_cache_sequence(key) and self.get_cache_sequence(key) != 0:
-                _logger.info("Cache registry updated, reset fastapi_app pool for the current " "database")
+                _logger.info("Cache registry updated, reset fastapi_app pool for the current database")
                 self.invalidate(env)
             self.set_cache_sequence(key, value)
 

@@ -12,7 +12,7 @@
         "spp_change_request_v2",
     ],
     "data": [
-        # Security for detail models (models are defined in spp_change_request_v2)
+        "security/ir.model.access.csv",
         # CR type data definitions with editability flags
         # Note: Detail models, views, and strategies are provided by spp_change_request_v2
         "data/cr_types.xml",

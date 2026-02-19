@@ -374,7 +374,7 @@ ul.auto-toc {
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! source digest: sha256:6d7145d3ce628ddba175acb33e57748a2c94533d58318982127118d2364b3faa
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-<p><a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_service_points"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Production/Stable" src="https://img.shields.io/badge/maturity-Production%2FStable-green.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_service_points"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
 <p>Manages physical or virtual service delivery locations (agents, offices,
 or distribution centers) that interact with registrants. Service points
 can be linked to companies, assigned to geographic areas, classified by
@@ -402,8 +402,8 @@ assignment</li>
 <h2>Key Models</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="34%" />
-<col width="66%" />
+<col width="33%" />
+<col width="67%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Model</th>
@@ -422,8 +422,8 @@ assignment and type classification</td>
 <h2>Extends</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="22%" />
-<col width="78%" />
+<col width="25%" />
+<col width="75%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Model</th>
@@ -432,10 +432,12 @@ assignment and type classification</td>
 </thead>
 <tbody valign="top">
 <tr><td><tt class="docutils literal">res.partner</tt></td>
-<td><tt class="docutils literal">service_point_ids</tt>, <tt class="docutils literal">individual_service_points_ids</tt></td>
+<td><tt class="docutils literal">service_point_ids</tt>,
+<tt class="docutils literal">individual_service_points_ids</tt></td>
 </tr>
 <tr><td><tt class="docutils literal">res.users</tt></td>
-<td><tt class="docutils literal">service_point_ids</tt> (related to partner service points)</td>
+<td><tt class="docutils literal">service_point_ids</tt> (related to partner service
+points)</td>
 </tr>
 </tbody>
 </table>

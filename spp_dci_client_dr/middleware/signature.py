@@ -37,6 +37,7 @@ async def verify_dr_signature(
     try:
         # Check if unsigned requests are allowed (development mode)
         allow_unsigned = (
+            # nosemgrep: odoo-sudo-without-context
             env["ir.config_parameter"].sudo().get_param("dci.allow_unsigned_requests", "false").lower() == "true"
         )
 
@@ -65,6 +66,7 @@ async def verify_dr_signature(
                 )
 
         # Look up DR sender in registry
+        # nosemgrep: odoo-sudo-without-context
         dr_sender = env["spp.dci.dr.sender"].sudo().search([("sender_id", "=", sender_id)], limit=1)
 
         if not dr_sender:

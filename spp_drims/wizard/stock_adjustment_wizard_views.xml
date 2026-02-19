@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Stock Adjustment Wizard Form View -->
     <record id="spp_drims_stock_adjustment_wizard_form" model="ir.ui.view">
@@ -8,31 +8,36 @@
             <form string="DRIMS Stock Adjustment">
                 <group>
                     <group>
-                        <field name="incident_id" options="{'no_create': True}"/>
-                        <field name="warehouse_id" options="{'no_create': True}"/>
-                        <field name="reason"/>
+                        <field name="incident_id" options="{'no_create': True}" />
+                        <field name="warehouse_id" options="{'no_create': True}" />
+                        <field name="reason" />
                     </group>
                     <group>
-                        <field name="authorized_by_id" readonly="1"/>
-                        <field name="notes" placeholder="Additional notes about this adjustment..."/>
+                        <field name="authorized_by_id" readonly="1" />
+                        <field
+                            name="notes"
+                            placeholder="Additional notes about this adjustment..."
+                        />
                     </group>
                 </group>
-                <separator string="Products to Adjust"/>
+                <separator string="Products to Adjust" />
                 <field name="line_ids">
                     <list editable="bottom">
-                        <field name="product_id" options="{'no_create': True}"/>
-                        <field name="current_qty" readonly="1"/>
-                        <field name="adjustment_qty"/>
-                        <field name="new_qty" readonly="1"/>
-                        <field name="uom_id" readonly="1"/>
+                        <field name="product_id" options="{'no_create': True}" />
+                        <field name="current_qty" readonly="1" />
+                        <field name="adjustment_qty" />
+                        <field name="new_qty" readonly="1" />
+                        <field name="uom_id" readonly="1" />
                     </list>
                 </field>
                 <footer>
-                    <button name="action_apply_adjustment"
-                            string="Apply Adjustment"
-                            type="object"
-                            class="btn-primary"/>
-                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    <button
+                        name="action_apply_adjustment"
+                        string="Apply Adjustment"
+                        type="object"
+                        class="btn-primary"
+                    />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
                 </footer>
             </form>
         </field>

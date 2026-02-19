@@ -11,10 +11,10 @@ extend-select = [
     "UP",  # pyupgrade
 ]
 extend-safe-fixes = ["UP008"]
-exclude = ["setup/*"]
+exclude = ["setup/*", "fastapi/*", "base_user_role/*", "endpoint_route_handler/*", "extendable/*", "extendable_fastapi/*", "openspp-vocabularies/*", "openspp/*", "theme_openspp_muk/*", "queue_job/*"]
 
 [format]
-exclude = ["setup/*"]
+exclude = ["setup/*", "fastapi/*", "base_user_role/*", "endpoint_route_handler/*", "extendable/*", "extendable_fastapi/*", "openspp-vocabularies/*", "openspp/*", "theme_openspp_muk/*", "queue_job/*"]
 
 [lint.per-file-ignores]
 "__init__.py" = ["F401", "I001"]  # ignore unused and unsorted imports in __init__.py

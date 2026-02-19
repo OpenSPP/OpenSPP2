@@ -374,7 +374,7 @@ ul.auto-toc {
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! source digest: sha256:738a2c8889fddf1212498d6bdf523da2c3235cdf2efc94034c395330a95dd59e
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-<p><a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_cr_types_base"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Production/Stable" src="https://img.shields.io/badge/maturity-Production%2FStable-green.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_cr_types_base"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
 <p>Defines three foundational change request types for updating registrant
 information. Provides data configurations for editing individual
 profiles, group profiles, and managing identification documents. All
@@ -402,8 +402,8 @@ cloneable in Studio for implementation-specific requirements</li>
 <h2>Key Models</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="52%" />
+<col width="48%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Model</th>
@@ -411,8 +411,7 @@ cloneable in Studio for implementation-specific requirements</li>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td>`
-<cite>spp.cr.detail.edit_individual`</cite></td>
+<tr><td><tt class="docutils literal">spp.cr.detail.edit_individual</tt></td>
 <td>Detail form for individual
 information changes</td>
 </tr>
@@ -428,8 +427,7 @@ operations</td>
 <td>CR type configurations (defined
 in parent)</td>
 </tr>
-<tr><td><tt class="docutils literal">s
-pp.change.request.type.mapping</tt></td>
+<tr><td><tt class="docutils literal">spp.change.request.type.mapping</tt></td>
 <td>Field mappings for field_mapping
 strategy</td>
 </tr>
@@ -452,8 +450,8 @@ editing the Mappings tab</li>
 <div class="section" id="ui-location">
 <h2>UI Location</h2>
 <ul class="simple">
-<li><strong>CR Type Selection</strong>: Types appear in the creation wizard at
-<strong>Change Requests &gt; New Request</strong></li>
+<li><strong>CR Type Selection</strong>: Types appear in the creation wizard at <strong>Change
+Requests &gt; New Request</strong></li>
 <li><strong>Configuration</strong>: Change Requests &gt; Configuration &gt; Change Request
 Types</li>
 <li><strong>Detail Forms</strong>: Accessed when creating or editing a change request
@@ -464,8 +462,8 @@ of the corresponding type</li>
 <h2>Security</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="56%" />
+<col width="44%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Group</th>
@@ -473,13 +471,11 @@ of the corresponding type</li>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td><tt class="docutils literal">spp_c
-hange_request_v2.group_cr_user</tt></td>
+<tr><td><tt class="docutils literal">spp_change_request_v2.group_cr_user</tt></td>
 <td>Read/write/create detail models
 (no delete)</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_chan
-ge_request_v2.group_cr_manager</tt></td>
+<tr><td><tt class="docutils literal">spp_change_request_v2.group_cr_manager</tt></td>
 <td>Full CRUD on detail models</td>
 </tr>
 </tbody>

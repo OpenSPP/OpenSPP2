@@ -14,14 +14,17 @@ OpenSPP API V2 - Data
    !! source digest: sha256:9472a884314a17fa93c4c46d6300ee76054f9733fd09e6869306519f00bf4d9d
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+    :target: https://odoo-community.org/page/development-status
+    :alt: Production/Stable
+.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
     :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_api_v2_data
     :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2|
+|badge1| |badge2| |badge3|
 
 REST API extension for pushing and pulling variable data from external
 systems. Enables external providers (education ministries, health
@@ -32,14 +35,14 @@ identifiers for subject resolution and provider-based access control.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  **Push values**: Bulk upsert variable values from external systems
-   with validation and error reporting
--  **Pull values**: Retrieve cached variable values by subject external
-   IDs and period keys
--  **Invalidate cache**: Mark cached values as stale to force refresh on
-   next computation
--  **List variables**: Query available variables with provider and
-   source type filtering
+- **Push values**: Bulk upsert variable values from external systems
+  with validation and error reporting
+- **Pull values**: Retrieve cached variable values by subject external
+  IDs and period keys
+- **Invalidate cache**: Mark cached values as stale to force refresh on
+  next computation
+- **List variables**: Query available variables with provider and source
+  type filtering
 
 Key Models
 ~~~~~~~~~~
@@ -73,13 +76,13 @@ No standalone menus (API-only module).
 
 **API Endpoints**:
 
--  ``POST /api/v2/Data/push`` - Push variable values from external
-   systems
--  ``GET /api/v2/Data/pull`` - Pull cached variable values for subjects
--  ``POST /api/v2/Data/invalidate`` - Invalidate cached values to force
-   refresh
--  ``GET /api/v2/Data/variables`` - List available variables with
-   filtering
+- ``POST /api/v2/Data/push`` - Push variable values from external
+  systems
+- ``GET /api/v2/Data/pull`` - Pull cached variable values for subjects
+- ``POST /api/v2/Data/invalidate`` - Invalidate cached values to force
+  refresh
+- ``GET /api/v2/Data/variables`` - List available variables with
+  filtering
 
 Security
 ~~~~~~~~
@@ -100,12 +103,12 @@ operations.
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Override ``_resolve_subject_id()`` in ``routers/data.py`` to
-   customize external identifier resolution
--  Extend Pydantic schemas in ``schemas/data.py`` to add metadata fields
-   for domain-specific use cases
--  Inherit ``DataValueInput`` or ``DataValueOutput`` for additional
-   validation logic
+- Override ``_resolve_subject_id()`` in ``routers/data.py`` to customize
+  external identifier resolution
+- Extend Pydantic schemas in ``schemas/data.py`` to add metadata fields
+  for domain-specific use cases
+- Inherit ``DataValueInput`` or ``DataValueOutput`` for additional
+  validation logic
 
 Dependencies
 ~~~~~~~~~~~~
