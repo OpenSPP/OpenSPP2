@@ -61,7 +61,7 @@
                     <field name="level" invisible="1" />
 
                     <!-- Main Information -->
-                    <group>
+                    <group name="main_info">
                         <group string="Basic Information">
                             <field name="code" placeholder="Area Code..." />
                             <field
@@ -72,14 +72,21 @@
                             <field name="complete_name" readonly="1" />
                         </group>
                         <group string="Classification">
-                            <field name="area_level" />
+                            <field
+                                name="area_level"
+                                string="Admin Level"
+                                help="Hierarchical level of this area, automatically computed from its position in the area tree (0 = top-level)."
+                            />
                             <field
                                 name="area_type_id"
+                                string="Area Type"
+                                help="Classification type for this area (e.g., Province, Municipality, Barangay)."
                                 options="{'no_open': True, 'no_create': True}"
                             />
                             <field
                                 name="area_sqkm"
-                                string="Area (sq/km)"
+                                string="Area (km²)"
+                                help="Geographic size of this area in square kilometers."
                                 widget="float"
                             />
                         </group>
