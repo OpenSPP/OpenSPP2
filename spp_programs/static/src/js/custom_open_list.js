@@ -12,7 +12,10 @@ patch(ListRenderer.prototype, {
     },
 
     async onCellClicked(record, column, ev) {
-        if (record.resModel === "spp.program") {
+        if (
+            record.resModel === "spp.program" ||
+            record.resModel === "spp.program.membership"
+        ) {
             // Skip custom behavior if in selection mode (e.g., Many2one "Search More..." dialog)
             // In selection mode, don't open form - let dialog handle row selection
             const isSelectionMode =
@@ -26,10 +29,24 @@ patch(ListRenderer.prototype, {
                 // In selection mode, use default behavior which handles selection
                 return super.onCellClicked(record, column, ev);
             }
+
+            let programId = record.resId;
+            if (record.resModel === "spp.program.membership") {
+                const programField = record.data.program_id;
+                if (programField && programField.id) {
+                    programId = programField.id;
+                } else {
+                    return super.onCellClicked(record, column, ev);
+                }
+            }
+
             // Get the stored action from the server (includes action id for proper routing)
             var action = await this.orm.call("spp.program", "open_program_form", [
-                record.resId,
+                programId,
             ]);
+            if (record.resModel === "spp.program.membership") {
+                action.target = "new";
+            }
             this.actionService.doAction(action);
         } else {
             super.onCellClicked(record, column, ev);
