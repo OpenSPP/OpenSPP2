@@ -3,12 +3,17 @@
     <!-- CEL Search Access Group -->
     <record id="group_cel_search_user" model="res.groups">
         <field name="name">CEL Search User</field>
-        <field name="comment">Users with access to the CEL Search Portal for advanced registry queries.</field>
-        <field name="implied_ids" eval="[Command.link(ref('spp_registry.group_registry_viewer'))]"/>
+        <field
+            name="comment"
+        >Users with access to the CEL Search Portal for advanced registry queries.</field>
+        <field
+            name="implied_ids"
+            eval="[Command.link(ref('spp_registry.group_registry_viewer'))]"
+        />
     </record>
 
     <!-- Give CEL Search access to Registry Officers -->
     <record id="spp_registry.group_registry_officer" model="res.groups">
-        <field name="implied_ids" eval="[Command.link(ref('group_cel_search_user'))]"/>
+        <field name="implied_ids" eval="[Command.link(ref('group_cel_search_user'))]" />
     </record>
 </odoo>

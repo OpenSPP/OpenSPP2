@@ -176,7 +176,7 @@ class EventDataEntryWizard(models.TransientModel):
         if not self.event_type_id:
             raise ValidationError(
                 _(
-                    "Event type '%(name)s' has not been activated. " "Please activate it first.",
+                    "Event type '%(name)s' has not been activated. Please activate it first.",
                     name=self.studio_event_type_id.name,
                 )
             )

@@ -2,41 +2,46 @@
 
 ## Overview
 
-This document summarizes the test suite created for ADR-017: Variable Caching Strategy for Scale.
+This document summarizes the test suite created for ADR-017: Variable Caching Strategy
+for Scale.
 
 ## Test Files Created/Modified
 
 ### 1. `test_data_cache_manager.py` (NEW)
 
-**File**: `/spp_cel_domain/tests/test_data_cache_manager.py` **Test Class**: `TestDataCacheManager` **Test Count**: 17
-tests
+**File**: `/spp_cel_domain/tests/test_data_cache_manager.py` **Test Class**:
+`TestDataCacheManager` **Test Count**: 17 tests
 
 #### Coverage:
 
 - **Pre-computation Tests** (6 tests)
-
-  - `test_precompute_variable_ttl_strategy` - Verifies TTL cached variables are stored in spp.data.value
-  - `test_precompute_variable_manual_strategy` - Verifies manual cached variables work correctly
-  - `test_precompute_variable_none_strategy_fails` - Ensures non-cached variables fail pre-computation
+  - `test_precompute_variable_ttl_strategy` - Verifies TTL cached variables are stored
+    in spp.data.value
+  - `test_precompute_variable_manual_strategy` - Verifies manual cached variables work
+    correctly
+  - `test_precompute_variable_none_strategy_fails` - Ensures non-cached variables fail
+    pre-computation
   - `test_precompute_variable_empty_subject_ids` - Tests with empty subject lists
   - `test_precompute_variable_nonexistent` - Tests error handling for missing variables
 
 - **Batch Pre-computation Tests** (4 tests)
-
-  - `test_precompute_cached_variables_all` - Batch pre-computation of all cached variables
-  - `test_precompute_cached_variables_specific_names` - Pre-compute specific variable subset
+  - `test_precompute_cached_variables_all` - Batch pre-computation of all cached
+    variables
+  - `test_precompute_cached_variables_specific_names` - Pre-compute specific variable
+    subset
   - `test_precompute_cached_variables_empty_subjects` - Empty subject list handling
   - `test_precompute_cached_variables_no_cached_vars` - No cached variables scenario
 
 - **Cache Invalidation Tests** (4 tests)
-
-  - `test_invalidate_variable_specific_subjects` - Invalidate cache for specific subjects
-  - `test_invalidate_variable_all_subjects` - Invalidate all cache entries for a variable
+  - `test_invalidate_variable_specific_subjects` - Invalidate cache for specific
+    subjects
+  - `test_invalidate_variable_all_subjects` - Invalidate all cache entries for a
+    variable
   - `test_invalidate_variable_specific_period` - Invalidate by period key
-  - `test_invalidate_nonexistent_variable` - Handle invalidation of non-existent variable
+  - `test_invalidate_nonexistent_variable` - Handle invalidation of non-existent
+    variable
 
 - **Refresh Operations Tests** (2 tests)
-
   - `test_refresh_variable` - Refresh cached values for a variable
   - `test_refresh_variables_for_subject` - Refresh all variables for a subject
 
@@ -46,24 +51,25 @@ tests
 
 ### 2. `test_cel_variable_resolver.py` (NEW)
 
-**File**: `/spp_cel_domain/tests/test_cel_variable_resolver.py` **Test Class**: `TestCELVariableResolverCaching` **Test
-Count**: 13 tests
+**File**: `/spp_cel_domain/tests/test_cel_variable_resolver.py` **Test Class**:
+`TestCELVariableResolverCaching` **Test Count**: 13 tests
 
 #### Coverage:
 
 - **Cache Strategy Detection Tests** (8 tests)
-
   - `test_expand_cached_variable_emits_metric_ttl` - TTL variables emit metric() calls
-  - `test_expand_cached_variable_emits_metric_manual` - Manual variables emit metric() calls
-  - `test_expand_inline_variable_expands_cel_none_strategy` - None strategy expands inline
-  - `test_expand_inline_variable_expands_cel_session_strategy` - Session strategy expands inline
+  - `test_expand_cached_variable_emits_metric_manual` - Manual variables emit metric()
+    calls
+  - `test_expand_inline_variable_expands_cel_none_strategy` - None strategy expands
+    inline
+  - `test_expand_inline_variable_expands_cel_session_strategy` - Session strategy
+    expands inline
   - `test_expand_mixed_cached_and_inline_variables` - Mixed variable types
   - `test_expand_nested_cached_variables` - Nested cached variables
   - `test_expand_constant_cached_variable` - Cached constants
   - `test_expand_field_cached_variable` - Cached field variables
 
 - **Cache Info Analysis Tests** (3 tests)
-
   - `test_analyze_expression_caching` - Classify variables by cache strategy
   - `test_resolve_with_cache_info` - Expansion with cache metadata
   - `test_resolve_with_cache_info_no_cached_vars` - No cached variables scenario
@@ -74,19 +80,21 @@ Count**: 13 tests
 
 ### 3. `test_cel_caching.py` (MODIFIED)
 
-**File**: `/spp_cel_domain/tests/test_cel_caching.py` **Test Class**: `TestCELExecutorCacheLookup` (NEW class added)
-**Test Count**: 7 new tests
+**File**: `/spp_cel_domain/tests/test_cel_caching.py` **Test Class**:
+`TestCELExecutorCacheLookup` (NEW class added) **Test Count**: 7 new tests
 
 #### Coverage:
 
 - **Executor Cache Lookup Tests** (7 tests)
-  - `test_metric_lookup_uses_data_value_table` - metric() uses spp.data.value for lookups
+  - `test_metric_lookup_uses_data_value_table` - metric() uses spp.data.value for
+    lookups
   - `test_metric_lookup_respects_period_key` - Period key handling
   - `test_metric_lookup_empty_cache_graceful` - Graceful empty cache handling
   - `test_metric_lookup_partial_cache_coverage` - Partial cache coverage
   - `test_metric_lookup_uses_sql_fast_path` - SQL fast path verification
   - `test_metric_multiple_variables_cache_lookup` - Multiple cached variables
-  - `test_metric_lookup_with_comparison_operators` - Various comparison operators (==, >=, !=)
+  - `test_metric_lookup_with_comparison_operators` - Various comparison operators
+    (==, >=, !=)
 
 ## Total Test Count
 
@@ -126,8 +134,8 @@ invoke test-spp-deps --modules=spp_cel_domain --skip=queue_job --mode=init --db-
 
 ## Test Data Setup
 
-All tests use `CELTestDataMixin` from `/tests/common.py` to create isolated test data without relying on XML seed data.
-Each test class:
+All tests use `CELTestDataMixin` from `/tests/common.py` to create isolated test data
+without relying on XML seed data. Each test class:
 
 - Creates unique test identifiers using timestamps
 - Sets up test partners (beneficiaries)
@@ -138,8 +146,8 @@ Each test class:
 
 ### 1. Cache Strategy Detection
 
-Tests verify that the variable resolver correctly identifies cached variables and emits `metric()` calls instead of
-inline CEL expansion.
+Tests verify that the variable resolver correctly identifies cached variables and emits
+`metric()` calls instead of inline CEL expansion.
 
 ```python
 # TTL cached variable should emit metric()
@@ -153,7 +161,8 @@ assert "r.income / 1000" in result["expression"]
 
 ### 2. Pre-computation Workflow
 
-Tests verify the complete pre-computation workflow from variable definition to cache storage.
+Tests verify the complete pre-computation workflow from variable definition to cache
+storage.
 
 ```python
 # Create cached variable

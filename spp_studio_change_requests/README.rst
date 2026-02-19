@@ -14,14 +14,17 @@ OpenSPP Studio - Change Requests
    !! source digest: sha256:19c4c319af786088715fe91559ef67701990c466a93b8a5fc474557d9b26f74a
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+    :target: https://odoo-community.org/page/development-status
+    :alt: Production/Stable
+.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
     :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_studio_change_requests
     :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2|
+|badge1| |badge2| |badge3|
 
 No-code builder for creating custom change request types without writing
 Python or XML. Allows program staff to configure simple field-based

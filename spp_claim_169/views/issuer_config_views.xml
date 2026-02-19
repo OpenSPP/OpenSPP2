@@ -6,14 +6,14 @@
         <field name="model">spp.claim169.issuer.config</field>
         <field name="arch" type="xml">
             <list string="Issuer Configurations">
-                <field name="name"/>
-                <field name="issuer_id"/>
-                <field name="signing_key_id"/>
-                <field name="default_validity_days"/>
-                <field name="is_default" widget="boolean_toggle"/>
-                <field name="credential_count"/>
-                <field name="company_id" groups="base.group_multi_company"/>
-                <field name="active" widget="boolean_toggle"/>
+                <field name="name" />
+                <field name="issuer_id" />
+                <field name="signing_key_id" />
+                <field name="default_validity_days" />
+                <field name="is_default" widget="boolean_toggle" />
+                <field name="credential_count" />
+                <field name="company_id" groups="base.group_multi_company" />
+                <field name="active" widget="boolean_toggle" />
             </list>
         </field>
     </record>
@@ -25,42 +25,68 @@
         <field name="arch" type="xml">
             <form string="Issuer Configuration">
                 <header>
-                    <button name="action_view_credentials" type="object" string="View Credentials"
-                            class="oe_highlight" invisible="credential_count == 0"/>
+                    <button
+                        name="action_view_credentials"
+                        type="object"
+                        string="View Credentials"
+                        class="oe_highlight"
+                        invisible="credential_count == 0"
+                    />
                 </header>
                 <sheet>
                     <!-- Warning banner when signing key is missing -->
-                    <div class="alert alert-warning" role="alert" invisible="signing_key_id">
-                        <i class="fa fa-exclamation-triangle" title="Warning"></i>
+                    <div
+                        class="alert alert-warning"
+                        role="alert"
+                        invisible="signing_key_id"
+                    >
+                        <i class="fa fa-exclamation-triangle" title="Warning" />
                         <strong>Signing Key Required</strong>
                         <p class="mb-0 mt-1">
                             A signing key must be configured before credentials can be generated.
-                            Go to <strong>Registry &gt; Configuration &gt; Key Management &gt; Asymmetric Keys</strong>
+                            Go to <strong
+                        >Registry &gt; Configuration &gt; Key Management &gt; Asymmetric Keys</strong>
                             to create an Ed25519 or ECDSA P-256 key.
                         </p>
                     </div>
                     <div class="oe_button_box" name="button_box">
-                        <button name="action_view_credentials" type="object"
-                                class="oe_stat_button" icon="fa-qrcode">
-                            <field name="credential_count" widget="statinfo"
-                                   string="Credentials"/>
+                        <button
+                            name="action_view_credentials"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-qrcode"
+                        >
+                            <field
+                                name="credential_count"
+                                widget="statinfo"
+                                string="Credentials"
+                            />
                         </button>
                     </div>
                     <div class="oe_title">
-                        <label for="name"/>
+                        <label for="name" />
                         <h1>
-                            <field name="name" placeholder="e.g., National ID Issuer"/>
+                            <field name="name" placeholder="e.g., National ID Issuer" />
                         </h1>
                     </div>
                     <group>
                         <group>
-                            <field name="issuer_id" placeholder="did:example:issuer123"/>
-                            <field name="signing_key_id" options="{'no_create': True, 'no_open': True}"/>
-                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field
+                                name="issuer_id"
+                                placeholder="did:example:issuer123"
+                            />
+                            <field
+                                name="signing_key_id"
+                                options="{'no_create': True, 'no_open': True}"
+                            />
+                            <field
+                                name="company_id"
+                                groups="base.group_multi_company"
+                            />
                         </group>
                         <group>
-                            <field name="default_validity_days"/>
-                            <field name="is_default"/>
+                            <field name="default_validity_days" />
+                            <field name="is_default" />
                         </group>
                     </group>
                     <notebook>
@@ -68,53 +94,82 @@
                             <div class="row mt-3 mx-2">
                                 <div class="col-lg-6">
                                     <div class="alert alert-secondary" role="alert">
-                                        <h5><i class="fa fa-list-ol"/> Prerequisites</h5>
+                                        <h5><i
+                                            class="fa fa-list-ol"
+                                        /> Prerequisites</h5>
                                         <ol class="mb-0">
                                             <li class="mb-2">
-                                                <strong>Create a Signing Key</strong><br/>
-                                                Go to <em>Settings &gt; Key Management &gt; Asymmetric Keys</em>
+                                                <strong>Create a Signing Key</strong><br
+                                            />
+                                                Go to <em
+                                            >Settings &gt; Key Management &gt; Asymmetric Keys</em>
                                                 and create an Ed25519 or ECDSA P-256 key.
                                             </li>
                                             <li class="mb-2">
-                                                <strong>Configure Attribute Mappings</strong><br/>
-                                                Go to <em>Registry &gt; Configuration &gt; QR Credentials &gt; Attribute Mappings</em>
+                                                <strong
+                                            >Configure Attribute Mappings</strong><br />
+                                                Go to <em
+                                            >Registry &gt; Configuration &gt; QR Credentials &gt; Attribute Mappings</em>
                                                 to define which fields appear in QR credentials.
                                             </li>
                                             <li class="mb-2">
-                                                <strong>Set Up This Issuer</strong><br/>
+                                                <strong>Set Up This Issuer</strong><br
+                                            />
                                                 Configure the Issuer ID (DID), select your signing key,
                                                 and set the validity period.
                                             </li>
                                         </ol>
                                     </div>
                                     <div class="alert alert-light" role="alert">
-                                        <h5><i class="fa fa-key"/> Key Type Recommendations</h5>
+                                        <h5><i
+                                            class="fa fa-key"
+                                        /> Key Type Recommendations</h5>
                                         <ul class="mb-0">
-                                            <li><strong>Ed25519:</strong> Recommended for local keys and HashiCorp Vault. Fast and compact.</li>
-                                            <li><strong>ECDSA P-256:</strong> Required for AWS KMS, Azure Key Vault, or GCP KMS.</li>
+                                            <li><strong
+                                            >Ed25519:</strong> Recommended for local keys and HashiCorp Vault. Fast and compact.</li>
+                                            <li><strong
+                                            >ECDSA P-256:</strong> Required for AWS KMS, Azure Key Vault, or GCP KMS.</li>
                                         </ul>
                                     </div>
                                 </div>
                                 <div class="col-lg-6">
                                     <div class="alert alert-info" role="alert">
-                                        <h5><i class="fa fa-info-circle" title="Info"/> Field Reference</h5>
-                                        <table class="table table-sm table-borderless mb-0">
+                                        <h5><i
+                                            class="fa fa-info-circle"
+                                            title="Info"
+                                        /> Field Reference</h5>
+                                        <table
+                                            class="table table-sm table-borderless mb-0"
+                                        >
                                             <tbody>
                                                 <tr>
-                                                    <td class="fw-bold text-nowrap" style="width: 1%;">Issuer ID</td>
-                                                    <td>DID or URI identifying your organization (e.g., did:web:example.org)</td>
+                                                    <td
+                                                        class="fw-bold text-nowrap"
+                                                        style="width: 1%;"
+                                                    >Issuer ID</td>
+                                                    <td
+                                                    >DID or URI identifying your organization (e.g., did:web:example.org)</td>
                                                 </tr>
                                                 <tr>
-                                                    <td class="fw-bold text-nowrap">Signing Key</td>
-                                                    <td>Private key for signing credentials (Ed25519 or ECDSA P-256)</td>
+                                                    <td
+                                                        class="fw-bold text-nowrap"
+                                                    >Signing Key</td>
+                                                    <td
+                                                    >Private key for signing credentials (Ed25519 or ECDSA P-256)</td>
                                                 </tr>
                                                 <tr>
-                                                    <td class="fw-bold text-nowrap">Default Validity</td>
-                                                    <td>Days until credentials expire (default: 365)</td>
+                                                    <td
+                                                        class="fw-bold text-nowrap"
+                                                    >Default Validity</td>
+                                                    <td
+                                                    >Days until credentials expire (default: 365)</td>
                                                 </tr>
                                                 <tr>
-                                                    <td class="fw-bold text-nowrap">Default Issuer</td>
-                                                    <td>Use this configuration by default in generation wizards</td>
+                                                    <td
+                                                        class="fw-bold text-nowrap"
+                                                    >Default Issuer</td>
+                                                    <td
+                                                    >Use this configuration by default in generation wizards</td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -134,12 +189,24 @@
         <field name="model">spp.claim169.issuer.config</field>
         <field name="arch" type="xml">
             <search string="Issuer Configurations">
-                <field name="name"/>
-                <field name="issuer_id"/>
-                <field name="signing_key_id"/>
-                <filter string="Active" name="filter_active" domain="[('active', '=', True)]"/>
-                <filter string="Inactive" name="filter_inactive" domain="[('active', '=', False)]"/>
-                <filter string="Default" name="filter_default" domain="[('is_default', '=', True)]"/>
+                <field name="name" />
+                <field name="issuer_id" />
+                <field name="signing_key_id" />
+                <filter
+                    string="Active"
+                    name="filter_active"
+                    domain="[('active', '=', True)]"
+                />
+                <filter
+                    string="Inactive"
+                    name="filter_inactive"
+                    domain="[('active', '=', False)]"
+                />
+                <filter
+                    string="Default"
+                    name="filter_default"
+                    domain="[('is_default', '=', True)]"
+                />
             </search>
         </field>
     </record>

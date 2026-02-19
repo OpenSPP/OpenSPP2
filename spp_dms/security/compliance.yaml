@@ -61,13 +61,16 @@ groups:
     tier: 2
     privilege_id: privilege_dms_officer
     implied_ids: [group_dms_viewer, group_dms_write, group_dms_create]
-    comment: "Can create and edit documents/directories. Cannot delete or configure categories."
+    comment:
+      "Can create and edit documents/directories. Cannot delete or configure categories."
 
   - id: group_dms_user
     tier: 2
     privilege_id: privilege_dms_user
     implied_ids: [group_dms_officer]
-    comment: "DEPRECATED: Legacy group maintained for backwards compatibility. Use group_dms_officer instead."
+    comment:
+      "DEPRECATED: Legacy group maintained for backwards compatibility. Use
+      group_dms_officer instead."
     status: deprecated
     replacement: group_dms_officer
 
@@ -86,7 +89,9 @@ groups:
   - id: group_dms_restrict_self
     tier: 2
     privilege_id: privilege_dms_restrict_self_officer
-    comment: "Restrict document access to only own uploads. Can be combined with viewer/officer roles."
+    comment:
+      "Restrict document access to only own uploads. Can be combined with viewer/officer
+      roles."
 
 # Admin linkage - manager group links to spp_security.group_spp_admin
 admin_link_group: group_dms_manager
@@ -102,35 +107,45 @@ model_access:
     viewer: [read]
     officer: [read, write, create]
     manager: [read, write, create, unlink]
-    comment: "Directories organize files in tree structure. Officers can create/edit, managers can delete."
+    comment:
+      "Directories organize files in tree structure. Officers can create/edit, managers
+      can delete."
 
   # Files - core document storage with versioning
   - model: spp.dms.file
     viewer: [read]
     officer: [read, write, create]
     manager: [read, write, create, unlink]
-    comment: "Core file storage. Contains sensitive attachments. Officers can upload/edit, managers can delete."
+    comment:
+      "Core file storage. Contains sensitive attachments. Officers can upload/edit,
+      managers can delete."
 
   # File versions - immutable history of file changes
   - model: spp.dms.file.version
     viewer: [read]
     officer: [read, write, create]
     manager: [read, write, create, unlink]
-    comment: "Version history for audit trail. Officers can create versions, managers can prune old versions."
+    comment:
+      "Version history for audit trail. Officers can create versions, managers can prune
+      old versions."
 
   # Categories - configuration for file type/size validation
   - model: spp.dms.category
     viewer: [read]
     officer: [read]
     manager: [read, write, create, unlink]
-    comment: "Configuration model. Only managers can modify categories as they enforce compliance rules."
+    comment:
+      "Configuration model. Only managers can modify categories as they enforce
+      compliance rules."
 
   # Restore wizard - transient model for version restoration
   - model: spp.dms.restore.version.wizard
     viewer: [read]
     officer: [read, write, create, unlink]
     manager: [read, write, create, unlink]
-    comment: "Transient wizard for restoring file versions. Officers can restore, managers have full access."
+    comment:
+      "Transient wizard for restoring file versions. Officers can restore, managers have
+      full access."
 
 # =============================================================================
 # RECORD RULES (ir.rule)
@@ -156,13 +171,25 @@ record_rules: []
 menus:
   - id: main_menu_spp_dms
     name: "DMS"
-    groups: [spp_security.group_spp_admin, group_dms_viewer, group_dms_officer, group_dms_manager]
+    groups:
+      [
+        spp_security.group_spp_admin,
+        group_dms_viewer,
+        group_dms_officer,
+        group_dms_manager,
+      ]
     comment: "Main DMS menu visible to all DMS users"
 
   - id: menu_spp_dms_directory
     name: "Directories"
     parent: main_menu_spp_dms
-    groups: [spp_security.group_spp_admin, group_dms_viewer, group_dms_officer, group_dms_manager]
+    groups:
+      [
+        spp_security.group_spp_admin,
+        group_dms_viewer,
+        group_dms_officer,
+        group_dms_manager,
+      ]
     comment: "Directory management menu"
 
   - id: menu_spp_dms_config
@@ -186,7 +213,9 @@ field_restrictions:
   - view_id: view_spp_dms_directory_form
     field_name: is_root_directory
     groups: [group_dms_manager, spp_security.group_spp_admin]
-    reason: "Root directory flag should only be visible/editable by managers to prevent structure corruption"
+    reason:
+      "Root directory flag should only be visible/editable by managers to prevent
+      structure corruption"
 
   - view_id: view_spp_dms_directory_manager_form
     field_name: is_root_directory
@@ -196,7 +225,8 @@ field_restrictions:
   - view_id: view_spp_dms_file_form
     field_name: is_versioned
     groups: [group_dms_officer, group_dms_manager, spp_security.group_spp_admin]
-    reason: "Versioning toggle should be restricted to officers and above to prevent data loss"
+    reason:
+      "Versioning toggle should be restricted to officers and above to prevent data loss"
 
   - view_id: view_spp_dms_category_form
     field_name: blocked_extensions
@@ -216,7 +246,13 @@ field_restrictions:
 actions:
   - id: action_spp_dms_directory
     name: "Directories"
-    groups: [group_dms_viewer, group_dms_officer, group_dms_manager, spp_security.group_spp_admin]
+    groups:
+      [
+        group_dms_viewer,
+        group_dms_officer,
+        group_dms_manager,
+        spp_security.group_spp_admin,
+      ]
 
   - id: action_spp_dms_category
     name: "Categories"

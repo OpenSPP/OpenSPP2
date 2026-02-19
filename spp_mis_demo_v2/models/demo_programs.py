@@ -90,16 +90,14 @@ DEMO_PROGRAMS = [
         "entitlement_amount": 400.0,  # Default middle tier
         # CEL formula: Tiered based on household composition
         "entitlement_formula": (
-            "dependency_ratio >= 2.0 ? emergency_tier_1 : "
-            "dependency_ratio >= 1.0 ? emergency_tier_2 : "
-            "emergency_tier_3"
+            "dependency_ratio >= 2.0 ? emergency_tier_1 : dependency_ratio >= 1.0 ? emergency_tier_2 : emergency_tier_3"
         ),
         "cycle_duration": 15,  # Faster cycles for emergency
         "priority": "high",
         # CEL: High dependency ratio or female-headed with elderly
         # Pattern: Compound conditions using activated variables
         "cel_expression": (
-            "r.is_group == true and " "(dependency_ratio >= 1.5 or (is_female_headed and elderly_count > 0))"
+            "r.is_group == true and (dependency_ratio >= 1.5 or (is_female_headed and elderly_count > 0))"
         ),
         # Link to Logic Pack
         "logic_pack": "vulnerability_assessment",

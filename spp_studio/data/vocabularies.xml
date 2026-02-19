@@ -1,10 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
     <!-- Logic Tags Vocabulary -->
     <record id="vocab_logic_tags" model="spp.vocabulary">
         <field name="name">Logic Tags</field>
         <field name="namespace_uri">urn:openspp:vocab:logic-tags</field>
-        <field name="description">Tags for categorizing and organizing business logic definitions in OpenSPP Studio.</field>
+        <field
+            name="description"
+        >Tags for categorizing and organizing business logic definitions in OpenSPP Studio.</field>
         <field name="domain">core</field>
         <field name="is_system">False</field>
         <field name="is_hierarchical">False</field>

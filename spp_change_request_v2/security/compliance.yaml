@@ -51,7 +51,8 @@ groups:
     privilege_id: privilege_cr_conflict_approver
     implied_ids: [group_cr_validator]
     comment:
-      "Permission to override blocking conflicts on change requests. Typically assigned to managers or supervisors."
+      "Permission to override blocking conflicts on change requests. Typically assigned
+      to managers or supervisors."
 
 # Admin linkage - manager group links to spp_security.group_spp_admin
 admin_link_group: group_cr_manager
@@ -150,7 +151,8 @@ record_rules:
   - id: rule_cr_user
     model: spp.change.request
     groups: [group_cr_user]
-    domain_description: "Users can see their own CRs and CRs for registrants they have access to"
+    domain_description:
+      "Users can see their own CRs and CRs for registrants they have access to"
     perm_read: true
     perm_write: true
     perm_create: true

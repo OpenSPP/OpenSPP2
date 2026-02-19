@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Approval Definition Tree View -->
     <record id="approval_definition_view_tree" model="ir.ui.view">
@@ -6,14 +6,14 @@
         <field name="model">spp.approval.definition</field>
         <field name="arch" type="xml">
             <list>
-                <field name="sequence" widget="handle"/>
-                <field name="name"/>
-                <field name="model_id"/>
-                <field name="approval_type"/>
-                <field name="approval_group_id" optional="show"/>
-                <field name="sla_days" optional="show"/>
-                <field name="company_id" groups="base.group_multi_company"/>
-                <field name="active" widget="boolean_toggle"/>
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="model_id" />
+                <field name="approval_type" />
+                <field name="approval_group_id" optional="show" />
+                <field name="sla_days" optional="show" />
+                <field name="company_id" groups="base.group_multi_company" />
+                <field name="active" widget="boolean_toggle" />
             </list>
         </field>
     </record>
@@ -25,73 +25,98 @@
         <field name="arch" type="xml">
             <form>
                 <sheet>
-                    <widget name="web_ribbon" title="Deactivated" bg_color="text-bg-danger"
-                            invisible="active"/>
+                    <widget
+                        name="web_ribbon"
+                        title="Deactivated"
+                        bg_color="text-bg-danger"
+                        invisible="active"
+                    />
                     <div class="oe_button_box" name="button_box">
                         <!-- Deactivate button (when active) -->
-                        <button name="toggle_active"
-                                type="object"
-                                class="oe_stat_button"
-                                icon="fa-archive"
-                                invisible="not active">
+                        <button
+                            name="toggle_active"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-archive"
+                            invisible="not active"
+                        >
                             <div class="o_stat_info">
                                 <span class="o_stat_text text-danger">Deactivate</span>
                             </div>
                         </button>
                         <!-- Activate button (when inactive) -->
-                        <button name="toggle_active"
-                                type="object"
-                                class="oe_stat_button"
-                                icon="fa-check-circle"
-                                invisible="active">
+                        <button
+                            name="toggle_active"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-check-circle"
+                            invisible="active"
+                        >
                             <div class="o_stat_info">
                                 <span class="o_stat_text text-success">Activate</span>
                             </div>
                         </button>
                     </div>
-                    <field name="active" invisible="1"/>
+                    <field name="active" invisible="1" />
                     <group>
                         <group>
-                            <field name="name"/>
-                            <field name="model_id"/>
-                            <field name="sequence"/>
-                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="name" />
+                            <field name="model_id" />
+                            <field name="sequence" />
+                            <field
+                                name="company_id"
+                                groups="base.group_multi_company"
+                            />
                         </group>
                         <group>
-                            <field name="approval_type"/>
-                            <field name="approval_group_id" invisible="approval_type != 'group'"/>
-                            <field name="approval_user_ids" widget="many2many_tags" invisible="approval_type != 'user'"/>
-                            <field name="approval_field_id" invisible="approval_type != 'field'"/>
+                            <field name="approval_type" />
+                            <field
+                                name="approval_group_id"
+                                invisible="approval_type != 'group'"
+                            />
+                            <field
+                                name="approval_user_ids"
+                                widget="many2many_tags"
+                                invisible="approval_type != 'user'"
+                            />
+                            <field
+                                name="approval_field_id"
+                                invisible="approval_type != 'field'"
+                            />
                         </group>
                     </group>
                     <notebook>
                         <page string="Conditions" name="conditions">
                             <group>
-                                <field name="domain" widget="domain" options="{'model_field': 'model'}"/>
+                                <field
+                                    name="domain"
+                                    widget="domain"
+                                    options="{'model_field': 'model'}"
+                                />
                             </group>
                         </page>
                         <page string="Behavior" name="behavior">
                             <group>
                                 <group string="Approval Settings">
-                                    <field name="is_require_comment"/>
-                                    <field name="auto_approve_same_user"/>
+                                    <field name="is_require_comment" />
+                                    <field name="auto_approve_same_user" />
                                 </group>
                                 <group string="Notifications">
-                                    <field name="notify_on_submit"/>
-                                    <field name="notify_on_approve"/>
-                                    <field name="notify_on_reject"/>
+                                    <field name="notify_on_submit" />
+                                    <field name="notify_on_approve" />
+                                    <field name="notify_on_reject" />
                                 </group>
                             </group>
                         </page>
                         <page string="SLA &amp; Escalation" name="sla">
                             <group>
                                 <group>
-                                    <field name="sla_days"/>
-                                    <field name="escalation_definition_id"/>
+                                    <field name="sla_days" />
+                                    <field name="escalation_definition_id" />
                                 </group>
                                 <group>
-                                    <field name="is_emergency_bypass_allowed"/>
-                                    <field name="is_respect_system_freeze"/>
+                                    <field name="is_emergency_bypass_allowed" />
+                                    <field name="is_respect_system_freeze" />
                                 </group>
                             </group>
                         </page>
@@ -107,17 +132,41 @@
         <field name="model">spp.approval.definition</field>
         <field name="arch" type="xml">
             <search>
-                <field name="name"/>
-                <field name="model_id"/>
-                <field name="approval_type"/>
-                <filter string="Active" name="active" domain="[('active', '=', True)]"/>
-                <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
-                <separator/>
-                <filter string="With SLA" name="with_sla" domain="[('sla_days', '>', 0)]"/>
+                <field name="name" />
+                <field name="model_id" />
+                <field name="approval_type" />
+                <filter
+                    string="Active"
+                    name="active"
+                    domain="[('active', '=', True)]"
+                />
+                <filter
+                    string="Archived"
+                    name="archived"
+                    domain="[('active', '=', False)]"
+                />
+                <separator />
+                <filter
+                    string="With SLA"
+                    name="with_sla"
+                    domain="[('sla_days', '>', 0)]"
+                />
                 <group>
-                    <filter string="Model" name="group_model" context="{'group_by': 'model_id'}"/>
-                    <filter string="Approval Type" name="group_type" context="{'group_by': 'approval_type'}"/>
-                    <filter string="Company" name="group_company" context="{'group_by': 'company_id'}"/>
+                    <filter
+                        string="Model"
+                        name="group_model"
+                        context="{'group_by': 'model_id'}"
+                    />
+                    <filter
+                        string="Approval Type"
+                        name="group_type"
+                        context="{'group_by': 'approval_type'}"
+                    />
+                    <filter
+                        string="Company"
+                        name="group_company"
+                        context="{'group_by': 'company_id'}"
+                    />
                 </group>
             </search>
         </field>

@@ -202,7 +202,7 @@ class DefaultComplianceManager(models.Model):
 
                 # Use CEL service facade to compile and preview
                 # Use sudo() as CEL may access vocabulary records
-                service = self.env["spp.cel.service"].sudo()
+                service = self.env["spp.cel.service"].sudo()  # nosemgrep: odoo-sudo-without-context
                 result = service.compile_expression(
                     rec.compliance_cel_expression,
                     profile=profile,
@@ -253,7 +253,7 @@ class DefaultComplianceManager(models.Model):
         try:
             profile = "registry_groups" if self.program_id.target_type == "group" else "registry_individuals"
 
-            service = self.env["spp.cel.service"].sudo()
+            service = self.env["spp.cel.service"].sudo()  # nosemgrep: odoo-sudo-without-context
             result = service.compile_expression(
                 self.compliance_cel_expression,
                 profile=profile,
@@ -294,6 +294,7 @@ class DefaultComplianceManager(models.Model):
 
         # Use sudo() for search as CEL domain may reference vocabulary records
         # Access control is enforced at the action level (apply compliance criteria)
+        # nosemgrep: odoo-sudo-on-sensitive-models, odoo-sudo-without-context
         compliant_partners = self.env["res.partner"].sudo().search(domain)
         return membership.filtered(lambda m: m.partner_id in compliant_partners)
 
@@ -378,7 +379,7 @@ class DefaultComplianceManager(models.Model):
                 }
 
             # Use sudo() as CEL may access vocabulary records
-            service = self.env["spp.cel.service"].sudo()
+            service = self.env["spp.cel.service"].sudo()  # nosemgrep: odoo-sudo-without-context
             result = service.compile_expression(
                 self.compliance_cel_expression,
                 profile=profile,

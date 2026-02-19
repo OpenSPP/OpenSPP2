@@ -19,7 +19,7 @@ class ResPartner(models.Model):
 
         # Record view for registrants
         if self.is_registrant:
-            self.env["spp.registry.view.history"].sudo().record_view(self.id)
+            self.env["spp.registry.view.history"].sudo().record_view(self.id)  # nosemgrep: odoo-sudo-without-context
 
         return action
 

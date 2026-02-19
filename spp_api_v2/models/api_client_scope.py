@@ -83,7 +83,7 @@ class ApiClientScope(models.Model):
             ]
             if self.search(domain, limit=1):
                 raise ValidationError(
-                    _("Duplicate scope definition for this client. " "The scope '%s:%s' already exists.")
+                    _("Duplicate scope definition for this client. The scope '%s:%s' already exists.")
                     % (record.resource, record.action)
                 )
 

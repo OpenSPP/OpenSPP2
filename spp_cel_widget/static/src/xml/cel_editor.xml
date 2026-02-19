@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <templates xml:space="preserve">
 
     <t t-name="spp_cel_widget.CelEditor">
@@ -6,8 +6,8 @@
             <!-- Error state -->
             <t t-if="state.error">
                 <div class="alert alert-danger mb-2" role="alert">
-                    <i class="fa fa-exclamation-triangle me-1" aria-hidden="true"/>
-                    Failed to initialize editor: <t t-esc="state.error"/>
+                    <i class="fa fa-exclamation-triangle me-1" aria-hidden="true" />
+                    Failed to initialize editor: <t t-esc="state.error" />
                 </div>
                 <!-- Fallback to textarea -->
                 <textarea
@@ -23,7 +23,12 @@
             <!-- Normal editor -->
             <t t-else="">
                 <!-- Toolbar -->
-                <div t-if="props.showToolbar !== false" class="o_cel_toolbar d-flex align-items-center gap-2 mb-1" role="toolbar" aria-label="Editor toolbar">
+                <div
+                    t-if="props.showToolbar !== false"
+                    class="o_cel_toolbar d-flex align-items-center gap-2 mb-1"
+                    role="toolbar"
+                    aria-label="Editor toolbar"
+                >
                     <button
                         t-if="props.showSymbolBrowser !== false"
                         type="button"
@@ -34,7 +39,7 @@
                         t-att-aria-expanded="state.showBrowser"
                         aria-controls="celSymbolBrowser"
                     >
-                        <i class="fa fa-list-ul me-1" aria-hidden="true"/>
+                        <i class="fa fa-list-ul me-1" aria-hidden="true" />
                         Symbols
                     </button>
 
@@ -45,10 +50,10 @@
                         title="Show suggestions (Ctrl+Space)"
                         aria-label="Show autocomplete suggestions"
                     >
-                        <i class="fa fa-magic" aria-hidden="true"/>
+                        <i class="fa fa-magic" aria-hidden="true" />
                     </button>
 
-                    <div class="flex-grow-1"/>
+                    <div class="flex-grow-1" />
 
                     <!-- Validation status -->
                     <span
@@ -57,8 +62,12 @@
                         aria-live="polite"
                         aria-atomic="true"
                     >
-                        <i t-if="validationIcon" t-att-class="'fa ' + validationIcon + ' me-1'" aria-hidden="true"/>
-                        <span t-esc="validationMessage"/>
+                        <i
+                            t-if="validationIcon"
+                            t-att-class="'fa ' + validationIcon + ' me-1'"
+                            aria-hidden="true"
+                        />
+                        <span t-esc="validationMessage" />
                     </span>
                 </div>
 
@@ -83,9 +92,14 @@
                 </t>
 
                 <!-- Help text for empty state -->
-                <t t-if="props.showHelpText !== false and !hasValue and !state.showBrowser">
-                    <div class="o_cel_help_text text-muted small mt-1" aria-live="polite">
-                        <i class="fa fa-lightbulb-o me-1" aria-hidden="true"/>
+                <t
+                    t-if="props.showHelpText !== false and !hasValue and !state.showBrowser"
+                >
+                    <div
+                        class="o_cel_help_text text-muted small mt-1"
+                        aria-live="polite"
+                    >
+                        <i class="fa fa-lightbulb-o me-1" aria-hidden="true" />
                         Tip: Press <kbd>Ctrl</kbd>+<kbd>Space</kbd> for suggestions,
                         or click <strong>Symbols</strong> to browse available fields.
                     </div>

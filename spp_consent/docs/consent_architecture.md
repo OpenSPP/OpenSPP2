@@ -2,8 +2,9 @@
 
 ## Overview
 
-OpenSPP's consent management implements ISO/IEC TS 27560:2023 (Consent Record Information Structure) and ISO/IEC
-29184:2020 (Privacy Notices and Consent) for data protection compliant data sharing.
+OpenSPP's consent management implements ISO/IEC TS 27560:2023 (Consent Record
+Information Structure) and ISO/IEC 29184:2020 (Privacy Notices and Consent) for data
+protection compliant data sharing.
 
 This architecture ensures:
 
@@ -21,8 +22,8 @@ Defines the **legal boundary** for what can be consented to:
 - What purposes data can be used for
 - What categories of personal data are covered
 
-The notice is shown to beneficiaries **before** obtaining consent. It cannot be changed after consents reference it
-(versioning is used for updates).
+The notice is shown to beneficiaries **before** obtaining consent. It cannot be changed
+after consents reference it (versioning is used for updates).
 
 ### Consent Record (`spp.consent`)
 
@@ -132,16 +133,16 @@ Once consent status changes from "requested" to "given":
 3. **Evidence attachments can still be added** (add-only)
 4. **Changes require**: Invalidate existing + create new consent
 
-Protected fields include: signatory, purposes, data categories, org types, legal basis, expiry, effective date,
-collection method, etc.
+Protected fields include: signatory, purposes, data categories, org types, legal basis,
+expiry, effective date, collection method, etc.
 
-This ensures the consent record accurately represents what was agreed at that point in time - critical for legal
-compliance and audit.
+This ensures the consent record accurately represents what was agreed at that point in
+time - critical for legal compliance and audit.
 
 ## Performance: Consent Summary Cache
 
-For O(1) consent lookups in API filtering, a cached JSON summary is stored on each registrant
-(`res.partner.consent_summary`):
+For O(1) consent lookups in API filtering, a cached JSON summary is stored on each
+registrant (`res.partner.consent_summary`):
 
 ```json
 {

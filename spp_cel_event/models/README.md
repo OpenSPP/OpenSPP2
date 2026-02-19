@@ -13,8 +13,8 @@ This module provides pure Python functions that can be used in CEL expressions t
 
 ## Usage in CEL Expressions
 
-These functions are designed to be called from CEL expressions in eligibility rules, entitlement formulas, and other
-CEL-based logic.
+These functions are designed to be called from CEL expressions in eligibility rules,
+entitlement formulas, and other CEL-based logic.
 
 ### Period Parsing
 

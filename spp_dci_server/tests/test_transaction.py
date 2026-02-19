@@ -72,7 +72,7 @@ class TestDCITransaction(DCIServerCommon):
         )
 
         # Same transaction_id, same sender - should fail
-        with self.assertRaises(Exception):  # IntegrityError wrapped
+        with self.assertRaises(ValidationError):
             self.Transaction.create(
                 {
                     "transaction_id": "unique-txn-001",

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!--
         OpenSPP Security Groups
@@ -17,7 +17,7 @@
     <!-- OpenSPP Administrator Group -->
     <record id="group_spp_admin" model="res.groups">
         <field name="name">Administrator</field>
-        <field name="privilege_id" ref="privilege_spp_admin"/>
+        <field name="privilege_id" ref="privilege_spp_admin" />
         <field name="comment">Full administrative access to all OpenSPP modules.
 This group automatically inherits all manager-level permissions from installed domain modules.
 Assign this group to system administrators who need complete access.</field>
@@ -26,7 +26,7 @@ Assign this group to system administrators who need complete access.</field>
     <!-- Utility Group: Self-Only Access -->
     <record id="group_access_restrict_self" model="res.groups">
         <field name="name">Restricted: Self Only</field>
-        <field name="privilege_id" ref="privilege_access_restrict_self_officer"/>
+        <field name="privilege_id" ref="privilege_access_restrict_self_officer" />
         <field name="comment">Users in this group can only see their own user record.
 Used for field agents and limited-access users.</field>
     </record>
@@ -36,7 +36,7 @@ Used for field agents and limited-access users.</field>
         This extends base.group_system to include group_spp_admin.
     -->
     <record id="base.group_system" model="res.groups">
-        <field name="implied_ids" eval="[Command.link(ref('group_spp_admin'))]"/>
+        <field name="implied_ids" eval="[Command.link(ref('group_spp_admin'))]" />
     </record>
 
     <!--
@@ -53,5 +53,4 @@ Used for field agents and limited-access users.</field>
         This ensures that when spp_registry_base is installed, admins automatically
         get Registry Manager permissions without any manual configuration.
     -->
-
 </odoo>

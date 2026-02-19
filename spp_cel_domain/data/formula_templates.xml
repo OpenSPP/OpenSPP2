@@ -4,7 +4,6 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 Formula Templates - Pre-defined amount and quantity calculation expressions
 -->
 <odoo noupdate="1">
-
     <!-- ═══════════════════════════════════════════════════════════════════════ -->
     <!-- CATEGORIES FOR FORMULAS                                                 -->
     <!-- ═══════════════════════════════════════════════════════════════════════ -->
@@ -58,7 +57,9 @@ Formula Templates - Pre-defined amount and quantity calculation expressions
         <field name="expression_type">formula</field>
         <field name="context_type">group</field>
         <field name="output_type">money</field>
-        <field name="cel_expression">base_amount + (count(m, age_years(m.birthdate) &lt; 18) * child_bonus)</field>
+        <field
+            name="cel_expression"
+        >base_amount + (count(m, age_years(m.birthdate) &lt; 18) * child_bonus)</field>
         <field name="category_id" ref="category_amount_formulas" />
         <field name="is_template">True</field>
         <field name="is_locked">False</field>
@@ -72,7 +73,9 @@ Formula Templates - Pre-defined amount and quantity calculation expressions
         <field name="expression_type">formula</field>
         <field name="context_type">group</field>
         <field name="output_type">money</field>
-        <field name="cel_expression">base_amount + (count(m, age_years(m.birthdate) >= 60) * elderly_bonus)</field>
+        <field
+            name="cel_expression"
+        >base_amount + (count(m, age_years(m.birthdate) >= 60) * elderly_bonus)</field>
         <field name="category_id" ref="category_amount_formulas" />
         <field name="is_template">True</field>
         <field name="is_locked">False</field>
@@ -86,7 +89,9 @@ Formula Templates - Pre-defined amount and quantity calculation expressions
         <field name="expression_type">formula</field>
         <field name="context_type">group</field>
         <field name="output_type">money</field>
-        <field name="cel_expression">base_amount * (1 + (count(m, m.disabled == true) > 0 ? 0.2 : 0))</field>
+        <field
+            name="cel_expression"
+        >base_amount * (1 + (count(m, m.disabled == true) > 0 ? 0.2 : 0))</field>
         <field name="category_id" ref="category_amount_formulas" />
         <field name="is_template">True</field>
         <field name="is_locked">False</field>
@@ -132,12 +137,13 @@ Formula Templates - Pre-defined amount and quantity calculation expressions
         <field name="expression_type">formula</field>
         <field name="context_type">group</field>
         <field name="output_type">number</field>
-        <field name="cel_expression">base_quantity * count(m, age_years(m.birthdate) &lt; 18)</field>
+        <field
+            name="cel_expression"
+        >base_quantity * count(m, age_years(m.birthdate) &lt; 18)</field>
         <field name="category_id" ref="category_quantity_formulas" />
         <field name="is_template">True</field>
         <field name="is_locked">False</field>
         <field name="state">active</field>
         <field name="sequence">20</field>
     </record>
-
 </odoo>

@@ -124,7 +124,7 @@ class DCISigningKey(models.Model):
 
         if self.private_key or self.public_key:
             raise UserError(
-                _("Keys already exist for this record. " "Please create a new key record to generate a new keypair.")
+                _("Keys already exist for this record. Please create a new key record to generate a new keypair.")
             )
 
         _logger.info("Generating %s keypair for key_id: %s", self.algorithm, self.key_id)
@@ -237,6 +237,7 @@ class DCISigningKey(models.Model):
         _logger.debug("Generating JWKS entry for key_id: %s", self.key_id)
 
         try:
+            # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
             sender_id = self.env["ir.config_parameter"].sudo().get_param("dci.sender_id", "openspp")
 
             # Load public key
@@ -306,6 +307,7 @@ class DCISigningKey(models.Model):
 
         from ..services.signing import DCISigner
 
+        # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
         sender_id = self.env["ir.config_parameter"].sudo().get_param("dci.sender_id", "openspp")
 
         return DCISigner(

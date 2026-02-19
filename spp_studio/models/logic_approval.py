@@ -99,6 +99,7 @@ class LogicApproval(models.Model):
         1. System parameter 'spp_studio.require_approval' is True, AND
         2. An approval definition exists for the logic model
         """
+        # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
         ICPSudo = self.env["ir.config_parameter"].sudo()
         require_approval = ICPSudo.get_param("spp_studio.require_approval", default="False")
 

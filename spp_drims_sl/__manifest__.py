@@ -36,6 +36,8 @@
         "data/demo_users.xml",
         # Approval workflow configuration
         "data/approval_config.xml",
+        # Second pass: enable multitier (must load after tiers are created)
+        "data/approval_config_multitier.xml",
     ],
     "application": False,
     "installable": True,

@@ -101,9 +101,7 @@ class TestLogicPacks(TransactionCase):
                     logic_dict,
                     f"Item '{item.name}' logic_data missing 'cel_expression'.",
                 )
-                _logger.debug(
-                    f"Item '{item.name}': JSON valid, " f"expression='{logic_dict.get('cel_expression', '')}'"
-                )
+                _logger.debug(f"Item '{item.name}': JSON valid, expression='{logic_dict.get('cel_expression', '')}'")
             except (json.JSONDecodeError, AssertionError) as e:
                 failed_items.append((item.pack_id.code, item.name, str(e)))
 
@@ -169,9 +167,7 @@ class TestLogicPacks(TransactionCase):
                             }
                         )
                 else:
-                    _logger.info(
-                        f"Pack '{item.pack_id.code}' item '{item.name}': " f"All variables resolved successfully"
-                    )
+                    _logger.info(f"Pack '{item.pack_id.code}' item '{item.name}': All variables resolved successfully")
                     _logger.debug(f"  Original: {result['original_expression']}")
                     _logger.debug(f"  Expanded: {result['expanded_expression']}")
                     if result["variables_used"]:
@@ -246,8 +242,7 @@ class TestLogicPacks(TransactionCase):
 
         if missing_vars:
             self.fail(
-                f"Missing standard variables: {', '.join(missing_vars)}. "
-                f"Check standard_variables.xml loaded correctly."
+                f"Missing standard variables: {', '.join(missing_vars)}. Check standard_variables.xml loaded correctly."
             )
 
     def test_income_expands_to_field_for_individual_context(self):
@@ -300,7 +295,7 @@ class TestLogicPacks(TransactionCase):
                     }
                 )
             else:
-                _logger.debug(f"Computed variable '{var.name}': " f"cel_expression='{var.cel_expression}'")
+                _logger.debug(f"Computed variable '{var.name}': cel_expression='{var.cel_expression}'")
 
         if invalid_vars:
             fail_msg = "Computed variables with invalid CEL expressions:\n"
@@ -350,9 +345,7 @@ class TestLogicPacks(TransactionCase):
                             }
                         )
                     else:
-                        _logger.info(
-                            f"Aggregate variable '{var.name}': " f"type={var.aggregate_type}, " f"cel='{cel_expr}'"
-                        )
+                        _logger.info(f"Aggregate variable '{var.name}': type={var.aggregate_type}, cel='{cel_expr}'")
 
                 # Check that sum/avg/min/max aggregates have a field
                 elif var.aggregate_type in ["sum", "avg", "min", "max"]:
@@ -413,7 +406,7 @@ class TestLogicPacks(TransactionCase):
                 )
 
         if invalid_constants:
-            self.fail(f"Constant variables without default values: " f"{', '.join(invalid_constants)}")
+            self.fail(f"Constant variables without default values: {', '.join(invalid_constants)}")
 
     def test_program_parameter_override(self):
         """Verify program can override constant values."""
@@ -548,7 +541,7 @@ class TestLogicPacks(TransactionCase):
             if not cat:
                 missing_categories.append(cat_code)
             else:
-                _logger.info(f"Variable category '{cat_code}': " f"name={cat.name}, " f"icon={cat.icon}")
+                _logger.info(f"Variable category '{cat_code}': name={cat.name}, icon={cat.icon}")
 
         if missing_categories:
             self.fail(
@@ -614,4 +607,4 @@ class TestLogicPackInstallation(TransactionCase):
         self.assertTrue(hasattr(pack, "action_install"))
         self.assertTrue(hasattr(pack, "action_uninstall"))
 
-        _logger.info(f"Pack '{pack.code}' has installation methods: " f"action_install, action_uninstall")
+        _logger.info(f"Pack '{pack.code}' has installation methods: action_install, action_uninstall")

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!--
         OpenSPP Privileges (Odoo 19 res.groups.privilege)
@@ -18,14 +18,14 @@
     <!-- Admin Privilege - Always available -->
     <record id="privilege_spp_admin" model="res.groups.privilege">
         <field name="name">Administrator</field>
-        <field name="category_id" ref="category_spp_admin"/>
+        <field name="category_id" ref="category_spp_admin" />
         <field name="sequence">1</field>
     </record>
 
     <!-- Restricted Access Privilege - Utility group for self-only access -->
     <record id="privilege_access_restrict_self_officer" model="res.groups.privilege">
         <field name="name">Restricted: Self Only (Officer)</field>
-        <field name="category_id" ref="category_spp_admin"/>
+        <field name="category_id" ref="category_spp_admin" />
         <field name="sequence">10</field>
     </record>
 
@@ -54,5 +54,4 @@
             <field name="sequence">30</field>
         </record>
     -->
-
 </odoo>

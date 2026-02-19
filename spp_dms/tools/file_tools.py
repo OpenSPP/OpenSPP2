@@ -23,9 +23,8 @@ def check_name(name):
     try:
         # Name validation above rejects absolute paths and any path
         # separators, so this join stays confined to tmp_dir.
-        open(
-            os.path.join(tmp_dir, name), "a"
-        ).close()  # nosemgrep: odoo-path-traversal - Name is validated to reject absolute paths and path separators before joining.
+        open(os.path.join(tmp_dir, name), "a").close()  # nosemgrep: odoo-path-traversal
+        # Name is validated to reject absolute paths and path separators before joining.
     except OSError:
         return False
     finally:

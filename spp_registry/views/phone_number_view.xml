@@ -66,8 +66,7 @@
                                 options="{'no_open':True,'no_create_edit':True,'no_create':True}"
                             />
                         </h1>
-                        <div class="o_row">
-                        </div>
+                        <div class="o_row" />
                     </div>
                     <group>
                         <group>
@@ -107,8 +106,12 @@
             <search string="Search Phone Number">
                 <field name="phone_no" />
                 <field name="partner_id" />
-                <separator/>
-                <filter string="Registrant" name="grp_partner_id" context="{'group_by': 'partner_id'}" />
+                <separator />
+                <filter
+                    string="Registrant"
+                    name="grp_partner_id"
+                    context="{'group_by': 'partner_id'}"
+                />
             </search>
         </field>
     </record>
@@ -124,7 +127,8 @@
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Add a Registrant's Phone Number!
-            </p><p>
+            </p>
+            <p>
                 Click the create button to enter a registrant's phone number.
             </p>
         </field>
@@ -143,5 +147,4 @@
         <field name="view_id" ref="view_phone_number_form" />
         <field name="act_window_id" ref="action_phone_number" />
     </record>
-
 </odoo>

@@ -1,16 +1,19 @@
 # DRIMS Multi-Agency Coordination
 
-This document describes the coordination features in DRIMS for managing multi-agency disaster response operations.
+This document describes the coordination features in DRIMS for managing multi-agency
+disaster response operations.
 
 ## OCHA/IASC Humanitarian Clusters
 
-DRIMS implements the standard humanitarian cluster system defined by the UN Office for the Coordination of Humanitarian
-Affairs (OCHA) and the Inter-Agency Standing Committee (IASC).
+DRIMS implements the standard humanitarian cluster system defined by the UN Office for
+the Coordination of Humanitarian Affairs (OCHA) and the Inter-Agency Standing Committee
+(IASC).
 
 ### What are Clusters?
 
-When a major disaster occurs, humanitarian response is organized into **sector-based clusters**, each led by a
-designated UN agency. This prevents duplication, identifies gaps, and ensures coordinated response.
+When a major disaster occurs, humanitarian response is organized into **sector-based
+clusters**, each led by a designated UN agency. This prevents duplication, identifies
+gaps, and ensures coordinated response.
 
 ### Cluster Reference
 
@@ -32,7 +35,8 @@ designated UN agency. This prevents duplication, identifies gaps, and ensures co
 
 #### Requests
 
-Each relief request can be tagged with a cluster to indicate which humanitarian sector it serves:
+Each relief request can be tagged with a cluster to indicate which humanitarian sector
+it serves:
 
 ```
 Request: REQ-2025-0042
@@ -59,15 +63,16 @@ Incident: 2025 Southwest Monsoon Floods
 
 #### 4W Reporting
 
-The 4W Report ("Who does What, Where, When") is a standard humanitarian reporting format. DRIMS generates 4W reports
-that include cluster assignments for coordination meetings.
+The 4W Report ("Who does What, Where, When") is a standard humanitarian reporting
+format. DRIMS generates 4W reports that include cluster assignments for coordination
+meetings.
 
 ### Technical Implementation
 
 **Vocabulary**: `urn:ocha:iasc:clusters`
 
-Located in `spp_drims/data/vocabulary_codes.xml`, the clusters are defined as vocabulary codes that can be referenced
-across the system.
+Located in `spp_drims/data/vocabulary_codes.xml`, the clusters are defined as vocabulary
+codes that can be referenced across the system.
 
 **Fields**:
 
@@ -87,7 +92,8 @@ DRIMS supports different coordination models for multi-agency response:
 | `consortium`  | Consortium     | NGO-led coordination among partner organizations            |
 | `bilateral`   | Bilateral      | Direct government-to-government or agency-to-agency         |
 
-Each incident can be assigned a coordination mode to indicate how the response is being managed.
+Each incident can be assigned a coordination mode to indicate how the response is being
+managed.
 
 **Field**: `spp.hazard.incident.coordination_mode_id`
 

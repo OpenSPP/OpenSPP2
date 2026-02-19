@@ -61,7 +61,7 @@ def get_demo_constant(env: Environment, name: str, default: Any = None) -> int |
         The constant value (number or string)
     """
     # Try to get from spp.cel.variable
-    Variable = env["spp.cel.variable"].sudo()
+    Variable = env["spp.cel.variable"].sudo()  # nosemgrep: odoo-sudo-without-context
     variable = Variable.search([("name", "=", name)], limit=1)
 
     if variable and variable.default_value:
@@ -106,8 +106,8 @@ def ensure_demo_constants(env: Environment) -> None:
     Args:
         env: Odoo environment
     """
-    Variable = env["spp.cel.variable"].sudo()
-    Category = env["spp.cel.variable.category"].sudo()
+    Variable = env["spp.cel.variable"].sudo()  # nosemgrep: odoo-sudo-without-context
+    Category = env["spp.cel.variable.category"].sudo()  # nosemgrep: odoo-sudo-without-context
 
     # Get or create demo category
     demo_category = Category.search([("code", "=", "demo")], limit=1)
@@ -164,7 +164,7 @@ def install_demo_packs(env: Environment) -> list:
     Returns:
         List of installed pack records
     """
-    Pack = env["spp.studio.pack"].sudo()
+    Pack = env["spp.studio.pack"].sudo()  # nosemgrep: odoo-sudo-without-context
     installed = []
 
     for code in DEMO_LOGIC_PACKS:

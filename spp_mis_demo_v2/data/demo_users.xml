@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <!--
     Demo Users for SP-MIS Demo V2
 
@@ -11,187 +11,272 @@
     All demo users share the same password: "demo" (hashed in the system)
 -->
 <odoo noupdate="1">
-
-        <!-- ═══════════════════════════════════════════════════════════════════════
+    <!-- ═══════════════════════════════════════════════════════════════════════
              ROLE EXTENSIONS FOR QR CREDENTIALS
              ═══════════════════════════════════════════════════════════════════════
              Since spp_mis_demo_v2 depends on spp_claim_169, we extend roles to
              include the QR Credentials User privilege for registrars.
         -->
 
-        <!-- Grant admin full QR Credentials access -->
-        <record id="base.user_admin" model="res.users">
-            <field name="group_ids" eval="[
+    <!-- Grant admin full QR Credentials access -->
+    <record
+        id="base.user_admin"
+        model="res.users"
+        context="{'no_reset_password': True}"
+    >
+        <field
+            name="group_ids"
+            eval="[
                 Command.link(ref('spp_claim_169.group_claim169_manager')),
-            ]"/>
-        </record>
+            ]"
+        />
+    </record>
 
-        <!-- Extend Global Registrar role to include QR Credentials User -->
-        <record id="spp_user_roles.global_role_registrar" model="res.users.role">
-            <field
-                name="implied_ids"
-                eval="[
+    <!-- Extend Global Registrar role to include QR Credentials User -->
+    <record id="spp_user_roles.global_role_registrar" model="res.users.role">
+        <field
+            name="implied_ids"
+            eval="[
                     Command.link(ref('base.group_user')),
                     Command.link(ref('spp_registry.group_registry_officer')),
                     Command.link(ref('spp_claim_169.group_claim169_user')),
                 ]"
-            />
-        </record>
+        />
+    </record>
 
-        <!-- Extend Local Registrar role to include QR Credentials User -->
-        <record id="spp_user_roles.local_role_registrar" model="res.users.role">
-            <field
-                name="implied_ids"
-                eval="[
+    <!-- Extend Local Registrar role to include QR Credentials User -->
+    <record id="spp_user_roles.local_role_registrar" model="res.users.role">
+        <field
+            name="implied_ids"
+            eval="[
                     Command.link(ref('base.group_user')),
                     Command.link(ref('spp_registry.group_registry_officer')),
                     Command.link(ref('spp_claim_169.group_claim169_user')),
                 ]"
-            />
-        </record>
+        />
+    </record>
 
-        <!-- ═══════════════════════════════════════════════════════════════════════
+    <!-- ═══════════════════════════════════════════════════════════════════════
              ADDITIONAL GLOBAL ROLES
              ═══════════════════════════════════════════════════════════════════════ -->
 
-        <!-- Registry Manager role (not defined in spp_user_roles, needed for demo) -->
-        <record id="global_role_registry_manager" model="res.users.role">
-            <field name="name">Global Registry Manager</field>
-            <field name="role_type">global</field>
-            <field name="comment">Full access to registry records including create, edit, and delete.</field>
-            <field
-                name="implied_ids"
-                eval="[
+    <!-- Registry Manager role (not defined in spp_user_roles, needed for demo) -->
+    <record id="global_role_registry_manager" model="res.users.role">
+        <field name="name">Global Registry Manager</field>
+        <field name="role_type">global</field>
+        <field
+            name="comment"
+        >Full access to registry records including create, edit, and delete.</field>
+        <field
+            name="implied_ids"
+            eval="[
                     Command.link(ref('base.group_user')),
                     Command.link(ref('spp_registry.group_registry_manager')),
                 ]"
-            />
-        </record>
+        />
+    </record>
 
-        <!-- ═══════════════════════════════════════════════════════════════════════
+    <!-- ═══════════════════════════════════════════════════════════════════════
              ROLE OVERRIDES FOR SPP_DEMO USERS
              ═══════════════════════════════════════════════════════════════════════ -->
 
-        <!-- Demo Manager - Registry Manager, Program Manager, Cycle Approver -->
-        <record id="spp_demo.demo_manager" model="res.users">
-            <field name="role_line_ids" eval="[
+    <!-- Demo Manager - Registry Manager, Program Manager, Cycle Approver -->
+    <record
+        id="spp_demo.demo_manager"
+        model="res.users"
+        context="{'no_reset_password': True}"
+    >
+        <field
+            name="role_line_ids"
+            eval="[
                 (0, 0, {'role_id': ref('global_role_registry_manager')}),
                 (0, 0, {'role_id': ref('spp_user_roles.global_role_program_manager')}),
                 (0, 0, {'role_id': ref('spp_programs.global_role_program_cycle_approver')}),
-            ]"/>
-        </record>
+            ]"
+        />
+    </record>
 
-        <!-- Demo Officer - Global Registrar, Program Viewer, CR Requestor -->
-        <record id="spp_demo.demo_officer" model="res.users">
-            <field name="role_line_ids" eval="[
+    <!-- Demo Officer - Global Registrar, Program Viewer, CR Requestor -->
+    <record
+        id="spp_demo.demo_officer"
+        model="res.users"
+        context="{'no_reset_password': True}"
+    >
+        <field
+            name="role_line_ids"
+            eval="[
                 (0, 0, {'role_id': ref('spp_user_roles.global_role_registrar')}),
                 (0, 0, {'role_id': ref('spp_programs.global_role_program_viewer')}),
                 (0, 0, {'role_id': ref('spp_change_request_v2.global_role_cr_requestor')}),
-            ]"/>
-        </record>
+            ]"
+        />
+    </record>
 
-        <!-- Demo Supervisor - Global Registrar, Program Manager -->
-        <record id="spp_demo.demo_supervisor" model="res.users">
-            <field name="role_line_ids" eval="[
+    <!-- Demo Supervisor - Global Registrar, Program Manager -->
+    <record
+        id="spp_demo.demo_supervisor"
+        model="res.users"
+        context="{'no_reset_password': True}"
+    >
+        <field
+            name="role_line_ids"
+            eval="[
                 (0, 0, {'role_id': ref('spp_user_roles.global_role_registrar')}),
                 (0, 0, {'role_id': ref('spp_user_roles.global_role_program_manager')}),
-            ]"/>
-        </record>
+            ]"
+        />
+    </record>
 
-        <!-- Demo Viewer - Registry Viewer, Program Viewer -->
-        <record id="spp_demo.demo_viewer" model="res.users">
-            <field name="role_line_ids" eval="[
+    <!-- Demo Viewer - Registry Viewer, Program Viewer -->
+    <record
+        id="spp_demo.demo_viewer"
+        model="res.users"
+        context="{'no_reset_password': True}"
+    >
+        <field
+            name="role_line_ids"
+            eval="[
                 (0, 0, {'role_id': ref('spp_user_roles.global_role_registry_viewer')}),
                 (0, 0, {'role_id': ref('spp_programs.global_role_program_viewer')}),
-            ]"/>
-        </record>
+            ]"
+        />
+    </record>
 
-        <!-- ═══════════════════════════════════════════════════════════════════════
+    <!-- ═══════════════════════════════════════════════════════════════════════
              REGISTRAR USERS
              ═══════════════════════════════════════════════════════════════════════ -->
 
-        <!-- Local Registrar - Area-scoped data capture -->
-        <record id="demo_user_local_registrar" model="res.users">
-            <field name="name">Demo Local Registrar</field>
-            <field name="login">demo_local_registrar</field>
-            <field name="email">demo_local_registrar@demo.spp</field>
-            <field name="password">demo</field>
-            <field name="role_line_ids" eval="[(0, 0, {'role_id': ref('spp_user_roles.local_role_registrar')})]"/>
-            <field name="company_id" ref="base.main_company"/>
-            <field name="active" eval="True"/>
-        </record>
+    <!-- Local Registrar - Area-scoped data capture -->
+    <record
+        id="demo_user_local_registrar"
+        model="res.users"
+        context="{'no_reset_password': True}"
+    >
+        <field name="name">Demo Local Registrar</field>
+        <field name="login">demo_local_registrar</field>
+        <field name="email">demo_local_registrar@demo.spp</field>
+        <field name="password">demo</field>
+        <field
+            name="role_line_ids"
+            eval="[(0, 0, {'role_id': ref('spp_user_roles.local_role_registrar')})]"
+        />
+        <field name="company_id" ref="base.main_company" />
+        <field name="active" eval="True" />
+    </record>
 
-        <!-- Global Registrar - Full access to registration across all areas -->
-        <record id="demo_user_global_registrar" model="res.users">
-            <field name="name">Demo Global Registrar</field>
-            <field name="login">demo_global_registrar</field>
-            <field name="email">demo_global_registrar@demo.spp</field>
-            <field name="password">demo</field>
-            <field name="role_line_ids" eval="[(0, 0, {'role_id': ref('spp_user_roles.global_role_registrar')})]"/>
-            <field name="company_id" ref="base.main_company"/>
-            <field name="active" eval="True"/>
-        </record>
+    <!-- Global Registrar - Full access to registration across all areas -->
+    <record
+        id="demo_user_global_registrar"
+        model="res.users"
+        context="{'no_reset_password': True}"
+    >
+        <field name="name">Demo Global Registrar</field>
+        <field name="login">demo_global_registrar</field>
+        <field name="email">demo_global_registrar@demo.spp</field>
+        <field name="password">demo</field>
+        <field
+            name="role_line_ids"
+            eval="[(0, 0, {'role_id': ref('spp_user_roles.global_role_registrar')})]"
+        />
+        <field name="company_id" ref="base.main_company" />
+        <field name="active" eval="True" />
+    </record>
 
-        <!-- ═══════════════════════════════════════════════════════════════════════
+    <!-- ═══════════════════════════════════════════════════════════════════════
              CHANGE REQUEST VALIDATORS
              ═══════════════════════════════════════════════════════════════════════ -->
 
-        <!-- CR Local Validator - Area-scoped change request approval -->
-        <record id="demo_user_cr_local_validator" model="res.users">
-            <field name="name">Demo CR Local Validator</field>
-            <field name="login">demo_cr_local_validator</field>
-            <field name="email">demo_cr_local_validator@demo.spp</field>
-            <field name="password">demo</field>
-            <field name="role_line_ids" eval="[(0, 0, {'role_id': ref('spp_change_request_v2.local_role_cr_validator')})]"/>
-            <field name="company_id" ref="base.main_company"/>
-            <field name="active" eval="True"/>
-        </record>
+    <!-- CR Local Validator - Area-scoped change request approval -->
+    <record
+        id="demo_user_cr_local_validator"
+        model="res.users"
+        context="{'no_reset_password': True}"
+    >
+        <field name="name">Demo CR Local Validator</field>
+        <field name="login">demo_cr_local_validator</field>
+        <field name="email">demo_cr_local_validator@demo.spp</field>
+        <field name="password">demo</field>
+        <field
+            name="role_line_ids"
+            eval="[(0, 0, {'role_id': ref('spp_change_request_v2.local_role_cr_validator')})]"
+        />
+        <field name="company_id" ref="base.main_company" />
+        <field name="active" eval="True" />
+    </record>
 
-        <!-- CR HQ Validator - Headquarters-level change request approval -->
-        <record id="demo_user_cr_hq_validator" model="res.users">
-            <field name="name">Demo CR HQ Validator</field>
-            <field name="login">demo_cr_hq_validator</field>
-            <field name="email">demo_cr_hq_validator@demo.spp</field>
-            <field name="password">demo</field>
-            <field name="role_line_ids" eval="[(0, 0, {'role_id': ref('spp_change_request_v2.global_role_cr_validator_hq')})]"/>
-            <field name="company_id" ref="base.main_company"/>
-            <field name="active" eval="True"/>
-        </record>
+    <!-- CR HQ Validator - Headquarters-level change request approval -->
+    <record
+        id="demo_user_cr_hq_validator"
+        model="res.users"
+        context="{'no_reset_password': True}"
+    >
+        <field name="name">Demo CR HQ Validator</field>
+        <field name="login">demo_cr_hq_validator</field>
+        <field name="email">demo_cr_hq_validator@demo.spp</field>
+        <field name="password">demo</field>
+        <field
+            name="role_line_ids"
+            eval="[(0, 0, {'role_id': ref('spp_change_request_v2.global_role_cr_validator_hq')})]"
+        />
+        <field name="company_id" ref="base.main_company" />
+        <field name="active" eval="True" />
+    </record>
 
-        <!-- ═══════════════════════════════════════════════════════════════════════
+    <!-- ═══════════════════════════════════════════════════════════════════════
              PROGRAM USERS
              ═══════════════════════════════════════════════════════════════════════ -->
 
-        <!-- Program Manager - Full program management capabilities -->
-        <record id="demo_user_program_manager" model="res.users">
-            <field name="name">Demo Program Manager</field>
-            <field name="login">demo_program_manager</field>
-            <field name="email">demo_program_manager@demo.spp</field>
-            <field name="password">demo</field>
-            <field name="role_line_ids" eval="[(0, 0, {'role_id': ref('spp_user_roles.global_role_program_manager')})]"/>
-            <field name="company_id" ref="base.main_company"/>
-            <field name="active" eval="True"/>
-        </record>
+    <!-- Program Manager - Full program management capabilities -->
+    <record
+        id="demo_user_program_manager"
+        model="res.users"
+        context="{'no_reset_password': True}"
+    >
+        <field name="name">Demo Program Manager</field>
+        <field name="login">demo_program_manager</field>
+        <field name="email">demo_program_manager@demo.spp</field>
+        <field name="password">demo</field>
+        <field
+            name="role_line_ids"
+            eval="[(0, 0, {'role_id': ref('spp_user_roles.global_role_program_manager')})]"
+        />
+        <field name="company_id" ref="base.main_company" />
+        <field name="active" eval="True" />
+    </record>
 
-        <!-- Program Validator - Validates programs and manages cycles -->
-        <record id="demo_user_program_validator" model="res.users">
-            <field name="name">Demo Program Validator</field>
-            <field name="login">demo_program_validator</field>
-            <field name="email">demo_program_validator@demo.spp</field>
-            <field name="password">demo</field>
-            <field name="role_line_ids" eval="[(0, 0, {'role_id': ref('spp_programs.global_role_program_validator')})]"/>
-            <field name="company_id" ref="base.main_company"/>
-            <field name="active" eval="True"/>
-        </record>
+    <!-- Program Validator - Validates programs and manages cycles -->
+    <record
+        id="demo_user_program_validator"
+        model="res.users"
+        context="{'no_reset_password': True}"
+    >
+        <field name="name">Demo Program Validator</field>
+        <field name="login">demo_program_validator</field>
+        <field name="email">demo_program_validator@demo.spp</field>
+        <field name="password">demo</field>
+        <field
+            name="role_line_ids"
+            eval="[(0, 0, {'role_id': ref('spp_programs.global_role_program_validator')})]"
+        />
+        <field name="company_id" ref="base.main_company" />
+        <field name="active" eval="True" />
+    </record>
 
-        <!-- Cycle Approver - Can approve program cycles -->
-        <record id="demo_user_cycle_approver" model="res.users">
-            <field name="name">Demo Cycle Approver</field>
-            <field name="login">demo_cycle_approver</field>
-            <field name="email">demo_cycle_approver@demo.spp</field>
-            <field name="password">demo</field>
-            <field name="role_line_ids" eval="[(0, 0, {'role_id': ref('spp_programs.global_role_program_cycle_approver')})]"/>
-            <field name="company_id" ref="base.main_company"/>
-            <field name="active" eval="True"/>
-        </record>
+    <!-- Cycle Approver - Can approve program cycles -->
+    <record
+        id="demo_user_cycle_approver"
+        model="res.users"
+        context="{'no_reset_password': True}"
+    >
+        <field name="name">Demo Cycle Approver</field>
+        <field name="login">demo_cycle_approver</field>
+        <field name="email">demo_cycle_approver@demo.spp</field>
+        <field name="password">demo</field>
+        <field
+            name="role_line_ids"
+            eval="[(0, 0, {'role_id': ref('spp_programs.global_role_program_cycle_approver')})]"
+        />
+        <field name="company_id" ref="base.main_company" />
+        <field name="active" eval="True" />
+    </record>
 </odoo>

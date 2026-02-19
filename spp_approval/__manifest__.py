@@ -4,8 +4,8 @@
     "summary": "Standardized approval workflows with multi-tier sequencing and CEL rules",
     "version": "19.0.2.0.0",
     "license": "LGPL-3",
-    "development_status": "Stable",
-    "author": "OpenSPP Community",
+    "development_status": "Production/Stable",
+    "author": "OpenSPP.org, OpenSPP Community",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "category": "OpenSPP",
     "depends": [

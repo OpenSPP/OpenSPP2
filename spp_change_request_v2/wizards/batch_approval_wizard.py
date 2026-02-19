@@ -233,7 +233,7 @@ class SPPCRBatchApprovalWizard(models.TransientModel):
                 failed_count += 1
 
         # Mark skipped lines
-        for line in self.line_ids.filtered(lambda l: not l.can_process):
+        for line in self.line_ids.filtered(lambda ln: not ln.can_process):
             line.result_status = "skipped"
 
         self.success_count = success_count

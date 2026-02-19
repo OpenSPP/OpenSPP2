@@ -4,29 +4,36 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 CEL Support Views for Create Program Wizard
 -->
 <odoo>
-
     <!-- ========================================== -->
     <!-- CEL ELIGIBILITY EXTENSION                  -->
     <!-- ========================================== -->
     <record id="create_program_wizard_form_view_cel_eligibility" model="ir.ui.view">
         <field name="name">Create Program Wizard - CEL Eligibility</field>
         <field name="model">spp.program.create.wizard</field>
-        <field name="priority">20</field>
-        <field name="inherit_id" ref="spp_programs.create_program_wizard_form_view_spp" />
+        <field name="priority">99</field>
+        <field
+            name="inherit_id"
+            ref="spp_programs.create_program_wizard_form_view_spp"
+        />
         <field name="arch" type="xml">
-
             <!-- Hide eligibility type radio - only one option exists -->
             <xpath expr="//field[@name='eligibility_type']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
 
             <!-- Hide Geographic Targeting - can be done via CEL expression -->
-            <xpath expr="//group[@name='default_eligibility']//field[@name='admin_area_ids']/.." position="replace">
+            <xpath
+                expr="//group[@name='default_eligibility']//field[@name='admin_area_ids']/.."
+                position="replace"
+            >
                 <!-- Removed: Geographic targeting is now part of CEL expression -->
             </xpath>
 
             <!-- Replace domain field with CEL expression -->
-            <xpath expr="//group[@name='default_eligibility']//field[@name='eligibility_domain']/.." position="replace">
+            <xpath
+                expr="//group[@name='default_eligibility']//field[@name='eligibility_domain']/.."
+                position="replace"
+            >
                 <group colspan="4" name="eligibility_cel_section">
                     <!-- Hidden fields for widget context -->
                     <field name="eligibility_cel_profile" invisible="1" />
@@ -42,7 +49,11 @@ CEL Support Views for Create Program Wizard
                             placeholder="Manual selection (no automatic filter)"
                         />
                         <!-- Lock indicator badge -->
-                        <div colspan="1" invisible="not eligibility_is_locked" class="text-warning">
+                        <div
+                            colspan="1"
+                            invisible="not eligibility_is_locked"
+                            class="text-warning"
+                        >
                             <i class="fa fa-lock" title="Locked" />
                             <span class="ms-1">Locked</span>
                         </div>
@@ -60,7 +71,9 @@ CEL Support Views for Create Program Wizard
                         invisible="not eligibility_criteria_id or not eligibility_cel_is_valid"
                     >
                         <i class="fa fa-check-circle me-1" title="Success" />
-                        <strong><field name="eligibility_cel_preview_count" class="oe_inline" /></strong>
+                        <strong>
+                        <field name="eligibility_cel_preview_count" class="oe_inline" />
+                    </strong>
                         beneficiaries match this criteria.
                     </div>
 
@@ -82,12 +95,17 @@ CEL Support Views for Create Program Wizard
                         invisible="not eligibility_is_locked"
                     >
                         <i class="fa fa-lock me-1" title="Locked" />
-                        This eligibility criteria is <strong>locked</strong> and cannot be modified.
+                        This eligibility criteria is <strong
+                    >locked</strong> and cannot be modified.
                         The expression is standardized for compliance purposes.
                     </div>
 
                     <!-- Collapsible Advanced Section (hidden when locked) -->
-                    <div class="o_horizontal_separator mt-3" colspan="4" invisible="eligibility_is_locked">
+                    <div
+                        class="o_horizontal_separator mt-3"
+                        colspan="4"
+                        invisible="eligibility_is_locked"
+                    >
                         <a
                             class="o_horizontal_separator_label text-muted small"
                             data-bs-toggle="collapse"
@@ -99,7 +117,12 @@ CEL Support Views for Create Program Wizard
                             <i class="fa fa-caret-right me-1" title="Expand" /> Advanced
                         </a>
                     </div>
-                    <div class="collapse" id="eligibility_advanced_section" colspan="4" invisible="eligibility_is_locked">
+                    <div
+                        class="collapse"
+                        id="eligibility_advanced_section"
+                        colspan="4"
+                        invisible="eligibility_is_locked"
+                    >
                         <group colspan="4">
                             <!-- CEL Expression Editor -->
                             <field
@@ -118,20 +141,28 @@ CEL Support Views for Create Program Wizard
                                 colspan="4"
                                 invisible="eligibility_cel_is_valid or not eligibility_cel_expression"
                             >
-                                <i class="fa fa-exclamation-triangle me-1" title="Warning" />
-                                <field name="eligibility_cel_error" nolabel="1" class="oe_inline" />
+                                <i
+                                    class="fa fa-exclamation-triangle me-1"
+                                    title="Warning"
+                                />
+                                <field
+                                    name="eligibility_cel_error"
+                                    nolabel="1"
+                                    class="oe_inline"
+                                />
                             </div>
 
                             <div class="text-muted small mt-2" colspan="4">
-                                <strong>Tip:</strong> Use expressions like <code>age_years(r.birthdate) >= 18</code>,
+                                <strong>Tip:</strong> Use expressions like <code
+                            >age_years(r.birthdate) >= 18</code>,
                                 <code>is_female(r.gender_id)</code>,
-                                or <code>r.area_id.id in [1, 2, 3]</code> for geographic targeting.
+                                or <code
+                            >r.area_id.id in [1, 2, 3]</code> for geographic targeting.
                             </div>
                         </group>
                     </div>
                 </group>
             </xpath>
-
         </field>
     </record>
 
@@ -144,9 +175,11 @@ CEL Support Views for Create Program Wizard
         <field name="priority">25</field>
         <field name="inherit_id" ref="spp_programs.create_program_wizard_form_view" />
         <field name="arch" type="xml">
-
             <!-- Add compliance toggle to Step 1 Options row -->
-            <xpath expr="//group[@name='compliance_toggle_placeholder']" position="inside">
+            <xpath
+                expr="//group[@name='compliance_toggle_placeholder']"
+                position="inside"
+            >
                 <field
                     name="enable_compliance_cel"
                     widget="boolean_toggle"
@@ -178,7 +211,11 @@ CEL Support Views for Create Program Wizard
                                     placeholder="Select ongoing compliance criteria"
                                 />
                                 <!-- Lock indicator badge -->
-                                <div colspan="1" invisible="not compliance_is_locked" class="text-warning">
+                                <div
+                                    colspan="1"
+                                    invisible="not compliance_is_locked"
+                                    class="text-warning"
+                                >
                                     <i class="fa fa-lock" title="Locked" />
                                     <span class="ms-1">Locked</span>
                                 </div>
@@ -192,7 +229,12 @@ CEL Support Views for Create Program Wizard
                                 invisible="not compliance_criteria_id or not compliance_cel_is_valid"
                             >
                                 <i class="fa fa-check-circle me-1" title="Success" />
-                                <strong><field name="compliance_cel_preview_count" class="oe_inline" /></strong>
+                                <strong>
+                                <field
+                                    name="compliance_cel_preview_count"
+                                    class="oe_inline"
+                                />
+                            </strong>
                                 beneficiaries currently comply.
                             </div>
 
@@ -204,11 +246,16 @@ CEL Support Views for Create Program Wizard
                                 invisible="not compliance_is_locked"
                             >
                                 <i class="fa fa-lock me-1" title="Locked" />
-                                This compliance criteria is <strong>locked</strong> and cannot be modified.
+                                This compliance criteria is <strong
+                            >locked</strong> and cannot be modified.
                             </div>
 
                             <!-- Collapsible Advanced Section (hidden when locked) -->
-                            <div class="o_horizontal_separator mt-3" colspan="4" invisible="compliance_is_locked">
+                            <div
+                                class="o_horizontal_separator mt-3"
+                                colspan="4"
+                                invisible="compliance_is_locked"
+                            >
                                 <a
                                     class="o_horizontal_separator_label text-muted small"
                                     data-bs-toggle="collapse"
@@ -217,10 +264,18 @@ CEL Support Views for Create Program Wizard
                                     aria-expanded="false"
                                     aria-controls="compliance_advanced_section"
                                 >
-                                    <i class="fa fa-caret-right me-1" title="Expand" /> Advanced
+                                    <i
+                                    class="fa fa-caret-right me-1"
+                                    title="Expand"
+                                /> Advanced
                                 </a>
                             </div>
-                            <div class="collapse" id="compliance_advanced_section" colspan="4" invisible="compliance_is_locked">
+                            <div
+                                class="collapse"
+                                id="compliance_advanced_section"
+                                colspan="4"
+                                invisible="compliance_is_locked"
+                            >
                                 <group colspan="4">
                                     <!-- CEL Expression Editor -->
                                     <field
@@ -239,8 +294,15 @@ CEL Support Views for Create Program Wizard
                                         colspan="4"
                                         invisible="compliance_cel_is_valid or not compliance_cel_expression"
                                     >
-                                        <i class="fa fa-exclamation-triangle me-1" title="Warning" />
-                                        <field name="compliance_cel_error" nolabel="1" class="oe_inline" />
+                                        <i
+                                            class="fa fa-exclamation-triangle me-1"
+                                            title="Warning"
+                                        />
+                                        <field
+                                            name="compliance_cel_error"
+                                            nolabel="1"
+                                            class="oe_inline"
+                                        />
                                     </div>
                                 </group>
                             </div>
@@ -248,7 +310,6 @@ CEL Support Views for Create Program Wizard
                     </group>
                 </page>
             </xpath>
-
         </field>
     </record>
 
@@ -261,7 +322,6 @@ CEL Support Views for Create Program Wizard
         <field name="priority">30</field>
         <field name="inherit_id" ref="spp_programs.create_program_wizard_form_view" />
         <field name="arch" type="xml">
-
             <!-- Add Cash Items section before approval settings -->
             <xpath expr="//group[@name='approval_settings']" position="before">
                 <group
@@ -271,7 +331,11 @@ CEL Support Views for Create Program Wizard
                 >
                     <group name="cash_items_header">
                         <group>
-                            <field name="is_evaluate_one_item" widget="boolean_toggle" string="Single item" />
+                            <field
+                                name="is_evaluate_one_item"
+                                widget="boolean_toggle"
+                                string="Single item"
+                            />
                         </group>
                     </group>
                     <field name="entitlement_cash_item_ids" nolabel="1" colspan="4">
@@ -300,7 +364,10 @@ CEL Support Views for Create Program Wizard
                             </group>
 
                             <!-- ROW 2: Lock indicator (only when locked) -->
-                            <div invisible="not amount_is_locked" class="text-warning small mb-2">
+                            <div
+                                invisible="not amount_is_locked"
+                                class="text-warning small mb-2"
+                            >
                                 <i class="fa fa-lock me-1" title="Locked" />
                                 Amount formula is locked
                             </div>
@@ -315,7 +382,11 @@ CEL Support Views for Create Program Wizard
                             </group>
 
                             <!-- ROW 4: CEL Formula (conditionally visible) -->
-                            <group colspan="4" invisible="amount_mode != 'cel'" class="mt-0">
+                            <group
+                                colspan="4"
+                                invisible="amount_mode != 'cel'"
+                                class="mt-0"
+                            >
                                 <field
                                     name="amount_cel_expression"
                                     colspan="4"
@@ -324,26 +395,48 @@ CEL Support Views for Create Program Wizard
                                     readonly="amount_is_locked"
                                 />
                                 <!-- Compact inline validation -->
-                                <div class="small" colspan="4" invisible="not amount_cel_expression">
+                                <div
+                                    class="small"
+                                    colspan="4"
+                                    invisible="not amount_cel_expression"
+                                >
                                     <span
                                         class="text-success"
                                         invisible="not amount_cel_is_valid"
                                     >
-                                        <i class="fa fa-check-circle me-1" title="Success" />
-                                        <field name="amount_cel_preview" nolabel="1" class="oe_inline" />
+                                        <i
+                                            class="fa fa-check-circle me-1"
+                                            title="Success"
+                                        />
+                                        <field
+                                            name="amount_cel_preview"
+                                            nolabel="1"
+                                            class="oe_inline"
+                                        />
                                     </span>
                                     <span
                                         class="text-danger"
                                         invisible="amount_cel_is_valid"
                                     >
-                                        <i class="fa fa-times-circle me-1" title="Error" />
-                                        <field name="amount_cel_error" nolabel="1" class="oe_inline" />
+                                        <i
+                                            class="fa fa-times-circle me-1"
+                                            title="Error"
+                                        />
+                                        <field
+                                            name="amount_cel_error"
+                                            nolabel="1"
+                                            class="oe_inline"
+                                        />
                                     </span>
                                 </div>
                             </group>
 
                             <!-- ROW 5: Multiplier fields (side-by-side, Fixed mode only) -->
-                            <group col="2" invisible="amount_mode != 'fixed'" class="mt-0">
+                            <group
+                                col="2"
+                                invisible="amount_mode != 'fixed'"
+                                class="mt-0"
+                            >
                                 <field
                                     name="multiplier_field"
                                     string="Multiplier Field"
@@ -373,7 +466,10 @@ CEL Support Views for Create Program Wizard
                             </group>
 
                             <!-- Lock indicator for condition -->
-                            <div invisible="not condition_is_locked" class="text-warning small mb-2">
+                            <div
+                                invisible="not condition_is_locked"
+                                class="text-warning small mb-2"
+                            >
                                 <i class="fa fa-lock me-1" title="Locked" />
                                 Condition is locked
                             </div>
@@ -402,21 +498,37 @@ CEL Support Views for Create Program Wizard
                                     nolabel="1"
                                 />
                                 <!-- Compact inline validation -->
-                                <div class="small" colspan="4" invisible="not cel_condition">
+                                <div
+                                    class="small"
+                                    colspan="4"
+                                    invisible="not cel_condition"
+                                >
                                     <span
                                         class="text-success"
                                         invisible="not cel_is_valid"
                                     >
-                                        <i class="fa fa-check-circle me-1" title="Success" />
-                                        <strong><field name="cel_preview_count" class="oe_inline" /></strong>
+                                        <i
+                                        class="fa fa-check-circle me-1"
+                                        title="Success"
+                                    />
+                                        <strong>
+                                        <field
+                                            name="cel_preview_count"
+                                            class="oe_inline"
+                                        />
+                                    </strong>
                                         beneficiaries match
                                     </span>
-                                    <span
-                                        class="text-danger"
-                                        invisible="cel_is_valid"
-                                    >
-                                        <i class="fa fa-times-circle me-1" title="Error" />
-                                        <field name="cel_error" nolabel="1" class="oe_inline" />
+                                    <span class="text-danger" invisible="cel_is_valid">
+                                        <i
+                                            class="fa fa-times-circle me-1"
+                                            title="Error"
+                                        />
+                                        <field
+                                            name="cel_error"
+                                            nolabel="1"
+                                            class="oe_inline"
+                                        />
                                     </span>
                                 </div>
                             </group>
@@ -439,11 +551,13 @@ CEL Support Views for Create Program Wizard
                     </field>
 
                     <group colspan="4">
-                        <field name="max_amount" string="Maximum Total Amount (0 = no limit)" />
+                        <field
+                            name="max_amount"
+                            string="Maximum Total Amount (0 = no limit)"
+                        />
                     </group>
                 </group>
             </xpath>
-
         </field>
     </record>
 
@@ -453,12 +567,17 @@ CEL Support Views for Create Program Wizard
     <record id="create_program_wizard_form_view_cel_inkind" model="ir.ui.view">
         <field name="name">Create Program Wizard - CEL In-Kind Items</field>
         <field name="model">spp.program.create.wizard</field>
-        <field name="priority">35</field>
-        <field name="inherit_id" ref="spp_programs.create_program_wizard_form_view_inkind" />
+        <field name="priority">99</field>
+        <field
+            name="inherit_id"
+            ref="spp_programs.create_program_wizard_form_view_inkind"
+        />
         <field name="arch" type="xml">
-
             <!-- Update in-kind item form to include CEL fields -->
-            <xpath expr="//field[@name='entitlement_item_ids']//form" position="replace">
+            <xpath
+                expr="//field[@name='entitlement_item_ids']//form"
+                position="replace"
+            >
                 <form string="In-Kind Entitlement Item">
                     <!-- Hidden fields -->
                     <field name="quantity_is_locked" invisible="1" />
@@ -490,7 +609,10 @@ CEL Support Views for Create Program Wizard
                     </group>
 
                     <!-- Lock indicator (only when locked) -->
-                    <div invisible="not quantity_is_locked" class="text-warning small mb-2">
+                    <div
+                        invisible="not quantity_is_locked"
+                        class="text-warning small mb-2"
+                    >
                         <i class="fa fa-lock me-1" title="Locked" />
                         Quantity formula is locked
                     </div>
@@ -514,20 +636,29 @@ CEL Support Views for Create Program Wizard
                             readonly="quantity_is_locked"
                         />
                         <!-- Compact inline validation -->
-                        <div class="small" colspan="4" invisible="not quantity_cel_expression">
+                        <div
+                            class="small"
+                            colspan="4"
+                            invisible="not quantity_cel_expression"
+                        >
                             <span
                                 class="text-success"
                                 invisible="not quantity_cel_is_valid"
                             >
                                 <i class="fa fa-check-circle me-1" title="Success" />
-                                <field name="quantity_cel_preview" nolabel="1" class="oe_inline" />
+                                <field
+                                    name="quantity_cel_preview"
+                                    nolabel="1"
+                                    class="oe_inline"
+                                />
                             </span>
-                            <span
-                                class="text-danger"
-                                invisible="quantity_cel_is_valid"
-                            >
+                            <span class="text-danger" invisible="quantity_cel_is_valid">
                                 <i class="fa fa-times-circle me-1" title="Error" />
-                                <field name="quantity_cel_error" nolabel="1" class="oe_inline" />
+                                <field
+                                    name="quantity_cel_error"
+                                    nolabel="1"
+                                    class="oe_inline"
+                                />
                             </span>
                         </div>
                     </group>
@@ -563,7 +694,10 @@ CEL Support Views for Create Program Wizard
                     </group>
 
                     <!-- Lock indicator for condition -->
-                    <div invisible="not condition_is_locked" class="text-warning small mb-2">
+                    <div
+                        invisible="not condition_is_locked"
+                        class="text-warning small mb-2"
+                    >
                         <i class="fa fa-lock me-1" title="Locked" />
                         Condition is locked
                     </div>
@@ -592,13 +726,22 @@ CEL Support Views for Create Program Wizard
                             nolabel="1"
                         />
                         <!-- Compact inline validation -->
-                        <div class="small" colspan="4" invisible="not condition_cel_expression">
+                        <div
+                            class="small"
+                            colspan="4"
+                            invisible="not condition_cel_expression"
+                        >
                             <span
                                 class="text-success"
                                 invisible="not condition_cel_is_valid"
                             >
                                 <i class="fa fa-check-circle me-1" title="Success" />
-                                <strong><field name="condition_cel_preview_count" class="oe_inline" /></strong>
+                                <strong>
+                                <field
+                                    name="condition_cel_preview_count"
+                                    class="oe_inline"
+                                />
+                            </strong>
                                 beneficiaries match
                             </span>
                             <span
@@ -606,7 +749,11 @@ CEL Support Views for Create Program Wizard
                                 invisible="condition_cel_is_valid"
                             >
                                 <i class="fa fa-times-circle me-1" title="Error" />
-                                <field name="condition_cel_error" nolabel="1" class="oe_inline" />
+                                <field
+                                    name="condition_cel_error"
+                                    nolabel="1"
+                                    class="oe_inline"
+                                />
                             </span>
                         </div>
                     </group>
@@ -629,7 +776,10 @@ CEL Support Views for Create Program Wizard
             </xpath>
 
             <!-- Update list view to show CEL-related columns -->
-            <xpath expr="//field[@name='entitlement_item_ids']//list" position="replace">
+            <xpath
+                expr="//field[@name='entitlement_item_ids']//list"
+                position="replace"
+            >
                 <list>
                     <field name="sequence" widget="handle" />
                     <field name="product_id" />
@@ -639,8 +789,6 @@ CEL Support Views for Create Program Wizard
                     <field name="has_condition" string="Has Condition" />
                 </list>
             </xpath>
-
         </field>
     </record>
-
 </odoo>

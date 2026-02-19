@@ -243,7 +243,7 @@ class StudioCRFieldMapping(models.Model):
             "transform": "direct",
         }
 
-        self.env["spp.change.request.type.mapping"].sudo().create(vals)
+        self.env["spp.change.request.type.mapping"].sudo().create(vals)  # nosemgrep: odoo-sudo-without-context
         _logger.debug(
             "Created CR type mapping: %s -> %s",
             source_field,

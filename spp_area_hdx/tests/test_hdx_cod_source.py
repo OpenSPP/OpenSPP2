@@ -23,7 +23,9 @@ class TestHdxCodSource(common.TransactionCase):
 
     def test_unique_country_constraint(self):
         """Test that only one source per country is allowed."""
-        with self.assertRaises(Exception):
+        from odoo.exceptions import ValidationError
+
+        with self.assertRaises(ValidationError):
             self.env["spp.hdx.cod.source"].create(
                 {
                     "country_id": self.country_lk.id,

@@ -1,20 +1,19 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-
     <!-- Color Scheme Tree View -->
     <record id="view_gis_color_scheme_tree" model="ir.ui.view">
         <field name="name">spp.gis.color.scheme.tree</field>
         <field name="model">spp.gis.color.scheme</field>
         <field name="arch" type="xml">
             <list string="Color Schemes">
-                <field name="sequence" widget="handle"/>
-                <field name="name"/>
-                <field name="code"/>
-                <field name="scheme_type"/>
-                <field name="preview_gradient" widget="html"/>
-                <field name="default_steps"/>
-                <field name="is_colorblind_safe" widget="boolean_toggle"/>
-                <field name="is_default" widget="boolean_toggle"/>
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="code" />
+                <field name="scheme_type" />
+                <field name="preview_gradient" widget="html" />
+                <field name="default_steps" />
+                <field name="is_colorblind_safe" widget="boolean_toggle" />
+                <field name="is_default" widget="boolean_toggle" />
             </list>
         </field>
     </record>
@@ -26,41 +25,58 @@
         <field name="arch" type="xml">
             <form string="Color Scheme">
                 <sheet>
-                    <div class="oe_button_box" name="button_box"/>
-                    <widget name="web_ribbon" title="Default" bg_color="text-bg-success"
-                            invisible="not is_default"/>
-                    <widget name="web_ribbon" title="Color-blind Safe" bg_color="text-bg-info"
-                            invisible="not is_colorblind_safe or is_default"/>
+                    <div class="oe_button_box" name="button_box" />
+                    <widget
+                        name="web_ribbon"
+                        title="Default"
+                        bg_color="text-bg-success"
+                        invisible="not is_default"
+                    />
+                    <widget
+                        name="web_ribbon"
+                        title="Color-blind Safe"
+                        bg_color="text-bg-info"
+                        invisible="not is_colorblind_safe or is_default"
+                    />
                     <div class="oe_title">
-                        <label for="name"/>
+                        <label for="name" />
                         <h1>
-                            <field name="name" placeholder="e.g., Viridis"/>
+                            <field name="name" placeholder="e.g., Viridis" />
                         </h1>
                     </div>
                     <group>
                         <group name="main">
-                            <field name="code"/>
-                            <field name="scheme_type"/>
-                            <field name="default_steps"/>
-                            <field name="sequence"/>
+                            <field name="code" />
+                            <field name="scheme_type" />
+                            <field name="default_steps" />
+                            <field name="sequence" />
                         </group>
                         <group name="flags">
-                            <field name="is_colorblind_safe"/>
-                            <field name="is_default"/>
-                            <field name="active"/>
+                            <field name="is_colorblind_safe" />
+                            <field name="is_default" />
+                            <field name="active" />
                         </group>
                     </group>
                     <group string="Colors">
-                        <field name="colors" widget="ace" options="{'mode': 'json'}"/>
-                        <field name="preview_gradient" widget="html" nolabel="1" colspan="2"/>
+                        <field name="colors" widget="ace" options="{'mode': 'json'}" />
+                        <field
+                            name="preview_gradient"
+                            widget="html"
+                            nolabel="1"
+                            colspan="2"
+                        />
                     </group>
                     <group string="Help" name="help">
                         <div colspan="2" class="text-muted">
-                            <p><strong>Colors format:</strong> JSON array of hex color values.</p>
+                            <p><strong
+                            >Colors format:</strong> JSON array of hex color values.</p>
                             <ul>
-                                <li><strong>Sequential:</strong> ["#low", "#mid", "#high"] - Colors are interpolated from low to high values.</li>
-                                <li><strong>Diverging:</strong> ["#negative", "#zero", "#positive"] - Center color for zero/neutral values.</li>
-                                <li><strong>Qualitative:</strong> ["#cat1", "#cat2", ...] - Distinct colors for categories.</li>
+                                <li><strong
+                                >Sequential:</strong> ["#low", "#mid", "#high"] - Colors are interpolated from low to high values.</li>
+                                <li><strong
+                                >Diverging:</strong> ["#negative", "#zero", "#positive"] - Center color for zero/neutral values.</li>
+                                <li><strong
+                                >Qualitative:</strong> ["#cat1", "#cat2", ...] - Distinct colors for categories.</li>
                             </ul>
                         </div>
                     </group>
@@ -89,5 +105,4 @@
     Menu is added by spp_gis_report under Configuration.
     This keeps spp_gis as a low-level module without its own menu structure.
     -->
-
 </odoo>

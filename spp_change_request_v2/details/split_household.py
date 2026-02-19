@@ -166,7 +166,9 @@ class SPPCRDetailSplitHousehold(models.Model):
             )
 
             # Filter out head member
-            non_head_memberships = memberships.filtered(lambda m: head_type not in m.membership_type_ids)
+            non_head_memberships = memberships.filtered(
+                lambda m, _head_type=head_type: _head_type not in m.membership_type_ids
+            )
 
             rec.available_member_ids = non_head_memberships.mapped("individual")
 
@@ -242,7 +244,7 @@ class SPPCRDetailSplitHousehold(models.Model):
                 )
                 if len(rec.members_to_split_ids) >= total:
                     raise ValidationError(
-                        "Cannot move all members. At least one member must remain " "in the source household."
+                        "Cannot move all members. At least one member must remain in the source household."
                     )
 
     @api.onchange("copy_address")

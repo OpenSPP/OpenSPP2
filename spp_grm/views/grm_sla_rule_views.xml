@@ -5,10 +5,14 @@
         <field name="model">spp.grm.sla.rule</field>
         <field name="arch" type="xml">
             <form string="SLA Rule">
-                <header>
-                </header>
+                <header />
                 <sheet>
-                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" invisible="active" />
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="bg-danger"
+                        invisible="active"
+                    />
                     <div class="oe_title">
                         <label for="name" class="oe_edit_only" />
                         <h1>
@@ -19,27 +23,39 @@
                         <group name="main_left">
                             <field name="sequence" />
                             <field name="active" invisible="1" />
-                            <field name="company_id" groups="base.group_multi_company" />
+                            <field
+                                name="company_id"
+                                groups="base.group_multi_company"
+                            />
                         </group>
-                        <group name="main_right">
-                        </group>
+                        <group name="main_right" />
                     </group>
                     <notebook>
                         <page string="Conditions" name="conditions">
                             <group>
-                                <field name="condition_domain" widget="domain" options="{'model': 'spp.grm.ticket'}" />
+                                <field
+                                    name="condition_domain"
+                                    widget="domain"
+                                    options="{'model': 'spp.grm.ticket'}"
+                                />
                             </group>
                         </page>
                         <page string="SLA Hours" name="sla_hours">
                             <group>
                                 <group name="response">
-                                    <label for="response_hours" string="Response Time" />
+                                    <label
+                                        for="response_hours"
+                                        string="Response Time"
+                                    />
                                     <div class="o_row">
                                         <field name="response_hours" /> hours
                                     </div>
                                 </group>
                                 <group name="resolution">
-                                    <label for="resolution_hours" string="Resolution Time" />
+                                    <label
+                                        for="resolution_hours"
+                                        string="Resolution Time"
+                                    />
                                     <div class="o_row">
                                         <field name="resolution_hours" /> hours
                                     </div>
@@ -74,7 +90,11 @@
                 <field name="resolution_hours" />
                 <field name="escalate_after_hours" optional="show" />
                 <field name="active" />
-                <field name="company_id" optional="hide" groups="base.group_multi_company" />
+                <field
+                    name="company_id"
+                    optional="hide"
+                    groups="base.group_multi_company"
+                />
             </list>
         </field>
     </record>
@@ -85,7 +105,11 @@
         <field name="arch" type="xml">
             <search string="SLA Rule Search">
                 <filter string="Active" name="active" domain="[('active','=',True)]" />
-                <filter string="Archived" name="inactive" domain="[('active','=',False)]" />
+                <filter
+                    string="Archived"
+                    name="inactive"
+                    domain="[('active','=',False)]"
+                />
                 <separator />
                 <field name="name" filter_domain="[('name', 'ilike', self)]" />
                 <field name="company_id" groups="base.group_multi_company" />
@@ -115,5 +139,4 @@
         action="spp_grm_sla_rule_action"
         sequence="35"
     />
-
 </odoo>

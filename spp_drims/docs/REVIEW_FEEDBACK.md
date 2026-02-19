@@ -117,7 +117,8 @@
 9. `spp_drims/models/constants.py` - Added item condition/disposition vocab constants
 10. `spp_drims/security/ir.model.access.csv` - Inspection wizard access rights
 11. `spp_drims/models/alert.py` - UX enhancement fields (urgency, age, assignment)
-12. `spp_drims/views/alert_views.xml` - Complete UI overhaul (kanban, calendar, bulk actions)
+12. `spp_drims/views/alert_views.xml` - Complete UI overhaul (kanban, calendar, bulk
+    actions)
 
 ---
 
@@ -133,9 +134,10 @@
 
 **ALT-001/002 Fix:**
 
-- Added computed fields: `urgency_label`, `urgency_state`, `alert_type_color`, `deadline_date`, `age_hours`,
-  `age_label`, `assigned_to_id`
-- Added Kanban view with visual workflow management (drag between Active/Acknowledged/Resolved)
+- Added computed fields: `urgency_label`, `urgency_state`, `alert_type_color`,
+  `deadline_date`, `age_hours`, `age_label`, `assigned_to_id`
+- Added Kanban view with visual workflow management (drag between
+  Active/Acknowledged/Resolved)
 - Added Calendar view for deadline-based alerts
 - Added Graph and Pivot views for analysis
 - Enhanced List view with color-coded badges, urgency indicators, age display

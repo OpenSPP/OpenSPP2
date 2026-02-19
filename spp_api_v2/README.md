@@ -4,9 +4,11 @@ Standards-aligned, consent-respecting API for social protection data exchange.
 
 ## Overview
 
-OpenSPP API V2 provides a modern, secure REST API for accessing OpenSPP registry data. It is designed for:
+OpenSPP API V2 provides a modern, secure REST API for accessing OpenSPP registry data.
+It is designed for:
 
-- **G2P Connect / DCI compliance** - Follows international social protection interoperability standards
+- **G2P Connect / DCI compliance** - Follows international social protection
+  interoperability standards
 - **Consent-based access** - All data access requires explicit consent from registrants
 - **External identifiers** - Never exposes internal database IDs
 - **Namespace URIs** - Uses globally unique URIs for all identifier types
@@ -171,8 +173,9 @@ See `docs/architecture/decisions/` for full ADR documentation.
 
 ### Known Limitations
 
-- **Rate limiting**: The `rate_limit_per_minute` and `rate_limit_per_day` fields on API clients are defined but not
-  enforced. Rate limiting middleware will be added in a future release.
+- **Rate limiting**: The `rate_limit_per_minute` and `rate_limit_per_day` fields on API
+  clients are defined but not enforced. Rate limiting middleware will be added in a
+  future release.
 
 ## Development
 

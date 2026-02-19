@@ -55,7 +55,7 @@
                         <group string="Previous Head Reassignment">
                             <field
                                 name="previous_head_new_role_id"
-                                options="{'no_create': True}"
+                                options="{'no_create': True, 'no_open': True}"
                             />
                         </group>
                     </group>

@@ -195,30 +195,40 @@ class CELBuilderWizard(models.TransientModel):
             return self.env["ir.qweb"]._render("spp_programs.cel_default_examples_groups")
         except Exception:
             # Fallback to inline HTML if template not found
-            return """
-            <div class="cel-examples">
-                <div class="cel-example-item mb-2">
-                    <strong>Households with elderly head</strong><br/>
-                    <code class="cel-clickable" data-expr='members.exists(m, head(m) and age_years(m.birthdate) >= 60)'>members.exists(m, head(m) and age_years(m.birthdate) >= 60)</code>
-                </div>
-                <div class="cel-example-item mb-2">
-                    <strong>Households with children under 5</strong><br/>
-                    <code class="cel-clickable" data-expr='members.exists(m, age_years(m.birthdate) < 5)'>members.exists(m, age_years(m.birthdate) < 5)</code>
-                </div>
-                <div class="cel-example-item mb-2">
-                    <strong>Female-headed households</strong><br/>
-                    <code class="cel-clickable" data-expr='members.exists(m, head(m) and m.gender == "female")'>members.exists(m, head(m) and m.gender == "female")</code>
-                </div>
-                <div class="cel-example-item mb-2">
-                    <strong>Households with 2+ children</strong><br/>
-                    <code class="cel-clickable" data-expr='members.count(m, age_years(m.birthdate) < 18) >= 2'>members.count(m, age_years(m.birthdate) < 18) >= 2</code>
-                </div>
-                <div class="cel-example-item mb-2">
-                    <strong>Households with disabled member</strong><br/>
-                    <code class="cel-clickable" data-expr='members.exists(m, m.disabled == true)'>members.exists(m, m.disabled == true)</code>
-                </div>
-            </div>
-            """
+            return (  # noqa: E501
+                '<div class="cel-examples">'
+                '<div class="cel-example-item mb-2">'
+                "<strong>Households with elderly head</strong><br/>"
+                '<code class="cel-clickable" '
+                "data-expr='members.exists(m, head(m) and age_years(m.birthdate) >= 60)'>"
+                "members.exists(m, head(m) and age_years(m.birthdate) >= 60)</code>"
+                "</div>"
+                '<div class="cel-example-item mb-2">'
+                "<strong>Households with children under 5</strong><br/>"
+                '<code class="cel-clickable" '
+                "data-expr='members.exists(m, age_years(m.birthdate) < 5)'>"
+                "members.exists(m, age_years(m.birthdate) < 5)</code>"
+                "</div>"
+                '<div class="cel-example-item mb-2">'
+                "<strong>Female-headed households</strong><br/>"
+                '<code class="cel-clickable" '
+                "data-expr='members.exists(m, head(m) and m.gender == \"female\")'>"
+                'members.exists(m, head(m) and m.gender == "female")</code>'
+                "</div>"
+                '<div class="cel-example-item mb-2">'
+                "<strong>Households with 2+ children</strong><br/>"
+                '<code class="cel-clickable" '
+                "data-expr='members.count(m, age_years(m.birthdate) < 18) >= 2'>"
+                "members.count(m, age_years(m.birthdate) < 18) >= 2</code>"
+                "</div>"
+                '<div class="cel-example-item mb-2">'
+                "<strong>Households with disabled member</strong><br/>"
+                '<code class="cel-clickable" '
+                "data-expr='members.exists(m, m.disabled == true)'>"
+                "members.exists(m, m.disabled == true)</code>"
+                "</div>"
+                "</div>"
+            )
 
     def _get_individual_examples_html(self, category="eligibility"):
         """Get examples HTML filtered by target type and category."""
@@ -251,26 +261,36 @@ class CELBuilderWizard(models.TransientModel):
             return self.env["ir.qweb"]._render("spp_programs.cel_default_examples_individuals")
         except Exception:
             # Fallback to inline HTML if template not found
-            return """
-            <div class="cel-examples">
-                <div class="cel-example-item mb-2">
-                    <strong>Adults (18 or older)</strong><br/>
-                    <code class="cel-clickable" data-expr='age_years(r.birthdate) >= 18'>age_years(r.birthdate) >= 18</code>
-                </div>
-                <div class="cel-example-item mb-2">
-                    <strong>Senior citizens</strong><br/>
-                    <code class="cel-clickable" data-expr='age_years(r.birthdate) >= 60'>age_years(r.birthdate) >= 60</code>
-                </div>
-                <div class="cel-example-item mb-2">
-                    <strong>Women of reproductive age</strong><br/>
-                    <code class="cel-clickable" data-expr='r.gender == "female" and age_years(r.birthdate) >= 15 and age_years(r.birthdate) <= 49'>r.gender == "female" and age_years(r.birthdate) >= 15 and age_years(r.birthdate) <= 49</code>
-                </div>
-                <div class="cel-example-item mb-2">
-                    <strong>Children under 5</strong><br/>
-                    <code class="cel-clickable" data-expr='age_years(r.birthdate) < 5'>age_years(r.birthdate) < 5</code>
-                </div>
-            </div>
-            """
+            return (  # noqa: E501
+                '<div class="cel-examples">'
+                '<div class="cel-example-item mb-2">'
+                "<strong>Adults (18 or older)</strong><br/>"
+                '<code class="cel-clickable" '
+                "data-expr='age_years(r.birthdate) >= 18'>"
+                "age_years(r.birthdate) >= 18</code>"
+                "</div>"
+                '<div class="cel-example-item mb-2">'
+                "<strong>Senior citizens</strong><br/>"
+                '<code class="cel-clickable" '
+                "data-expr='age_years(r.birthdate) >= 60'>"
+                "age_years(r.birthdate) >= 60</code>"
+                "</div>"
+                '<div class="cel-example-item mb-2">'
+                "<strong>Women of reproductive age</strong><br/>"
+                '<code class="cel-clickable" '
+                'data-expr=\'r.gender == "female" and age_years(r.birthdate) >= 15 and '
+                "age_years(r.birthdate) <= 49'>"
+                'r.gender == "female" and age_years(r.birthdate) >= 15 and '
+                "age_years(r.birthdate) <= 49</code>"
+                "</div>"
+                '<div class="cel-example-item mb-2">'
+                "<strong>Children under 5</strong><br/>"
+                '<code class="cel-clickable" '
+                "data-expr='age_years(r.birthdate) < 5'>"
+                "age_years(r.birthdate) < 5</code>"
+                "</div>"
+                "</div>"
+            )
 
     def action_validate(self):
         """Validate the CEL expression and show preview."""

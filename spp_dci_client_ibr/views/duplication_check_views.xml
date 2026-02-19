@@ -14,8 +14,19 @@
                 <field name="identifier_type" />
                 <field name="identifier_value" />
                 <field name="check_date" />
-                <field name="result" decoration-success="result == 'no_match'" decoration-warning="result == 'possible_match'" decoration-danger="result == 'confirmed_match'" />
-                <field name="state" decoration-info="state == 'ready'" decoration-warning="state == 'checking'" decoration-success="state == 'completed'" decoration-danger="state == 'failed'" />
+                <field
+                    name="result"
+                    decoration-success="result == 'no_match'"
+                    decoration-warning="result == 'possible_match'"
+                    decoration-danger="result == 'confirmed_match'"
+                />
+                <field
+                    name="state"
+                    decoration-info="state == 'ready'"
+                    decoration-warning="state == 'checking'"
+                    decoration-success="state == 'completed'"
+                    decoration-danger="state == 'failed'"
+                />
                 <field name="data_source_id" optional="hide" />
             </list>
         </field>
@@ -29,9 +40,24 @@
         <field name="arch" type="xml">
             <form string="Duplication Check">
                 <header>
-                    <button name="action_run_check" string="Run Check" type="object" class="oe_highlight" invisible="state in ('completed', 'failed')" />
-                    <button name="action_reset_to_draft" string="Reset to Ready" type="object" invisible="state == 'ready'" />
-                    <field name="state" widget="statusbar" statusbar_visible="ready,checking,completed" />
+                    <button
+                        name="action_run_check"
+                        string="Run Check"
+                        type="object"
+                        class="oe_highlight"
+                        invisible="state in ('completed', 'failed')"
+                    />
+                    <button
+                        name="action_reset_to_draft"
+                        string="Reset to Ready"
+                        type="object"
+                        invisible="state == 'ready'"
+                    />
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="ready,checking,completed"
+                    />
                 </header>
                 <sheet>
                     <group>
@@ -48,18 +74,37 @@
                     </group>
                     <notebook>
                         <page name="matched_programs" string="Matched Programs">
-                            <field name="matched_programs" widget="text" nolabel="1" placeholder="List of programs where duplicates were found..." />
+                            <field
+                                name="matched_programs"
+                                widget="text"
+                                nolabel="1"
+                                placeholder="List of programs where duplicates were found..."
+                            />
                         </page>
                         <page name="raw_response" string="Raw Response">
-                            <field name="raw_response" widget="ace" options="{'mode': 'javascript'}" nolabel="1" />
+                            <field
+                                name="raw_response"
+                                widget="ace"
+                                options="{'mode': 'javascript'}"
+                                nolabel="1"
+                            />
                         </page>
-                        <page name="error_info" string="Error Information" invisible="not error_message">
+                        <page
+                            name="error_info"
+                            string="Error Information"
+                            invisible="not error_message"
+                        >
                             <group>
                                 <field name="error_message" widget="text" nolabel="1" />
                             </group>
                         </page>
                         <page name="notes" string="Notes">
-                            <field name="notes" widget="text" nolabel="1" placeholder="Additional notes about this duplication check..." />
+                            <field
+                                name="notes"
+                                widget="text"
+                                nolabel="1"
+                                placeholder="Additional notes about this duplication check..."
+                            />
                         </page>
                     </notebook>
                 </sheet>
@@ -79,19 +124,63 @@
                 <field name="identifier_value" />
                 <field name="data_source_id" />
                 <separator />
-                <filter string="No Match" name="no_match" domain="[('result', '=', 'no_match')]" />
-                <filter string="Possible Match" name="possible_match" domain="[('result', '=', 'possible_match')]" />
-                <filter string="Confirmed Match" name="confirmed_match" domain="[('result', '=', 'confirmed_match')]" />
+                <filter
+                    string="No Match"
+                    name="no_match"
+                    domain="[('result', '=', 'no_match')]"
+                />
+                <filter
+                    string="Possible Match"
+                    name="possible_match"
+                    domain="[('result', '=', 'possible_match')]"
+                />
+                <filter
+                    string="Confirmed Match"
+                    name="confirmed_match"
+                    domain="[('result', '=', 'confirmed_match')]"
+                />
                 <separator />
-                <filter string="Ready" name="ready" domain="[('state', '=', 'ready')]" />
-                <filter string="Checking" name="checking" domain="[('state', '=', 'checking')]" />
-                <filter string="Completed" name="completed" domain="[('state', '=', 'completed')]" />
-                <filter string="Failed" name="failed" domain="[('state', '=', 'failed')]" />
+                <filter
+                    string="Ready"
+                    name="ready"
+                    domain="[('state', '=', 'ready')]"
+                />
+                <filter
+                    string="Checking"
+                    name="checking"
+                    domain="[('state', '=', 'checking')]"
+                />
+                <filter
+                    string="Completed"
+                    name="completed"
+                    domain="[('state', '=', 'completed')]"
+                />
+                <filter
+                    string="Failed"
+                    name="failed"
+                    domain="[('state', '=', 'failed')]"
+                />
                 <separator />
-                <filter string="Result" name="group_by_result" context="{'group_by': 'result'}" />
-                <filter string="State" name="group_by_state" context="{'group_by': 'state'}" />
-                <filter string="Registrant" name="group_by_partner" context="{'group_by': 'partner_id'}" />
-                <filter string="Check Date" name="group_by_check_date" context="{'group_by': 'check_date'}" />
+                <filter
+                    string="Result"
+                    name="group_by_result"
+                    context="{'group_by': 'result'}"
+                />
+                <filter
+                    string="State"
+                    name="group_by_state"
+                    context="{'group_by': 'state'}"
+                />
+                <filter
+                    string="Registrant"
+                    name="group_by_partner"
+                    context="{'group_by': 'partner_id'}"
+                />
+                <filter
+                    string="Check Date"
+                    name="group_by_check_date"
+                    context="{'group_by': 'check_date'}"
+                />
             </search>
         </field>
     </record>
@@ -125,5 +214,4 @@
         sequence="20"
         groups="spp_registry.group_registry_manager,spp_registry.group_registry_officer,spp_registry.group_registry_viewer"
     />
-
 </odoo>

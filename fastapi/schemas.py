@@ -1,7 +1,7 @@
 # Copyright 2022 ACSONE SA/NV
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/LGPL).
 import warnings
-from enum import Enum
+from enum import StrEnum
 from typing import Annotated, Generic, TypeVar
 
 from pydantic import AliasChoices, BaseModel, ConfigDict, Field, computed_field
@@ -14,7 +14,7 @@ class PagedCollection(BaseModel, Generic[T]):
         int,
         Field(
             ...,
-            description="Count of items into the system.\n " "Replaces the total field which is deprecated",
+            description="Count of items into the system.\n Replaces the total field which is deprecated",
             validation_alias=AliasChoices("count", "total"),
         ),
     ]
@@ -57,7 +57,7 @@ class DemoEndpointAppInfo(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class DemoExceptionType(str, Enum):
+class DemoExceptionType(StrEnum):
     user_error = "UserError"
     validation_error = "ValidationError"
     access_error = "AccessError"

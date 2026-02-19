@@ -42,13 +42,22 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     <div class="oe_title mb24">
                         <label for="cycle_id" string="Cycle:" />
                         <h1>
-                            <field id="cycle_id" name="cycle_id" readonly="1" options="{'no_open':true}" />
+                            <field
+                                id="cycle_id"
+                                name="cycle_id"
+                                readonly="1"
+                                options="{'no_open':true}"
+                            />
                         </h1>
                     </div>
                     <group>
                         <group>
                             <field name="name" readonly="1" />
-                            <field name="program_id" readonly="1" options="{'no_open':true}" />
+                            <field
+                                name="program_id"
+                                readonly="1"
+                                options="{'no_open':true}"
+                            />
                             <field name="external_batch_ref" />
                         </group>
                         <group>
@@ -62,21 +71,50 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                             <group>
                                 <group>
                                     <field name="stats_datetime" readonly="1" />
-                                    <field name="stats_issued_transactions" string="Issued Transaction" />
-                                    <field name="stats_issued_amount" string="Issued Amount" />
-                                    <field name="stats_sent_transactions" string="Sent Transactions" />
-                                    <field name="stats_sent_amount" string="Sent Amount" />
+                                    <field
+                                        name="stats_issued_transactions"
+                                        string="Issued Transaction"
+                                    />
+                                    <field
+                                        name="stats_issued_amount"
+                                        string="Issued Amount"
+                                    />
+                                    <field
+                                        name="stats_sent_transactions"
+                                        string="Sent Transactions"
+                                    />
+                                    <field
+                                        name="stats_sent_amount"
+                                        string="Sent Amount"
+                                    />
                                 </group>
                                 <group>
-                                    <field name="stats_paid_transactions" string="Paid Transactions" />
-                                    <field name="stats_paid_amount" string="Paid Amount" />
-                                    <field name="stats_failed_transactions" string="Failed Transactions" />
-                                    <field name="stats_failed_amount" string="Failed Amount" />
+                                    <field
+                                        name="stats_paid_transactions"
+                                        string="Paid Transactions"
+                                    />
+                                    <field
+                                        name="stats_paid_amount"
+                                        string="Paid Amount"
+                                    />
+                                    <field
+                                        name="stats_failed_transactions"
+                                        string="Failed Transactions"
+                                    />
+                                    <field
+                                        name="stats_failed_amount"
+                                        string="Failed Amount"
+                                    />
                                 </group>
                             </group>
                         </page>
                         <page string="Payments">
-                            <field name="payment_ids" nolabel="1" readonly="1" colspan="2">
+                            <field
+                                name="payment_ids"
+                                nolabel="1"
+                                readonly="1"
+                                colspan="2"
+                            >
                                 <list>
                                     <field name="name" />
                                     <field name="partner_id" />
@@ -88,7 +126,10 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                                     <field name="issuance_date" />
                                     <field name="amount_paid" />
                                     <field name="payment_datetime" />
-                                    <field name="company_id" groups="base.group_multi_company" />
+                                    <field
+                                        name="company_id"
+                                        groups="base.group_multi_company"
+                                    />
                                     <field
                                         name="state"
                                         decoration-primary="state=='issued'"
@@ -124,7 +165,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                 <separator />
                 <filter name="filter_stats_datetime" date="stats_datetime" />
                 <separator />
-                    <filter string="Cycle" name="grp_cycle" context="{'group_by': 'cycle_id'}" />
+                <filter
+                    string="Cycle"
+                    name="grp_cycle"
+                    context="{'group_by': 'cycle_id'}"
+                />
                 <!-- <searchpanel>
                     <field name="group" icon="fa-users"/>
                 </searchpanel> -->
@@ -144,7 +189,8 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Payment Transactions
-            </p><p>
+            </p>
+            <p>
                 List of payment transactions generated from entitlements.
             </p>
         </field>
@@ -164,7 +210,7 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         <field name="act_window_id" ref="action_payment_batch" />
     </record>
 
-<!--    <record model="ir.actions.server" id="payment_batch_issuance">
+    <!--    <record model="ir.actions.server" id="payment_batch_issuance">
       <field name="name">Issue Payments</field>
       <field name="model_id" ref="spp_programs.model_spp_payment_batch_issuance_wizard" />
       <field name="binding_model_id" ref="spp_programs.model_spp_payment_batch" />
@@ -181,5 +227,4 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         sequence="10"
         groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_validator"
     />
-
 </odoo>

@@ -101,7 +101,7 @@ class StudioEventFieldTemplate(models.Model):
         if event_type.state != "draft":
             raise UserError(
                 _(
-                    "Cannot apply template to '%(name)s'. " "Only draft event types can be modified.",
+                    "Cannot apply template to '%(name)s'. Only draft event types can be modified.",
                     name=event_type.name,
                 )
             )

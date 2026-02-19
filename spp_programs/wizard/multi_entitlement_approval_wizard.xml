@@ -12,7 +12,14 @@
                     role="alert"
                     invisible="has_sufficient_funds or not fund_availability_message"
                 >
-                    <span><i class="fa fa-exclamation-triangle" title="Warning" /> <field name="fund_availability_message" nolabel="1" style="display: inline; white-space: pre-line;" /></span>
+                    <span>
+                        <i class="fa fa-exclamation-triangle" title="Warning" />
+                        <field
+                            name="fund_availability_message"
+                            nolabel="1"
+                            style="display: inline; white-space: pre-line;"
+                        />
+                    </span>
                 </div>
 
                 <div
@@ -20,7 +27,14 @@
                     role="alert"
                     invisible="not has_sufficient_funds or not fund_availability_message"
                 >
-                    <span><i class="fa fa-check-circle" title="Success" /> <field name="fund_availability_message" nolabel="1" style="display: inline; white-space: pre-line;" /></span>
+                    <span>
+                        <i class="fa fa-check-circle" title="Success" />
+                        <field
+                            name="fund_availability_message"
+                            nolabel="1"
+                            style="display: inline; white-space: pre-line;"
+                        />
+                    </span>
                 </div>
 
                 <sheet>
@@ -66,7 +80,10 @@
     <record id="inherit_multi_entitlement_approval_wizard_form_view" model="ir.ui.view">
         <field name="name">inherit_multi_entitlement_approval_wizard_form_view</field>
         <field name="model">spp.multi.entitlement.approval.wizard</field>
-        <field name="inherit_id" ref="spp_programs.multi_entitlement_approval_wizard_form_view" />
+        <field
+            name="inherit_id"
+            ref="spp_programs.multi_entitlement_approval_wizard_form_view"
+        />
         <field name="arch" type="xml">
             <xpath expr="//field[@name='entitlement_ids']" position="before">
                 <group name="fields">
@@ -82,5 +99,4 @@
             </xpath>
         </field>
     </record>
-
 </odoo>

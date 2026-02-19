@@ -59,8 +59,8 @@ jobs:
 
       - name: Create Pull Request
         if:
-          steps.fetch.outputs.changes == 'true' && (github.event.inputs.create_pr != 'false' || github.event_name ==
-          'schedule')
+          steps.fetch.outputs.changes == 'true' && (github.event.inputs.create_pr !=
+          'false' || github.event_name == 'schedule')
         uses: peter-evans/create-pull-request@v6.1.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

@@ -55,6 +55,7 @@
                             <field
                                 name="destination_country_id"
                                 invisible="exit_reason != 'emigrated'"
+                                options="{'no_create': True, 'no_open': True}"
                             />
                         </group>
                         <group string="Options">

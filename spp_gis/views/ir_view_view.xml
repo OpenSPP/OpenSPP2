@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <record model="ir.ui.view" id="gis_view_form">
         <field name="name">gis.view.form</field>
         <field name="model">ir.ui.view</field>
@@ -29,5 +28,4 @@
         <field name="search_view_id" ref="base.action_view_search" />
         <field name="domain">[('type', '=', 'gis')]</field>
     </record>
-
 </odoo>

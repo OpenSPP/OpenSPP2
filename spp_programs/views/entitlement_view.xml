@@ -8,7 +8,12 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         <field name="model">spp.entitlement.inkind</field>
         <field name="priority">1</field>
         <field name="arch" type="xml">
-            <list create="0" delete="0" sample="1" decoration-muted="state in ('cancelled', 'expired')">
+            <list
+                create="0"
+                delete="0"
+                sample="1"
+                decoration-muted="state in ('cancelled', 'expired')"
+            >
                 <field name="code" />
                 <field name="partner_id" />
                 <field name="program_id" optional="show" />
@@ -27,7 +32,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     decoration-danger="state in ('cancelled', 'expired', 'rejected1', 'rejected2', 'rejected3')"
                     widget="badge"
                 />
-                <field name="company_id" groups="base.group_multi_company" optional="hide" />
+                <field
+                    name="company_id"
+                    groups="base.group_multi_company"
+                    optional="hide"
+                />
             </list>
         </field>
     </record>
@@ -89,19 +98,33 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     invisible="not show_approval_waiting_message"
                     style="margin: 0;"
                 >
-                    <field name="show_approval_waiting_message" invisible="1"/>
-                    <field name="approval_waiting_message" readonly="1" nolabel="1"/>
+                    <field name="show_approval_waiting_message" invisible="1" />
+                    <field name="approval_waiting_message" readonly="1" nolabel="1" />
                 </div>
 
                 <sheet>
                     <!-- Stat Buttons -->
-                    <div class="oe_button_box" name="button_box">
-                    </div>
+                    <div class="oe_button_box" name="button_box" />
 
                     <!-- Ribbons -->
-                    <widget name="web_ribbon" title="Approved" bg_color="bg-success" invisible="state != 'approved'" />
-                    <widget name="web_ribbon" title="Cancelled" bg_color="bg-danger" invisible="state != 'cancelled'" />
-                    <widget name="web_ribbon" title="Expired" bg_color="bg-secondary" invisible="state != 'expired'" />
+                    <widget
+                        name="web_ribbon"
+                        title="Approved"
+                        bg_color="bg-success"
+                        invisible="state != 'approved'"
+                    />
+                    <widget
+                        name="web_ribbon"
+                        title="Cancelled"
+                        bg_color="bg-danger"
+                        invisible="state != 'cancelled'"
+                    />
+                    <widget
+                        name="web_ribbon"
+                        title="Expired"
+                        bg_color="bg-secondary"
+                        invisible="state != 'expired'"
+                    />
 
                     <!-- Title Section -->
                     <div class="oe_title">
@@ -109,7 +132,8 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                             <field name="name" readonly="1" />
                         </h1>
                         <h3>
-                            <span>Code: </span><field name="code" readonly="1" class="oe_inline" />
+                            <span>Code: </span>
+                            <field name="code" readonly="1" class="oe_inline" />
                         </h3>
                     </div>
 
@@ -126,58 +150,65 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                             <!-- Beneficiary Section -->
                             <group name="beneficiary_section" col="2">
                                 <group name="beneficiary_info">
-                            <field
-                                name="partner_id"
+                                    <field
+                                        name="partner_id"
                                         readonly="state != 'draft'"
                                         options="{'no_open': True, 'no_quick_create': True, 'no_create': True}"
-                            />
-                            <field
-                                name="program_id"
+                                    />
+                                    <field
+                                        name="program_id"
                                         readonly="1"
                                         options="{'no_open': True}"
-                            />
-                            <field
-                                name="cycle_id"
+                                    />
+                                    <field
+                                        name="cycle_id"
                                         readonly="state != 'draft'"
                                         options="{'no_open': True, 'no_quick_create': True, 'no_create': True}"
-                            />
-                            <field
-                                name="service_point_id"
+                                    />
+                                    <field
+                                        name="service_point_id"
                                         readonly="state != 'draft'"
                                         options="{'no_open': True, 'no_quick_create': True, 'no_create': True}"
-                            />
+                                    />
                                 </group>
                                 <group name="company_info">
-                            <field
-                                name="company_id"
-                                groups="base.group_multi_company"
-                                options="{'no_create': True}"
+                                    <field
+                                        name="company_id"
+                                        groups="base.group_multi_company"
+                                        options="{'no_create': True}"
                                         readonly="state != 'draft'"
-                            />
-                        </group>
-                        </group>
+                                    />
+                                </group>
+                            </group>
 
                             <separator string="In-Kind Item Details" />
 
                             <!-- In-Kind Item Section -->
                             <group name="inkind_item_section" col="2">
                                 <group name="product_info">
-                                <field
-                                    name="product_id"
+                                    <field
+                                        name="product_id"
                                         readonly="state != 'draft'"
                                         options="{'no_open': True, 'no_quick_create': True, 'no_create': True}"
-                                />
-                                <field name="quantity" readonly="state != 'draft'" />
-                                <field
-                                    name="uom_id"
-                                    readonly="1"
+                                    />
+                                    <field
+                                        name="quantity"
+                                        readonly="state != 'draft'"
+                                    />
+                                    <field
+                                        name="uom_id"
+                                        readonly="1"
                                         options="{'no_open': True, 'no_quick_create': True, 'no_create': True}"
-                                />
+                                    />
                                 </group>
                                 <group name="value_info">
-                                <field name="unit_price" readonly="1" />
-                                <field name="total_amount" readonly="1" />
-                                    <field name="currency_id" readonly="1" options="{'no_open': True}" />
+                                    <field name="unit_price" readonly="1" />
+                                    <field name="total_amount" readonly="1" />
+                                    <field
+                                        name="currency_id"
+                                        readonly="1"
+                                        options="{'no_open': True}"
+                                    />
                                 </group>
                             </group>
 
@@ -186,8 +217,14 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                             <!-- Validity Period Section -->
                             <group name="validity_section" col="2">
                                 <group>
-                                    <field name="valid_from" readonly="state != 'draft'" />
-                                    <field name="valid_until" readonly="state != 'draft'" />
+                                    <field
+                                        name="valid_from"
+                                        readonly="state != 'draft'"
+                                    />
+                                    <field
+                                        name="valid_until"
+                                        readonly="state != 'draft'"
+                                    />
                                 </group>
                                 <group>
                                     <field name="date_approved" readonly="1" />
@@ -196,11 +233,23 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         </page>
 
                         <!-- ==================== INVENTORY TAB ==================== -->
-                        <page name="inventory" string="Inventory" invisible="not manage_inventory">
+                        <page
+                            name="inventory"
+                            string="Inventory"
+                            invisible="not manage_inventory"
+                        >
                             <group name="inventory_section" col="2">
                                 <group>
-                                    <field name="warehouse_id" readonly="1" options="{'no_open': True}" />
-                                    <field name="route_id" readonly="1" options="{'no_open': True}" />
+                                    <field
+                                        name="warehouse_id"
+                                        readonly="1"
+                                        options="{'no_open': True}"
+                                    />
+                                    <field
+                                        name="route_id"
+                                        readonly="1"
+                                        options="{'no_open': True}"
+                                    />
                                 </group>
                             </group>
                             <separator string="Stock Moves" />
@@ -221,40 +270,88 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         <page name="approval" string="Approval">
                             <group string="Approval Status">
                                 <group>
-                                    <field name="entitlement_approval_definition_id" readonly="1" string="Approval Definition" />
-                                    <field name="approval_state" readonly="1" widget="badge" string="Approval Status"
-                                           decoration-info="approval_state == 'draft'"
-                                           decoration-warning="approval_state == 'pending'"
-                                           decoration-success="approval_state == 'approved'"
-                                           decoration-danger="approval_state == 'rejected'" />
+                                    <field
+                                        name="entitlement_approval_definition_id"
+                                        readonly="1"
+                                        string="Approval Definition"
+                                    />
+                                    <field
+                                        name="approval_state"
+                                        readonly="1"
+                                        widget="badge"
+                                        string="Approval Status"
+                                        decoration-info="approval_state == 'draft'"
+                                        decoration-warning="approval_state == 'pending'"
+                                        decoration-success="approval_state == 'approved'"
+                                        decoration-danger="approval_state == 'rejected'"
+                                    />
                                 </group>
                                 <group>
-                                    <field name="submitted_by_id" readonly="1" string="Submitted By" />
-                                    <field name="submitted_date" readonly="1" string="Submitted On" />
+                                    <field
+                                        name="submitted_by_id"
+                                        readonly="1"
+                                        string="Submitted By"
+                                    />
+                                    <field
+                                        name="submitted_date"
+                                        readonly="1"
+                                        string="Submitted On"
+                                    />
                                 </group>
                             </group>
-                            <group string="Approval Decision" invisible="not date_approved and not rejected_date">
+                            <group
+                                string="Approval Decision"
+                                invisible="not date_approved and not rejected_date"
+                            >
                                 <group>
                                     <field name="date_approved" readonly="1" />
-                                    <field name="approved_by_id" readonly="1" string="Approved By" />
+                                    <field
+                                        name="approved_by_id"
+                                        readonly="1"
+                                        string="Approved By"
+                                    />
                                 </group>
                                 <group>
-                                    <field name="rejected_by_id" readonly="1" string="Rejected By" />
-                                    <field name="rejected_date" readonly="1" string="Rejected On" />
+                                    <field
+                                        name="rejected_by_id"
+                                        readonly="1"
+                                        string="Rejected By"
+                                    />
+                                    <field
+                                        name="rejected_date"
+                                        readonly="1"
+                                        string="Rejected On"
+                                    />
                                 </group>
                             </group>
-                            <group string="Rejection Reason" invisible="not rejection_reason">
-                                <field name="rejection_reason" readonly="1" nolabel="1" colspan="2" />
+                            <group
+                                string="Rejection Reason"
+                                invisible="not rejection_reason"
+                            >
+                                <field
+                                    name="rejection_reason"
+                                    readonly="1"
+                                    nolabel="1"
+                                    colspan="2"
+                                />
                             </group>
                             <group string="Approval History">
-                                <field name="approval_review_ids" nolabel="1" readonly="1" colspan="2">
+                                <field
+                                    name="approval_review_ids"
+                                    nolabel="1"
+                                    readonly="1"
+                                    colspan="2"
+                                >
                                     <list>
                                         <field name="requested_date" />
                                         <field name="reviewer_id" />
-                                        <field name="status" widget="badge"
-                                               decoration-info="status == 'pending'"
-                                               decoration-success="status == 'approved'"
-                                               decoration-danger="status == 'rejected'" />
+                                        <field
+                                            name="status"
+                                            widget="badge"
+                                            decoration-info="status == 'pending'"
+                                            decoration-success="status == 'approved'"
+                                            decoration-danger="status == 'rejected'"
+                                        />
                                         <field name="review_date" />
                                         <field name="comment" />
                                     </list>
@@ -293,21 +390,53 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                 <filter name="filter_valid_from" date="valid_from" />
                 <filter name="filter_valid_until" date="valid_until" />
                 <separator />
-                <filter name="draft_state" string="Draft" domain="[('state','=','draft')]" />
+                <filter
+                    name="draft_state"
+                    string="Draft"
+                    domain="[('state','=','draft')]"
+                />
                 <filter
                     name="pending_validation_state"
                     string="Pending Validation"
                     domain="[('state','=','pending_validation')]"
                 />
-                <filter name="approved_state" string="Approved" domain="[('state','=','approved')]" />
-                <filter name="cancelled_state" string="Cancelled" domain="[('state','=','cancelled')]" />
-                <filter name="expired_state" string="Exited" domain="[('state','=','expired')]" />
+                <filter
+                    name="approved_state"
+                    string="Approved"
+                    domain="[('state','=','approved')]"
+                />
+                <filter
+                    name="cancelled_state"
+                    string="Cancelled"
+                    domain="[('state','=','cancelled')]"
+                />
+                <filter
+                    name="expired_state"
+                    string="Exited"
+                    domain="[('state','=','expired')]"
+                />
                 <group>
-                    <filter string="Valid From" name="valid_from" context="{'group_by':'valid_from'}" />
-                    <filter string="Valid Until" name="valid_until" context="{'group_by':'valid_until'}" />
+                    <filter
+                        string="Valid From"
+                        name="valid_from"
+                        context="{'group_by':'valid_from'}"
+                    />
+                    <filter
+                        string="Valid Until"
+                        name="valid_until"
+                        context="{'group_by':'valid_until'}"
+                    />
                     <separator orientation="vertical" />
-                    <filter string="State" name="grp_state" context="{'group_by': 'state'}" />
-                    <filter string="Company" name="grp_company_id" context="{'group_by': 'company_id'}" />
+                    <filter
+                        string="State"
+                        name="grp_state"
+                        context="{'group_by': 'state'}"
+                    />
+                    <filter
+                        string="Company"
+                        name="grp_company_id"
+                        context="{'group_by': 'company_id'}"
+                    />
                 </group>
                 <!-- <searchpanel>
                     <field name="group" icon="fa-users"/>
@@ -345,11 +474,17 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 if records:
     action = records.reject_entitlement()
         </field>
-        <field name="group_ids" eval="[(4, ref('spp_security.group_spp_admin')), (4, ref('spp_programs.group_programs_manager')), (4, ref('spp_programs.group_programs_validator')), (4, ref('spp_programs.group_programs_cycle_approver'))]"/>
+        <field
+            name="group_ids"
+            eval="[(4, ref('spp_security.group_spp_admin')), (4, ref('spp_programs.group_programs_manager')), (4, ref('spp_programs.group_programs_validator')), (4, ref('spp_programs.group_programs_cycle_approver'))]"
+        />
     </record>
 
     <!-- Reset to draft action for in-kind entitlements -->
-    <record id="action_reset_to_draft_inkind_entitlement_multi" model="ir.actions.server">
+    <record
+        id="action_reset_to_draft_inkind_entitlement_multi"
+        model="ir.actions.server"
+    >
         <field name="name">Reset to Draft</field>
         <field name="model_id" ref="model_spp_entitlement_inkind" />
         <field name="binding_model_id" ref="model_spp_entitlement_inkind" />
@@ -365,11 +500,17 @@ if records:
     else:
         raise UserError("No eligible entitlements selected. Only entitlements in pending validation, rejected, or cancelled state can be reset to draft.")
         </field>
-        <field name="group_ids" eval="[(4, ref('spp_security.group_spp_admin')), (4, ref('spp_programs.group_programs_manager')), (4, ref('spp_programs.group_programs_validator')), (4, ref('spp_programs.group_programs_cycle_approver'))]"/>
+        <field
+            name="group_ids"
+            eval="[(4, ref('spp_security.group_spp_admin')), (4, ref('spp_programs.group_programs_manager')), (4, ref('spp_programs.group_programs_validator')), (4, ref('spp_programs.group_programs_cycle_approver'))]"
+        />
     </record>
 
     <!-- Submit for approval action for in-kind entitlements -->
-    <record id="action_submit_for_approval_inkind_entitlement_multi" model="ir.actions.server">
+    <record
+        id="action_submit_for_approval_inkind_entitlement_multi"
+        model="ir.actions.server"
+    >
         <field name="name">Submit for Approval</field>
         <field name="model_id" ref="model_spp_entitlement_inkind" />
         <field name="binding_model_id" ref="model_spp_entitlement_inkind" />
@@ -384,7 +525,10 @@ if records:
     else:
         raise UserError("No eligible entitlements selected. Only draft entitlements can be submitted for approval.")
         </field>
-        <field name="group_ids" eval="[(4, ref('spp_security.group_spp_admin')), (4, ref('spp_programs.group_programs_manager')), (4, ref('spp_programs.group_programs_validator')), (4, ref('spp_programs.group_programs_cycle_approver'))]"/>
+        <field
+            name="group_ids"
+            eval="[(4, ref('spp_security.group_spp_admin')), (4, ref('spp_programs.group_programs_manager')), (4, ref('spp_programs.group_programs_validator')), (4, ref('spp_programs.group_programs_cycle_approver'))]"
+        />
     </record>
 
     <record id="action_entitlement_inkind_tree_view" model="ir.actions.act_window.view">
@@ -403,12 +547,21 @@ if records:
 
     <record model="ir.actions.server" id="multiple_inkind_entitlement_approval">
         <field name="name">Approve</field>
-        <field name="model_id" ref="spp_programs.model_spp_multi_inkind_entitlement_approval_wizard" />
-        <field name="binding_model_id" ref="spp_programs.model_spp_entitlement_inkind" />
+        <field
+            name="model_id"
+            ref="spp_programs.model_spp_multi_inkind_entitlement_approval_wizard"
+        />
+        <field
+            name="binding_model_id"
+            ref="spp_programs.model_spp_entitlement_inkind"
+        />
         <field name="binding_view_types">list,form</field>
         <field name="state">code</field>
         <field name="code">action = model.open_wizard()</field>
-        <field name="group_ids" eval="[(4, ref('spp_security.group_spp_admin')), (4, ref('spp_programs.group_programs_manager')), (4, ref('spp_programs.group_programs_validator')), (4, ref('spp_programs.group_programs_cycle_approver'))]"/>
+        <field
+            name="group_ids"
+            eval="[(4, ref('spp_security.group_spp_admin')), (4, ref('spp_programs.group_programs_manager')), (4, ref('spp_programs.group_programs_validator')), (4, ref('spp_programs.group_programs_cycle_approver'))]"
+        />
     </record>
 
     <menuitem
@@ -423,7 +576,7 @@ if records:
     <!-- Products Menu under In-Kind - Server action to check user groups -->
     <record id="action_inkind_products_server" model="ir.actions.server">
         <field name="name">Products</field>
-        <field name="model_id" ref="product.model_product_product"/>
+        <field name="model_id" ref="product.model_product_product" />
         <field name="state">code</field>
         <field name="code">
 is_stock_manager = env.user.has_group('stock.group_stock_manager')
@@ -451,5 +604,4 @@ action = {
         sequence="20"
         groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_validator,stock.group_stock_manager"
     />
-
 </odoo>

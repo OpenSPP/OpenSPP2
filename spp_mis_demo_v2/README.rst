@@ -14,14 +14,17 @@ OpenSPP MIS Demo V2
    !! source digest: sha256:a4d9ec16bde9c632db1b47053b880917cea1b1ae6bdd11a1203c2d22eae165b0
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+    :target: https://odoo-community.org/page/development-status
+    :alt: Production/Stable
+.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
     :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_mis_demo_v2
     :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2|
+|badge1| |badge2| |badge3|
 
 Demo data generator for SP-MIS programs. Creates 6 social protection
 programs with CEL eligibility expressions, enrolls 8 demo personas with

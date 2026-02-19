@@ -14,14 +14,17 @@ OpenSPP API V2 - Entitlements
    !! source digest: sha256:4691281f6b5c7e9098412ed53a704afe09c7841ae0aab93df8e49246e2735f56
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+    :target: https://odoo-community.org/page/development-status
+    :alt: Production/Stable
+.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
     :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_api_v2_entitlements
     :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2|
+|badge1| |badge2| |badge3|
 
 REST API endpoints for querying cash and in-kind entitlements via OAuth
 2.0 authenticated clients. Exposes entitlement data by external

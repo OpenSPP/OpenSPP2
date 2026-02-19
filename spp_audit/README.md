@@ -1,12 +1,15 @@
 # OpenSPP Audit Module
 
-Comprehensive audit trail system for OpenSPP that tracks all data modifications and user actions across the platform.
-Supports multiple backends with tamper-resistant configuration.
+Comprehensive audit trail system for OpenSPP that tracks all data modifications and user
+actions across the platform. Supports multiple backends with tamper-resistant
+configuration.
 
 ## Features
 
-- **Automatic Logging**: Tracks create, write, and unlink operations on configured models
-- **Lifecycle Actions**: Explicit logging for state transitions (enroll, approve, reject, etc.)
+- **Automatic Logging**: Tracks create, write, and unlink operations on configured
+  models
+- **Lifecycle Actions**: Explicit logging for state transitions (enroll, approve,
+  reject, etc.)
 - **Multiple Backends**: Database, file (JSONL), syslog, and HTTP endpoints
 - **Tamper-Resistant Config**: Configuration priority prevents database-level tampering
 - **Self-Protection**: Audit rule changes are logged to non-DB backends
@@ -90,21 +93,23 @@ Set via **Settings > Technical > Parameters > System Parameters**:
 | `spp_audit.http_url`         | HTTP endpoint URL          | (none)                         |
 | `spp_audit.http_auth_header` | Authorization header value | (none)                         |
 
-**Note**: Database parameters can be overridden by config file or environment variables. This prevents a compromised
-database from disabling audit logging.
+**Note**: Database parameters can be overridden by config file or environment variables.
+This prevents a compromised database from disabling audit logging.
 
 ## Backends
 
 ### Database Backend (default)
 
-Stores audit logs in the `spp.audit.log` model. Logs are viewable in the Odoo UI under **Settings > Technical > Audit >
-Audit Logs**.
+Stores audit logs in the `spp.audit.log` model. Logs are viewable in the Odoo UI under
+**Settings > Technical > Audit > Audit Logs**.
 
 ### File Backend
 
-Writes audit entries as JSON Lines (JSONL) to a file. Each line is a complete JSON object.
+Writes audit entries as JSON Lines (JSONL) to a file. Each line is a complete JSON
+object.
 
-**File Rotation**: Files rotate daily with timestamp suffix (e.g., `audit.jsonl.2024-01-15`).
+**File Rotation**: Files rotate daily with timestamp suffix (e.g.,
+`audit.jsonl.2024-01-15`).
 
 **Example JSONL output**:
 
@@ -189,8 +194,8 @@ Enable explicit action logging for state transitions:
 
 ### Chatter Integration
 
-Enable **Post to Chatter** to post audit summaries to the record's mail.thread. This is disabled by default and should
-only be enabled for low-volume, human-reviewed records.
+Enable **Post to Chatter** to post audit summaries to the record's mail.thread. This is
+disabled by default and should only be enabled for low-volume, human-reviewed records.
 
 ## API Usage
 
@@ -239,12 +244,14 @@ The configuration priority system ensures that:
 2. Config file settings cannot be overridden by database parameters
 3. A compromised database cannot disable audit logging
 
-**Recommendation**: Set critical audit settings in environment variables or config file, not in the database.
+**Recommendation**: Set critical audit settings in environment variables or config file,
+not in the database.
 
 ### Self-Protection
 
-Changes to audit rules (create, write, unlink on `spp.audit.rule`) are automatically logged to all enabled non-database
-backends. This ensures that attempts to disable auditing are themselves audited to external systems.
+Changes to audit rules (create, write, unlink on `spp.audit.rule`) are automatically
+logged to all enabled non-database backends. This ensures that attempts to disable
+auditing are themselves audited to external systems.
 
 ### Access Control
 
@@ -267,8 +274,8 @@ Use the tuple `(node, ts, seq)` to detect gaps in audit logs. Gaps may indicate:
 - Log tampering
 - Network issues (for remote backends)
 
-**Note**: In multi-process deployments, sequence numbers are per-process. Use the node identifier to correlate
-sequences.
+**Note**: In multi-process deployments, sequence numbers are per-process. Use the node
+identifier to correlate sequences.
 
 ## Troubleshooting
 

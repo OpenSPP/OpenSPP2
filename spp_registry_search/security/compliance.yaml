@@ -22,8 +22,9 @@ groups:
     privilege_id: privilege_registry_search_auditor
     implied_ids: [spp_registry.group_registry_read]
     comment: >
-      Special group for auditors who need to browse all registrants without search restrictions. Bypasses the
-      search-first privacy protection for legitimate audit purposes. Implied by spp_security.group_spp_admin.
+      Special group for auditors who need to browse all registrants without search
+      restrictions. Bypasses the search-first privacy protection for legitimate audit
+      purposes. Implied by spp_security.group_spp_admin.
 
 # Admin linkage - auditor group linked from spp_security.group_spp_admin
 admin_link_group: group_registry_search_auditor

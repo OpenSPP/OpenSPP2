@@ -1,11 +1,12 @@
 # SPDCI Registry Endpoint Mapping
 
-This document describes the SPDCI-compliant registry endpoint structure implemented in OpenSPP.
+This document describes the SPDCI-compliant registry endpoint structure implemented in
+OpenSPP.
 
 ## Overview
 
-OpenSPP now supports both long-form and short-form registry endpoints for compliance with SPDCI (Social Protection
-Digital Convergence Initiative) path conventions.
+OpenSPP now supports both long-form and short-form registry endpoints for compliance
+with SPDCI (Social Protection Digital Convergence Initiative) path conventions.
 
 ## Endpoint Structure
 
@@ -138,9 +139,11 @@ curl -X POST "https://openspp-instance/dci/dr/sync/search" \
 The implementation allows SPDCI compliance tests to be run against OpenSPP:
 
 1. **Social Registry**: Full functionality available at `/sr/*` endpoints
-2. **Other Registries**: Graceful "not implemented" responses at `/dr/*`, `/crvs/*`, and `/fr/*` endpoints
+2. **Other Registries**: Graceful "not implemented" responses at `/dr/*`, `/crvs/*`, and
+   `/fr/*` endpoints
 
-This ensures that compliance testing frameworks can discover all expected endpoints and receive appropriate responses.
+This ensures that compliance testing frameworks can discover all expected endpoints and
+receive appropriate responses.
 
 ## Adding New Registry Types
 
@@ -150,7 +153,8 @@ To add a new registry type (e.g., Disability Registry):
 2. **Add routers**: Create `/routers/disability_search.py` with long-form paths
 3. **Add aliases**: Create `/routers/dr_alias.py` with short-form paths
 4. **Update endpoint model**: Extend `fastapi.endpoint` to include the new routers
-5. **Remove stub**: Update `spp_dci_server/routers/registry_aliases.py` to remove the DR stub
+5. **Remove stub**: Update `spp_dci_server/routers/registry_aliases.py` to remove the DR
+   stub
 6. **Update documentation**: Update this file with implementation status
 
 ## Architecture Notes

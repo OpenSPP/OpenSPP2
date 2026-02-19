@@ -641,7 +641,9 @@ registry.category("web_tour.tours").add("cel_widget_empty_validation", {
             run: function () {
                 const icon = this.anchor.querySelector(".fa");
                 if (icon && !icon.classList.contains("fa-spinner")) {
-                    throw new Error("Validation icon should be cleared for empty expression");
+                    throw new Error(
+                        "Validation icon should be cleared for empty expression"
+                    );
                 }
             },
         },

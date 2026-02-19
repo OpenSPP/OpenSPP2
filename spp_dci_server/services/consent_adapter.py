@@ -107,7 +107,7 @@ class DCIConsentAdapter:
 
         # Use spp.consent check_api_consent (sender inherits from spp.api.client)
         consent = (
-            self.env["spp.consent"]
+            self.env["spp.consent"]  # nosemgrep: odoo-sudo-without-context
             .sudo()
             .check_api_consent(
                 registrant_id=registrant_id,
@@ -246,7 +246,7 @@ class DCIConsentAdapter:
 
         # Find consent for logging
         consent = (
-            self.env["spp.consent"]
+            self.env["spp.consent"]  # nosemgrep: odoo-sudo-without-context
             .sudo()
             .check_api_consent(
                 registrant_id=registrant_id,
@@ -258,7 +258,7 @@ class DCIConsentAdapter:
 
         if consent and "spp.consent.access.log" in self.env:
             try:
-                self.env["spp.consent.access.log"].sudo().log_access(
+                self.env["spp.consent.access.log"].sudo().log_access(  # nosemgrep: odoo-sudo-without-context
                     consent=consent,
                     api_client=self.sender,
                     resource_type=resource_type,

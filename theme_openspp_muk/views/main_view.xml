@@ -1,5 +1,4 @@
 <odoo>
-
     <!-- Removed this menuitem to be able to use by non-spmis modules -->
     <!-- <menuitem
         id="spp_registry.spp_main_menu_root"

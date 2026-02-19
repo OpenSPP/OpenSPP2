@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
     <!--
     Pre-configured relationship types linked to vocabulary codes.
@@ -11,7 +11,7 @@
         <field name="bidirectional">False</field>
         <field name="source_type">i</field>
         <field name="destination_type">g</field>
-        <field name="vocabulary_code_id" ref="code_rel_head"/>
+        <field name="vocabulary_code_id" ref="code_rel_head" />
     </record>
 
     <record id="rel_spouse" model="spp.relationship">
@@ -20,7 +20,7 @@
         <field name="bidirectional">True</field>
         <field name="source_type">i</field>
         <field name="destination_type">i</field>
-        <field name="vocabulary_code_id" ref="code_rel_spouse"/>
+        <field name="vocabulary_code_id" ref="code_rel_spouse" />
     </record>
 
     <record id="rel_child" model="spp.relationship">
@@ -29,7 +29,7 @@
         <field name="bidirectional">False</field>
         <field name="source_type">i</field>
         <field name="destination_type">i</field>
-        <field name="vocabulary_code_id" ref="code_rel_child"/>
+        <field name="vocabulary_code_id" ref="code_rel_child" />
     </record>
 
     <record id="rel_parent" model="spp.relationship">
@@ -38,7 +38,7 @@
         <field name="bidirectional">False</field>
         <field name="source_type">i</field>
         <field name="destination_type">i</field>
-        <field name="vocabulary_code_id" ref="code_rel_parent"/>
+        <field name="vocabulary_code_id" ref="code_rel_parent" />
     </record>
 
     <record id="rel_sibling" model="spp.relationship">
@@ -47,7 +47,7 @@
         <field name="bidirectional">True</field>
         <field name="source_type">i</field>
         <field name="destination_type">i</field>
-        <field name="vocabulary_code_id" ref="code_rel_sibling"/>
+        <field name="vocabulary_code_id" ref="code_rel_sibling" />
     </record>
 
     <record id="rel_grandparent" model="spp.relationship">
@@ -56,7 +56,7 @@
         <field name="bidirectional">False</field>
         <field name="source_type">i</field>
         <field name="destination_type">i</field>
-        <field name="vocabulary_code_id" ref="code_rel_grandparent"/>
+        <field name="vocabulary_code_id" ref="code_rel_grandparent" />
     </record>
 
     <record id="rel_grandchild" model="spp.relationship">
@@ -65,7 +65,7 @@
         <field name="bidirectional">False</field>
         <field name="source_type">i</field>
         <field name="destination_type">i</field>
-        <field name="vocabulary_code_id" ref="code_rel_grandchild"/>
+        <field name="vocabulary_code_id" ref="code_rel_grandchild" />
     </record>
 
     <record id="rel_other_relative" model="spp.relationship">
@@ -74,7 +74,7 @@
         <field name="bidirectional">True</field>
         <field name="source_type">i</field>
         <field name="destination_type">i</field>
-        <field name="vocabulary_code_id" ref="code_rel_other"/>
+        <field name="vocabulary_code_id" ref="code_rel_other" />
     </record>
 
     <record id="rel_non_relative" model="spp.relationship">
@@ -83,6 +83,6 @@
         <field name="bidirectional">True</field>
         <field name="source_type">i</field>
         <field name="destination_type">i</field>
-        <field name="vocabulary_code_id" ref="code_rel_non_relative"/>
+        <field name="vocabulary_code_id" ref="code_rel_non_relative" />
     </record>
 </odoo>

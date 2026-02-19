@@ -12,7 +12,10 @@
                 t-if="page_name == 'tickets'"
                 t-attf-class="breadcrumb-item #{'active ' if not ticket else ''}"
             >
-                <a t-if="ticket" t-attf-href="/my/tickets?{{ keep_query() }}">Tickets</a>
+                <a
+                    t-if="ticket"
+                    t-attf-href="/my/tickets?{{ keep_query() }}"
+                >Tickets</a>
                 <t t-else="">Tickets</t>
             </li>
             <!-- Breadcrumb for a specific ticket -->
@@ -57,7 +60,10 @@
             </div>
 
             <t t-if="not tickets">
-                <p class="alert alert-warning" role="alert">You have not submitted any tickets yet.</p>
+                <p
+                    class="alert alert-warning"
+                    role="alert"
+                >You have not submitted any tickets yet.</p>
             </t>
 
             <t t-if="tickets" t-call="portal.portal_table">
@@ -108,7 +114,9 @@
                                     <em>-</em>
                                 </t>
                             </td>
-                            <td><span t-field="ticket.create_date" /></td>
+                            <td>
+                                <span t-field="ticket.create_date" />
+                            </td>
                             <td class="d-none d-md-table-cell">
                                 <t t-if="ticket.stage_id">
                                     <span
@@ -139,7 +147,11 @@
 
             <!-- Ticket Submission Form -->
             <form action="/my/ticket/submit" method="post" class="mt-4">
-                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    t-att-value="request.csrf_token()"
+                />
                 <div class="mb-3">
                     <label for="ticket_name" class="form-label">Ticket Name</label>
                     <input
@@ -156,7 +168,9 @@
                         <option value="">Select Category</option>
                         <!-- Add category options dynamically -->
                         <t t-foreach="categories" t-as="category">
-                            <option t-att-value="category.id"><t t-out="category.name" /></option>
+                            <option t-att-value="category.id">
+                                <t t-out="category.name" />
+                            </option>
                         </t>
                     </select>
                 </div>
@@ -174,5 +188,4 @@
             </form>
         </t>
     </template>
-
 </odoo>

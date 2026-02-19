@@ -20,7 +20,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         <field name="inherit_id" ref="account.view_account_journal_form" />
         <field name="arch" type="xml">
             <xpath expr="//field[@name='type']" position="after">
-                <field name="is_beneficiary_disb" readonly="1" invisible="type not in ('cash','bank')" />
+                <field
+                    name="is_beneficiary_disb"
+                    readonly="1"
+                    invisible="type not in ('cash','bank')"
+                />
             </xpath>
         </field>
     </record>
@@ -32,25 +36,36 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         <field name="res_model">account.journal</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="account.view_account_journal_search" />
-        <field name="context">{'default_type':'bank','default_is_beneficiary_disb':True}</field>
-        <field name="domain">[('is_beneficiary_disb','=',True),('type','in',('cash','bank'))]</field>
+        <field
+            name="context"
+        >{'default_type':'bank','default_is_beneficiary_disb':True}</field>
+        <field
+            name="domain"
+        >[('is_beneficiary_disb','=',True),('type','in',('cash','bank'))]</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Add a Beneficiary Disbursement Journal!
-            </p><p>
+            </p>
+            <p>
                 Click the create button to enter a new beneficiary disbursement journal.
             </p>
         </field>
     </record>
 
-    <record id="action_account_journal_conf_tree_view" model="ir.actions.act_window.view">
+    <record
+        id="action_account_journal_conf_tree_view"
+        model="ir.actions.act_window.view"
+    >
         <field name="sequence" eval="1" />
         <field name="view_mode">list</field>
         <field name="view_id" ref="account.view_account_journal_tree" />
         <field name="act_window_id" ref="action_account_journal_conf" />
     </record>
 
-    <record id="action_account_journal_conf_form_view" model="ir.actions.act_window.view">
+    <record
+        id="action_account_journal_conf_form_view"
+        model="ir.actions.act_window.view"
+    >
         <field name="sequence" eval="1" />
         <field name="view_mode">form</field>
         <field name="view_id" ref="account.view_account_journal_form" />
@@ -65,5 +80,4 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         sequence="10"
         groups="spp_security.group_spp_admin,spp_programs.group_programs_manager,spp_programs.group_programs_validator"
     />
-
 </odoo>

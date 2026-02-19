@@ -5,21 +5,35 @@
         <field name="priority">0</field>
         <field name="arch" type="xml">
             <list sample="1">
-                <field name="name"/>
-                <field name="area_id" optional="show"/>
-                <field name="service_type_ids" widget="many2many_tags" optional="show"/>
-                <field name="phone_sanitized" string="Phone" optional="show" widget="phone"/>
-                <field name="shop_address" string="Address" optional="hide"/>
-                <field name="country_id" optional="hide"/>
-                <field name="is_contract_active"
-                       string="Active Contract"
-                       widget="boolean_toggle"
-                       optional="show"/>
-                <field name="is_disabled"
-                       string="Disabled"
-                       optional="show"/>
-                <field name="disabled_date" string="Disabled On" optional="hide" widget="date"/>
-                <field name="res_partner_company_id" string="Company" optional="hide"/>
+                <field name="name" />
+                <field name="area_id" optional="show" />
+                <field
+                    name="service_type_ids"
+                    widget="many2many_tags"
+                    optional="show"
+                />
+                <field
+                    name="phone_sanitized"
+                    string="Phone"
+                    optional="show"
+                    widget="phone"
+                />
+                <field name="shop_address" string="Address" optional="hide" />
+                <field name="country_id" optional="hide" />
+                <field
+                    name="is_contract_active"
+                    string="Active Contract"
+                    widget="boolean_toggle"
+                    optional="show"
+                />
+                <field name="is_disabled" string="Disabled" optional="show" />
+                <field
+                    name="disabled_date"
+                    string="Disabled On"
+                    optional="hide"
+                    widget="date"
+                />
+                <field name="res_partner_company_id" string="Company" optional="hide" />
             </list>
         </field>
     </record>
@@ -37,21 +51,31 @@
                         string="Enable Service Point"
                         class="btn-success"
                         invisible="not is_disabled or not id"
-                        confirm="Enable this service point? It will become active again."/>
+                        confirm="Enable this service point? It will become active again."
+                    />
                     <button
                         name="disable_service_point"
                         type="object"
                         string="Disable Service Point"
                         class="btn-warning"
                         invisible="is_disabled or not id"
-                        confirm="Disable this service point? You will need to provide a reason."/>
+                        confirm="Disable this service point? You will need to provide a reason."
+                    />
                 </header>
                 <sheet>
                     <!-- Status Ribbons -->
-                    <widget name="web_ribbon" title="Disabled" bg_color="text-bg-danger"
-                            invisible="not is_disabled"/>
-                    <widget name="web_ribbon" title="Active" bg_color="text-bg-success"
-                            invisible="is_disabled or not is_contract_active"/>
+                    <widget
+                        name="web_ribbon"
+                        title="Disabled"
+                        bg_color="text-bg-danger"
+                        invisible="not is_disabled"
+                    />
+                    <widget
+                        name="web_ribbon"
+                        title="Active"
+                        bg_color="text-bg-success"
+                        invisible="is_disabled or not is_contract_active"
+                    />
 
                     <!-- Button Box -->
                     <div class="oe_button_box" name="button_box">
@@ -60,7 +84,8 @@
                             class="oe_stat_button"
                             icon="fa-user-plus"
                             name="create_user"
-                            invisible="is_disabled or not res_partner_company_id">
+                            invisible="is_disabled or not res_partner_company_id"
+                        >
                             <div class="o_stat_info">
                                 <span class="o_stat_text">Create</span>
                                 <span class="o_stat_value">User Account</span>
@@ -71,7 +96,8 @@
                             type="object"
                             class="oe_stat_button"
                             icon="fa-map-marker"
-                            invisible="not area_id">
+                            invisible="not area_id"
+                        >
                             <div class="o_stat_info">
                                 <span class="o_stat_text">View</span>
                                 <span class="o_stat_value">Area Details</span>
@@ -81,19 +107,24 @@
 
                     <!-- Title Section -->
                     <div class="oe_title">
-                        <label for="name" class="oe_edit_only"/>
+                        <label for="name" class="oe_edit_only" />
                         <h1>
-                            <field name="name" placeholder="Agent Name..." readonly="is_disabled"
-                                   class="o_text_overflow"/>
+                            <field
+                                name="name"
+                                placeholder="Agent Name..."
+                                readonly="is_disabled"
+                                class="o_text_overflow"
+                            />
                         </h1>
                         <div class="d-flex align-items-center">
-                            <label for="area_id" class="oe_edit_only me-2"/>
+                            <label for="area_id" class="oe_edit_only me-2" />
                             <h3 class="mb-0">
                                 <field
                                     name="area_id"
                                     placeholder="Select Area..."
                                     options="{'no_create':true,'no_edit':true}"
-                                    readonly="is_disabled"/>
+                                    readonly="is_disabled"
+                                />
                             </h3>
                         </div>
                     </div>
@@ -106,58 +137,86 @@
                                 name="service_type_ids"
                                 widget="many2many_tags"
                                 options="{'no_create_edit':true}"
-                                readonly="is_disabled"/>
-                            <field name="is_contract_active" widget="boolean_toggle" readonly="is_disabled"/>
+                                readonly="is_disabled"
+                            />
+                            <field
+                                name="is_contract_active"
+                                widget="boolean_toggle"
+                                readonly="is_disabled"
+                            />
                             <field
                                 name="res_partner_company_id"
                                 string="Company"
-                                options="{'no_create':true,'no_edit':true}"/>
+                                options="{'no_create':true,'no_edit':true}"
+                            />
                         </group>
 
                         <!-- Contact Information -->
                         <group string="Contact Information">
-                            <field name="phone_no"
-                                   placeholder="+63 XXX XXX XXXX"
-                                   readonly="is_disabled"
-                                   widget="phone"/>
-                            <field name="phone_sanitized"
-                                   string="Sanitized Phone"
-                                   readonly="1"
-                                   class="text-muted"/>
+                            <field
+                                name="phone_no"
+                                placeholder="+63 XXX XXX XXXX"
+                                readonly="is_disabled"
+                                widget="phone"
+                            />
+                            <field
+                                name="phone_sanitized"
+                                string="Sanitized Phone"
+                                readonly="1"
+                                class="text-muted"
+                            />
                             <field
                                 name="country_id"
                                 options="{'no_create':true,'no_edit':true}"
-                                readonly="is_disabled"/>
+                                readonly="is_disabled"
+                            />
                         </group>
                     </group>
 
                     <!-- Address Section -->
                     <group string="Address">
-                        <field name="shop_address"
-                               placeholder="Complete address of the service point..."
-                               readonly="is_disabled"/>
+                        <field
+                            name="shop_address"
+                            placeholder="Complete address of the service point..."
+                            readonly="is_disabled"
+                        />
                     </group>
 
                     <!-- Disabled Status Section -->
                     <group string="Status Management" invisible="not is_disabled">
                         <group>
-                            <field name="is_disabled" readonly="1" widget="boolean_toggle"/>
-                            <field name="disabled_date" readonly="1" widget="date"/>
+                            <field
+                                name="is_disabled"
+                                readonly="1"
+                                widget="boolean_toggle"
+                            />
+                            <field name="disabled_date" readonly="1" widget="date" />
                         </group>
                         <group>
-                            <field name="disabled_reason"
-                                   readonly="not is_disabled"
-                                   required="is_disabled"
-                                   placeholder="Provide reason for disabling this service point..."/>
+                            <field
+                                name="disabled_reason"
+                                readonly="not is_disabled"
+                                required="is_disabled"
+                                placeholder="Provide reason for disabling this service point..."
+                            />
                         </group>
                     </group>
 
                     <!-- Warning Banner for Disabled State -->
-                    <div class="alert alert-warning" role="alert" invisible="not is_disabled">
+                    <div
+                        class="alert alert-warning"
+                        role="alert"
+                        invisible="not is_disabled"
+                    >
                         <div class="d-flex align-items-center">
-                            <i class="fa fa-exclamation-triangle fa-2x me-3" title="Warning"/>
+                            <i
+                                class="fa fa-exclamation-triangle fa-2x me-3"
+                                title="Warning"
+                            />
                             <div>
-                                <h5 class="alert-heading mb-1">Service Point Disabled</h5>
+                                <h5
+                                    class="alert-heading mb-1"
+                                >Service Point Disabled</h5>
                                 <p class="mb-0">
                                     This service point is currently disabled and cannot accept new transactions.
                                     Click "Enable Service Point" to reactivate.
@@ -166,7 +225,7 @@
                         </div>
                     </div>
                 </sheet>
-                <chatter/>
+                <chatter />
             </form>
         </field>
     </record>
@@ -174,43 +233,70 @@
     <record id="service_points_filter" model="ir.ui.view">
         <field name="name">service_points_filter</field>
         <field name="model">spp.service.point</field>
-        <field name="priority" eval="0"/>
+        <field name="priority" eval="0" />
         <field name="arch" type="xml">
             <search string="Search Service Points">
                 <!-- Search Fields -->
-                <field name="name" string="Agent Name"
-                       filter_domain="[('name', 'ilike', self)]"/>
-                <field name="area_id" string="Area"/>
-                <field name="service_type_ids" string="Service Type"/>
-                <field name="phone_sanitized" string="Phone"/>
-                <field name="shop_address" string="Address"/>
+                <field
+                    name="name"
+                    string="Agent Name"
+                    filter_domain="[('name', 'ilike', self)]"
+                />
+                <field name="area_id" string="Area" />
+                <field name="service_type_ids" string="Service Type" />
+                <field name="phone_sanitized" string="Phone" />
+                <field name="shop_address" string="Address" />
 
-                <separator/>
+                <separator />
 
                 <!-- Quick Filters -->
-                <filter name="filter_active" string="Active"
-                        domain="[('is_disabled', '=', False)]"/>
-                <filter name="filter_disabled" string="Disabled"
-                        domain="[('is_disabled', '=', True)]"/>
+                <filter
+                    name="filter_active"
+                    string="Active"
+                    domain="[('is_disabled', '=', False)]"
+                />
+                <filter
+                    name="filter_disabled"
+                    string="Disabled"
+                    domain="[('is_disabled', '=', True)]"
+                />
 
-                <separator/>
+                <separator />
 
-                <filter name="filter_with_contract" string="With Active Contract"
-                        domain="[('is_contract_active', '=', True)]"/>
-                <filter name="filter_no_contract" string="No Active Contract"
-                        domain="[('is_contract_active', '=', False)]"/>
+                <filter
+                    name="filter_with_contract"
+                    string="With Active Contract"
+                    domain="[('is_contract_active', '=', True)]"
+                />
+                <filter
+                    name="filter_no_contract"
+                    string="No Active Contract"
+                    domain="[('is_contract_active', '=', False)]"
+                />
 
-                <separator/>
+                <separator />
 
                 <!-- Group By -->
-                <filter string="Area" name="grp_area_id"
-                        context="{'group_by': 'area_id'}"/>
-                <filter string="Contract Status" name="grp_contract"
-                        context="{'group_by': 'is_contract_active'}"/>
-                <filter string="Status" name="grp_disabled"
-                        context="{'group_by': 'is_disabled'}"/>
-                <filter string="Country" name="grp_country"
-                        context="{'group_by': 'country_id'}"/>
+                <filter
+                    string="Area"
+                    name="grp_area_id"
+                    context="{'group_by': 'area_id'}"
+                />
+                <filter
+                    string="Contract Status"
+                    name="grp_contract"
+                    context="{'group_by': 'is_contract_active'}"
+                />
+                <filter
+                    string="Status"
+                    name="grp_disabled"
+                    context="{'group_by': 'is_disabled'}"
+                />
+                <filter
+                    string="Country"
+                    name="grp_country"
+                    context="{'group_by': 'country_id'}"
+                />
             </search>
         </field>
     </record>
