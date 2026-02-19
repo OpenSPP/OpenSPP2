@@ -232,36 +232,13 @@
                     />
                 </header>
                 <sheet>
-                    <!-- Button Box with Smart Buttons -->
                     <div class="oe_button_box" name="button_box">
-                        <button
-                            name="action_view_registrant"
-                            type="object"
-                            class="oe_stat_button"
-                            icon="fa-user"
-                        >
-                            <div class="o_stat_info">
-                                <span class="o_stat_text">View</span>
-                                <span class="o_stat_value">Registrant</span>
-                            </div>
-                        </button>
-                        <button
-                            name="action_open_detail"
-                            type="object"
-                            class="oe_stat_button"
-                            icon="fa-edit"
-                            invisible="approval_state not in ('draft', 'revision')"
-                        >
-                            <div class="o_stat_info">
-                                <span class="o_stat_text">Edit</span>
-                                <span class="o_stat_value">Details</span>
-                            </div>
-                        </button>
                         <button
                             name="action_open_preview_wizard"
                             type="object"
                             class="oe_stat_button"
                             icon="fa-eye"
+                            groups="base.group_no_one"
                             invisible="approval_state in ('applied', 'rejected')"
                         >
                             <div class="o_stat_info">
@@ -452,14 +429,14 @@
                                                 />Current Data
                                                 </h5>
                                                 <button
-                                                    name="action_open_registrant"
+                                                    name="action_view_registrant"
                                                     type="object"
                                                     class="btn btn-sm btn-link text-primary"
                                                     invisible="not registrant_id"
                                                 >
                                                     <i
                                                     class="fa fa-external-link me-1"
-                                                />Open Form
+                                                />View Registrant
                                                 </button>
                                             </div>
                                             <div class="card-body">

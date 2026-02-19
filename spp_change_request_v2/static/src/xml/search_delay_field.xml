@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+    <t t-name="spp_change_request_v2.SearchDelayField">
+        <input t-ref="input"
+               type="text"
+               class="o_input"
+               t-att-value="value"
+               t-att-placeholder="props.placeholder || ''"
+               t-att-readonly="props.readonly ? 'readonly' : undefined"
+               t-on-input="onInput"/>
+    </t>
+
+</templates>

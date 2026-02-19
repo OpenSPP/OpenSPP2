@@ -61,6 +61,16 @@ class SPPCRCreateWizard(models.TransientModel):
         string="Registrant Domain",
     )
 
+    search_text = fields.Char(string="Search Registrant")
+    search_results_html = fields.Html(
+        string="Search Results",
+        sanitize=False,
+    )
+
+    # Bridge fields: JS writes integers here, onchange handles the logic
+    _selected_partner_id = fields.Integer(string="Selected Partner ID")
+    _search_page = fields.Integer(string="Search Page", default=0)
+
     # Display info for selected registrant
     registrant_info_html = fields.Html(
         compute="_compute_registrant_info",
@@ -129,51 +139,22 @@ class SPPCRCreateWizard(models.TransientModel):
         for rec in self:
             if rec.registrant_id:
                 reg = rec.registrant_id
-                info_parts = []
+                lines = []
 
-                # Get primary ID if available (from reg_ids)
-                primary_id = ""
-                if hasattr(reg, "reg_ids") and reg.reg_ids:
-                    first_id = reg.reg_ids[0]
-                    if first_id.value:
-                        primary_id = first_id.value
-
-                # Build compact single-line info
-                # Format: Name (ID) - Type info - Address
-                if primary_id:
-                    name_part = Markup("<strong>{}</strong> <span class='text-muted'>({})</span>").format(
-                        escape(reg.name or "Unknown"), escape(primary_id)
-                    )
-                else:
-                    name_part = Markup("<strong>{}</strong>").format(escape(reg.name or "Unknown"))
-
-                info_parts.append(name_part)
-
-                # Type indicator with icon
+                # Line 1: Name + Type
+                name = escape(reg.name or "Unknown")
                 if reg.is_group:
                     member_count = len(reg.group_membership_ids) if hasattr(reg, "group_membership_ids") else 0
-                    info_parts.append(
-                        Markup(
-                            "<span class='text-muted ms-2'><i class='fa fa-users me-1'></i>{} members</span>"
-                        ).format(member_count)
-                    )
+                    type_badge = Markup(
+                        "<span class='text-muted ms-2'><i class='fa fa-users me-1'></i>{} members</span>"
+                    ).format(member_count)
                 else:
-                    info_parts.append(
-                        Markup("<span class='text-muted ms-2'><i class='fa fa-user me-1'></i>Individual</span>")
+                    type_badge = Markup(
+                        "<span class='text-muted ms-2'><i class='fa fa-user me-1'></i>Individual</span>"
                     )
+                lines.append(Markup("<div><strong>{}</strong>{}</div>").format(name, type_badge))
 
-                # Address on same line if available
-                if reg.street:
-                    addr = escape(reg.street)
-                    if reg.city:
-                        addr = Markup("{}, {}").format(escape(reg.street), escape(reg.city))
-                    info_parts.append(
-                        Markup("<span class='text-muted ms-2'><i class='fa fa-map-marker me-1'></i>{}</span>").format(
-                            addr
-                        )
-                    )
-
-                rec.registrant_info_html = Markup(" ").join(info_parts)
+                rec.registrant_info_html = Markup("").join(lines)
             else:
                 rec.registrant_info_html = ""
 
@@ -201,6 +182,123 @@ class SPPCRCreateWizard(models.TransientModel):
                                 </small>
                             </div>
                         """).format(reason)
+
+    # ══════════════════════════════════════════════════════════════════════════
+    # SEARCH ACTIONS
+    # ══════════════════════════════════════════════════════════════════════════
+
+    @api.onchange("_selected_partner_id")
+    def _onchange_selected_partner(self):
+        """Convert the bridge integer to a Many2one registrant_id."""
+        if self._selected_partner_id:
+            self.registrant_id = self.env["res.partner"].browse(self._selected_partner_id)
+
+    _SEARCH_PAGE_SIZE = 10
+
+    @api.onchange("search_text")
+    def _onchange_search_text(self):
+        """Reset page and run search when text changes."""
+        self.search_results_html = False
+        self.registrant_id = False
+        self._search_page = 0
+
+        if not self.search_text or len(self.search_text) < 2:
+            return
+
+        self._render_search_results()
+
+    @api.onchange("_search_page")
+    def _onchange_search_page(self):
+        """Re-render results when page changes."""
+        if self.search_text and len(self.search_text) >= 2:
+            self._render_search_results()
+
+    def _get_search_domain(self):
+        """Build the search domain based on search text and target type."""
+        domain = [("is_registrant", "=", True)]
+        if self.request_type_id and self.request_type_id.target_type:
+            target = self.request_type_id.target_type
+            if target == "individual":
+                domain.append(("is_group", "=", False))
+            elif target == "group":
+                domain.append(("is_group", "=", True))
+        return domain + [
+            "|",
+            ("name", "ilike", self.search_text),
+            ("reg_ids.value", "=", self.search_text),
+        ]
+
+    def _render_search_results(self):
+        """Search and render paginated HTML results."""
+        search_domain = self._get_search_domain()
+        total = self.env["res.partner"].search_count(search_domain)
+
+        if not total:
+            self.search_results_html = Markup("<p class='text-muted'>No registrants found.</p>")
+            return
+
+        page = self._search_page or 0
+        page_size = self._SEARCH_PAGE_SIZE
+        max_page = (total - 1) // page_size
+        page = min(page, max_page)
+
+        offset = page * page_size
+        partners = self.env["res.partner"].search(search_domain, limit=page_size, offset=offset)
+
+        rows = []
+        for p in partners:
+            ptype = '<i class="fa fa-users"></i> Group' if p.is_group else '<i class="fa fa-user"></i> Individual'
+            rows.append(
+                Markup(
+                    '<tr class="o_cr_search_result" style="cursor:pointer"'
+                    ' data-partner-id="{}" data-partner-name="{}">'
+                    "<td>{}</td>"
+                    "<td>{}</td></tr>"
+                ).format(
+                    p.id,
+                    escape(p.name or ""),
+                    escape(p.name or ""),
+                    Markup(ptype),
+                )
+            )
+
+        table = Markup(
+            '<table class="table table-hover table-sm mb-0 w-100">'
+            "<thead><tr><th>Name</th><th>Type</th></tr></thead>"
+            "<tbody>{}</tbody></table>"
+        ).format(Markup("").join(rows))
+
+        # Pagination header
+        start = offset + 1
+        end = min(offset + page_size, total)
+        prev_cls = "text-muted" if page == 0 else "o_cr_page_prev"
+        next_cls = "text-muted" if page >= max_page else "o_cr_page_next"
+        pagination = Markup(
+            '<div class="d-flex justify-content-between align-items-center mb-2 px-1">'
+            '<small class="text-muted">{}-{} of {}</small>'
+            "<div>"
+            '<a class="{} me-3" style="cursor:pointer" data-page="{}">← Previous</a>'
+            '<a class="{}" style="cursor:pointer" data-page="{}">Next →</a>'
+            "</div></div>"
+        ).format(start, end, total, prev_cls, page - 1, next_cls, page + 1)
+
+        self.search_results_html = pagination + table
+
+    def action_clear_registrant(self):
+        """Clear selected registrant, re-run search, and reopen wizard."""
+        self.ensure_one()
+        self._selected_partner_id = False
+        self.registrant_id = False
+        # Re-run search with existing search_text to repopulate results
+        self._onchange_search_text()
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("New Change Request"),
+            "res_model": "spp.cr.create.wizard",
+            "res_id": self.id,
+            "view_mode": "form",
+            "target": "new",
+        }
 
     # ══════════════════════════════════════════════════════════════════════════
     # MAIN ACTIONS
@@ -283,7 +381,8 @@ class SPPCRCreateWizard(models.TransientModel):
 
     @api.onchange("request_type_id")
     def _onchange_request_type(self):
-        """Clear registrant if it doesn't match the new target type."""
+        """Clear registrant and search if type changes."""
+        self.search_text = False
         if self.request_type_id and self.registrant_id:
             target = self.request_type_id.target_type
             is_group = self.registrant_id.is_group
