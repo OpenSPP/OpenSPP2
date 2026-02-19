@@ -47,9 +47,7 @@ class SPPCRDetailBase(models.AbstractModel):
         self.ensure_one()
         cr = self.change_request_id
         if not cr.has_proposed_changes:
-            raise UserError(
-                _("No proposed changes detected. Please make changes before proceeding.")
-            )
+            raise UserError(_("No proposed changes detected. Please make changes before proceeding."))
         return {
             "type": "ir.actions.act_window",
             "name": cr.name,

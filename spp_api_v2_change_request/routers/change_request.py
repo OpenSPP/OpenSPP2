@@ -3,6 +3,7 @@
 
 import logging
 from typing import Annotated
+from urllib.parse import urlencode
 
 from odoo.api import Environment
 from odoo.exceptions import UserError, ValidationError
@@ -29,6 +30,8 @@ from ..schemas.change_request import (
     ApproveActionData,
     ChangeRequestCreate,
     ChangeRequestResponse,
+    ChangeRequestTypeInfo,
+    ChangeRequestTypeSchema,
     ChangeRequestUpdate,
     RejectActionData,
     RequestRevisionActionData,
@@ -90,6 +93,66 @@ async def create_change_request(
     response.headers["Location"] = f"/api/v2/spp/ChangeRequest/{cr.name}"
 
     return service.to_api_schema(cr)
+
+
+# Type schema endpoints are registered before /{p1}/{p2}/{p3} so that FastAPI
+# matches "$types" as a literal path segment rather than capturing it as
+# path parameters.
+
+
+@change_request_router.get(
+    "/$types",
+    response_model=list[ChangeRequestTypeInfo],
+)
+async def list_change_request_types(
+    env: Annotated[Environment, Depends(odoo_env)],
+    api_client: Annotated[dict, Depends(get_authenticated_client)],
+):
+    """
+    List all active Change Request types.
+
+    Returns type code, name, target type, and whether an applicant is required.
+    """
+    if not api_client.has_scope("change_request", "read"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Client does not have permission to read change request types",
+        )
+
+    service = ChangeRequestService(env)
+    return service.get_type_list()
+
+
+@change_request_router.get(
+    "/$types/{code}",
+    response_model=ChangeRequestTypeSchema,
+)
+async def get_change_request_type_schema(
+    code: Annotated[str, Path(description="CR type code (e.g., edit_individual)")],
+    env: Annotated[Environment, Depends(odoo_env)],
+    api_client: Annotated[dict, Depends(get_authenticated_client)],
+):
+    """
+    Get the full field schema for a Change Request type.
+
+    Returns type info, field definitions, and document requirements.
+    """
+    if not api_client.has_scope("change_request", "read"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Client does not have permission to read change request types",
+        )
+
+    service = ChangeRequestService(env)
+    result = service.get_type_schema(code)
+
+    if result is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Change request type not found: {code}",
+        )
+
+    return result
 
 
 @change_request_router.get("/{p1}/{p2}/{p3}", response_model=ChangeRequestResponse)
@@ -182,45 +245,26 @@ async def search_change_requests(
 
     # Build pagination URLs
     base_url = "/api/v2/spp/ChangeRequest"
-    query_parts = []
-    if registrant:
-        query_parts.append(f"registrant={registrant}")
-    if request_type:
-        query_parts.append(f"requestType={request_type}")
-    if cr_status:
-        query_parts.append(f"status={cr_status}")
-    if created_after:
-        query_parts.append(f"createdAfter={created_after}")
-    if created_before:
-        query_parts.append(f"createdBefore={created_before}")
-    query_params = "&".join(query_parts)
+    base_params = {
+        k: v
+        for k, v in {
+            "registrant": registrant,
+            "requestType": request_type,
+            "status": cr_status,
+            "createdAfter": created_after,
+            "createdBefore": created_before,
+        }.items()
+        if v is not None
+    }
 
-    # Build self URL
-    self_url = (
-        f"{base_url}?{query_params}&_count={count}&_offset={offset}"
-        if query_params
-        else f"{base_url}?_count={count}&_offset={offset}"
-    )
+    def build_url(offset_val: int) -> str:
+        """Build properly URL-encoded pagination URL."""
+        url_params = {**base_params, "_count": count, "_offset": offset_val}
+        return f"{base_url}?{urlencode(url_params)}"
 
-    # Build next URL
-    next_url = None
-    if offset + count < total:
-        next_offset = offset + count
-        next_url = (
-            f"{base_url}?{query_params}&_count={count}&_offset={next_offset}"
-            if query_params
-            else f"{base_url}?_count={count}&_offset={next_offset}"
-        )
-
-    # Build prev URL
-    prev_url = None
-    if offset > 0:
-        prev_offset = max(0, offset - count)
-        prev_url = (
-            f"{base_url}?{query_params}&_count={count}&_offset={prev_offset}"
-            if query_params
-            else f"{base_url}?_count={count}&_offset={prev_offset}"
-        )
+    self_url = build_url(offset)
+    next_url = build_url(offset + count) if offset + count < total else None
+    prev_url = build_url(max(0, offset - count)) if offset > 0 else None
 
     return create_search_result(
         data=data,

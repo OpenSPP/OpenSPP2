@@ -2,7 +2,12 @@
 <templates xml:space="preserve">
 
     <t t-name="spp_change_request_v2.CrSearchResultsField">
-        <div t-ref="container" class="o_field_cr_search_results" style="width:100%" t-out="htmlContent"/>
+        <div
+            t-ref="container"
+            class="o_field_cr_search_results"
+            style="width:100%"
+            t-out="htmlContent"
+        />
     </t>
 
 </templates>
