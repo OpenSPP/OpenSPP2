@@ -22,10 +22,10 @@
     <record id="view_stock_lot_tree_drims" model="ir.ui.view">
         <field name="name">stock.lot.tree.drims</field>
         <field name="model">stock.lot</field>
-        <field name="inherit_id" ref="stock.view_production_lot_tree"/>
+        <field name="inherit_id" ref="stock.view_production_lot_tree" />
         <field name="arch" type="xml">
             <xpath expr="//field[@name='product_id']" position="after">
-                <field name="product_qty" optional="show" string="Qty On Hand"/>
+                <field name="product_qty" optional="show" string="Qty On Hand" />
             </xpath>
         </field>
     </record>
@@ -34,13 +34,16 @@
     <record id="view_stock_lot_search_drims" model="ir.ui.view">
         <field name="name">stock.lot.search.drims</field>
         <field name="model">stock.lot</field>
-        <field name="inherit_id" ref="stock.search_product_lot_filter"/>
+        <field name="inherit_id" ref="stock.search_product_lot_filter" />
         <field name="arch" type="xml">
             <xpath expr="//search" position="inside">
-                <separator/>
+                <separator />
                 <group>
-                    <filter string="Product" name="group_product"
-                            context="{'group_by': 'product_id'}"/>
+                    <filter
+                        string="Product"
+                        name="group_product"
+                        context="{'group_by': 'product_id'}"
+                    />
                 </group>
             </xpath>
         </field>

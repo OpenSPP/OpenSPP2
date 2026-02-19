@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Deployment Profile List View -->
     <record id="view_deployment_profile_list" model="ir.ui.view">
@@ -6,18 +6,24 @@
         <field name="model">spp.deployment.profile</field>
         <field name="arch" type="xml">
             <list string="Deployment Profiles" default_order="name">
-                <field name="name"/>
-                <field name="company_id" optional="show" groups="base.group_multi_company"/>
-                <field name="vocabulary_count" string="Vocabularies"/>
-                <field name="total_code_count" string="Total Codes"/>
-                <field name="is_active" widget="boolean_toggle"/>
-                <field name="active" widget="boolean_toggle"/>
-                <button name="action_activate"
-                        type="object"
-                        string="Activate"
-                        icon="fa-check-circle"
-                        invisible="is_active"
-                        class="btn-primary"/>
+                <field name="name" />
+                <field
+                    name="company_id"
+                    optional="show"
+                    groups="base.group_multi_company"
+                />
+                <field name="vocabulary_count" string="Vocabularies" />
+                <field name="total_code_count" string="Total Codes" />
+                <field name="is_active" widget="boolean_toggle" />
+                <field name="active" widget="boolean_toggle" />
+                <button
+                    name="action_activate"
+                    type="object"
+                    string="Activate"
+                    icon="fa-check-circle"
+                    invisible="is_active"
+                    class="btn-primary"
+                />
             </list>
         </field>
     </record>
@@ -29,43 +35,63 @@
         <field name="arch" type="xml">
             <form string="Deployment Profile">
                 <header>
-                    <button name="action_activate"
-                            type="object"
-                            string="Activate Profile"
-                            class="oe_highlight"
-                            invisible="is_active"/>
-                    <field name="is_active" widget="status" statusbar_visible=""/>
+                    <button
+                        name="action_activate"
+                        type="object"
+                        string="Activate Profile"
+                        class="oe_highlight"
+                        invisible="is_active"
+                    />
+                    <field name="is_active" widget="status" statusbar_visible="" />
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button type="object"
-                                name="action_view_vocabulary_selections"
-                                class="oe_stat_button"
-                                icon="fa-list">
+                        <button
+                            type="object"
+                            name="action_view_vocabulary_selections"
+                            class="oe_stat_button"
+                            icon="fa-list"
+                        >
                             <div class="o_field_widget o_stat_info">
                                 <span class="o_stat_value">
-                                    <field name="vocabulary_count"/>
+                                    <field name="vocabulary_count" />
                                 </span>
                                 <span class="o_stat_text">Vocabularies</span>
                             </div>
                         </button>
-                        <button type="object"
-                                name="action_view_vocabulary_selections"
-                                class="oe_stat_button"
-                                icon="fa-code">
+                        <button
+                            type="object"
+                            name="action_view_vocabulary_selections"
+                            class="oe_stat_button"
+                            icon="fa-code"
+                        >
                             <div class="o_field_widget o_stat_info">
                                 <span class="o_stat_value">
-                                    <field name="total_code_count"/>
+                                    <field name="total_code_count" />
                                 </span>
                                 <span class="o_stat_text">Total Codes</span>
                             </div>
                         </button>
                     </div>
-                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
-                    <widget name="web_ribbon" title="Active Profile" bg_color="text-bg-success" invisible="not is_active"/>
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="text-bg-danger"
+                        invisible="active"
+                    />
+                    <widget
+                        name="web_ribbon"
+                        title="Active Profile"
+                        bg_color="text-bg-success"
+                        invisible="not is_active"
+                    />
                     <div class="oe_title">
                         <h1>
-                            <field name="name" placeholder="Deployment Profile Name" required="1"/>
+                            <field
+                                name="name"
+                                placeholder="Deployment Profile Name"
+                                required="1"
+                            />
                         </h1>
                     </div>
 
@@ -73,56 +99,77 @@
                         <page string="Details" name="details">
                             <group name="details_section">
                                 <group name="basic_info" string="Basic Information">
-                                    <field name="company_id" groups="base.group_multi_company"/>
-                                    <field name="active"/>
+                                    <field
+                                        name="company_id"
+                                        groups="base.group_multi_company"
+                                    />
+                                    <field name="active" />
                                 </group>
                                 <group name="status_info" string="Status">
-                                    <field name="is_active" readonly="1"/>
+                                    <field name="is_active" readonly="1" />
                                 </group>
                             </group>
-                            <separator string="Description"/>
-                            <field name="description"
-                                   nolabel="1"
-                                   placeholder="Description of this deployment profile..."
-                                   class="oe_inline"/>
+                            <separator string="Description" />
+                            <field
+                                name="description"
+                                nolabel="1"
+                                placeholder="Description of this deployment profile..."
+                                class="oe_inline"
+                            />
                         </page>
 
-                        <page string="Vocabulary Selections" name="vocabulary_selections">
-                            <field name="vocabulary_selection_ids"
-                                   nolabel="1"
-                                   context="{'default_deployment_profile_id': id}">
+                        <page
+                            string="Vocabulary Selections"
+                            name="vocabulary_selections"
+                        >
+                            <field
+                                name="vocabulary_selection_ids"
+                                nolabel="1"
+                                context="{'default_deployment_profile_id': id}"
+                            >
                                 <list editable="bottom" default_order="vocabulary_id">
-                                    <field name="vocabulary_id"/>
-                                    <field name="vocabulary_namespace" optional="show"/>
-                                    <field name="parent_selection_id" optional="hide"/>
-                                    <field name="effective_code_count" string="Codes"/>
-                                    <button name="action_add_all_codes"
-                                            type="object"
-                                            string="Add All"
-                                            icon="fa-plus-circle"/>
-                                    <button name="action_clear_codes"
-                                            type="object"
-                                            string="Clear"
-                                            icon="fa-times-circle"/>
+                                    <field name="vocabulary_id" />
+                                    <field
+                                        name="vocabulary_namespace"
+                                        optional="show"
+                                    />
+                                    <field name="parent_selection_id" optional="hide" />
+                                    <field name="effective_code_count" string="Codes" />
+                                    <button
+                                        name="action_add_all_codes"
+                                        type="object"
+                                        string="Add All"
+                                        icon="fa-plus-circle"
+                                    />
+                                    <button
+                                        name="action_clear_codes"
+                                        type="object"
+                                        string="Clear"
+                                        icon="fa-times-circle"
+                                    />
                                 </list>
                             </field>
                         </page>
 
-                        <page string="Technical" name="technical" groups="base.group_no_one">
+                        <page
+                            string="Technical"
+                            name="technical"
+                            groups="base.group_no_one"
+                        >
                             <group name="technical_section" col="4">
                                 <group>
-                                    <field name="create_uid" readonly="1"/>
-                                    <field name="create_date" readonly="1"/>
+                                    <field name="create_uid" readonly="1" />
+                                    <field name="create_date" readonly="1" />
                                 </group>
                                 <group>
-                                    <field name="write_uid" readonly="1"/>
-                                    <field name="write_date" readonly="1"/>
+                                    <field name="write_uid" readonly="1" />
+                                    <field name="write_date" readonly="1" />
                                 </group>
                             </group>
                         </page>
                     </notebook>
                 </sheet>
-                <chatter/>
+                <chatter />
             </form>
         </field>
     </record>
@@ -133,17 +180,40 @@
         <field name="model">spp.deployment.profile</field>
         <field name="arch" type="xml">
             <search string="Search Deployment Profiles">
-                <field name="name"/>
-                <field name="description" filter_domain="[('description', 'ilike', self)]"/>
-                <field name="company_id" groups="base.group_multi_company"/>
-                <separator/>
-                <filter string="Active Profile" name="filter_active_profile" domain="[('is_active', '=', True)]"/>
-                <filter string="Inactive Profile" name="filter_inactive_profile" domain="[('is_active', '=', False)]"/>
-                <separator/>
-                <filter string="Archived" name="filter_archived" domain="[('active', '=', False)]"/>
+                <field name="name" />
+                <field
+                    name="description"
+                    filter_domain="[('description', 'ilike', self)]"
+                />
+                <field name="company_id" groups="base.group_multi_company" />
+                <separator />
+                <filter
+                    string="Active Profile"
+                    name="filter_active_profile"
+                    domain="[('is_active', '=', True)]"
+                />
+                <filter
+                    string="Inactive Profile"
+                    name="filter_inactive_profile"
+                    domain="[('is_active', '=', False)]"
+                />
+                <separator />
+                <filter
+                    string="Archived"
+                    name="filter_archived"
+                    domain="[('active', '=', False)]"
+                />
                 <group>
-                    <filter string="Company" name="group_company" context="{'group_by': 'company_id'}"/>
-                    <filter string="Status" name="group_status" context="{'group_by': 'is_active'}"/>
+                    <filter
+                        string="Company"
+                        name="group_company"
+                        context="{'group_by': 'company_id'}"
+                    />
+                    <filter
+                        string="Status"
+                        name="group_status"
+                        context="{'group_by': 'is_active'}"
+                    />
                 </group>
             </search>
         </field>

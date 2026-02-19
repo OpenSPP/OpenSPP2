@@ -21,7 +21,7 @@ class TestSppCycle(common.Common):
             }
         )
         action = cls._test.create_program()
-        cls.program = cls.env["spp.program"].browse(action["res_id"])
+        cls.program = cls.env["spp.program"].browse(action["params"]["program_id"])
 
     @classmethod
     def _create_individual(self, vals):

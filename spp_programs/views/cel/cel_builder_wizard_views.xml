@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-
     <!-- CEL Builder Wizard Form -->
     <record id="view_cel_builder_wizard_form" model="ir.ui.view">
         <field name="name">spp.cel.builder.wizard.form</field>
@@ -19,7 +18,11 @@
                         <group>
                             <field name="eligibility_manager_id" invisible="1" />
                             <field name="compliance_manager_id" invisible="1" />
-                            <field name="target_type" widget="radio" options="{'horizontal': true}" />
+                            <field
+                                name="target_type"
+                                widget="radio"
+                                options="{'horizontal': true}"
+                            />
                         </group>
                     </group>
 
@@ -39,24 +42,49 @@
                     <div class="row">
                         <div class="col-md-8">
                             <!-- Validation Results -->
-                            <div class="alert alert-success" role="status" invisible="not is_valid">
-                                <i class="fa fa-check-circle" title="Success" /> Expression is valid.
-                                <strong><field name="preview_count" class="oe_inline" /></strong> records match.
+                            <div
+                                class="alert alert-success"
+                                role="status"
+                                invisible="not is_valid"
+                            >
+                                <i
+                                class="fa fa-check-circle"
+                                title="Success"
+                            /> Expression is valid.
+                                <strong>
+                                <field name="preview_count" class="oe_inline" />
+                            </strong> records match.
                             </div>
-                            <div class="alert alert-danger" role="alert" invisible="not preview_error">
+                            <div
+                                class="alert alert-danger"
+                                role="alert"
+                                invisible="not preview_error"
+                            >
                                 <i class="fa fa-exclamation-triangle" title="Warning" />
-                                <field name="preview_error" nolabel="1" class="oe_inline" />
+                                <field
+                                    name="preview_error"
+                                    nolabel="1"
+                                    class="oe_inline"
+                                />
                             </div>
 
                             <!-- Explanation -->
                             <div invisible="not preview_explain" class="mb-3">
-                                <span class="o_form_label"><strong>How it works:</strong></span>
-                                <field name="preview_explain" nolabel="1" readonly="1" />
+                                <span class="o_form_label">
+                                    <strong>How it works:</strong>
+                                </span>
+                                <field
+                                    name="preview_explain"
+                                    nolabel="1"
+                                    readonly="1"
+                                />
                             </div>
 
                             <!-- Sample Records -->
                             <div invisible="not is_valid" class="mb-3">
-                                <span class="o_form_label"><strong>Sample Matching Records:</strong></span>
+                                <span class="o_form_label">
+                                    <strong>Sample Matching Records:</strong>
+                                </span>
                                 <field name="sample_ids" nolabel="1" readonly="1">
                                     <list create="0" delete="0" edit="0">
                                         <field name="name" />
@@ -72,14 +100,23 @@
                             <field name="available_symbols" nolabel="1" readonly="1" />
                         </page>
                         <page string="Functions" name="functions">
-                            <field name="available_functions" nolabel="1" readonly="1" />
+                            <field
+                                name="available_functions"
+                                nolabel="1"
+                                readonly="1"
+                            />
                         </page>
                         <page string="Examples" name="examples">
-                            <p class="text-muted">Click an example to use it as a starting point:</p>
-                            <field name="example_expressions" nolabel="1" readonly="1" />
+                            <p
+                                class="text-muted"
+                            >Click an example to use it as a starting point:</p>
+                            <field
+                                name="example_expressions"
+                                nolabel="1"
+                                readonly="1"
+                            />
                         </page>
                     </notebook>
-
                 </sheet>
                 <footer>
                     <button
@@ -138,17 +175,53 @@
                 <field name="category" />
                 <field name="target_type" />
                 <separator />
-                <filter name="filter_eligibility" string="Eligibility" domain="[('category', '=', 'eligibility')]" />
-                <filter name="filter_amount" string="Entitlement Amount" domain="[('category', '=', 'amount')]" />
-                <filter name="filter_condition" string="Entitlement Condition" domain="[('category', '=', 'condition')]" />
-                <filter name="filter_compliance" string="Compliance" domain="[('category', '=', 'compliance')]" />
-                <filter name="filter_inkind" string="In-Kind Quantity" domain="[('category', '=', 'inkind_qty')]" />
+                <filter
+                    name="filter_eligibility"
+                    string="Eligibility"
+                    domain="[('category', '=', 'eligibility')]"
+                />
+                <filter
+                    name="filter_amount"
+                    string="Entitlement Amount"
+                    domain="[('category', '=', 'amount')]"
+                />
+                <filter
+                    name="filter_condition"
+                    string="Entitlement Condition"
+                    domain="[('category', '=', 'condition')]"
+                />
+                <filter
+                    name="filter_compliance"
+                    string="Compliance"
+                    domain="[('category', '=', 'compliance')]"
+                />
+                <filter
+                    name="filter_inkind"
+                    string="In-Kind Quantity"
+                    domain="[('category', '=', 'inkind_qty')]"
+                />
                 <separator />
-                <filter name="filter_groups" string="Groups" domain="[('target_type', 'in', ['group', 'both'])]" />
-                <filter name="filter_individuals" string="Individuals" domain="[('target_type', 'in', ['individual', 'both'])]" />
+                <filter
+                    name="filter_groups"
+                    string="Groups"
+                    domain="[('target_type', 'in', ['group', 'both'])]"
+                />
+                <filter
+                    name="filter_individuals"
+                    string="Individuals"
+                    domain="[('target_type', 'in', ['individual', 'both'])]"
+                />
                 <separator />
-                <filter name="group_by_category" string="Category" context="{'group_by': 'category'}" />
-                <filter name="group_by_target_type" string="Target Type" context="{'group_by': 'target_type'}" />
+                <filter
+                    name="group_by_category"
+                    string="Category"
+                    context="{'group_by': 'category'}"
+                />
+                <filter
+                    name="group_by_target_type"
+                    string="Target Type"
+                    context="{'group_by': 'target_type'}"
+                />
             </search>
         </field>
     </record>
@@ -172,8 +245,16 @@
                         </group>
                     </group>
                     <group>
-                        <field name="expression" widget="text" placeholder="e.g., hh_size >= 4" />
-                        <field name="description" widget="text" placeholder="Describe what this expression does..." />
+                        <field
+                            name="expression"
+                            widget="text"
+                            placeholder="e.g., hh_size >= 4"
+                        />
+                        <field
+                            name="description"
+                            widget="text"
+                            placeholder="Describe what this expression does..."
+                        />
                     </group>
                 </sheet>
             </form>
@@ -186,5 +267,4 @@
         <field name="res_model">spp.cel.example</field>
         <field name="view_mode">list,form</field>
     </record>
-
 </odoo>

@@ -5,18 +5,18 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 <odoo>
     <!-- DRIMS-specific GIS Report Templates -->
 
-        <record id="template_incident_area_severity" model="spp.gis.report.template">
-            <field name="name">Incident Area Severity Map</field>
-            <field name="code">incident_area_severity</field>
-            <field name="description">Shows severity levels of incident impact areas.
+    <record id="template_incident_area_severity" model="spp.gis.report.template">
+        <field name="name">Incident Area Severity Map</field>
+        <field name="code">incident_area_severity</field>
+        <field name="description">Shows severity levels of incident impact areas.
 Displays area-specific severity overrides where available,
 otherwise uses the incident's default severity.
 Higher severity areas are shown in warmer colors (red).</field>
-            <field name="category_id" ref="spp_gis_report.category_disaster_response" />
-            <field name="icon">fa-exclamation-triangle</field>
-            <field name="sequence">5</field>
-            <field name="requires_incident" eval="True" />
-            <field name="config">{
+        <field name="category_id" ref="spp_gis_report.category_disaster_response" />
+        <field name="icon">fa-exclamation-triangle</field>
+        <field name="sequence">5</field>
+        <field name="requires_incident" eval="True" />
+        <field name="config">{
     "source_model": "spp.hazard.incident.area",
     "area_field_path": "area_id",
     "filter_template": "[]",
@@ -29,5 +29,5 @@ Higher severity areas are shown in warmer colors (red).</field>
     "rollup_method": "max",
     "rollup_weight_source": "count"
 }</field>
-        </record>
+    </record>
 </odoo>

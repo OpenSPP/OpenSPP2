@@ -1,101 +1,131 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
-        <!-- Disability Assistance Pack: Support for persons with disabilities -->
-        <record id="pack_disability_assistance" model="spp.studio.pack">
-            <field name="name">Disability Assistance</field>
-            <field name="code">disability_assistance</field>
-            <field name="description">Complete logic pack for disability grant and assistance programs. Includes disability verification, severity scoring, and tiered benefit calculation.</field>
-            <field name="category">disability</field>
-            <field name="version">1.0</field>
-            <field name="author">OpenSPP</field>
-            <field name="state">available</field>
-        </record>
+    <!-- Disability Assistance Pack: Support for persons with disabilities -->
+    <record id="pack_disability_assistance" model="spp.studio.pack">
+        <field name="name">Disability Assistance</field>
+        <field name="code">disability_assistance</field>
+        <field
+            name="description"
+        >Complete logic pack for disability grant and assistance programs. Includes disability verification, severity scoring, and tiered benefit calculation.</field>
+        <field name="category">disability</field>
+        <field name="version">1.0</field>
+        <field name="author">OpenSPP</field>
+        <field name="state">available</field>
+    </record>
 
-        <!-- Eligibility: Disability Status -->
-        <record id="pack_disability_item_status_check" model="spp.studio.pack.item">
-            <field name="pack_id" ref="pack_disability_assistance"/>
-            <field name="name">Disability Status Verification</field>
-            <field name="context_type">individual</field>
-            <field name="description">Verifies certified disability status from medical assessment.</field>
-            <field name="expression_type">filter</field>
-            <field name="logic_data">{"cel_expression": "has_disability &amp;&amp; disability_certified"}</field>
-            <field name="sequence">10</field>
-        </record>
+    <!-- Eligibility: Disability Status -->
+    <record id="pack_disability_item_status_check" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_disability_assistance" />
+        <field name="name">Disability Status Verification</field>
+        <field name="context_type">individual</field>
+        <field
+            name="description"
+        >Verifies certified disability status from medical assessment.</field>
+        <field name="expression_type">filter</field>
+        <field
+            name="logic_data"
+        >{"cel_expression": "has_disability &amp;&amp; disability_certified"}</field>
+        <field name="sequence">10</field>
+    </record>
 
-        <!-- Eligibility: Severity Threshold -->
-        <record id="pack_disability_item_severity" model="spp.studio.pack.item">
-            <field name="pack_id" ref="pack_disability_assistance"/>
-            <field name="name">Disability Severity Threshold</field>
-            <field name="context_type">individual</field>
-            <field name="description">Minimum disability severity level required (typically 40%+ functional limitation).</field>
-            <field name="expression_type">filter</field>
-            <field name="logic_data">{"cel_expression": "disability_percentage >= min_disability_percent"}</field>
-            <field name="sequence">20</field>
-        </record>
+    <!-- Eligibility: Severity Threshold -->
+    <record id="pack_disability_item_severity" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_disability_assistance" />
+        <field name="name">Disability Severity Threshold</field>
+        <field name="context_type">individual</field>
+        <field
+            name="description"
+        >Minimum disability severity level required (typically 40%+ functional limitation).</field>
+        <field name="expression_type">filter</field>
+        <field
+            name="logic_data"
+        >{"cel_expression": "disability_percentage >= min_disability_percent"}</field>
+        <field name="sequence">20</field>
+    </record>
 
-        <!-- Eligibility: Age Range -->
-        <record id="pack_disability_item_age_range" model="spp.studio.pack.item">
-            <field name="pack_id" ref="pack_disability_assistance"/>
-            <field name="name">Working Age Range</field>
-            <field name="context_type">individual</field>
-            <field name="description">Eligible age range for disability assistance (child_age_limit to retirement_age, before pension eligibility).</field>
-            <field name="expression_type">filter</field>
-            <field name="logic_data">{"cel_expression": "age &gt;= child_age_limit &amp;&amp; age &lt; retirement_age"}</field>
-            <field name="sequence">30</field>
-        </record>
+    <!-- Eligibility: Age Range -->
+    <record id="pack_disability_item_age_range" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_disability_assistance" />
+        <field name="name">Working Age Range</field>
+        <field name="context_type">individual</field>
+        <field
+            name="description"
+        >Eligible age range for disability assistance (child_age_limit to retirement_age, before pension eligibility).</field>
+        <field name="expression_type">filter</field>
+        <field
+            name="logic_data"
+        >{"cel_expression": "age &gt;= child_age_limit &amp;&amp; age &lt; retirement_age"}</field>
+        <field name="sequence">30</field>
+    </record>
 
-        <!-- Eligibility: Income Test -->
-        <record id="pack_disability_item_income_test" model="spp.studio.pack.item">
-            <field name="pack_id" ref="pack_disability_assistance"/>
-            <field name="name">Income Means Test</field>
-            <field name="context_type">group</field>
-            <field name="description">Household income must be below threshold for disability assistance.</field>
-            <field name="expression_type">filter</field>
-            <field name="logic_data">{"cel_expression": "per_capita_income &lt;= income_threshold"}</field>
-            <field name="sequence">40</field>
-        </record>
+    <!-- Eligibility: Income Test -->
+    <record id="pack_disability_item_income_test" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_disability_assistance" />
+        <field name="name">Income Means Test</field>
+        <field name="context_type">group</field>
+        <field
+            name="description"
+        >Household income must be below threshold for disability assistance.</field>
+        <field name="expression_type">filter</field>
+        <field
+            name="logic_data"
+        >{"cel_expression": "per_capita_income &lt;= income_threshold"}</field>
+        <field name="sequence">40</field>
+    </record>
 
-        <!-- Scoring: Disability Needs Score -->
-        <record id="pack_disability_item_needs_score" model="spp.studio.pack.item">
-            <field name="pack_id" ref="pack_disability_assistance"/>
-            <field name="name">Disability Needs Score</field>
-            <field name="context_type">both</field>
-            <field name="description">Composite score based on disability severity, care requirements, and economic situation.</field>
-            <field name="expression_type">scoring</field>
-            <field name="logic_data">{"cel_expression": "disability_percentage * 0.4 + (requires_caregiver ? 30 : 0) + (1 - income_ratio) * 30"}</field>
-            <field name="sequence">50</field>
-        </record>
+    <!-- Scoring: Disability Needs Score -->
+    <record id="pack_disability_item_needs_score" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_disability_assistance" />
+        <field name="name">Disability Needs Score</field>
+        <field name="context_type">both</field>
+        <field
+            name="description"
+        >Composite score based on disability severity, care requirements, and economic situation.</field>
+        <field name="expression_type">scoring</field>
+        <field
+            name="logic_data"
+        >{"cel_expression": "disability_percentage * 0.4 + (requires_caregiver ? 30 : 0) + (1 - income_ratio) * 30"}</field>
+        <field name="sequence">50</field>
+    </record>
 
-        <!-- Benefit: Base Disability Grant -->
-        <record id="pack_disability_item_base_grant" model="spp.studio.pack.item">
-            <field name="pack_id" ref="pack_disability_assistance"/>
-            <field name="name">Base Disability Grant</field>
-            <field name="context_type">both</field>
-            <field name="description">Standard monthly disability grant amount.</field>
-            <field name="expression_type">formula</field>
-            <field name="logic_data">{"cel_expression": "base_benefit"}</field>
-            <field name="sequence">60</field>
-        </record>
+    <!-- Benefit: Base Disability Grant -->
+    <record id="pack_disability_item_base_grant" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_disability_assistance" />
+        <field name="name">Base Disability Grant</field>
+        <field name="context_type">both</field>
+        <field name="description">Standard monthly disability grant amount.</field>
+        <field name="expression_type">formula</field>
+        <field name="logic_data">{"cel_expression": "base_benefit"}</field>
+        <field name="sequence">60</field>
+    </record>
 
-        <!-- Benefit: Severity-Tiered Grant -->
-        <record id="pack_disability_item_tiered_grant" model="spp.studio.pack.item">
-            <field name="pack_id" ref="pack_disability_assistance"/>
-            <field name="name">Severity-Tiered Grant</field>
-            <field name="context_type">individual</field>
-            <field name="description">Grant amount varies by disability severity: 40-59% partial, 60-79% moderate, 80%+ severe.</field>
-            <field name="expression_type">formula</field>
-            <field name="logic_data">{"cel_expression": "disability_percentage >= 80 ? 2000 : (disability_percentage >= 60 ? 1500 : 1000)"}</field>
-            <field name="sequence">70</field>
-        </record>
+    <!-- Benefit: Severity-Tiered Grant -->
+    <record id="pack_disability_item_tiered_grant" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_disability_assistance" />
+        <field name="name">Severity-Tiered Grant</field>
+        <field name="context_type">individual</field>
+        <field
+            name="description"
+        >Grant amount varies by disability severity: 40-59% partial, 60-79% moderate, 80%+ severe.</field>
+        <field name="expression_type">formula</field>
+        <field
+            name="logic_data"
+        >{"cel_expression": "disability_percentage >= 80 ? 2000 : (disability_percentage >= 60 ? 1500 : 1000)"}</field>
+        <field name="sequence">70</field>
+    </record>
 
-        <!-- Benefit: Caregiver Supplement -->
-        <record id="pack_disability_item_caregiver_supplement" model="spp.studio.pack.item">
-            <field name="pack_id" ref="pack_disability_assistance"/>
-            <field name="name">Caregiver Supplement</field>
-            <field name="context_type">individual</field>
-            <field name="description">Additional allowance for persons requiring full-time caregiver support.</field>
-            <field name="expression_type">formula</field>
-            <field name="logic_data">{"cel_expression": "base_benefit + (requires_caregiver ? 500 : 0)"}</field>
-            <field name="sequence">80</field>
-        </record>
+    <!-- Benefit: Caregiver Supplement -->
+    <record id="pack_disability_item_caregiver_supplement" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_disability_assistance" />
+        <field name="name">Caregiver Supplement</field>
+        <field name="context_type">individual</field>
+        <field
+            name="description"
+        >Additional allowance for persons requiring full-time caregiver support.</field>
+        <field name="expression_type">formula</field>
+        <field
+            name="logic_data"
+        >{"cel_expression": "base_benefit + (requires_caregiver ? 500 : 0)"}</field>
+        <field name="sequence">80</field>
+    </record>
 </odoo>

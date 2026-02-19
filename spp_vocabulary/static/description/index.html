@@ -374,7 +374,7 @@ ul.auto-toc {
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! source digest: sha256:01eee21df41e20f2acd6e002d0337c9cbb0fcf55589cd6666a9d42499e012aa4
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-<p><a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_vocabulary"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Production/Stable" src="https://img.shields.io/badge/maturity-Production%2FStable-green.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_vocabulary"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
 <p>Standardized vocabulary and code list management system. Supports
 international standards (ISO, WHO, ILO), local extensions,
 cross-vocabulary mappings, and deployment-specific code filtering.
@@ -385,8 +385,8 @@ education levels) that are reused across OpenSPP modules.</p>
 <ul class="simple">
 <li>Define vocabularies with globally unique namespace URIs for
 interoperability</li>
-<li>Manage hierarchical codes with lifecycle tracking (active,
-deprecated, replaced)</li>
+<li>Manage hierarchical codes with lifecycle tracking (active, deprecated,
+replaced)</li>
 <li>Create local code extensions that map to standard codes with
 equivalence tracking</li>
 <li>Map codes between different vocabularies for translation and
@@ -400,8 +400,8 @@ abstraction</li>
 <h2>Key Models</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="49%" />
+<col width="51%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Model</th>
@@ -411,8 +411,7 @@ abstraction</li>
 <tbody valign="top">
 <tr><td><tt class="docutils literal">spp.vocabulary</tt></td>
 <td>Collection of codes with a
-namespace (e.g., Gender, ID
-Type)</td>
+namespace (e.g., Gender, ID Type)</td>
 </tr>
 <tr><td><tt class="docutils literal">spp.vocabulary.code</tt></td>
 <td>Individual code within a
@@ -427,9 +426,8 @@ vocabularies</td>
 business logic abstraction</td>
 </tr>
 <tr><td><tt class="docutils literal">spp.deployment.profile</tt></td>
-<td>Deployment-specific
-configuration for active code
-subsets</td>
+<td>Deployment-specific configuration
+for active code subsets</td>
 </tr>
 <tr><td><tt class="docutils literal">spp.vocabulary.selection</tt></td>
 <td>Code selection within a

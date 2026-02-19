@@ -7,7 +7,7 @@
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Stable",
+    "development_status": "Production/Stable",
     "depends": ["base", "mail", "spp_security"],
     "data": [
         "security/privileges.xml",
@@ -44,6 +44,10 @@
         "data/vocabulary_cr_document_types.xml",
         # Temporarily disabled - references spp.relationship model from spp_registry
         # "data/relationship_types.xml",
+    ],
+    "oca_data_manual": [
+        "views/relationship_views.xml",
+        "data/relationship_types.xml",
     ],
     "application": False,
     "installable": True,

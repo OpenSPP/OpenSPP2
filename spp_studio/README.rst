@@ -14,14 +14,17 @@ OpenSPP Studio
    !! source digest: sha256:44ff55dd2c2535bb16fbc7e456d1996a04b20e2c91a94e33c94038a9c3942be8
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+    :target: https://odoo-community.org/page/development-status
+    :alt: Production/Stable
+.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
     :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_studio
     :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2|
+|badge1| |badge2| |badge3|
 
 No-code customization interface for OpenSPP that enables program staff,
 M&E officers, and country coordinators to configure business logic and
@@ -34,56 +37,56 @@ scheduled activation.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  Create and test CEL expressions with real-time variable discovery and
-   validation
--  Add custom fields to Individual and Group registries through a guided
-   builder
--  Install pre-built logic packs for cash transfers, PMT targeting,
-   child benefits, social pensions, and other programs
--  Test expressions using personas with example data before deployment
--  Manage lifecycle through governance workflow: draft, pending
-   approval, published, archived
--  Track version history with scheduled activation for future changes
--  Monitor where logic and fields are used across programs
+- Create and test CEL expressions with real-time variable discovery and
+  validation
+- Add custom fields to Individual and Group registries through a guided
+  builder
+- Install pre-built logic packs for cash transfers, PMT targeting, child
+  benefits, social pensions, and other programs
+- Test expressions using personas with example data before deployment
+- Manage lifecycle through governance workflow: draft, pending approval,
+  published, archived
+- Track version history with scheduled activation for future changes
+- Monitor where logic and fields are used across programs
 
 Key Models
 ~~~~~~~~~~
 
-+-------------------------------+-------------------------------------+
-| Model                         | Description                         |
-+===============================+=====================================+
-| ``spp.cel.expression``        | Business logic definitions with CEL |
-|                               | expressions                         |
-+-------------------------------+-------------------------------------+
-| ``spp.cel.variable``          | Variable definitions for use in     |
-|                               | expressions                         |
-+-------------------------------+-------------------------------------+
-| ``spp.cel.variable.category`` | Categories for organizing variables |
-+-------------------------------+-------------------------------------+
-| ``spp.studio.field``          | Custom field definitions for        |
-|                               | registry extension                  |
-+-------------------------------+-------------------------------------+
-| ``spp.studio.pack``           | Pre-built logic bundles for common  |
-|                               | use cases                           |
-+-------------------------------+-------------------------------------+
-| ``spp.studio.pack.item``      | Individual logic definitions within |
-|                               | a pack                              |
-+-------------------------------+-------------------------------------+
-| ``spp.studio.test``           | Test cases for validating logic     |
-|                               | expressions                         |
-+-------------------------------+-------------------------------------+
-| ``spp.studio.test.persona``   | Test personas with example data for |
-|                               | logic validation                    |
-+-------------------------------+-------------------------------------+
-| ``spp.studio.placement.zone`` | Form zones where custom fields can  |
-|                               | be placed                           |
-+-------------------------------+-------------------------------------+
-| ``spp.studio.version``        | Version history tracking for logic  |
-|                               | changes                             |
-+-------------------------------+-------------------------------------+
-| ``spp.studio.usage``          | Usage tracking for logic and field  |
-|                               | references                          |
-+-------------------------------+-------------------------------------+
++-------------------------------+--------------------------------------+
+| Model                         | Description                          |
++===============================+======================================+
+| ``spp.cel.expression``        | Business logic definitions with CEL  |
+|                               | expressions                          |
++-------------------------------+--------------------------------------+
+| ``spp.cel.variable``          | Variable definitions for use in      |
+|                               | expressions                          |
++-------------------------------+--------------------------------------+
+| ``spp.cel.variable.category`` | Categories for organizing variables  |
++-------------------------------+--------------------------------------+
+| ``spp.studio.field``          | Custom field definitions for         |
+|                               | registry extension                   |
++-------------------------------+--------------------------------------+
+| ``spp.studio.pack``           | Pre-built logic bundles for common   |
+|                               | use cases                            |
++-------------------------------+--------------------------------------+
+| ``spp.studio.pack.item``      | Individual logic definitions within  |
+|                               | a pack                               |
++-------------------------------+--------------------------------------+
+| ``spp.studio.test``           | Test cases for validating logic      |
+|                               | expressions                          |
++-------------------------------+--------------------------------------+
+| ``spp.studio.test.persona``   | Test personas with example data for  |
+|                               | logic validation                     |
++-------------------------------+--------------------------------------+
+| ``spp.studio.placement.zone`` | Form zones where custom fields can   |
+|                               | be placed                            |
++-------------------------------+--------------------------------------+
+| ``spp.studio.version``        | Version history tracking for logic   |
+|                               | changes                              |
++-------------------------------+--------------------------------------+
+| ``spp.studio.usage``          | Usage tracking for logic and field   |
+|                               | references                           |
++-------------------------------+--------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -101,40 +104,38 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
--  **Menu**: Studio (top-level menu)
--  **Home**: Studio > Home
--  **Rules**: Studio > Rules > Expressions, Variables, Packages, Test
-   Personas
--  **Custom Fields**: Studio > Forms & Fields > Custom Fields
--  **Settings**: Studio > Settings (managers only)
+- **Menu**: Studio (top-level menu)
+- **Home**: Studio > Home
+- **Rules**: Studio > Rules > Expressions, Variables, Packages, Test
+  Personas
+- **Custom Fields**: Studio > Forms & Fields > Custom Fields
+- **Settings**: Studio > Settings (managers only)
 
 Security
 ~~~~~~~~
 
-+----------------------------------+----------------------------------+
-| Group                            | Access                           |
-+==================================+==================================+
-| ``                               | Read                             |
-| spp_studio.group_studio_viewer`` |                                  |
-+----------------------------------+----------------------------------+
-| ``spp_stud                       | Read/Write/Create on logic and   |
-| io.group_studio_editor_officer`` | fields (no delete on fields)     |
-+----------------------------------+----------------------------------+
-| ``s                              | Full CRUD                        |
-| pp_studio.group_studio_manager`` |                                  |
-+----------------------------------+----------------------------------+
++--------------------------------------------+----------------------------------+
+| Group                                      | Access                           |
++============================================+==================================+
+| ``spp_studio.group_studio_viewer``         | Read                             |
++--------------------------------------------+----------------------------------+
+| ``spp_studio.group_studio_editor_officer`` | Read/Write/Create on logic and   |
+|                                            | fields (no delete on fields)     |
++--------------------------------------------+----------------------------------+
+| ``spp_studio.group_studio_manager``        | Full CRUD                        |
++--------------------------------------------+----------------------------------+
 
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Inherit ``spp.cel.expression`` to add domain-specific validation or
-   compilation steps
--  Override ``_pre_activate()`` on ``spp.studio.field`` to customize
-   field creation behavior
--  Add new logic pack categories by extending the ``category`` selection
-   field
--  Implement custom variable sources by inheriting ``spp.cel.variable``
-   and overriding discovery methods
+- Inherit ``spp.cel.expression`` to add domain-specific validation or
+  compilation steps
+- Override ``_pre_activate()`` on ``spp.studio.field`` to customize
+  field creation behavior
+- Add new logic pack categories by extending the ``category`` selection
+  field
+- Implement custom variable sources by inheriting ``spp.cel.variable``
+  and overriding discovery methods
 
 Dependencies
 ~~~~~~~~~~~~

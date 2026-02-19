@@ -1,39 +1,41 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
-        <!-- Default area tags for use in CEL expressions -->
+    <!-- Default area tags for use in CEL expressions -->
 
-        <record id="area_tag_urban" model="spp.area.tag">
-            <field name="name">Urban</field>
-            <field name="code">URBAN</field>
-            <field name="description">Urban areas with higher population density and infrastructure</field>
-            <field name="color">4</field>
-        </record>
+    <record id="area_tag_urban" model="spp.area.tag">
+        <field name="name">Urban</field>
+        <field name="code">URBAN</field>
+        <field
+            name="description"
+        >Urban areas with higher population density and infrastructure</field>
+        <field name="color">4</field>
+    </record>
 
-        <record id="area_tag_rural" model="spp.area.tag">
-            <field name="name">Rural</field>
-            <field name="code">RURAL</field>
-            <field name="description">Rural areas with lower population density</field>
-            <field name="color">3</field>
-        </record>
+    <record id="area_tag_rural" model="spp.area.tag">
+        <field name="name">Rural</field>
+        <field name="code">RURAL</field>
+        <field name="description">Rural areas with lower population density</field>
+        <field name="color">3</field>
+    </record>
 
-        <record id="area_tag_priority_region" model="spp.area.tag">
-            <field name="name">Priority Region</field>
-            <field name="code">PRIORITY_REGION</field>
-            <field name="description">Regions prioritized for program targeting</field>
-            <field name="color">1</field>
-        </record>
+    <record id="area_tag_priority_region" model="spp.area.tag">
+        <field name="name">Priority Region</field>
+        <field name="code">PRIORITY_REGION</field>
+        <field name="description">Regions prioritized for program targeting</field>
+        <field name="color">1</field>
+    </record>
 
-        <record id="area_tag_high_poverty" model="spp.area.tag">
-            <field name="name">High Poverty</field>
-            <field name="code">HIGH_POVERTY</field>
-            <field name="description">Areas with high poverty rates</field>
-            <field name="color">9</field>
-        </record>
+    <record id="area_tag_high_poverty" model="spp.area.tag">
+        <field name="name">High Poverty</field>
+        <field name="code">HIGH_POVERTY</field>
+        <field name="description">Areas with high poverty rates</field>
+        <field name="color">9</field>
+    </record>
 
-        <record id="area_tag_disaster_active" model="spp.area.tag">
-            <field name="name">Disaster Active</field>
-            <field name="code">DISASTER_ACTIVE</field>
-            <field name="description">Areas currently affected by active disasters</field>
-            <field name="color">2</field>
-        </record>
+    <record id="area_tag_disaster_active" model="spp.area.tag">
+        <field name="name">Disaster Active</field>
+        <field name="code">DISASTER_ACTIVE</field>
+        <field name="description">Areas currently affected by active disasters</field>
+        <field name="color">2</field>
+    </record>
 </odoo>

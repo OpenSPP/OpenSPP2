@@ -53,7 +53,10 @@
     </record>
 
     <!-- Enhance kanban view to show license badge -->
-    <record id="view_ir_module_module_kanban_inherit_spp_branding_kit" model="ir.ui.view">
+    <record
+        id="view_ir_module_module_kanban_inherit_spp_branding_kit"
+        model="ir.ui.view"
+    >
         <field name="name">spp.ir.module.module.kanban</field>
         <field name="model">ir.module.module</field>
         <field name="inherit_id" ref="base.module_view_kanban" />
@@ -64,7 +67,10 @@
             </field>
 
             <!-- Add visual indicator for paid apps in kanban cards -->
-            <xpath expr="//t[@t-name='card']/main/field[@name='shortdesc']" position="after">
+            <xpath
+                expr="//t[@t-name='card']/main/field[@name='shortdesc']"
+                position="after"
+            >
                 <span
                     t-if="record.license.raw_value and (record.license.raw_value.startsWith('OEEL') or record.license.raw_value.startsWith('OPL'))"
                     class="badge rounded-pill text-bg-warning ms-2 align-self-start"
@@ -74,7 +80,6 @@
             </xpath>
         </field>
     </record>
-
 
     <!-- Override Apps menu action to include context and default filter -->
     <record id="base.open_module_tree" model="ir.actions.act_window">

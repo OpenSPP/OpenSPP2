@@ -3,34 +3,10 @@
     "version": "19.0.2.0.0",
     "category": "OpenSPP/Configuration",
     "summary": "No-code customization interface for OpenSPP",
-    "description": """
-OpenSPP Studio
-==============
-
-A no-code customization interface designed for semi-technical users at NGOs
-and UN agencies. Enables program staff to configure OpenSPP without developer
-involvement.
-
-Features:
-- CEL Expression Editor: Full CEL expression editor for creating business logic
-- Variable Dictionary: Integrated discovery of all available variables
-- Logic Packs: Pre-built formula bundles for common use cases
-- Custom Fields: Add custom fields to Individual/Group registries
-- Testing: Built-in test cases and personas
-
-This module consolidates:
-- spp_studio_fields (merged)
-- spp_studio_logic (merged)
-
-Target Users:
-- Program Data Managers
-- M&E Officers
-- Country Coordinators
-    """,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Stable",
+    "development_status": "Production/Stable",
     "depends": [
         "base",
         "mail",

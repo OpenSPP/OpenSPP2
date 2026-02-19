@@ -681,15 +681,27 @@ $shadow-lg:
 
     // Category colors
     &.category-eligibility .pack-header {
-        background: linear-gradient(135deg, $type-eligibility 0%, darken($type-eligibility, 15%) 100%);
+        background: linear-gradient(
+            135deg,
+            $type-eligibility 0%,
+            darken($type-eligibility, 15%) 100%
+        );
     }
 
     &.category-benefit .pack-header {
-        background: linear-gradient(135deg, $type-benefit 0%, darken($type-benefit, 15%) 100%);
+        background: linear-gradient(
+            135deg,
+            $type-benefit 0%,
+            darken($type-benefit, 15%) 100%
+        );
     }
 
     &.category-compliance .pack-header {
-        background: linear-gradient(135deg, $type-compliance 0%, darken($type-compliance, 15%) 100%);
+        background: linear-gradient(
+            135deg,
+            $type-compliance 0%,
+            darken($type-compliance, 15%) 100%
+        );
     }
 
     // Install button prominence

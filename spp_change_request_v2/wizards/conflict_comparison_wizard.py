@@ -158,7 +158,7 @@ class SPPCRConflictComparisonWizard(models.TransientModel):
             header_html = Markup("").join(Markup("<th>{}</th>").format(h) for h in headers)
 
             rows = []
-            for line in rec.line_ids.sorted(key=lambda l: l.change_request_id.create_date):
+            for line in rec.line_ids.sorted(key=lambda ln: ln.change_request_id.create_date):
                 cr = line.change_request_id
                 proposed_value = rec._get_proposed_value(cr)
                 doc_count = len(cr.document_ids)
@@ -235,7 +235,7 @@ class SPPCRConflictComparisonWizard(models.TransientModel):
         """Approve the most recent CR, decline all others."""
         self.ensure_one()
 
-        sorted_lines = self.line_ids.sorted(key=lambda l: l.change_request_id.create_date, reverse=True)
+        sorted_lines = self.line_ids.sorted(key=lambda ln: ln.change_request_id.create_date, reverse=True)
 
         for i, line in enumerate(sorted_lines):
             if i == 0:
@@ -249,7 +249,7 @@ class SPPCRConflictComparisonWizard(models.TransientModel):
         """Approve the oldest CR, decline all others."""
         self.ensure_one()
 
-        sorted_lines = self.line_ids.sorted(key=lambda l: l.change_request_id.create_date)
+        sorted_lines = self.line_ids.sorted(key=lambda ln: ln.change_request_id.create_date)
 
         for i, line in enumerate(sorted_lines):
             if i == 0:

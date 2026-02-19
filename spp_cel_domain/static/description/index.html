@@ -374,7 +374,7 @@ ul.auto-toc {
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! source digest: sha256:dc1d2a6a14f4820f9b596f0fb874e83810a1494433e030c812952ba473ab4ef8
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-<p><a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_cel_domain"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Production/Stable" src="https://img.shields.io/badge/maturity-Production%2FStable-green.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_cel_domain"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
 <p>Translates CEL-like expressions into Odoo domains for filtering records.
 Defines reusable variables (field mappings, constants, aggregations,
 external sources), writes business rules in CEL syntax, and compiles
@@ -402,8 +402,8 @@ and manual invalidation</li>
 <h2>Key Models</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="46%" />
-<col width="54%" />
+<col width="45%" />
+<col width="55%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Model</th>
@@ -416,17 +416,15 @@ and manual invalidation</li>
 type, CEL accessor, and caching</td>
 </tr>
 <tr><td><tt class="docutils literal">spp.cel.variable.category</tt></td>
-<td>Variable categories for
-organization</td>
+<td>Variable categories for organization</td>
 </tr>
 <tr><td><tt class="docutils literal">spp.cel.expression</tt></td>
 <td>Business rule expressions with CEL
 syntax and variable tracking</td>
 </tr>
 <tr><td><tt class="docutils literal">spp.data.provider</tt></td>
-<td>External data provider
-configuration with auth and
-connection settings</td>
+<td>External data provider configuration
+with auth and connection settings</td>
 </tr>
 <tr><td><tt class="docutils literal">spp.data.credential</tt></td>
 <td>Secure encrypted credential storage
@@ -467,8 +465,8 @@ support</li>
 <h2>UI Location</h2>
 <ul class="simple">
 <li><strong>Menu</strong>: Custom &gt; CEL Domain</li>
-<li><strong>Submenus</strong>: Data Management &gt; Data Providers, Data Management &gt;
-Data Cache</li>
+<li><strong>Submenus</strong>: Data Management &gt; Data Providers, Data Management &gt; Data
+Cache</li>
 <li><strong>Tools</strong>: Tools &gt; Rule Preview wizard for testing expressions</li>
 <li><strong>Variable/Expression UI</strong>: Provided by <tt class="docutils literal">spp_studio</tt> module</li>
 </ul>
@@ -477,8 +475,8 @@ Data Cache</li>
 <h2>Security</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="57%" />
+<col width="43%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Group</th>
@@ -486,19 +484,16 @@ Data Cache</li>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td><tt class="docutils literal">spp_cel_
-domain.group_cel_domain_viewer</tt></td>
+<tr><td><tt class="docutils literal">spp_cel_domain.group_cel_domain_viewer</tt></td>
 <td>Read variables, expressions, and
 data cache</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_cel_d
-omain.group_cel_domain_manager</tt></td>
+<tr><td><tt class="docutils literal">spp_cel_domain.group_cel_domain_manager</tt></td>
 <td>Full CRUD on variables,
 expressions, providers, and
 cache</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_cel
-_domain.group_cel_domain_admin</tt></td>
+<tr><td><tt class="docutils literal">spp_cel_domain.group_cel_domain_admin</tt></td>
 <td>Full CRUD on credentials and
 sensitive configs</td>
 </tr>
@@ -545,6 +540,7 @@ If you spotted it first, help us to smash it by providing a detailed and welcome
 <div class="section" id="authors">
 <h4><a class="toc-backref" href="#toc-entry-3">Authors</a></h4>
 <ul class="simple">
+<li>OpenSPP.org</li>
 <li>OpenSPP Community</li>
 </ul>
 </div>

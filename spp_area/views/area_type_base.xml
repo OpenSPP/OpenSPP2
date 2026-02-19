@@ -34,7 +34,8 @@
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Create a new Area Type!
-            </p><p>
+            </p>
+            <p>
                 Click the create button to enter the information of the Area Type.
             </p>
         </field>

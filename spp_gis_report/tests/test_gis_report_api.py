@@ -298,7 +298,7 @@ class TestGISReportAPI(HttpCase):
         """Test GeoJSON filtering by multiple area codes."""
         self.authenticate("admin", "admin")
         result = self._get_json(
-            "/api/v2/GISReport/api_test_report/geojson" "?area_codes=API_TC_R1_D1,API_TC_R1_D2&include_geometry=false"
+            "/api/v2/GISReport/api_test_report/geojson?area_codes=API_TC_R1_D1,API_TC_R1_D2&include_geometry=false"
         )
 
         # Should have both districts
@@ -308,7 +308,7 @@ class TestGISReportAPI(HttpCase):
         """Test GeoJSON filtering by parent area code."""
         self.authenticate("admin", "admin")
         result = self._get_json(
-            "/api/v2/GISReport/api_test_report/geojson" "?parent_area_code=API_TC_R1&include_geometry=false"
+            "/api/v2/GISReport/api_test_report/geojson?parent_area_code=API_TC_R1&include_geometry=false"
         )
 
         # Should have 2 districts (children of region)
@@ -331,7 +331,7 @@ class TestGISReportAPI(HttpCase):
         """Test GeoJSON includes disaggregation data when requested."""
         self.authenticate("admin", "admin")
         result = self._get_json(
-            "/api/v2/GISReport/api_disagg_test/geojson" "?include_disaggregation=true&include_geometry=false"
+            "/api/v2/GISReport/api_disagg_test/geojson?include_disaggregation=true&include_geometry=false"
         )
 
         # Verify disaggregation included

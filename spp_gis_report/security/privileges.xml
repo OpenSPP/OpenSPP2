@@ -1,12 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- GIS Report Domain Privilege -->
     <!-- Single consolidated privilege for all GIS report access levels -->
 
     <record id="privilege_gis_report" model="res.groups.privilege">
         <field name="name">GIS Reports</field>
-        <field name="category_id" ref="spp_security.category_spp_area"/>
-        <field name="description">Access to geographic reporting and visualizations</field>
+        <field name="category_id" ref="spp_security.category_spp_area" />
+        <field
+            name="description"
+        >Access to geographic reporting and visualizations</field>
     </record>
-
 </odoo>

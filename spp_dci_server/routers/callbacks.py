@@ -273,6 +273,7 @@ async def async_txn_status(
 
         # Extract sender_id from header
         sender_id_str = header.get("sender_id", "unknown")
+        # nosemgrep: odoo-sudo-without-context — DCI protocol handler with JWT/signature verification
         sender = env["spp.dci.sender.registry"].sudo().search([("sender_id", "=", sender_id_str)], limit=1)
 
         # Get callback URI from header (sender_uri)
@@ -287,6 +288,7 @@ async def async_txn_status(
 
         # Create transaction record for callback tracking
         transaction = (
+            # nosemgrep: odoo-sudo-without-context — DCI protocol handler with JWT/signature verification
             env["spp.dci.transaction"]
             .sudo()
             .create(

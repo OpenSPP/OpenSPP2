@@ -8,6 +8,8 @@ CR types and verify the system works correctly in production-like conditions.
 from odoo import Command, fields
 from odoo.tests import TransactionCase
 
+from .common import get_or_create_cr_type, get_or_create_membership_kind
+
 
 class TestE2EWorkflows(TransactionCase):
     """End-to-End workflow tests."""
@@ -24,11 +26,9 @@ class TestE2EWorkflows(TransactionCase):
         # Get head membership kind from vocabulary
         cls.head_kind = cls.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:group-membership-type", "head")
 
-        # Get spouse kind from vocabulary
-        cls.spouse_kind = cls.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:group-membership-type", "spouse")
-
-        # Get child kind from vocabulary
-        cls.child_kind = cls.env["spp.vocabulary.code"].get_code("urn:openspp:vocab:group-membership-type", "child")
+        # Get or create spouse/child kinds from vocabulary
+        cls.spouse_kind = get_or_create_membership_kind(cls.env, "spouse")
+        cls.child_kind = get_or_create_membership_kind(cls.env, "child")
 
         # Create ID type
         cls.national_id = cls.id_type_model.create(
@@ -38,43 +38,16 @@ class TestE2EWorkflows(TransactionCase):
             }
         )
 
-        # Get CR types
-        cls.add_member_type = cls.env.ref(
-            "spp_change_request_v2.cr_type_add_member",
-            raise_if_not_found=False,
-        )
-        cls.remove_member_type = cls.env.ref(
-            "spp_change_request_v2.cr_type_remove_member",
-            raise_if_not_found=False,
-        )
-        cls.change_hoh_type = cls.env.ref(
-            "spp_change_request_v2.cr_type_change_hoh",
-            raise_if_not_found=False,
-        )
-        cls.exit_registrant_type = cls.env.ref(
-            "spp_change_request_v2.cr_type_exit_registrant",
-            raise_if_not_found=False,
-        )
-        cls.transfer_member_type = cls.env.ref(
-            "spp_change_request_v2.cr_type_transfer_member",
-            raise_if_not_found=False,
-        )
-        cls.update_id_type = cls.env.ref(
-            "spp_change_request_v2.cr_type_update_id",
-            raise_if_not_found=False,
-        )
-        cls.create_group_type = cls.env.ref(
-            "spp_change_request_v2.cr_type_create_group",
-            raise_if_not_found=False,
-        )
-        cls.split_household_type = cls.env.ref(
-            "spp_change_request_v2.cr_type_split_household",
-            raise_if_not_found=False,
-        )
-        cls.merge_registrants_type = cls.env.ref(
-            "spp_change_request_v2.cr_type_merge_registrants",
-            raise_if_not_found=False,
-        )
+        # Get or create CR types
+        cls.add_member_type = get_or_create_cr_type(cls.env, "add_member")
+        cls.remove_member_type = get_or_create_cr_type(cls.env, "remove_member")
+        cls.change_hoh_type = get_or_create_cr_type(cls.env, "change_hoh")
+        cls.exit_registrant_type = get_or_create_cr_type(cls.env, "exit_registrant")
+        cls.transfer_member_type = get_or_create_cr_type(cls.env, "transfer_member")
+        cls.update_id_type = get_or_create_cr_type(cls.env, "update_id")
+        cls.create_group_type = get_or_create_cr_type(cls.env, "create_group")
+        cls.split_household_type = get_or_create_cr_type(cls.env, "split_household")
+        cls.merge_registrants_type = get_or_create_cr_type(cls.env, "merge_registrants")
 
     def _approve_and_apply(self, cr):
         """Helper to approve and apply a CR."""
@@ -96,9 +69,6 @@ class TestE2EWorkflows(TransactionCase):
         3. Add child members
         4. Add ID documents
         """
-        if not all([self.create_group_type, self.add_member_type, self.update_id_type]):
-            self.skipTest("Required CR types not found")
-
         # Step 1: Create new group with head
         placeholder = self.partner_model.create(
             {
@@ -141,7 +111,7 @@ class TestE2EWorkflows(TransactionCase):
             ]
         )
         head = head_membership.individual
-        self.assertEqual(head.name, "Juan Dela Cruz")
+        self.assertEqual(head.name, "DELA CRUZ, JUAN")
 
         # Step 2: Add spouse
         cr2 = self.cr_model.create(
@@ -162,10 +132,10 @@ class TestE2EWorkflows(TransactionCase):
         self._approve_and_apply(cr2)
 
         spouse = detail2.created_individual_id
-        self.assertEqual(spouse.name, "Maria Dela Cruz")
+        self.assertEqual(spouse.name, "DELA CRUZ, MARIA")
 
         # Step 3: Add children
-        for i, name in enumerate(["Pedro", "Ana"]):
+        for _i, name in enumerate(["Pedro", "Ana"]):
             cr = self.cr_model.create(
                 {
                     "request_type_id": self.add_member_type.id,
@@ -232,9 +202,6 @@ class TestE2EWorkflows(TransactionCase):
         2. Adult child gets married - split household
         3. Add spouse to new household
         """
-        if not all([self.split_household_type, self.add_member_type]):
-            self.skipTest("Required CR types not found")
-
         # Setup: Create original household
         original = self.partner_model.create(
             {
@@ -265,7 +232,7 @@ class TestE2EWorkflows(TransactionCase):
             }
         )
 
-        mem_parent1 = self.membership_model.create(
+        self.membership_model.create(
             {
                 "group": original.id,
                 "individual": parent1.id,
@@ -365,9 +332,6 @@ class TestE2EWorkflows(TransactionCase):
         2. Change head of household to spouse
         3. Exit deceased head
         """
-        if not all([self.change_hoh_type, self.exit_registrant_type]):
-            self.skipTest("Required CR types not found")
-
         # Setup
         household = self.partner_model.create(
             {
@@ -466,9 +430,6 @@ class TestE2EWorkflows(TransactionCase):
         2. Merge duplicates into primary record
         3. Verify data consolidated correctly
         """
-        if not self.merge_registrants_type:
-            self.skipTest("Merge registrants CR type not found")
-
         # Setup: Create "duplicate" records
         primary = self.partner_model.create(
             {
@@ -554,9 +515,6 @@ class TestE2EWorkflows(TransactionCase):
         2. Transfer member from source to target
         3. Verify membership changes
         """
-        if not self.transfer_member_type:
-            self.skipTest("Transfer member CR type not found")
-
         # Setup
         source = self.partner_model.create(
             {
@@ -635,16 +593,6 @@ class TestE2EWorkflows(TransactionCase):
         5. Exit remaining member (e.g., emigration)
         6. Exit household
         """
-        if not all(
-            [
-                self.create_group_type,
-                self.add_member_type,
-                self.remove_member_type,
-                self.exit_registrant_type,
-            ]
-        ):
-            self.skipTest("Required CR types not found")
-
         # Step 1: Create household
         placeholder = self.partner_model.create(
             {

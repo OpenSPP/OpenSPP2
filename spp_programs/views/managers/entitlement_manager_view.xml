@@ -3,7 +3,6 @@
 Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 -->
 <odoo>
-
     <!-- Entitlement Manager (wrapper) -->
     <record id="view_entitlement_manager_tree" model="ir.ui.view">
         <field name="name">view_entitlement_manager_tree</field>
@@ -64,7 +63,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     <div class="oe_title mb24">
                         <label for="name" string="Name:" />
                         <h1>
-                            <field id="name" name="name" placeholder="Enter the Manager Name..." />
+                            <field
+                                id="name"
+                                name="name"
+                                placeholder="Enter the Manager Name..."
+                            />
                         </h1>
                         <field name="program_id" invisible="1" />
                     </div>
@@ -94,10 +97,16 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 
                     <group string="Transfer Fees" name="transfer_fees">
                         <group>
-                            <field name="transfer_fee_pct" string="Fee Percentage (%)" />
+                            <field
+                                name="transfer_fee_pct"
+                                string="Fee Percentage (%)"
+                            />
                         </group>
                         <group>
-                            <field name="transfer_fee_amount" string="Fixed Fee Amount" />
+                            <field
+                                name="transfer_fee_amount"
+                                string="Fixed Fee Amount"
+                            />
                         </group>
                     </group>
 
@@ -127,7 +136,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                 <field name="name" />
                 <field name="program_id" />
                 <separator />
-                <filter string="Program" name="grp_program_id" context="{'group_by': 'program_id'}" />
+                <filter
+                    string="Program"
+                    name="grp_program_id"
+                    context="{'group_by': 'program_id'}"
+                />
             </search>
         </field>
     </record>
@@ -144,10 +157,10 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Add an Entitlement Manager!
-            </p><p>
+            </p>
+            <p>
                 Click the create button to enter a new entitlement manager.
             </p>
         </field>
     </record>
-
 </odoo>

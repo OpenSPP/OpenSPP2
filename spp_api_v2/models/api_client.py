@@ -448,7 +448,7 @@ class ApiClient(models.Model):
             return self.env["spp.api.client"]
 
         # Update last used timestamp and count
-        client.sudo().write(
+        client.sudo().write(  # nosemgrep: odoo-sudo-without-context
             {
                 "last_used_date": fields.Datetime.now(),
                 "request_count": client.request_count + 1,

@@ -46,17 +46,37 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 
                 <separator />
 
-                <filter name="refresh_scheduled" string="Scheduled Refresh" domain="[('refresh_mode', '=', 'scheduled')]" />
-                <filter name="refresh_manual" string="Manual Refresh" domain="[('refresh_mode', '=', 'manual')]" />
+                <filter
+                    name="refresh_scheduled"
+                    string="Scheduled Refresh"
+                    domain="[('refresh_mode', '=', 'scheduled')]"
+                />
+                <filter
+                    name="refresh_manual"
+                    string="Manual Refresh"
+                    domain="[('refresh_mode', '=', 'manual')]"
+                />
 
                 <separator />
 
-                <filter name="archived" string="Archived" domain="[('active', '=', False)]" />
+                <filter
+                    name="archived"
+                    string="Archived"
+                    domain="[('active', '=', False)]"
+                />
 
                 <separator />
 
-                <filter name="group_category" string="Category" context="{'group_by': 'category_id'}" />
-                <filter name="group_refresh_mode" string="Refresh Mode" context="{'group_by': 'refresh_mode'}" />
+                <filter
+                    name="group_category"
+                    string="Category"
+                    context="{'group_by': 'category_id'}"
+                />
+                <filter
+                    name="group_refresh_mode"
+                    string="Refresh Mode"
+                    context="{'group_by': 'refresh_mode'}"
+                />
             </search>
         </field>
     </record>
@@ -103,8 +123,18 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     </div>
 
                     <!-- Ribbons -->
-                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" invisible="active" />
-                    <widget name="web_ribbon" title="Stale Data" bg_color="bg-warning" invisible="not is_stale" />
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="bg-danger"
+                        invisible="active"
+                    />
+                    <widget
+                        name="web_ribbon"
+                        title="Stale Data"
+                        bg_color="bg-warning"
+                        invisible="not is_stale"
+                    />
 
                     <!-- Title Section -->
                     <div class="oe_title">
@@ -114,27 +144,50 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     </div>
 
                     <!-- Status Indicators -->
-                    <div class="alert alert-primary mb-3" role="alert" invisible="not is_syncing">
+                    <div
+                        class="alert alert-primary mb-3"
+                        role="alert"
+                        invisible="not is_syncing"
+                    >
                         <i class="fa fa-spinner fa-spin me-2" title="Loading" />
                         <strong>Sync In Progress</strong>
                         <p class="mb-0">
                             Data is being re-synced in the background. This may take a moment.
-                            <button name="action_reload_page" type="object" class="btn btn-sm btn-primary ms-2">
+                            <button
+                            name="action_reload_page"
+                            type="object"
+                            class="btn btn-sm btn-primary ms-2"
+                        >
                                 <i class="fa fa-refresh me-1" />Check Status
                             </button>
                         </p>
                     </div>
-                    <div class="alert alert-warning mb-3" role="alert" invisible="is_syncing or not is_stale">
-                        <i class="fa fa-clock-o me-2" title="Outdated"/>
+                    <div
+                        class="alert alert-warning mb-3"
+                        role="alert"
+                        invisible="is_syncing or not is_stale"
+                    >
+                        <i class="fa fa-clock-o me-2" title="Outdated" />
                         <strong>Data May Be Outdated</strong>
                         <p class="mb-0">
-                            Last refreshed <field name="last_refresh" widget="timeago" /> -
-                            <button name="action_refresh_now" type="object" class="btn btn-sm btn-warning">
+                            Last refreshed <field
+                            name="last_refresh"
+                            widget="timeago"
+                        /> -
+                            <button
+                            name="action_refresh_now"
+                            type="object"
+                            class="btn btn-sm btn-warning"
+                        >
                                 Re-sync Data
                             </button>
                         </p>
                     </div>
-                    <div class="alert alert-info mb-3" role="alert" invisible="is_syncing or is_stale or not last_refresh">
+                    <div
+                        class="alert alert-info mb-3"
+                        role="alert"
+                        invisible="is_syncing or is_stale or not last_refresh"
+                    >
                         <i class="fa fa-check-circle me-2" />
                         Last refreshed <field name="last_refresh" widget="timeago" />
                     </div>
@@ -160,7 +213,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                                 </group>
                             </group>
                             <separator string="Description" />
-                            <field name="description" nolabel="1" placeholder="Describe what this report shows..." />
+                            <field
+                                name="description"
+                                nolabel="1"
+                                placeholder="Describe what this report shows..."
+                            />
 
                             <group name="additional_general" invisible="1" />
                         </page>
@@ -187,7 +244,10 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                             <separator string="Filters" />
                             <group name="filter_section">
                                 <field name="filter_mode" widget="radio" />
-                                <field name="filter_domain" invisible="filter_mode != 'domain'" />
+                                <field
+                                    name="filter_domain"
+                                    invisible="filter_mode != 'domain'"
+                                />
                                 <field
                                     name="filter_cel_id"
                                     invisible="filter_mode != 'cel'"
@@ -248,20 +308,43 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                                     <field name="geometry_type" widget="radio" />
                                 </group>
                                 <group name="color_scheme_group">
-                                    <field name="color_scheme_id" options="{'no_create': True}"/>
+                                    <field
+                                        name="color_scheme_id"
+                                        options="{'no_create': True}"
+                                    />
                                     <field name="threshold_mode" />
-                                    <field name="bucket_count" invisible="threshold_mode == 'manual'" />
+                                    <field
+                                        name="bucket_count"
+                                        invisible="threshold_mode == 'manual'"
+                                    />
                                 </group>
                             </group>
 
-                            <group name="disaggregation_section" string="Disaggregation" col="2">
+                            <group
+                                name="disaggregation_section"
+                                string="Disaggregation"
+                                col="2"
+                            >
                                 <group name="disaggregation_group">
-                                    <field name="disaggregate_by_gender" string="By Gender" />
-                                    <field name="disaggregate_by_age" string="By Age Group" />
-                                    <field name="disaggregate_by_disability" string="By Disability Status" />
+                                    <field
+                                        name="disaggregate_by_gender"
+                                        string="By Gender"
+                                    />
+                                    <field
+                                        name="disaggregate_by_age"
+                                        string="By Age Group"
+                                    />
+                                    <field
+                                        name="disaggregate_by_disability"
+                                        string="By Disability Status"
+                                    />
                                 </group>
                                 <group name="disaggregation_tags_group">
-                                    <field name="disaggregate_by_tag_ids" widget="many2many_tags" string="By Tags" />
+                                    <field
+                                        name="disaggregate_by_tag_ids"
+                                        widget="many2many_tags"
+                                        string="By Tags"
+                                    />
                                 </group>
                             </group>
 
@@ -284,11 +367,20 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         <page name="rollup" string="Rollup">
                             <group name="rollup_section" col="2">
                                 <group name="rollup_enable_group">
-                                    <field name="enable_rollup" widget="boolean_toggle" />
+                                    <field
+                                        name="enable_rollup"
+                                        widget="boolean_toggle"
+                                    />
                                 </group>
-                                <group name="rollup_method_group" invisible="not enable_rollup">
+                                <group
+                                    name="rollup_method_group"
+                                    invisible="not enable_rollup"
+                                >
                                     <field name="rollup_method" />
-                                    <field name="rollup_weight_source" invisible="rollup_method != 'weighted_avg'" />
+                                    <field
+                                        name="rollup_weight_source"
+                                        invisible="rollup_method != 'weighted_avg'"
+                                    />
                                     <field
                                         name="rollup_weight_field"
                                         invisible="rollup_weight_source != 'custom' or rollup_method != 'weighted_avg'"
@@ -304,12 +396,22 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                             <group name="schedule_section" col="2">
                                 <group name="refresh_settings_group">
                                     <field name="refresh_mode" widget="radio" />
-                                    <field name="refresh_interval" invisible="refresh_mode != 'scheduled'" />
+                                    <field
+                                        name="refresh_interval"
+                                        invisible="refresh_mode != 'scheduled'"
+                                    />
                                 </group>
                                 <group name="refresh_status_group">
                                     <field name="last_refresh" readonly="1" />
-                                    <field name="next_refresh" invisible="refresh_mode != 'scheduled'" />
-                                    <field name="cron_id" readonly="1" invisible="refresh_mode != 'scheduled'" />
+                                    <field
+                                        name="next_refresh"
+                                        invisible="refresh_mode != 'scheduled'"
+                                    />
+                                    <field
+                                        name="cron_id"
+                                        readonly="1"
+                                        invisible="refresh_mode != 'scheduled'"
+                                    />
                                 </group>
                             </group>
 
@@ -344,17 +446,30 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         <page name="map_layer" string="Map Layer">
                             <group name="layer_section" col="2">
                                 <group name="layer_settings_group">
-                                    <field name="auto_create_layer" widget="boolean_toggle" />
-                                    <field name="layer_active_on_startup" invisible="not auto_create_layer" />
+                                    <field
+                                        name="auto_create_layer"
+                                        widget="boolean_toggle"
+                                    />
+                                    <field
+                                        name="layer_active_on_startup"
+                                        invisible="not auto_create_layer"
+                                    />
                                 </group>
-                                <group name="layer_info_group" invisible="not auto_create_layer">
+                                <group
+                                    name="layer_info_group"
+                                    invisible="not auto_create_layer"
+                                >
                                     <field name="layer_id" readonly="1" />
                                 </group>
                             </group>
 
-                            <div class="alert alert-info" role="alert" invisible="not auto_create_layer">
+                            <div
+                                class="alert alert-info"
+                                role="alert"
+                                invisible="not auto_create_layer"
+                            >
                                 <i class="fa fa-info-circle me-2" title="Info" />
-                                <strong>Auto-Sync Enabled</strong><br/>
+                                <strong>Auto-Sync Enabled</strong><br />
                                 A map layer will be automatically created and kept in sync with this report.
                                 The layer will use the report's color scheme and geometry type settings.
                             </div>

@@ -10,17 +10,29 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
             <form string="Record Consent">
                 <sheet>
                     <field name="is_group" invisible="1" />
-                    <field name="name" invisible="1"/>
+                    <field name="name" invisible="1" />
 
                     <div class="oe_title">
-                        <label for="group_id" class="oe_edit_only" invisible="not is_group"/>
+                        <label
+                            for="group_id"
+                            class="oe_edit_only"
+                            invisible="not is_group"
+                        />
                         <h1 invisible="not is_group">
                             <field name="group_id" readonly="1" />
                         </h1>
-                        <label for="signatory_id" class="oe_edit_only" string="Data Subject (Signatory)"/>
+                        <label
+                            for="signatory_id"
+                            class="oe_edit_only"
+                            string="Data Subject (Signatory)"
+                        />
                         <h1>
-                            <field name="signatory_id" placeholder="Select individual who is consenting..."
-                                   readonly="not is_group" required="is_group" />
+                            <field
+                                name="signatory_id"
+                                placeholder="Select individual who is consenting..."
+                                readonly="not is_group"
+                                required="is_group"
+                            />
                         </h1>
                     </div>
 
@@ -28,13 +40,27 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         <!-- Page 1: Consent Details -->
                         <page string="Consent Details" name="details">
                             <group col="2">
-                                <group string="Basic Information" name="basic_info_section">
-                                    <field name="expiry" required="1"/>
-                                    <field name="legal_basis" widget="radio" options="{'horizontal': false}"/>
+                                <group
+                                    string="Basic Information"
+                                    name="basic_info_section"
+                                >
+                                    <field name="expiry" required="1" />
+                                    <field
+                                        name="legal_basis"
+                                        widget="radio"
+                                        options="{'horizontal': false}"
+                                    />
                                 </group>
-                                <group string="Data Controller" name="controller_section">
-                                    <field name="controller_id"/>
-                                    <field name="collection_method" widget="radio" options="{'horizontal': false}"/>
+                                <group
+                                    string="Data Controller"
+                                    name="controller_section"
+                                >
+                                    <field name="controller_id" />
+                                    <field
+                                        name="collection_method"
+                                        widget="radio"
+                                        options="{'horizontal': false}"
+                                    />
                                 </group>
                             </group>
                         </page>
@@ -43,14 +69,25 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         <page string="Processing" name="processing">
                             <group col="2">
                                 <group string="Purposes" name="purposes_section">
-                                    <field name="purpose_ids" widget="many2many_tags" nolabel="1"
-                                           placeholder="Select purposes..."
-                                           help="Why is this data being collected?"/>
+                                    <field
+                                        name="purpose_ids"
+                                        widget="many2many_tags"
+                                        nolabel="1"
+                                        placeholder="Select purposes..."
+                                        help="Why is this data being collected?"
+                                    />
                                 </group>
-                                <group string="Personal Data Categories" name="data_categories_section">
-                                    <field name="personal_data_ids" widget="many2many_tags" nolabel="1"
-                                           placeholder="Select data categories..."
-                                           help="What types of personal data will be collected?"/>
+                                <group
+                                    string="Personal Data Categories"
+                                    name="data_categories_section"
+                                >
+                                    <field
+                                        name="personal_data_ids"
+                                        widget="many2many_tags"
+                                        nolabel="1"
+                                        placeholder="Select data categories..."
+                                        help="What types of personal data will be collected?"
+                                    />
                                 </group>
                             </group>
                         </page>
@@ -58,20 +95,31 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         <!-- Page 3: Privacy Notice -->
                         <page string="Privacy Notice" name="notice">
                             <group name="notice_selection_section">
-                                <field name="notice_id"
-                                       help="Select the privacy notice that was shown to the data subject."/>
+                                <field
+                                    name="notice_id"
+                                    help="Select the privacy notice that was shown to the data subject."
+                                />
                             </group>
-                            <separator string="Privacy Notice Preview"/>
-                            <field name="notice_preview" widget="html" nolabel="1" readonly="1"/>
+                            <separator string="Privacy Notice Preview" />
+                            <field
+                                name="notice_preview"
+                                widget="html"
+                                nolabel="1"
+                                readonly="1"
+                            />
                         </page>
                     </notebook>
                 </sheet>
                 <footer>
-                    <button name="record_consent" string="Record Consent" type="object" class="btn-primary"/>
-                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    <button
+                        name="record_consent"
+                        string="Record Consent"
+                        type="object"
+                        class="btn-primary"
+                    />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
                 </footer>
             </form>
         </field>
     </record>
-
 </odoo>

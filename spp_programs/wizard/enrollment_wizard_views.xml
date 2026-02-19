@@ -19,12 +19,20 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     <field name="is_already_enrolled" invisible="1" />
                 </group>
 
-                <div class="alert alert-info" role="alert" invisible="is_already_enrolled">
+                <div
+                    class="alert alert-info"
+                    role="alert"
+                    invisible="is_already_enrolled"
+                >
                     <i class="fa fa-info-circle me-2" title="Info" />
                     Enrollment will be created in draft state and will require eligibility verification before becoming active.
                 </div>
 
-                <div class="alert alert-warning" role="alert" invisible="not is_already_enrolled">
+                <div
+                    class="alert alert-warning"
+                    role="alert"
+                    invisible="not is_already_enrolled"
+                >
                     <i class="fa fa-exclamation-triangle me-2" title="Warning" />
                     This registrant is already enrolled in the selected program.
                 </div>

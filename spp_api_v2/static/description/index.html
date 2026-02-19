@@ -374,7 +374,7 @@ ul.auto-toc {
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! source digest: sha256:55c34e24792156bb2b5b659ae5daa7b32ac02683f94059d4c503b78247f840fa
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-<p><a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_api_v2"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Production/Stable" src="https://img.shields.io/badge/maturity-Production%2FStable-green.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_api_v2"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
 <p>FastAPI-based REST API for social protection data exchange. Exposes
 registrant, program, and membership data via OAuth 2.0 authenticated
 endpoints with consent-based access control. Never exposes database IDs;
@@ -398,8 +398,8 @@ IDs for coded values</li>
 <h2>Key Models</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="40%" />
-<col width="60%" />
+<col width="39%" />
+<col width="61%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Model</th>
@@ -509,8 +509,8 @@ Read/Write/Create on consent (no delete)</td>
 <h2>Extension Points</h2>
 <ul class="simple">
 <li>Inherit <tt class="docutils literal">spp.api.extension</tt> to register custom fields</li>
-<li>Override <tt class="docutils literal">_get_fastapi_routers()</tt> in <tt class="docutils literal">fastapi.endpoint</tt> for
-custom endpoints</li>
+<li>Override <tt class="docutils literal">_get_fastapi_routers()</tt> in <tt class="docutils literal">fastapi.endpoint</tt> for custom
+endpoints</li>
 </ul>
 </div>
 <div class="section" id="dependencies">

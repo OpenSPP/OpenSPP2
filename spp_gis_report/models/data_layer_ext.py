@@ -24,7 +24,7 @@ class DataLayerReportExtension(models.Model):
         string="Data Source",
         default="model",
         required=True,
-        help="Model: Traditional layer from model geo field. " "Report: Thematic layer driven by GIS report data.",
+        help="Model: Traditional layer from model geo field. Report: Thematic layer driven by GIS report data.",
     )
 
     # ===== Report Integration =====
@@ -57,7 +57,7 @@ class DataLayerReportExtension(models.Model):
     color_scheme_id = fields.Many2one(
         "spp.gis.color.scheme",
         string="Color Scheme",
-        help="Color scheme for thematic visualization. " "If not set, uses the report's color scheme.",
+        help="Color scheme for thematic visualization. If not set, uses the report's color scheme.",
     )
     fill_opacity = fields.Float(
         string="Fill Opacity",

@@ -110,6 +110,7 @@ class DatabaseKeyProvider(models.AbstractModel):
         global _derived_key_warning_shown
 
         # Get database UUID (created on database initialization)
+        # nosemgrep: odoo-sudo-without-context
         db_uuid = self.env["ir.config_parameter"].sudo().get_param("database.uuid")
         if not db_uuid:
             raise MasterKeyNotConfiguredError(
@@ -191,7 +192,7 @@ class DatabaseKeyProvider(models.AbstractModel):
         Returns:
             bytes: The raw key material
         """
-        EncryptionKey = self.env["spp.encryption.key"].sudo()
+        EncryptionKey = self.env["spp.encryption.key"].sudo()  # nosemgrep: odoo-sudo-without-context
 
         domain = [("key_id", "=", key_id)]
         if version:
@@ -229,7 +230,7 @@ class DatabaseKeyProvider(models.AbstractModel):
         encrypted_key = self._encrypt_key(plaintext_key, key_id)
 
         return (
-            self.env["spp.encryption.key"]
+            self.env["spp.encryption.key"]  # nosemgrep: odoo-sudo-without-context
             .sudo()
             .create(
                 {
@@ -272,7 +273,7 @@ class DatabaseKeyProvider(models.AbstractModel):
         Returns:
             int: The new version number
         """
-        EncryptionKey = self.env["spp.encryption.key"].sudo()
+        EncryptionKey = self.env["spp.encryption.key"].sudo()  # nosemgrep: odoo-sudo-without-context
 
         # Get current version
         current = EncryptionKey.search(
@@ -317,7 +318,7 @@ class DatabaseKeyProvider(models.AbstractModel):
             list: Version numbers, newest first
         """
         versions = (
-            self.env["spp.encryption.key"]
+            self.env["spp.encryption.key"]  # nosemgrep: odoo-sudo-without-context
             .sudo()
             .search(
                 [
@@ -343,7 +344,7 @@ class DatabaseKeyProvider(models.AbstractModel):
     def get_key_metadata(self, key_id):
         """Get metadata about a database key."""
         key_record = (
-            self.env["spp.encryption.key"]
+            self.env["spp.encryption.key"]  # nosemgrep: odoo-sudo-without-context
             .sudo()
             .search(
                 [

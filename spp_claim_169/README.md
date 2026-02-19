@@ -4,7 +4,8 @@ MOSIP Claim 169 QR code identity credential generation for OpenSPP.
 
 ## Features
 
-- **Configurable Attribute Mapping**: Map OpenSPP fields to Claim 169 numbered attributes
+- **Configurable Attribute Mapping**: Map OpenSPP fields to Claim 169 numbered
+  attributes
 - **CWT Generation**: Create signed CBOR Web Tokens using COSE Sign1
 - **QR Code Generation**: Generate compressed, Base45-encoded QR codes
 - **Registry Integration**: Seamlessly integrate with OpenSPP registry (res.partner)
@@ -13,7 +14,8 @@ MOSIP Claim 169 QR code identity credential generation for OpenSPP.
 
 ## Claim 169 Specification
 
-MOSIP Claim 169 defines a standardized set of numbered attributes for identity credentials:
+MOSIP Claim 169 defines a standardized set of numbered attributes for identity
+credentials:
 
 ### Demographics (1-23)
 
@@ -50,7 +52,6 @@ MOSIP Claim 169 defines a standardized set of numbered attributes for identity c
    ```
 
 2. Install required modules:
-
    - `spp_registry`
    - `spp_cbor_cose`
    - `spp_key_management`
@@ -64,7 +65,8 @@ MOSIP Claim 169 defines a standardized set of numbered attributes for identity c
 
 ### 1. Set Up Signing Keys
 
-Navigate to **Key Management** and create or import a private key for signing credentials:
+Navigate to **Key Management** and create or import a private key for signing
+credentials:
 
 - Algorithm: ES256 (ECDSA with SHA-256)
 - Format: PEM or JWK

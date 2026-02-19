@@ -76,7 +76,7 @@ class TestEncryptionSecurity(TransactionCase):
             modified_b64 = base64.b64encode(modified).decode()
 
             # Decryption should fail due to authentication tag mismatch
-            with self.assertRaises(Exception):
+            with self.assertRaises(ValueError):
                 self.key_manager.decrypt(modified_b64, "pii", "integrity_key")
         except Exception:
             # If the ciphertext format is different, that's also acceptable
@@ -90,7 +90,7 @@ class TestEncryptionSecurity(TransactionCase):
         encrypted = self.key_manager.encrypt(plaintext, "pii", "aad_test_key", aad="user_1")
 
         # Attempt to decrypt as user 2 should fail
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValueError):
             self.key_manager.decrypt(encrypted, "pii", "aad_test_key", aad="user_2")
 
     def test_key_material_length(self):

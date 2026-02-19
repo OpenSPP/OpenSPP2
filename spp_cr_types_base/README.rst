@@ -14,14 +14,17 @@ OpenSPP CR Types - Base
    !! source digest: sha256:738a2c8889fddf1212498d6bdf523da2c3235cdf2efc94034c395330a95dd59e
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+    :target: https://odoo-community.org/page/development-status
+    :alt: Production/Stable
+.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
     :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_cr_types_base
     :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2|
+|badge1| |badge2| |badge3|
 
 Defines three foundational change request types for updating registrant
 information. Provides data configurations for editing individual
@@ -32,41 +35,41 @@ parent module.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  **Edit Individual Information**: Updates personal data (name,
-   birthdate, gender), contact information (phone, email), and address
-   fields using field mapping strategy
--  **Edit Group Information**: Updates group/household name, contact
-   information, and address using field mapping strategy
--  **Update ID Document**: Adds, updates, or removes identification
-   documents using custom application logic with operation selection
-   (add/update/remove)
--  **Field Mapping Configuration**: Pre-configured mappings between
-   detail model fields and target registrant fields for automatic data
-   transfer
--  **Studio Customization**: All CR types are marked as editable and
-   cloneable in Studio for implementation-specific requirements
+- **Edit Individual Information**: Updates personal data (name,
+  birthdate, gender), contact information (phone, email), and address
+  fields using field mapping strategy
+- **Edit Group Information**: Updates group/household name, contact
+  information, and address using field mapping strategy
+- **Update ID Document**: Adds, updates, or removes identification
+  documents using custom application logic with operation selection
+  (add/update/remove)
+- **Field Mapping Configuration**: Pre-configured mappings between
+  detail model fields and target registrant fields for automatic data
+  transfer
+- **Studio Customization**: All CR types are marked as editable and
+  cloneable in Studio for implementation-specific requirements
 
 Key Models
 ~~~~~~~~~~
 
-+----------------------------------+----------------------------------+
-| Model                            | Description                      |
-+==================================+==================================+
-| `                                | Detail form for individual       |
-| `spp.cr.detail.edit_individual`` | information changes              |
-+----------------------------------+----------------------------------+
-| ``spp.cr.detail.edit_group``     | Detail form for group/household  |
-|                                  | information                      |
-+----------------------------------+----------------------------------+
-| ``spp.cr.detail.update_id``      | Detail form for ID document      |
-|                                  | operations                       |
-+----------------------------------+----------------------------------+
-| ``spp.change.request.type``      | CR type configurations (defined  |
-|                                  | in parent)                       |
-+----------------------------------+----------------------------------+
-| ``s                              | Field mappings for field_mapping |
-| pp.change.request.type.mapping`` | strategy                         |
-+----------------------------------+----------------------------------+
++-------------------------------------+----------------------------------+
+| Model                               | Description                      |
++=====================================+==================================+
+| ``spp.cr.detail.edit_individual``   | Detail form for individual       |
+|                                     | information changes              |
++-------------------------------------+----------------------------------+
+| ``spp.cr.detail.edit_group``        | Detail form for group/household  |
+|                                     | information                      |
++-------------------------------------+----------------------------------+
+| ``spp.cr.detail.update_id``         | Detail form for ID document      |
+|                                     | operations                       |
++-------------------------------------+----------------------------------+
+| ``spp.change.request.type``         | CR type configurations (defined  |
+|                                     | in parent)                       |
++-------------------------------------+----------------------------------+
+| ``spp.change.request.type.mapping`` | Field mappings for field_mapping |
+|                                     | strategy                         |
++-------------------------------------+----------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -84,37 +87,36 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
--  **CR Type Selection**: Types appear in the creation wizard at
-   **Change Requests > New Request**
--  **Configuration**: Change Requests > Configuration > Change Request
-   Types
--  **Detail Forms**: Accessed when creating or editing a change request
-   of the corresponding type
+- **CR Type Selection**: Types appear in the creation wizard at **Change
+  Requests > New Request**
+- **Configuration**: Change Requests > Configuration > Change Request
+  Types
+- **Detail Forms**: Accessed when creating or editing a change request
+  of the corresponding type
 
 Security
 ~~~~~~~~
 
-+----------------------------------+----------------------------------+
-| Group                            | Access                           |
-+==================================+==================================+
-| ``spp_c                          | Read/write/create detail models  |
-| hange_request_v2.group_cr_user`` | (no delete)                      |
-+----------------------------------+----------------------------------+
-| ``spp_chan                       | Full CRUD on detail models       |
-| ge_request_v2.group_cr_manager`` |                                  |
-+----------------------------------+----------------------------------+
++--------------------------------------------+----------------------------------+
+| Group                                      | Access                           |
++============================================+==================================+
+| ``spp_change_request_v2.group_cr_user``    | Read/write/create detail models  |
+|                                            | (no delete)                      |
++--------------------------------------------+----------------------------------+
+| ``spp_change_request_v2.group_cr_manager`` | Full CRUD on detail models       |
++--------------------------------------------+----------------------------------+
 
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Clone any base type via Studio to create domain-specific variants
-   (e.g., "Edit Farmer Profile")
--  Add custom fields to detail models via Studio; field mappings
-   auto-discover new fields in dropdown
--  Inherit ``spp.cr.apply.update_id`` and override ``apply()`` method to
-   customize ID document application logic
--  Mark types as ``is_studio_editable=False`` in inherited modules to
-   prevent runtime modification
+- Clone any base type via Studio to create domain-specific variants
+  (e.g., "Edit Farmer Profile")
+- Add custom fields to detail models via Studio; field mappings
+  auto-discover new fields in dropdown
+- Inherit ``spp.cr.apply.update_id`` and override ``apply()`` method to
+  customize ID document application logic
+- Mark types as ``is_studio_editable=False`` in inherited modules to
+  prevent runtime modification
 
 Dependencies
 ~~~~~~~~~~~~

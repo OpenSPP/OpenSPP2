@@ -9,10 +9,15 @@
     <record id="cr_type_edit_individual" model="spp.change.request.type">
         <field name="name">Edit Individual Information</field>
         <field name="code">edit_individual</field>
-        <field name="description">Update personal information for an individual registrant</field>
+        <field
+            name="description"
+        >Update personal information for an individual registrant</field>
         <field name="target_type">individual</field>
         <field name="detail_model">spp.cr.detail.edit_individual</field>
-        <field name="detail_form_view_id" ref="spp_change_request_v2.spp_cr_detail_edit_individual_form"/>
+        <field
+            name="detail_form_view_id"
+            ref="spp_change_request_v2.spp_cr_detail_edit_individual_form"
+        />
         <field name="apply_strategy">field_mapping</field>
         <field name="icon">fa-user-edit</field>
         <field name="sequence">20</field>
@@ -24,62 +29,92 @@
     </record>
 
     <!-- Field mappings for Edit Individual -->
-    <record id="cr_type_edit_individual_mapping_given_name" model="spp.change.request.type.mapping">
-        <field name="type_id" ref="cr_type_edit_individual"/>
+    <record
+        id="cr_type_edit_individual_mapping_given_name"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_edit_individual" />
         <field name="source_field">given_name</field>
         <field name="target_field">given_name</field>
         <field name="sequence">10</field>
     </record>
-    <record id="cr_type_edit_individual_mapping_family_name" model="spp.change.request.type.mapping">
-        <field name="type_id" ref="cr_type_edit_individual"/>
+    <record
+        id="cr_type_edit_individual_mapping_family_name"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_edit_individual" />
         <field name="source_field">family_name</field>
         <field name="target_field">family_name</field>
         <field name="sequence">20</field>
     </record>
-    <record id="cr_type_edit_individual_mapping_birthdate" model="spp.change.request.type.mapping">
-        <field name="type_id" ref="cr_type_edit_individual"/>
+    <record
+        id="cr_type_edit_individual_mapping_birthdate"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_edit_individual" />
         <field name="source_field">birthdate</field>
         <field name="target_field">birthdate</field>
         <field name="sequence">30</field>
     </record>
-    <record id="cr_type_edit_individual_mapping_gender" model="spp.change.request.type.mapping">
-        <field name="type_id" ref="cr_type_edit_individual"/>
+    <record
+        id="cr_type_edit_individual_mapping_gender"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_edit_individual" />
         <field name="source_field">gender_id</field>
         <field name="target_field">gender_id</field>
         <field name="sequence">40</field>
     </record>
-    <record id="cr_type_edit_individual_mapping_phone" model="spp.change.request.type.mapping">
-        <field name="type_id" ref="cr_type_edit_individual"/>
+    <record
+        id="cr_type_edit_individual_mapping_phone"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_edit_individual" />
         <field name="source_field">phone</field>
         <field name="target_field">phone</field>
         <field name="sequence">50</field>
     </record>
-    <record id="cr_type_edit_individual_mapping_email" model="spp.change.request.type.mapping">
-        <field name="type_id" ref="cr_type_edit_individual"/>
+    <record
+        id="cr_type_edit_individual_mapping_email"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_edit_individual" />
         <field name="source_field">email</field>
         <field name="target_field">email</field>
         <field name="sequence">60</field>
     </record>
-    <record id="cr_type_edit_individual_mapping_street" model="spp.change.request.type.mapping">
-        <field name="type_id" ref="cr_type_edit_individual"/>
+    <record
+        id="cr_type_edit_individual_mapping_street"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_edit_individual" />
         <field name="source_field">address_line1</field>
         <field name="target_field">street</field>
         <field name="sequence">70</field>
     </record>
-    <record id="cr_type_edit_individual_mapping_street2" model="spp.change.request.type.mapping">
-        <field name="type_id" ref="cr_type_edit_individual"/>
+    <record
+        id="cr_type_edit_individual_mapping_street2"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_edit_individual" />
         <field name="source_field">address_line2</field>
         <field name="target_field">street2</field>
         <field name="sequence">80</field>
     </record>
-    <record id="cr_type_edit_individual_mapping_city" model="spp.change.request.type.mapping">
-        <field name="type_id" ref="cr_type_edit_individual"/>
+    <record
+        id="cr_type_edit_individual_mapping_city"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_edit_individual" />
         <field name="source_field">city</field>
         <field name="target_field">city</field>
         <field name="sequence">90</field>
     </record>
-    <record id="cr_type_edit_individual_mapping_zip" model="spp.change.request.type.mapping">
-        <field name="type_id" ref="cr_type_edit_individual"/>
+    <record
+        id="cr_type_edit_individual_mapping_zip"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_edit_individual" />
         <field name="source_field">postal_code</field>
         <field name="target_field">zip</field>
         <field name="sequence">100</field>
@@ -92,7 +127,10 @@
         <field name="description">Update information for a group/household</field>
         <field name="target_type">group</field>
         <field name="detail_model">spp.cr.detail.edit_group</field>
-        <field name="detail_form_view_id" ref="spp_change_request_v2.spp_cr_detail_edit_group_form"/>
+        <field
+            name="detail_form_view_id"
+            ref="spp_change_request_v2.spp_cr_detail_edit_group_form"
+        />
         <field name="apply_strategy">field_mapping</field>
         <field name="icon">fa-users-cog</field>
         <field name="sequence">30</field>
@@ -104,44 +142,62 @@
     </record>
 
     <!-- Field mappings for Edit Group -->
-    <record id="cr_type_edit_group_mapping_name" model="spp.change.request.type.mapping">
-        <field name="type_id" ref="cr_type_edit_group"/>
+    <record
+        id="cr_type_edit_group_mapping_name"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_edit_group" />
         <field name="source_field">group_name</field>
         <field name="target_field">name</field>
         <field name="sequence">10</field>
     </record>
-    <record id="cr_type_edit_group_mapping_phone" model="spp.change.request.type.mapping">
-        <field name="type_id" ref="cr_type_edit_group"/>
+    <record
+        id="cr_type_edit_group_mapping_phone"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_edit_group" />
         <field name="source_field">phone</field>
         <field name="target_field">phone</field>
         <field name="sequence">20</field>
     </record>
-    <record id="cr_type_edit_group_mapping_email" model="spp.change.request.type.mapping">
-        <field name="type_id" ref="cr_type_edit_group"/>
+    <record
+        id="cr_type_edit_group_mapping_email"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_edit_group" />
         <field name="source_field">email</field>
         <field name="target_field">email</field>
         <field name="sequence">30</field>
     </record>
-    <record id="cr_type_edit_group_mapping_street" model="spp.change.request.type.mapping">
-        <field name="type_id" ref="cr_type_edit_group"/>
+    <record
+        id="cr_type_edit_group_mapping_street"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_edit_group" />
         <field name="source_field">address_line1</field>
         <field name="target_field">street</field>
         <field name="sequence">40</field>
     </record>
-    <record id="cr_type_edit_group_mapping_street2" model="spp.change.request.type.mapping">
-        <field name="type_id" ref="cr_type_edit_group"/>
+    <record
+        id="cr_type_edit_group_mapping_street2"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_edit_group" />
         <field name="source_field">address_line2</field>
         <field name="target_field">street2</field>
         <field name="sequence">50</field>
     </record>
-    <record id="cr_type_edit_group_mapping_city" model="spp.change.request.type.mapping">
-        <field name="type_id" ref="cr_type_edit_group"/>
+    <record
+        id="cr_type_edit_group_mapping_city"
+        model="spp.change.request.type.mapping"
+    >
+        <field name="type_id" ref="cr_type_edit_group" />
         <field name="source_field">city</field>
         <field name="target_field">city</field>
         <field name="sequence">60</field>
     </record>
     <record id="cr_type_edit_group_mapping_zip" model="spp.change.request.type.mapping">
-        <field name="type_id" ref="cr_type_edit_group"/>
+        <field name="type_id" ref="cr_type_edit_group" />
         <field name="source_field">postal_code</field>
         <field name="target_field">zip</field>
         <field name="sequence">70</field>
@@ -151,10 +207,15 @@
     <record id="cr_type_update_id" model="spp.change.request.type">
         <field name="name">Update ID Document</field>
         <field name="code">update_id</field>
-        <field name="description">Add, update, or remove identification documents</field>
+        <field
+            name="description"
+        >Add, update, or remove identification documents</field>
         <field name="target_type">both</field>
         <field name="detail_model">spp.cr.detail.update_id</field>
-        <field name="detail_form_view_id" ref="spp_change_request_v2.spp_cr_detail_update_id_form"/>
+        <field
+            name="detail_form_view_id"
+            ref="spp_change_request_v2.spp_cr_detail_update_id_form"
+        />
         <field name="apply_strategy">custom</field>
         <field name="apply_model">spp.cr.apply.update_id</field>
         <field name="icon">fa-id-card</field>
@@ -165,5 +226,4 @@
         <field name="is_system_type">True</field>
         <field name="source_module">spp_cr_types_base</field>
     </record>
-
 </odoo>

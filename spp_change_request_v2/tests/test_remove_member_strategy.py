@@ -5,6 +5,8 @@ from odoo import fields
 from odoo.exceptions import UserError
 from odoo.tests import TransactionCase
 
+from .common import get_or_create_cr_type
+
 
 class TestRemoveMemberStrategy(TransactionCase):
     """Tests for Remove Member custom strategy."""
@@ -57,16 +59,11 @@ class TestRemoveMemberStrategy(TransactionCase):
             }
         )
 
-        # Get CR type
-        cls.cr_type = cls.env.ref(
-            "spp_change_request_v2.cr_type_remove_member",
-            raise_if_not_found=False,
-        )
+        # Get or create CR type
+        cls.cr_type = get_or_create_cr_type(cls.env, "remove_member")
 
     def test_remove_member_ends_membership(self):
         """Test removing member sets ended_date on membership."""
-        if not self.cr_type:
-            self.skipTest("Remove member CR type not found")
 
         cr = self.cr_model.create(
             {
@@ -94,8 +91,6 @@ class TestRemoveMemberStrategy(TransactionCase):
 
     def test_remove_member_inactive_fails(self):
         """Test removing already inactive member fails."""
-        if not self.cr_type:
-            self.skipTest("Remove member CR type not found")
 
         # End membership first
         self.membership2.write({"ended_date": fields.Datetime.now()})
@@ -125,8 +120,6 @@ class TestRemoveMemberStrategy(TransactionCase):
 
     def test_remove_member_from_individual_fails(self):
         """Test cannot remove member from individual registrant."""
-        if not self.cr_type:
-            self.skipTest("Remove member CR type not found")
 
         cr = self.cr_model.create(
             {
@@ -153,8 +146,6 @@ class TestRemoveMemberStrategy(TransactionCase):
 
     def test_remove_member_preview(self):
         """Test preview returns expected structure."""
-        if not self.cr_type:
-            self.skipTest("Remove member CR type not found")
 
         cr = self.cr_model.create(
             {
@@ -180,8 +171,6 @@ class TestRemoveMemberStrategy(TransactionCase):
 
     def test_remove_member_all_reasons(self):
         """Test all removal reasons work correctly."""
-        if not self.cr_type:
-            self.skipTest("Remove member CR type not found")
 
         reasons = [
             "left_household",

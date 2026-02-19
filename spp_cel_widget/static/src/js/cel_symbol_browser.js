@@ -67,7 +67,9 @@ export class CelSymbolBrowser extends Component {
         }
 
         return variable.fields.filter(
-            (f) => f.name.toLowerCase().includes(query) || f.doc?.toLowerCase().includes(query)
+            (f) =>
+                f.name.toLowerCase().includes(query) ||
+                f.doc?.toLowerCase().includes(query)
         );
     }
 
@@ -155,7 +157,9 @@ export class CelSymbolBrowser extends Component {
         }
 
         return this.props.symbols.functions.filter(
-            (f) => f.name.toLowerCase().includes(query) || f.doc?.toLowerCase().includes(query)
+            (f) =>
+                f.name.toLowerCase().includes(query) ||
+                f.doc?.toLowerCase().includes(query)
         );
     }
 

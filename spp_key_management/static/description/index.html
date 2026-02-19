@@ -374,7 +374,7 @@ ul.auto-toc {
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! source digest: sha256:207a1271f3b160d8d4f4d16d8b6a9110e4e3837e2b71735bb317cbde9312bd6a
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-<p><a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_key_management"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Production/Stable" src="https://img.shields.io/badge/maturity-Production%2FStable-green.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_key_management"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
 <p>Centralized cryptographic key management with pluggable provider
 architecture. Supports symmetric encryption (AES-256-GCM) and asymmetric
 signing (RSA, EC, Ed25519) with keys stored in database, configuration
@@ -404,8 +404,8 @@ key material)</li>
 <h2>Key Models</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="52%" />
+<col width="48%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Model</th>
@@ -455,8 +455,7 @@ integration</td>
 <tr><td><tt class="docutils literal">spp.key.provider.gcp.kms</tt></td>
 <td>Google Cloud KMS integration</td>
 </tr>
-<tr><td><tt class="docutils literal">s
-pp.key.provider.azure.keyvault</tt></td>
+<tr><td><tt class="docutils literal">spp.key.provider.azure.keyvault</tt></td>
 <td>Azure Key Vault integration</td>
 </tr>
 </tbody>
@@ -496,8 +495,8 @@ connectivity</li>
 <h2>Security</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="60%" />
+<col width="40%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Group</th>
@@ -505,13 +504,11 @@ connectivity</li>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td><tt class="docutils literal">spp_
-key_management.group_key_admin</tt></td>
+<tr><td><tt class="docutils literal">spp_key_management.group_key_admin</tt></td>
 <td>Read/Write/Create on all models,
 key rotation</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_key_managem
-ent.group_key_operator_officer</tt></td>
+<tr><td><tt class="docutils literal">spp_key_management.group_key_operator_officer</tt></td>
 <td>Read encryption keys for use in
 operations</td>
 </tr>

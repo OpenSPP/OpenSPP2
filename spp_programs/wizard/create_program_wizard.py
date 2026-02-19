@@ -231,7 +231,6 @@ class SPPCreateProgramWizardBase(models.TransientModel):
     def _get_entitlement_manager(self, program_id):
         """Get entitlement manager. Override in inherited models."""
         raise UserError(f"DEBUG BASE CLASS: Entitlement Type = '{self.entitlement_type}' | This should be overridden!")
-        return {}
 
 
 class SPPCreateNewProgramWiz(models.TransientModel):
@@ -276,7 +275,7 @@ class SPPCreateNewProgramWiz(models.TransientModel):
     view_id = fields.Many2one(
         "ir.ui.view",
         "Program UI Template",
-        domain="[('model', '=', 'spp.program'), " "('type', '=', 'form')," "('inherit_id', '=', False),]",
+        domain="[('model', '=', 'spp.program'), ('type', '=', 'form'),('inherit_id', '=', False),]",
         default=lambda self: self._get_default_program_ui(),
     )
 
@@ -366,72 +365,73 @@ class SPPCreateNewProgramWiz(models.TransientModel):
         return new_domain
 
     def create_program(self):
+        self.ensure_one()
         self._check_required_fields()
-        for rec in self:
-            program_vals = rec.get_program_vals()
-            program = self.env["spp.program"].with_context(skip_default_managers=True).create(program_vals)
 
-            program_id = program.id
-            vals = {}
+        program_vals = self.get_program_vals()
+        program = self.env["spp.program"].with_context(skip_default_managers=True).create(program_vals)
 
-            # Set Default Eligibility Manager settings
-            vals.update(rec._get_eligibility_manager(program_id))
+        program_id = program.id
+        vals = {}
 
-            # Set Default Cycle Manager settings
-            # Add a new record to default cycle manager model
+        # Set Default Eligibility Manager settings
+        vals.update(self._get_eligibility_manager(program_id))
 
-            cycle_manager_default_val = rec.get_cycle_manager_default_val(program_id)
-            def_mgr = self.env["spp.cycle.manager.default"].create(cycle_manager_default_val)
+        # Set Default Cycle Manager settings
+        # Add a new record to default cycle manager model
 
-            # Add a new record to cycle manager parent model
+        cycle_manager_default_val = self.get_cycle_manager_default_val(program_id)
+        def_mgr = self.env["spp.cycle.manager.default"].create(cycle_manager_default_val)
 
-            cycle_manager_val = rec.get_cycle_manager_val(program_id, def_mgr)
-            mgr = self.env["spp.cycle.manager"].create(cycle_manager_val)
+        # Add a new record to cycle manager parent model
 
-            vals.update({"cycle_manager_ids": [(4, mgr.id)]})
+        cycle_manager_val = self.get_cycle_manager_val(program_id, def_mgr)
+        mgr = self.env["spp.cycle.manager"].create(cycle_manager_val)
 
-            # Set Default Entitlement Manager
-            vals.update(rec._get_entitlement_manager(program_id))
+        vals.update({"cycle_manager_ids": [(4, mgr.id)]})
 
-            # Set Default Program Manager
-            vals.update(rec._get_program_manager(program_id))
+        # Set Default Entitlement Manager
+        vals.update(self._get_entitlement_manager(program_id))
 
-            # Clean legacy aliases that are not real fields on spp.program
-            vals.pop("eligibility_managers", None)
-            vals.pop("cycle_managers", None)
-            # Convert legacy entitlement_managers key to entitlement_manager_ids
-            if "entitlement_managers" in vals:
-                entitlement_managers = vals.pop("entitlement_managers")
-                if "entitlement_manager_ids" not in vals:
-                    vals["entitlement_manager_ids"] = entitlement_managers
+        # Set Default Program Manager
+        vals.update(self._get_program_manager(program_id))
 
-            vals.update({"is_one_time_distribution": rec.is_one_time_distribution})
+        # Clean legacy aliases that are not real fields on spp.program
+        vals.pop("eligibility_managers", None)
+        vals.pop("cycle_managers", None)
+        # Convert legacy entitlement_managers key to entitlement_manager_ids
+        if "entitlement_managers" in vals:
+            entitlement_managers = vals.pop("entitlement_managers")
+            if "entitlement_manager_ids" not in vals:
+                vals["entitlement_manager_ids"] = entitlement_managers
 
-            # Complete the program data
-            program.update(vals)
+        vals.update({"is_one_time_distribution": self.is_one_time_distribution})
 
-            if rec.import_beneficiaries == "yes" or rec.is_one_time_distribution:
-                rec.program_wizard_import_beneficiaries(program)
+        # Complete the program data
+        program.update(vals)
 
-            if rec.is_one_time_distribution:
-                program.create_new_cycle()
+        if self.import_beneficiaries == "yes" or self.is_one_time_distribution:
+            self.program_wizard_import_beneficiaries(program)
 
-            view_id = self.env.ref("spp_programs.view_program_list_form")
-            if rec.view_id:
-                view_id = rec.view_id
+        if self.is_one_time_distribution:
+            program.create_new_cycle()
 
-            program.view_id = view_id.id
+        view_id = self.env.ref("spp_programs.view_program_list_form")
+        if self.view_id:
+            view_id = self.view_id
 
-            # Open the newly created program
-            return {
-                "name": _("Programs"),
-                "view_mode": "form",
-                "res_model": "spp.program",
-                "res_id": program_id,
+        program.view_id = view_id.id
+
+        # Close modal and open program form using client action with async/await
+        return {
+            "type": "ir.actions.client",
+            "tag": "open_program_close_modal",
+            "params": {
+                "program_id": program_id,
+                "name": _("Program"),
                 "view_id": view_id.id,
-                "type": "ir.actions.act_window",
-                "target": "current",
-            }
+            },
+        }
 
     def _get_default_eligibility_manager_val(self, program_id):
         return {
@@ -536,14 +536,16 @@ class SPPCreateNewProgramWiz(models.TransientModel):
         if self.entitlement_type == "cash" and not self.entitlement_cash_item_ids:
             raise UserError(
                 _(
-                    "No amount defined for the selected benefit type (Cash). Please add at least one Cash Entitlement Item with a valid amount under the ‘What Do They Receive’ tab."
+                    "No amount defined for the selected benefit type (Cash). Please add at least one "
+                    "Cash Entitlement Item with a valid amount under the 'What Do They Receive' tab."
                 )
             )
         if self.entitlement_type == "inkind":
             if not self.entitlement_item_ids:
                 raise UserError(
                     _(
-                        "No items defined for the selected benefit type (In-Kind). Please add at least one In-Kind Entitlement Item with a valid quantity under the ‘What Do They Receive’ tab."
+                        "No items defined for the selected benefit type (In-Kind). Please add at least one "
+                        "In-Kind Entitlement Item with a valid quantity under the 'What Do They Receive' tab."
                     )
                 )
             if self.manage_inventory and not self.warehouse_id:

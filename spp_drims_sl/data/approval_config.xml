@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!--
     DRIMS Approval Configuration - Sri Lanka
@@ -21,13 +21,15 @@
     <!-- Fast-Track: Life-threatening priority, single approver (Manager) -->
     <record id="approval_def_fast_track" model="spp.approval.definition">
         <field name="name">DRIMS: Fast-Track (Life-Threatening)</field>
-        <field name="model_id" ref="spp_drims.model_spp_drims_request"/>
+        <field name="model_id" ref="spp_drims.model_spp_drims_request" />
         <field name="active">True</field>
         <field name="sequence">1</field>
         <field name="sla_days">0</field>
-        <field name="domain">[('priority_code_id.code', '=', 'life_threatening')]</field>
+        <field
+            name="domain"
+        >[('priority_code_id.code', '=', 'life_threatening')]</field>
         <field name="approval_type">group</field>
-        <field name="approval_group_id" ref="spp_drims.group_drims_manager"/>
+        <field name="approval_group_id" ref="spp_drims.group_drims_manager" />
         <field name="is_require_comment">False</field>
         <field name="notify_on_submit">True</field>
         <field name="is_emergency_bypass_allowed">True</field>
@@ -36,13 +38,15 @@
     <!-- Standard: Small value (<100k LKR), single approver -->
     <record id="approval_def_standard" model="spp.approval.definition">
         <field name="name">DRIMS: Standard (Small Value)</field>
-        <field name="model_id" ref="spp_drims.model_spp_drims_request"/>
+        <field name="model_id" ref="spp_drims.model_spp_drims_request" />
         <field name="active">True</field>
         <field name="sequence">10</field>
         <field name="sla_days">1</field>
-        <field name="domain">[('total_value', '&lt;', 100000), ('priority_code_id.code', '!=', 'life_threatening')]</field>
+        <field
+            name="domain"
+        >[('total_value', '&lt;', 100000), ('priority_code_id.code', '!=', 'life_threatening')]</field>
         <field name="approval_type">group</field>
-        <field name="approval_group_id" ref="spp_drims.group_drims_approver"/>
+        <field name="approval_group_id" ref="spp_drims.group_drims_approver" />
         <field name="is_require_comment">False</field>
         <field name="notify_on_submit">True</field>
     </record>
@@ -50,13 +54,15 @@
     <!-- Medium: 100k-500k LKR - will be multi-tier after tiers are created -->
     <record id="approval_def_medium" model="spp.approval.definition">
         <field name="name">DRIMS: Medium Value (2-Tier)</field>
-        <field name="model_id" ref="spp_drims.model_spp_drims_request"/>
+        <field name="model_id" ref="spp_drims.model_spp_drims_request" />
         <field name="active">True</field>
         <field name="sequence">20</field>
         <field name="sla_days">2</field>
-        <field name="domain">[('total_value', '&gt;=', 100000), ('total_value', '&lt;', 500000), ('priority_code_id.code', '!=', 'life_threatening')]</field>
+        <field
+            name="domain"
+        >[('total_value', '&gt;=', 100000), ('total_value', '&lt;', 500000), ('priority_code_id.code', '!=', 'life_threatening')]</field>
         <field name="approval_type">group</field>
-        <field name="approval_group_id" ref="spp_drims.group_drims_approver"/>
+        <field name="approval_group_id" ref="spp_drims.group_drims_approver" />
         <field name="is_require_comment">True</field>
         <field name="notify_on_submit">True</field>
     </record>
@@ -64,13 +70,15 @@
     <!-- Large: >500k LKR - will be multi-tier after tiers are created -->
     <record id="approval_def_large" model="spp.approval.definition">
         <field name="name">DRIMS: Large Value (3-Tier)</field>
-        <field name="model_id" ref="spp_drims.model_spp_drims_request"/>
+        <field name="model_id" ref="spp_drims.model_spp_drims_request" />
         <field name="active">True</field>
         <field name="sequence">30</field>
         <field name="sla_days">3</field>
-        <field name="domain">[('total_value', '&gt;=', 500000), ('priority_code_id.code', '!=', 'life_threatening')]</field>
+        <field
+            name="domain"
+        >[('total_value', '&gt;=', 500000), ('priority_code_id.code', '!=', 'life_threatening')]</field>
         <field name="approval_type">group</field>
-        <field name="approval_group_id" ref="spp_drims.group_drims_manager"/>
+        <field name="approval_group_id" ref="spp_drims.group_drims_manager" />
         <field name="is_require_comment">True</field>
         <field name="notify_on_submit">True</field>
     </record>
@@ -81,18 +89,18 @@
     <record id="tier_medium_district" model="spp.approval.tier">
         <field name="name">District Approval</field>
         <field name="sequence">10</field>
-        <field name="definition_id" ref="approval_def_medium"/>
+        <field name="definition_id" ref="approval_def_medium" />
         <field name="approval_type">group</field>
-        <field name="approval_group_id" ref="spp_drims.group_drims_approver"/>
+        <field name="approval_group_id" ref="spp_drims.group_drims_approver" />
         <field name="sla_hours">24</field>
     </record>
 
     <record id="tier_medium_provincial" model="spp.approval.tier">
         <field name="name">Provincial Approval</field>
         <field name="sequence">20</field>
-        <field name="definition_id" ref="approval_def_medium"/>
+        <field name="definition_id" ref="approval_def_medium" />
         <field name="approval_type">group</field>
-        <field name="approval_group_id" ref="spp_drims.group_drims_manager"/>
+        <field name="approval_group_id" ref="spp_drims.group_drims_manager" />
         <field name="sla_hours">24</field>
     </record>
 
@@ -100,39 +108,27 @@
     <record id="tier_large_district" model="spp.approval.tier">
         <field name="name">District Approval</field>
         <field name="sequence">10</field>
-        <field name="definition_id" ref="approval_def_large"/>
+        <field name="definition_id" ref="approval_def_large" />
         <field name="approval_type">group</field>
-        <field name="approval_group_id" ref="spp_drims.group_drims_approver"/>
+        <field name="approval_group_id" ref="spp_drims.group_drims_approver" />
         <field name="sla_hours">24</field>
     </record>
 
     <record id="tier_large_provincial" model="spp.approval.tier">
         <field name="name">Provincial Approval</field>
         <field name="sequence">20</field>
-        <field name="definition_id" ref="approval_def_large"/>
+        <field name="definition_id" ref="approval_def_large" />
         <field name="approval_type">group</field>
-        <field name="approval_group_id" ref="spp_drims.group_drims_manager"/>
+        <field name="approval_group_id" ref="spp_drims.group_drims_manager" />
         <field name="sla_hours">24</field>
     </record>
 
     <record id="tier_large_national" model="spp.approval.tier">
         <field name="name">National Approval (DMC)</field>
         <field name="sequence">30</field>
-        <field name="definition_id" ref="approval_def_large"/>
+        <field name="definition_id" ref="approval_def_large" />
         <field name="approval_type">user</field>
-        <field name="approval_user_ids" eval="[(4, ref('user_approver_national'))]"/>
+        <field name="approval_user_ids" eval="[(4, ref('user_approver_national'))]" />
         <field name="sla_hours">48</field>
     </record>
-
-    <!-- ==================== ENABLE MULTI-TIER ==================== -->
-    <!-- Second pass: enable multitier now that tiers exist -->
-
-    <record id="approval_def_medium" model="spp.approval.definition">
-        <field name="use_multitier">True</field>
-    </record>
-
-    <record id="approval_def_large" model="spp.approval.definition">
-        <field name="use_multitier">True</field>
-    </record>
-
 </odoo>

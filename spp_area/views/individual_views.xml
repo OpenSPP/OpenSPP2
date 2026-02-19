@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-
-<!-- Add area field to Individual registrant form view -->
+    <!-- Add area field to Individual registrant form view -->
     <record id="view_area_individuals_form" model="ir.ui.view">
         <field name="name">view_area_individuals_form</field>
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="spp_registry.view_individuals_form" />
         <field name="arch" type="xml">
-            <xpath expr="//group[@name='contact_section']//field[@name='address']" position="before">
+            <xpath
+                expr="//group[@name='contact_section']//field[@name='address']"
+                position="before"
+            >
                 <field
                     name="area_id"
                     placeholder="Area"
@@ -17,5 +19,4 @@
             </xpath>
         </field>
     </record>
-
 </odoo>

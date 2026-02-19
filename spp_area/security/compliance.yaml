@@ -62,7 +62,9 @@ groups:
     tier: 2
     privilege_id: privilege_area_officer
     implied_ids: [group_area_viewer, group_area_write, group_area_create]
-    comment: "Can view and edit area configuration including area types and tags. Cannot delete."
+    comment:
+      "Can view and edit area configuration including area types and tags. Cannot
+      delete."
 
   - id: group_area_manager
     tier: 2

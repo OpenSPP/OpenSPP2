@@ -374,7 +374,7 @@ ul.auto-toc {
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! source digest: sha256:ff3eebc111dec8399f2183426fafcff21f5c8f6ca12838cb61a558c0a64a0d16
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-<p><a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_audit"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Production/Stable" src="https://img.shields.io/badge/maturity-Production%2FStable-green.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_audit"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
 <p>Tracks all data modifications and user actions across OpenSPP models by
 logging create, write, and unlink operations. Records old and new field
 values for configured models and dispatches audit entries to multiple
@@ -451,8 +451,7 @@ host)</li>
 <h2>UI Location</h2>
 <ul class="simple">
 <li><strong>Menu</strong>: Audit Log &gt; Audit &gt; Rule (configure audit rules)</li>
-<li><strong>Menu</strong>: Audit Log &gt; Audit &gt; Log (view database-stored audit
-entries)</li>
+<li><strong>Menu</strong>: Audit Log &gt; Audit &gt; Log (view database-stored audit entries)</li>
 <li><strong>Action</strong>: “View logs” action menu appears on audited model forms
 when <tt class="docutils literal">is_view_logs</tt> enabled</li>
 </ul>
@@ -470,8 +469,8 @@ mail.thread</li>
 <h2>Security</h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="51%" />
+<col width="49%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Group</th>
@@ -479,8 +478,7 @@ mail.thread</li>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td>`
-<cite>spp_audit.group_audit_manager`</cite></td>
+<tr><td><tt class="docutils literal">spp_audit.group_audit_manager</tt></td>
 <td>Full CRUD on audit rules and
 logs</td>
 </tr>

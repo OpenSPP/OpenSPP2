@@ -109,6 +109,7 @@ class SPPIndividual(models.Model):
         field = self.env["res.partner"]._fields["force_recompute_canary"]
         # Get the 'head' vocabulary code - this is a unique membership type
         # Use sudo() because this validation should work regardless of user permissions
+        # nosemgrep: odoo-sudo-without-context
         head_code = self.env["spp.vocabulary.code"].sudo().get_code("urn:openspp:vocab:group-membership-type", "head")
         for line in records:
             if line.is_registrant and not line.is_group:
@@ -170,7 +171,7 @@ class SPPIndividual(models.Model):
             groups.invalidate_group_metrics()
 
             _logger.debug(
-                "[spp.registry] Individual demographic change triggered " "invalidation for %d groups",
+                "[spp.registry] Individual demographic change triggered invalidation for %d groups",
                 len(groups),
             )
 

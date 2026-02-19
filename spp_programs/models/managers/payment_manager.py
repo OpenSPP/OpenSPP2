@@ -104,7 +104,7 @@ class DefaultFilePaymentManager(models.Model):
     def on_change_create_batch(self):
         if self.create_batch:
             existing_batch = (
-                self.env["spp.payment.batch.tag"]
+                self.env["spp.payment.batch.tag"]  # nosemgrep: odoo-sudo-without-context
                 .sudo()
                 .search(
                     [
@@ -120,7 +120,7 @@ class DefaultFilePaymentManager(models.Model):
                 batch_id = existing_batch
             else:
                 batch_id = (
-                    self.env["spp.payment.batch.tag"]
+                    self.env["spp.payment.batch.tag"]  # nosemgrep: odoo-sudo-without-context
                     .sudo()
                     .create(
                         {

@@ -107,7 +107,7 @@ class TestKeyManagerEncryption(TransactionCase):
         self.assertEqual(decrypted, plaintext)
 
         # Decrypt with wrong AAD should fail
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValueError):
             self.key_manager.decrypt(encrypted, "pii", "test_aad_key", aad="wrong.aad")
 
     def test_encrypt_empty_string(self):
@@ -151,7 +151,7 @@ class TestKeyManagerEncryption(TransactionCase):
         encrypted = self.key_manager.encrypt(plaintext, "pii", "correct_key")
 
         # Attempt to decrypt with different key should fail
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValueError):
             self.key_manager.decrypt(encrypted, "pii", "wrong_key")
 
 

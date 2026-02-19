@@ -23,7 +23,9 @@ export class GisController extends Component {
         this.addDialog = useOwnedDialogs();
         this.editable = this.props.archInfo.editable;
         this.archInfo = this.props.archInfo;
-        this.model = useState(useModelWithSampleData(this.props.Model, this.modelParams));
+        this.model = useState(
+            useModelWithSampleData(this.props.Model, this.modelParams)
+        );
         this.searchBarToggler = useSearchBarToggler();
 
         /**
@@ -46,7 +48,16 @@ export class GisController extends Component {
     }
 
     get modelParams() {
-        const {resModel, archInfo, limit, defaultGroupBy, state, fields, searchMenuTypes, groupBy} = this.props;
+        const {
+            resModel,
+            archInfo,
+            limit,
+            defaultGroupBy,
+            state,
+            fields,
+            searchMenuTypes,
+            groupBy,
+        } = this.props;
         const {activeFields} = extractFieldsFromArchInfo(archInfo, fields);
 
         const propsGroupBy = Array.isArray(groupBy) ? groupBy : [];
@@ -82,7 +93,9 @@ export class GisController extends Component {
             countLimit: archInfo.countLimit,
             defaultOrderBy: archInfo.defaultOrder,
             defaultGroupBy:
-                searchMenuTypes && searchMenuTypes.includes("groupBy") && defaultGroupBy ? defaultGroupBy : [],
+                searchMenuTypes && searchMenuTypes.includes("groupBy") && defaultGroupBy
+                    ? defaultGroupBy
+                    : [],
             groupsLimit: archInfo.groupsLimit,
             multiEdit: archInfo.multiEdit,
             activeIdsLimit: session.active_ids_limit,
@@ -99,7 +112,9 @@ export class GisController extends Component {
         try {
             // Validate input parameters
             if (!resModel || !resId) {
-                throw new Error("Model name and Record ID are required to open a record.");
+                throw new Error(
+                    "Model name and Record ID are required to open a record."
+                );
             }
             // Load views for the given model, with a fallback on default form view if no viewId is provided
             const {views} = await this.view.loadViews({

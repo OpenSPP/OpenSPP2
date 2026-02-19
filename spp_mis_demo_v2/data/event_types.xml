@@ -24,7 +24,9 @@
     <record id="event_type_training" model="spp.event.type">
         <field name="name">Training Session</field>
         <field name="code">training</field>
-        <field name="description">Training sessions for beneficiaries including agricultural practices, financial literacy, and program orientation.</field>
+        <field
+            name="description"
+        >Training sessions for beneficiaries including agricultural practices, financial literacy, and program orientation.</field>
         <field name="category">visit</field>
         <field name="target_type">both</field>
         <field name="source_type">internal</field>
@@ -35,7 +37,9 @@
     <record id="event_type_extension_visit" model="spp.event.type">
         <field name="name">Extension Visit</field>
         <field name="code">extension_visit</field>
-        <field name="description">Field extension visits by agricultural officers to provide technical assistance and monitor progress.</field>
+        <field
+            name="description"
+        >Field extension visits by agricultural officers to provide technical assistance and monitor progress.</field>
         <field name="category">visit</field>
         <field name="target_type">both</field>
         <field name="source_type">internal</field>
@@ -46,7 +50,9 @@
     <record id="event_type_verification" model="spp.event.type">
         <field name="name">Verification Visit</field>
         <field name="code">verification</field>
-        <field name="description">Field verification visits to confirm eligibility and registration information.</field>
+        <field
+            name="description"
+        >Field verification visits to confirm eligibility and registration information.</field>
         <field name="category">visit</field>
         <field name="target_type">both</field>
         <field name="source_type">internal</field>
@@ -57,7 +63,9 @@
     <record id="event_type_vulnerability_assessment" model="spp.event.type">
         <field name="name">Vulnerability Assessment</field>
         <field name="code">vulnerability_assessment</field>
-        <field name="description">Assessment to determine vulnerability level and eligibility for targeted programs.</field>
+        <field
+            name="description"
+        >Assessment to determine vulnerability level and eligibility for targeted programs.</field>
         <field name="category">survey</field>
         <field name="target_type">both</field>
         <field name="source_type">odk</field>
@@ -82,7 +90,7 @@
 
     <!-- Direct mapping: Registrant ID -->
     <record id="mapping_vuln_registrant_id" model="spp.event.type.mapping">
-        <field name="event_type_id" ref="event_type_vulnerability_assessment"/>
+        <field name="event_type_id" ref="event_type_vulnerability_assessment" />
         <field name="sequence">10</field>
         <field name="external_field">beneficiary_id</field>
         <field name="internal_field">registrant_id</field>
@@ -91,7 +99,7 @@
 
     <!-- Date parsing: Assessment date -->
     <record id="mapping_vuln_assessment_date" model="spp.event.type.mapping">
-        <field name="event_type_id" ref="event_type_vulnerability_assessment"/>
+        <field name="event_type_id" ref="event_type_vulnerability_assessment" />
         <field name="sequence">20</field>
         <field name="external_field">survey_date</field>
         <field name="internal_field">event_date</field>
@@ -102,39 +110,49 @@
          Formula: (income_score * 0.3) + (housing_score * 0.25) + (health_score * 0.25) + (education_score * 0.2)
          Demonstrates: arithmetic operations, weighted averages -->
     <record id="mapping_vuln_score_calculated" model="spp.event.type.mapping">
-        <field name="event_type_id" ref="event_type_vulnerability_assessment"/>
+        <field name="event_type_id" ref="event_type_vulnerability_assessment" />
         <field name="sequence">30</field>
-        <field name="external_field">income_score,housing_score,health_score,education_score</field>
+        <field
+            name="external_field"
+        >income_score,housing_score,health_score,education_score</field>
         <field name="internal_field">vulnerability_score</field>
         <field name="transform">expression</field>
-        <field name="transform_expression">(int(income_score) * 0.3) + (int(housing_score) * 0.25) + (int(health_score) * 0.25) + (int(education_score) * 0.2)</field>
+        <field
+            name="transform_expression"
+        >(int(income_score) * 0.3) + (int(housing_score) * 0.25) + (int(health_score) * 0.25) + (int(education_score) * 0.2)</field>
     </record>
 
     <!-- CEL Expression: Determine vulnerability category based on score
          Demonstrates: conditional expressions (ternary), threshold comparisons -->
     <record id="mapping_vuln_category" model="spp.event.type.mapping">
-        <field name="event_type_id" ref="event_type_vulnerability_assessment"/>
+        <field name="event_type_id" ref="event_type_vulnerability_assessment" />
         <field name="sequence">40</field>
         <field name="external_field">vulnerability_score</field>
         <field name="internal_field">vulnerability_category</field>
         <field name="transform">expression</field>
-        <field name="transform_expression">int(vulnerability_score) >= 75 ? 'critical' : (int(vulnerability_score) >= 50 ? 'high' : (int(vulnerability_score) >= 25 ? 'medium' : 'low'))</field>
+        <field
+            name="transform_expression"
+        >int(vulnerability_score) >= 75 ? 'critical' : (int(vulnerability_score) >= 50 ? 'high' : (int(vulnerability_score) >= 25 ? 'medium' : 'low'))</field>
     </record>
 
     <!-- CEL Expression: Check program eligibility based on multiple criteria
          Demonstrates: boolean logic, compound conditions -->
     <record id="mapping_vuln_eligibility" model="spp.event.type.mapping">
-        <field name="event_type_id" ref="event_type_vulnerability_assessment"/>
+        <field name="event_type_id" ref="event_type_vulnerability_assessment" />
         <field name="sequence">50</field>
-        <field name="external_field">vulnerability_score,household_size,has_children</field>
+        <field
+            name="external_field"
+        >vulnerability_score,household_size,has_children</field>
         <field name="internal_field">is_eligible</field>
         <field name="transform">expression</field>
-        <field name="transform_expression">(int(vulnerability_score) >= 50) || (int(household_size) >= 5 &amp;&amp; has_children == 'yes')</field>
+        <field
+            name="transform_expression"
+        >(int(vulnerability_score) >= 50) || (int(household_size) >= 5 &amp;&amp; has_children == 'yes')</field>
     </record>
 
     <!-- Direct mapping: Assessor notes -->
     <record id="mapping_vuln_notes" model="spp.event.type.mapping">
-        <field name="event_type_id" ref="event_type_vulnerability_assessment"/>
+        <field name="event_type_id" ref="event_type_vulnerability_assessment" />
         <field name="sequence">60</field>
         <field name="external_field">assessor_notes</field>
         <field name="internal_field">notes</field>
@@ -149,7 +167,7 @@
 
     <!-- Direct mapping: Training topic -->
     <record id="mapping_training_topic" model="spp.event.type.mapping">
-        <field name="event_type_id" ref="event_type_training"/>
+        <field name="event_type_id" ref="event_type_training" />
         <field name="sequence">10</field>
         <field name="external_field">training_topic</field>
         <field name="internal_field">topic</field>
@@ -159,23 +177,29 @@
     <!-- CEL Expression: Calculate training completion score
          Demonstrates: attendance weighting, score normalization -->
     <record id="mapping_training_score" model="spp.event.type.mapping">
-        <field name="event_type_id" ref="event_type_training"/>
+        <field name="event_type_id" ref="event_type_training" />
         <field name="sequence">20</field>
-        <field name="external_field">pre_test_score,post_test_score,attendance_days,total_days</field>
+        <field
+            name="external_field"
+        >pre_test_score,post_test_score,attendance_days,total_days</field>
         <field name="internal_field">completion_score</field>
         <field name="transform">expression</field>
-        <field name="transform_expression">((int(post_test_score) - int(pre_test_score)) * 0.6) + ((int(attendance_days) / int(total_days)) * 40.0)</field>
+        <field
+            name="transform_expression"
+        >((int(post_test_score) - int(pre_test_score)) * 0.6) + ((int(attendance_days) / int(total_days)) * 40.0)</field>
     </record>
 
     <!-- CEL Expression: Determine if participant passed training
          Demonstrates: threshold check with multiple conditions -->
     <record id="mapping_training_passed" model="spp.event.type.mapping">
-        <field name="event_type_id" ref="event_type_training"/>
+        <field name="event_type_id" ref="event_type_training" />
         <field name="sequence">30</field>
         <field name="external_field">post_test_score,attendance_days,total_days</field>
         <field name="internal_field">is_passed</field>
         <field name="transform">expression</field>
-        <field name="transform_expression">int(post_test_score) >= 60 &amp;&amp; (int(attendance_days) / int(total_days)) >= 0.8</field>
+        <field
+            name="transform_expression"
+        >int(post_test_score) >= 60 &amp;&amp; (int(attendance_days) / int(total_days)) >= 0.8</field>
     </record>
 
     <!--
@@ -187,23 +211,31 @@
     <!-- CEL Expression: Calculate visit quality score
          Based on: completeness of data, farm conditions, recommendations made -->
     <record id="mapping_extension_quality" model="spp.event.type.mapping">
-        <field name="event_type_id" ref="event_type_extension_visit"/>
+        <field name="event_type_id" ref="event_type_extension_visit" />
         <field name="sequence">10</field>
-        <field name="external_field">data_completeness,farm_condition_score,recommendations_count</field>
+        <field
+            name="external_field"
+        >data_completeness,farm_condition_score,recommendations_count</field>
         <field name="internal_field">visit_quality_score</field>
         <field name="transform">expression</field>
-        <field name="transform_expression">(int(data_completeness) * 0.4) + (int(farm_condition_score) * 0.4) + (int(recommendations_count) * 2.0)</field>
+        <field
+            name="transform_expression"
+        >(int(data_completeness) * 0.4) + (int(farm_condition_score) * 0.4) + (int(recommendations_count) * 2.0)</field>
     </record>
 
     <!-- CEL Expression: Determine if follow-up visit needed
          Demonstrates: complex boolean logic for decision making -->
     <record id="mapping_extension_followup" model="spp.event.type.mapping">
-        <field name="event_type_id" ref="event_type_extension_visit"/>
+        <field name="event_type_id" ref="event_type_extension_visit" />
         <field name="sequence">20</field>
-        <field name="external_field">farm_condition_score,issues_identified,recommendations_count</field>
+        <field
+            name="external_field"
+        >farm_condition_score,issues_identified,recommendations_count</field>
         <field name="internal_field">needs_followup</field>
         <field name="transform">expression</field>
-        <field name="transform_expression">int(farm_condition_score) &lt; 50 || int(issues_identified) > 3 || int(recommendations_count) > 5</field>
+        <field
+            name="transform_expression"
+        >int(farm_condition_score) &lt; 50 || int(issues_identified) > 3 || int(recommendations_count) > 5</field>
     </record>
 
     <!--
@@ -215,23 +247,28 @@
     <!-- CEL Expression: Calculate verification confidence score
          Based on: document verification, interview score, observation score -->
     <record id="mapping_verification_confidence" model="spp.event.type.mapping">
-        <field name="event_type_id" ref="event_type_verification"/>
+        <field name="event_type_id" ref="event_type_verification" />
         <field name="sequence">10</field>
-        <field name="external_field">document_score,interview_score,observation_score</field>
+        <field
+            name="external_field"
+        >document_score,interview_score,observation_score</field>
         <field name="internal_field">confidence_score</field>
         <field name="transform">expression</field>
-        <field name="transform_expression">(int(document_score) * 0.4) + (int(interview_score) * 0.35) + (int(observation_score) * 0.25)</field>
+        <field
+            name="transform_expression"
+        >(int(document_score) * 0.4) + (int(interview_score) * 0.35) + (int(observation_score) * 0.25)</field>
     </record>
 
     <!-- CEL Expression: Determine verification status
          Demonstrates: multi-level conditional -->
     <record id="mapping_verification_status" model="spp.event.type.mapping">
-        <field name="event_type_id" ref="event_type_verification"/>
+        <field name="event_type_id" ref="event_type_verification" />
         <field name="sequence">20</field>
         <field name="external_field">confidence_score,discrepancies_found</field>
         <field name="internal_field">verification_status</field>
         <field name="transform">expression</field>
-        <field name="transform_expression">int(discrepancies_found) > 2 ? 'rejected' : (int(confidence_score) >= 80 ? 'verified' : 'pending_review')</field>
+        <field
+            name="transform_expression"
+        >int(discrepancies_found) > 2 ? 'rejected' : (int(confidence_score) >= 80 ? 'verified' : 'pending_review')</field>
     </record>
-
 </odoo>

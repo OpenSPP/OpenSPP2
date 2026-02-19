@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- GIS Report Creation Wizard Form View -->
     <record id="view_gis_report_wizard_form" model="ir.ui.view">
@@ -15,31 +15,55 @@
                 <field name="template_requires_incident" invisible="1" />
 
                 <!-- Step indicator -->
-                <div class="alert alert-info text-center" role="status" name="step_indicator">
+                <div
+                    class="alert alert-info text-center"
+                    role="status"
+                    name="step_indicator"
+                >
                     <!-- Step 1: Template -->
-                    <span class="badge rounded-pill bg-primary" invisible="step != 'template'">1. Template</span>
-                    <span class="badge rounded-pill bg-secondary" invisible="step == 'template'">1. Template</span>
+                    <span
+                        class="badge rounded-pill bg-primary"
+                        invisible="step != 'template'"
+                    >1. Template</span>
+                    <span
+                        class="badge rounded-pill bg-secondary"
+                        invisible="step == 'template'"
+                    >1. Template</span>
                     <i class="fa fa-arrow-right mx-2" />
                     <!-- Step 2: Configure -->
-                    <span class="badge rounded-pill bg-primary" invisible="step != 'config'">2. Configure</span>
-                    <span class="badge rounded-pill bg-secondary" invisible="step == 'config'">2. Configure</span>
+                    <span
+                        class="badge rounded-pill bg-primary"
+                        invisible="step != 'config'"
+                    >2. Configure</span>
+                    <span
+                        class="badge rounded-pill bg-secondary"
+                        invisible="step == 'config'"
+                    >2. Configure</span>
                     <i class="fa fa-arrow-right mx-2" />
                     <!-- Step 3: Thresholds -->
-                    <span class="badge rounded-pill bg-primary" invisible="step != 'thresholds'">3. Thresholds</span>
-                    <span class="badge rounded-pill bg-secondary" invisible="step == 'thresholds'">3. Thresholds</span>
+                    <span
+                        class="badge rounded-pill bg-primary"
+                        invisible="step != 'thresholds'"
+                    >3. Thresholds</span>
+                    <span
+                        class="badge rounded-pill bg-secondary"
+                        invisible="step == 'thresholds'"
+                    >3. Thresholds</span>
                 </div>
 
                 <!-- Step 1: Template Selection -->
                 <div invisible="step != 'template'" class="p-3">
                     <div class="alert alert-info mb-3" role="alert">
-                        <strong>What question are you trying to answer?</strong><br/>
+                        <strong>What question are you trying to answer?</strong><br />
                         Choose a pre-built template that matches your reporting needs.
                         Templates are organized by category to help you find the right one.
                     </div>
 
                     <group string="Select a Template">
-                        <field name="template_id"
-                               options="{'no_create': True, 'no_edit': True}" />
+                        <field
+                            name="template_id"
+                            options="{'no_create': True, 'no_edit': True}"
+                        />
                     </group>
 
                     <!-- Template Details (shown when template selected) -->
@@ -50,12 +74,22 @@
                     </group>
 
                     <!-- Requirements notice -->
-                    <div invisible="not template_id" class="alert alert-warning mt-3" role="alert">
+                    <div
+                        invisible="not template_id"
+                        class="alert alert-warning mt-3"
+                        role="alert"
+                    >
                         <div invisible="not template_requires_program">
-                            <i class="fa fa-info-circle" title="Info" /> This template requires selecting a program in the next step.
+                            <i
+                            class="fa fa-info-circle"
+                            title="Info"
+                        /> This template requires selecting a program in the next step.
                         </div>
                         <div invisible="not template_requires_incident">
-                            <i class="fa fa-info-circle" title="Info" /> This template requires selecting an incident in the next step.
+                            <i
+                            class="fa fa-info-circle"
+                            title="Info"
+                        /> This template requires selecting an incident in the next step.
                         </div>
                     </div>
                 </div>
@@ -63,14 +97,20 @@
                 <!-- Step 2: Configuration -->
                 <div invisible="step != 'config'" class="p-3">
                     <div class="alert alert-info mb-3" role="alert">
-                        <strong>Configure your report</strong><br/>
+                        <strong>Configure your report</strong><br />
                         Set the report name, select the administrative level, and choose how to display the values.
                     </div>
 
                     <!-- Basic Info -->
                     <group string="Report Details">
-                        <field name="name" placeholder="e.g., Beneficiary Density - Cash Transfer Program" />
-                        <field name="description" placeholder="Optional description of what this report shows" />
+                        <field
+                            name="name"
+                            placeholder="e.g., Beneficiary Density - Cash Transfer Program"
+                        />
+                        <field
+                            name="description"
+                            placeholder="Optional description of what this report shows"
+                        />
                     </group>
 
                     <!-- Context Filters placeholder - extended by glue modules -->
@@ -78,9 +118,11 @@
 
                     <!-- Area Level -->
                     <group string="Administrative Level">
-                        <field name="base_area_level"
-                               widget="selection"
-                               help="Select the administrative level for base calculations (0=Country, 1=Region, 2=District, etc.)" />
+                        <field
+                            name="base_area_level"
+                            widget="selection"
+                            help="Select the administrative level for base calculations (0=Country, 1=Region, 2=District, etc.)"
+                        />
                         <div colspan="2" class="text-muted">
                             <small>
                                 <i class="fa fa-info-circle" title="Info" />
@@ -95,7 +137,7 @@
                         <field name="normalization_method" />
                         <div colspan="2" class="text-muted">
                             <small>
-                                <i class="fa fa-lightbulb-o" title="Tip"/>
+                                <i class="fa fa-lightbulb-o" title="Tip" />
                                 Raw values show actual counts. Normalized values (per km², per capita, etc.)
                                 make it easier to compare areas of different sizes.
                             </small>
@@ -113,14 +155,14 @@
                 <!-- Step 3: Thresholds & Preview -->
                 <div invisible="step != 'thresholds'" class="p-3">
                     <div class="alert alert-info mb-3" role="alert">
-                        <strong>Color Thresholds &amp; Schedule</strong><br/>
+                        <strong>Color Thresholds &amp; Schedule</strong><br />
                         Choose how to color-code the map and when to refresh the data.
                     </div>
 
                     <!-- Color Thresholds -->
                     <group string="Color Thresholds">
                         <field name="threshold_mode" />
-                        <field name="color_scheme_id" options="{'no_create': True}"/>
+                        <field name="color_scheme_id" options="{'no_create': True}" />
                         <div colspan="2" class="text-muted">
                             <small>
                                 <i class="fa fa-info-circle" title="Info" />
@@ -133,10 +175,13 @@
                     <!-- Refresh Schedule -->
                     <group string="Data Refresh">
                         <field name="refresh_mode" />
-                        <field name="refresh_interval" invisible="refresh_mode != 'scheduled'" />
+                        <field
+                            name="refresh_interval"
+                            invisible="refresh_mode != 'scheduled'"
+                        />
                         <div colspan="2" class="text-muted">
                             <small>
-                                <i class="fa fa-clock-o" title="Schedule"/>
+                                <i class="fa fa-clock-o" title="Schedule" />
                                 Scheduled refresh keeps the map up-to-date automatically.
                                 You can also manually refresh anytime from the report view.
                             </small>
@@ -147,19 +192,39 @@
                     <group string="Summary" class="mt-3">
                         <label for="name" string="Report Name" />
                         <div>
-                            <field name="name" readonly="1" nolabel="1" class="oe_inline" />
+                            <field
+                                name="name"
+                                readonly="1"
+                                nolabel="1"
+                                class="oe_inline"
+                            />
                         </div>
                         <label for="template_name" string="Template" />
                         <div>
-                            <field name="template_name" readonly="1" nolabel="1" class="oe_inline" />
+                            <field
+                                name="template_name"
+                                readonly="1"
+                                nolabel="1"
+                                class="oe_inline"
+                            />
                         </div>
                         <label for="base_area_level" string="Level" />
                         <div>
-                            <field name="base_area_level" readonly="1" nolabel="1" class="oe_inline" />
+                            <field
+                                name="base_area_level"
+                                readonly="1"
+                                nolabel="1"
+                                class="oe_inline"
+                            />
                         </div>
                         <label for="normalization_method" string="Display As" />
                         <div>
-                            <field name="normalization_method" readonly="1" nolabel="1" class="oe_inline" />
+                            <field
+                                name="normalization_method"
+                                readonly="1"
+                                nolabel="1"
+                                class="oe_inline"
+                            />
                         </div>
                     </group>
 
@@ -172,21 +237,27 @@
 
                 <!-- Footer with navigation buttons -->
                 <footer>
-                    <button name="action_back"
-                            string="Back"
-                            type="object"
-                            class="btn-secondary"
-                            invisible="step == 'template'" />
-                    <button name="action_next"
-                            string="Next"
-                            type="object"
-                            class="btn-primary"
-                            invisible="step == 'thresholds'" />
-                    <button name="action_create_report"
-                            string="Create Report"
-                            type="object"
-                            class="btn-primary"
-                            invisible="step != 'thresholds'" />
+                    <button
+                        name="action_back"
+                        string="Back"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="step == 'template'"
+                    />
+                    <button
+                        name="action_next"
+                        string="Next"
+                        type="object"
+                        class="btn-primary"
+                        invisible="step == 'thresholds'"
+                    />
+                    <button
+                        name="action_create_report"
+                        string="Create Report"
+                        type="object"
+                        class="btn-primary"
+                        invisible="step != 'thresholds'"
+                    />
                     <button string="Cancel" class="btn-secondary" special="cancel" />
                 </footer>
             </form>

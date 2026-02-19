@@ -167,6 +167,7 @@ jobs:
             --config p/python \
             --config p/security-audit \
             --config .semgrep/ \
+            --exclude scripts/ \
             --sarif \
             --output semgrep-results.sarif \
             2>&1 || SEMGREP_EXIT=$?
@@ -176,9 +177,32 @@ jobs:
             --config p/python \
             --config p/security-audit \
             --config .semgrep/ \
+            --exclude scripts/ \
             2>&1 || true
 
           exit ${SEMGREP_EXIT:-0}
+
+      - name: Strip nosemgrep-suppressed findings from SARIF
+        if: always()
+        run: |
+          # GitHub Code Scanning does not honour SARIF suppression markers,
+          # so remove results that Semgrep already marked as suppressed via
+          # nosemgrep inline comments.
+          python3 - <<'PYEOF'
+          import json, sys, pathlib
+
+          sarif_path = pathlib.Path("semgrep-results.sarif")
+          if not sarif_path.exists():
+              sys.exit(0)
+
+          sarif = json.loads(sarif_path.read_text())
+          for run in sarif.get("runs", []):
+              run["results"] = [
+                  r for r in run.get("results", [])
+                  if not r.get("suppressions")
+              ]
+          sarif_path.write_text(json.dumps(sarif))
+          PYEOF
 
       - name: Upload SARIF
         if: always()

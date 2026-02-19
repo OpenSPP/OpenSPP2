@@ -43,13 +43,12 @@ try:
     from .check_naming import NamingChecker
     from .check_performance import PerformanceChecker
     from .check_ui_patterns import UIPatternChecker
-    from .check_xml_ids import XMLValidator, find_xml_files_in_module
+    from .check_xml_ids import XMLValidator
     from .common import (
         LintConfig,
         OutputFormatter,
         Severity,
         Violation,
-        get_summary_stats,
         print_summary,
     )
 except ImportError:
@@ -158,7 +157,7 @@ class UnifiedLinter:
             if module_path.exists():
                 checker = ACLChecker(str(module_path.parent), self.config)
                 # Filter to only check this module
-                all_violations = checker.check_all_modules()
+                checker.check_all_modules()
                 checker.violations = [v for v in checker.violations if module in v.file_path]
         else:
             checker = ACLChecker(root_dir, self.config)

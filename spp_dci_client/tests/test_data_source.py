@@ -14,6 +14,7 @@ class TestDataSource(TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.DataSource = cls.env["spp.dci.data.source"]
+        cls.SECRET_MASK = cls.DataSource._SECRET_MASK
 
     def test_create_data_source(self):
         """Test creating a data source with required fields"""
@@ -629,3 +630,88 @@ class TestDataSource(TransactionCase):
         self.assertEqual(ds.search_endpoint, "/registry/sync/search")
         self.assertEqual(ds.subscribe_endpoint, "/registry/subscribe")
         self.assertEqual(ds.auth_endpoint, "/oauth2/client/token")
+
+    def test_secret_display_field_masks_value(self):
+        """Test that oauth2_client_secret_display returns masked value"""
+        ds = self.DataSource.create(
+            {
+                "name": "Test CRVS",
+                "code": "test_crvs_mask",
+                "base_url": "https://crvs.example.org/api",
+                "auth_type": "oauth2",
+                "oauth2_token_url": "https://auth.example.org/token",
+                "oauth2_client_id": "client123",
+                "oauth2_client_secret": "secret456",
+                "our_sender_id": "openspp.example.org",
+            }
+        )
+        # Display field should show mask, stored field should have real value
+        self.assertEqual(ds.oauth2_client_secret_display, self.SECRET_MASK)
+        self.assertEqual(ds.oauth2_client_secret, "secret456")
+
+    def test_secret_display_field_empty_when_no_secret(self):
+        """Test that oauth2_client_secret_display is empty when no secret is set"""
+        ds = self.DataSource.create(
+            {
+                "name": "Test CRVS",
+                "code": "test_crvs_empty",
+                "base_url": "https://crvs.example.org/api",
+                "auth_type": "none",
+            }
+        )
+        self.assertFalse(ds.oauth2_client_secret_display)
+        self.assertFalse(ds.oauth2_client_secret)
+
+    def test_secret_display_write_updates_stored_field(self):
+        """Test that writing a new value through display field updates the stored secret"""
+        ds = self.DataSource.create(
+            {
+                "name": "Test CRVS",
+                "code": "test_crvs_write",
+                "base_url": "https://crvs.example.org/api",
+                "auth_type": "oauth2",
+                "oauth2_token_url": "https://auth.example.org/token",
+                "oauth2_client_id": "client123",
+                "oauth2_client_secret": "old_secret",
+                "our_sender_id": "openspp.example.org",
+            }
+        )
+        # Write a new secret through the display field
+        ds.write({"oauth2_client_secret_display": "brand_new_secret"})
+        self.assertEqual(ds.oauth2_client_secret, "brand_new_secret")
+        # Invalidate cache to force recomputation of the display field
+        ds.invalidate_recordset(["oauth2_client_secret_display"])
+        self.assertEqual(ds.oauth2_client_secret_display, self.SECRET_MASK)
+
+    def test_secret_display_mask_value_does_not_overwrite(self):
+        """Test that writing the mask value does not overwrite the real secret"""
+        ds = self.DataSource.create(
+            {
+                "name": "Test CRVS",
+                "code": "test_crvs_nooverwrite",
+                "base_url": "https://crvs.example.org/api",
+                "auth_type": "oauth2",
+                "oauth2_token_url": "https://auth.example.org/token",
+                "oauth2_client_id": "client123",
+                "oauth2_client_secret": "real_secret_value",
+                "our_sender_id": "openspp.example.org",
+            }
+        )
+        # Writing the mask value should not change the stored secret
+        ds.write({"oauth2_client_secret_display": self.SECRET_MASK})
+        self.assertEqual(ds.oauth2_client_secret, "real_secret_value")
+
+    def test_secret_display_clear_removes_secret(self):
+        """Test that clearing the display field removes the stored secret"""
+        ds = self.DataSource.create(
+            {
+                "name": "Test CRVS",
+                "code": "test_crvs_clear",
+                "base_url": "https://crvs.example.org/api",
+                "auth_type": "none",
+                "oauth2_client_secret": "secret_to_clear",
+            }
+        )
+        # Clear the secret through the display field
+        ds.write({"oauth2_client_secret_display": False})
+        self.assertFalse(ds.oauth2_client_secret)

@@ -3,18 +3,7 @@
     "version": "19.0.2.0.0",
     "category": "OpenSPP",
     "summary": "Add program context filtering to GIS reports",
-    "description": """
-GIS Reports Programs Integration
-================================
-
-This module automatically installs when both spp_gis_report and spp_programs
-are installed. It adds:
-
-* program_id field to GIS reports for filtering by program
-* Program context filtering in report data aggregation
-* View extensions to show program selector
-    """,
-    "author": "OpenSPP",
+    "author": "OpenSPP.org, OpenSPP",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
     "depends": [

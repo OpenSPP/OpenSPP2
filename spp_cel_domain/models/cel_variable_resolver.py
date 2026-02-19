@@ -594,6 +594,7 @@ class CELVariableResolver(models.AbstractModel):
         result = self.env.cr.fetchone()
 
         if not result:
+            # nosemgrep: odoo-sudo-without-context — standard Odoo pattern for system parameter access
             ICP = self.env["ir.config_parameter"].sudo()
             ICP.set_param(cache_key, "1")
             new_version = 1

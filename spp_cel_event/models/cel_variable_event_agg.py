@@ -67,7 +67,7 @@ class CELVariableEventAggregation(models.Model):
 
     event_agg_field = fields.Char(
         string="Event Field",
-        help="JSON field name in event data (e.g., 'amount', 'score'). " "Required for sum/avg/min/max aggregations.",
+        help="JSON field name in event data (e.g., 'amount', 'score'). Required for sum/avg/min/max aggregations.",
     )
 
     event_agg_states = fields.Selection(
@@ -122,7 +122,7 @@ class CELVariableEventAggregation(models.Model):
 
         if not self.event_agg_type_id:
             _logger.warning(
-                "Variable '%s' uses event aggregation without event type. " "Please specify event_agg_type_id.",
+                "Variable '%s' uses event aggregation without event type. Please specify event_agg_type_id.",
                 self.name,
             )
             return self.cel_accessor
@@ -140,7 +140,7 @@ class CELVariableEventAggregation(models.Model):
             field = self.event_agg_field or self.aggregate_field
             if not field:
                 _logger.warning(
-                    "Variable '%s' uses %s aggregation without field. " "Please specify event_agg_field.",
+                    "Variable '%s' uses %s aggregation without field. Please specify event_agg_field.",
                     self.name,
                     agg_type,
                 )
@@ -191,7 +191,7 @@ class CELVariableEventAggregation(models.Model):
                 if not rec.event_agg_type_id:
                     # Log warning but don't block - may be set later
                     _logger.warning(
-                        "Variable '%s' is configured for event aggregation " "but no event type is selected.",
+                        "Variable '%s' is configured for event aggregation but no event type is selected.",
                         rec.name,
                     )
 

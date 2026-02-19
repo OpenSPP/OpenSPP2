@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
     <!-- Key Sri Lanka Government Agencies -->
     <!-- DRIMS organization roles and coordination support added -->
@@ -8,46 +8,66 @@
         <field name="name">Ministry of Disaster Management</field>
         <field name="is_company">True</field>
         <field name="is_drims_organization">True</field>
-        <field name="drims_organization_role_id" ref="spp_drims.code_drims_organization_role_lead_agency"/>
-        <field name="comment">National ministry responsible for disaster response coordination</field>
+        <field
+            name="drims_organization_role_id"
+            ref="spp_drims.code_drims_organization_role_lead_agency"
+        />
+        <field
+            name="comment"
+        >National ministry responsible for disaster response coordination</field>
         <field name="phone">+94 11 2694104</field>
         <field name="email">disaster@gov.lk</field>
         <field name="street">No. 486, R. A. De Mel Mawatha</field>
         <field name="city">Colombo 03</field>
-        <field name="country_id" ref="base.lk"/>
+        <field name="country_id" ref="base.lk" />
     </record>
 
     <record id="agency_ministry_health" model="res.partner">
         <field name="name">Ministry of Health</field>
         <field name="is_company">True</field>
         <field name="is_drims_organization">True</field>
-        <field name="drims_organization_role_id" ref="spp_drims.code_drims_organization_role_coordinator"/>
-        <field name="comment">National health ministry coordinating medical relief</field>
+        <field
+            name="drims_organization_role_id"
+            ref="spp_drims.code_drims_organization_role_coordinator"
+        />
+        <field
+            name="comment"
+        >National health ministry coordinating medical relief</field>
         <field name="phone">+94 11 2368221</field>
         <field name="email">health@health.gov.lk</field>
         <field name="city">Colombo</field>
-        <field name="country_id" ref="base.lk"/>
+        <field name="country_id" ref="base.lk" />
     </record>
 
     <record id="agency_ministry_social_services" model="res.partner">
         <field name="name">Ministry of Social Services</field>
         <field name="is_company">True</field>
         <field name="is_drims_organization">True</field>
-        <field name="drims_organization_role_id" ref="spp_drims.code_drims_organization_role_coordinator"/>
-        <field name="comment">Ministry coordinating social welfare relief programs</field>
+        <field
+            name="drims_organization_role_id"
+            ref="spp_drims.code_drims_organization_role_coordinator"
+        />
+        <field
+            name="comment"
+        >Ministry coordinating social welfare relief programs</field>
         <field name="city">Colombo</field>
-        <field name="country_id" ref="base.lk"/>
+        <field name="country_id" ref="base.lk" />
     </record>
 
     <record id="agency_ministry_defence" model="res.partner">
         <field name="name">Ministry of Defence</field>
         <field name="is_company">True</field>
         <field name="is_drims_organization">True</field>
-        <field name="drims_organization_role_id" ref="spp_drims.code_drims_organization_role_technical_support"/>
-        <field name="comment">Coordinating military support for disaster response</field>
+        <field
+            name="drims_organization_role_id"
+            ref="spp_drims.code_drims_organization_role_technical_support"
+        />
+        <field
+            name="comment"
+        >Coordinating military support for disaster response</field>
         <field name="phone">+94 11 2430860</field>
         <field name="city">Colombo</field>
-        <field name="country_id" ref="base.lk"/>
+        <field name="country_id" ref="base.lk" />
     </record>
 
     <!-- Department Level -->
@@ -55,50 +75,64 @@
         <field name="name">Disaster Management Centre (DMC)</field>
         <field name="is_company">True</field>
         <field name="is_drims_organization">True</field>
-        <field name="drims_organization_role_id" ref="spp_drims.code_drims_organization_role_lead_agency"/>
-        <field name="parent_id" ref="agency_ministry_dm"/>
-        <field name="comment">Primary agency coordinating disaster response operations</field>
+        <field
+            name="drims_organization_role_id"
+            ref="spp_drims.code_drims_organization_role_lead_agency"
+        />
+        <field name="parent_id" ref="agency_ministry_dm" />
+        <field
+            name="comment"
+        >Primary agency coordinating disaster response operations</field>
         <field name="phone">+94 11 2136136</field>
         <field name="email">info@dmc.gov.lk</field>
         <field name="website">http://www.dmc.gov.lk</field>
         <field name="street">No. 2, Vidya Mawatha</field>
         <field name="city">Colombo 07</field>
-        <field name="country_id" ref="base.lk"/>
+        <field name="country_id" ref="base.lk" />
     </record>
 
     <record id="agency_dept_social_services" model="res.partner">
         <field name="name">Department of Social Services</field>
         <field name="is_company">True</field>
         <field name="is_drims_organization">True</field>
-        <field name="drims_organization_role_id" ref="spp_drims.code_drims_organization_role_implementing_partner"/>
-        <field name="parent_id" ref="agency_ministry_social_services"/>
+        <field
+            name="drims_organization_role_id"
+            ref="spp_drims.code_drims_organization_role_implementing_partner"
+        />
+        <field name="parent_id" ref="agency_ministry_social_services" />
         <field name="comment">Department managing social welfare programs</field>
         <field name="city">Colombo</field>
-        <field name="country_id" ref="base.lk"/>
+        <field name="country_id" ref="base.lk" />
     </record>
 
     <record id="agency_dept_meteorology" model="res.partner">
         <field name="name">Department of Meteorology</field>
         <field name="is_company">True</field>
         <field name="is_drims_organization">True</field>
-        <field name="drims_organization_role_id" ref="spp_drims.code_drims_organization_role_technical_support"/>
+        <field
+            name="drims_organization_role_id"
+            ref="spp_drims.code_drims_organization_role_technical_support"
+        />
         <field name="comment">Weather forecasting and early warning alerts</field>
         <field name="phone">+94 11 2694846</field>
         <field name="website">http://www.meteo.gov.lk</field>
         <field name="city">Colombo</field>
-        <field name="country_id" ref="base.lk"/>
+        <field name="country_id" ref="base.lk" />
     </record>
 
     <record id="agency_nbro" model="res.partner">
         <field name="name">National Building Research Organisation (NBRO)</field>
         <field name="is_company">True</field>
         <field name="is_drims_organization">True</field>
-        <field name="drims_organization_role_id" ref="spp_drims.code_drims_organization_role_technical_support"/>
+        <field
+            name="drims_organization_role_id"
+            ref="spp_drims.code_drims_organization_role_technical_support"
+        />
         <field name="comment">Landslide risk assessment and early warning</field>
         <field name="phone">+94 11 2500676</field>
         <field name="website">http://www.nbro.gov.lk</field>
         <field name="city">Colombo</field>
-        <field name="country_id" ref="base.lk"/>
+        <field name="country_id" ref="base.lk" />
     </record>
 
     <!-- Military Agencies -->
@@ -106,33 +140,44 @@
         <field name="name">Sri Lanka Army</field>
         <field name="is_company">True</field>
         <field name="is_drims_organization">True</field>
-        <field name="drims_organization_role_id" ref="spp_drims.code_drims_organization_role_technical_support"/>
-        <field name="parent_id" ref="agency_ministry_defence"/>
-        <field name="comment">Military support for disaster response and logistics</field>
+        <field
+            name="drims_organization_role_id"
+            ref="spp_drims.code_drims_organization_role_technical_support"
+        />
+        <field name="parent_id" ref="agency_ministry_defence" />
+        <field
+            name="comment"
+        >Military support for disaster response and logistics</field>
         <field name="city">Colombo</field>
-        <field name="country_id" ref="base.lk"/>
+        <field name="country_id" ref="base.lk" />
     </record>
 
     <record id="agency_navy" model="res.partner">
         <field name="name">Sri Lanka Navy</field>
         <field name="is_company">True</field>
         <field name="is_drims_organization">True</field>
-        <field name="drims_organization_role_id" ref="spp_drims.code_drims_organization_role_technical_support"/>
-        <field name="parent_id" ref="agency_ministry_defence"/>
+        <field
+            name="drims_organization_role_id"
+            ref="spp_drims.code_drims_organization_role_technical_support"
+        />
+        <field name="parent_id" ref="agency_ministry_defence" />
         <field name="comment">Naval support for coastal disaster response</field>
         <field name="city">Colombo</field>
-        <field name="country_id" ref="base.lk"/>
+        <field name="country_id" ref="base.lk" />
     </record>
 
     <record id="agency_air_force" model="res.partner">
         <field name="name">Sri Lanka Air Force</field>
         <field name="is_company">True</field>
         <field name="is_drims_organization">True</field>
-        <field name="drims_organization_role_id" ref="spp_drims.code_drims_organization_role_technical_support"/>
-        <field name="parent_id" ref="agency_ministry_defence"/>
+        <field
+            name="drims_organization_role_id"
+            ref="spp_drims.code_drims_organization_role_technical_support"
+        />
+        <field name="parent_id" ref="agency_ministry_defence" />
         <field name="comment">Air support for disaster response and evacuations</field>
         <field name="city">Colombo</field>
-        <field name="country_id" ref="base.lk"/>
+        <field name="country_id" ref="base.lk" />
     </record>
 
     <!-- Police -->
@@ -140,11 +185,14 @@
         <field name="name">Sri Lanka Police</field>
         <field name="is_company">True</field>
         <field name="is_drims_organization">True</field>
-        <field name="drims_organization_role_id" ref="spp_drims.code_drims_organization_role_technical_support"/>
+        <field
+            name="drims_organization_role_id"
+            ref="spp_drims.code_drims_organization_role_technical_support"
+        />
         <field name="comment">Security and coordination during disaster response</field>
         <field name="phone">119</field>
         <field name="city">Colombo</field>
-        <field name="country_id" ref="base.lk"/>
+        <field name="country_id" ref="base.lk" />
     </record>
 
     <!-- UN Agencies -->
@@ -152,37 +200,48 @@
         <field name="name">UNICEF Sri Lanka</field>
         <field name="is_company">True</field>
         <field name="is_drims_organization">True</field>
-        <field name="drims_organization_role_id" ref="spp_drims.code_drims_organization_role_donor"/>
+        <field
+            name="drims_organization_role_id"
+            ref="spp_drims.code_drims_organization_role_donor"
+        />
         <field name="comment">UN agency supporting child-focused relief programs</field>
         <field name="phone">+94 11 2677200</field>
         <field name="email">colombo@unicef.org</field>
         <field name="website">https://www.unicef.org/srilanka/</field>
         <field name="city">Colombo</field>
-        <field name="country_id" ref="base.lk"/>
+        <field name="country_id" ref="base.lk" />
     </record>
 
     <record id="agency_wfp" model="res.partner">
         <field name="name">World Food Programme (WFP) Sri Lanka</field>
         <field name="is_company">True</field>
         <field name="is_drims_organization">True</field>
-        <field name="drims_organization_role_id" ref="spp_drims.code_drims_organization_role_donor"/>
+        <field
+            name="drims_organization_role_id"
+            ref="spp_drims.code_drims_organization_role_donor"
+        />
         <field name="comment">UN food assistance and logistics support</field>
         <field name="phone">+94 11 2580798</field>
         <field name="website">https://www.wfp.org/countries/sri-lanka</field>
         <field name="city">Colombo</field>
-        <field name="country_id" ref="base.lk"/>
+        <field name="country_id" ref="base.lk" />
     </record>
 
     <record id="agency_undp" model="res.partner">
         <field name="name">UNDP Sri Lanka</field>
         <field name="is_company">True</field>
         <field name="is_drims_organization">True</field>
-        <field name="drims_organization_role_id" ref="spp_drims.code_drims_organization_role_donor"/>
-        <field name="comment">UN development and disaster risk reduction programs</field>
+        <field
+            name="drims_organization_role_id"
+            ref="spp_drims.code_drims_organization_role_donor"
+        />
+        <field
+            name="comment"
+        >UN development and disaster risk reduction programs</field>
         <field name="phone">+94 11 2580691</field>
         <field name="website">https://www.undp.org/srilanka</field>
         <field name="city">Colombo</field>
-        <field name="country_id" ref="base.lk"/>
+        <field name="country_id" ref="base.lk" />
     </record>
 
     <!-- International NGOs -->
@@ -190,32 +249,45 @@
         <field name="name">Sri Lanka Red Cross Society</field>
         <field name="is_company">True</field>
         <field name="is_drims_organization">True</field>
-        <field name="drims_organization_role_id" ref="spp_drims.code_drims_organization_role_implementing_partner"/>
-        <field name="comment">Primary humanitarian organization coordinating relief</field>
+        <field
+            name="drims_organization_role_id"
+            ref="spp_drims.code_drims_organization_role_implementing_partner"
+        />
+        <field
+            name="comment"
+        >Primary humanitarian organization coordinating relief</field>
         <field name="phone">+94 11 2691095</field>
         <field name="email">info@redcross.lk</field>
         <field name="website">http://www.redcross.lk</field>
         <field name="city">Colombo</field>
-        <field name="country_id" ref="base.lk"/>
+        <field name="country_id" ref="base.lk" />
     </record>
 
     <record id="agency_oxfam" model="res.partner">
         <field name="name">Oxfam Sri Lanka</field>
         <field name="is_company">True</field>
         <field name="is_drims_organization">True</field>
-        <field name="drims_organization_role_id" ref="spp_drims.code_drims_organization_role_implementing_partner"/>
+        <field
+            name="drims_organization_role_id"
+            ref="spp_drims.code_drims_organization_role_implementing_partner"
+        />
         <field name="comment">International NGO supporting disaster response</field>
         <field name="city">Colombo</field>
-        <field name="country_id" ref="base.lk"/>
+        <field name="country_id" ref="base.lk" />
     </record>
 
     <record id="agency_care" model="res.partner">
         <field name="name">CARE International Sri Lanka</field>
         <field name="is_company">True</field>
         <field name="is_drims_organization">True</field>
-        <field name="drims_organization_role_id" ref="spp_drims.code_drims_organization_role_implementing_partner"/>
-        <field name="comment">International NGO supporting vulnerable communities</field>
+        <field
+            name="drims_organization_role_id"
+            ref="spp_drims.code_drims_organization_role_implementing_partner"
+        />
+        <field
+            name="comment"
+        >International NGO supporting vulnerable communities</field>
         <field name="city">Colombo</field>
-        <field name="country_id" ref="base.lk"/>
+        <field name="country_id" ref="base.lk" />
     </record>
 </odoo>

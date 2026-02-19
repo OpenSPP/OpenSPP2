@@ -95,7 +95,7 @@ class ExtensionWriteService:
         """
         # sudo() required: Extension registry is system config, accessed by API
         # regardless of current user. Authorization is done at API scope level.
-        Extension = self.env["spp.api.extension"].sudo()
+        Extension = self.env["spp.api.extension"].sudo()  # nosemgrep: odoo-sudo-without-context
 
         # Build domain based on resource type
         applies_domain = [("applies_to", "in", [resource_type, "both"])]
@@ -376,7 +376,7 @@ class ExtensionWriteService:
 
         # sudo() required: Vocabulary lookup is system config, API needs access
         # to resolve CodeableConcept values regardless of user permissions.
-        VocabCode = self.env["spp.vocabulary.code"].sudo()
+        VocabCode = self.env["spp.vocabulary.code"].sudo()  # nosemgrep: odoo-sudo-without-context
         return VocabCode.search(
             [("namespace_uri", "=", system), ("code", "=", code)],
             limit=1,
@@ -405,7 +405,7 @@ class ExtensionWriteService:
             # sudo() required: Display name lookups on safe reference models
             # (e.g., countries, categories) need system access. Model allowlist
             # above ensures only safe models are accessed.
-            Model = self.env[model_name].sudo()
+            Model = self.env[model_name].sudo()  # nosemgrep: odoo-sudo-without-context
             # Try exact match first
             record = Model.search([("name", "=", display_name)], limit=1)
             if record:

@@ -84,7 +84,7 @@ class CelWidgetDemo(models.TransientModel):
         profile = self.selected_profile or "registry_individuals"
 
         if not expression.strip():
-            self.validation_result = '<div class="alert alert-warning mb-0">' "No expression to validate</div>"
+            self.validation_result = '<div class="alert alert-warning mb-0">No expression to validate</div>'
             return self._reopen_self()
 
         result = provider.validate_expression(expression, profile)
@@ -93,7 +93,7 @@ class CelWidgetDemo(models.TransientModel):
             count = result.get("matching_count")
             count_str = count if count is not None else "N/A"
             self.validation_result = (
-                '<div class="alert alert-success mb-0">' f"<strong>Valid!</strong> Matching records: {count_str}</div>"
+                f'<div class="alert alert-success mb-0"><strong>Valid!</strong> Matching records: {count_str}</div>'
             )
         else:
             errors = result.get("errors", [])
@@ -113,7 +113,7 @@ class CelWidgetDemo(models.TransientModel):
         symbols = provider.get_symbols_for_profile(profile)
         parts = [
             f"<h5>Symbols for <code>{profile}</code></h5>",
-            "<p class='text-muted small mb-2'>" "Click any row to insert into the expression editor above.</p>",
+            "<p class='text-muted small mb-2'>Click any row to insert into the expression editor above.</p>",
         ]
 
         # Shared row style for clickable rows

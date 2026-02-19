@@ -105,7 +105,7 @@ class TestBulkUploadParsers:
 
         try:
             _parse_json_file(content)
-            assert False, "Should have raised BulkUploadError"
+            raise AssertionError("Should have raised BulkUploadError")
         except BulkUploadError as e:
             assert e.code == "err.file.format_invalid"
 
@@ -115,7 +115,7 @@ class TestBulkUploadParsers:
 
         try:
             _parse_json_file(content)
-            assert False, "Should have raised BulkUploadError"
+            raise AssertionError("Should have raised BulkUploadError")
         except BulkUploadError as e:
             assert e.code == "err.file.parse_error"
 
@@ -157,7 +157,7 @@ urn:gov:id:national,12345"""
 
         try:
             _parse_csv_file(content)
-            assert False, "Should have raised BulkUploadError"
+            raise AssertionError("Should have raised BulkUploadError")
         except BulkUploadError as e:
             assert e.code == "err.file.empty"
 

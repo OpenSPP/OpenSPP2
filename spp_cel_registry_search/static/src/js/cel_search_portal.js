@@ -80,9 +80,12 @@ export class CelSearchPortal extends Component {
         }
 
         if (this.state.validation && !this.state.validation.valid) {
-            this.notification.add(_t("Please fix the expression errors before searching."), {
-                type: "warning",
-            });
+            this.notification.add(
+                _t("Please fix the expression errors before searching."),
+                {
+                    type: "warning",
+                }
+            );
             return;
         }
 
@@ -92,12 +95,25 @@ export class CelSearchPortal extends Component {
         try {
             // Request preview records directly from backend to avoid JSON serialization
             // issues with SQL subquery domains
-            const result = await this.orm.call("spp.cel.service", "compile_expression", [], {
-                expression: expression,
-                profile: this.state.profile,
-                limit: SEARCH_RESULT_LIMIT,
-                fields: ["id", "name", "is_group", "phone", "email", "registration_date", "disabled"],
-            });
+            const result = await this.orm.call(
+                "spp.cel.service",
+                "compile_expression",
+                [],
+                {
+                    expression: expression,
+                    profile: this.state.profile,
+                    limit: SEARCH_RESULT_LIMIT,
+                    fields: [
+                        "id",
+                        "name",
+                        "is_group",
+                        "phone",
+                        "email",
+                        "registration_date",
+                        "disabled",
+                    ],
+                }
+            );
 
             if (result.error) {
                 this.notification.add(result.error, {type: "danger"});
@@ -138,7 +154,9 @@ export class CelSearchPortal extends Component {
     }
 
     async openRegistrant(id, isGroup) {
-        const viewRef = isGroup ? "spp_registry.view_groups_form_membership" : "spp_registry.view_individuals_form";
+        const viewRef = isGroup
+            ? "spp_registry.view_groups_form_membership"
+            : "spp_registry.view_individuals_form";
 
         await this.action.doAction({
             type: "ir.actions.act_window",
@@ -174,7 +192,10 @@ export class CelSearchPortal extends Component {
     }
 
     get canSearch() {
-        return this.state.celExpression.trim() && (!this.state.validation || this.state.validation.valid);
+        return (
+            this.state.celExpression.trim() &&
+            (!this.state.validation || this.state.validation.valid)
+        );
     }
 
     get validationStatusClass() {
@@ -207,4 +228,6 @@ export class CelSearchPortal extends Component {
     }
 }
 
-registry.category("actions").add("spp_cel_registry_search.cel_search_portal", CelSearchPortal);
+registry
+    .category("actions")
+    .add("spp_cel_registry_search.cel_search_portal", CelSearchPortal);

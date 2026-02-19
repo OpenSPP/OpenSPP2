@@ -458,8 +458,10 @@ class TestReport4WWizard(DrimsTestCommon):
     def test_4w_wizard_requires_incident(self):
         """Test 4W wizard requires incident selection."""
         # incident_id is a required field with DB NOT NULL constraint,
-        # so creating without it raises IntegrityError, not UserError
-        with self.assertRaises(Exception):
+        # so creating without it raises ValidationError
+        from odoo.exceptions import ValidationError
+
+        with self.assertRaises(ValidationError):
             self.env["spp.drims.report.4w.wizard"].create({})
 
     def test_4w_wizard_date_filters(self):

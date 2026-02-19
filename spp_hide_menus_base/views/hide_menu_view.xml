@@ -45,7 +45,8 @@
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Create a new Hide Menu Configuration!
-            </p><p>
+            </p>
+            <p>
                 Click the create button to enter the information of the Menu to be hidden.
             </p>
         </field>
@@ -66,5 +67,4 @@
         sequence="1000"
         groups="base.group_no_one"
     />
-
 </odoo>

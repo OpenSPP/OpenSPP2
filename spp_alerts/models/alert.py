@@ -2,6 +2,7 @@
 import logging
 
 from odoo import _, api, fields, models
+from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
@@ -94,6 +95,31 @@ class Alert(models.Model):
         help="Detailed description of the alert condition",
     )
 
+    # Source tracking (populated by rule engine, empty for manual alerts)
+    rule_id = fields.Many2one(
+        "spp.alert.rule",
+        string="Source Rule",
+        index=True,
+        readonly=True,
+        ondelete="set null",
+        help="Alert rule that generated this alert (empty for manually created alerts)",
+    )
+
+    res_model = fields.Char(
+        string="Source Model",
+        index=True,
+        readonly=True,
+        help="Technical model name of the record that triggered this alert",
+    )
+
+    res_id = fields.Many2oneReference(
+        string="Source Record",
+        model_field="res_model",
+        index=True,
+        readonly=True,
+        help="Record that triggered this alert",
+    )
+
     # Metrics for threshold and deadline tracking
     current_value = fields.Float(
         string="Current Value",
@@ -144,7 +170,9 @@ class Alert(models.Model):
         for vals in vals_list:
             if vals.get("reference", _("New")) == _("New"):
                 # Use sudo to access sequence (users may not have ir.sequence access)
-                vals["reference"] = self.env["ir.sequence"].sudo().next_by_code("spp.alert") or _("New")
+                # nosemgrep: odoo-sudo-without-context - Standard sequence access
+                Sequence = self.env["ir.sequence"].sudo()
+                vals["reference"] = Sequence.next_by_code("spp.alert") or _("New")
         return super().create(vals_list)
 
     def action_acknowledge(self):
@@ -164,7 +192,15 @@ class Alert(models.Model):
 
         Returns:
             bool: True on success
+
+        Raises:
+            UserError: If resolution notes are not provided.
         """
+        for record in self:
+            resolution = notes or record.resolution_notes
+            if not resolution:
+                raise UserError(_("Please provide resolution notes before resolving the alert."))
+
         vals = {
             "state": "resolved",
             "resolved_by_id": self.env.user.id,

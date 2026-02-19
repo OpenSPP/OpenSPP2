@@ -1,14 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <record id="privilege_gis_user" model="res.groups.privilege">
         <field name="name">User</field>
-        <field name="category_id" ref="spp_security.category_spp_area"/>
+        <field name="category_id" ref="spp_security.category_spp_area" />
         <field name="sequence">10</field>
     </record>
 
     <record id="privilege_gis_admin" model="res.groups.privilege">
         <field name="name">Admin</field>
-        <field name="category_id" ref="spp_security.category_spp_area"/>
+        <field name="category_id" ref="spp_security.category_spp_area" />
         <field name="sequence">20</field>
     </record>
 </odoo>

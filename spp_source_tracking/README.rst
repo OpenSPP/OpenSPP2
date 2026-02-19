@@ -14,14 +14,17 @@ OpenSPP Source Tracking
    !! source digest: sha256:bfa135c5a53fa940bcc7cfa241807229cd030c12dff069e45dd859af610c1675
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+    :target: https://odoo-community.org/page/development-status
+    :alt: Production/Stable
+.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
     :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_source_tracking
     :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2|
+|badge1| |badge2| |badge3|
 
 Tracks data provenance for registrants, identifiers, and program
 memberships. Records the source system, collection method, and
@@ -31,51 +34,50 @@ audit trails and relationship transfer.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  Source detection: Distinguishes between Odoo UI, API, bulk import,
-   mobile app, migration, and merge operations via context and HTTP
-   headers
--  Immutable creation tracking: Records source system, source reference,
-   collection method, and collection date at creation
--  Update tracking: Maintains last update system and reference for all
-   modifications
--  Registrant merge: Transfers identifiers, relationships, and program
-   memberships from merged record to survivor
--  Merge provenance: Preserves audit trail with JSON data snapshots and
-   merge chain pointers
--  Merge chain resolution: Follows ``merged_into_id`` pointers to find
-   current active partner
+- Source detection: Distinguishes between Odoo UI, API, bulk import,
+  mobile app, migration, and merge operations via context and HTTP
+  headers
+- Immutable creation tracking: Records source system, source reference,
+  collection method, and collection date at creation
+- Update tracking: Maintains last update system and reference for all
+  modifications
+- Registrant merge: Transfers identifiers, relationships, and program
+  memberships from merged record to survivor
+- Merge provenance: Preserves audit trail with JSON data snapshots and
+  merge chain pointers
+- Merge chain resolution: Follows ``merged_into_id`` pointers to find
+  current active partner
 
 Key Models
 ~~~~~~~~~~
 
-+-------------------------------+-------------------------------------+
-| Model                         | Description                         |
-+===============================+=====================================+
-| ``spp.mixin.source.tracking`` | Abstract mixin providing source     |
-|                               | tracking fields                     |
-+-------------------------------+-------------------------------------+
-| ``spp.merge.provenance``      | Audit record of merge operations    |
-|                               | with data snapshots                 |
-+-------------------------------+-------------------------------------+
-| ``res.partner``               | Extended with source tracking and   |
-|                               | merge capabilities                  |
-+-------------------------------+-------------------------------------+
-| ``spp.registry.id``           | Extended with source tracking for   |
-|                               | identifier provenance               |
-+-------------------------------+-------------------------------------+
-| ``spp.program.membership``    | Extended with source tracking for   |
-|                               | enrollment provenance               |
-+-------------------------------+-------------------------------------+
++-------------------------------+--------------------------------------+
+| Model                         | Description                          |
++===============================+======================================+
+| ``spp.mixin.source.tracking`` | Abstract mixin providing source      |
+|                               | tracking fields                      |
++-------------------------------+--------------------------------------+
+| ``spp.merge.provenance``      | Audit record of merge operations     |
+|                               | with data snapshots                  |
++-------------------------------+--------------------------------------+
+| ``res.partner``               | Extended with source tracking and    |
+|                               | merge capabilities                   |
++-------------------------------+--------------------------------------+
+| ``spp.registry.id``           | Extended with source tracking for    |
+|                               | identifier provenance                |
++-------------------------------+--------------------------------------+
+| ``spp.program.membership``    | Extended with source tracking for    |
+|                               | enrollment provenance                |
++-------------------------------+--------------------------------------+
 
 UI Location
 ~~~~~~~~~~~
 
--  **Source Tracking Tab**: Individual and group registrant forms under
-   "Source Tracking"
--  **Merge History Menu**: Registry > Configuration > Merge History
--  **Search Filters**: Partner search includes filters for source
-   system, collection method, merged records, and records with merge
-   history
+- **Source Tracking Tab**: Individual and group registrant forms under
+  "Source Tracking"
+- **Merge History Menu**: Registry > Configuration > Merge History
+- **Search Filters**: Partner search includes filters for source system,
+  collection method, merged records, and records with merge history
 
 Security
 ~~~~~~~~
@@ -91,14 +93,14 @@ Group                                   Access
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Override ``_selection_collection_method()`` to add custom collection
-   methods
--  Inherit ``spp.mixin.source.tracking`` in any model to enable source
-   tracking
--  Override ``_get_merge_snapshot()`` to customize which fields are
-   preserved in merge audit trail
--  Override ``_transfer_relationships()`` or ``_transfer_memberships()``
-   to customize merge behavior
+- Override ``_selection_collection_method()`` to add custom collection
+  methods
+- Inherit ``spp.mixin.source.tracking`` in any model to enable source
+  tracking
+- Override ``_get_merge_snapshot()`` to customize which fields are
+  preserved in merge audit trail
+- Override ``_transfer_relationships()`` or ``_transfer_memberships()``
+  to customize merge behavior
 
 Configuration
 ~~~~~~~~~~~~~

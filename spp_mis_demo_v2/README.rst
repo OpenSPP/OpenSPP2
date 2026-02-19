@@ -14,14 +14,17 @@ OpenSPP MIS Demo V2
    !! source digest: sha256:a4d9ec16bde9c632db1b47053b880917cea1b1ae6bdd11a1203c2d22eae165b0
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+    :target: https://odoo-community.org/page/development-status
+    :alt: Production/Stable
+.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
     :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_mis_demo_v2
     :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2|
+|badge1| |badge2| |badge3|
 
 Demo data generator for SP-MIS programs. Creates 6 social protection
 programs with CEL eligibility expressions, enrolls 8 demo personas with
@@ -32,22 +35,22 @@ Packs for eligibility rules.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  Generate 6 programs (Child Grant, Elderly Pension, Emergency Relief,
-   Cash Transfer, Disability Support, Food Assistance) with CEL
-   expressions
--  Enroll 8 demo personas with predefined stories and payment histories
-   covering all demo scenarios
--  Install Logic Packs from ``spp_studio`` for eligibility rules
-   (child_benefit, social_pension, vulnerability_assessment,
-   cash_transfer_basic, disability_assistance)
--  Activate registry variables (age, child_count, hh_total_income,
-   dependency_ratio, etc.) via post_init_hook
--  Generate volume data with configurable random enrollments for
-   dashboard testing
--  Create change requests at various workflow stages (draft, pending,
-   approved, rejected)
--  Cross-module integration: automatically creates GRM tickets and case
-   records when those modules are installed
+- Generate 6 programs (Child Grant, Elderly Pension, Emergency Relief,
+  Cash Transfer, Disability Support, Food Assistance) with CEL
+  expressions
+- Enroll 8 demo personas with predefined stories and payment histories
+  covering all demo scenarios
+- Install Logic Packs from ``spp_studio`` for eligibility rules
+  (child_benefit, social_pension, vulnerability_assessment,
+  cash_transfer_basic, disability_assistance)
+- Activate registry variables (age, child_count, hh_total_income,
+  dependency_ratio, etc.) via post_init_hook
+- Generate volume data with configurable random enrollments for
+  dashboard testing
+- Create change requests at various workflow stages (draft, pending,
+  approved, rejected)
+- Cross-module integration: automatically creates GRM tickets and case
+  records when those modules are installed
 
 Key Models
 ~~~~~~~~~~
@@ -87,28 +90,28 @@ Demo Programs
 
 All programs use CEL expressions with activated registry variables:
 
--  **Universal Child Grant**: ``r.is_group == true and child_count > 0``
-   (member aggregation)
--  **Elderly Social Pension**:
-   ``r.is_group == false and age >= retirement_age`` (age computation)
--  **Emergency Relief Fund**:
-   ``dependency_ratio >= 1.5 or (is_female_headed and elderly_count > 0)``
-   (compound conditions)
--  **Cash Transfer Program**:
-   ``hh_total_income < poverty_line and hh_size >= 2`` (income-based
-   targeting)
--  **Disability Support Grant**:
-   ``r.is_group == true and has_disabled_member`` (member existence
-   check)
--  **Food Assistance**: ``r.is_registrant == true and r.active == true``
-   (simple field comparison)
+- **Universal Child Grant**: ``r.is_group == true and child_count > 0``
+  (member aggregation)
+- **Elderly Social Pension**:
+  ``r.is_group == false and age >= retirement_age`` (age computation)
+- **Emergency Relief Fund**:
+  ``dependency_ratio >= 1.5 or (is_female_headed and elderly_count > 0)``
+  (compound conditions)
+- **Cash Transfer Program**:
+  ``hh_total_income < poverty_line and hh_size >= 2`` (income-based
+  targeting)
+- **Disability Support Grant**:
+  ``r.is_group == true and has_disabled_member`` (member existence
+  check)
+- **Food Assistance**: ``r.is_registrant == true and r.active == true``
+  (simple field comparison)
 
 UI Location
 ~~~~~~~~~~~
 
--  **Menu**: Settings > Demo Data > Load MIS Demo
--  **Form**: Wizard with generation options (demo mode, Logic Pack
-   installation, volume data configuration)
+- **Menu**: Settings > Demo Data > Load MIS Demo
+- **Form**: Wizard with generation options (demo mode, Logic Pack
+  installation, volume data configuration)
 
 Security
 ~~~~~~~~
@@ -122,11 +125,10 @@ Group                            Access
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Override ``_create_demo_programs()`` to customize program definitions
--  Override ``_enroll_demo_stories()`` to modify enrollment logic
--  Add custom demo modes by extending ``demo_mode`` selection field
--  Inherit ``spp.mis.demo.generator`` to add fields or generation
-   methods
+- Override ``_create_demo_programs()`` to customize program definitions
+- Override ``_enroll_demo_stories()`` to modify enrollment logic
+- Add custom demo modes by extending ``demo_mode`` selection field
+- Inherit ``spp.mis.demo.generator`` to add fields or generation methods
 
 Dependencies
 ~~~~~~~~~~~~

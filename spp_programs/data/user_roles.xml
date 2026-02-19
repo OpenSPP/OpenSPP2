@@ -1,11 +1,12 @@
 <odoo noupdate="1">
-
     <!-- Program Viewer Role -->
     <!-- For users who need read-only access to program data -->
     <record id="global_role_program_viewer" model="res.users.role">
         <field name="name">Program Viewer</field>
         <field name="role_type">global</field>
-        <field name="comment">Read-only access to program, cycle, and entitlement records.</field>
+        <field
+            name="comment"
+        >Read-only access to program, cycle, and entitlement records.</field>
         <field
             name="implied_ids"
             eval="[
@@ -89,5 +90,4 @@
             ]"
         />
     </record>
-
 </odoo>

@@ -9,7 +9,7 @@
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Stable",
+    "development_status": "Production/Stable",
     "maintainers": ["jeremi", "gonzalesedwin1123"],
     "depends": [
         # Core Registry
@@ -51,29 +51,4 @@
     "application": False,
     "installable": True,
     "auto_install": False,
-    "description": """
-OpenSPP Starter: Social Registry
-================================
-
-A comprehensive bundle for Social Registry deployments. This module installs
-all necessary components for a production-ready social registry system.
-
-Included Capabilities
----------------------
-- **Registry Management**: Track individuals and groups (households)
-- **Change Requests**: Base CR types (Edit Individual/Group, Update ID) for data maintenance
-- **API V2**: Standards-aligned REST API with consent-based access
-- **DCI Integration**: Connect to external registries (CRVS, IBR, DR)
-- **Logic Studio**: No-code CEL expressions for search and filtering
-- **Vocabularies**: Standardized code lists (gender, relationships, etc.)
-
-Use Cases
----------
-- National Social Registries
-- Humanitarian Registration Systems
-- Population Databases
-- ID Management Systems (without program enrollment)
-
-For SP-MIS with program management, use ``spp_starter_sp_mis`` instead.
-    """,
 }

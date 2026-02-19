@@ -11,12 +11,7 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         <field name="model">spp.gis.report.data</field>
         <field name="priority">10</field>
         <field name="arch" type="xml">
-            <list
-                create="0"
-                delete="0"
-                edit="0"
-                default_order="area_level, area_name"
-            >
+            <list create="0" delete="0" edit="0" default_order="area_level, area_name">
                 <field name="area_code" />
                 <field name="area_name" />
                 <field name="area_level" />
@@ -47,13 +42,29 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 
                 <separator />
 
-                <filter name="rollup_only" string="Rollup Values" domain="[('is_rollup', '=', True)]" />
-                <filter name="base_only" string="Base Values" domain="[('is_rollup', '=', False)]" />
+                <filter
+                    name="rollup_only"
+                    string="Rollup Values"
+                    domain="[('is_rollup', '=', True)]"
+                />
+                <filter
+                    name="base_only"
+                    string="Base Values"
+                    domain="[('is_rollup', '=', False)]"
+                />
 
                 <separator />
 
-                <filter name="group_area_level" string="Area Level" context="{'group_by': 'area_level'}" />
-                <filter name="group_bucket" string="Bucket" context="{'group_by': 'bucket_label'}" />
+                <filter
+                    name="group_area_level"
+                    string="Area Level"
+                    context="{'group_by': 'area_level'}"
+                />
+                <filter
+                    name="group_bucket"
+                    string="Bucket"
+                    context="{'group_by': 'bucket_label'}"
+                />
             </search>
         </field>
     </record>
@@ -101,14 +112,27 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         </group>
                         <group name="metadata">
                             <field name="is_rollup" readonly="1" />
-                            <field name="source_area_count" readonly="1" invisible="not is_rollup" />
+                            <field
+                                name="source_area_count"
+                                readonly="1"
+                                invisible="not is_rollup"
+                            />
                             <field name="computed_at" readonly="1" />
                             <field name="is_stale" readonly="1" />
                         </group>
                     </group>
 
-                    <separator string="Disaggregation Data" invisible="not disaggregation" />
-                    <field name="disaggregation" readonly="1" invisible="not disaggregation" widget="ace" options="{'mode': 'json'}" />
+                    <separator
+                        string="Disaggregation Data"
+                        invisible="not disaggregation"
+                    />
+                    <field
+                        name="disaggregation"
+                        readonly="1"
+                        invisible="not disaggregation"
+                        widget="ace"
+                        options="{'mode': 'json'}"
+                    />
                 </sheet>
             </form>
         </field>

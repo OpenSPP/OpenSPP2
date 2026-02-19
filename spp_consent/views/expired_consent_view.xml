@@ -32,7 +32,10 @@
         </field>
     </record>
 
-    <record id="action_spp_expired_consent_tree_view" model="ir.actions.act_window.view">
+    <record
+        id="action_spp_expired_consent_tree_view"
+        model="ir.actions.act_window.view"
+    >
         <field name="sequence" eval="1" />
         <field name="view_mode">list</field>
         <field name="view_id" ref="view_spp_expired_consent_tree" />

@@ -212,8 +212,7 @@ class SppAuditRule(models.Model):
                             "res_model": "spp.audit.log",
                             "binding_model_id": rec.model_id.id,
                             "binding_view_types": "form",
-                            "domain": "[('model_id','=', {}), "
-                            "('res_id', '=', active_id), ('method', 'in', {})]".format(
+                            "domain": "[('model_id','=', {}), ('res_id', '=', active_id), ('method', 'in', {})]".format(
                                 rec.model_id.id,
                                 [method.replace("_", "") for method in self._methods],
                             ),
@@ -243,7 +242,7 @@ class SppAuditRule(models.Model):
         elif method == "unlink":
             domain.append(("is_log_unlink", "=", True))
 
-        return self.env["spp.audit.rule"].sudo().search(domain)
+        return self.env["spp.audit.rule"].sudo().search(domain)  # nosemgrep: odoo-sudo-without-context
 
     @api.model
     def _register_hook(self, ids=None):
@@ -258,7 +257,7 @@ class SppAuditRule(models.Model):
         """
         # Run hook registration with sudo() as a system-level operation
         # restricted by spp_audit.group_audit_manager ACLs.
-        self = (
+        self = (  # nosemgrep: odoo-sudo-without-context
             self.sudo()
         )  # nosemgrep: odoo-sudo-without-context - Audit hook wiring runs as a trusted admin-only operation.
         updated = False
@@ -518,7 +517,8 @@ class SppAuditRule(models.Model):
             # Use sudo() here so audit logging remains reliable even if the caller
             # has limited read access on spp.audit.rule; access is controlled by
             # spp_audit.group_audit_manager and hook wiring uses sudo() already.
-            "model_id": self.sudo().model_id.id,  # nosemgrep: odoo-sudo-without-context - System-level audit logging of model operations.
+            "model_id": self.sudo().model_id.id,  # nosemgrep: odoo-sudo-without-context
+            # System-level audit logging of model operations.
             "res_id": res_id,
             "method": method,
             "data": repr(data[res_id]),
@@ -566,6 +566,7 @@ class SppAuditRule(models.Model):
             if AuditConfig.get_bool("backend_db", env=self.env):
                 audit_log_vals = rec.get_audit_log_vals(res_id, method, data)
                 # Pass is_post_to_thread to control mail.thread posting
+                # nosemgrep: odoo-sudo-without-context
                 self.env["spp.audit.log"].sudo().with_context(audit_post_to_thread=rec.is_post_to_thread).create(
                     audit_log_vals
                 )
@@ -637,6 +638,7 @@ class SppAuditRule(models.Model):
                 "parent_res_ids_str": ",".join(parent_res_ids) if parent_res_ids else "",
             }
 
+            # nosemgrep: odoo-sudo-without-context
             self.env["spp.audit.log"].sudo().with_context(audit_post_to_thread=rule.is_post_to_thread).create(
                 audit_log_vals
             )

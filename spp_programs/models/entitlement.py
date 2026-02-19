@@ -511,7 +511,8 @@ class SPPEntitlement(models.Model):
                 if approval_review:
                     raise UserError(
                         _(
-                            "The entitlement has existing approved approval reviews. Please reset to draft from the approval review."
+                            "The entitlement has existing approved approval reviews. Please reset to "
+                            "draft from the approval review."
                         )
                     )
 
@@ -969,7 +970,8 @@ class InKindEntitlement(models.Model):
                 if approval_review:
                     raise UserError(
                         _(
-                            "The entitlement has existing approved approval reviews. Please reset to draft from the approval review."
+                            "The entitlement has existing approved approval reviews. Please reset to "
+                            "draft from the approval review."
                         )
                     )
 
@@ -1114,10 +1116,12 @@ class InKindEntitlement(models.Model):
         incoming_moves = self.env["stock.move"]
 
         moves = self.move_ids.filtered(
-            lambda r: r.state != "cancel"
-            and not getattr(r, "scrapped", False)
-            and not r.scrap_id
-            and self.product_id == r.product_id
+            lambda r: (
+                r.state != "cancel"
+                and not getattr(r, "scrapped", False)
+                and not r.scrap_id
+                and self.product_id == r.product_id
+            )
         )
 
         # Prefetch location_dest_id to avoid N+1 queries in loop

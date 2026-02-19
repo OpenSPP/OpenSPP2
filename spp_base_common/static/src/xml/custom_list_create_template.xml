@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+    <!-- Generic extensible create button for ListView.
+         Any module can set this.customListCreateButton = {label, title, className}
+         and override onCustomListCreate() in their ListController patch
+         to replace the default "New" button with a custom one. -->
+    <t t-inherit="web.ListView" t-inherit-mode="extension">
+        <xpath
+            expr="//Layout/t[@t-set-slot='control-panel-create-button']"
+            position="replace"
+        >
+            <t t-set-slot="control-panel-create-button">
+                <t t-if="customListCreateButton">
+                    <button
+                        t-if="!editedRecord and activeActions.create and props.showButtons"
+                        type="button"
+                        t-att-class="'btn btn-primary ' + (customListCreateButton.className or '')"
+                        data-hotkey="c"
+                        t-att-title="customListCreateButton.title or ''"
+                        t-on-click="onCustomListCreate"
+                        t-esc="customListCreateButton.label"
+                    />
+                </t>
+                <t t-else="">
+                    <button
+                        t-if="!editedRecord and activeActions.create and props.showButtons"
+                        type="button"
+                        class="btn btn-primary o_list_button_add"
+                        data-hotkey="c"
+                        t-on-click="onClickCreate"
+                        data-bounce-button=""
+                    >New</button>
+                    <t
+                        t-if="props.showButtons and !env.inDialog"
+                        t-call="web.ListView.EditableButtons"
+                    />
+                </t>
+            </t>
+        </xpath>
+    </t>
+
+    <!-- Generic extensible form create button hide.
+         Any module can set this.hideFormCreateButton = true in their
+         FormController patch to hide the default "New" button. -->
+    <t t-inherit="web.FormView" t-inherit-mode="extension">
+        <xpath expr="//button[hasclass('o_form_button_create')]" position="attributes">
+            <attribute name="t-if">!hideFormCreateButton</attribute>
+        </xpath>
+    </t>
+
+</templates>

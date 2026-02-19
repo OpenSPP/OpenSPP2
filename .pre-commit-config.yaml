@@ -56,6 +56,7 @@ repos:
           - --branch=19.0
           - --org-name=OpenSPP
           - --repo-name=OpenSPP2
+          - --template-filename=tools/readme_template.rst.jinja
           - --if-source-changed
           - --keep-source-digest
           - --convert-fragments-to-markdown
@@ -138,6 +139,7 @@ repos:
       - id: pylint_odoo
         args:
           - --rcfile=.pylintrc-mandatory
+        exclude: ^spp$|^scripts/|^(base_user_role|endpoint_route_handler|extendable|extendable_fastapi|fastapi|openspp-vocabularies|openspp|theme_openspp_muk|queue_job)/
   # ============================================================================
   # OpenSPP Custom Linting Rules
   # Based on docs/principles/ - see scripts/lint/README.md for details
@@ -147,7 +149,8 @@ repos:
       # Phase 1: Simple pattern-based checks (pygrep)
       - id: openspp-no-assertraises-tuple
         name: "OpenSPP: No tuple in assertRaises"
-        description: "Odoo's assertRaises doesn't support tuple of exceptions like stdlib unittest"
+        description:
+          "Odoo's assertRaises doesn't support tuple of exceptions like stdlib unittest"
         entry: 'self\.assertRaises\s*\(\s*\('
         language: pygrep
         types: [python]
@@ -202,7 +205,8 @@ repos:
       # Phase 2: Compliance check (security spec validation)
       - id: openspp-compliance-check
         name: "OpenSPP: Security compliance check"
-        description: "Validate modules with compliance.yaml against actual security config"
+        description:
+          "Validate modules with compliance.yaml against actual security config"
         entry: python -m scripts.compliance.checker --all
         language: python
         additional_dependencies:
@@ -236,7 +240,9 @@ repos:
       # Phase 3: UI patterns check (warning only)
       - id: openspp-check-ui
         name: "OpenSPP: UI patterns"
-        description: "Check list limits, sample data, XPath syntax, statusbar location, extension points"
+        description:
+          "Check list limits, sample data, XPath syntax, statusbar location, extension
+          points"
         entry: python scripts/lint/check_ui_patterns.py
         language: python
         additional_dependencies:
@@ -272,7 +278,8 @@ repos:
       # API authentication enforcement
       - id: openspp-check-api-auth
         name: "OpenSPP: API endpoint authentication"
-        description: "Verify all API endpoints require authentication (allowlist for public)"
+        description:
+          "Verify all API endpoints require authentication (allowlist for public)"
         entry: python scripts/audit-api-auth.py --strict
         language: python
         pass_filenames: false
@@ -293,6 +300,7 @@ repos:
     hooks:
       - id: semgrep
         args: ["--config", ".semgrep/", "--error", "--quiet"]
+        additional_dependencies: ["setuptools<82"]
         # Only scan OpenSPP spp_* modules (not scripts, endpoint handlers, etc.)
         files: ^spp_
         # Exclude test files, migrations, and demo-only modules

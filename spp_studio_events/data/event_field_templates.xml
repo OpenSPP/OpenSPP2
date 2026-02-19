@@ -1,277 +1,294 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
-        <!-- ══════════════════════════════════════════════════════════════════ -->
-        <!-- INCOME ASSESSMENT TEMPLATE -->
-        <!-- ══════════════════════════════════════════════════════════════════ -->
-        <record id="template_income_assessment" model="spp.studio.event.field.template">
-            <field name="name">Income Assessment</field>
-            <field name="code">income_assessment</field>
-            <field name="category">economic</field>
-            <field name="sequence">10</field>
-            <field name="description">Standard fields for assessing household income sources and amounts.</field>
-        </record>
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- INCOME ASSESSMENT TEMPLATE -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <record id="template_income_assessment" model="spp.studio.event.field.template">
+        <field name="name">Income Assessment</field>
+        <field name="code">income_assessment</field>
+        <field name="category">economic</field>
+        <field name="sequence">10</field>
+        <field
+            name="description"
+        >Standard fields for assessing household income sources and amounts.</field>
+    </record>
 
-        <record id="template_income_line_1" model="spp.studio.event.field.template.line">
-            <field name="template_id" ref="template_income_assessment"/>
-            <field name="label">Monthly Income</field>
-            <field name="field_type">decimal</field>
-            <field name="is_required">True</field>
-            <field name="help_text">Total monthly income from all sources</field>
-            <field name="validation_type">range</field>
-            <field name="validation_min">0</field>
-            <field name="sequence">10</field>
-        </record>
+    <record id="template_income_line_1" model="spp.studio.event.field.template.line">
+        <field name="template_id" ref="template_income_assessment" />
+        <field name="label">Monthly Income</field>
+        <field name="field_type">decimal</field>
+        <field name="is_required">True</field>
+        <field name="help_text">Total monthly income from all sources</field>
+        <field name="validation_type">range</field>
+        <field name="validation_min">0</field>
+        <field name="sequence">10</field>
+    </record>
 
-        <record id="template_income_line_2" model="spp.studio.event.field.template.line">
-            <field name="template_id" ref="template_income_assessment"/>
-            <field name="label">Income Source</field>
-            <field name="field_type">selection</field>
-            <field name="is_required">True</field>
-            <field name="selection_options">employment|Employment
+    <record id="template_income_line_2" model="spp.studio.event.field.template.line">
+        <field name="template_id" ref="template_income_assessment" />
+        <field name="label">Income Source</field>
+        <field name="field_type">selection</field>
+        <field name="is_required">True</field>
+        <field name="selection_options">employment|Employment
 self_employment|Self-Employment
 agriculture|Agriculture
 remittances|Remittances
 pension|Pension
 government|Government Benefits
 other|Other</field>
-            <field name="sequence">20</field>
-        </record>
+        <field name="sequence">20</field>
+    </record>
 
-        <record id="template_income_line_3" model="spp.studio.event.field.template.line">
-            <field name="template_id" ref="template_income_assessment"/>
-            <field name="label">Number of Income Earners</field>
-            <field name="field_type">integer</field>
-            <field name="is_required">False</field>
-            <field name="validation_type">range</field>
-            <field name="validation_min">0</field>
-            <field name="validation_max">20</field>
-            <field name="sequence">30</field>
-        </record>
+    <record id="template_income_line_3" model="spp.studio.event.field.template.line">
+        <field name="template_id" ref="template_income_assessment" />
+        <field name="label">Number of Income Earners</field>
+        <field name="field_type">integer</field>
+        <field name="is_required">False</field>
+        <field name="validation_type">range</field>
+        <field name="validation_min">0</field>
+        <field name="validation_max">20</field>
+        <field name="sequence">30</field>
+    </record>
 
-        <record id="template_income_line_4" model="spp.studio.event.field.template.line">
-            <field name="template_id" ref="template_income_assessment"/>
-            <field name="label">Additional Notes</field>
-            <field name="field_type">long_text</field>
-            <field name="is_required">False</field>
-            <field name="sequence">40</field>
-        </record>
+    <record id="template_income_line_4" model="spp.studio.event.field.template.line">
+        <field name="template_id" ref="template_income_assessment" />
+        <field name="label">Additional Notes</field>
+        <field name="field_type">long_text</field>
+        <field name="is_required">False</field>
+        <field name="sequence">40</field>
+    </record>
 
-        <!-- ══════════════════════════════════════════════════════════════════ -->
-        <!-- HEALTH SCREENING TEMPLATE -->
-        <!-- ══════════════════════════════════════════════════════════════════ -->
-        <record id="template_health_screening" model="spp.studio.event.field.template">
-            <field name="name">Health Screening</field>
-            <field name="code">health_screening</field>
-            <field name="category">health</field>
-            <field name="sequence">20</field>
-            <field name="description">Basic health screening fields for community health assessments.</field>
-        </record>
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- HEALTH SCREENING TEMPLATE -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <record id="template_health_screening" model="spp.studio.event.field.template">
+        <field name="name">Health Screening</field>
+        <field name="code">health_screening</field>
+        <field name="category">health</field>
+        <field name="sequence">20</field>
+        <field
+            name="description"
+        >Basic health screening fields for community health assessments.</field>
+    </record>
 
-        <record id="template_health_line_1" model="spp.studio.event.field.template.line">
-            <field name="template_id" ref="template_health_screening"/>
-            <field name="label">Height (cm)</field>
-            <field name="field_type">decimal</field>
-            <field name="is_required">False</field>
-            <field name="validation_type">range</field>
-            <field name="validation_min">30</field>
-            <field name="validation_max">250</field>
-            <field name="validation_error_message">Height must be between 30 and 250 cm</field>
-            <field name="sequence">10</field>
-        </record>
+    <record id="template_health_line_1" model="spp.studio.event.field.template.line">
+        <field name="template_id" ref="template_health_screening" />
+        <field name="label">Height (cm)</field>
+        <field name="field_type">decimal</field>
+        <field name="is_required">False</field>
+        <field name="validation_type">range</field>
+        <field name="validation_min">30</field>
+        <field name="validation_max">250</field>
+        <field
+            name="validation_error_message"
+        >Height must be between 30 and 250 cm</field>
+        <field name="sequence">10</field>
+    </record>
 
-        <record id="template_health_line_2" model="spp.studio.event.field.template.line">
-            <field name="template_id" ref="template_health_screening"/>
-            <field name="label">Weight (kg)</field>
-            <field name="field_type">decimal</field>
-            <field name="is_required">False</field>
-            <field name="validation_type">range</field>
-            <field name="validation_min">1</field>
-            <field name="validation_max">500</field>
-            <field name="validation_error_message">Weight must be between 1 and 500 kg</field>
-            <field name="sequence">20</field>
-        </record>
+    <record id="template_health_line_2" model="spp.studio.event.field.template.line">
+        <field name="template_id" ref="template_health_screening" />
+        <field name="label">Weight (kg)</field>
+        <field name="field_type">decimal</field>
+        <field name="is_required">False</field>
+        <field name="validation_type">range</field>
+        <field name="validation_min">1</field>
+        <field name="validation_max">500</field>
+        <field
+            name="validation_error_message"
+        >Weight must be between 1 and 500 kg</field>
+        <field name="sequence">20</field>
+    </record>
 
-        <record id="template_health_line_3" model="spp.studio.event.field.template.line">
-            <field name="template_id" ref="template_health_screening"/>
-            <field name="label">Blood Pressure</field>
-            <field name="field_type">text</field>
-            <field name="is_required">False</field>
-            <field name="help_text">Format: systolic/diastolic (e.g., 120/80)</field>
-            <field name="validation_type">regex</field>
-            <field name="validation_regex">^\d{2,3}/\d{2,3}$</field>
-            <field name="validation_error_message">Please enter blood pressure in format: 120/80</field>
-            <field name="sequence">30</field>
-        </record>
+    <record id="template_health_line_3" model="spp.studio.event.field.template.line">
+        <field name="template_id" ref="template_health_screening" />
+        <field name="label">Blood Pressure</field>
+        <field name="field_type">text</field>
+        <field name="is_required">False</field>
+        <field name="help_text">Format: systolic/diastolic (e.g., 120/80)</field>
+        <field name="validation_type">regex</field>
+        <field name="validation_regex">^\d{2,3}/\d{2,3}$</field>
+        <field
+            name="validation_error_message"
+        >Please enter blood pressure in format: 120/80</field>
+        <field name="sequence">30</field>
+    </record>
 
-        <record id="template_health_line_4" model="spp.studio.event.field.template.line">
-            <field name="template_id" ref="template_health_screening"/>
-            <field name="label">Health Status</field>
-            <field name="field_type">selection</field>
-            <field name="is_required">True</field>
-            <field name="selection_options">good|Good
+    <record id="template_health_line_4" model="spp.studio.event.field.template.line">
+        <field name="template_id" ref="template_health_screening" />
+        <field name="label">Health Status</field>
+        <field name="field_type">selection</field>
+        <field name="is_required">True</field>
+        <field name="selection_options">good|Good
 fair|Fair
 poor|Poor
 critical|Critical</field>
-            <field name="sequence">40</field>
-        </record>
+        <field name="sequence">40</field>
+    </record>
 
-        <record id="template_health_line_5" model="spp.studio.event.field.template.line">
-            <field name="template_id" ref="template_health_screening"/>
-            <field name="label">Has Chronic Condition</field>
-            <field name="field_type">boolean</field>
-            <field name="is_required">False</field>
-            <field name="sequence">50</field>
-        </record>
+    <record id="template_health_line_5" model="spp.studio.event.field.template.line">
+        <field name="template_id" ref="template_health_screening" />
+        <field name="label">Has Chronic Condition</field>
+        <field name="field_type">boolean</field>
+        <field name="is_required">False</field>
+        <field name="sequence">50</field>
+    </record>
 
-        <record id="template_health_line_6" model="spp.studio.event.field.template.line">
-            <field name="template_id" ref="template_health_screening"/>
-            <field name="label">Medical Notes</field>
-            <field name="field_type">long_text</field>
-            <field name="is_required">False</field>
-            <field name="sequence">60</field>
-        </record>
+    <record id="template_health_line_6" model="spp.studio.event.field.template.line">
+        <field name="template_id" ref="template_health_screening" />
+        <field name="label">Medical Notes</field>
+        <field name="field_type">long_text</field>
+        <field name="is_required">False</field>
+        <field name="sequence">60</field>
+    </record>
 
-        <!-- ══════════════════════════════════════════════════════════════════ -->
-        <!-- FIELD VISIT TEMPLATE -->
-        <!-- ══════════════════════════════════════════════════════════════════ -->
-        <record id="template_field_visit" model="spp.studio.event.field.template">
-            <field name="name">Field Visit</field>
-            <field name="code">field_visit</field>
-            <field name="category">visit</field>
-            <field name="sequence">30</field>
-            <field name="description">Standard fields for recording field visits to beneficiaries.</field>
-        </record>
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- FIELD VISIT TEMPLATE -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <record id="template_field_visit" model="spp.studio.event.field.template">
+        <field name="name">Field Visit</field>
+        <field name="code">field_visit</field>
+        <field name="category">visit</field>
+        <field name="sequence">30</field>
+        <field
+            name="description"
+        >Standard fields for recording field visits to beneficiaries.</field>
+    </record>
 
-        <record id="template_visit_line_1" model="spp.studio.event.field.template.line">
-            <field name="template_id" ref="template_field_visit"/>
-            <field name="label">Visit Purpose</field>
-            <field name="field_type">selection</field>
-            <field name="is_required">True</field>
-            <field name="selection_options">verification|Verification
+    <record id="template_visit_line_1" model="spp.studio.event.field.template.line">
+        <field name="template_id" ref="template_field_visit" />
+        <field name="label">Visit Purpose</field>
+        <field name="field_type">selection</field>
+        <field name="is_required">True</field>
+        <field name="selection_options">verification|Verification
 monitoring|Monitoring
 follow_up|Follow-up
 complaint|Complaint Resolution
 other|Other</field>
-            <field name="sequence">10</field>
-        </record>
+        <field name="sequence">10</field>
+    </record>
 
-        <record id="template_visit_line_2" model="spp.studio.event.field.template.line">
-            <field name="template_id" ref="template_field_visit"/>
-            <field name="label">Beneficiary Present</field>
-            <field name="field_type">boolean</field>
-            <field name="is_required">True</field>
-            <field name="sequence">20</field>
-        </record>
+    <record id="template_visit_line_2" model="spp.studio.event.field.template.line">
+        <field name="template_id" ref="template_field_visit" />
+        <field name="label">Beneficiary Present</field>
+        <field name="field_type">boolean</field>
+        <field name="is_required">True</field>
+        <field name="sequence">20</field>
+    </record>
 
-        <record id="template_visit_line_3" model="spp.studio.event.field.template.line">
-            <field name="template_id" ref="template_field_visit"/>
-            <field name="label">Visit Outcome</field>
-            <field name="field_type">selection</field>
-            <field name="is_required">True</field>
-            <field name="selection_options">successful|Successful
+    <record id="template_visit_line_3" model="spp.studio.event.field.template.line">
+        <field name="template_id" ref="template_field_visit" />
+        <field name="label">Visit Outcome</field>
+        <field name="field_type">selection</field>
+        <field name="is_required">True</field>
+        <field name="selection_options">successful|Successful
 partial|Partial
 unsuccessful|Unsuccessful
 rescheduled|Rescheduled</field>
-            <field name="sequence">30</field>
-        </record>
+        <field name="sequence">30</field>
+    </record>
 
-        <record id="template_visit_line_4" model="spp.studio.event.field.template.line">
-            <field name="template_id" ref="template_field_visit"/>
-            <field name="label">Issues Identified</field>
-            <field name="field_type">multi_select</field>
-            <field name="is_required">False</field>
-            <field name="selection_options">none|No Issues
+    <record id="template_visit_line_4" model="spp.studio.event.field.template.line">
+        <field name="template_id" ref="template_field_visit" />
+        <field name="label">Issues Identified</field>
+        <field name="field_type">multi_select</field>
+        <field name="is_required">False</field>
+        <field name="selection_options">none|No Issues
 documentation|Documentation Issues
 eligibility|Eligibility Concerns
 payment|Payment Issues
 address|Address/Location Issues
 other|Other</field>
-            <field name="sequence">40</field>
-        </record>
+        <field name="sequence">40</field>
+    </record>
 
-        <record id="template_visit_line_5" model="spp.studio.event.field.template.line">
-            <field name="template_id" ref="template_field_visit"/>
-            <field name="label">Visit Notes</field>
-            <field name="field_type">long_text</field>
-            <field name="is_required">False</field>
-            <field name="help_text">Detailed notes about the visit</field>
-            <field name="sequence">50</field>
-        </record>
+    <record id="template_visit_line_5" model="spp.studio.event.field.template.line">
+        <field name="template_id" ref="template_field_visit" />
+        <field name="label">Visit Notes</field>
+        <field name="field_type">long_text</field>
+        <field name="is_required">False</field>
+        <field name="help_text">Detailed notes about the visit</field>
+        <field name="sequence">50</field>
+    </record>
 
-        <record id="template_visit_line_6" model="spp.studio.event.field.template.line">
-            <field name="template_id" ref="template_field_visit"/>
-            <field name="label">Follow-up Required</field>
-            <field name="field_type">boolean</field>
-            <field name="is_required">False</field>
-            <field name="sequence">60</field>
-        </record>
+    <record id="template_visit_line_6" model="spp.studio.event.field.template.line">
+        <field name="template_id" ref="template_field_visit" />
+        <field name="label">Follow-up Required</field>
+        <field name="field_type">boolean</field>
+        <field name="is_required">False</field>
+        <field name="sequence">60</field>
+    </record>
 
-        <record id="template_visit_line_7" model="spp.studio.event.field.template.line">
-            <field name="template_id" ref="template_field_visit"/>
-            <field name="label">Follow-up Date</field>
-            <field name="field_type">date</field>
-            <field name="is_required">False</field>
-            <field name="help_text">Date when follow-up is needed</field>
-            <field name="sequence">70</field>
-        </record>
+    <record id="template_visit_line_7" model="spp.studio.event.field.template.line">
+        <field name="template_id" ref="template_field_visit" />
+        <field name="label">Follow-up Date</field>
+        <field name="field_type">date</field>
+        <field name="is_required">False</field>
+        <field name="help_text">Date when follow-up is needed</field>
+        <field name="sequence">70</field>
+    </record>
 
-        <!-- ══════════════════════════════════════════════════════════════════ -->
-        <!-- VULNERABILITY ASSESSMENT TEMPLATE -->
-        <!-- ══════════════════════════════════════════════════════════════════ -->
-        <record id="template_vulnerability_assessment" model="spp.studio.event.field.template">
-            <field name="name">Vulnerability Assessment</field>
-            <field name="code">vulnerability_assessment</field>
-            <field name="category">survey</field>
-            <field name="sequence">40</field>
-            <field name="description">Fields for assessing household vulnerability levels.</field>
-        </record>
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- VULNERABILITY ASSESSMENT TEMPLATE -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <record
+        id="template_vulnerability_assessment"
+        model="spp.studio.event.field.template"
+    >
+        <field name="name">Vulnerability Assessment</field>
+        <field name="code">vulnerability_assessment</field>
+        <field name="category">survey</field>
+        <field name="sequence">40</field>
+        <field
+            name="description"
+        >Fields for assessing household vulnerability levels.</field>
+    </record>
 
-        <record id="template_vuln_line_1" model="spp.studio.event.field.template.line">
-            <field name="template_id" ref="template_vulnerability_assessment"/>
-            <field name="label">Food Security Score</field>
-            <field name="field_type">integer</field>
-            <field name="is_required">True</field>
-            <field name="help_text">Score from 1 (severe insecurity) to 5 (secure)</field>
-            <field name="validation_type">range</field>
-            <field name="validation_min">1</field>
-            <field name="validation_max">5</field>
-            <field name="sequence">10</field>
-        </record>
+    <record id="template_vuln_line_1" model="spp.studio.event.field.template.line">
+        <field name="template_id" ref="template_vulnerability_assessment" />
+        <field name="label">Food Security Score</field>
+        <field name="field_type">integer</field>
+        <field name="is_required">True</field>
+        <field name="help_text">Score from 1 (severe insecurity) to 5 (secure)</field>
+        <field name="validation_type">range</field>
+        <field name="validation_min">1</field>
+        <field name="validation_max">5</field>
+        <field name="sequence">10</field>
+    </record>
 
-        <record id="template_vuln_line_2" model="spp.studio.event.field.template.line">
-            <field name="template_id" ref="template_vulnerability_assessment"/>
-            <field name="label">Housing Quality</field>
-            <field name="field_type">selection</field>
-            <field name="is_required">True</field>
-            <field name="selection_options">permanent|Permanent Structure
+    <record id="template_vuln_line_2" model="spp.studio.event.field.template.line">
+        <field name="template_id" ref="template_vulnerability_assessment" />
+        <field name="label">Housing Quality</field>
+        <field name="field_type">selection</field>
+        <field name="is_required">True</field>
+        <field name="selection_options">permanent|Permanent Structure
 semi_permanent|Semi-Permanent
 temporary|Temporary/Makeshift
 homeless|No Shelter</field>
-            <field name="sequence">20</field>
-        </record>
+        <field name="sequence">20</field>
+    </record>
 
-        <record id="template_vuln_line_3" model="spp.studio.event.field.template.line">
-            <field name="template_id" ref="template_vulnerability_assessment"/>
-            <field name="label">Access to Clean Water</field>
-            <field name="field_type">boolean</field>
-            <field name="is_required">True</field>
-            <field name="sequence">30</field>
-        </record>
+    <record id="template_vuln_line_3" model="spp.studio.event.field.template.line">
+        <field name="template_id" ref="template_vulnerability_assessment" />
+        <field name="label">Access to Clean Water</field>
+        <field name="field_type">boolean</field>
+        <field name="is_required">True</field>
+        <field name="sequence">30</field>
+    </record>
 
-        <record id="template_vuln_line_4" model="spp.studio.event.field.template.line">
-            <field name="template_id" ref="template_vulnerability_assessment"/>
-            <field name="label">Access to Sanitation</field>
-            <field name="field_type">boolean</field>
-            <field name="is_required">True</field>
-            <field name="sequence">40</field>
-        </record>
+    <record id="template_vuln_line_4" model="spp.studio.event.field.template.line">
+        <field name="template_id" ref="template_vulnerability_assessment" />
+        <field name="label">Access to Sanitation</field>
+        <field name="field_type">boolean</field>
+        <field name="is_required">True</field>
+        <field name="sequence">40</field>
+    </record>
 
-        <record id="template_vuln_line_5" model="spp.studio.event.field.template.line">
-            <field name="template_id" ref="template_vulnerability_assessment"/>
-            <field name="label">Vulnerability Factors</field>
-            <field name="field_type">multi_select</field>
-            <field name="is_required">False</field>
-            <field name="selection_options">elderly|Elderly Head of Household
+    <record id="template_vuln_line_5" model="spp.studio.event.field.template.line">
+        <field name="template_id" ref="template_vulnerability_assessment" />
+        <field name="label">Vulnerability Factors</field>
+        <field name="field_type">multi_select</field>
+        <field name="is_required">False</field>
+        <field name="selection_options">elderly|Elderly Head of Household
 disabled|Disability in Household
 chronic_illness|Chronic Illness
 single_parent|Single Parent
@@ -279,26 +296,26 @@ large_family|Large Family (5+ dependents)
 unemployment|Unemployed Adults
 child_labor|Children Working
 no_education|No Education</field>
-            <field name="sequence">50</field>
-        </record>
+        <field name="sequence">50</field>
+    </record>
 
-        <record id="template_vuln_line_6" model="spp.studio.event.field.template.line">
-            <field name="template_id" ref="template_vulnerability_assessment"/>
-            <field name="label">Overall Vulnerability Level</field>
-            <field name="field_type">selection</field>
-            <field name="is_required">True</field>
-            <field name="selection_options">low|Low
+    <record id="template_vuln_line_6" model="spp.studio.event.field.template.line">
+        <field name="template_id" ref="template_vulnerability_assessment" />
+        <field name="label">Overall Vulnerability Level</field>
+        <field name="field_type">selection</field>
+        <field name="is_required">True</field>
+        <field name="selection_options">low|Low
 medium|Medium
 high|High
 critical|Critical</field>
-            <field name="sequence">60</field>
-        </record>
+        <field name="sequence">60</field>
+    </record>
 
-        <record id="template_vuln_line_7" model="spp.studio.event.field.template.line">
-            <field name="template_id" ref="template_vulnerability_assessment"/>
-            <field name="label">Assessor Notes</field>
-            <field name="field_type">long_text</field>
-            <field name="is_required">False</field>
-            <field name="sequence">70</field>
-        </record>
+    <record id="template_vuln_line_7" model="spp.studio.event.field.template.line">
+        <field name="template_id" ref="template_vulnerability_assessment" />
+        <field name="label">Assessor Notes</field>
+        <field name="field_type">long_text</field>
+        <field name="is_required">False</field>
+        <field name="sequence">70</field>
+    </record>
 </odoo>

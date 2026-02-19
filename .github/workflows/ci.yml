@@ -123,6 +123,7 @@ jobs:
     needs: [detect-changes, build]
     if: needs.detect-changes.outputs.has_modules == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -203,7 +204,6 @@ jobs:
                 --db_user=odoo \
                 --db_password=odoo \
                 --stop-after-init \
-                --no-http \
                 --data-dir /tmp/odoo-data \
                 -i ${{ matrix.module }} \
                 --test-tags=/${{ matrix.module }} \

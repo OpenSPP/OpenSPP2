@@ -14,14 +14,17 @@ OpenSPP Versioning
    !! source digest: sha256:7304782e7d5d94957092ee1284ec5ab3f5e0162f38a0c4c2f8c7e827fed7991a
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+    :target: https://odoo-community.org/page/development-status
+    :alt: Production/Stable
+.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
     :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_versioning
     :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2|
+|badge1| |badge2| |badge3|
 
 Foundation module providing version history, scheduled activation, and
 lifecycle management for any Odoo model. Stores field snapshots with
@@ -31,35 +34,35 @@ tracking to prevent archiving in-use artifacts.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  Store version snapshots in JSON with three relation strategies:
-   shallow (IDs), embed (snapshot data), follow (cascade versions)
--  Schedule versions for future activation via daily cron job with
-   supersession chain tracking
--  Optional approval workflow (draft → pending → approved →
-   scheduled/current) and test gate enforcement
--  Usage tracking prevents archiving artifacts referenced by programs or
-   consumers
+- Store version snapshots in JSON with three relation strategies:
+  shallow (IDs), embed (snapshot data), follow (cascade versions)
+- Schedule versions for future activation via daily cron job with
+  supersession chain tracking
+- Optional approval workflow (draft → pending → approved →
+  scheduled/current) and test gate enforcement
+- Usage tracking prevents archiving artifacts referenced by programs or
+  consumers
 
 Key Models
 ~~~~~~~~~~
 
-+----------------------------------+----------------------------------+
-| Model                            | Description                      |
-+==================================+==================================+
-| ``spp.versioned.mixin``          | Abstract mixin to add versioning |
-|                                  | capabilities to any model        |
-+----------------------------------+----------------------------------+
-| ``spp.artifact.version``         | Stores version snapshots with    |
-|                                  | state machine                    |
-|                                  | (draft/scheduled/current)        |
-+----------------------------------+----------------------------------+
-| ``spp.artifact.usage``           | Tracks where artifacts are used  |
-|                                  | (prevents orphan archiving)      |
-+----------------------------------+----------------------------------+
-| ``spp.ar                         | Wizard for scheduling version    |
-| tifact.version.schedule.wizard`` | activation with conflict         |
-|                                  | detection                        |
-+----------------------------------+----------------------------------+
++------------------------------------------+----------------------------------+
+| Model                                    | Description                      |
++==========================================+==================================+
+| ``spp.versioned.mixin``                  | Abstract mixin to add versioning |
+|                                          | capabilities to any model        |
++------------------------------------------+----------------------------------+
+| ``spp.artifact.version``                 | Stores version snapshots with    |
+|                                          | state machine                    |
+|                                          | (draft/scheduled/current)        |
++------------------------------------------+----------------------------------+
+| ``spp.artifact.usage``                   | Tracks where artifacts are used  |
+|                                          | (prevents orphan archiving)      |
++------------------------------------------+----------------------------------+
+| ``spp.artifact.version.schedule.wizard`` | Wizard for scheduling version    |
+|                                          | activation with conflict         |
+|                                          | detection                        |
++------------------------------------------+----------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -75,14 +78,14 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
--  Versioned artifacts call ``action_view_versions()`` to open version
-   history or ``action_open_schedule_wizard()`` for scheduling
--  When used with ``spp_studio``, menus appear under **Studio > Settings
-   > Versioning**:
+- Versioned artifacts call ``action_view_versions()`` to open version
+  history or ``action_open_schedule_wizard()`` for scheduling
+- When used with ``spp_studio``, menus appear under **Studio > Settings
+  > Versioning**:
 
-   -  **Scheduled Changes** (shows upcoming activations)
-   -  **Version History** (all versions across models)
-   -  **Artifact Usages** (dependency tracking)
+  - **Scheduled Changes** (shows upcoming activations)
+  - **Version History** (all versions across models)
+  - **Artifact Usages** (dependency tracking)
 
 Security
 ~~~~~~~~

@@ -53,16 +53,25 @@ const globalShortcutsService = {
                 }
 
                 if (actionName === "approve" && !cr.can_approve) {
-                    notification.add("You don't have permission to approve this request", {
-                        type: "warning",
-                    });
+                    notification.add(
+                        "You don't have permission to approve this request",
+                        {
+                            type: "warning",
+                        }
+                    );
                     return;
                 }
 
-                if ((actionName === "reject" || actionName === "revision") && !cr.can_reject) {
-                    notification.add("You don't have permission to reject this request", {
-                        type: "warning",
-                    });
+                if (
+                    (actionName === "reject" || actionName === "revision") &&
+                    !cr.can_reject
+                ) {
+                    notification.add(
+                        "You don't have permission to reject this request",
+                        {
+                            type: "warning",
+                        }
+                    );
                     return;
                 }
 

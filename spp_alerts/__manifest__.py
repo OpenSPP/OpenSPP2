@@ -9,7 +9,7 @@
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Alpha",
+    "development_status": "Beta",
     "maintainers": ["jeremi", "gonzalesedwin1123", "emjay0921"],
     "depends": [
         "base",
@@ -26,6 +26,7 @@
         "data/ir_sequence.xml",
         "data/vocabulary_namespaces.xml",
         "data/vocabulary_codes.xml",
+        "data/ir_cron.xml",
         # Views
         "views/alert_views.xml",
         "views/alert_rule_views.xml",

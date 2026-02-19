@@ -13,5 +13,4 @@
         <field name="res_id" eval="ref('spp_security.group_spp_admin')" />
         <field name="noupdate" eval="1" />
     </record>
-
 </odoo>

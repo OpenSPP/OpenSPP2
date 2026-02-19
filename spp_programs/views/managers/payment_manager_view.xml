@@ -64,7 +64,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                     <div class="oe_title mb24">
                         <label for="name" string="Name:" />
                         <h1>
-                            <field id="name" name="name" placeholder="Enter the Manager Name..." />
+                            <field
+                                id="name"
+                                name="name"
+                                placeholder="Enter the Manager Name..."
+                            />
                         </h1>
                         <field name="program_id" invisible="1" />
                     </div>
@@ -76,7 +80,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         />
                     </group>
                     <group name="tagconfig" invisible="not create_batch">
-                        <field name="batch_tag_ids" invisible="not create_batch" colspan="2">
+                        <field
+                            name="batch_tag_ids"
+                            invisible="not create_batch"
+                            colspan="2"
+                        >
                             <list>
                                 <field name="order" widget="handle" />
                                 <field name="name" />
@@ -111,7 +119,11 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                 <field name="name" />
                 <field name="program_id" />
                 <separator />
-                    <filter string="Program" name="grp_program_id" context="{'group_by': 'program_id'}" />
+                <filter
+                    string="Program"
+                    name="grp_program_id"
+                    context="{'group_by': 'program_id'}"
+                />
                 <!--<searchpanel>
                     <field name="group" icon="fa-users"/>
                 </searchpanel> -->
@@ -131,24 +143,30 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Add a Payment Manager!
-            </p><p>
+            </p>
+            <p>
                 Click the create button to enter a new payment manager.
             </p>
         </field>
     </record>
 
-    <record id="action_payment_manager_default_tree_view" model="ir.actions.act_window.view">
+    <record
+        id="action_payment_manager_default_tree_view"
+        model="ir.actions.act_window.view"
+    >
         <field name="sequence" eval="1" />
         <field name="view_mode">list</field>
         <field name="view_id" ref="view_payment_manager_default_tree" />
         <field name="act_window_id" ref="action_payment_manager_default" />
     </record>
 
-    <record id="action_payment_manager_default_form_view" model="ir.actions.act_window.view">
+    <record
+        id="action_payment_manager_default_form_view"
+        model="ir.actions.act_window.view"
+    >
         <field name="sequence" eval="1" />
         <field name="view_mode">form</field>
         <field name="view_id" ref="view_payment_manager_default_form" />
         <field name="act_window_id" ref="action_payment_manager_default" />
     </record>
-
 </odoo>

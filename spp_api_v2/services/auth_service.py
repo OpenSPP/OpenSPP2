@@ -8,6 +8,8 @@ authentication methods, enabling consistent consent and authorization handling.
 import logging
 from dataclasses import dataclass
 
+import odoo
+
 _logger = logging.getLogger(__name__)
 
 

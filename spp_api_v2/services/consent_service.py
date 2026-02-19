@@ -53,6 +53,7 @@ class ConsentService:
         # SECURITY: Use sudo() since API handlers run as Public user (uid=3)
         # which doesn't have res.partner read access by default.
         # Safe because we only read consent_summary (no PII exposed).
+        # nosemgrep: odoo-sudo-without-context, odoo-sudo-on-sensitive-models
         registrant = self.env["res.partner"].sudo().browse(registrant_id)
 
         # Get consent summary - returns {} if not set or False
@@ -123,7 +124,7 @@ class ConsentService:
         # CRITICAL: Must pass api_client for category-based consent matching
         # Use sudo() for access since API client user may not have direct consent access
         consent = (
-            self.env["spp.consent"]
+            self.env["spp.consent"]  # nosemgrep: odoo-sudo-without-context
             .sudo()
             .check_api_consent(
                 registrant_id,
@@ -138,7 +139,7 @@ class ConsentService:
             # between "no consent" and "scope mismatch"
             org_type_code = getattr(api_client, "organization_type", None) if api_client else None
             base_consent = (
-                self.env["spp.consent"]
+                self.env["spp.consent"]  # nosemgrep: odoo-sudo-without-context
                 .sudo()
                 .check_consent(
                     registrant_id=registrant_id,
@@ -456,7 +457,7 @@ class ConsentService:
                 # Slow path: Full consent query (for edge cases or when cache is stale)
                 # CRITICAL: Must pass api_client for category-based consent matching
                 consent = (
-                    self.env["spp.consent"]
+                    self.env["spp.consent"]  # nosemgrep: odoo-sudo-without-context
                     .sudo()
                     .check_api_consent(
                         registrant_id,

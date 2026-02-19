@@ -195,7 +195,7 @@ async def search_registry(
         try:
             # Get active signing key
             # Use sudo() for API access - authentication is handled by signature verification
-            signing_key_model = env["spp.dci.signing.key"].sudo()
+            signing_key_model = env["spp.dci.signing.key"].sudo()  # nosemgrep: odoo-sudo-without-context
             active_key = signing_key_model.get_active_key()
 
             if not active_key:

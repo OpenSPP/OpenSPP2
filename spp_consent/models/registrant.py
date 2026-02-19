@@ -53,8 +53,9 @@ class OpenSPPRegistrant(models.Model):
 
             # Filter for valid (given/renewed, not expired) consents
             valid_consents = all_consents.filtered(
-                lambda consent: consent.status in ("given", "renewed")
-                and (not consent.expiry or consent.expiry >= today)
+                lambda consent: (
+                    consent.status in ("given", "renewed") and (not consent.expiry or consent.expiry >= today)
+                )
             )
 
             if not valid_consents:

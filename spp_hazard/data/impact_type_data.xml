@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
     <!-- Default Impact Types -->
 
@@ -8,7 +8,9 @@
         <field name="code">DISPLACEMENT</field>
         <field name="category">physical</field>
         <field name="sequence">10</field>
-        <field name="description">Person or household forced to leave their home due to the hazard</field>
+        <field
+            name="description"
+        >Person or household forced to leave their home due to the hazard</field>
     </record>
 
     <record id="impact_type_property_damage" model="spp.hazard.impact.type">
@@ -16,7 +18,9 @@
         <field name="code">PROPERTY_DAMAGE</field>
         <field name="category">physical</field>
         <field name="sequence">20</field>
-        <field name="description">Damage to home, building, or other physical property</field>
+        <field
+            name="description"
+        >Damage to home, building, or other physical property</field>
     </record>
 
     <record id="impact_type_injury" model="spp.hazard.impact.type">
@@ -24,7 +28,9 @@
         <field name="code">INJURY</field>
         <field name="category">physical</field>
         <field name="sequence">30</field>
-        <field name="description">Physical injury sustained as a result of the hazard</field>
+        <field
+            name="description"
+        >Physical injury sustained as a result of the hazard</field>
     </record>
 
     <record id="impact_type_death" model="spp.hazard.impact.type">
@@ -49,7 +55,9 @@
         <field name="code">ASSET_DESTRUCTION</field>
         <field name="category">economic</field>
         <field name="sequence">60</field>
-        <field name="description">Destruction of productive assets (equipment, livestock, crops)</field>
+        <field
+            name="description"
+        >Destruction of productive assets (equipment, livestock, crops)</field>
     </record>
 
     <record id="impact_type_crop_loss" model="spp.hazard.impact.type">
@@ -65,7 +73,9 @@
         <field name="code">LIVESTOCK_LOSS</field>
         <field name="category">economic</field>
         <field name="sequence">75</field>
-        <field name="description">Loss of livestock (death, injury, or displacement)</field>
+        <field
+            name="description"
+        >Loss of livestock (death, injury, or displacement)</field>
     </record>
 
     <!-- Health Impacts -->
@@ -74,7 +84,9 @@
         <field name="code">ILLNESS</field>
         <field name="category">health</field>
         <field name="sequence">80</field>
-        <field name="description">Illness contracted as a result of the hazard (e.g., waterborne disease)</field>
+        <field
+            name="description"
+        >Illness contracted as a result of the hazard (e.g., waterborne disease)</field>
     </record>
 
     <record id="impact_type_disability" model="spp.hazard.impact.type">
@@ -82,7 +94,9 @@
         <field name="code">DISABILITY</field>
         <field name="category">health</field>
         <field name="sequence">90</field>
-        <field name="description">Permanent or long-term disability resulting from the hazard</field>
+        <field
+            name="description"
+        >Permanent or long-term disability resulting from the hazard</field>
     </record>
 
     <record id="impact_type_psychological" model="spp.hazard.impact.type">
@@ -90,7 +104,9 @@
         <field name="code">PSYCHOLOGICAL</field>
         <field name="category">health</field>
         <field name="sequence">100</field>
-        <field name="description">Mental health impacts including trauma, stress, anxiety</field>
+        <field
+            name="description"
+        >Mental health impacts including trauma, stress, anxiety</field>
     </record>
 
     <!-- Social Impacts -->
@@ -99,7 +115,9 @@
         <field name="code">FAMILY_SEPARATION</field>
         <field name="category">social</field>
         <field name="sequence">110</field>
-        <field name="description">Separation from family members due to the hazard</field>
+        <field
+            name="description"
+        >Separation from family members due to the hazard</field>
     </record>
 
     <record id="impact_type_community_disruption" model="spp.hazard.impact.type">
@@ -107,7 +125,9 @@
         <field name="code">COMMUNITY_DISRUPTION</field>
         <field name="category">social</field>
         <field name="sequence">120</field>
-        <field name="description">Disruption to community structures and social networks</field>
+        <field
+            name="description"
+        >Disruption to community structures and social networks</field>
     </record>
 
     <record id="impact_type_education_disruption" model="spp.hazard.impact.type">
@@ -115,6 +135,8 @@
         <field name="code">EDUCATION_DISRUPTION</field>
         <field name="category">social</field>
         <field name="sequence">130</field>
-        <field name="description">Interruption to education (school damage, displacement)</field>
+        <field
+            name="description"
+        >Interruption to education (school damage, displacement)</field>
     </record>
 </odoo>

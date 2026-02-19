@@ -398,10 +398,7 @@ class SPPGRMTicket(models.Model):
                     # For now, only supervisors/managers can move to approval-required stages
                     if not self.env.user.has_group("spp_grm.group_grm_supervisor"):
                         raise UserError(
-                            _(
-                                "Stage '%s' requires supervisor approval. "
-                                "Please request approval from your supervisor."
-                            )
+                            _("Stage '%s' requires supervisor approval. Please request approval from your supervisor.")
                             % new_stage.name
                         )
 
@@ -559,7 +556,7 @@ class SPPGRMTicket(models.Model):
             if ticket.sla_status == "breached" and old_status != "breached":
                 # Use sudo() to call _on_sla_breach in a new environment context
                 # to avoid triggering compute dependencies during the compute itself
-                ticket.sudo()._on_sla_breach()
+                ticket.sudo()._on_sla_breach()  # nosemgrep: odoo-sudo-without-context
 
     def _on_sla_breach(self):
         """Called when ticket SLA status changes to breached.
@@ -664,7 +661,7 @@ class SPPGRMTicket(models.Model):
         """Send the ticket submission confirmation email."""
         template = self.env.ref("spp_grm.ticket_submission_confirmation", raise_if_not_found=False)
         if template:
-            template.sudo().send_mail(
+            template.sudo().send_mail(  # nosemgrep: odoo-sudo-without-context
                 ticket.id,
                 force_send=True,
                 email_values={

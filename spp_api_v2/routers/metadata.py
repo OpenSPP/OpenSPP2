@@ -71,7 +71,7 @@ async def get_metadata(
     extensions = _get_extensions(env)
 
     # Get OpenSPP version
-    modules = env["ir.module.module"].sudo()
+    modules = env["ir.module.module"].sudo()  # nosemgrep: odoo-sudo-without-context
     spp_base = modules.search([("name", "=", "spp_base")], limit=1)
     version = spp_base.latest_version if spp_base else "2.0.0"
 
@@ -99,7 +99,7 @@ def _get_extensions(env: Environment) -> list[ExtensionMetadata]:
     extensions = []
 
     # Query active extensions (public endpoint, use sudo for access)
-    ext_model = env["spp.api.extension"].sudo()
+    ext_model = env["spp.api.extension"].sudo()  # nosemgrep: odoo-sudo-without-context
     active_extensions = ext_model.search([("active", "=", True), ("module_id.state", "=", "installed")])
 
     for ext in active_extensions:

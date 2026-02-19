@@ -14,9 +14,9 @@ OpenSPP Alerts
    !! source digest: sha256:7186687b7752640f90d9d124b0fc91967afaef27e84c13f22cbed7954ae9b438
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/maturity-Alpha-red.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Beta-yellow.png
     :target: https://odoo-community.org/page/development-status
-    :alt: Alpha
+    :alt: Beta
 .. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
@@ -35,27 +35,27 @@ domain-specific conditions.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  Track alert lifecycle through state machine: active → acknowledged →
-   resolved
--  Record resolution details including user, timestamp, and notes
--  Classify alerts by type using ``spp.vocabulary`` codes (threshold,
-   expiry, deadline, manual, system)
--  Prioritize alerts as low, medium, high, or critical
--  Send mail notifications via ``mail.thread`` integration
--  Auto-generate alert references in ALR-YYYY-NNNNN format
+- Track alert lifecycle through state machine: active → acknowledged →
+  resolved
+- Record resolution details including user, timestamp, and notes
+- Classify alerts by type using ``spp.vocabulary`` codes (threshold,
+  expiry, deadline, manual, system)
+- Prioritize alerts as low, medium, high, or critical
+- Send mail notifications via ``mail.thread`` integration
+- Auto-generate alert references in ALR-YYYY-NNNNN format
 
 Key Models
 ~~~~~~~~~~
 
-+--------------------+------------------------------------------------+
-| Model              | Description                                    |
-+====================+================================================+
-| ``spp.alert``      | Alert instance with state tracking and         |
-|                    | resolution workflow                            |
-+--------------------+------------------------------------------------+
-| ``spp.alert.rule`` | Rule configuration for monitoring criteria and |
-|                    | thresholds                                     |
-+--------------------+------------------------------------------------+
++--------------------+-------------------------------------------------+
+| Model              | Description                                     |
++====================+=================================================+
+| ``spp.alert``      | Alert instance with state tracking and          |
+|                    | resolution workflow                             |
++--------------------+-------------------------------------------------+
+| ``spp.alert.rule`` | Rule configuration for monitoring criteria and  |
+|                    | thresholds                                      |
++--------------------+-------------------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -71,9 +71,9 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
--  **Menu**: Settings > Technical > Alerts > Alerts
--  **Configuration**: Settings > Technical > Alerts > Alert Rules
--  **Form Tabs**: Details, Resolution (alerts); Thresholds (rules)
+- **Menu**: Settings > Technical > Alerts > Alerts
+- **Configuration**: Settings > Technical > Alerts > Alert Rules
+- **Form Tabs**: Details, Resolution (alerts); Thresholds (rules)
 
 Security
 ~~~~~~~~
@@ -89,24 +89,19 @@ Group                               Access
 Extension Points
 ~~~~~~~~~~~~~~~~
 
--  Inherit ``spp.alert`` to add domain-specific fields (e.g., stock
-   levels, document references)
--  Inherit ``spp.alert.rule`` to add custom threshold or evaluation
-   criteria
--  Override ``action_acknowledge()`` or ``action_resolve()`` to add
-   custom workflow steps
--  Consumer modules implement alert checking via cron jobs or event
-   handlers that evaluate rules and call ``create()`` on ``spp.alert``
+- Inherit ``spp.alert`` to add domain-specific fields (e.g., stock
+  levels, document references)
+- Inherit ``spp.alert.rule`` to add custom threshold or evaluation
+  criteria
+- Override ``action_acknowledge()`` or ``action_resolve()`` to add
+  custom workflow steps
+- Consumer modules implement alert checking via cron jobs or event
+  handlers that evaluate rules and call ``create()`` on ``spp.alert``
 
 Dependencies
 ~~~~~~~~~~~~
 
 ``base``, ``mail``, ``spp_security``, ``spp_vocabulary``
-
-.. IMPORTANT::
-   This is an alpha version, the data model and design can change at any time without warning.
-   Only for development or testing purpose, do not use in production.
-   `More details on development status <https://odoo-community.org/page/development-status>`_
 
 **Table of contents**
 

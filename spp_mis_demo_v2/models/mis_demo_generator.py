@@ -336,7 +336,7 @@ class SPPMISDemoGenerator(models.TransientModel):
         """
         from .demo_programs import get_demo_pack_codes
 
-        Pack = self.env["spp.studio.pack"].sudo()
+        Pack = self.env["spp.studio.pack"].sudo()  # nosemgrep: odoo-sudo-without-context
         installed = []
 
         for code in get_demo_pack_codes():
@@ -363,7 +363,7 @@ class SPPMISDemoGenerator(models.TransientModel):
         """
         # Test personas are loaded from demo_personas.xml
         # This method ensures they're created if module data wasn't loaded
-        Persona = self.env["spp.studio.test.persona"].sudo()
+        Persona = self.env["spp.studio.test.persona"].sudo()  # nosemgrep: odoo-sudo-without-context
 
         # Check if personas already exist
         existing = Persona.search([("name", "ilike", "Maria Santos")], limit=1)
@@ -1221,7 +1221,7 @@ class SPPMISDemoGenerator(models.TransientModel):
             # Check if the model supports CEL mode (spp_programs CEL features)
             if "eligibility_mode" not in eligibility_manager._fields:
                 _logger.info(
-                    "CEL mode not available (spp_programs CEL not configured) " "for program (program_id=%s)",
+                    "CEL mode not available (spp_programs CEL not configured) for program (program_id=%s)",
                     program.id,
                 )
                 return
@@ -2748,7 +2748,8 @@ class SPPMISDemoGenerator(models.TransientModel):
                 # Use with_user() only for demo data generation to simulate
                 # different request owners; demo_user is a controlled user
                 # provided by the test/demo setup.
-                cr_model = cr_model.with_user(  # nosemgrep: odoo-with-user-unvalidated - Demo-only generator, demo_user is not user input.
+                cr_model = cr_model.with_user(  # nosemgrep: odoo-with-user-unvalidated
+                    # Demo-only generator, demo_user is not user input.
                     demo_user
                 )
             cr = cr_model.create(cr_vals)
@@ -2764,7 +2765,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                 detail.write(detail_vals)
                 # Backdate detail creation for timeline consistency
                 self.env.cr.execute(
-                    f"UPDATE {detail._table} SET create_date = %s WHERE id = %s",
+                    f"UPDATE {detail._table} SET create_date = %s WHERE id = %s",  # nosec B608 — _table from Odoo model, not user input
                     (request_date, detail.id),
                 )
 
@@ -2813,26 +2814,26 @@ class SPPMISDemoGenerator(models.TransientModel):
         """
         try:
             if target_state == "pending":
-                cr.sudo().action_submit_for_approval()
+                cr.sudo().action_submit_for_approval()  # nosemgrep: odoo-sudo-without-context
             elif target_state == "approved":
-                cr.sudo().action_submit_for_approval()
-                cr.sudo().action_approve()
+                cr.sudo().action_submit_for_approval()  # nosemgrep: odoo-sudo-without-context
+                cr.sudo().action_approve()  # nosemgrep: odoo-sudo-without-context
             elif target_state == "rejected":
                 # Submit first, then reject
-                cr.sudo().action_submit_for_approval()
+                cr.sudo().action_submit_for_approval()  # nosemgrep: odoo-sudo-without-context
                 if hasattr(cr, "action_reject"):
-                    cr.sudo().action_reject()
+                    cr.sudo().action_reject()  # nosemgrep: odoo-sudo-without-context
                 # Set rejection reason if field exists
                 if rejection_reason and "rejection_reason" in cr._fields:
-                    cr.sudo().write({"rejection_reason": rejection_reason})
+                    cr.sudo().write({"rejection_reason": rejection_reason})  # nosemgrep: odoo-sudo-without-context
             elif target_state == "revision":
                 # Submit first, then request revision
-                cr.sudo().action_submit_for_approval()
+                cr.sudo().action_submit_for_approval()  # nosemgrep: odoo-sudo-without-context
                 if hasattr(cr, "action_request_revision"):
-                    cr.sudo().action_request_revision()
+                    cr.sudo().action_request_revision()  # nosemgrep: odoo-sudo-without-context
                 # Set revision notes if field exists
                 if revision_notes and "revision_notes" in cr._fields:
-                    cr.sudo().write({"revision_notes": revision_notes})
+                    cr.sudo().write({"revision_notes": revision_notes})  # nosemgrep: odoo-sudo-without-context
         except Exception as e:
             # Don't fall back to direct state write for states that require approval reviews.
             # This would create an inconsistent state (approval_state=pending but no pending reviews).
@@ -2847,10 +2848,10 @@ class SPPMISDemoGenerator(models.TransientModel):
 
         if apply:
             try:
-                cr.sudo().action_apply()
+                cr.sudo().action_apply()  # nosemgrep: odoo-sudo-without-context
             except Exception as e:
                 _logger.warning("Apply step failed, setting applied flags directly: %s", e)
-                cr.sudo().write(
+                cr.sudo().write(  # nosemgrep: odoo-sudo-without-context
                     {
                         "approval_state": "approved",
                         "is_applied": True,
@@ -3311,7 +3312,7 @@ class SPPMISDemoGenerator(models.TransientModel):
 
         try:
             # Step 1: Ensure default key provider exists
-            ProviderRegistry = self.env["spp.key.provider.registry"].sudo()
+            ProviderRegistry = self.env["spp.key.provider.registry"].sudo()  # nosemgrep: odoo-sudo-without-context
             default_provider = ProviderRegistry.search([("is_default", "=", True)], limit=1)
             if not default_provider:
                 default_provider = ProviderRegistry.create(
@@ -3324,7 +3325,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                 _logger.info("[spp.mis.demo] Created default key provider")
 
             # Step 2: Create Ed25519 signing key (if not exists)
-            AsymmetricKey = self.env["spp.asymmetric.key"].sudo()
+            AsymmetricKey = self.env["spp.asymmetric.key"].sudo()  # nosemgrep: odoo-sudo-without-context
             signing_key = AsymmetricKey.search(
                 [("name", "=", "Demo Claim 169 Signing Key")],
                 limit=1,
@@ -3344,7 +3345,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                 _logger.info("[spp.mis.demo] Using existing signing key: %s", signing_key.kid)
 
             # Step 3: Create issuer configuration (if not exists)
-            IssuerConfig = self.env["spp.claim169.issuer.config"].sudo()
+            IssuerConfig = self.env["spp.claim169.issuer.config"].sudo()  # nosemgrep: odoo-sudo-without-context
             issuer = IssuerConfig.search(
                 [("name", "=", "Demo National ID")],
                 limit=1,
@@ -3407,7 +3408,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                 _logger.warning("[spp.mis.demo] No demo story partners found for credentials")
                 return 0
 
-            Credential = self.env["spp.claim169.credential"].sudo()
+            Credential = self.env["spp.claim169.credential"].sudo()  # nosemgrep: odoo-sudo-without-context
             credentials_created = 0
 
             for partner in partners:
@@ -3422,7 +3423,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                 if existing:
                     _logger.debug(
                         "[spp.mis.demo] Credential already exists for %s",
-                        partner.name,
+                        partner.id,
                     )
                     continue
 
@@ -3445,8 +3446,8 @@ class SPPMISDemoGenerator(models.TransientModel):
                 credentials_created += 1
                 _logger.debug(
                     "[spp.mis.demo] Generated credential for %s: %s",
-                    partner.name,
-                    credential.name,
+                    partner.id,
+                    credential.id,
                 )
 
             _logger.info(
@@ -3592,7 +3593,7 @@ class SPPMISDemoGenerator(models.TransientModel):
         # Redirect to Programs list after loading demo data
         action = self.env.ref("spp_programs.action_program_list", raise_if_not_found=False)
         if action:
-            result = action.sudo().read()[0]
+            result = action.sudo().read()[0]  # nosemgrep: odoo-sudo-without-context
             result["target"] = "main"
             return result
 

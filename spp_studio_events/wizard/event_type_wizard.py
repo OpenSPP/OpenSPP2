@@ -114,7 +114,7 @@ class EventTypeBuilderWizard(models.TransientModel):
             self.step = "fields"
         elif self.step == "fields":
             if not self.field_line_ids:
-                raise ValidationError(_("Please add at least one field. " "Use the 'Add a line' button below."))
+                raise ValidationError(_("Please add at least one field. Use the 'Add a line' button below."))
             # Validate all fields
             for field in self.field_line_ids:
                 if not field.label:

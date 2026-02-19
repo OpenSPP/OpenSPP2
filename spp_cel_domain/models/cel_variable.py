@@ -354,7 +354,7 @@ class CELVariable(models.Model):
                 field_ref = f"m.{field_expr}" if not field_expr.startswith("m.") else field_expr
                 return f"{target}.{agg_type}(m, {field_ref}, {filter_expr})"
             _logger.warning(
-                "Variable '%s' uses %s aggregation without field. " "Please specify aggregate_field.",
+                "Variable '%s' uses %s aggregation without field. Please specify aggregate_field.",
                 self.name,
                 agg_type,
             )
@@ -621,7 +621,7 @@ class CELVariable(models.Model):
         pattern = PERIOD_KEY_PATTERNS.get(self.period_granularity)
         if pattern and not pattern.match(period_key):
             raise ValidationError(
-                _("Invalid period key '%(key)s' for variable '%(var)s'. " "Expected format for %(gran)s granularity.")
+                _("Invalid period key '%(key)s' for variable '%(var)s'. Expected format for %(gran)s granularity.")
                 % {"key": period_key, "var": self.name, "gran": self.period_granularity}
             )
 

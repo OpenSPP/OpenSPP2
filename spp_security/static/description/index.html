@@ -374,7 +374,7 @@ ul.auto-toc {
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! source digest: sha256:c840abe0695f0616775f34c46ab40c1e7bdf851d59940cc72b8ebcbba0860a30
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-<p><a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_security"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Production/Stable" src="https://img.shields.io/badge/maturity-Production%2FStable-green.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_security"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
 <p>Foundation security infrastructure for OpenSPP modules. Defines 22
 domain-specific security categories, the central Administrator group,
 two base record rules for multi-company and self-only access, and the
@@ -391,9 +391,8 @@ automatically inherits all manager-level permissions from installed
 domain modules</li>
 <li>Implement multi-company record rule for <tt class="docutils literal">res.partner</tt> restricting
 access to records from user’s companies</li>
-<li>Implement self-only record rule for <tt class="docutils literal">res.users</tt> restricting users
-in <tt class="docutils literal">group_access_restrict_self</tt> to viewing only their own user
-record</li>
+<li>Implement self-only record rule for <tt class="docutils literal">res.users</tt> restricting users in
+<tt class="docutils literal">group_access_restrict_self</tt> to viewing only their own user record</li>
 <li>Link Odoo system administrators (<tt class="docutils literal">base.group_system</tt>) to
 automatically inherit OpenSPP Administrator privileges</li>
 </ul>
@@ -412,9 +411,9 @@ appear under the appropriate category in <strong>Settings &gt; Users &amp; Compa
 rules.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="33%" />
-<col width="33%" />
-<col width="33%" />
+<col width="30%" />
+<col width="42%" />
+<col width="29%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Group</th>
@@ -429,10 +428,8 @@ rules.</p>
 permissions from all
 domains</td>
 </tr>
-<tr><td>Restricted: Self
-Only</td>
-<td><tt class="docutils literal">group_ac
-cess_restrict_self</tt></td>
+<tr><td>Restricted: Self Only</td>
+<td><tt class="docutils literal">group_access_restrict_self</tt></td>
 <td>Restricts users to
 viewing only their
 own record</td>

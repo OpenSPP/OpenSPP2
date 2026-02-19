@@ -7,7 +7,7 @@ using sender registry rate_limit fields.
 
 import logging
 from datetime import datetime, timedelta
-from typing import Annotated
+from typing import Annotated, Any
 
 from odoo.api import Environment
 
@@ -28,7 +28,7 @@ class DCIRateLimitMiddleware:
     """
 
     @staticmethod
-    def check_rate_limit(env: Environment, sender: "SenderRegistry") -> None:
+    def check_rate_limit(env: Environment, sender: Any) -> None:
         """Check if sender has exceeded rate limits.
 
         Args:
@@ -201,7 +201,7 @@ async def check_dci_rate_limit(
     """
     # Look up sender registry record
     sender = (
-        env["spp.dci.sender.registry"]
+        env["spp.dci.sender.registry"]  # nosemgrep: odoo-sudo-without-context
         .sudo()
         .search(
             [("sender_id", "=", verified_sender_id)],

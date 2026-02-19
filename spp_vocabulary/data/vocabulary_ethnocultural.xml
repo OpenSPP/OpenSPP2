@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
     <!--
         Ethnocultural Status Vocabulary
@@ -20,8 +20,12 @@
         <field name="name">Ethnocultural Status</field>
         <field name="namespace_uri">urn:openspp:vocab:ethnocultural-status</field>
         <field name="version">2024</field>
-        <field name="description">Ethnocultural status categories for social protection targeting. Based on UN Statistics Division terminology for ethnocultural characteristics. Provides self-identification status categories rather than specific ethnic group classifications, which vary by country. Deployments can extend with country-specific codes.</field>
-        <field name="reference_url">https://unstats.un.org/unsd/demographic/sconcerns/popchar/</field>
+        <field
+            name="description"
+        >Ethnocultural status categories for social protection targeting. Based on UN Statistics Division terminology for ethnocultural characteristics. Provides self-identification status categories rather than specific ethnic group classifications, which vary by country. Deployments can extend with country-specific codes.</field>
+        <field
+            name="reference_url"
+        >https://unstats.un.org/unsd/demographic/sconcerns/popchar/</field>
         <field name="is_system">False</field>
         <field name="is_hierarchical">False</field>
         <field name="domain">core</field>
@@ -29,55 +33,67 @@
 
     <!-- Indigenous Peoples -->
     <record id="ethnocultural_indigenous" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_ethnocultural"/>
+        <field name="vocabulary_id" ref="vocab_ethnocultural" />
         <field name="code">indigenous</field>
         <field name="display">Indigenous Peoples</field>
-        <field name="definition">Self-identified member of indigenous peoples. Indigenous peoples are inheritors and practitioners of unique cultures and ways of relating to people and the environment, retaining social, cultural, economic and political characteristics distinct from those of the dominant societies in which they live. (UN definition)</field>
+        <field
+            name="definition"
+        >Self-identified member of indigenous peoples. Indigenous peoples are inheritors and practitioners of unique cultures and ways of relating to people and the environment, retaining social, cultural, economic and political characteristics distinct from those of the dominant societies in which they live. (UN definition)</field>
         <field name="sequence">10</field>
     </record>
 
     <!-- Ethnic Minority -->
     <record id="ethnocultural_minority" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_ethnocultural"/>
+        <field name="vocabulary_id" ref="vocab_ethnocultural" />
         <field name="code">minority</field>
         <field name="display">Ethnic Minority</field>
-        <field name="definition">Self-identified member of an ethnic minority group. An ethnic minority is a group that is numerically smaller than the rest of the population and is in a non-dominant position, whose members possess ethnic, religious or linguistic characteristics differing from those of the rest of the population.</field>
+        <field
+            name="definition"
+        >Self-identified member of an ethnic minority group. An ethnic minority is a group that is numerically smaller than the rest of the population and is in a non-dominant position, whose members possess ethnic, religious or linguistic characteristics differing from those of the rest of the population.</field>
         <field name="sequence">20</field>
     </record>
 
     <!-- Ethnic Majority -->
     <record id="ethnocultural_majority" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_ethnocultural"/>
+        <field name="vocabulary_id" ref="vocab_ethnocultural" />
         <field name="code">majority</field>
         <field name="display">Ethnic Majority</field>
-        <field name="definition">Self-identified member of the ethnic majority or dominant group in the country or region.</field>
+        <field
+            name="definition"
+        >Self-identified member of the ethnic majority or dominant group in the country or region.</field>
         <field name="sequence">30</field>
     </record>
 
     <!-- Mixed Heritage -->
     <record id="ethnocultural_mixed" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_ethnocultural"/>
+        <field name="vocabulary_id" ref="vocab_ethnocultural" />
         <field name="code">mixed</field>
         <field name="display">Mixed Heritage</field>
-        <field name="definition">Self-identified as having mixed ethnic or cultural heritage from multiple groups.</field>
+        <field
+            name="definition"
+        >Self-identified as having mixed ethnic or cultural heritage from multiple groups.</field>
         <field name="sequence">40</field>
     </record>
 
     <!-- Prefer Not to Say -->
     <record id="ethnocultural_not_disclosed" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_ethnocultural"/>
+        <field name="vocabulary_id" ref="vocab_ethnocultural" />
         <field name="code">not_disclosed</field>
         <field name="display">Prefer Not to Say</field>
-        <field name="definition">Individual prefers not to disclose their ethnocultural status. Respects the right to privacy regarding sensitive personal information.</field>
+        <field
+            name="definition"
+        >Individual prefers not to disclose their ethnocultural status. Respects the right to privacy regarding sensitive personal information.</field>
         <field name="sequence">90</field>
     </record>
 
     <!-- Not Stated / Unknown -->
     <record id="ethnocultural_unknown" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_ethnocultural"/>
+        <field name="vocabulary_id" ref="vocab_ethnocultural" />
         <field name="code">unknown</field>
         <field name="display">Not Stated / Unknown</field>
-        <field name="definition">Ethnocultural status not stated, not collected, or unknown.</field>
+        <field
+            name="definition"
+        >Ethnocultural status not stated, not collected, or unknown.</field>
         <field name="sequence">99</field>
     </record>
 </odoo>

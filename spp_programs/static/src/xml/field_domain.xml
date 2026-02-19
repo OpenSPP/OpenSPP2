@@ -6,8 +6,14 @@
             <t t-set="resModel" t-value="getResModel()" />
             <t t-if="resModel">
                 <t t-if="props.isFoldable and state.folded and state.isValid">
-                    <div class="d-flex align-items-center" t-on-click="() => state.folded = false">
-                        <i data-tooltip="Modify filter" class="fa fa-lg fa-caret-right pe-2" />
+                    <div
+                        class="d-flex align-items-center"
+                        t-on-click="() => state.folded = false"
+                    >
+                        <i
+                            data-tooltip="Modify filter"
+                            class="fa fa-lg fa-caret-right pe-2"
+                        />
                         <div class="d-print-contents">
                             <t t-if="!state.facets.length">
                                 <span>Match <strong>all records</strong></span>
@@ -20,7 +26,11 @@
                                     </button>
                                 </t>
                             </t>
-                            <t t-foreach="state.facets" t-as="facet" t-key="facet_index">
+                            <t
+                                t-foreach="state.facets"
+                                t-as="facet"
+                                t-key="facet_index"
+                            >
                                 <div
                                     class="d-inline-flex align-items-stretch text-nowrap px-1 position-relative"
                                     role="listitem"
@@ -30,7 +40,10 @@
                                         class="o_searchview_facet_label rounded-start-2 btn btn-primary rounded-end-0 p-0"
                                         role="button"
                                     >
-                                        <i class="px-1 small fa fa-filter" role="image" />
+                                        <i
+                                            class="px-1 small fa fa-filter"
+                                            role="image"
+                                        />
                                     </div>
                                     <div
                                         class="o_facet_values d-flex align-items-center px-2 bg-200 rounded-end-2 text-wrap"

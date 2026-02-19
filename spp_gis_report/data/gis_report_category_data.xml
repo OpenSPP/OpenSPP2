@@ -2,43 +2,43 @@
 <odoo>
     <!-- GIS Report Categories -->
 
-        <record id="category_coverage" model="spp.gis.report.category">
-            <field name="name">Coverage Analysis</field>
-            <field name="code">coverage</field>
-            <field name="icon">fa-pie-chart</field>
-            <field name="sequence">10</field>
-            <field name="color">3</field>
-        </record>
+    <record id="category_coverage" model="spp.gis.report.category">
+        <field name="name">Coverage Analysis</field>
+        <field name="code">coverage</field>
+        <field name="icon">fa-pie-chart</field>
+        <field name="sequence">10</field>
+        <field name="color">3</field>
+    </record>
 
-        <record id="category_disaster_response" model="spp.gis.report.category">
-            <field name="name">Disaster Response</field>
-            <field name="code">disaster_response</field>
-            <field name="icon">fa-warning</field>
-            <field name="sequence">20</field>
-            <field name="color">1</field>
-        </record>
+    <record id="category_disaster_response" model="spp.gis.report.category">
+        <field name="name">Disaster Response</field>
+        <field name="code">disaster_response</field>
+        <field name="icon">fa-warning</field>
+        <field name="sequence">20</field>
+        <field name="color">1</field>
+    </record>
 
-        <record id="category_demographics" model="spp.gis.report.category">
-            <field name="name">Demographics</field>
-            <field name="code">demographics</field>
-            <field name="icon">fa-users</field>
-            <field name="sequence">30</field>
-            <field name="color">5</field>
-        </record>
+    <record id="category_demographics" model="spp.gis.report.category">
+        <field name="name">Demographics</field>
+        <field name="code">demographics</field>
+        <field name="icon">fa-users</field>
+        <field name="sequence">30</field>
+        <field name="color">5</field>
+    </record>
 
-        <record id="category_entitlement" model="spp.gis.report.category">
-            <field name="name">Entitlements</field>
-            <field name="code">entitlement</field>
-            <field name="icon">fa-money</field>
-            <field name="sequence">40</field>
-            <field name="color">7</field>
-        </record>
+    <record id="category_entitlement" model="spp.gis.report.category">
+        <field name="name">Entitlements</field>
+        <field name="code">entitlement</field>
+        <field name="icon">fa-money</field>
+        <field name="sequence">40</field>
+        <field name="color">7</field>
+    </record>
 
-        <record id="category_operations" model="spp.gis.report.category">
-            <field name="name">Operations</field>
-            <field name="code">operations</field>
-            <field name="icon">fa-cogs</field>
-            <field name="sequence">50</field>
-            <field name="color">9</field>
-        </record>
+    <record id="category_operations" model="spp.gis.report.category">
+        <field name="name">Operations</field>
+        <field name="code">operations</field>
+        <field name="icon">fa-cogs</field>
+        <field name="sequence">50</field>
+        <field name="color">9</field>
+    </record>
 </odoo>

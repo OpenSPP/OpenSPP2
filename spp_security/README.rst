@@ -14,14 +14,17 @@ OpenSPP Security
    !! source digest: sha256:c840abe0695f0616775f34c46ab40c1e7bdf851d59940cc72b8ebcbba0860a30
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Production%2FStable-green.png
+    :target: https://odoo-community.org/page/development-status
+    :alt: Production/Stable
+.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
     :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_security
     :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2|
+|badge1| |badge2| |badge3|
 
 Foundation security infrastructure for OpenSPP modules. Defines 22
 domain-specific security categories, the central Administrator group,
@@ -32,19 +35,18 @@ within these predefined categories.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
--  Define 22 domain-specific security categories (Registry, Programs,
-   Entitlements, GRM, etc.) organizing security groups in user settings
-   UI
--  Provide central Administrator group (``group_spp_admin``) that
-   automatically inherits all manager-level permissions from installed
-   domain modules
--  Implement multi-company record rule for ``res.partner`` restricting
-   access to records from user's companies
--  Implement self-only record rule for ``res.users`` restricting users
-   in ``group_access_restrict_self`` to viewing only their own user
-   record
--  Link Odoo system administrators (``base.group_system``) to
-   automatically inherit OpenSPP Administrator privileges
+- Define 22 domain-specific security categories (Registry, Programs,
+  Entitlements, GRM, etc.) organizing security groups in user settings
+  UI
+- Provide central Administrator group (``group_spp_admin``) that
+  automatically inherits all manager-level permissions from installed
+  domain modules
+- Implement multi-company record rule for ``res.partner`` restricting
+  access to records from user's companies
+- Implement self-only record rule for ``res.users`` restricting users in
+  ``group_access_restrict_self`` to viewing only their own user record
+- Link Odoo system administrators (``base.group_system``) to
+  automatically inherit OpenSPP Administrator privileges
 
 Configuration
 ~~~~~~~~~~~~~
@@ -61,24 +63,24 @@ This module defines no model access rights (empty
 ``ir.model.access.csv``). It provides only security groups and record
 rules.
 
-+----------------------+----------------------+----------------------+
-| Group                | XML ID               | Purpose              |
-+======================+======================+======================+
-| Administrator        | ``group_spp_admin``  | Inherits all manager |
-|                      |                      | permissions from all |
-|                      |                      | domains              |
-+----------------------+----------------------+----------------------+
-| Restricted: Self     | ``group_ac           | Restricts users to   |
-| Only                 | cess_restrict_self`` | viewing only their   |
-|                      |                      | own record           |
-+----------------------+----------------------+----------------------+
++-----------------------+--------------------------------+----------------------+
+| Group                 | XML ID                         | Purpose              |
++=======================+================================+======================+
+| Administrator         | ``group_spp_admin``            | Inherits all manager |
+|                       |                                | permissions from all |
+|                       |                                | domains              |
++-----------------------+--------------------------------+----------------------+
+| Restricted: Self Only | ``group_access_restrict_self`` | Restricts users to   |
+|                       |                                | viewing only their   |
+|                       |                                | own record           |
++-----------------------+--------------------------------+----------------------+
 
 Record rules:
 
--  ``rule_partner_company``: Multi-company access for ``res.partner``
-   (company_ids filter)
--  ``rule_user_self_only``: Self-only access for ``res.users`` (applied
-   to ``group_access_restrict_self``)
+- ``rule_partner_company``: Multi-company access for ``res.partner``
+  (company_ids filter)
+- ``rule_user_self_only``: Self-only access for ``res.users`` (applied
+  to ``group_access_restrict_self``)
 
 Extension Points
 ~~~~~~~~~~~~~~~~
