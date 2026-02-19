@@ -79,6 +79,7 @@
                                 name="registrant_id"
                                 placeholder="Select Registrant..."
                                 options="{'no_create': True}"
+                                readonly="verification_status == 'closed'"
                             />
                         </h1>
                         <label for="incident_id" />
@@ -87,6 +88,7 @@
                                 name="incident_id"
                                 placeholder="Select Incident..."
                                 options="{'no_create': True}"
+                                readonly="verification_status == 'closed'"
                             />
                         </h2>
                     </div>
@@ -98,9 +100,16 @@
                             <field
                                 name="impact_type_id"
                                 options="{'no_create': True}"
+                                readonly="verification_status == 'closed'"
                             />
-                            <field name="damage_level" />
-                            <field name="impact_date" />
+                            <field
+                                name="damage_level"
+                                readonly="verification_status == 'closed'"
+                            />
+                            <field
+                                name="impact_date"
+                                readonly="verification_status == 'closed'"
+                            />
                         </group>
                     </group>
                     <group
@@ -118,6 +127,7 @@
                             <field
                                 name="notes"
                                 placeholder="Additional details about the impact..."
+                                readonly="verification_status == 'closed'"
                             />
                         </page>
                     </notebook>
