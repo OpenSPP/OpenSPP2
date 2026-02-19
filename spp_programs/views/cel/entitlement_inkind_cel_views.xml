@@ -68,6 +68,7 @@
             >
                 <field
                     name="condition_mode"
+                    nolabel="1"
                     widget="radio"
                     options="{'horizontal': true}"
                 />
@@ -88,6 +89,7 @@
             >
                 <field
                     name="condition_cel_expression"
+                    nolabel="1"
                     widget="cel_expression"
                     cel_profile="registry_groups"
                     show_symbol_browser="true"
