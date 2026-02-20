@@ -16,16 +16,17 @@ class TestDemoPrograms(TransactionCase):
     """
 
     def test_get_all_demo_programs(self):
-        """Test that all 6 demo programs are returned."""
+        """Test that all 7 demo programs are returned."""
         from odoo.addons.spp_mis_demo_v2.models import demo_programs
 
         programs = demo_programs.get_all_demo_programs()
         self.assertIsInstance(programs, list)
-        self.assertEqual(len(programs), 6, "Expected exactly 6 demo programs")
+        self.assertEqual(len(programs), 7, "Expected exactly 7 demo programs")
 
         # Check expected programs exist (V3 names)
         program_names = [p["name"] for p in programs]
         self.assertIn("Universal Child Grant", program_names)
+        self.assertIn("Conditional Child Grant", program_names)
         self.assertIn("Elderly Social Pension", program_names)
         self.assertIn("Emergency Relief Fund", program_names)
         self.assertIn("Cash Transfer Program", program_names)
@@ -348,8 +349,10 @@ class TestDemoPrograms(TransactionCase):
         from odoo.addons.spp_mis_demo_v2.models import demo_programs
 
         programs = demo_programs.get_programs_by_pack("child_benefit")
-        self.assertEqual(len(programs), 1)
-        self.assertEqual(programs[0]["name"], "Universal Child Grant")
+        self.assertEqual(len(programs), 2)
+        program_names = [p["name"] for p in programs]
+        self.assertIn("Universal Child Grant", program_names)
+        self.assertIn("Conditional Child Grant", program_names)
 
         # Non-existent pack should return empty
         programs = demo_programs.get_programs_by_pack("nonexistent")
@@ -460,11 +463,20 @@ class TestDemoPrograms(TransactionCase):
                 )
 
     def test_all_programs_have_enrolled_stories(self):
-        """Test that every demo program has at least one enrolled story."""
+        """Test that demo programs with story enrollments have at least one story.
+
+        Programs like Conditional Child Grant may have no stories if they
+        demonstrate other features (e.g., compliance management).
+        """
         from odoo.addons.spp_mis_demo_v2.models import demo_programs
+
+        # Programs that intentionally have no story enrollments
+        no_story_programs = {"Conditional Child Grant"}
 
         for program in demo_programs.get_all_demo_programs():
             program_name = program["name"]
+            if program_name in no_story_programs:
+                continue
             stories = program.get("stories", [])
             self.assertGreater(
                 len(stories),
