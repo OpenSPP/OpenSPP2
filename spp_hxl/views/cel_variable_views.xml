@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Extend CEL Variable Form View -->
+    <record id="view_cel_variable_form_hxl" model="ir.ui.view">
+        <field name="name">spp.cel.variable.form.hxl</field>
+        <field name="model">spp.cel.variable</field>
+        <field name="inherit_id" ref="spp_studio.view_logic_variable_form" />
+        <field name="arch" type="xml">
+            <!-- Add HXL tab in notebook -->
+            <xpath expr="//notebook" position="inside">
+                <page string="HXL Mapping" name="hxl_mapping">
+                    <group>
+                        <group string="HXL Tag Definition">
+                            <field name="hxl_hashtag" placeholder="e.g., #affected" />
+                            <field
+                                name="hxl_attributes"
+                                placeholder="e.g., +f+children"
+                            />
+                            <field name="hxl_tag" readonly="1" />
+                        </group>
+                        <group string="Import/Export Behavior">
+                            <field name="hxl_import_action" />
+                            <field name="hxl_export_include" />
+                        </group>
+                    </group>
+                    <group>
+                        <div class="alert alert-info" role="alert">
+                            <p>
+                                <strong>HXL Tag Mapping:</strong>
+                                Define how this variable maps to HXL (Humanitarian Exchange Language) standards.
+                            </p>
+                            <ul>
+                                <li>
+                                    <strong>Hashtag:</strong>
+                                    Primary HXL classification (e.g., #affected, #adm2)
+                                </li>
+                                <li>
+                                    <strong>Attributes:</strong>
+                                    Additional disaggregation (e.g., +f for female, +children for children)
+                                </li>
+                                <li>
+                                    <strong>Import Action:</strong>
+                                    How to process HXL-tagged data during import
+                                </li>
+                                <li>
+                                    <strong>Export Include:</strong>
+                                    Whether to include in HXL-tagged exports
+                                </li>
+                            </ul>
+                        </div>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

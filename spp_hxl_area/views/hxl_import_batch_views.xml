@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_hxl_import_batch_tree" model="ir.ui.view">
+        <field name="name">spp.hxl.import.batch.tree</field>
+        <field name="model">spp.hxl.import.batch</field>
+        <field name="arch" type="xml">
+            <list
+                decoration-success="state == 'done'"
+                decoration-danger="state == 'failed'"
+            >
+                <field name="name" />
+                <field name="profile_id" />
+                <field name="period_key" />
+                <field name="incident_id" optional="hide" />
+                <field name="total_rows" />
+                <field name="matched_rows" />
+                <field name="areas_updated" />
+                <field name="indicators_created" />
+                <field
+                    name="state"
+                    widget="badge"
+                    decoration-success="state == 'done'"
+                    decoration-info="state == 'processing'"
+                    decoration-danger="state == 'failed'"
+                />
+                <field name="create_date" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_hxl_import_batch_form" model="ir.ui.view">
+        <field name="name">spp.hxl.import.batch.form</field>
+        <field name="model">spp.hxl.import.batch</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button
+                        name="action_detect_columns"
+                        type="object"
+                        string="Detect Columns"
+                        invisible="state != 'draft'"
+                        class="btn-primary"
+                    />
+                    <button
+                        name="action_process"
+                        type="object"
+                        string="Process Import"
+                        invisible="state != 'mapped'"
+                        class="oe_highlight"
+                    />
+                    <button
+                        name="action_reset"
+                        type="object"
+                        string="Reset"
+                        invisible="state == 'draft'"
+                        class="btn-secondary"
+                        confirm="This will delete all generated indicators. Are you sure?"
+                    />
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="draft,mapped,processing,done"
+                    />
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="action_view_indicators"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-bar-chart"
+                            invisible="indicators_created == 0"
+                        >
+                            <field
+                                name="indicators_created"
+                                widget="statinfo"
+                                string="Indicators"
+                            />
+                        </button>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name" readonly="state in ('done', 'failed')" />
+                            <field
+                                name="profile_id"
+                                readonly="state in ('done', 'failed')"
+                            />
+                            <field
+                                name="period_key"
+                                readonly="state in ('done', 'failed')"
+                            />
+                        </group>
+                        <group>
+                            <field
+                                name="incident_id"
+                                readonly="state in ('done', 'failed')"
+                            />
+                            <field
+                                name="source_url"
+                                readonly="state in ('done', 'failed')"
+                            />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="File" name="file">
+                            <group>
+                                <group>
+                                    <field
+                                        name="file_data"
+                                        filename="file_name"
+                                        readonly="state in ('done', 'failed')"
+                                    />
+                                    <field
+                                        name="file_name"
+                                        readonly="state in ('done', 'failed')"
+                                    />
+                                </group>
+                                <group>
+                                    <field name="hxl_row_number" readonly="1" />
+                                    <field name="hxl_columns_json" invisible="1" />
+                                </group>
+                            </group>
+                        </page>
+                        <page
+                            string="Column Mapping"
+                            name="mapping"
+                            invisible="state == 'draft'"
+                        >
+                            <field
+                                name="mapping_ids"
+                                readonly="state in ('done', 'failed')"
+                            >
+                                <list editable="bottom">
+                                    <field name="sequence" />
+                                    <field name="source_column" readonly="1" />
+                                    <field name="detected_hxl_tag" readonly="1" />
+                                    <field name="mapping_type" />
+                                    <field
+                                        name="confidence"
+                                        readonly="1"
+                                        widget="progressbar"
+                                    />
+                                </list>
+                            </field>
+                        </page>
+                        <page
+                            string="Statistics"
+                            name="statistics"
+                            invisible="state in ('draft', 'mapped')"
+                        >
+                            <group>
+                                <group string="Data Processing">
+                                    <field name="total_rows" />
+                                    <field name="matched_rows" />
+                                    <field name="unmatched_rows" />
+                                </group>
+                                <group string="Results">
+                                    <field name="areas_updated" />
+                                    <field name="indicators_created" />
+                                </group>
+                            </group>
+                        </page>
+                        <page
+                            string="Indicators"
+                            name="indicators"
+                            invisible="indicators_created == 0"
+                        >
+                            <field name="indicator_ids">
+                                <list>
+                                    <field name="area_name" />
+                                    <field name="variable_name" />
+                                    <field name="value" />
+                                    <field name="value_count" />
+                                    <field name="hxl_tag" />
+                                </list>
+                            </field>
+                        </page>
+                        <page
+                            string="Error Log"
+                            name="error_log"
+                            invisible="not error_log"
+                        >
+                            <field name="error_log" />
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_hxl_import_batch_search" model="ir.ui.view">
+        <field name="name">spp.hxl.import.batch.search</field>
+        <field name="model">spp.hxl.import.batch</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="profile_id" />
+                <field name="period_key" />
+                <field name="incident_id" />
+                <separator />
+                <filter
+                    name="filter_draft"
+                    string="Draft"
+                    domain="[('state', '=', 'draft')]"
+                />
+                <filter
+                    name="filter_processing"
+                    string="Processing"
+                    domain="[('state', '=', 'processing')]"
+                />
+                <filter
+                    name="filter_done"
+                    string="Completed"
+                    domain="[('state', '=', 'done')]"
+                />
+                <filter
+                    name="filter_failed"
+                    string="Failed"
+                    domain="[('state', '=', 'failed')]"
+                />
+                <separator />
+                <group>
+                    <filter
+                        name="group_profile"
+                        string="Profile"
+                        context="{'group_by': 'profile_id'}"
+                    />
+                    <filter
+                        name="group_period"
+                        string="Period"
+                        context="{'group_by': 'period_key'}"
+                    />
+                    <filter
+                        name="group_state"
+                        string="State"
+                        context="{'group_by': 'state'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_hxl_import_batch" model="ir.actions.act_window">
+        <field name="name">HXL Import Batches</field>
+        <field name="res_model">spp.hxl.import.batch</field>
+        <field name="view_mode">list,form</field>
+        <field name="path">hxl-import-batches</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No import batches yet
+            </p>
+            <p>
+                Use the HXL Import Wizard to create your first import batch.
+            </p>
+        </field>
+    </record>
+</odoo>

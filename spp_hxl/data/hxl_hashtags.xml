@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Geographic Hashtags -->
+    <record id="hxl_tag_adm1" model="spp.hxl.tag">
+        <field name="hashtag">#adm1</field>
+        <field name="name">Administrative Level 1</field>
+        <field
+            name="description"
+        >First-level administrative division (e.g., province, state)</field>
+        <field name="category">geographic</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">text</field>
+    </record>
+
+    <record id="hxl_tag_adm2" model="spp.hxl.tag">
+        <field name="hashtag">#adm2</field>
+        <field name="name">Administrative Level 2</field>
+        <field
+            name="description"
+        >Second-level administrative division (e.g., district, county)</field>
+        <field name="category">geographic</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">text</field>
+    </record>
+
+    <record id="hxl_tag_adm3" model="spp.hxl.tag">
+        <field name="hashtag">#adm3</field>
+        <field name="name">Administrative Level 3</field>
+        <field
+            name="description"
+        >Third-level administrative division (e.g., municipality)</field>
+        <field name="category">geographic</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">text</field>
+    </record>
+
+    <record id="hxl_tag_adm4" model="spp.hxl.tag">
+        <field name="hashtag">#adm4</field>
+        <field name="name">Administrative Level 4</field>
+        <field name="description">Fourth-level administrative division</field>
+        <field name="category">geographic</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">text</field>
+    </record>
+
+    <record id="hxl_tag_adm5" model="spp.hxl.tag">
+        <field name="hashtag">#adm5</field>
+        <field name="name">Administrative Level 5</field>
+        <field name="description">Fifth-level administrative division</field>
+        <field name="category">geographic</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">text</field>
+    </record>
+
+    <record id="hxl_tag_country" model="spp.hxl.tag">
+        <field name="hashtag">#country</field>
+        <field name="name">Country</field>
+        <field name="description">Country name or code</field>
+        <field name="category">geographic</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">text</field>
+    </record>
+
+    <record id="hxl_tag_geo" model="spp.hxl.tag">
+        <field name="hashtag">#geo</field>
+        <field name="name">Geographic Coordinates</field>
+        <field name="description">Geographic coordinates (latitude/longitude)</field>
+        <field name="category">geographic</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">geo</field>
+    </record>
+
+    <record id="hxl_tag_loc" model="spp.hxl.tag">
+        <field name="hashtag">#loc</field>
+        <field name="name">Location</field>
+        <field name="description">Location name or identifier</field>
+        <field name="category">geographic</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">text</field>
+    </record>
+
+    <!-- Population & Caseload Hashtags -->
+    <record id="hxl_tag_affected" model="spp.hxl.tag">
+        <field name="hashtag">#affected</field>
+        <field name="name">Affected</field>
+        <field name="description">Number of people affected by a crisis</field>
+        <field name="category">population</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">number</field>
+    </record>
+
+    <record id="hxl_tag_inneed" model="spp.hxl.tag">
+        <field name="hashtag">#inneed</field>
+        <field name="name">In Need</field>
+        <field name="description">Number of people in need of assistance</field>
+        <field name="category">population</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">number</field>
+    </record>
+
+    <record id="hxl_tag_targeted" model="spp.hxl.tag">
+        <field name="hashtag">#targeted</field>
+        <field name="name">Targeted</field>
+        <field name="description">Number of people targeted for assistance</field>
+        <field name="category">population</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">number</field>
+    </record>
+
+    <record id="hxl_tag_reached" model="spp.hxl.tag">
+        <field name="hashtag">#reached</field>
+        <field name="name">Reached</field>
+        <field name="description">Number of people reached with assistance</field>
+        <field name="category">population</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">number</field>
+    </record>
+
+    <record id="hxl_tag_population" model="spp.hxl.tag">
+        <field name="hashtag">#population</field>
+        <field name="name">Population</field>
+        <field name="description">Total population figure</field>
+        <field name="category">population</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">number</field>
+    </record>
+
+    <!-- Organization Hashtags -->
+    <record id="hxl_tag_org" model="spp.hxl.tag">
+        <field name="hashtag">#org</field>
+        <field name="name">Organization</field>
+        <field name="description">Organization name or identifier</field>
+        <field name="category">organization</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">text</field>
+    </record>
+
+    <record id="hxl_tag_contact" model="spp.hxl.tag">
+        <field name="hashtag">#contact</field>
+        <field name="name">Contact</field>
+        <field name="description">Contact information</field>
+        <field name="category">organization</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">text</field>
+    </record>
+
+    <!-- Activity & Sector Hashtags -->
+    <record id="hxl_tag_activity" model="spp.hxl.tag">
+        <field name="hashtag">#activity</field>
+        <field name="name">Activity</field>
+        <field name="description">Activity type or description</field>
+        <field name="category">activity</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">text</field>
+    </record>
+
+    <record id="hxl_tag_sector" model="spp.hxl.tag">
+        <field name="hashtag">#sector</field>
+        <field name="name">Sector</field>
+        <field name="description">Humanitarian sector (e.g., health, education)</field>
+        <field name="category">activity</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">text</field>
+    </record>
+
+    <record id="hxl_tag_service" model="spp.hxl.tag">
+        <field name="hashtag">#service</field>
+        <field name="name">Service</field>
+        <field name="description">Service provided</field>
+        <field name="category">activity</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">text</field>
+    </record>
+
+    <!-- Indicator Hashtags -->
+    <record id="hxl_tag_indicator" model="spp.hxl.tag">
+        <field name="hashtag">#indicator</field>
+        <field name="name">Indicator</field>
+        <field name="description">Indicator name or code</field>
+        <field name="category">indicator</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">text</field>
+    </record>
+
+    <record id="hxl_tag_need" model="spp.hxl.tag">
+        <field name="hashtag">#need</field>
+        <field name="name">Need</field>
+        <field name="description">Type of need</field>
+        <field name="category">indicator</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">text</field>
+    </record>
+
+    <record id="hxl_tag_severity" model="spp.hxl.tag">
+        <field name="hashtag">#severity</field>
+        <field name="name">Severity</field>
+        <field name="description">Severity level or score</field>
+        <field name="category">indicator</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">text</field>
+    </record>
+
+    <!-- Metadata Hashtags -->
+    <record id="hxl_tag_meta" model="spp.hxl.tag">
+        <field name="hashtag">#meta</field>
+        <field name="name">Metadata</field>
+        <field name="description">Metadata about the dataset</field>
+        <field name="category">metadata</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">text</field>
+    </record>
+
+    <record id="hxl_tag_description" model="spp.hxl.tag">
+        <field name="hashtag">#description</field>
+        <field name="name">Description</field>
+        <field name="description">Description or notes</field>
+        <field name="category">metadata</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">text</field>
+    </record>
+
+    <record id="hxl_tag_status" model="spp.hxl.tag">
+        <field name="hashtag">#status</field>
+        <field name="name">Status</field>
+        <field name="description">Status of an item or process</field>
+        <field name="category">metadata</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">text</field>
+    </record>
+
+    <!-- Item & Commodity Hashtags -->
+    <record id="hxl_tag_item" model="spp.hxl.tag">
+        <field name="hashtag">#item</field>
+        <field name="name">Item</field>
+        <field name="description">Item or commodity name</field>
+        <field name="category">item</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">text</field>
+    </record>
+
+    <record id="hxl_tag_modality" model="spp.hxl.tag">
+        <field name="hashtag">#modality</field>
+        <field name="name">Modality</field>
+        <field name="description">Assistance modality (cash, voucher, in-kind)</field>
+        <field name="category">item</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">text</field>
+    </record>
+
+    <!-- Value Hashtags -->
+    <record id="hxl_tag_value" model="spp.hxl.tag">
+        <field name="hashtag">#value</field>
+        <field name="name">Value</field>
+        <field name="description">Generic value or amount</field>
+        <field name="category">value</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">number</field>
+    </record>
+
+    <record id="hxl_tag_currency" model="spp.hxl.tag">
+        <field name="hashtag">#currency</field>
+        <field name="name">Currency</field>
+        <field name="description">Currency code or name</field>
+        <field name="category">value</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">text</field>
+    </record>
+
+    <record id="hxl_tag_capacity" model="spp.hxl.tag">
+        <field name="hashtag">#capacity</field>
+        <field name="name">Capacity</field>
+        <field name="description">Capacity or capability measure</field>
+        <field name="category">value</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">number</field>
+    </record>
+
+    <!-- Date & Time Hashtags -->
+    <record id="hxl_tag_date" model="spp.hxl.tag">
+        <field name="hashtag">#date</field>
+        <field name="name">Date</field>
+        <field name="description">Date or timestamp</field>
+        <field name="category">date</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">date</field>
+    </record>
+
+    <!-- Additional Standard Hashtags -->
+    <record id="hxl_tag_access" model="spp.hxl.tag">
+        <field name="hashtag">#access</field>
+        <field name="name">Access</field>
+        <field name="description">Access-related information</field>
+        <field name="category">metadata</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">text</field>
+    </record>
+
+    <record id="hxl_tag_cause" model="spp.hxl.tag">
+        <field name="hashtag">#cause</field>
+        <field name="name">Cause</field>
+        <field name="description">Cause of a crisis or event</field>
+        <field name="category">metadata</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">text</field>
+    </record>
+
+    <record id="hxl_tag_event" model="spp.hxl.tag">
+        <field name="hashtag">#event</field>
+        <field name="name">Event</field>
+        <field name="description">Event name or identifier</field>
+        <field name="category">metadata</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">text</field>
+    </record>
+
+    <record id="hxl_tag_group" model="spp.hxl.tag">
+        <field name="hashtag">#group</field>
+        <field name="name">Group</field>
+        <field name="description">Group classification</field>
+        <field name="category">population</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">text</field>
+    </record>
+
+    <record id="hxl_tag_impact" model="spp.hxl.tag">
+        <field name="hashtag">#impact</field>
+        <field name="name">Impact</field>
+        <field name="description">Impact of a crisis or intervention</field>
+        <field name="category">indicator</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">text</field>
+    </record>
+
+    <record id="hxl_tag_output" model="spp.hxl.tag">
+        <field name="hashtag">#output</field>
+        <field name="name">Output</field>
+        <field name="description">Program output or result</field>
+        <field name="category">indicator</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">text</field>
+    </record>
+
+    <record id="hxl_tag_respondee" model="spp.hxl.tag">
+        <field name="hashtag">#respondee</field>
+        <field name="name">Respondee</field>
+        <field name="description">Survey respondent information</field>
+        <field name="category">metadata</field>
+        <field name="is_standard" eval="True" />
+        <field name="data_type">text</field>
+    </record>
+
+    <!-- OpenSPP Custom Hashtags -->
+    <record id="hxl_tag_beneficiary" model="spp.hxl.tag">
+        <field name="hashtag">#beneficiary</field>
+        <field name="name">Beneficiary</field>
+        <field name="description">Beneficiary information (OpenSPP custom)</field>
+        <field name="category">openspp</field>
+        <field name="is_standard" eval="False" />
+        <field name="data_type">text</field>
+    </record>
+</odoo>

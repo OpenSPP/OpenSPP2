@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Main Menu -->
+    <menuitem
+        id="menu_hxl_area_root"
+        name="HXL Area"
+        parent="spp_hxl.menu_hxl_root"
+        sequence="10"
+    />
+
+    <!-- Import Wizard Menu -->
+    <menuitem
+        id="menu_hxl_area_import_wizard"
+        name="Import HXL Data"
+        parent="menu_hxl_area_root"
+        action="action_hxl_area_import_wizard"
+        sequence="1"
+    />
+
+    <!-- Import Batches Menu -->
+    <menuitem
+        id="menu_hxl_import_batch"
+        name="Import Batches"
+        parent="menu_hxl_area_root"
+        action="action_hxl_import_batch"
+        sequence="10"
+    />
+
+    <!-- Area Indicators Menu -->
+    <menuitem
+        id="menu_hxl_area_indicator"
+        name="Area Indicators"
+        parent="menu_hxl_area_root"
+        action="action_hxl_area_indicator"
+        sequence="20"
+    />
+
+    <!-- Configuration Submenu -->
+    <menuitem
+        id="menu_hxl_area_config"
+        name="Configuration"
+        parent="menu_hxl_area_root"
+        sequence="90"
+    />
+
+    <!-- Import Profiles Menu -->
+    <menuitem
+        id="menu_hxl_import_profile"
+        name="Import Profiles"
+        parent="menu_hxl_area_config"
+        action="action_hxl_import_profile"
+        sequence="10"
+    />
+</odoo>

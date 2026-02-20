@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- GIS Configuration parent menu under Settings -->
+    <menuitem
+        id="menu_gis_config_root"
+        name="GIS Configuration"
+        parent="base.menu_administration"
+        sequence="780"
+        groups="base.group_system"
+    />
+</odoo>
