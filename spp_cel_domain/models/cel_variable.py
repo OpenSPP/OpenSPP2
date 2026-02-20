@@ -530,16 +530,25 @@ class CELVariable(models.Model):
         return super().unlink()
 
     def _invalidate_resolver_cache(self):
-        """Invalidate the variable resolver cache.
+        """Invalidate all CEL caches.
 
-        Called when variable definitions change to ensure deferred resolution
-        uses the updated definitions.
+        Called when variable definitions change to ensure:
+        - Variable resolver cache uses updated variable definitions
+        - Translation cache rebuilds with new variable expansions
+        - Profile cache reflects any configuration changes
+
+        This prevents stale cache issues where expressions continue to
+        use old variable definitions after modifications.
         """
         try:
-            resolver = self.env["spp.cel.variable.resolver"]
-            resolver.invalidate_variable_cache()
+            # Invalidate all CEL caches via the service facade
+            # This ensures profile cache, translation cache, and resolver cache
+            # are all cleared in a coordinated manner
+            cel_service = self.env["spp.cel.service"]
+            cel_service.invalidate_caches()
+            _logger.debug("CEL caches invalidated after variable change")
         except Exception as e:
-            _logger.debug("Could not invalidate resolver cache: %s", e)
+            _logger.warning("Could not invalidate CEL caches: %s", e)
 
     # ═══════════════════════════════════════════════════════════════════════
     # HELPER METHODS
