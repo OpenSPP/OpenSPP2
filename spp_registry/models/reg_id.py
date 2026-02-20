@@ -38,6 +38,40 @@ class SPPRegistrantID(models.Model):
 
     description = fields.Char()
 
+    # Verification fields
+    verification_method = fields.Selection(
+        selection=[
+            ("dci_api", "DCI API Verification"),
+            ("physical_document", "Physical Document"),
+            ("scanned", "Scanned Document"),
+            ("verbal", "Verbal (Unverified)"),
+            ("self_declared", "Self Declared"),
+            ("manual_lookup", "Manual Lookup"),
+            ("biometric", "Biometric Match"),
+        ],
+        string="Verification Method",
+        help="How this ID was verified",
+    )
+    is_verified = fields.Boolean(
+        string="Verified",
+        default=False,
+        compute="_compute_is_verified",
+        store=True,
+        help="Whether this ID has been verified",
+    )
+    verification_date = fields.Datetime(
+        string="Verification Date",
+        help="When the ID was verified",
+    )
+    verification_source = fields.Char(
+        string="Verification Source",
+        help="System/person that verified this ID (e.g., 'OpenCRVS', 'Staff: John')",
+    )
+    verification_response = fields.Text(
+        string="Verification Response",
+        help="Raw response or notes from verification",
+    )
+
     _unique_partner_id_type = models.Constraint(
         "UNIQUE(partner_id, id_type_id)",
         "A registrant cannot have duplicate ID types",
@@ -68,6 +102,13 @@ class SPPRegistrantID(models.Model):
         if name:
             domain = [("partner_id", operator, name)] + domain
         return self._search(domain, limit=limit, order=order)
+
+    @api.depends("verification_method")
+    def _compute_is_verified(self):
+        """Compute is_verified based on method - verbal/self_declared are not verified."""
+        unverified_methods = {"verbal", "self_declared", False}
+        for record in self:
+            record.is_verified = record.verification_method not in unverified_methods
 
     @api.constrains("value")
     @api.onchange("value")

@@ -24,7 +24,7 @@ class TestClientService(TransactionCase):
             "auth_type": "none",
             "our_sender_id": "openspp.example.org",
             "our_callback_uri": "https://openspp.example.org/callback",
-            "registry_type": "CRVS",
+            "registry_type": "ns:org:RegistryType:Civil",
         }
         vals.update(kwargs)
         return self.DataSource.create(vals)
@@ -543,12 +543,12 @@ class TestClientService(TransactionCase):
         """Test registry type is retrieved from data source"""
         from ..services.client import DCIClient
 
-        ds = self._create_test_data_source(registry_type="CRVS")
+        ds = self._create_test_data_source(registry_type="ns:org:RegistryType:Civil")
         client = DCIClient(ds, self.env)
 
         registry_type = client._get_registry_type()
 
-        self.assertEqual(registry_type, "CRVS")
+        self.assertEqual(registry_type, "ns:org:RegistryType:Civil")
 
     def test_get_registry_type_default(self):
         """Test default registry type when not configured"""
@@ -560,7 +560,7 @@ class TestClientService(TransactionCase):
 
         registry_type = client._get_registry_type()
 
-        self.assertEqual(registry_type, "SOCIAL_REGISTRY")
+        self.assertEqual(registry_type, "ns:org:RegistryType:Social")
 
     def test_search_uses_custom_endpoint(self):
         """Test search uses custom endpoint if configured"""
@@ -591,7 +591,7 @@ class TestClientService(TransactionCase):
         envelope = client._build_search_envelope(
             query_type=QueryType.IDTYPE_VALUE,
             query={"type": "UIN", "value": "12345678"},
-            registry_type="CRVS",
+            registry_type="ns:org:RegistryType:Civil",
             registry_event_type="BIRTH",
             record_type="PERSON",
             page=1,
@@ -617,7 +617,7 @@ class TestClientService(TransactionCase):
         # Verify search criteria
         search_criteria = search_request["search_criteria"]
         self.assertEqual(search_criteria["version"], "1.0.0")
-        self.assertEqual(search_criteria["reg_type"], "CRVS")
+        self.assertEqual(search_criteria["reg_type"], "ns:org:RegistryType:Civil")
         self.assertEqual(search_criteria["reg_event_type"], "BIRTH")
         self.assertEqual(search_criteria["query_type"], QueryType.IDTYPE_VALUE)
         self.assertEqual(search_criteria["query"]["type"], "UIN")
@@ -858,3 +858,194 @@ class TestClientService(TransactionCase):
         # meta is required by DCI spec (even if empty)
         self.assertIn("meta", envelope["header"])
         self.assertEqual(envelope["header"]["meta"], {})
+
+
+class TestOpenCRVSEnvelopeFormat(TransactionCase):
+    """Test OpenCRVS envelope format for _build_search_envelope_opencrvs."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.DataSource = cls.env["spp.dci.data.source"]
+
+    def _create_test_data_source(self, **kwargs):
+        """Helper to create a test data source"""
+        vals = {
+            "name": "Test CRVS",
+            "code": "test_crvs",
+            "base_url": "https://crvs.example.org/api",
+            "auth_type": "none",
+            "our_sender_id": "openspp.example.org",
+            "our_callback_uri": "https://openspp.example.org/callback",
+            "registry_type": "ns:org:RegistryType:Civil",
+        }
+        vals.update(kwargs)
+        return self.DataSource.create(vals)
+
+    def _build_opencrvs_envelope(self, client, event_type=None):
+        """Helper to build an OpenCRVS envelope via search_by_date_range."""
+        with patch.object(client, "_make_request") as mock_request:
+            mock_request.return_value = {"status": "success"}
+            client.search_by_date_range(
+                start_date="2020-01-01",
+                end_date="2026-02-10",
+                attribute_name="dateOfEvent",
+                event_type=event_type,
+                use_opencrvs_format=True,
+            )
+            return mock_request.call_args[0][1]
+
+    def test_opencrvs_envelope_reg_type(self):
+        """reg_type must be 'ns:org:RegistryType:Civil' (not lowercase event type)."""
+        from ..services.client import DCIClient
+
+        ds = self._create_test_data_source()
+        client = DCIClient(ds, self.env)
+
+        envelope = self._build_opencrvs_envelope(client)
+        search_criteria = envelope["message"]["search_request"][0]["search_criteria"]
+
+        self.assertEqual(search_criteria["reg_type"], "ns:org:RegistryType:Civil")
+
+    def test_opencrvs_envelope_reg_event_type(self):
+        """reg_event_type must be present and default to 'birth' (lowercase)."""
+        from ..services.client import DCIClient
+
+        ds = self._create_test_data_source()
+        client = DCIClient(ds, self.env)
+
+        envelope = self._build_opencrvs_envelope(client)
+        search_criteria = envelope["message"]["search_request"][0]["search_criteria"]
+
+        self.assertIn("reg_event_type", search_criteria)
+        self.assertEqual(search_criteria["reg_event_type"], "birth")
+
+    def test_opencrvs_envelope_reg_event_type_death(self):
+        """Passing event_type='DEATH' produces reg_event_type: 'death'."""
+        from ..services.client import DCIClient
+
+        ds = self._create_test_data_source()
+        client = DCIClient(ds, self.env)
+
+        envelope = self._build_opencrvs_envelope(client, event_type="DEATH")
+        search_criteria = envelope["message"]["search_request"][0]["search_criteria"]
+
+        self.assertEqual(search_criteria["reg_event_type"], "death")
+
+    def test_opencrvs_envelope_expression_query_structure(self):
+        """Expression query must be nested: type/value/expression/query."""
+        from ..services.client import DCIClient
+
+        ds = self._create_test_data_source()
+        client = DCIClient(ds, self.env)
+
+        envelope = self._build_opencrvs_envelope(client)
+        search_criteria = envelope["message"]["search_request"][0]["search_criteria"]
+        query = search_criteria["query"]
+
+        # Top-level structure
+        self.assertEqual(query["type"], "ns:org:QueryType:expression")
+        self.assertIn("value", query)
+
+        # value -> expression -> query -> { attribute_name: { type, gte, lte } }
+        value = query["value"]
+        self.assertIn("expression", value)
+        self.assertIn("query", value["expression"])
+
+        attribute_query = value["expression"]["query"]
+        self.assertIn("dateOfEvent", attribute_query)
+        self.assertEqual(attribute_query["dateOfEvent"]["type"], "range")
+        self.assertEqual(attribute_query["dateOfEvent"]["gte"], "2020-01-01")
+        self.assertEqual(attribute_query["dateOfEvent"]["lte"], "2026-02-10")
+
+    def test_opencrvs_envelope_has_consent_and_locale(self):
+        """OpenCRVS envelope must include consent and locale."""
+        from ..services.client import DCIClient
+
+        ds = self._create_test_data_source()
+        client = DCIClient(ds, self.env)
+
+        envelope = self._build_opencrvs_envelope(client)
+        search_request_item = envelope["message"]["search_request"][0]
+
+        self.assertIn("consent", search_request_item)
+        self.assertIn("locale", search_request_item)
+        self.assertEqual(search_request_item["locale"], "eng")
+
+    def test_opencrvs_envelope_no_signature_key(self):
+        """OpenCRVS envelope must not have a 'signature' key."""
+        from ..services.client import DCIClient
+
+        ds = self._create_test_data_source()
+        client = DCIClient(ds, self.env)
+
+        envelope = self._build_opencrvs_envelope(client)
+
+        self.assertNotIn("signature", envelope)
+
+    def test_search_by_expression_opencrvs_format(self):
+        """search_by_expression(use_opencrvs_format=True) produces OpenCRVS envelope."""
+        from ..services.client import DCIClient
+
+        ds = self._create_test_data_source()
+        client = DCIClient(ds, self.env)
+
+        expression = {"birthDate": {"type": "range", "gte": "2020-01-01", "lte": "2026-12-31"}}
+
+        with patch.object(client, "_make_request") as mock_request:
+            mock_request.return_value = {"status": "success"}
+            client.search_by_expression(
+                expression=expression,
+                use_opencrvs_format=True,
+            )
+            envelope = mock_request.call_args[0][1]
+
+        # Should use OpenCRVS format (no signature, has consent/locale)
+        self.assertNotIn("signature", envelope)
+        search_request_item = envelope["message"]["search_request"][0]
+        self.assertIn("consent", search_request_item)
+        self.assertIn("locale", search_request_item)
+
+        # Query should be wrapped in expression/query structure
+        search_criteria = search_request_item["search_criteria"]
+        self.assertEqual(search_criteria["reg_type"], "ns:org:RegistryType:Civil")
+        query = search_criteria["query"]
+        self.assertEqual(query["type"], "ns:org:QueryType:expression")
+        self.assertIn("expression", query["value"])
+        self.assertIn("query", query["value"]["expression"])
+        self.assertEqual(query["value"]["expression"]["query"], expression)
+
+    def test_search_by_expression_standard_unchanged(self):
+        """search_by_expression() without flag still uses standard DCI path."""
+        from ..services.client import DCIClient
+
+        ds = self._create_test_data_source()
+        client = DCIClient(ds, self.env)
+
+        expression = [
+            {
+                "seq_num": 1,
+                "expression1": {
+                    "attribute_name": "dateOfEvent",
+                    "operator": "ge",
+                    "attribute_value": "2020-01-01",
+                },
+                "condition": "and",
+                "expression2": {
+                    "attribute_name": "dateOfEvent",
+                    "operator": "le",
+                    "attribute_value": "2026-02-10",
+                },
+            }
+        ]
+
+        with patch.object(client, "_make_request") as mock_request:
+            mock_request.return_value = {"status": "success"}
+            client.search_by_expression(expression=expression)
+            envelope = mock_request.call_args[0][1]
+
+        # Standard DCI format has signature
+        self.assertIn("signature", envelope)
+        # Standard DCI format uses registry type not OpenCRVS format
+        search_criteria = envelope["message"]["search_request"][0]["search_criteria"]
+        self.assertEqual(search_criteria["reg_type"], "ns:org:RegistryType:Civil")

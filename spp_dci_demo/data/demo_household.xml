@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <!-- Masters Household for DCI demo: parent adds child via CR -->
+
+    <!-- Father -->
+    <record id="partner_adam_masters" model="res.partner">
+        <field name="name">MASTERS, Adam</field>
+        <field name="given_name">Adam</field>
+        <field name="family_name">Masters</field>
+        <field name="birthdate">1995-08-14</field>
+        <field name="gender_id" ref="spp_vocabulary.code_gender_male" />
+        <field name="is_registrant" eval="True" />
+        <field name="is_group" eval="False" />
+    </record>
+
+    <!-- Mother -->
+    <record id="partner_mary_masters" model="res.partner">
+        <field name="name">MASTERS, Mary</field>
+        <field name="given_name">Mary</field>
+        <field name="family_name">Masters</field>
+        <field name="birthdate">2002-02-01</field>
+        <field name="gender_id" ref="spp_vocabulary.code_gender_female" />
+        <field name="is_registrant" eval="True" />
+        <field name="is_group" eval="False" />
+    </record>
+
+    <!-- Household -->
+    <record id="group_masters_household" model="res.partner">
+        <field name="name">Masters Household</field>
+        <field name="is_registrant" eval="True" />
+        <field name="is_group" eval="True" />
+    </record>
+
+    <!-- Memberships -->
+    <record id="membership_adam_masters" model="spp.group.membership">
+        <field name="group" ref="group_masters_household" />
+        <field name="individual" ref="partner_adam_masters" />
+        <field
+            name="membership_type_ids"
+            eval="[(4, ref('spp_vocabulary.code_membership_type_head'))]"
+        />
+    </record>
+
+    <record id="membership_mary_masters" model="spp.group.membership">
+        <field name="group" ref="group_masters_household" />
+        <field name="individual" ref="partner_mary_masters" />
+    </record>
+</odoo>

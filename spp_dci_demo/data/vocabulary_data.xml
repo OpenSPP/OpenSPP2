@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <!-- Birth Registration Number (BRN) vocabulary code for spp.registry.id -->
+    <record id="code_id_type_brn" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="spp_vocabulary.vocab_id_type" />
+        <field name="code">brn</field>
+        <field name="display">Birth Registration Number (BRN)</field>
+        <field name="target_type">individual</field>
+        <field name="namespace_uri">urn:dci:id:brn</field>
+        <field
+            name="definition"
+        >Birth Registration Number from a civil registration system (e.g., OpenCRVS)</field>
+        <field name="sequence">10</field>
+    </record>
+</odoo>

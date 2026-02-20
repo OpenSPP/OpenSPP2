@@ -20,6 +20,19 @@
     <!-- EVENT TYPE DEFINITIONS -->
     <!-- ═══════════════════════════════════════════════════════════════════════ -->
 
+    <!-- Health Visit Event Type (compliance tracking) -->
+    <record id="event_type_health_visit" model="spp.event.type">
+        <field name="name">Health Visit</field>
+        <field name="code">health_visit</field>
+        <field
+            name="description"
+        >Health checkup visits for children under 5, required for Conditional Child Grant compliance. Tracks immunization and growth monitoring.</field>
+        <field name="category">visit</field>
+        <field name="target_type">both</field>
+        <field name="source_type">internal</field>
+        <field name="sequence">5</field>
+    </record>
+
     <!-- Training Event Type -->
     <record id="event_type_training" model="spp.event.type">
         <field name="name">Training Session</field>
