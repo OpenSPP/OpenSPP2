@@ -57,3 +57,6 @@ access_spp_api_client_show_secret_wizard_admin,spp.api.client.show.secret.wizard
 access_spp_api_audit_log_viewer,spp.api.audit.log viewer,model_spp_api_audit_log,group_api_v2_viewer,1,0,0,0
 access_spp_api_audit_log_officer,spp.api.audit.log officer,model_spp_api_audit_log,group_api_v2_officer,1,0,1,0
 access_spp_api_audit_log_manager,spp.api.audit.log manager,model_spp_api_audit_log,group_api_v2_manager,1,0,1,0
+access_spp_api_outgoing_log_viewer,spp.api.outgoing.log viewer,model_spp_api_outgoing_log,group_api_v2_viewer,1,0,0,0
+access_spp_api_outgoing_log_officer,spp.api.outgoing.log officer,model_spp_api_outgoing_log,group_api_v2_officer,1,0,1,0
+access_spp_api_outgoing_log_manager,spp.api.outgoing.log manager,model_spp_api_outgoing_log,group_api_v2_manager,1,0,1,0

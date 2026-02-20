@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Outgoing API Log Tree View -->
+    <record id="view_api_outgoing_log_tree" model="ir.ui.view">
+        <field name="name">spp.api.outgoing.log.tree</field>
+        <field name="model">spp.api.outgoing.log</field>
+        <field name="arch" type="xml">
+            <list
+                string="Outgoing API Logs"
+                decoration-danger="status in ('http_error', 'connection_error', 'timeout', 'error')"
+            >
+                <field name="timestamp" />
+                <field name="service_code" />
+                <field name="endpoint" />
+                <field name="http_method" />
+                <field name="response_status_code" />
+                <field name="duration_ms" string="Duration (ms)" />
+                <field name="status" widget="badge" />
+                <field name="user_id" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Outgoing API Log Form View -->
+    <record id="view_api_outgoing_log_form" model="ir.ui.view">
+        <field name="name">spp.api.outgoing.log.form</field>
+        <field name="model">spp.api.outgoing.log</field>
+        <field name="arch" type="xml">
+            <form string="Outgoing API Log" edit="0" create="0" delete="0">
+                <sheet>
+                    <group>
+                        <group name="request" string="Request">
+                            <field
+                                name="url"
+                                groups="spp_api_v2.group_api_v2_auditor"
+                            />
+                            <field name="endpoint" />
+                            <field name="http_method" />
+                            <field name="timestamp" />
+                            <field name="duration_ms" string="Duration (ms)" />
+                            <field name="user_id" />
+                        </group>
+                        <group name="service_context" string="Service Context">
+                            <field name="service_name" />
+                            <field name="service_code" />
+                            <field name="origin_model" />
+                            <field name="origin_record_id" />
+                        </group>
+                    </group>
+                    <group name="result" string="Result">
+                        <field name="status" widget="badge" />
+                        <field name="response_status_code" />
+                        <field
+                            name="error_detail"
+                            groups="spp_api_v2.group_api_v2_auditor"
+                        />
+                    </group>
+                    <notebook>
+                        <page
+                            name="request_payload"
+                            string="Request Payload"
+                            groups="spp_api_v2.group_api_v2_auditor"
+                        >
+                            <field name="request_summary" widget="json" nolabel="1" />
+                        </page>
+                        <page
+                            name="response_payload"
+                            string="Response Payload"
+                            groups="spp_api_v2.group_api_v2_auditor"
+                        >
+                            <field name="response_summary" widget="json" nolabel="1" />
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Outgoing API Log Search View -->
+    <record id="view_api_outgoing_log_search" model="ir.ui.view">
+        <field name="name">spp.api.outgoing.log.search</field>
+        <field name="model">spp.api.outgoing.log</field>
+        <field name="arch" type="xml">
+            <search string="Outgoing API Logs">
+                <field name="url" />
+                <field name="endpoint" />
+                <field name="service_code" />
+                <field name="service_name" />
+                <field name="origin_model" />
+                <separator />
+                <filter
+                    name="filter_success"
+                    string="Success"
+                    domain="[('status', '=', 'success')]"
+                />
+                <filter
+                    name="filter_errors"
+                    string="Errors"
+                    domain="[('status', '!=', 'success')]"
+                />
+                <filter
+                    name="filter_today"
+                    string="Today"
+                    domain="[('timestamp', '&gt;=', (context_today()).strftime('%%Y-%%m-%%d'))]"
+                />
+                <separator />
+                <filter
+                    name="group_by_service"
+                    string="Service"
+                    context="{'group_by': 'service_code'}"
+                />
+                <filter
+                    name="group_by_status"
+                    string="Status"
+                    context="{'group_by': 'status'}"
+                />
+                <filter
+                    name="group_by_endpoint"
+                    string="Endpoint"
+                    context="{'group_by': 'endpoint'}"
+                />
+                <filter
+                    name="group_by_day"
+                    string="Day"
+                    context="{'group_by': 'timestamp:day'}"
+                />
+            </search>
+        </field>
+    </record>
+
+    <!-- Outgoing API Log Action -->
+    <record id="action_api_outgoing_log" model="ir.actions.act_window">
+        <field name="name">Outgoing API Logs</field>
+        <field name="res_model">spp.api.outgoing.log</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_filter_today': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                    No outgoing API calls logged yet
+                </p>
+            <p>
+                    Outgoing API logs capture all HTTP requests made to external services
+                    such as DCI-compliant registries, webhooks, and other integrations.
+                </p>
+        </field>
+    </record>
+</odoo>

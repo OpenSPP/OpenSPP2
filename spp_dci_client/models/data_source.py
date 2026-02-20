@@ -326,10 +326,12 @@ class DCIDataSource(models.Model):
         _logger.info("Requesting new OAuth2 token for data source: %s", self.code)
 
         try:
+            # Use sudo() to access OAuth2 credentials which are restricted to administrators
+            sudo_self = self.sudo()  # nosemgrep: odoo-sudo-without-context
             token_data = {
                 "grant_type": "client_credentials",
-                "client_id": self.oauth2_client_id,
-                "client_secret": self.oauth2_client_secret,
+                "client_id": sudo_self.oauth2_client_id,
+                "client_secret": sudo_self.oauth2_client_secret,
             }
 
             if self.oauth2_scope:
@@ -358,9 +360,9 @@ class DCIDataSource(models.Model):
             if not access_token:
                 raise UserError(_("OAuth2 token response did not contain access_token"))
 
-            # Cache token with expiry
+            # Cache token with expiry (use sudo to write to restricted model)
             expires_at = now + timedelta(seconds=expires_in)
-            self.write(
+            sudo_self.write(
                 {
                     "_oauth2_access_token": access_token,
                     "_oauth2_token_expires_at": expires_at,

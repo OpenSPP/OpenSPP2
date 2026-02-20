@@ -1,6 +1,8 @@
 """DCI Client Service for making signed API requests."""
 
+import json
 import logging
+import time
 import uuid
 from datetime import UTC, datetime
 from typing import Any
@@ -167,6 +169,7 @@ class DCIClient:
         page: int = 1,
         page_size: int = 10,
         async_mode: bool = False,
+        registry_event_type: str | None = None,
     ) -> dict:
         """Search by identifier type and value (convenience method).
 
@@ -177,6 +180,7 @@ class DCIClient:
             page: Page number (1-indexed)
             page_size: Records per page
             async_mode: If True, use async endpoint
+            registry_event_type: Event type filter (BIRTH, DEATH, etc.)
 
         Returns:
             SearchResponse or ACK dict
@@ -189,7 +193,55 @@ class DCIClient:
             record_type=record_type,
             page=page,
             page_size=page_size,
+            registry_event_type=registry_event_type,
         )
+
+    def search_by_id_opencrvs(
+        self,
+        identifier_type: str,
+        identifier_value: str,
+        event_type: str = "birth",
+        page: int = 1,
+        page_size: int = 10,
+        async_mode: bool = False,
+    ) -> dict:
+        """Search by identifier using OpenCRVS's non-standard format.
+
+        OpenCRVS doesn't support the standard DCI idtype-value query format.
+        Instead, it requires an expression query with the identifier nested.
+
+        Args:
+            identifier_type: Identifier type (UIN, BRN, MRN, DRN, etc.)
+            identifier_value: Identifier value
+            event_type: Registry event type (birth, death, etc.) - lowercase
+            page: Page number (1-indexed)
+            page_size: Records per page
+            async_mode: If True, use async endpoint
+
+        Returns:
+            SearchResponse or ACK dict
+        """
+        # Build OpenCRVS-style query for ID lookup
+        # Format: { type: "BRN"|"UIN"|"DRN", value: "<identifier>" }
+        query = {
+            "type": identifier_type,
+            "value": identifier_value,
+        }
+
+        # Build envelope in OpenCRVS format
+        envelope = self._build_search_envelope_opencrvs(
+            query=query,
+            query_type="idtype-value",
+            event_type=event_type,
+            page=page,
+            page_size=page_size,
+        )
+
+        if async_mode:
+            return self._make_request(ENDPOINT_ASYNC_SEARCH, envelope)
+        else:
+            endpoint = self.data_source.search_endpoint or ENDPOINT_SYNC_SEARCH
+            return self._make_request(endpoint, envelope)
 
     def search_by_predicate(
         self,
@@ -229,49 +281,57 @@ class DCIClient:
         registry_type: str | None = None,
         registry_event_type: str | None = None,
         async_mode: bool = False,
+        use_opencrvs_format: bool = False,
     ) -> dict:
         """Search using expression query (e.g., date range filters).
 
-        This supports DCI-compliant expression queries using ExpPredicate format.
+        This supports both DCI-compliant expression queries and OpenCRVS's
+        non-standard format.
 
         Args:
-            expression: DCI ExpPredicateWithCondition list, e.g.:
-                [
-                    {
-                        "seq_num": 1,
-                        "expression1": {
-                            "attribute_name": "dateOfEvent",
-                            "operator": "ge",
-                            "attribute_value": "2020-01-01"
-                        },
-                        "condition": "and",
-                        "expression2": {
-                            "attribute_name": "dateOfEvent",
-                            "operator": "le",
-                            "attribute_value": "2026-02-10"
-                        }
-                    }
-                ]
+            expression: Query expression. For standard DCI, a list of
+                ExpPredicateWithCondition dicts. For OpenCRVS format, a dict
+                of attribute filters (e.g., {"birthDate": {"type": "range", ...}}).
             record_type: PERSON, GROUP, etc.
             page: Page number (1-indexed)
             page_size: Records per page
             registry_type: Registry type (defaults to data source registry type)
             registry_event_type: Optional event type filter (e.g., "BIRTH", "DEATH")
             async_mode: If True, use async endpoint
+            use_opencrvs_format: If True, wrap expression in OpenCRVS query
+                structure and use OpenCRVS envelope format.
 
         Returns:
             SearchResponse or ACK dict
         """
-        # Build envelope directly with expression query (bypass _parse_query)
-        envelope = self._build_search_envelope(
-            query_type=QueryType.EXPRESSION,
-            query=expression,
-            registry_type=registry_type or self._get_registry_type(),
-            registry_event_type=registry_event_type,
-            record_type=record_type,
-            page=page,
-            page_size=page_size,
-        )
+        if use_opencrvs_format:
+            # Wrap the caller's expression in OpenCRVS query structure
+            opencrvs_query = {
+                "type": "ns:org:QueryType:expression",
+                "value": {
+                    "expression": {
+                        "query": expression,
+                    }
+                },
+            }
+            envelope = self._build_search_envelope_opencrvs(
+                query=opencrvs_query,
+                query_type="expression",
+                event_type=registry_event_type,
+                page=page,
+                page_size=page_size,
+            )
+        else:
+            # Standard DCI path (unchanged)
+            envelope = self._build_search_envelope(
+                query_type=QueryType.EXPRESSION,
+                query=expression,
+                registry_type=registry_type or self._get_registry_type(),
+                registry_event_type=registry_event_type,
+                record_type=record_type,
+                page=page,
+                page_size=page_size,
+            )
 
         if async_mode:
             return self._make_request(ENDPOINT_ASYNC_SEARCH, envelope)
@@ -377,14 +437,10 @@ class DCIClient:
     ) -> dict:
         """Search by date range using OpenCRVS's non-standard envelope format.
 
-        OpenCRVS uses a custom format that differs from DCI spec:
-        - reg_type: lowercase event type (e.g., "birth") instead of registry type
-        - No reg_event_type field
-        - Requires consent object and locale field
-        - Expression query format: { type: "ns:org:QueryType:expression", value: { <attr>: { type: "range", ... } } }
+        Builds an expression query with the correct OpenCRVS nesting:
+        { type, value: { expression: { query: { <attr>: { type: "range", ... } } } } }
 
-        This method exists for interoperability with OpenCRVS servers that don't
-        follow the standard DCI envelope format.
+        Then delegates to _build_search_envelope_opencrvs for the envelope wrapper.
 
         Args:
             start_date: Start date in ISO format (YYYY-MM-DD or YYYY-MM-DDTHH:MM:SSZ)
@@ -399,11 +455,26 @@ class DCIClient:
         Returns:
             SearchResponse or ACK dict
         """
-        # Build envelope directly in OpenCRVS format (bypassing standard _build_search_envelope)
+        # Build OpenCRVS-style expression query with correct nesting
+        expression_query = {
+            "type": "ns:org:QueryType:expression",
+            "value": {
+                "expression": {
+                    "query": {
+                        attribute_name: {
+                            "type": "range",
+                            "gte": start_date,
+                            "lte": end_date,
+                        }
+                    }
+                }
+            },
+        }
+
+        # Build envelope in OpenCRVS format (bypassing standard _build_search_envelope)
         envelope = self._build_search_envelope_opencrvs(
-            start_date=start_date,
-            end_date=end_date,
-            attribute_name=attribute_name,
+            query=expression_query,
+            query_type="expression",
             event_type=event_type,
             page=page,
             page_size=page_size,
@@ -417,9 +488,8 @@ class DCIClient:
 
     def _build_search_envelope_opencrvs(
         self,
-        start_date: str,
-        end_date: str,
-        attribute_name: str,
+        query: dict,
+        query_type: str,
         event_type: str | None,
         page: int,
         page_size: int,
@@ -427,49 +497,34 @@ class DCIClient:
         """Build search envelope in OpenCRVS's non-standard format.
 
         OpenCRVS expects:
-        - reg_type: lowercase event type (e.g., "birth"), NOT registry type
-        - No reg_event_type field
+        - reg_type: "ns:org:RegistryType:Civil"
+        - reg_event_type: lowercase event type (e.g., "birth")
         - Required consent object
         - Required locale field
-        - Expression query with range syntax
+        - Pre-built query object (e.g., expression with nested query structure)
 
         Args:
-            start_date: Start date
-            end_date: End date
-            attribute_name: Attribute to filter on
+            query: Pre-built query object (e.g., expression query dict)
+            query_type: Query type string (e.g., "expression", "idtype-value")
             event_type: Event type (BIRTH, DEATH, etc.)
             page: Page number
             page_size: Page size
 
         Returns:
-            Envelope dict in OpenCRVS format
+            Envelope dict in OpenCRVS format (no signature wrapper)
         """
         now = datetime.now(UTC)
         transaction_id = str(uuid.uuid4())
         reference_id = str(uuid.uuid4())
         message_id = str(uuid.uuid4())
 
-        # OpenCRVS uses lowercase event type for reg_type (e.g., "birth" not "BIRTH" or "CRVS")
-        reg_type = (event_type or "birth").lower()
-
-        # Build OpenCRVS-style expression query
-        expression_query = {
-            "type": "ns:org:QueryType:expression",
-            "value": {
-                attribute_name: {
-                    "type": "range",
-                    "gte": start_date,
-                    "lte": end_date,
-                }
-            },
-        }
-
-        # Build search criteria in OpenCRVS format (no reg_event_type)
+        # Build search criteria in OpenCRVS format
         search_criteria = {
             "version": "1.0.0",
-            "reg_type": reg_type,
-            "query_type": "expression",
-            "query": expression_query,
+            "reg_type": RegistryType.CRVS.value,
+            "reg_event_type": (event_type or "birth").lower(),
+            "query_type": query_type,
+            "query": query,
             "sort": [
                 {
                     "attribute_name": "createdAt",
@@ -904,6 +959,13 @@ class DCIClient:
         # Get headers from data source (includes auth)
         headers = self.data_source.get_headers()
 
+        # Track timing and result for outgoing log
+        start_time = time.monotonic()
+        log_status = "success"
+        log_status_code = None
+        log_response_data = None
+        log_error_detail = None
+
         try:
             _logger.info(
                 "Making DCI request to %s (action: %s)",
@@ -930,6 +992,13 @@ class DCIClient:
                 # Handle 401 Unauthorized - try refreshing token once
                 if response.status_code == 401 and _retry_auth and self.data_source.auth_type == "oauth2":
                     _logger.warning("Got 401 Unauthorized, clearing OAuth2 token cache and retrying with fresh token")
+                    log_status = "http_error"
+                    log_status_code = 401
+                    log_error_detail = "401 Unauthorized - retrying with fresh token"
+                    try:
+                        log_response_data = response.json()
+                    except json.JSONDecodeError:
+                        log_response_data = None
                     self.data_source.clear_oauth2_token_cache()
                     return self._make_request(endpoint, envelope, _retry_auth=False)
 
@@ -938,6 +1007,8 @@ class DCIClient:
 
                 # Parse response
                 response_data = response.json()
+                log_status_code = response.status_code
+                log_response_data = response_data
 
                 _logger.info(
                     "DCI request successful (status: %s, message_id: %s)",
@@ -949,18 +1020,23 @@ class DCIClient:
                 return response_data
 
         except httpx.HTTPStatusError as e:
+            log_status = "http_error"
+            log_status_code = e.response.status_code
+
             # Log technical details for troubleshooting
             technical_detail = f"DCI request failed with status {e.response.status_code}"
             response_text = e.response.text
             try:
                 error_data = e.response.json()
+                log_response_data = error_data
                 if "header" in error_data and "status_reason_message" in error_data["header"]:
                     technical_detail += f": {error_data['header']['status_reason_message']}"
                 else:
                     technical_detail += f": {response_text}"
-            except Exception:
+            except (json.JSONDecodeError, KeyError, TypeError):
                 technical_detail += f": {response_text}"
 
+            log_error_detail = technical_detail
             _logger.error(technical_detail)
             _logger.error("Full response body: %s", response_text)
             _logger.error("Request envelope was: %s", envelope)
@@ -978,25 +1054,125 @@ class DCIClient:
             error_str = str(e).lower()
             if "timeout" in error_str or "timed out" in error_str:
                 connection_type = "timeout"
+                log_status = "timeout"
             elif "ssl" in error_str or "certificate" in error_str:
                 connection_type = "ssl"
+                log_status = "connection_error"
             elif "name or service not known" in error_str or "nodename nor servname" in error_str:
                 connection_type = "dns"
+                log_status = "connection_error"
             else:
                 connection_type = "connection"
+                log_status = "connection_error"
+
+            log_error_detail = technical_detail
 
             # Show user-friendly message
             user_msg = format_connection_error(connection_type, technical_detail)
             raise UserError(user_msg) from e
 
         except Exception as e:
+            log_status = "error"
+
             # Log technical details for troubleshooting
             technical_detail = f"Unexpected error during DCI request: {str(e)}"
+            log_error_detail = technical_detail
             _logger.error(technical_detail, exc_info=True)
 
             # Show generic user-friendly message
             user_msg = _("An unexpected error occurred. Please contact your administrator.")
             raise UserError(user_msg) from e
+
+        finally:
+            duration_ms = int((time.monotonic() - start_time) * 1000)
+            self._log_outgoing_call(
+                url=url,
+                endpoint=endpoint,
+                envelope=envelope,
+                response_data=log_response_data,
+                status_code=log_status_code,
+                duration_ms=duration_ms,
+                status=log_status,
+                error_detail=log_error_detail,
+            )
+
+    # =========================================================================
+    # OUTGOING LOG
+    # =========================================================================
+
+    def _log_outgoing_call(
+        self,
+        url: str,
+        endpoint: str,
+        envelope: dict,
+        response_data: dict | None,
+        status_code: int | None,
+        duration_ms: int,
+        status: str,
+        error_detail: str | None,
+    ):
+        """Log an outgoing API call to spp.api.outgoing.log (soft dependency).
+
+        Uses runtime check to avoid hard manifest dependency on spp_api_v2.
+        Uses a separate database cursor so log entries persist even when the
+        caller's transaction is rolled back (e.g., on UserError).
+        Logging failures are swallowed so they never block the actual request.
+        """
+        try:
+            if "spp.api.outgoing.log" not in self.env:
+                return
+
+            from odoo.addons.spp_api_v2.services.outgoing_api_log_service import OutgoingApiLogService
+
+            # Capture values from the current env before opening a new cursor,
+            # since self.data_source won't be accessible from the new cursor's env.
+            service_code = getattr(self.data_source, "code", None) or "dci"
+            origin_record_id = self.data_source.id if hasattr(self.data_source, "id") else None
+            user_id = self.env.uid
+            sanitized_envelope = self._copy_envelope_for_log(envelope)
+
+            # Use a separate cursor so log entries survive transaction rollback.
+            with self.env.registry.cursor() as new_cr:
+                new_env = self.env(cr=new_cr)
+                service = OutgoingApiLogService(
+                    new_env,
+                    service_name="DCI Client",
+                    service_code=service_code,
+                    user_id=user_id,
+                )
+
+                service.log_call(
+                    url=url,
+                    endpoint=endpoint,
+                    http_method="POST",
+                    request_summary=sanitized_envelope,
+                    response_summary=response_data,
+                    response_status_code=status_code,
+                    duration_ms=duration_ms,
+                    origin_model="spp.dci.data.source",
+                    origin_record_id=origin_record_id,
+                    status=status,
+                    error_detail=error_detail,
+                )
+        except Exception:
+            _logger.warning("Failed to log outgoing API call (non-blocking)", exc_info=True)
+
+    def _copy_envelope_for_log(self, envelope: dict) -> dict | None:
+        """Copy the request envelope for audit log storage.
+
+        Returns a shallow copy suitable for JSON storage. The cryptographic
+        signature is preserved for auditability (non-repudiation).
+
+        Args:
+            envelope: Request envelope dict
+
+        Returns:
+            Copy of the envelope, or None if input is falsy
+        """
+        if not envelope:
+            return None
+
+        return dict(envelope)
 
     # =========================================================================
     # HELPER METHODS
