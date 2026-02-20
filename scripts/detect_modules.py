@@ -107,12 +107,31 @@ def get_impacted_modules(
     return impacted
 
 
+def is_code_relevant(file_path: str) -> bool:
+    """Check if a changed file is relevant for testing (not just docs/static)."""
+    p = Path(file_path)
+    parts = p.parts
+    # Skip top-level README
+    if p.name == "README.rst":
+        return False
+    # Skip readme fragments directory
+    if len(parts) > 1 and parts[1] == "readme":
+        return False
+    # Skip static/description (auto-generated index.html, icons, etc.)
+    if len(parts) > 2 and parts[1] == "static" and parts[2] == "description":
+        return False
+    return True
+
+
 def extract_modules_from_files(changed_files: list[str], all_modules: set[str]) -> set[str]:
-    """Extract module names from changed file paths."""
+    """Extract module names from changed file paths.
+
+    Only considers code-relevant files (ignores READMEs, static descriptions).
+    """
     modules: set[str] = set()
     for file_path in changed_files:
         parts = Path(file_path).parts
-        if parts and parts[0] in all_modules:
+        if parts and parts[0] in all_modules and is_code_relevant(file_path):
             modules.add(parts[0])
     return modules
 
