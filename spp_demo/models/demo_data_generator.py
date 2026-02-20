@@ -371,13 +371,11 @@ class SPPDemoDataGenerator(models.Model):
             recordset: spp.area records at the deepest available level
         """
         Area = self.env["spp.area"]
-
-        # Query only leaf areas directly: areas that have no children.
-        # This is a single SQL query rather than loading all areas into memory.
-        leaf_areas = Area.search([("child_ids", "=", False)])
-
-        # Fallback: if no leaf areas found, return all areas
-        return leaf_areas if leaf_areas else Area.search([])
+        all_areas = Area.search([])
+        if not all_areas:
+            return all_areas
+        max_level = max(all_areas.mapped("area_level"))
+        return all_areas.filtered(lambda a: a.area_level == max_level)
 
     def get_group_vals(self, fake):
         registration_date = self.get_random_date(
