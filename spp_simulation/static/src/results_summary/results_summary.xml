@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-name="spp_simulation.SimulationResultsSummary">
+        <div class="o_simulation_results_summary">
+            <div
+                t-if="state.loading"
+                class="text-center py-3"
+                role="status"
+                aria-live="polite"
+            >
+                <i class="fa fa-spinner fa-spin me-2" aria-hidden="true" />
+                <span>Loading results...</span>
+            </div>
+            <div t-else="" class="row g-3">
+                <div class="col-4">
+                    <div class="card text-center h-100">
+                        <div class="card-body">
+                            <h3
+                                class="mb-0"
+                                t-esc="formatNumber(state.beneficiaryCount)"
+                            />
+                            <div class="text-muted small">Beneficiaries</div>
+                            <small
+                                class="text-muted"
+                                t-esc="formatPercent(state.coverageRate) + ' coverage'"
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="card text-center h-100">
+                        <div class="card-body">
+                            <h3 class="mb-0" t-esc="formatCurrency(state.totalCost)" />
+                            <div class="text-muted small">Total Cost</div>
+                            <small
+                                class="text-muted"
+                                t-esc="formatPercent(state.budgetUtilization) + ' of budget'"
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="card text-center h-100">
+                        <div class="card-body">
+                            <h3
+                                class="mb-0"
+                                t-attf-class="{{getEquityClass()}}"
+                                t-esc="Math.round(state.equityScore)"
+                            />
+                            <div class="text-muted small">Equity Score</div>
+                            <small class="text-muted">out of 100</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-name="spp_simulation.SimulationComparisonTable">
+        <div class="o_simulation_comparison_table">
+            <div t-if="state.runs.length === 0" class="text-muted text-center py-3">
+                No comparison data available. Click "Recompute" to generate.
+            </div>
+            <div t-else="">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <t t-foreach="state.runs" t-as="run" t-key="run.run_id">
+                                <th class="text-center">
+                                    <div t-esc="run.scenario_name" />
+                                    <small
+                                        class="text-muted"
+                                        t-if="run.executed_at"
+                                        t-esc="formatDate(run.executed_at)"
+                                    />
+                                </th>
+                            </t>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="state.metrics" t-as="metric" t-key="metric.key">
+                            <tr>
+                                <td class="fw-bold" t-esc="metric.label" />
+                                <t t-foreach="state.runs" t-as="run" t-key="run.run_id">
+                                    <td
+                                        t-attf-class="text-center {{isBestValue(metric.key, run_index) ? 'table-success fw-bold' : ''}}"
+                                        t-esc="formatValue(run[metric.key], metric.format)"
+                                    />
+                                </t>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </t>
+</templates>

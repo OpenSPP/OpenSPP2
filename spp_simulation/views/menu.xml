@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Root Menu under Social Protection -->
+    <menuitem
+        id="menu_simulation_root"
+        name="Simulation"
+        parent="spp_programs.spp_program_menu_root"
+        sequence="50"
+        groups="spp_simulation.group_simulation_viewer"
+    />
+
+    <!-- Scenarios Menu -->
+    <menuitem
+        id="menu_simulation_scenarios"
+        name="Scenarios"
+        parent="menu_simulation_root"
+        action="action_simulation_scenario"
+        sequence="10"
+        groups="spp_simulation.group_simulation_viewer"
+    />
+
+    <!-- Results Menu -->
+    <menuitem
+        id="menu_simulation_results"
+        name="Results"
+        parent="menu_simulation_root"
+        action="action_simulation_run"
+        sequence="20"
+        groups="spp_simulation.group_simulation_viewer"
+    />
+
+    <!-- Comparisons Menu -->
+    <menuitem
+        id="menu_simulation_comparisons"
+        name="Comparisons"
+        parent="menu_simulation_root"
+        action="action_simulation_comparison"
+        sequence="30"
+        groups="spp_simulation.group_simulation_viewer"
+    />
+
+    <!-- Configuration Menu -->
+    <menuitem
+        id="menu_simulation_config"
+        name="Configuration"
+        parent="menu_simulation_root"
+        sequence="90"
+        groups="spp_simulation.group_simulation_manager"
+    />
+
+    <!-- Templates Config -->
+    <menuitem
+        id="menu_simulation_templates"
+        name="Templates"
+        parent="menu_simulation_config"
+        action="action_simulation_scenario_template"
+        sequence="10"
+        groups="spp_simulation.group_simulation_manager"
+    />
+
+    <!-- Custom Metrics Config -->
+    <menuitem
+        id="menu_simulation_metrics"
+        name="Custom Metrics"
+        parent="menu_simulation_config"
+        action="action_simulation_metric"
+        sequence="20"
+        groups="spp_simulation.group_simulation_manager"
+    />
+</odoo>
