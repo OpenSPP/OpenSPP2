@@ -18,6 +18,7 @@
         "spp_vocabulary",
         "queue_job",
         "spp_security",
+        "spp_area",
     ],
     "external_dependencies": {
         "python": ["faker"],
@@ -34,6 +35,7 @@
         "views/demo_data_generator_view.xml",
         # Wizards
         "wizard/apps_wizard_view.xml",
+        "wizard/demo_area_loader_view.xml",
     ],
     "assets": {},
     "demo": [],

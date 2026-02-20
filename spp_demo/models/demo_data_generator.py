@@ -69,20 +69,11 @@ class SPPDemoDataGenerator(models.Model):
     is_remember_settings = fields.Boolean(string="Remember Settings", default=False)
     number_of_groups = fields.Integer(string="Number of Groups", default=_default_number_of_groups, required=True)
     members_range_from = fields.Integer(
-        string="Members per Group (From)",
-        default=_default_members_range_from,
-        required=True,
+        string="Members per Group (From)", default=_default_members_range_from, required=True
     )
-    members_range_to = fields.Integer(
-        string="Members per Group (To)",
-        default=_default_members_range_to,
-        required=True,
-    )
+    members_range_to = fields.Integer(string="Members per Group (To)", default=_default_members_range_to, required=True)
     locale_origin = fields.Many2one(
-        "res.country",
-        string="Locale Origin",
-        required=True,
-        default=_default_locale_origin,
+        "res.country", string="Locale Origin", required=True, default=_default_locale_origin
     )
     locale_origin_faker_locale = fields.Char(string="Locale Origin Faker Locale", related="locale_origin.faker_locale")
     batch_size = fields.Integer(string="Batch Size", default=_default_batch_size, required=True)
@@ -93,12 +84,7 @@ class SPPDemoDataGenerator(models.Model):
         help="Generate data within the last N days. Used for time-based demo data generation.",
     )
     state = fields.Selection(
-        [
-            ("draft", "Draft"),
-            ("in_progress", "In Progress"),
-            ("completed", "Completed"),
-            ("cancelled", "Cancelled"),
-        ],
+        [("draft", "Draft"), ("in_progress", "In Progress"), ("completed", "Completed"), ("cancelled", "Cancelled")],
         string="State",
         default="draft",
         required=True,
@@ -113,6 +99,23 @@ class SPPDemoDataGenerator(models.Model):
     percentage_with_bank_account = fields.Integer(string="% with Banks", default=100, required=True)
     percentage_with_ids = fields.Integer(string="% with IDs", default=100, required=True)
     percentage_with_gps = fields.Integer(string="% with GPS Coordinates", default=100, required=True)
+
+    # Geographic demo data settings
+    demo_country = fields.Selection(
+        [
+            ("phl", "Philippines"),
+            ("lka", "Sri Lanka"),
+            ("tgo", "Togo"),
+        ],
+        string="Demo Country",
+        default="phl",
+        help="Country for geographic demo data (areas, shapes)",
+    )
+    load_geographic_data = fields.Boolean(
+        string="Load Geographic Data",
+        default=True,
+        help="Load curated areas for the selected country during demo generation",
+    )
 
     is_locked = fields.Boolean(string="Locked", default=False)
     locked_reason = fields.Text(string="Locked Reason")
@@ -154,6 +157,11 @@ class SPPDemoDataGenerator(models.Model):
 
     def generate_demo_data(self):
         self.ensure_one()
+
+        # Load geographic data if enabled
+        if self.load_geographic_data and self.demo_country:
+            self._load_geographic_data()
+
         faker_code = self.locale_origin.faker_locale or "en_US"
         fake = Faker(faker_code)
         if self.members_range_from > self.members_range_to:
@@ -193,6 +201,22 @@ class SPPDemoDataGenerator(models.Model):
             },
         }
 
+    def _load_geographic_data(self):
+        """Load curated geographic data for the selected country.
+
+        Uses the DemoAreaLoader to load area kinds, areas, and optionally
+        GIS polygon shapes for the demo country.
+        """
+        if not self.demo_country:
+            return
+
+        loader = self.env["spp.demo.area.loader"]
+        try:
+            loader.load_country_areas(self.demo_country, load_shapes=True)
+            _logger.info("Loaded geographic data for %s", self.demo_country)
+        except Exception as e:
+            _logger.warning("Could not load geographic data for %s: %s", self.demo_country, e)
+
     def _generate_demo_data(self, fake):
         group = self.generate_groups(fake)
         num_members = fake.random_int(self.members_range_from, self.members_range_to)
@@ -207,6 +231,11 @@ class SPPDemoDataGenerator(models.Model):
                 is_head_member = True
 
             individual = self.generate_individuals(fake)
+
+            # Members inherit area from their group
+            if group.area_id and individual.area_id != group.area_id:
+                individual.write({"area_id": group.area_id.id})
+
             membership_vals = self.get_group_membership_vals(fake, group, individual)
             if is_head_member and not head_membership:
                 have_head_member = True
@@ -246,10 +275,36 @@ class SPPDemoDataGenerator(models.Model):
             self._generate_demo_data(fake)
 
     def _mark_done(self):
+        # Refresh GIS reports if the module is installed
+        self._refresh_gis_reports()
+
         self.state = "completed"
         self.is_locked = False
         message = "The data generation has been completed."
         self.locked_reason = message
+
+    def _refresh_gis_reports(self):
+        """Refresh all active GIS reports so map data is available immediately.
+
+        Only runs if spp_gis_report is installed (not a hard dependency).
+        """
+        if "spp.gis.report" not in self.env:
+            return
+
+        GISReport = self.env["spp.gis.report"]
+        reports = GISReport.search([("active", "=", True)])
+
+        if not reports:
+            _logger.info("No active GIS reports found to refresh")
+            return
+
+        for report in reports:
+            report_name = report.name
+            try:
+                report._refresh_data()
+                _logger.info("Refreshed GIS report: %s", report_name)
+            except Exception:
+                _logger.exception("Failed to refresh GIS report: %s", report_name)
 
     def generate_groups(self, fake):
         group_vals = self.get_group_vals(fake)
@@ -306,6 +361,22 @@ class SPPDemoDataGenerator(models.Model):
         self.create_gps_coordinates(fake, individual)
         return individual
 
+    def _get_leaf_areas(self):
+        """Get leaf-level areas (areas with no children) for assignment.
+
+        Prefers the deepest level of the area hierarchy so that
+        GIS reports can aggregate upward through parent areas.
+
+        Returns:
+            recordset: spp.area records at the deepest available level
+        """
+        Area = self.env["spp.area"]
+        all_areas = Area.search([])
+        if not all_areas:
+            return all_areas
+        max_level = max(all_areas.mapped("area_level"))
+        return all_areas.filtered(lambda a: a.area_level == max_level)
+
     def get_group_vals(self, fake):
         registration_date = self.get_random_date(
             fake,
@@ -331,6 +402,11 @@ class SPPDemoDataGenerator(models.Model):
             )
             if group_types:
                 group_vals["group_type_id"] = random.choice(group_types).id
+
+        # Assign area (prefer leaf-level for proper GIS report aggregation)
+        leaf_areas = self._get_leaf_areas()
+        if leaf_areas:
+            group_vals["area_id"] = random.choice(leaf_areas).id
 
         return group_vals
 
@@ -382,12 +458,11 @@ class SPPDemoDataGenerator(models.Model):
         if "email" in partner_fields:
             individual_vals["email"] = fake.email()
 
-        # District field (if exists)
-        if "district" in partner_fields:
-            # Try to get a random district from available districts
-            districts = self.env["spp.district"].search([])
-            if districts:
-                individual_vals["district"] = random.choice(districts).id
+        # Area field — prefer leaf-level areas for proper GIS aggregation
+        if "area_id" in partner_fields:
+            leaf_areas = self._get_leaf_areas()
+            if leaf_areas:
+                individual_vals["area_id"] = random.choice(leaf_areas).id
 
         # Birth place
         if "birth_place" in partner_fields:
@@ -500,13 +575,54 @@ class SPPDemoDataGenerator(models.Model):
         gender_code = VocabCode.get_code("urn:iso:std:iso:5218", iso_code)
         if not gender_code:
             gender_code = VocabCode.search(
-                [
-                    ("namespace_uri", "=", "urn:iso:std:iso:5218"),
-                    ("display", "ilike", gender),
-                ],
+                [("namespace_uri", "=", "urn:iso:std:iso:5218"), ("display", "ilike", gender)],
                 limit=1,
             )
         return gender_code.id if gender_code else False
+
+    def _get_area_for_profile(self, profile):
+        """Get area_id based on profile configuration.
+
+        Supports three ways to assign areas:
+        1. area_ref: Direct XML ID reference (e.g., 'spp_demo.area_phl_ncr_quezon_city')
+        2. area_kind: Pick random area of specified kind (e.g., 'municipality')
+        3. Fallback: Pick any available area
+
+        Args:
+            profile: Dict with optional 'area_ref' or 'area_kind' keys
+
+        Returns:
+            int or False: area_id or False if no areas available
+        """
+        if not profile:
+            return False
+
+        # Priority 1: Explicit area reference
+        area_ref = profile.get("area_ref")
+        if area_ref:
+            area = self.env.ref(area_ref, raise_if_not_found=False)
+            if area:
+                return area.id
+
+        # Priority 2: Random area of specified kind
+        area_kind_name = profile.get("area_kind")
+        if area_kind_name:
+            # Search for area kind by name (case-insensitive partial match)
+            kind = self.env["spp.area.type"].search(
+                [("name", "ilike", area_kind_name)],
+                limit=1,
+            )
+            if kind:
+                areas = self.env["spp.area"].search([("area_type_id", "=", kind.id)])
+                if areas:
+                    return random.choice(areas).id
+
+        # Priority 3: Any available area (limit search for performance)
+        areas = self.env["spp.area"].search([], limit=100)
+        if areas:
+            return random.choice(areas).id
+
+        return False
 
     @api.model
     def create_individual_from_params(self, name, gender, age, extra_vals=None):
@@ -630,10 +746,7 @@ class SPPDemoDataGenerator(models.Model):
     def get_id_type(self, target_type):
         if self.id_type_ids:
             id_type = self.env["spp.demo.data.id.types"].search(
-                [
-                    ("target_type", "=", target_type),
-                    ("demo_data_generator_id", "=", self.id),
-                ]
+                [("target_type", "=", target_type), ("demo_data_generator_id", "=", self.id)]
             )
             if id_type:
                 if len(self.id_type_ids) == 1:
@@ -901,10 +1014,7 @@ class SPPDemoDataGenerator(models.Model):
     def get_bank_type(self, target_type):
         if self.bank_type_ids:
             bank_type = self.env["spp.demo.data.bank.types"].search(
-                [
-                    ("target_type", "=", target_type),
-                    ("demo_data_generator_id", "=", self.id),
-                ]
+                [("target_type", "=", target_type), ("demo_data_generator_id", "=", self.id)]
             )
             if bank_type:
                 if len(self.bank_type_ids) == 1:
@@ -962,10 +1072,7 @@ class SPPDemoDataGenerator(models.Model):
             attempt += 1
 
         # Return None if we couldn't generate a valid phone number
-        _logger.warning(
-            "Failed to generate valid phone number after %s attempts. Returning None.",
-            max_attempts,
-        )
+        _logger.warning("Failed to generate valid phone number after %s attempts. Returning None.", max_attempts)
         return None
 
     def create_phone_numbers(self, fake, registrant):
@@ -1006,11 +1113,7 @@ class SPPDemoDataGenerator(models.Model):
             self.env["spp.phone.number"].create(phone_vals_list)
 
         if failed_count > 0:
-            _logger.warning(
-                "Failed to generate %d phone number(s) for registrant_id=%s",
-                failed_count,
-                registrant.id,
-            )
+            _logger.warning("Failed to generate %d phone number(s) for registrant_id=%s", failed_count, registrant.id)
 
         registrant.phone_number_ids_change()
 
@@ -1131,19 +1234,10 @@ class SPPDemoDataGenerator(models.Model):
 
                 if partner:
                     created_partners[story["id"]] = partner
-                    _logger.info(
-                        "Created demo story: %s (partner_id=%s)",
-                        story["id"],
-                        partner.id,
-                    )
+                    _logger.info("Created demo story: %s (partner_id=%s)", story["id"], partner.id)
 
             except Exception as e:
-                _logger.error(
-                    "Error creating story '%s': %s",
-                    story.get("id", "unknown"),
-                    e,
-                    exc_info=True,
-                )
+                _logger.error("Error creating story '%s': %s", story.get("id", "unknown"), e, exc_info=True)
 
         _logger.info(f"Demo story generation completed. Created {len(created_partners)} stories.")
         return created_partners
@@ -1200,13 +1294,11 @@ class SPPDemoDataGenerator(models.Model):
         elif "email" in partner_fields:
             vals["email"] = fake.email()
 
-        # District field (if exists)
-        if "district" in partner_fields:
-            district_name = profile.get("district")
-            if district_name:
-                districts = self.env["spp.district"].search([("name", "=", district_name)])
-                if districts:
-                    vals["district"] = districts[0].id
+        # Area field (if spp_area is installed)
+        if "area_id" in partner_fields:
+            area_id = self._get_area_for_profile(profile)
+            if area_id:
+                vals["area_id"] = area_id
 
         # Birth place
         if "birth_place" in partner_fields and profile.get("birth_place"):

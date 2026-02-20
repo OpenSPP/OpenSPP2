@@ -240,11 +240,7 @@ class TestResPartner(TransactionCase):
         self.assertIn("email", partner._fields)
 
         # Verify our custom fields are there
-        custom_fields = [
-            "demo_data_group_generator_id",
-            "demo_data_individual_generator_id",
-            "gps_coordinates",
-        ]
+        custom_fields = ["demo_data_group_generator_id", "demo_data_individual_generator_id", "gps_coordinates"]
         for field in custom_fields:
             self.assertIn(field, partner._fields)
 
