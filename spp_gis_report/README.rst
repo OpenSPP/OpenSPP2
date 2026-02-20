@@ -51,27 +51,27 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+------------------------------+---------------------------------------+
-| Model                        | Description                           |
-+==============================+=======================================+
-| ``spp.gis.report``           | Report configuration defining source, |
-|                              | aggregation, and display              |
-+------------------------------+---------------------------------------+
-| ``spp.gis.report.data``      | Cached computed values for each area, |
-|                              | updated on schedule                   |
-+------------------------------+---------------------------------------+
-| ``spp.gis.report.template``  | Pre-built report definitions with     |
-|                              | JSON configuration                    |
-+------------------------------+---------------------------------------+
-| ``spp.gis.report.category``  | Categories for organizing reports and |
-|                              | templates                             |
-+------------------------------+---------------------------------------+
-| ``spp.gis.report.threshold`` | Color threshold definitions for map   |
-|                              | visualization                         |
-+------------------------------+---------------------------------------+
-| ``spp.gis.report.wizard``    | Three-step wizard for creating        |
-|                              | reports from templates                |
-+------------------------------+---------------------------------------+
++------------------------------+--------------------------------------+
+| Model                        | Description                          |
++==============================+======================================+
+| ``spp.gis.report``           | Report configuration defining        |
+|                              | source, aggregation, and display     |
++------------------------------+--------------------------------------+
+| ``spp.gis.report.data``      | Cached computed values for each      |
+|                              | area, updated on schedule            |
++------------------------------+--------------------------------------+
+| ``spp.gis.report.template``  | Pre-built report definitions with    |
+|                              | JSON configuration                   |
++------------------------------+--------------------------------------+
+| ``spp.gis.report.category``  | Categories for organizing reports    |
+|                              | and templates                        |
++------------------------------+--------------------------------------+
+| ``spp.gis.report.threshold`` | Color threshold definitions for map  |
+|                              | visualization                        |
++------------------------------+--------------------------------------+
+| ``spp.gis.report.wizard``    | Three-step wizard for creating       |
+|                              | reports from templates               |
++------------------------------+--------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -94,22 +94,23 @@ UI Location
 Security
 ~~~~~~~~
 
-+-----------------------------------------+----------------------------------+
-| Group                                   | Access                           |
-+=========================================+==================================+
-| ``base.group_user``                     | Read reports and data            |
-+-----------------------------------------+----------------------------------+
-| ``group_gis_report_user``               | Read reports, write data for     |
-|                                         | refresh                          |
-+-----------------------------------------+----------------------------------+
-| ``group_gis_report_officer``            | Read/Write/Create (no delete)    |
-+-----------------------------------------+----------------------------------+
-| ``group_gis_report_manager``            | Full CRUD                        |
-+-----------------------------------------+----------------------------------+
-| ``spp_registry.group_registry_officer`` | Read reports and data            |
-+-----------------------------------------+----------------------------------+
-| ``spp_security.group_spp_admin``        | Full CRUD and configuration      |
-+-----------------------------------------+----------------------------------+
++----------------------------------+----------------------------------+
+| Group                            | Access                           |
++==================================+==================================+
+| ``base.group_user``              | Read reports and data            |
++----------------------------------+----------------------------------+
+| ``group_gis_report_user``        | Read reports, write data for     |
+|                                  | refresh                          |
++----------------------------------+----------------------------------+
+| ``group_gis_report_officer``     | Read/Write/Create (no delete)    |
++----------------------------------+----------------------------------+
+| ``group_gis_report_manager``     | Full CRUD                        |
++----------------------------------+----------------------------------+
+| ``spp_r                          | Read reports and data            |
+| egistry.group_registry_officer`` |                                  |
++----------------------------------+----------------------------------+
+| ``spp_security.group_spp_admin`` | Full CRUD and configuration      |
++----------------------------------+----------------------------------+
 
 API Endpoints
 ~~~~~~~~~~~~~

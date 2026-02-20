@@ -66,14 +66,15 @@ UI Location
 Security
 ~~~~~~~~
 
-+---------------------------------------------------+----------------------------------+
-| Group                                             | Access                           |
-+===================================================+==================================+
-| ``spp_cel_registry_search.group_cel_search_user`` | Access to Advanced Search portal |
-+---------------------------------------------------+----------------------------------+
-| ``spp_registry.group_registry_officer``           | Automatically includes CEL       |
-|                                                   | Search access                    |
-+---------------------------------------------------+----------------------------------+
++----------------------------------+----------------------------------+
+| Group                            | Access                           |
++==================================+==================================+
+| ``spp_cel_registr                | Access to Advanced Search portal |
+| y_search.group_cel_search_user`` |                                  |
++----------------------------------+----------------------------------+
+| ``spp_r                          | Automatically includes CEL       |
+| egistry.group_registry_officer`` | Search access                    |
++----------------------------------+----------------------------------+
 
 The ``group_cel_search_user`` group implies
 ``spp_registry.group_registry_viewer``, ensuring users can only search

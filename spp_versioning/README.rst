@@ -42,23 +42,23 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+------------------------------------------+----------------------------------+
-| Model                                    | Description                      |
-+==========================================+==================================+
-| ``spp.versioned.mixin``                  | Abstract mixin to add versioning |
-|                                          | capabilities to any model        |
-+------------------------------------------+----------------------------------+
-| ``spp.artifact.version``                 | Stores version snapshots with    |
-|                                          | state machine                    |
-|                                          | (draft/scheduled/current)        |
-+------------------------------------------+----------------------------------+
-| ``spp.artifact.usage``                   | Tracks where artifacts are used  |
-|                                          | (prevents orphan archiving)      |
-+------------------------------------------+----------------------------------+
-| ``spp.artifact.version.schedule.wizard`` | Wizard for scheduling version    |
-|                                          | activation with conflict         |
-|                                          | detection                        |
-+------------------------------------------+----------------------------------+
++----------------------------------+----------------------------------+
+| Model                            | Description                      |
++==================================+==================================+
+| ``spp.versioned.mixin``          | Abstract mixin to add versioning |
+|                                  | capabilities to any model        |
++----------------------------------+----------------------------------+
+| ``spp.artifact.version``         | Stores version snapshots with    |
+|                                  | state machine                    |
+|                                  | (draft/scheduled/current)        |
++----------------------------------+----------------------------------+
+| ``spp.artifact.usage``           | Tracks where artifacts are used  |
+|                                  | (prevents orphan archiving)      |
++----------------------------------+----------------------------------+
+| ``spp.ar                         | Wizard for scheduling version    |
+| tifact.version.schedule.wizard`` | activation with conflict         |
+|                                  | detection                        |
++----------------------------------+----------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~

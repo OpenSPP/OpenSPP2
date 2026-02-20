@@ -45,18 +45,18 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+-------------------------------+--------------------------------------+
-| Model                         | Description                          |
-+===============================+======================================+
-| ``spp.dci.duplication.check`` | Stores duplication check requests    |
-|                               | and results from IBR                 |
-+-------------------------------+--------------------------------------+
-| ``spp.dci.ibr.sender``        | Registry of trusted IBR systems with |
-|                               | public keys                          |
-+-------------------------------+--------------------------------------+
-| ``fastapi.endpoint``          | Inherited to add IBR callback router |
-|                               | to DCI API endpoint                  |
-+-------------------------------+--------------------------------------+
++-------------------------------+-------------------------------------+
+| Model                         | Description                         |
++===============================+=====================================+
+| ``spp.dci.duplication.check`` | Stores duplication check requests   |
+|                               | and results from IBR                |
++-------------------------------+-------------------------------------+
+| ``spp.dci.ibr.sender``        | Registry of trusted IBR systems     |
+|                               | with public keys                    |
++-------------------------------+-------------------------------------+
+| ``fastapi.endpoint``          | Inherited to add IBR callback       |
+|                               | router to DCI API endpoint          |
++-------------------------------+-------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -83,20 +83,24 @@ UI Location
 Security
 ~~~~~~~~
 
-+-----------------------------------------+-------------------------------+----------------------+
-| Group                                   | Model                         | Access               |
-+=========================================+===============================+======================+
-| ``spp_registry.group_registry_viewer``  | ``spp.dci.duplication.check`` | Read                 |
-+-----------------------------------------+-------------------------------+----------------------+
-| ``spp_registry.group_registry_officer`` | ``spp.dci.duplication.check`` | Read/Write/Create    |
-|                                         |                               | (no delete)          |
-+-----------------------------------------+-------------------------------+----------------------+
-| ``spp_registry.group_registry_manager`` | ``spp.dci.duplication.check`` | Full CRUD            |
-+-----------------------------------------+-------------------------------+----------------------+
-| ``base.group_system``                   | ``spp.dci.ibr.sender``        | Full CRUD            |
-+-----------------------------------------+-------------------------------+----------------------+
-| ``base.group_user``                     | ``spp.dci.ibr.sender``        | Read                 |
-+-----------------------------------------+-------------------------------+----------------------+
++----------------------+----------------------+----------------------+
+| Group                | Model                | Access               |
++======================+======================+======================+
+| ``spp_registry.gro   | ``spp.dci            | Read                 |
+| up_registry_viewer`` | .duplication.check`` |                      |
++----------------------+----------------------+----------------------+
+| ``spp_registry.grou  | ``spp.dci            | Read/Write/Create    |
+| p_registry_officer`` | .duplication.check`` | (no delete)          |
++----------------------+----------------------+----------------------+
+| ``spp_registry.grou  | ``spp.dci            | Full CRUD            |
+| p_registry_manager`` | .duplication.check`` |                      |
++----------------------+----------------------+----------------------+
+| `                    | ``                   | Full CRUD            |
+| `base.group_system`` | spp.dci.ibr.sender`` |                      |
++----------------------+----------------------+----------------------+
+| ``base.group_user``  | ``                   | Read                 |
+|                      | spp.dci.ibr.sender`` |                      |
++----------------------+----------------------+----------------------+
 
 Extension Points
 ~~~~~~~~~~~~~~~~

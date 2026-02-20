@@ -47,21 +47,21 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+-------------------------------+--------------------------------------+
-| Model                         | Description                          |
-+===============================+======================================+
-| ``spp.gis.raster.layer``      | Background map layers (OSM, WMS,     |
-|                               | image)                               |
-+-------------------------------+--------------------------------------+
-| ``spp.gis.data.layer``        | Vector data layers referencing geo   |
-|                               | fields from any model                |
-+-------------------------------+--------------------------------------+
-| ``spp.gis.color.scheme``      | Color palettes for choropleth and    |
-|                               | thematic visualizations              |
-+-------------------------------+--------------------------------------+
-| ``spp.gis.raster.layer.type`` | Raster layer type definitions (WMS   |
-|                               | services)                            |
-+-------------------------------+--------------------------------------+
++-------------------------------+-------------------------------------+
+| Model                         | Description                         |
++===============================+=====================================+
+| ``spp.gis.raster.layer``      | Background map layers (OSM, WMS,    |
+|                               | image)                              |
++-------------------------------+-------------------------------------+
+| ``spp.gis.data.layer``        | Vector data layers referencing geo  |
+|                               | fields from any model               |
++-------------------------------+-------------------------------------+
+| ``spp.gis.color.scheme``      | Color palettes for choropleth and   |
+|                               | thematic visualizations             |
++-------------------------------+-------------------------------------+
+| ``spp.gis.raster.layer.type`` | Raster layer type definitions (WMS  |
+|                               | services)                           |
++-------------------------------+-------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -89,19 +89,19 @@ UI Location
 Security
 ~~~~~~~~
 
-+--------------------------------------+----------------------------------+
-| Group                                | Access                           |
-+======================================+==================================+
-| ``spp_security.group_spp_admin``     | Full CRUD on all GIS models      |
-+--------------------------------------+----------------------------------+
-| ``spp_registry.group_registry_read`` | Read-only on color schemes and   |
-|                                      | layers                           |
-+--------------------------------------+----------------------------------+
-| ``spp_gis.group_gis_user``           | View GIS data and maps           |
-+--------------------------------------+----------------------------------+
-| ``spp_gis.group_gis_admin``          | Full GIS management including    |
-|                                      | configuration                    |
-+--------------------------------------+----------------------------------+
++----------------------------------+----------------------------------+
+| Group                            | Access                           |
++==================================+==================================+
+| ``spp_security.group_spp_admin`` | Full CRUD on all GIS models      |
++----------------------------------+----------------------------------+
+| ``sp                             | Read-only on color schemes and   |
+| p_registry.group_registry_read`` | layers                           |
++----------------------------------+----------------------------------+
+| ``spp_gis.group_gis_user``       | View GIS data and maps           |
++----------------------------------+----------------------------------+
+| ``spp_gis.group_gis_admin``      | Full GIS management including    |
+|                                  | configuration                    |
++----------------------------------+----------------------------------+
 
 Extension Points
 ~~~~~~~~~~~~~~~~

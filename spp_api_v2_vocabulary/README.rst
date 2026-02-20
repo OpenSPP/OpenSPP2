@@ -45,20 +45,20 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+--------------------------+-------------------------------------------+
-| Model                    | Description                               |
-+==========================+===========================================+
-| ``spp.vocabulary``       | Vocabulary definitions exposed via GET    |
-|                          | endpoints                                 |
-+--------------------------+-------------------------------------------+
-| ``spp.vocabulary.code``  | Individual codes within vocabularies      |
-+--------------------------+-------------------------------------------+
-| ``spp.api.client.scope`` | Extended to add "vocabulary" resource     |
-|                          | type for OAuth                            |
-+--------------------------+-------------------------------------------+
-| ``fastapi.endpoint``     | Extended to register Vocabulary router in |
-|                          | API V2                                    |
-+--------------------------+-------------------------------------------+
++--------------------------+------------------------------------------+
+| Model                    | Description                              |
++==========================+==========================================+
+| ``spp.vocabulary``       | Vocabulary definitions exposed via GET   |
+|                          | endpoints                                |
++--------------------------+------------------------------------------+
+| ``spp.vocabulary.code``  | Individual codes within vocabularies     |
++--------------------------+------------------------------------------+
+| ``spp.api.client.scope`` | Extended to add "vocabulary" resource    |
+|                          | type for OAuth                           |
++--------------------------+------------------------------------------+
+| ``fastapi.endpoint``     | Extended to register Vocabulary router   |
+|                          | in API V2                                |
++--------------------------+------------------------------------------+
 
 API Endpoints
 ~~~~~~~~~~~~~

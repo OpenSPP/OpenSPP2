@@ -46,28 +46,30 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+----------------------------------+-----------------------------------+
-| Model                            | Description                       |
-+==================================+===================================+
-| ``spp.vocabulary``               | Collection of codes with a        |
-|                                  | namespace (e.g., Gender, ID Type) |
-+----------------------------------+-----------------------------------+
-| ``spp.vocabulary.code``          | Individual code within a          |
-|                                  | vocabulary (e.g., 'M', 'female')  |
-+----------------------------------+-----------------------------------+
-| ``spp.vocabulary.mapping``       | Maps codes between different      |
-|                                  | vocabularies                      |
-+----------------------------------+-----------------------------------+
-| ``spp.vocabulary.concept.group`` | Semantic grouping of codes for    |
-|                                  | business logic abstraction        |
-+----------------------------------+-----------------------------------+
-| ``spp.deployment.profile``       | Deployment-specific configuration |
-|                                  | for active code subsets           |
-+----------------------------------+-----------------------------------+
-| ``spp.vocabulary.selection``     | Code selection within a           |
-|                                  | deployment profile with           |
-|                                  | inheritance                       |
-+----------------------------------+-----------------------------------+
++----------------------------------+----------------------------------+
+| Model                            | Description                      |
++==================================+==================================+
+| ``spp.vocabulary``               | Collection of codes with a       |
+|                                  | namespace (e.g., Gender, ID      |
+|                                  | Type)                            |
++----------------------------------+----------------------------------+
+| ``spp.vocabulary.code``          | Individual code within a         |
+|                                  | vocabulary (e.g., 'M', 'female') |
++----------------------------------+----------------------------------+
+| ``spp.vocabulary.mapping``       | Maps codes between different     |
+|                                  | vocabularies                     |
++----------------------------------+----------------------------------+
+| ``spp.vocabulary.concept.group`` | Semantic grouping of codes for   |
+|                                  | business logic abstraction       |
++----------------------------------+----------------------------------+
+| ``spp.deployment.profile``       | Deployment-specific              |
+|                                  | configuration for active code    |
+|                                  | subsets                          |
++----------------------------------+----------------------------------+
+| ``spp.vocabulary.selection``     | Code selection within a          |
+|                                  | deployment profile with          |
+|                                  | inheritance                      |
++----------------------------------+----------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~

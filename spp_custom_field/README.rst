@@ -44,18 +44,18 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+------------------------------+---------------------------------------+
-| Model                        | Description                           |
-+==============================+=======================================+
-| ``spp.custom.field.group``   | Groups custom fields for organized    |
-|                              | display in UI                         |
-+------------------------------+---------------------------------------+
-| ``ir.model.fields`` (extend) | Adds ``field_group_id`` and           |
-|                              | ``sequence`` for field order          |
-+------------------------------+---------------------------------------+
-| ``res.partner`` (extend)     | Dynamically injects custom fields     |
-|                              | into forms                            |
-+------------------------------+---------------------------------------+
++------------------------------+--------------------------------------+
+| Model                        | Description                          |
++==============================+======================================+
+| ``spp.custom.field.group``   | Groups custom fields for organized   |
+|                              | display in UI                        |
++------------------------------+--------------------------------------+
+| ``ir.model.fields`` (extend) | Adds ``field_group_id`` and          |
+|                              | ``sequence`` for field order         |
++------------------------------+--------------------------------------+
+| ``res.partner`` (extend)     | Dynamically injects custom fields    |
+|                              | into forms                           |
++------------------------------+--------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~

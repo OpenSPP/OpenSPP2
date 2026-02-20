@@ -46,24 +46,24 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+------------------------------------+----------------------------------+
-| Model                              | Description                      |
-+====================================+==================================+
-| ``spp.dms.directory``              | Directory with parent/child      |
-|                                    | hierarchy and file storage       |
-+------------------------------------+----------------------------------+
-| ``spp.dms.file``                   | File record with binary content  |
-|                                    | and optional versioning          |
-+------------------------------------+----------------------------------+
-| ``spp.dms.file.version``           | Version snapshot with content,   |
-|                                    | checksum, and comment            |
-+------------------------------------+----------------------------------+
-| ``spp.dms.category``               | File classification with         |
-|                                    | validation rules                 |
-+------------------------------------+----------------------------------+
-| ``spp.dms.restore.version.wizard`` | Transient wizard for restoring   |
-|                                    | file versions                    |
-+------------------------------------+----------------------------------+
++----------------------------------+----------------------------------+
+| Model                            | Description                      |
++==================================+==================================+
+| ``spp.dms.directory``            | Directory with parent/child      |
+|                                  | hierarchy and file storage       |
++----------------------------------+----------------------------------+
+| ``spp.dms.file``                 | File record with binary content  |
+|                                  | and optional versioning          |
++----------------------------------+----------------------------------+
+| ``spp.dms.file.version``         | Version snapshot with content,   |
+|                                  | checksum, and comment            |
++----------------------------------+----------------------------------+
+| ``spp.dms.category``             | File classification with         |
+|                                  | validation rules                 |
++----------------------------------+----------------------------------+
+| ``                               | Transient wizard for restoring   |
+| spp.dms.restore.version.wizard`` | file versions                    |
++----------------------------------+----------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -89,18 +89,18 @@ UI Location
 Security
 ~~~~~~~~
 
-+-------------------------------+--------------------------------------+
-| Group                         | Access                               |
-+===============================+======================================+
-| ``spp_dms.group_dms_viewer``  | Read directories, files, versions,   |
-|                               | categories                           |
-+-------------------------------+--------------------------------------+
-| ``spp_dms.group_dms_officer`` | Create/edit files and directories    |
-|                               | (no delete)                          |
-+-------------------------------+--------------------------------------+
-| ``spp_dms.group_dms_manager`` | Full CRUD on all models including    |
-|                               | categories                           |
-+-------------------------------+--------------------------------------+
++-------------------------------+-------------------------------------+
+| Group                         | Access                              |
++===============================+=====================================+
+| ``spp_dms.group_dms_viewer``  | Read directories, files, versions,  |
+|                               | categories                          |
++-------------------------------+-------------------------------------+
+| ``spp_dms.group_dms_officer`` | Create/edit files and directories   |
+|                               | (no delete)                         |
++-------------------------------+-------------------------------------+
+| ``spp_dms.group_dms_manager`` | Full CRUD on all models including   |
+|                               | categories                          |
++-------------------------------+-------------------------------------+
 
 Extension Points
 ~~~~~~~~~~~~~~~~

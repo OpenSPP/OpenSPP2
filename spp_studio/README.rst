@@ -48,41 +48,41 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+-------------------------------+--------------------------------------+
-| Model                         | Description                          |
-+===============================+======================================+
-| ``spp.cel.expression``        | Business logic definitions with CEL  |
-|                               | expressions                          |
-+-------------------------------+--------------------------------------+
-| ``spp.cel.variable``          | Variable definitions for use in      |
-|                               | expressions                          |
-+-------------------------------+--------------------------------------+
-| ``spp.cel.variable.category`` | Categories for organizing variables  |
-+-------------------------------+--------------------------------------+
-| ``spp.studio.field``          | Custom field definitions for         |
-|                               | registry extension                   |
-+-------------------------------+--------------------------------------+
-| ``spp.studio.pack``           | Pre-built logic bundles for common   |
-|                               | use cases                            |
-+-------------------------------+--------------------------------------+
-| ``spp.studio.pack.item``      | Individual logic definitions within  |
-|                               | a pack                               |
-+-------------------------------+--------------------------------------+
-| ``spp.studio.test``           | Test cases for validating logic      |
-|                               | expressions                          |
-+-------------------------------+--------------------------------------+
-| ``spp.studio.test.persona``   | Test personas with example data for  |
-|                               | logic validation                     |
-+-------------------------------+--------------------------------------+
-| ``spp.studio.placement.zone`` | Form zones where custom fields can   |
-|                               | be placed                            |
-+-------------------------------+--------------------------------------+
-| ``spp.studio.version``        | Version history tracking for logic   |
-|                               | changes                              |
-+-------------------------------+--------------------------------------+
-| ``spp.studio.usage``          | Usage tracking for logic and field   |
-|                               | references                           |
-+-------------------------------+--------------------------------------+
++-------------------------------+-------------------------------------+
+| Model                         | Description                         |
++===============================+=====================================+
+| ``spp.cel.expression``        | Business logic definitions with CEL |
+|                               | expressions                         |
++-------------------------------+-------------------------------------+
+| ``spp.cel.variable``          | Variable definitions for use in     |
+|                               | expressions                         |
++-------------------------------+-------------------------------------+
+| ``spp.cel.variable.category`` | Categories for organizing variables |
++-------------------------------+-------------------------------------+
+| ``spp.studio.field``          | Custom field definitions for        |
+|                               | registry extension                  |
++-------------------------------+-------------------------------------+
+| ``spp.studio.pack``           | Pre-built logic bundles for common  |
+|                               | use cases                           |
++-------------------------------+-------------------------------------+
+| ``spp.studio.pack.item``      | Individual logic definitions within |
+|                               | a pack                              |
++-------------------------------+-------------------------------------+
+| ``spp.studio.test``           | Test cases for validating logic     |
+|                               | expressions                         |
++-------------------------------+-------------------------------------+
+| ``spp.studio.test.persona``   | Test personas with example data for |
+|                               | logic validation                    |
++-------------------------------+-------------------------------------+
+| ``spp.studio.placement.zone`` | Form zones where custom fields can  |
+|                               | be placed                           |
++-------------------------------+-------------------------------------+
+| ``spp.studio.version``        | Version history tracking for logic  |
+|                               | changes                             |
++-------------------------------+-------------------------------------+
+| ``spp.studio.usage``          | Usage tracking for logic and field  |
+|                               | references                          |
++-------------------------------+-------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -110,16 +110,18 @@ UI Location
 Security
 ~~~~~~~~
 
-+--------------------------------------------+----------------------------------+
-| Group                                      | Access                           |
-+============================================+==================================+
-| ``spp_studio.group_studio_viewer``         | Read                             |
-+--------------------------------------------+----------------------------------+
-| ``spp_studio.group_studio_editor_officer`` | Read/Write/Create on logic and   |
-|                                            | fields (no delete on fields)     |
-+--------------------------------------------+----------------------------------+
-| ``spp_studio.group_studio_manager``        | Full CRUD                        |
-+--------------------------------------------+----------------------------------+
++----------------------------------+----------------------------------+
+| Group                            | Access                           |
++==================================+==================================+
+| ``                               | Read                             |
+| spp_studio.group_studio_viewer`` |                                  |
++----------------------------------+----------------------------------+
+| ``spp_stud                       | Read/Write/Create on logic and   |
+| io.group_studio_editor_officer`` | fields (no delete on fields)     |
++----------------------------------+----------------------------------+
+| ``s                              | Full CRUD                        |
+| pp_studio.group_studio_manager`` |                                  |
++----------------------------------+----------------------------------+
 
 Extension Points
 ~~~~~~~~~~~~~~~~

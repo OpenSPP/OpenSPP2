@@ -46,21 +46,21 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+-------------------------------+--------------------------------------+
-| Model                         | Description                          |
-+===============================+======================================+
-| ``spp.hdx.cod.source``        | Tracks COD datasets available from   |
-|                               | HDX (one per country)                |
-+-------------------------------+--------------------------------------+
-| ``spp.hdx.cod.resource``      | Individual admin level dataset       |
-|                               | within a COD (e.g., Level 3)         |
-+-------------------------------+--------------------------------------+
-| ``spp.hdx.cod.import.wizard`` | Multi-step wizard to download from   |
-|                               | HDX or upload GeoJSON                |
-+-------------------------------+--------------------------------------+
-| ``spp.area`` (extended)       | Adds ``hdx_pcode`` field and GPS     |
-|                               | lookup methods                       |
-+-------------------------------+--------------------------------------+
++-------------------------------+-------------------------------------+
+| Model                         | Description                         |
++===============================+=====================================+
+| ``spp.hdx.cod.source``        | Tracks COD datasets available from  |
+|                               | HDX (one per country)               |
++-------------------------------+-------------------------------------+
+| ``spp.hdx.cod.resource``      | Individual admin level dataset      |
+|                               | within a COD (e.g., Level 3)        |
++-------------------------------+-------------------------------------+
+| ``spp.hdx.cod.import.wizard`` | Multi-step wizard to download from  |
+|                               | HDX or upload GeoJSON               |
++-------------------------------+-------------------------------------+
+| ``spp.area`` (extended)       | Adds ``hdx_pcode`` field and GPS    |
+|                               | lookup methods                      |
++-------------------------------+-------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -87,14 +87,14 @@ UI Location
 Security
 ~~~~~~~~
 
-+-----------------------+----------------------------------------------+
-| Group                 | Access                                       |
-+=======================+==============================================+
-| ``group_hdx_user``    | Read access to COD sources and resources     |
-+-----------------------+----------------------------------------------+
-| ``group_hdx_manager`` | Full CRUD on sources/resources, sync from    |
-|                       | HDX, run imports                             |
-+-----------------------+----------------------------------------------+
++-----------------------+---------------------------------------------+
+| Group                 | Access                                      |
++=======================+=============================================+
+| ``group_hdx_user``    | Read access to COD sources and resources    |
++-----------------------+---------------------------------------------+
+| ``group_hdx_manager`` | Full CRUD on sources/resources, sync from   |
+|                       | HDX, run imports                            |
++-----------------------+---------------------------------------------+
 
 Extension Points
 ~~~~~~~~~~~~~~~~

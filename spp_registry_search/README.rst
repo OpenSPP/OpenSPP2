@@ -46,15 +46,15 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+-------------------------------+--------------------------------------+
-| Model                         | Description                          |
-+===============================+======================================+
-| ``spp.registry.view.history`` | Tracks user's recently viewed        |
-|                               | registrants with timestamps          |
-+-------------------------------+--------------------------------------+
-| ``res.partner`` (extended)    | Adds view tracking on form open and  |
-|                               | archive restrictions                 |
-+-------------------------------+--------------------------------------+
++-------------------------------+-------------------------------------+
+| Model                         | Description                         |
++===============================+=====================================+
+| ``spp.registry.view.history`` | Tracks user's recently viewed       |
+|                               | registrants with timestamps         |
++-------------------------------+-------------------------------------+
+| ``res.partner`` (extended)    | Adds view tracking on form open and |
+|                               | archive restrictions                |
++-------------------------------+-------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -81,16 +81,16 @@ UI Location
 Security
 ~~~~~~~~
 
-+-------------------------------------------------------+----------------------------------+
-| Group                                                 | Access                           |
-+=======================================================+==================================+
-| ``spp_registry.group_registry_read``                  | Full CRUD on view history        |
-|                                                       | (restricted to own records via   |
-|                                                       | IR rule)                         |
-+-------------------------------------------------------+----------------------------------+
-| ``spp_registry_search.group_registry_search_auditor`` | Bypass search requirement,       |
-|                                                       | access browse-all menus          |
-+-------------------------------------------------------+----------------------------------+
++----------------------------------+----------------------------------+
+| Group                            | Access                           |
++==================================+==================================+
+| ``sp                             | Full CRUD on view history        |
+| p_registry.group_registry_read`` | (restricted to own records via   |
+|                                  | IR rule)                         |
++----------------------------------+----------------------------------+
+| ``spp_registry_search            | Bypass search requirement,       |
+| .group_registry_search_auditor`` | access browse-all menus          |
++----------------------------------+----------------------------------+
 
 Archive/unarchive permission check enforces these groups:
 

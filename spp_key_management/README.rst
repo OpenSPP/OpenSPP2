@@ -50,42 +50,43 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+-------------------------------------+----------------------------------+
-| Model                               | Description                      |
-+=====================================+==================================+
-| ``spp.key.manager``                 | Main service interface for all   |
-|                                     | key operations                   |
-+-------------------------------------+----------------------------------+
-| ``spp.encryption.key``              | Encrypted key storage with       |
-|                                     | versioning support               |
-+-------------------------------------+----------------------------------+
-| ``spp.key.provider``                | Abstract base class for key      |
-|                                     | provider implementations         |
-+-------------------------------------+----------------------------------+
-| ``spp.key.provider.registry``       | Registry configuring which       |
-|                                     | provider serves which purpose    |
-+-------------------------------------+----------------------------------+
-| ``spp.key.purpose``                 | Purpose definitions (PII,        |
-|                                     | financial, credentials, etc)     |
-+-------------------------------------+----------------------------------+
-| ``spp.asymmetric.key``              | RSA/EC/Ed25519 key pairs for     |
-|                                     | signing operations               |
-+-------------------------------------+----------------------------------+
-| ``spp.key.provider.config``         | Configuration file provider      |
-|                                     | (development)                    |
-+-------------------------------------+----------------------------------+
-| ``spp.key.provider.database``       | Database provider using envelope |
-|                                     | encryption                       |
-+-------------------------------------+----------------------------------+
-| ``spp.key.provider.vault``          | HashiCorp Vault integration      |
-+-------------------------------------+----------------------------------+
-| ``spp.key.provider.aws.kms``        | AWS Key Management Service       |
-|                                     | integration                      |
-+-------------------------------------+----------------------------------+
-| ``spp.key.provider.gcp.kms``        | Google Cloud KMS integration     |
-+-------------------------------------+----------------------------------+
-| ``spp.key.provider.azure.keyvault`` | Azure Key Vault integration      |
-+-------------------------------------+----------------------------------+
++----------------------------------+----------------------------------+
+| Model                            | Description                      |
++==================================+==================================+
+| ``spp.key.manager``              | Main service interface for all   |
+|                                  | key operations                   |
++----------------------------------+----------------------------------+
+| ``spp.encryption.key``           | Encrypted key storage with       |
+|                                  | versioning support               |
++----------------------------------+----------------------------------+
+| ``spp.key.provider``             | Abstract base class for key      |
+|                                  | provider implementations         |
++----------------------------------+----------------------------------+
+| ``spp.key.provider.registry``    | Registry configuring which       |
+|                                  | provider serves which purpose    |
++----------------------------------+----------------------------------+
+| ``spp.key.purpose``              | Purpose definitions (PII,        |
+|                                  | financial, credentials, etc)     |
++----------------------------------+----------------------------------+
+| ``spp.asymmetric.key``           | RSA/EC/Ed25519 key pairs for     |
+|                                  | signing operations               |
++----------------------------------+----------------------------------+
+| ``spp.key.provider.config``      | Configuration file provider      |
+|                                  | (development)                    |
++----------------------------------+----------------------------------+
+| ``spp.key.provider.database``    | Database provider using envelope |
+|                                  | encryption                       |
++----------------------------------+----------------------------------+
+| ``spp.key.provider.vault``       | HashiCorp Vault integration      |
++----------------------------------+----------------------------------+
+| ``spp.key.provider.aws.kms``     | AWS Key Management Service       |
+|                                  | integration                      |
++----------------------------------+----------------------------------+
+| ``spp.key.provider.gcp.kms``     | Google Cloud KMS integration     |
++----------------------------------+----------------------------------+
+| ``s                              | Azure Key Vault integration      |
+| pp.key.provider.azure.keyvault`` |                                  |
++----------------------------------+----------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -118,18 +119,18 @@ UI Location
 Security
 ~~~~~~~~
 
-+---------------------------------------------------+----------------------------------+
-| Group                                             | Access                           |
-+===================================================+==================================+
-| ``spp_key_management.group_key_admin``            | Read/Write/Create on all models, |
-|                                                   | key rotation                     |
-+---------------------------------------------------+----------------------------------+
-| ``spp_key_management.group_key_operator_officer`` | Read encryption keys for use in  |
-|                                                   | operations                       |
-+---------------------------------------------------+----------------------------------+
-| ``base.group_system``                             | Full access to all key           |
-|                                                   | management features              |
-+---------------------------------------------------+----------------------------------+
++----------------------------------+----------------------------------+
+| Group                            | Access                           |
++==================================+==================================+
+| ``spp_                           | Read/Write/Create on all models, |
+| key_management.group_key_admin`` | key rotation                     |
++----------------------------------+----------------------------------+
+| ``spp_key_managem                | Read encryption keys for use in  |
+| ent.group_key_operator_officer`` | operations                       |
++----------------------------------+----------------------------------+
+| ``base.group_system``            | Full access to all key           |
+|                                  | management features              |
++----------------------------------+----------------------------------+
 
 Encryption keys and asymmetric keys cannot be deleted (enforced by
 Python ``unlink()`` override). All key access operations are logged with

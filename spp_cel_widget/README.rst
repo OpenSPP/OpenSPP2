@@ -47,16 +47,16 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+-----------------------------+----------------------------------------+
-| Model                       | Description                            |
-+=============================+========================================+
-| ``spp.cel.symbol.provider`` | Abstract model that extracts symbols   |
-|                             | for autocompletion and validates       |
-|                             | expressions                            |
-+-----------------------------+----------------------------------------+
-| ``spp.cel.widget.demo``     | Transient wizard for testing the       |
-|                             | widget (debug mode only)               |
-+-----------------------------+----------------------------------------+
++-----------------------------+---------------------------------------+
+| Model                       | Description                           |
++=============================+=======================================+
+| ``spp.cel.symbol.provider`` | Abstract model that extracts symbols  |
+|                             | for autocompletion and validates      |
+|                             | expressions                           |
++-----------------------------+---------------------------------------+
+| ``spp.cel.widget.demo``     | Transient wizard for testing the      |
+|                             | widget (debug mode only)              |
++-----------------------------+---------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -102,19 +102,20 @@ Tabs in Demo Wizard
 Security
 ~~~~~~~~
 
-+--------------------+-------------------------+------------------------+
-| Group              | Model                   | Access                 |
-+====================+=========================+========================+
-| Internal User      | HTTP endpoints          | Can call widget        |
-|                    |                         | JSONRPC endpoints      |
-|                    |                         | (auth="user")          |
-+--------------------+-------------------------+------------------------+
-| Settings           | ``spp.cel.widget.demo`` | Full CRUD (read,       |
-|                    |                         | write, create, delete) |
-+--------------------+-------------------------+------------------------+
-| Technical Features | Menu visibility         | Can see demo menu in   |
-|                    |                         | Settings > Technical   |
-+--------------------+-------------------------+------------------------+
++--------------------+-----------------------+-----------------------+
+| Group              | Model                 | Access                |
++====================+=======================+=======================+
+| Internal User      | HTTP endpoints        | Can call widget       |
+|                    |                       | JSONRPC endpoints     |
+|                    |                       | (auth="user")         |
++--------------------+-----------------------+-----------------------+
+| Settings           | ``                    | Full CRUD (read,      |
+|                    | spp.cel.widget.demo`` | write, create,        |
+|                    |                       | delete)               |
++--------------------+-----------------------+-----------------------+
+| Technical Features | Menu visibility       | Can see demo menu in  |
+|                    |                       | Settings > Technical  |
++--------------------+-----------------------+-----------------------+
 
 HTTP Endpoints
 ~~~~~~~~~~~~~~
