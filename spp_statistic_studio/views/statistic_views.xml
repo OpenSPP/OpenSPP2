@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         STATISTIC VIEWS
+         ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- List View -->
+    <record id="spp_statistic_view_list" model="ir.ui.view">
+        <field name="name">spp.statistic.view.list</field>
+        <field name="model">spp.statistic</field>
+        <field name="arch" type="xml">
+            <list string="Statistics" default_order="category_id, sequence">
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="label" />
+                <field name="variable_id" />
+                <field name="format" />
+                <field name="category_id" />
+                <field name="minimum_count" string="Min k" />
+                <field name="is_sensitive" widget="boolean_toggle" string="Sensitive" />
+                <field name="is_published_gis" widget="boolean_toggle" />
+                <field name="is_published_dashboard" widget="boolean_toggle" />
+                <field name="is_published_api" widget="boolean_toggle" />
+                <field name="is_published_report" widget="boolean_toggle" />
+                <field name="active" column_invisible="True" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="spp_statistic_view_form" model="ir.ui.view">
+        <field name="name">spp.statistic.view.form</field>
+        <field name="model">spp.statistic</field>
+        <field name="arch" type="xml">
+            <form string="Statistic">
+                <sheet>
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="text-bg-danger"
+                        invisible="active"
+                    />
+                    <div class="oe_title">
+                        <label for="label" />
+                        <h1>
+                            <field name="label" placeholder="e.g., Children Under 5" />
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group string="Identity">
+                            <field name="name" placeholder="e.g., children_under_5" />
+                            <field
+                                name="description"
+                                placeholder="Detailed description..."
+                            />
+                            <field name="category_id" />
+                            <field name="sequence" />
+                            <field name="active" invisible="True" />
+                        </group>
+                        <group string="Data Source">
+                            <field name="variable_id" options="{'no_create': True}" />
+                            <field name="variable_accessor" readonly="True" />
+                            <field name="variable_source_type" readonly="True" />
+                        </group>
+                    </group>
+
+                    <group>
+                        <group string="Presentation">
+                            <field name="format" />
+                            <field
+                                name="unit"
+                                placeholder="e.g., people, households, %"
+                            />
+                            <field name="decimal_places" />
+                        </group>
+                        <group string="Publication">
+                            <field name="is_published_gis" widget="boolean_toggle" />
+                            <field
+                                name="is_published_dashboard"
+                                widget="boolean_toggle"
+                            />
+                            <field name="is_published_api" widget="boolean_toggle" />
+                            <field name="is_published_report" widget="boolean_toggle" />
+                        </group>
+                    </group>
+
+                    <group>
+                        <group string="Privacy (k-Anonymity)">
+                            <field name="minimum_count" />
+                            <field name="suppression_display" />
+                            <field name="is_sensitive" widget="boolean_toggle" />
+                        </group>
+                        <group>
+                            <div class="text-muted small">
+                                <p><strong
+                                >Privacy Protection:</strong> Values are suppressed when the underlying count is below the minimum threshold to prevent re-identification of individuals in small groups.</p>
+                                <p
+                                >Common thresholds: 5 (basic), 10 (moderate), 20+ (sensitive data like disability status).</p>
+                            </div>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Context Overrides" name="context_overrides">
+                            <field name="context_ids">
+                                <list editable="bottom">
+                                    <field name="context" />
+                                    <field name="label" placeholder="Override label" />
+                                    <field name="format" />
+                                    <field name="group" placeholder="Override group" />
+                                    <field name="minimum_count" string="Min Count" />
+                                    <field name="icon" />
+                                    <field name="color" />
+                                </list>
+                            </field>
+                            <div class="text-muted">
+                                <p
+                                >Context overrides allow customizing how this statistic appears in different contexts (GIS, Dashboard, API, Reports).</p>
+                                <p
+                                >Leave fields empty to use the default values from above. Use higher minimum counts for public-facing contexts.</p>
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="spp_statistic_view_search" model="ir.ui.view">
+        <field name="name">spp.statistic.view.search</field>
+        <field name="model">spp.statistic</field>
+        <field name="arch" type="xml">
+            <search string="Statistics">
+                <field name="name" />
+                <field name="label" />
+                <field name="variable_id" />
+                <field name="category_id" />
+                <separator />
+                <filter
+                    name="published_gis"
+                    string="GIS"
+                    domain="[('is_published_gis', '=', True)]"
+                />
+                <filter
+                    name="published_dashboard"
+                    string="Dashboard"
+                    domain="[('is_published_dashboard', '=', True)]"
+                />
+                <filter
+                    name="published_api"
+                    string="API"
+                    domain="[('is_published_api', '=', True)]"
+                />
+                <filter
+                    name="published_report"
+                    string="Reports"
+                    domain="[('is_published_report', '=', True)]"
+                />
+                <separator />
+                <filter
+                    name="sensitive"
+                    string="Sensitive Data"
+                    domain="[('is_sensitive', '=', True)]"
+                />
+                <filter
+                    name="inactive"
+                    string="Archived"
+                    domain="[('active', '=', False)]"
+                />
+                <group>
+                    <filter
+                        string="Category"
+                        name="group_category"
+                        context="{'group_by': 'category_id'}"
+                    />
+                    <filter
+                        string="Format"
+                        name="group_format"
+                        context="{'group_by': 'format'}"
+                    />
+                    <filter
+                        string="Source Type"
+                        name="group_source"
+                        context="{'group_by': 'variable_source_type'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Kanban View -->
+    <record id="spp_statistic_view_kanban" model="ir.ui.view">
+        <field name="name">spp.statistic.view.kanban</field>
+        <field name="model">spp.statistic</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="category_id" class="o_kanban_small_column">
+                <field name="name" />
+                <field name="label" />
+                <field name="format" />
+                <field name="is_published_gis" />
+                <field name="is_published_dashboard" />
+                <field name="is_published_api" />
+                <field name="category_id" />
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_content">
+                            <strong class="o_kanban_record_title">
+                                <field name="label" />
+                            </strong>
+                            <div class="text-muted small">
+                                <field name="name" />
+                            </div>
+                            <div class="mt-2">
+                                <span
+                                    t-if="record.is_published_gis.raw_value"
+                                    class="badge text-bg-success me-1"
+                                >GIS</span>
+                                <span
+                                    t-if="record.is_published_dashboard.raw_value"
+                                    class="badge text-bg-info me-1"
+                                >Dashboard</span>
+                                <span
+                                    t-if="record.is_published_api.raw_value"
+                                    class="badge text-bg-warning me-1"
+                                >API</span>
+                            </div>
+                            <div class="mt-1 text-muted small">
+                                Format: <field name="format" />
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="spp_statistic_action" model="ir.actions.act_window">
+        <field name="name">Statistics</field>
+        <field name="res_model">spp.statistic</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="spp_statistic_view_search" />
+        <field name="context">{'search_default_group_category': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first statistic
+            </p>
+            <p>
+                Statistics define what data to publish and where.
+                Each statistic is linked to a CEL variable that defines the computation.
+            </p>
+        </field>
+    </record>
+</odoo>
