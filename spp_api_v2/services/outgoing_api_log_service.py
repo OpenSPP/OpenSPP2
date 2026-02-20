@@ -3,7 +3,7 @@
 
 import json
 import logging
-from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
+from urllib.parse import parse_qs, quote_plus, urlencode, urlparse, urlunparse
 
 import psycopg2
 
@@ -187,7 +187,11 @@ class OutgoingApiLogService:
             key: ([self.MASK_VALUE] if key.lower() in self.SENSITIVE_KEYS else values) for key, values in params.items()
         }
 
-        sanitized_query = urlencode(sanitized_params, doseq=True)
+        sanitized_query = urlencode(
+            sanitized_params,
+            doseq=True,
+            quote_via=lambda s, safe="", encoding=None, errors=None: quote_plus(s, safe="*"),
+        )
         sanitized = parsed._replace(query=sanitized_query)
         return urlunparse(sanitized)
 
