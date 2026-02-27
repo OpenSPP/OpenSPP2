@@ -218,8 +218,8 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                             </field>
                         </page>
                         <page string="IDs" name="ids">
-                            <field name="reg_ids" nolabel="1" colspan="2" readonly="1">
-                                <list>
+                            <field name="reg_ids" nolabel="1" colspan="2">
+                                <list editable="bottom">
                                     <field name="id_type_id" />
                                     <field name="value" string="ID Number" />
                                     <field name="expiry_date" />
@@ -228,13 +228,8 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                         </page>
                         <page string="Relationships" name="relationships">
                             <group string="Registrant is related to:">
-                                <field
-                                    name="related_1_ids"
-                                    nolabel="1"
-                                    colspan="2"
-                                    readonly="1"
-                                >
-                                    <list>
+                                <field name="related_1_ids" nolabel="1" colspan="2">
+                                    <list editable="bottom">
                                         <field
                                             name="source"
                                             domain="[('is_registrant','=',True),('id','!=',id)]"
@@ -318,9 +313,8 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
                                     name="individual_membership_ids"
                                     nolabel="1"
                                     colspan="2"
-                                    readonly="1"
                                 >
-                                    <list>
+                                    <list editable="bottom">
                                         <field
                                             name="group"
                                             domain="[('is_registrant','=',True),('is_group','=',True)]"
