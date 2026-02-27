@@ -76,6 +76,12 @@ rules:
       - "entitlement_manager_ids" # Entitlement managers (typically <10 per program)
       - "payment_manager_ids" # Payment managers (typically <10 per program)
       - "farm_machinery_ids" # Farm machinery (typically <20 per farm)
+      - "group_membership_ids" # Group members (editable from registrant form)
+      - "individual_membership_ids" # Individual memberships (editable from registrant form)
+      - "reg_ids" # Registrant IDs (editable from registrant form)
+      - "related_1_ids" # Relationships (editable from registrant form)
+      - "related_2_ids" # Relationships (editable from registrant form)
+      - "beneficiary_ids" # Duplicate beneficiaries (editable from duplicate form)
 
 # Severity overrides (change default severity for rules)
 # Valid values: error, warning, info
