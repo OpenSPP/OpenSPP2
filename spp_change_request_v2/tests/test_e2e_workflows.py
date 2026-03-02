@@ -135,7 +135,7 @@ class TestE2EWorkflows(TransactionCase):
         self.assertEqual(spouse.name, "DELA CRUZ, MARIA")
 
         # Step 3: Add children
-        for _i, name in enumerate(["Pedro", "Ana"]):
+        for i, name in enumerate(["Pedro", "Ana"]):
             cr = self.cr_model.create(
                 {
                     "request_type_id": self.add_member_type.id,
@@ -232,7 +232,7 @@ class TestE2EWorkflows(TransactionCase):
             }
         )
 
-        self.membership_model.create(
+        mem_parent1 = self.membership_model.create(
             {
                 "group": original.id,
                 "individual": parent1.id,

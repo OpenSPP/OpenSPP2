@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- ══════════════════════════════════════════════════════════════════════════
+         REVIEW STAGE FORM - Shared across all CR types
+         ══════════════════════════════════════════════════════════════════════════ -->
+    <record id="spp_change_request_review_form" model="ir.ui.view">
+        <field name="name">spp.change.request.review.form</field>
+        <field name="model">spp.change.request</field>
+        <field name="priority">31</field>
+        <field name="arch" type="xml">
+            <form create="0" delete="0">
+                <header>
+                    <!-- Hidden fields for visibility logic -->
+                    <field name="can_approve" invisible="1" />
+                    <field name="is_applied" invisible="1" />
+
+                    <!-- Draft/Revision: Back, Submit, and Save as Draft buttons -->
+                    <button
+                        name="action_goto_documents"
+                        string="Back: Documents"
+                        type="object"
+                        class="btn-warning"
+                        icon="fa-arrow-left"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <button
+                        name="action_submit_for_approval"
+                        string="Submit for Approval"
+                        type="object"
+                        class="btn-primary"
+                        invisible="approval_state != 'draft'"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <button
+                        name="action_submit_for_approval"
+                        string="Resubmit for Review"
+                        type="object"
+                        class="btn-primary"
+                        invisible="approval_state != 'revision'"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <button
+                        name="action_save_and_go_to_list"
+                        string="Save as Draft"
+                        type="object"
+                        class="btn-outline-secondary"
+                        invisible="approval_state != 'draft'"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+
+                    <!-- Pending: Validator actions -->
+                    <button
+                        name="action_approve"
+                        string="Approve"
+                        type="object"
+                        class="btn-success"
+                        invisible="approval_state != 'pending' or not can_approve"
+                        groups="spp_change_request_v2.group_cr_validator,spp_change_request_v2.group_cr_validator_hq"
+                        confirm="Confirm approval of this change request?"
+                    />
+                    <button
+                        name="action_request_revision"
+                        string="Request Changes"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="approval_state != 'pending' or not can_approve"
+                        groups="spp_change_request_v2.group_cr_validator,spp_change_request_v2.group_cr_validator_hq"
+                    />
+                    <button
+                        name="action_reject"
+                        string="Reject"
+                        type="object"
+                        class="btn-outline-danger"
+                        invisible="approval_state != 'pending' or not can_approve"
+                        groups="spp_change_request_v2.group_cr_validator,spp_change_request_v2.group_cr_validator_hq"
+                        confirm="Reject this change request? This action cannot be undone."
+                    />
+
+                    <!-- Approved: Apply button -->
+                    <button
+                        name="action_apply"
+                        string="Apply"
+                        type="object"
+                        class="btn-primary"
+                        invisible="approval_state != 'approved' or is_applied"
+                        groups="spp_change_request_v2.group_cr_manager"
+                        confirm="This will apply all approved changes. This action cannot be undone. Continue?"
+                    />
+
+                    <!-- Rejected: Start Over (create new CR) -->
+                    <button
+                        name="action_start_over"
+                        string="Start Over"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="approval_state != 'rejected'"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+
+                    <!-- Statusbar: creation stages for draft/revision -->
+                    <field
+                        name="stage"
+                        widget="statusbar"
+                        statusbar_visible="details,documents,review"
+                        invisible="approval_state not in ('draft', 'revision')"
+                    />
+                    <!-- Statusbar: CR lifecycle (normal flow) -->
+                    <field
+                        name="display_state"
+                        widget="statusbar"
+                        statusbar_visible="draft,pending,approved,applied"
+                        invisible="approval_state in ('draft', 'revision', 'rejected')"
+                    />
+                    <!-- Statusbar: CR lifecycle (rejected flow) -->
+                    <field
+                        name="display_state"
+                        widget="statusbar"
+                        statusbar_visible="draft,pending,rejected"
+                        invisible="approval_state != 'rejected'"
+                    />
+                </header>
+                <sheet>
+                    <!-- Ribbons for terminal states -->
+                    <widget
+                        name="web_ribbon"
+                        title="Applied"
+                        bg_color="text-bg-success"
+                        invisible="not is_applied"
+                    />
+                    <widget
+                        name="web_ribbon"
+                        title="Rejected"
+                        bg_color="text-bg-danger"
+                        invisible="approval_state != 'rejected'"
+                    />
+
+                    <!-- Context banner -->
+                    <div class="alert alert-light border d-flex align-items-center mb-4 py-2">
+                        <i class="fa fa-search fa-lg text-primary me-3" />
+                        <field name="stage_banner_html" nolabel="1" readonly="1" />
+                    </div>
+
+                    <!-- Revision feedback banner (for creator in revision state) -->
+                    <div
+                        class="alert alert-warning"
+                        role="status"
+                        invisible="approval_state != 'revision' or not revision_notes"
+                    >
+                        <div class="d-flex align-items-center">
+                            <i class="fa fa-edit fa-2x me-3" />
+                            <div>
+                                <h5 class="alert-heading mb-1">Revision Requested</h5>
+                                <field
+                                    name="revision_notes"
+                                    readonly="1"
+                                    class="mb-0"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rejection reason banner -->
+                    <div
+                        class="alert alert-danger"
+                        role="status"
+                        invisible="approval_state != 'rejected' or not rejection_reason"
+                    >
+                        <div class="d-flex align-items-center">
+                            <i class="fa fa-ban fa-2x me-3" />
+                            <div>
+                                <h5 class="alert-heading mb-1">Rejected</h5>
+                                <field
+                                    name="rejection_reason"
+                                    readonly="1"
+                                    class="mb-0"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Approval status banner -->
+                    <div
+                        class="alert alert-info"
+                        role="status"
+                        invisible="not multitier_approval_message"
+                    >
+                        <div class="d-flex align-items-center">
+                            <i class="fa fa-clock-o fa-2x me-3" />
+                            <div>
+                                <field name="multitier_approval_message" nolabel="1" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Review instruction -->
+                    <div class="alert alert-warning mb-3 py-2">
+                        <i class="fa fa-exclamation-triangle me-2" />
+                        Review the changes below.
+                    </div>
+
+                    <notebook>
+                        <page string="Proposed Changes" name="proposed_changes">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <field
+                                        name="review_comparison_html"
+                                        nolabel="1"
+                                        readonly="1"
+                                    />
+                                </div>
+                            </div>
+                        </page>
+                        <page string="Attached Documents" name="attached_documents">
+                            <div class="alert alert-warning mb-3 py-2">
+                                <i class="fa fa-exclamation-triangle me-2" />
+                                Only images and PDF files can be previewed. Other file types must be downloaded to view.
+                            </div>
+                            <field name="document_ids" readonly="1" nolabel="1"
+                                   invisible="not document_ids">
+                                <list no_open="1">
+                                    <field name="is_previewable" column_invisible="1" />
+                                    <field name="content" widget="preview_widget"
+                                           invisible="not is_previewable" />
+                                    <button name="action_download"
+                                            type="object"
+                                            icon="fa-download"
+                                            title="Download"
+                                            column_invisible="not parent.allow_document_download" />
+                                    <field name="name" string="File" />
+                                    <field name="document_type_id" string="Document Type" />
+                                    <field name="human_size" string="Size" />
+                                    <field name="create_date" string="Uploaded" />
+                                </list>
+                            </field>
+                            <div invisible="document_ids" class="text-muted">
+                                <i class="fa fa-info-circle me-1" />
+                                No documents attached.
+                            </div>
+                        </page>
+                        <page string="Request Log" name="cr_log">
+                            <field name="log_ids" readonly="1" nolabel="1">
+                                <list no_open="1">
+                                    <field name="create_date" string="Date" />
+                                    <field name="action_label" string="Action" />
+                                    <field name="user_id" string="By" widget="many2one" />
+                                    <field name="notes" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+
+                    <!-- Hidden fields -->
+                    <field name="name" invisible="1" />
+                    <field name="request_type_id" invisible="1" />
+                    <field name="registrant_id" invisible="1" />
+                    <field name="approval_state" invisible="1" />
+                    <field name="has_proposed_changes" invisible="1" />
+                    <field name="dms_directory_id" invisible="1" />
+                    <field name="allow_document_download" invisible="1" />
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

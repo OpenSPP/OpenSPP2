@@ -5,14 +5,13 @@ Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 User roles for Change Request module.
 -->
 <odoo noupdate="1">
+
     <!-- CR Requestor Role -->
     <!-- For users who can create and submit change requests -->
     <record id="global_role_cr_requestor" model="res.users.role">
         <field name="name">CR Requestor</field>
         <field name="role_type">global</field>
-        <field
-            name="comment"
-        >Can create and submit change requests for approval.</field>
+        <field name="comment">Can create and submit change requests for approval.</field>
         <field
             name="implied_ids"
             eval="[
@@ -54,4 +53,5 @@ User roles for Change Request module.
             ]"
         />
     </record>
+
 </odoo>

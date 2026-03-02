@@ -7,22 +7,16 @@
     <record id="view_spp_change_request_type_form_conflict" model="ir.ui.view">
         <field name="name">spp.change.request.type.form.conflict</field>
         <field name="model">spp.change.request.type</field>
-        <field name="inherit_id" ref="spp_change_request_type_form" />
+        <field name="inherit_id" ref="spp_change_request_type_form"/>
         <field name="arch" type="xml">
             <!-- Add conflict rule stat button -->
             <xpath expr="//div[@name='button_box']" position="inside">
-                <button
-                    name="action_view_conflict_rules"
-                    type="object"
-                    class="oe_stat_button"
-                    icon="fa-exclamation-triangle"
-                    invisible="not enable_conflict_detection"
-                >
-                    <field
-                        name="conflict_rule_count"
-                        widget="statinfo"
-                        string="Conflict Rules"
-                    />
+                <button name="action_view_conflict_rules"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-exclamation-triangle"
+                        invisible="not enable_conflict_detection">
+                    <field name="conflict_rule_count" widget="statinfo" string="Conflict Rules"/>
                 </button>
             </xpath>
 
@@ -31,72 +25,51 @@
                 <page string="Conflict Detection" name="conflict_detection">
                     <group>
                         <group string="Conflict Detection">
-                            <field name="enable_conflict_detection" />
+                            <field name="enable_conflict_detection"/>
                         </group>
                         <group string="Duplicate Detection">
-                            <field name="enable_duplicate_detection" />
-                            <label
-                                for="duplicate_detection_config_id"
-                                invisible="not enable_duplicate_detection"
-                            />
+                            <field name="enable_duplicate_detection"/>
+                            <label for="duplicate_detection_config_id"
+                                   invisible="not enable_duplicate_detection"/>
                             <div invisible="not enable_duplicate_detection">
-                                <field
-                                    name="duplicate_detection_config_id"
-                                    class="oe_inline"
-                                />
-                                <button
-                                    name="action_configure_duplicate_detection"
-                                    type="object"
-                                    icon="fa-cog"
-                                    title="Configure Duplicate Detection"
-                                    class="btn-link oe_link"
-                                />
+                                <field name="duplicate_detection_config_id" class="oe_inline"/>
+                                <button name="action_configure_duplicate_detection"
+                                        type="object"
+                                        icon="fa-cog"
+                                        title="Configure Duplicate Detection"
+                                        class="btn-link oe_link"/>
                             </div>
                         </group>
                     </group>
 
                     <!-- Conflict Rules Section -->
-                    <separator
-                        string="Conflict Rules"
-                        invisible="not enable_conflict_detection"
-                    />
-                    <field
-                        name="conflict_rule_ids"
-                        nolabel="1"
-                        invisible="not enable_conflict_detection"
-                    >
+                    <separator string="Conflict Rules" invisible="not enable_conflict_detection"/>
+                    <field name="conflict_rule_ids" nolabel="1" invisible="not enable_conflict_detection">
                         <list editable="bottom">
-                            <field name="sequence" widget="handle" />
-                            <field name="name" />
-                            <field name="scope" />
-                            <field
-                                name="action"
-                                decoration-danger="action == 'block'"
-                                decoration-warning="action == 'warn'"
-                                decoration-muted="action == 'log'"
-                            />
-                            <field name="conflict_states" />
-                            <field name="check_same_type_only" />
-                            <field name="time_window_hours" />
-                            <field name="active" />
+                            <field name="sequence" widget="handle"/>
+                            <field name="name"/>
+                            <field name="scope"/>
+                            <field name="action"
+                                   decoration-danger="action == 'block'"
+                                   decoration-warning="action == 'warn'"
+                                   decoration-muted="action == 'log'"/>
+                            <field name="conflict_states"/>
+                            <field name="check_same_type_only"/>
+                            <field name="time_window_hours"/>
+                            <field name="active"/>
                         </list>
                     </field>
 
                     <!-- Help Text -->
                     <div class="alert alert-info" role="alert">
-                        <p><strong
-                        >Conflict Detection:</strong> When enabled, the system will check for conflicting
+                        <p><strong>Conflict Detection:</strong> When enabled, the system will check for conflicting
                         change requests before allowing submission or approval.</p>
                         <ul>
-                            <li><strong
-                            >Block:</strong> Prevents submission until conflict is resolved or overridden.</li>
-                            <li><strong
-                            >Warn:</strong> Shows warning but allows submission.</li>
-                            <li><strong
-                            >Log:</strong> Silently logs conflict for audit purposes.</li>
+                            <li><strong>Block:</strong> Prevents submission until conflict is resolved or overridden.</li>
+                            <li><strong>Warn:</strong> Shows warning but allows submission.</li>
+                            <li><strong>Log:</strong> Silently logs conflict for audit purposes.</li>
                         </ul>
-                        <p><strong
-                        >Duplicate Detection:</strong> Identifies potential duplicate submissions based on
+                        <p><strong>Duplicate Detection:</strong> Identifies potential duplicate submissions based on
                         similarity of change request details.</p>
                     </div>
                 </page>
@@ -111,118 +84,79 @@
     <record id="view_spp_change_request_form_conflict" model="ir.ui.view">
         <field name="name">spp.change.request.form.conflict</field>
         <field name="model">spp.change.request</field>
-        <field name="inherit_id" ref="spp_change_request_form" />
+        <field name="inherit_id" ref="spp_change_request_form"/>
         <field name="arch" type="xml">
             <!-- Add conflict stat buttons with user-friendly labels -->
             <xpath expr="//button[@name='action_open_preview_wizard']" position="after">
-                <button
-                    name="action_view_conflicts"
-                    type="object"
-                    class="oe_stat_button"
-                    icon="fa-exclamation-triangle"
-                    invisible="conflict_count == 0"
-                >
-                    <field name="conflict_count" widget="statinfo" string="Conflicts" />
+                <button name="action_view_conflicts"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-exclamation-triangle"
+                        invisible="conflict_count == 0">
+                    <field name="conflict_count" widget="statinfo" string="Conflicts"/>
                 </button>
-                <button
-                    name="action_view_duplicates"
-                    type="object"
-                    class="oe_stat_button"
-                    icon="fa-copy"
-                    invisible="duplicate_count == 0"
-                >
-                    <field
-                        name="duplicate_count"
-                        widget="statinfo"
-                        string="Duplicates"
-                    />
+                <button name="action_view_duplicates"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-copy"
+                        invisible="duplicate_count == 0">
+                    <field name="duplicate_count" widget="statinfo" string="Duplicates"/>
                 </button>
             </xpath>
 
             <!-- User-friendly ribbons -->
             <xpath expr="//div[hasclass('oe_title')]" position="before">
-                <widget
-                    name="web_ribbon"
-                    title="Needs Review"
-                    bg_color="text-bg-danger"
-                    invisible="conflict_status != 'blocked'"
-                />
-                <widget
-                    name="web_ribbon"
-                    title="Approved by Supervisor"
-                    bg_color="text-bg-success"
-                    invisible="conflict_status != 'overridden'"
-                />
+                <widget name="web_ribbon" title="Needs Review" bg_color="text-bg-danger"
+                        invisible="conflict_status != 'blocked'"/>
+                <widget name="web_ribbon" title="Approved by Supervisor" bg_color="text-bg-success"
+                        invisible="conflict_status != 'overridden'"/>
             </xpath>
 
             <!-- Simplified header buttons -->
-            <xpath
-                expr="//button[@name='action_submit_for_approval']"
-                position="before"
-            >
-                <button
-                    name="action_open_conflict_wizard"
-                    string="Review Conflicts"
-                    type="object"
-                    class="btn-warning"
-                    invisible="conflict_status not in ('blocked', 'warning')"
-                    data-hotkey="c"
-                />
-                <button
-                    name="action_recheck_conflicts"
-                    string="Check for Updates"
-                    type="object"
-                    class="btn-link"
-                    invisible="approval_state != 'draft' or not is_conflict_detection_enabled"
-                    help="Check if other requests have been completed"
-                />
+            <xpath expr="//button[@name='action_submit_for_approval']" position="before">
+                <button name="action_open_conflict_wizard"
+                        string="Review Conflicts"
+                        type="object"
+                        class="btn-warning"
+                        invisible="conflict_status not in ('blocked', 'warning')"
+                        data-hotkey="c"/>
+                <button name="action_recheck_conflicts"
+                        string="Check for Updates"
+                        type="object"
+                        class="btn-link"
+                        invisible="approval_state != 'draft' or not is_conflict_detection_enabled"
+                        help="Check if other requests have been completed"/>
             </xpath>
 
             <!-- Simplified Conflicts tab with progressive disclosure -->
             <xpath expr="//page[@name='validation']" position="after">
-                <page
-                    string="Conflicts"
-                    name="conflicts"
-                    invisible="conflict_count == 0 and duplicate_count == 0"
-                >
+                <page string="Conflicts" name="conflicts"
+                      invisible="conflict_count == 0 and duplicate_count == 0">
+
                     <!-- BLOCKED: Action-oriented banner -->
-                    <div
-                        class="alert alert-danger"
-                        role="alert"
-                        invisible="conflict_status != 'blocked'"
-                    >
+                    <div class="alert alert-danger" role="alert"
+                         invisible="conflict_status != 'blocked'">
                         <div class="d-flex align-items-center">
-                            <i class="fa fa-ban fa-2x me-3" title="Blocked" />
+                            <i class="fa fa-ban fa-2x me-3" title="Blocked"/>
                             <div class="flex-grow-1">
-                                <h5
-                                    class="alert-heading mb-2"
-                                >Cannot Submit This Request</h5>
+                                <h5 class="alert-heading mb-2">Cannot Submit This Request</h5>
                                 <p class="mb-2">
                                     Another change request for this beneficiary is already in progress.
                                     You can wait for it to complete, or resolve the issue now.
                                 </p>
                                 <div class="btn-group">
-                                    <button
-                                        name="action_view_conflicts"
-                                        type="object"
-                                        class="btn btn-sm btn-outline-danger"
-                                    >
-                                        <i class="fa fa-eye me-1" /> View Other Request
+                                    <button name="action_view_conflicts" type="object"
+                                            class="btn btn-sm btn-outline-danger">
+                                        <i class="fa fa-eye me-1"/> View Other Request
                                     </button>
-                                    <button
-                                        name="action_quick_cancel_this"
-                                        type="object"
-                                        class="btn btn-sm btn-outline-danger"
-                                        confirm="Are you sure you want to cancel this request?"
-                                    >
-                                        <i class="fa fa-times me-1" /> Cancel My Request
+                                    <button name="action_quick_cancel_this" type="object"
+                                            class="btn btn-sm btn-outline-danger"
+                                            confirm="Are you sure you want to cancel this request?">
+                                        <i class="fa fa-times me-1"/> Cancel My Request
                                     </button>
-                                    <button
-                                        name="action_open_conflict_wizard"
-                                        type="object"
-                                        class="btn btn-sm btn-danger"
-                                    >
-                                        <i class="fa fa-wrench me-1" /> More Options
+                                    <button name="action_open_conflict_wizard" type="object"
+                                            class="btn btn-sm btn-danger">
+                                        <i class="fa fa-wrench me-1"/> More Options
                                     </button>
                                 </div>
                             </div>
@@ -230,20 +164,12 @@
                     </div>
 
                     <!-- WARNING: Less alarming banner -->
-                    <div
-                        class="alert alert-warning"
-                        role="status"
-                        invisible="conflict_status != 'warning'"
-                    >
+                    <div class="alert alert-warning" role="status"
+                         invisible="conflict_status != 'warning'">
                         <div class="d-flex align-items-center">
-                            <i
-                                class="fa fa-exclamation-triangle fa-2x me-3"
-                                title="Warning"
-                            />
+                            <i class="fa fa-exclamation-triangle fa-2x me-3" title="Warning"/>
                             <div class="flex-grow-1">
-                                <h5
-                                    class="alert-heading mb-2"
-                                >Please Review Before Submitting</h5>
+                                <h5 class="alert-heading mb-2">Please Review Before Submitting</h5>
                                 <p class="mb-0">
                                     Another change request for this beneficiary may overlap with yours.
                                     Please review before submitting.
@@ -253,152 +179,95 @@
                     </div>
 
                     <!-- OVERRIDDEN: Success banner with collapsible details -->
-                    <div
-                        class="alert alert-success"
-                        role="status"
-                        invisible="conflict_status != 'overridden'"
-                    >
+                    <div class="alert alert-success" role="status"
+                         invisible="conflict_status != 'overridden'">
                         <div class="d-flex align-items-center">
-                            <i class="fa fa-check-circle fa-2x me-3" title="Approved" />
+                            <i class="fa fa-check-circle fa-2x me-3" title="Approved"/>
                             <div class="flex-grow-1">
                                 <h5 class="alert-heading mb-2">Approved to Continue</h5>
                                 <p class="mb-2">
                                     A supervisor reviewed the conflict and approved this request to proceed.
                                 </p>
                                 <small class="text-muted">
-                                    Approved by <field
-                                    name="conflict_override_user_id"
-                                    readonly="1"
-                                    class="d-inline"
-                                />
-                                    on <field
-                                    name="conflict_override_date"
-                                    readonly="1"
-                                    class="d-inline"
-                                />
+                                    Approved by <field name="conflict_override_user_id" readonly="1" class="d-inline"/>
+                                    on <field name="conflict_override_date" readonly="1" class="d-inline"/>
                                 </small>
                             </div>
                         </div>
                     </div>
 
                     <!-- Other Change Requests (simplified view) -->
-                    <group
-                        string="Other Change Requests for This Beneficiary"
-                        invisible="conflict_count == 0"
-                    >
+                    <group string="Other Change Requests for This Beneficiary"
+                           invisible="conflict_count == 0">
                         <field name="conflicting_cr_ids" nolabel="1" readonly="1">
                             <list>
-                                <field name="name" />
-                                <field name="request_type_id" />
-                                <field
-                                    name="display_state"
-                                    string="Status"
-                                    widget="badge"
-                                    decoration-info="display_state == 'draft'"
-                                    decoration-warning="display_state in ('pending', 'revision')"
-                                    decoration-success="display_state in ('approved', 'applied')"
-                                    decoration-danger="display_state == 'rejected'"
-                                />
-                                <field name="create_date" string="Submitted" />
-                                <field
-                                    name="create_uid"
-                                    string="By"
-                                    widget="many2one_avatar_user"
-                                />
+                                <field name="name"/>
+                                <field name="request_type_id"/>
+                                <field name="display_state"
+                                       string="Status"
+                                       widget="badge"
+                                       decoration-info="display_state == 'draft'"
+                                       decoration-warning="display_state in ('pending', 'revision')"
+                                       decoration-success="display_state in ('approved', 'applied')"
+                                       decoration-danger="display_state == 'rejected'"/>
+                                <field name="create_date" string="Submitted"/>
+                                <field name="create_uid" string="By" widget="many2one_avatar_user"/>
                             </list>
                         </field>
                     </group>
 
                     <!-- Possible Duplicates (simplified message) -->
-                    <group
-                        string="Possible Duplicate Submission"
-                        invisible="duplicate_count == 0"
-                    >
+                    <group string="Possible Duplicate Submission"
+                           invisible="duplicate_count == 0">
                         <div class="alert alert-info mb-3" role="alert">
                             <p class="mb-0">
-                                <i class="fa fa-info-circle me-1" />
+                                <i class="fa fa-info-circle me-1"/>
                                 This request appears very similar to another recent submission.
                                 If this was submitted by mistake, you can cancel it.
                             </p>
                         </div>
                         <field name="potential_duplicate_ids" nolabel="1" readonly="1">
                             <list>
-                                <field name="name" />
-                                <field name="create_date" string="Submitted" />
-                                <field
-                                    name="create_uid"
-                                    string="By"
-                                    widget="many2one_avatar_user"
-                                />
+                                <field name="name"/>
+                                <field name="create_date" string="Submitted"/>
+                                <field name="create_uid" string="By" widget="many2one_avatar_user"/>
                             </list>
                         </field>
                     </group>
 
                     <!-- Technical details (collapsible for advanced users) -->
-                    <div
-                        class="mt-4 border-top pt-3"
-                        invisible="conflict_count == 0 and duplicate_count == 0"
-                    >
+                    <div class="mt-4 border-top pt-3"
+                         invisible="conflict_count == 0 and duplicate_count == 0">
                         <details>
-                            <summary
-                                class="text-primary"
-                                style="cursor: pointer; list-style: none;"
-                            >
-                                <i
-                                class="fa fa-cog me-1"
-                                title="Settings"
-                            /> Technical Details
+                            <summary class="text-primary" style="cursor: pointer; list-style: none;">
+                                <i class="fa fa-cog me-1" title="Settings"/> Technical Details
                             </summary>
                             <div class="mt-3">
                                 <group>
                                     <group>
-                                        <field
-                                            name="conflict_status"
-                                            readonly="1"
-                                            widget="badge"
-                                            string="Internal Status"
-                                            decoration-danger="conflict_status == 'blocked'"
-                                            decoration-warning="conflict_status == 'warning'"
-                                            decoration-info="conflict_status == 'overridden'"
-                                            decoration-success="conflict_status == 'none'"
-                                        />
-                                        <field
-                                            name="conflict_detection_date"
-                                            readonly="1"
-                                            string="Last Checked"
-                                        />
+                                        <field name="conflict_status" readonly="1" widget="badge"
+                                               string="Internal Status"
+                                               decoration-danger="conflict_status == 'blocked'"
+                                               decoration-warning="conflict_status == 'warning'"
+                                               decoration-info="conflict_status == 'overridden'"
+                                               decoration-success="conflict_status == 'none'"/>
+                                        <field name="conflict_detection_date" readonly="1" string="Last Checked"/>
                                     </group>
                                     <group invisible="duplicate_count == 0">
-                                        <field
-                                            name="duplicate_status"
-                                            readonly="1"
-                                            widget="badge"
-                                            decoration-warning="duplicate_status == 'potential'"
-                                            decoration-danger="duplicate_status == 'confirmed'"
-                                            decoration-muted="duplicate_status == 'merged'"
-                                            decoration-success="duplicate_status == 'none'"
-                                        />
-                                        <field
-                                            name="duplicate_similarity_score"
-                                            readonly="1"
-                                            widget="progressbar"
-                                            string="Similarity Score"
-                                        />
+                                        <field name="duplicate_status" readonly="1" widget="badge"
+                                               decoration-warning="duplicate_status == 'potential'"
+                                               decoration-danger="duplicate_status == 'confirmed'"
+                                               decoration-muted="duplicate_status == 'merged'"
+                                               decoration-success="duplicate_status == 'none'"/>
+                                        <field name="duplicate_similarity_score" readonly="1"
+                                               widget="progressbar" string="Similarity Score"/>
                                     </group>
                                 </group>
                                 <group invisible="not conflict_messages">
-                                    <field
-                                        name="conflict_messages"
-                                        readonly="1"
-                                        string="System Messages"
-                                    />
+                                    <field name="conflict_messages" readonly="1" string="System Messages"/>
                                 </group>
                                 <group invisible="conflict_status != 'overridden'">
-                                    <field
-                                        name="conflict_override_reason"
-                                        readonly="1"
-                                        string="Approval Reason"
-                                    />
+                                    <field name="conflict_override_reason" readonly="1" string="Approval Reason"/>
                                 </group>
                             </div>
                         </details>
@@ -406,12 +275,12 @@
 
                     <!-- Merged From (rarely used) -->
                     <group string="Merged From" invisible="not merged_from_cr_ids">
-                        <field name="merged_from_cr_ids" nolabel="1" readonly="1" />
+                        <field name="merged_from_cr_ids" nolabel="1" readonly="1"/>
                     </group>
 
                     <!-- Merged Into -->
                     <group invisible="not merged_into_cr_id">
-                        <field name="merged_into_cr_id" readonly="1" />
+                        <field name="merged_into_cr_id" readonly="1"/>
                     </group>
                 </page>
             </xpath>
@@ -425,36 +294,30 @@
     <record id="view_spp_change_request_list_conflict" model="ir.ui.view">
         <field name="name">spp.change.request.list.conflict</field>
         <field name="model">spp.change.request</field>
-        <field name="inherit_id" ref="spp_change_request_list" />
+        <field name="inherit_id" ref="spp_change_request_list"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='display_state']" position="after">
                 <!-- Hidden field for domain checks -->
-                <field name="conflict_status" column_invisible="1" />
+                <field name="conflict_status" column_invisible="1"/>
                 <!-- Icon-based indicators with tooltips -->
-                <button
-                    name="action_view_conflicts"
-                    type="object"
-                    icon="fa-ban"
-                    title="Cannot submit - needs review"
-                    class="btn-link text-danger p-0"
-                    invisible="conflict_status != 'blocked'"
-                />
-                <button
-                    name="action_view_conflicts"
-                    type="object"
-                    icon="fa-exclamation-triangle"
-                    title="Warning - review recommended"
-                    class="btn-link text-warning p-0"
-                    invisible="conflict_status != 'warning'"
-                />
-                <button
-                    name="action_view_conflicts"
-                    type="object"
-                    icon="fa-check-circle"
-                    title="Approved by supervisor"
-                    class="btn-link text-success p-0"
-                    invisible="conflict_status != 'overridden'"
-                />
+                <button name="action_view_conflicts"
+                        type="object"
+                        icon="fa-ban"
+                        title="Cannot submit - needs review"
+                        class="btn-link text-danger p-0"
+                        invisible="conflict_status != 'blocked'"/>
+                <button name="action_view_conflicts"
+                        type="object"
+                        icon="fa-exclamation-triangle"
+                        title="Warning - review recommended"
+                        class="btn-link text-warning p-0"
+                        invisible="conflict_status != 'warning'"/>
+                <button name="action_view_conflicts"
+                        type="object"
+                        icon="fa-check-circle"
+                        title="Approved by supervisor"
+                        class="btn-link text-success p-0"
+                        invisible="conflict_status != 'overridden'"/>
             </xpath>
         </field>
     </record>
@@ -466,33 +329,22 @@
     <record id="view_spp_change_request_search_conflict" model="ir.ui.view">
         <field name="name">spp.change.request.search.conflict</field>
         <field name="model">spp.change.request</field>
-        <field name="inherit_id" ref="spp_change_request_search" />
+        <field name="inherit_id" ref="spp_change_request_search"/>
         <field name="arch" type="xml">
             <xpath expr="//filter[@name='rejected']" position="after">
-                <separator />
-                <filter
-                    name="has_conflicts"
-                    string="Needs Review"
-                    domain="[('conflict_status', 'in', ('blocked', 'warning'))]"
-                />
-                <filter
-                    name="blocked"
-                    string="Cannot Submit"
-                    domain="[('conflict_status', '=', 'blocked')]"
-                />
-                <filter
-                    name="has_duplicates"
-                    string="Possible Duplicates"
-                    domain="[('duplicate_status', '=', 'potential')]"
-                />
+                <separator/>
+                <filter name="has_conflicts" string="Needs Review"
+                        domain="[('conflict_status', 'in', ('blocked', 'warning'))]"/>
+                <filter name="blocked" string="Cannot Submit"
+                        domain="[('conflict_status', '=', 'blocked')]"/>
+                <filter name="has_duplicates" string="Possible Duplicates"
+                        domain="[('duplicate_status', '=', 'potential')]"/>
             </xpath>
             <xpath expr="//filter[@name='group_creator']" position="after">
-                <filter
-                    name="group_conflict"
-                    string="Review Status"
-                    context="{'group_by': 'conflict_status'}"
-                />
+                <filter name="group_conflict" string="Review Status"
+                        context="{'group_by': 'conflict_status'}"/>
             </xpath>
         </field>
     </record>
+
 </odoo>

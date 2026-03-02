@@ -5,26 +5,30 @@
         <field name="name">spp.cr.detail.add_member.form</field>
         <field name="model">spp.cr.detail.add_member</field>
         <field name="arch" type="xml">
-            <form>
+            <form readonly="not is_cr_manager">
                 <header>
+                    <field name="is_cr_manager" invisible="1" />
                     <button
-                        name="action_proceed_to_cr"
-                        string="Proceed"
+                        name="action_next_documents"
+                        string="Next: Upload Documents"
                         type="object"
                         class="btn-primary"
-                        invisible="approval_state != 'draft'"
+                        icon="fa-arrow-right"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
                     />
                     <button
-                        name="action_proceed_to_cr"
-                        string="Proceed"
+                        name="action_save_and_go_to_list"
+                        string="Save as Draft"
                         type="object"
-                        class="btn-primary"
-                        invisible="approval_state != 'revision'"
+                        class="btn-outline-secondary"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
                     />
                     <field
-                        name="approval_state"
+                        name="stage"
                         widget="statusbar"
-                        statusbar_visible="draft,pending,approved,applied"
+                        statusbar_visible="details,documents,review"
                     />
                 </header>
                 <sheet>
@@ -34,7 +38,7 @@
 
                     <!-- Target Group -->
                     <group string="Target Group">
-                        <field name="registrant_id" readonly="1" />
+                        <field name="registrant_id" readonly="1" options="{'no_open': True}" />
                         <field name="change_request_id" invisible="1" />
                     </group>
 

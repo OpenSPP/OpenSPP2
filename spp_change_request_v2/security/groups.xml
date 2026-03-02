@@ -3,80 +3,68 @@
     <!-- Change Request Security Groups -->
 
     <!-- Technical groups for access control -->
-    <record id="group_cr_read" model="res.groups">
-        <field name="name">Change Request: Read</field>
-        <field
-            name="comment"
-        >Technical group for read access to change request models.</field>
-    </record>
+        <record id="group_cr_read" model="res.groups">
+            <field name="name">Change Request: Read</field>
+            <field name="comment">Technical group for read access to change request models.</field>
+        </record>
 
-    <record id="group_cr_write" model="res.groups">
-        <field name="name">Change Request: Write</field>
-        <field
-            name="comment"
-        >Technical group for write access to change request models.</field>
-        <field name="implied_ids" eval="[Command.link(ref('group_cr_read'))]" />
-    </record>
+        <record id="group_cr_write" model="res.groups">
+            <field name="name">Change Request: Write</field>
+            <field name="comment">Technical group for write access to change request models.</field>
+            <field name="implied_ids" eval="[Command.link(ref('group_cr_read'))]"/>
+        </record>
 
-    <!-- User: Can create and submit change requests -->
-    <record id="group_cr_user" model="res.groups">
-        <field name="name">User</field>
-        <field name="privilege_id" ref="privilege_change_request" />
-        <field name="comment">Can create and submit change requests</field>
-        <field name="implied_ids" eval="[Command.link(ref('group_cr_write'))]" />
-    </record>
+        <!-- User: Can create and submit change requests -->
+        <record id="group_cr_user" model="res.groups">
+            <field name="name">User</field>
+            <field name="privilege_id" ref="privilege_change_request"/>
+            <field name="comment">Can create and submit change requests</field>
+            <field name="implied_ids" eval="[Command.link(ref('group_cr_write'))]"/>
+        </record>
 
-    <!-- Validator: Can approve/reject change requests -->
-    <record id="group_cr_validator" model="res.groups">
-        <field name="name">Validator</field>
-        <field name="privilege_id" ref="privilege_change_request" />
-        <field
-            name="implied_ids"
-            eval="[
+        <!-- Validator: Can approve/reject change requests -->
+        <record id="group_cr_validator" model="res.groups">
+            <field name="name">Validator</field>
+            <field name="privilege_id" ref="privilege_change_request"/>
+            <field name="implied_ids" eval="[
                 Command.link(ref('group_cr_user')),
                 Command.link(ref('spp_approval.group_approval_approver')),
                 Command.link(ref('spp_registry.group_registry_read')),
-            ]"
-        />
-        <field name="comment">Can approve and reject change requests</field>
-    </record>
+            ]"/>
+            <field name="comment">Can approve and reject change requests</field>
+        </record>
 
-    <!-- Validator HQ: Can approve/reject change requests (HQ level) -->
-    <record id="group_cr_validator_hq" model="res.groups">
-        <field name="name">Validator HQ</field>
-        <field name="privilege_id" ref="privilege_change_request" />
-        <field
-            name="implied_ids"
-            eval="[
+        <!-- Validator HQ: Can approve/reject change requests (HQ level) -->
+        <record id="group_cr_validator_hq" model="res.groups">
+            <field name="name">Validator HQ</field>
+            <field name="privilege_id" ref="privilege_change_request"/>
+            <field name="implied_ids" eval="[
                 Command.link(ref('group_cr_user')),
                 Command.link(ref('spp_approval.group_approval_approver')),
                 Command.link(ref('spp_registry.group_registry_write')),
-            ]"
-        />
-        <field name="comment">Can approve and reject change requests (HQ level)</field>
-    </record>
+            ]"/>
+            <field name="comment">Can approve and reject change requests (HQ level)</field>
+        </record>
 
-    <!-- Manager: Full access to change request configuration -->
-    <record id="group_cr_manager" model="res.groups">
-        <field name="name">Manager</field>
-        <field name="privilege_id" ref="privilege_change_request" />
-        <field name="implied_ids" eval="[Command.link(ref('group_cr_validator'))]" />
-        <field name="comment">Full access including configuration</field>
-    </record>
+        <!-- Manager: Full access to change request configuration -->
+        <record id="group_cr_manager" model="res.groups">
+            <field name="name">Manager</field>
+            <field name="privilege_id" ref="privilege_change_request"/>
+            <field name="implied_ids" eval="[Command.link(ref('group_cr_validator'))]"/>
+            <field name="comment">Full access including configuration</field>
+        </record>
 
-    <!-- Conflict Override: Permission to override blocking conflicts -->
-    <!-- Uses separate privilege so it can be combined with basic roles -->
-    <record id="group_cr_conflict_approver" model="res.groups">
-        <field name="name">Conflict Override Approver</field>
-        <field name="privilege_id" ref="privilege_change_request_specialized" />
-        <field
-            name="comment"
-        >SPECIALIZED ROLE: Permission to override blocking conflicts on change requests. Typically assigned to managers or supervisors. This is a functional role (not part of User/Validator/Manager hierarchy).</field>
-        <field name="implied_ids" eval="[Command.link(ref('group_cr_validator'))]" />
-    </record>
+        <!-- Conflict Override: Permission to override blocking conflicts -->
+        <!-- Uses separate privilege so it can be combined with basic roles -->
+        <record id="group_cr_conflict_approver" model="res.groups">
+            <field name="name">Conflict Override Approver</field>
+            <field name="privilege_id" ref="privilege_change_request_specialized"/>
+            <field name="comment">SPECIALIZED ROLE: Permission to override blocking conflicts on change requests. Typically assigned to managers or supervisors. This is a functional role (not part of User/Validator/Manager hierarchy).</field>
+            <field name="implied_ids" eval="[Command.link(ref('group_cr_validator'))]"/>
+        </record>
 
-    <!-- Link manager to admin (IMPORTANT!) -->
-    <record id="spp_security.group_spp_admin" model="res.groups">
-        <field name="implied_ids" eval="[Command.link(ref('group_cr_manager'))]" />
-    </record>
+        <!-- Link manager to admin (IMPORTANT!) -->
+        <record id="spp_security.group_spp_admin" model="res.groups">
+            <field name="implied_ids" eval="[Command.link(ref('group_cr_manager'))]"/>
+        </record>
 </odoo>

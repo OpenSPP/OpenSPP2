@@ -106,7 +106,9 @@ def get_or_create_membership_kind(env, code):
     """Get a membership type vocabulary code, creating it if not found."""
     kind = env["spp.vocabulary.code"].get_code(MEMBERSHIP_TYPE_NS, code)
     if not kind:
-        vocab = env["spp.vocabulary"].search([("namespace_uri", "=", MEMBERSHIP_TYPE_NS)], limit=1)
+        vocab = env["spp.vocabulary"].search(
+            [("namespace_uri", "=", MEMBERSHIP_TYPE_NS)], limit=1
+        )
         defs = _MEMBERSHIP_TYPE_CODES[code]
         kind = env["spp.vocabulary.code"].create(
             {

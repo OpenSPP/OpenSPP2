@@ -37,7 +37,7 @@ class SPPChangeRequestConflict(models.Model):
                     _logger.exception("Conflict detection failed for CR %s", record.name)
                     # Post message so user is aware of the issue
                     record.message_post(
-                        body=_("Warning: Conflict detection failed: %s. Manual review recommended.") % str(e),
+                        body=_("Warning: Conflict detection failed: %s. " "Manual review recommended.") % str(e),
                         message_type="notification",
                     )
 
@@ -64,7 +64,7 @@ class SPPChangeRequestConflict(models.Model):
                         # Log at error level and notify via message
                         _logger.exception("Conflict re-check failed for CR %s", record.name)
                         record.message_post(
-                            body=_("Warning: Conflict re-check failed: %s. Manual review recommended.") % str(e),
+                            body=_("Warning: Conflict re-check failed: %s. " "Manual review recommended.") % str(e),
                             message_type="notification",
                         )
 

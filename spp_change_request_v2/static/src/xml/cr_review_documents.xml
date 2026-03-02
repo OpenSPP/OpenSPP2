@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates id="template" xml:space="preserve">
+    <t t-name="spp_change_request_v2.CRReviewDocuments">
+        <div t-ref="root" style="width:100%" t-out="htmlContent" />
+    </t>
+</templates>

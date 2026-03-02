@@ -11,50 +11,37 @@
         <field name="arch" type="xml">
             <form string="Conflict Rule">
                 <sheet>
-                    <div class="oe_button_box" name="button_box" />
-                    <widget
-                        name="web_ribbon"
-                        title="Archived"
-                        bg_color="text-bg-danger"
-                        invisible="active"
-                    />
+                    <div class="oe_button_box" name="button_box"/>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
                     <group>
                         <group>
-                            <field name="name" />
-                            <field name="cr_type_id" />
-                            <field name="sequence" />
-                            <field name="active" />
+                            <field name="name"/>
+                            <field name="cr_type_id"/>
+                            <field name="sequence"/>
+                            <field name="active"/>
                         </group>
                         <group>
-                            <field name="scope" />
-                            <field name="action" />
-                            <field name="conflict_states" />
+                            <field name="scope"/>
+                            <field name="action"/>
+                            <field name="conflict_states"/>
                         </group>
                     </group>
                     <group string="Scope Configuration">
                         <group>
-                            <field name="check_same_type_only" />
-                            <field
-                                name="conflict_type_ids"
-                                widget="many2many_tags"
-                                invisible="check_same_type_only"
-                            />
+                            <field name="check_same_type_only"/>
+                            <field name="conflict_type_ids" widget="many2many_tags"
+                                   invisible="check_same_type_only"/>
                         </group>
                         <group>
-                            <field name="time_window_hours" />
-                            <field
-                                name="conflict_fields"
-                                invisible="scope != 'field'"
-                                placeholder="e.g., street, city, phone"
-                            />
+                            <field name="time_window_hours"/>
+                            <field name="conflict_fields"
+                                   invisible="scope != 'field'"
+                                   placeholder="e.g., street, city, phone"/>
                         </group>
                     </group>
                     <group string="Messaging">
-                        <field
-                            name="conflict_message"
-                            nolabel="1"
-                            placeholder="Custom message to show when conflict detected..."
-                        />
+                        <field name="conflict_message" nolabel="1"
+                               placeholder="Custom message to show when conflict detected..."/>
                     </group>
                 </sheet>
             </form>
@@ -67,20 +54,17 @@
         <field name="model">spp.cr.conflict.rule</field>
         <field name="arch" type="xml">
             <list string="Conflict Rules" default_order="sequence, id">
-                <field name="sequence" widget="handle" />
-                <field name="name" />
-                <field name="cr_type_id" />
-                <field name="scope" />
-                <field
-                    name="action"
-                    widget="badge"
-                    decoration-danger="action == 'block'"
-                    decoration-warning="action == 'warn'"
-                    decoration-muted="action == 'log'"
-                />
-                <field name="conflict_states" />
-                <field name="time_window_hours" />
-                <field name="active" />
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="cr_type_id"/>
+                <field name="scope"/>
+                <field name="action" widget="badge"
+                       decoration-danger="action == 'block'"
+                       decoration-warning="action == 'warn'"
+                       decoration-muted="action == 'log'"/>
+                <field name="conflict_states"/>
+                <field name="time_window_hours"/>
+                <field name="active"/>
             </list>
         </field>
     </record>
@@ -91,46 +75,18 @@
         <field name="model">spp.cr.conflict.rule</field>
         <field name="arch" type="xml">
             <search string="Conflict Rules">
-                <field name="name" />
-                <field name="cr_type_id" />
-                <filter
-                    name="active"
-                    string="Active"
-                    domain="[('active', '=', True)]"
-                />
-                <filter
-                    name="archived"
-                    string="Archived"
-                    domain="[('active', '=', False)]"
-                />
-                <separator />
-                <filter
-                    name="blocking"
-                    string="Blocking"
-                    domain="[('action', '=', 'block')]"
-                />
-                <filter
-                    name="warning"
-                    string="Warning"
-                    domain="[('action', '=', 'warn')]"
-                />
-                <separator />
+                <field name="name"/>
+                <field name="cr_type_id"/>
+                <filter name="active" string="Active" domain="[('active', '=', True)]"/>
+                <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
+                <separator/>
+                <filter name="blocking" string="Blocking" domain="[('action', '=', 'block')]"/>
+                <filter name="warning" string="Warning" domain="[('action', '=', 'warn')]"/>
+                <separator/>
                 <group>
-                    <filter
-                        name="group_by_type"
-                        string="CR Type"
-                        context="{'group_by': 'cr_type_id'}"
-                    />
-                    <filter
-                        name="group_by_action"
-                        string="Action"
-                        context="{'group_by': 'action'}"
-                    />
-                    <filter
-                        name="group_by_scope"
-                        string="Scope"
-                        context="{'group_by': 'scope'}"
-                    />
+                    <filter name="group_by_type" string="CR Type" context="{'group_by': 'cr_type_id'}"/>
+                    <filter name="group_by_action" string="Action" context="{'group_by': 'action'}"/>
+                    <filter name="group_by_scope" string="Scope" context="{'group_by': 'scope'}"/>
                 </group>
             </search>
         </field>
@@ -163,36 +119,29 @@
         <field name="arch" type="xml">
             <form string="Duplicate Detection Configuration">
                 <sheet>
-                    <widget
-                        name="web_ribbon"
-                        title="Archived"
-                        bg_color="text-bg-danger"
-                        invisible="active"
-                    />
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
                     <group>
                         <group string="Basic Settings">
-                            <field name="cr_type_id" />
-                            <field name="active" />
+                            <field name="cr_type_id"/>
+                            <field name="active"/>
                         </group>
                         <group string="Time Window">
-                            <field name="time_window_hours" />
+                            <field name="time_window_hours"/>
                         </group>
                     </group>
                     <group string="Similarity Configuration">
                         <group>
-                            <field name="similarity_threshold" />
-                            <label for="similarity_threshold" />
+                            <field name="similarity_threshold"/>
+                            <label for="similarity_threshold"/>
                             <div class="text-muted">
                                 Percentage threshold (0-100) to consider a CR as duplicate.
                                 100% = exact match only.
                             </div>
                         </group>
                         <group>
-                            <field
-                                name="check_fields"
-                                placeholder="e.g., given_name, family_name, phone"
-                            />
-                            <label for="check_fields" />
+                            <field name="check_fields"
+                                   placeholder="e.g., given_name, family_name, phone"/>
+                            <label for="check_fields"/>
                             <div class="text-muted">
                                 Comma-separated list of detail fields to compare.
                                 Leave empty to compare all stored fields.
@@ -201,16 +150,12 @@
                     </group>
                     <group string="Auto-Merge">
                         <group>
-                            <field name="auto_merge_enabled" />
-                            <field
-                                name="auto_merge_states"
-                                invisible="not auto_merge_enabled"
-                            />
+                            <field name="auto_merge_enabled"/>
+                            <field name="auto_merge_states" invisible="not auto_merge_enabled"/>
                         </group>
                         <group invisible="not auto_merge_enabled">
                             <div class="alert alert-info" role="alert">
-                                <strong
-                            >Auto-Merge:</strong> When enabled, exact duplicates (100% similarity)
+                                <strong>Auto-Merge:</strong> When enabled, exact duplicates (100% similarity)
                                 in the allowed states will be automatically merged, keeping the older CR.
                             </div>
                         </group>
@@ -226,11 +171,11 @@
         <field name="model">spp.cr.duplicate.config</field>
         <field name="arch" type="xml">
             <list string="Duplicate Detection Configurations">
-                <field name="cr_type_id" />
-                <field name="time_window_hours" />
-                <field name="similarity_threshold" />
-                <field name="auto_merge_enabled" />
-                <field name="active" />
+                <field name="cr_type_id"/>
+                <field name="time_window_hours"/>
+                <field name="similarity_threshold"/>
+                <field name="auto_merge_enabled"/>
+                <field name="active"/>
             </list>
         </field>
     </record>
@@ -250,4 +195,5 @@
             </p>
         </field>
     </record>
+
 </odoo>

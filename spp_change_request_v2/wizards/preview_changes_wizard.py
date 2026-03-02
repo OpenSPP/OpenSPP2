@@ -85,7 +85,7 @@ class CRPreviewChangesWizard(models.TransientModel):
                     else:
                         display_value = str(value)
 
-                    html_parts.append(f"<tr><td><strong>{display_key}</strong></td><td>{display_value}</td></tr>")
+                    html_parts.append(f"<tr><td><strong>{display_key}</strong></td>" f"<td>{display_value}</td></tr>")
 
                 html_parts.append("</tbody></table>")
             else:

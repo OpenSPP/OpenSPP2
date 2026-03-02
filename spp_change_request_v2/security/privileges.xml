@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!-- Change Request Domain Privilege -->
     <!-- Single consolidated privilege for all change request access levels -->
 
     <record id="privilege_change_request" model="res.groups.privilege">
         <field name="name">Change Requests</field>
-        <field name="category_id" ref="spp_security.category_spp_change_request" />
+        <field name="category_id" ref="spp_security.category_spp_change_request"/>
         <field name="description">Access to change request management system</field>
         <field name="sequence">10</field>
     </record>
@@ -15,10 +15,8 @@
 
     <record id="privilege_change_request_specialized" model="res.groups.privilege">
         <field name="name">Change Requests: Specialized Roles</field>
-        <field name="category_id" ref="spp_security.category_spp_change_request" />
-        <field
-            name="description"
-        >Specialized functional roles for change request workflows (Conflict Override Approver)</field>
+        <field name="category_id" ref="spp_security.category_spp_change_request"/>
+        <field name="description">Specialized functional roles for change request workflows (Conflict Override Approver)</field>
         <field name="sequence">20</field>
     </record>
 </odoo>

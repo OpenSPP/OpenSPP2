@@ -234,7 +234,7 @@ class SPPCRConflictWizard(models.TransientModel):
         return f"""
         <div style="overflow-x: auto; max-width: 100%;">
             <table class='table table-bordered table-hover table-sm' style='{table_style}'>
-                {"".join(rows)}
+                {''.join(rows)}
             </table>
         </div>
         """
@@ -337,12 +337,15 @@ class SPPCRConflictWizard(models.TransientModel):
         """Request supervisor approval to proceed despite conflict."""
         if not self.can_override:
             raise UserError(
-                _("Only supervisors can approve conflicting requests. Please contact your supervisor for assistance.")
+                _(
+                    "Only supervisors can approve conflicting requests. "
+                    "Please contact your supervisor for assistance."
+                )
             )
 
         if not self.override_reason or len(self.override_reason.strip()) < 10:
             raise ValidationError(
-                _("Please explain why this request should proceed (at least 10 characters required).")
+                _("Please explain why this request should proceed " "(at least 10 characters required).")
             )
 
         self.change_request_id.action_override_conflict(self.override_reason)
@@ -352,7 +355,7 @@ class SPPCRConflictWizard(models.TransientModel):
             "tag": "display_notification",
             "params": {
                 "title": _("Approved to Proceed"),
-                "message": _("This request has been approved. You can now submit it for processing."),
+                "message": _("This request has been approved. " "You can now submit it for processing."),
                 "type": "success",
                 "next": {"type": "ir.actions.act_window_close"},
             },

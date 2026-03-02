@@ -28,6 +28,15 @@ class SPPCRDetailBase(models.AbstractModel):
         index=True,
     )
 
+    is_cr_manager = fields.Boolean(
+        compute="_compute_is_cr_manager",
+    )
+
+    def _compute_is_cr_manager(self):
+        is_manager = self.env.user.has_group("spp_change_request_v2.group_cr_manager")
+        for rec in self:
+            rec.is_cr_manager = is_manager
+
     # Convenience access to CR fields
     registrant_id = fields.Many2one(
         related="change_request_id.registrant_id",
@@ -40,6 +49,9 @@ class SPPCRDetailBase(models.AbstractModel):
     )
     is_applied = fields.Boolean(
         related="change_request_id.is_applied",
+    )
+    stage = fields.Selection(
+        related="change_request_id.stage",
     )
 
     def action_proceed_to_cr(self):
@@ -56,6 +68,17 @@ class SPPCRDetailBase(models.AbstractModel):
             "view_mode": "form",
             "target": "current",
         }
+
+    def action_save_and_go_to_list(self):
+        """Save current state and navigate back to the CR list."""
+        return self.change_request_id.action_save_and_go_to_list()
+
+    def action_next_documents(self):
+        """Save and navigate to the documents stage."""
+        self.ensure_one()
+        if not self.change_request_id.has_proposed_changes:
+            raise UserError(_("No proposed changes detected. Please make changes before proceeding."))
+        return self.change_request_id.action_goto_documents()
 
     def action_submit_for_approval(self):
         """Submit the parent CR for approval."""

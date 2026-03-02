@@ -3,88 +3,71 @@
     <!-- ══════════════════════════════════════════════════════════════════════════
          MAIN MENU
          ══════════════════════════════════════════════════════════════════════════ -->
-    <menuitem
-        id="menu_change_request_root"
-        name="Change Requests"
-        sequence="25"
-        web_icon="spp_base_common,static/description/icon-Project-White-line.png"
-        groups="group_cr_user"
-    />
+    <menuitem id="menu_change_request_root"
+              name="Change Requests"
+              sequence="25"
+              web_icon="spp_base_common,static/description/icon-Project-White-line.png"
+              groups="group_cr_user"/>
 
     <!-- ══════════════════════════════════════════════════════════════════════════
          REQUESTS SUBMENU (Simplified - use filters for state-based views)
          ══════════════════════════════════════════════════════════════════════════ -->
 
     <!-- All Change Requests (primary view with all filters) -->
-    <menuitem
-        id="menu_change_requests"
-        name="All Requests"
-        parent="menu_change_request_root"
-        action="action_change_request"
-        sequence="5"
-    />
+    <menuitem id="menu_change_requests"
+              name="All Requests"
+              parent="menu_change_request_root"
+              action="action_change_request"
+              sequence="5"/>
 
     <!-- Pending Approval (Validators only) -->
-    <menuitem
-        id="menu_pending_change_requests"
-        name="Pending Approval"
-        parent="menu_change_request_root"
-        action="action_pending_change_requests"
-        sequence="10"
-        groups="group_cr_validator"
-    />
+    <menuitem id="menu_pending_change_requests"
+              name="Pending Approval"
+              parent="menu_change_request_root"
+              action="action_pending_change_requests"
+              sequence="10"
+              groups="group_cr_validator"/>
 
     <!-- ══════════════════════════════════════════════════════════════════════════
          REPORTING SUBMENU
          ══════════════════════════════════════════════════════════════════════════ -->
-    <menuitem
-        id="menu_change_request_reporting"
-        name="Reporting"
-        parent="menu_change_request_root"
-        sequence="50"
-        groups="group_cr_manager"
-    />
+    <menuitem id="menu_change_request_reporting"
+              name="Reporting"
+              parent="menu_change_request_root"
+              sequence="50"
+              groups="group_cr_manager"/>
 
-    <menuitem
-        id="menu_change_request_analytics"
-        name="Analytics"
-        parent="menu_change_request_reporting"
-        action="action_change_request_analytics"
-        sequence="10"
-    />
+    <menuitem id="menu_change_request_analytics"
+              name="Analytics"
+              parent="menu_change_request_reporting"
+              action="action_change_request_analytics"
+              sequence="10"/>
 
     <!-- ══════════════════════════════════════════════════════════════════════════
          CONFIGURATION SUBMENU
          ══════════════════════════════════════════════════════════════════════════ -->
-    <menuitem
-        id="menu_change_request_config"
-        name="Configuration"
-        parent="menu_change_request_root"
-        sequence="90"
-        groups="group_cr_manager,spp_security.group_spp_admin"
-    />
+    <menuitem id="menu_change_request_config"
+              name="Configuration"
+              parent="menu_change_request_root"
+              sequence="90"
+              groups="group_cr_manager,spp_security.group_spp_admin"/>
 
-    <menuitem
-        id="menu_change_request_types"
-        name="Change Request Types"
-        parent="menu_change_request_config"
-        action="action_change_request_type"
-        sequence="10"
-    />
+    <menuitem id="menu_change_request_types"
+              name="Change Request Types"
+              parent="menu_change_request_config"
+              action="action_change_request_type"
+              sequence="10"/>
 
-    <menuitem
-        id="menu_conflict_rules"
-        name="Conflict Rules"
-        parent="menu_change_request_config"
-        action="action_spp_cr_conflict_rule"
-        sequence="20"
-    />
+    <menuitem id="menu_conflict_rules"
+              name="Conflict Rules"
+              parent="menu_change_request_config"
+              action="action_spp_cr_conflict_rule"
+              sequence="20"/>
 
-    <menuitem
-        id="menu_duplicate_config"
-        name="Duplicate Detection"
-        parent="menu_change_request_config"
-        action="action_spp_cr_duplicate_config"
-        sequence="30"
-    />
+    <menuitem id="menu_duplicate_config"
+              name="Duplicate Detection"
+              parent="menu_change_request_config"
+              action="action_spp_cr_duplicate_config"
+              sequence="30"/>
+
 </odoo>

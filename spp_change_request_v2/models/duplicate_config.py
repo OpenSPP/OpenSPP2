@@ -57,7 +57,7 @@ class SPPCRDuplicateConfig(models.Model):
     )
 
     check_fields = fields.Char(
-        help=("Comma-separated list of detail fields to compare. If empty, compares all fields."),
+        help=("Comma-separated list of detail fields to compare. " "If empty, compares all fields."),
     )
 
     # ══════════════════════════════════════════════════════════════════════════

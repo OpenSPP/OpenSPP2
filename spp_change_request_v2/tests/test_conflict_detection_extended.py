@@ -199,7 +199,7 @@ class TestConflictRuleAdvanced(TransactionCase):
             }
         )
 
-        self.env["spp.change.request"].create(
+        cr1 = self.env["spp.change.request"].create(
             {
                 "request_type_id": self.cr_type_1.id,
                 "registrant_id": registrant.id,
@@ -439,7 +439,7 @@ class TestFieldLevelConflicts(TransactionCase):
         )
 
         # Create CRs without details
-        self.env["spp.change.request"].create(
+        cr1 = self.env["spp.change.request"].create(
             {
                 "request_type_id": self.cr_type.id,
                 "registrant_id": registrant.id,
@@ -496,7 +496,7 @@ class TestGroupScopeConflicts(TransactionCase):
     def test_group_scope_same_household_members(self):
         """Test group scope detects conflicts for household members."""
         # Create household with members
-        self.env["res.partner"].create(
+        household = self.env["res.partner"].create(
             {
                 "name": "Test Household",
                 "is_registrant": True,
@@ -512,7 +512,7 @@ class TestGroupScopeConflicts(TransactionCase):
             }
         )
 
-        self.env["res.partner"].create(
+        individual2 = self.env["res.partner"].create(
             {
                 "name": "Member 2",
                 "is_registrant": True,
@@ -878,7 +878,7 @@ class TestIntegrationWorkflows(TransactionCase):
         )
 
         # Create CR for registrant1
-        self.env["spp.change.request"].create(
+        cr1 = self.env["spp.change.request"].create(
             {
                 "request_type_id": self.cr_type.id,
                 "registrant_id": registrant1.id,
@@ -1000,7 +1000,7 @@ class TestConflictWizard(TransactionCase):
             }
         )
 
-        self.env["spp.change.request"].create(
+        cr1 = self.env["spp.change.request"].create(
             {
                 "request_type_id": self.cr_type.id,
                 "registrant_id": registrant.id,
@@ -1046,7 +1046,7 @@ class TestConflictWizard(TransactionCase):
             }
         )
 
-        self.env["spp.change.request"].create(
+        cr1 = self.env["spp.change.request"].create(
             {
                 "request_type_id": self.cr_type.id,
                 "registrant_id": registrant.id,
@@ -1086,7 +1086,7 @@ class TestConflictWizard(TransactionCase):
             }
         )
 
-        self.env["spp.change.request"].create(
+        cr1 = self.env["spp.change.request"].create(
             {
                 "request_type_id": self.cr_type.id,
                 "registrant_id": registrant.id,
@@ -1145,7 +1145,7 @@ class TestConflictWizard(TransactionCase):
             }
         )
 
-        wizard.action_resolve()
+        result = wizard.action_resolve()
 
         # cr1 should be deleted (was draft)
         self.assertFalse(cr1.exists())
@@ -1159,7 +1159,7 @@ class TestConflictWizard(TransactionCase):
             }
         )
 
-        self.env["spp.change.request"].create(
+        cr1 = self.env["spp.change.request"].create(
             {
                 "request_type_id": self.cr_type.id,
                 "registrant_id": registrant.id,
@@ -1194,7 +1194,7 @@ class TestConflictWizard(TransactionCase):
             }
         )
 
-        self.env["spp.change.request"].create(
+        cr1 = self.env["spp.change.request"].create(
             {
                 "request_type_id": self.cr_type.id,
                 "registrant_id": registrant.id,
@@ -1229,7 +1229,7 @@ class TestConflictWizard(TransactionCase):
             }
         )
 
-        self.env["spp.change.request"].create(
+        cr1 = self.env["spp.change.request"].create(
             {
                 "request_type_id": self.cr_type.id,
                 "registrant_id": registrant.id,
@@ -1336,7 +1336,7 @@ class TestViewActionsAndHelpers(TransactionCase):
             }
         )
 
-        self.env["spp.change.request"].create(
+        cr1 = self.env["spp.change.request"].create(
             {
                 "request_type_id": self.cr_type.id,
                 "registrant_id": registrant.id,
@@ -1363,7 +1363,7 @@ class TestViewActionsAndHelpers(TransactionCase):
             }
         )
 
-        self.env["spp.change.request"].create(
+        cr1 = self.env["spp.change.request"].create(
             {
                 "request_type_id": self.cr_type.id,
                 "registrant_id": registrant.id,
@@ -1412,7 +1412,7 @@ class TestViewActionsAndHelpers(TransactionCase):
             }
         )
 
-        self.env["spp.change.request"].create(
+        cr1 = self.env["spp.change.request"].create(
             {
                 "request_type_id": self.cr_type.id,
                 "registrant_id": registrant.id,
@@ -1693,7 +1693,7 @@ class TestEdgeCases(TransactionCase):
             }
         )
 
-        self.env["spp.change.request"].create(
+        cr1 = self.env["spp.change.request"].create(
             {
                 "request_type_id": self.cr_type.id,
                 "registrant_id": registrant.id,
@@ -1721,7 +1721,7 @@ class TestEdgeCases(TransactionCase):
             }
         )
 
-        self.env["spp.change.request"].create(
+        cr1 = self.env["spp.change.request"].create(
             {
                 "request_type_id": self.cr_type.id,
                 "registrant_id": registrant.id,

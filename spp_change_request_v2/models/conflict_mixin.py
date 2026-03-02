@@ -562,7 +562,7 @@ class SPPCRConflictMixin(models.AbstractModel):
         if details:
             data["details"] = details
 
-        self.env["spp.event.data"].sudo().create(  # nosemgrep: odoo-sudo-without-context
+        self.env["spp.event.data"].sudo().create(
             {
                 "event_type_id": event_type.id,
                 "partner_id": self.registrant_id.id,

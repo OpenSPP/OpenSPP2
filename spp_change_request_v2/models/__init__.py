@@ -9,3 +9,4 @@ from . import change_request_conflict
 from . import dms_directory
 from . import dms_file
 from . import res_partner
+from . import change_request_log

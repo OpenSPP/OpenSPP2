@@ -94,7 +94,7 @@ class SPPCRDetailSplitHousehold(models.Model):
     # New group address
     copy_address = fields.Boolean(
         string="Copy Address from Source",
-        default=True,
+        default=False,
         tracking=True,
     )
     address_line1 = fields.Char(string="Address Line 1", tracking=True)
@@ -166,9 +166,8 @@ class SPPCRDetailSplitHousehold(models.Model):
             )
 
             # Filter out head member
-            non_head_memberships = memberships.filtered(
-                lambda m, _head_type=head_type: _head_type not in m.membership_type_ids
-            )
+            _head_type = head_type
+            non_head_memberships = memberships.filtered(lambda m, ht=_head_type: ht not in m.membership_type_ids)
 
             rec.available_member_ids = non_head_memberships.mapped("individual")
 
@@ -244,12 +243,12 @@ class SPPCRDetailSplitHousehold(models.Model):
                 )
                 if len(rec.members_to_split_ids) >= total:
                     raise ValidationError(
-                        "Cannot move all members. At least one member must remain in the source household."
+                        "Cannot move all members. At least one member must remain " "in the source household."
                     )
 
     @api.onchange("copy_address")
     def _onchange_copy_address(self):
-        """Copy address from source group when toggled."""
+        """Copy address from source group when toggled on, clear when toggled off."""
         if self.copy_address and self.source_group_id:
             self.address_line1 = self.source_group_id.street
             self.address_line2 = self.source_group_id.street2
@@ -259,3 +258,12 @@ class SPPCRDetailSplitHousehold(models.Model):
             self.country_id = self.source_group_id.country_id
             self.phone = self.source_group_id.phone
             self.email = self.source_group_id.email
+        elif not self.copy_address:
+            self.address_line1 = False
+            self.address_line2 = False
+            self.city = False
+            self.state_id = False
+            self.postal_code = False
+            self.country_id = False
+            self.phone = False
+            self.email = False

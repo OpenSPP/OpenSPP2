@@ -12,208 +12,125 @@
                 <sheet>
                     <div class="oe_title">
                         <h1>
-                            <field name="change_request_id" readonly="1" />
+                            <field name="change_request_id" readonly="1"/>
                         </h1>
                     </div>
 
                     <!-- Conflict Summary Banner - User Friendly -->
-                    <div
-                        class="alert alert-info"
-                        role="alert"
-                        invisible="conflict_count == 0"
-                    >
+                    <div class="alert alert-info" role="alert" invisible="conflict_count == 0">
                         <div class="d-flex align-items-center">
-                            <i class="fa fa-users fa-2x me-3" title="Multiple users" />
+                            <i class="fa fa-users fa-2x me-3" title="Multiple users"/>
                             <div>
                                 <strong>
-                                    <span
-                                    invisible="conflict_count != 1"
-                                >Another user is</span>
-                                    <span invisible="conflict_count == 1"><field
-                                    name="conflict_count"
-                                    readonly="1"
-                                    class="d-inline"
-                                /> other users are</span>
+                                    <span invisible="conflict_count != 1">Another user is</span>
+                                    <span invisible="conflict_count == 1"><field name="conflict_count" readonly="1" class="d-inline"/> other users are</span>
                                     also updating this beneficiary.
                                 </strong>
-                                <p
-                                    class="mb-0 mt-1"
-                                >Compare the changes below to decide what to do.</p>
+                                <p class="mb-0 mt-1">Compare the changes below to decide what to do.</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Side-by-Side Comparison (MOVED TO TOP - Primary Content) -->
                     <group string="COMPARE CHANGES" invisible="conflict_count == 0">
-                        <field
-                            name="comparison_html"
-                            nolabel="1"
-                            widget="html"
-                            readonly="1"
-                        />
+                        <field name="comparison_html" nolabel="1" widget="html" readonly="1"/>
                     </group>
 
                     <!-- Resolution Options -->
-                    <separator string="What would you like to do?" class="mt-4" />
+                    <separator string="What would you like to do?" class="mt-4"/>
                     <group colspan="2" col="1" class="mb-3 o_group_col_12">
-                        <field name="resolution_action" widget="radio" nolabel="1" />
+                        <field name="resolution_action" widget="radio" nolabel="1"/>
                     </group>
 
                     <!-- Contextual help for selected option - clean and separated -->
-                    <div
-                        class="alert alert-info mb-0"
-                        role="alert"
-                        invisible="resolution_action != 'view_details'"
-                    >
-                        <i class="fa fa-eye me-2" title="View" />
-                        <strong
-                    >View Details:</strong> Open the other request(s) to see full details before deciding.
+                    <div class="alert alert-info mb-0" role="alert"
+                         invisible="resolution_action != 'view_details'">
+                        <i class="fa fa-eye me-2" title="View"/>
+                        <strong>View Details:</strong> Open the other request(s) to see full details before deciding.
                     </div>
 
-                    <div
-                        class="alert alert-warning mb-0"
-                        role="alert"
-                        invisible="resolution_action != 'cancel_this'"
-                    >
-                        <i class="fa fa-times me-2" title="Cancel" />
-                        <strong
-                    >Withdraw:</strong> Use this if you submitted by mistake or the other request should go first.
+                    <div class="alert alert-warning mb-0" role="alert"
+                         invisible="resolution_action != 'cancel_this'">
+                        <i class="fa fa-times me-2" title="Cancel"/>
+                        <strong>Withdraw:</strong> Use this if you submitted by mistake or the other request should go first.
                     </div>
 
-                    <div
-                        class="alert alert-info mb-0"
-                        role="alert"
-                        invisible="resolution_action != 'request_review'"
-                    >
-                        <i class="fa fa-user-shield me-2" title="Review" />
-                        <strong
-                    >Supervisor Review:</strong> A supervisor will look at both requests and decide how to proceed.
+                    <div class="alert alert-info mb-0" role="alert"
+                         invisible="resolution_action != 'request_review'">
+                        <i class="fa fa-user-shield me-2" title="Review"/>
+                        <strong>Supervisor Review:</strong> A supervisor will look at both requests and decide how to proceed.
                     </div>
 
-                    <div
-                        class="alert alert-warning mb-0"
-                        role="alert"
-                        invisible="resolution_action != 'cancel_conflicting'"
-                    >
-                        <i class="fa fa-trash me-2" title="Delete" />
-                        <strong
-                    >Withdraw Other:</strong> Only if you created the other request by mistake or have permission to manage it.
+                    <div class="alert alert-warning mb-0" role="alert"
+                         invisible="resolution_action != 'cancel_conflicting'">
+                        <i class="fa fa-trash me-2" title="Delete"/>
+                        <strong>Withdraw Other:</strong> Only if you created the other request by mistake or have permission to manage it.
                     </div>
 
-                    <div
-                        class="alert alert-secondary mb-0"
-                        role="alert"
-                        invisible="resolution_action != 'wait'"
-                    >
-                        <i class="fa fa-clock-o me-2" title="Wait" />
-                        <strong
-                    >Wait:</strong> Close this window. Once the other request is done, you can proceed.
+                    <div class="alert alert-secondary mb-0" role="alert"
+                         invisible="resolution_action != 'wait'">
+                        <i class="fa fa-clock-o me-2" title="Wait"/>
+                        <strong>Wait:</strong> Close this window. Once the other request is done, you can proceed.
                     </div>
 
                     <!-- Supervisor Approval Section -->
-                    <group
-                        string=""
-                        invisible="resolution_action != 'request_review'"
-                        class="mt-3"
-                    >
-                        <field name="can_override" invisible="1" />
+                    <group string="" invisible="resolution_action != 'request_review'" class="mt-3">
+                        <field name="can_override" invisible="1"/>
 
                         <!-- For non-supervisors: explain the process -->
-                        <div
-                            class="alert alert-light border"
-                            role="alert"
-                            invisible="can_override"
-                        >
-                            <i class="fa fa-info-circle me-2 text-info" />
-                            <span
-                            >You don't have supervisor permissions. Please contact your supervisor to review both requests.</span>
+                        <div class="alert alert-light border" role="alert" invisible="can_override">
+                            <i class="fa fa-info-circle me-2 text-info"/>
+                            <span>You don't have supervisor permissions. Please contact your supervisor to review both requests.</span>
                         </div>
 
                         <!-- For supervisors: show approval form -->
-                        <group
-                            invisible="not can_override"
-                            string="Supervisor Approval"
-                        >
-                            <field
-                                name="override_reason"
-                                placeholder="Explain why both requests can proceed (e.g., no actual conflict, both are valid changes, etc.)..."
-                                required="resolution_action == 'request_review' and can_override"
-                            />
+                        <group invisible="not can_override" string="Supervisor Approval">
+                            <field name="override_reason"
+                                   placeholder="Explain why both requests can proceed (e.g., no actual conflict, both are valid changes, etc.)..."
+                                   required="resolution_action == 'request_review' and can_override"/>
                         </group>
                     </group>
 
                     <!-- Withdraw Other Request Section -->
-                    <group
-                        string="Select Requests to Withdraw"
-                        invisible="resolution_action != 'cancel_conflicting'"
-                        class="mt-3"
-                    >
-                        <field
-                            name="crs_to_cancel"
-                            nolabel="1"
-                            widget="many2many_checkboxes"
-                            domain="[('id', 'in', conflicting_cr_ids)]"
-                        />
-                        <field
-                            name="cancel_reason"
-                            placeholder="Optional: Why are you withdrawing these requests?"
-                        />
+                    <group string="Select Requests to Withdraw"
+                           invisible="resolution_action != 'cancel_conflicting'" class="mt-3">
+                        <field name="crs_to_cancel" nolabel="1" widget="many2many_checkboxes"
+                               domain="[('id', 'in', conflicting_cr_ids)]"/>
+                        <field name="cancel_reason"
+                               placeholder="Optional: Why are you withdrawing these requests?"/>
                     </group>
 
                     <!-- Withdraw My Request Section -->
-                    <group
-                        string=""
-                        invisible="resolution_action != 'cancel_this'"
-                        class="mt-3"
-                    >
-                        <field
-                            name="cancel_reason"
-                            string="Reason (optional)"
-                            placeholder="Optional: Why are you withdrawing this request?"
-                        />
+                    <group string="" invisible="resolution_action != 'cancel_this'" class="mt-3">
+                        <field name="cancel_reason"
+                               string="Reason (optional)"
+                               placeholder="Optional: Why are you withdrawing this request?"/>
                     </group>
 
                     <!-- Hidden fields -->
-                    <field name="conflict_status" invisible="1" />
-                    <field name="conflict_messages" invisible="1" />
-                    <field name="conflicting_cr_ids" invisible="1" />
+                    <field name="conflict_status" invisible="1"/>
+                    <field name="conflict_messages" invisible="1"/>
+                    <field name="conflicting_cr_ids" invisible="1"/>
+
                 </sheet>
                 <footer>
-                    <div
-                        class="d-flex w-100 justify-content-between align-items-center"
-                    >
+                    <div class="d-flex w-100 justify-content-between align-items-center">
                         <!-- Left side: Primary action button - context aware -->
                         <div>
-                            <button
-                                name="action_resolve"
-                                type="object"
-                                string="Continue"
-                                class="btn-primary"
-                                invisible="resolution_action == 'wait'"
-                            />
-                            <button
-                                name="action_resolve"
-                                type="object"
-                                string="Close and Wait"
-                                class="btn-secondary"
-                                invisible="resolution_action != 'wait'"
-                            />
-                            <button
-                                string="Close"
-                                class="btn-secondary"
-                                special="cancel"
-                            />
+                            <button name="action_resolve" type="object"
+                                    string="Continue" class="btn-primary"
+                                    invisible="resolution_action == 'wait'"/>
+                            <button name="action_resolve" type="object"
+                                    string="Close and Wait" class="btn-secondary"
+                                    invisible="resolution_action != 'wait'"/>
+                            <button string="Close" class="btn-secondary" special="cancel"/>
                         </div>
 
                         <!-- Right side: View other requests link -->
                         <div>
-                            <button
-                                name="action_view_conflicting_crs"
-                                type="object"
-                                string="Open Other Requests"
-                                class="btn-link"
-                                invisible="conflict_count == 0"
-                            />
+                            <button name="action_view_conflicting_crs" type="object"
+                                    string="Open Other Requests" class="btn-link"
+                                    invisible="conflict_count == 0"/>
                         </div>
                     </div>
                 </footer>
@@ -228,4 +145,5 @@
         <field name="view_mode">form</field>
         <field name="target">new</field>
     </record>
+
 </odoo>

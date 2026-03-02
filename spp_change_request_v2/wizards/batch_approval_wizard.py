@@ -233,7 +233,7 @@ class SPPCRBatchApprovalWizard(models.TransientModel):
                 failed_count += 1
 
         # Mark skipped lines
-        for line in self.line_ids.filtered(lambda ln: not ln.can_process):
+        for line in self.line_ids.filtered(lambda l: not l.can_process):
             line.result_status = "skipped"
 
         self.success_count = success_count
@@ -310,6 +310,11 @@ class SPPCRBatchApprovalLine(models.TransientModel):
         default="pending",
     )
     result_message = fields.Char()
+
+    def action_remove_line(self):
+        """Remove this line from the batch wizard."""
+        self.ensure_one()
+        self.unlink()
 
     @api.depends("change_request_id")
     def _compute_document_count(self):

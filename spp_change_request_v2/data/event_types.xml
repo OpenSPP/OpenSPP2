@@ -6,9 +6,7 @@
         <field name="code">cr_audit</field>
         <field name="category">manual</field>
         <field name="target_type">both</field>
-        <field
-            name="description"
-        >Audit trail events for change request state transitions</field>
+        <field name="description">Audit trail events for change request state transitions</field>
     </record>
 
     <!-- Event Type for CR Conflict Detection -->
@@ -17,8 +15,7 @@
         <field name="code">cr_conflict</field>
         <field name="category">manual</field>
         <field name="target_type">both</field>
-        <field
-            name="description"
-        >Audit trail events for conflict detection and resolution</field>
+        <field name="description">Audit trail events for conflict detection and resolution</field>
     </record>
+
 </odoo>

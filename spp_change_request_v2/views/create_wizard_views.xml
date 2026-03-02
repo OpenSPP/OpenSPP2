@@ -14,80 +14,68 @@
                     </div>
 
                     <!-- Freeze warning at top if applicable -->
-                    <field name="is_frozen" invisible="1" />
+                    <field name="is_frozen" invisible="1"/>
                     <div invisible="not is_frozen" class="mb-3">
-                        <field name="freeze_message" nolabel="1" readonly="1" />
+                        <field name="freeze_message" nolabel="1" readonly="1"/>
                     </div>
 
                     <!-- Type Selection -->
                     <group>
                         <group>
-                            <field
-                                name="request_type_id"
-                                string="Request Type"
-                                options="{'no_create': True, 'no_open': True}"
-                                placeholder="Select a change request type..."
-                                widget="selection"
-                            />
+                            <field name="request_type_id"
+                                   string="Request Type"
+                                   options="{'no_create': True, 'no_open': True}"
+                                   placeholder="Select a change request type..."
+                                   widget="selection"/>
                         </group>
                     </group>
 
+                    <!-- Target type info -->
+                    <div class="alert alert-secondary py-2" role="status"
+                         invisible="not target_type_message">
+                        <div class="d-flex align-items-center">
+                            <i class="fa fa-info-circle me-2" title="Info"/>
+                            <field name="target_type_message" nolabel="1"/>
+                        </div>
+                    </div>
+
                     <!-- Hidden fields -->
-                    <field name="show_registrant" invisible="1" />
-                    <field name="registrant_id" invisible="1" />
-                    <field name="_selected_partner_id" invisible="1" />
-                    <field name="_search_page" invisible="1" />
+                    <field name="show_registrant" invisible="1"/>
+                    <field name="registrant_id" invisible="1"/>
+                    <field name="_selected_partner_id" invisible="1"/>
+                    <field name="_search_page" invisible="1"/>
 
                     <!-- Registrant Search (shown after type selected, hidden after selection) -->
                     <group invisible="not show_registrant or registrant_id">
                         <group>
-                            <field
-                                name="search_text"
-                                string="Search Registrant"
-                                placeholder="Enter name or ID number..."
-                                widget="search_delay"
-                            />
+                            <field name="search_text"
+                                   string="Search Registrant"
+                                   placeholder="Enter name or ID number..."
+                                   widget="search_delay"/>
                         </group>
                     </group>
 
                     <!-- Search Results (clickable rows, handled by widget) -->
-                    <div
-                        class="w-100"
-                        invisible="not search_results_html or registrant_id"
-                    >
-                        <field
-                            name="search_results_html"
-                            nolabel="1"
-                            readonly="1"
-                            widget="cr_search_results"
-                        />
+                    <div class="w-100" invisible="not search_results_html or registrant_id">
+                        <field name="search_results_html" nolabel="1" readonly="1"
+                               widget="cr_search_results"/>
                     </div>
 
                     <!-- Selected registrant info -->
-                    <div
-                        class="alert alert-success py-2 mb-3"
-                        role="status"
-                        invisible="not registrant_id"
-                    >
-                        <field name="registrant_info_html" nolabel="1" readonly="1" />
-                        <button
-                            name="action_clear_registrant"
-                            type="object"
-                            string="Change Registrant"
-                            class="btn btn-sm btn-outline-secondary mt-2"
-                            icon="fa-pencil"
-                        />
+                    <div class="alert alert-success py-2 mb-3" role="status" invisible="not registrant_id">
+                        <field name="registrant_info_html" nolabel="1" readonly="1"/>
+                        <button name="action_clear_registrant" type="object"
+                                string="Change Registrant" class="btn btn-sm btn-outline-secondary mt-2"
+                                icon="fa-pencil"/>
                     </div>
                 </sheet>
                 <footer>
-                    <button
-                        string="Create"
-                        name="action_create_draft"
-                        type="object"
-                        class="btn-primary"
-                        invisible="not request_type_id or not registrant_id"
-                    />
-                    <button string="Cancel" class="btn-secondary" special="cancel" />
+                    <button string="Create"
+                            name="action_create_draft"
+                            type="object"
+                            class="btn-primary"
+                            invisible="not request_type_id or (show_registrant and not registrant_id)"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>
         </field>
@@ -100,7 +88,8 @@
         <field name="name">New Change Request</field>
         <field name="res_model">spp.cr.create.wizard</field>
         <field name="view_mode">form</field>
-        <field name="view_id" ref="view_cr_create_wizard_form" />
+        <field name="view_id" ref="view_cr_create_wizard_form"/>
         <field name="target">new</field>
     </record>
+
 </odoo>
