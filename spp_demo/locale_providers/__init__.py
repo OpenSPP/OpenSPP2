@@ -1,6 +1,8 @@
 from faker import Faker
 from faker.config import AVAILABLE_LOCALES
 from .en_KE import Provider as EnKeProvider
+from .fil_PH import Provider as FilPhProvider
+from .fr_TG import Provider as FrTgProvider
 from .lo_LA import Provider as LoLaProvider
 from .si_LK import Provider as SiLkProvider
 from .sw_KE import Provider as SwKeProvider
@@ -21,6 +23,10 @@ def get_faker_provider(lang):
     """
     if lang == "en_KE":
         return EnKeProvider
+    if lang == "fil_PH":
+        return FilPhProvider
+    if lang == "fr_TG":
+        return FrTgProvider
     if lang == "lo_LA":
         return LoLaProvider
     if lang == "si_LK":

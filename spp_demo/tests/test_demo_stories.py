@@ -317,3 +317,142 @@ class TestDemoStories(TransactionCase):
         self.assertIsNotNone(maria.registration_date)
         # Registration should be in the past
         self.assertLess(maria.registration_date, expected_date)
+
+    # ------------------------------------------------------------------
+    # Locale versioning tests
+    # ------------------------------------------------------------------
+
+    def test_16_get_localized_stories_default(self):
+        """Test that get_localized_stories returns originals for fil_PH."""
+        from odoo.addons.spp_demo.models import demo_stories
+
+        # None locale returns originals
+        stories_none = demo_stories.get_localized_stories(None)
+        stories_ph = demo_stories.get_localized_stories("fil_PH")
+        all_stories = demo_stories.get_all_stories()
+
+        self.assertEqual(len(stories_none), len(all_stories))
+        self.assertEqual(len(stories_ph), len(all_stories))
+
+        # Names should be unchanged
+        self.assertEqual(stories_none[0]["name"], "Maria Santos")
+        self.assertEqual(stories_ph[0]["name"], "Maria Santos")
+
+    def test_17_get_localized_stories_sri_lanka(self):
+        """Test that si_LK locale returns Sinhalese names."""
+        from odoo.addons.spp_demo.models import demo_stories
+
+        stories = demo_stories.get_localized_stories("si_LK")
+
+        self.assertEqual(len(stories), len(demo_stories.get_all_stories()))
+
+        # Find maria_santos story
+        maria = next(s for s in stories if s["id"] == "maria_santos")
+        self.assertEqual(maria["name"], "Kumari Perera")
+
+        # Find household story (carlos_elena_morales)
+        carlos = next(s for s in stories if s["id"] == "carlos_elena_morales")
+        self.assertEqual(carlos["name"], "Kasun Fernando")
+        self.assertEqual(carlos["profile"]["head"]["name"], "Kasun Fernando")
+        self.assertEqual(carlos["profile"]["spouse"]["name"], "Dilani Fernando")
+        self.assertEqual(carlos["profile"]["children"][0]["name"], "Nuwan Fernando")
+
+    def test_18_get_localized_stories_togo(self):
+        """Test that fr_TG locale returns Togolese names."""
+        from odoo.addons.spp_demo.models import demo_stories
+
+        stories = demo_stories.get_localized_stories("fr_TG")
+
+        maria = next(s for s in stories if s["id"] == "maria_santos")
+        self.assertEqual(maria["name"], "Ama Koffi")
+
+        carlos = next(s for s in stories if s["id"] == "carlos_elena_morales")
+        self.assertEqual(carlos["name"], "Kodjo Agbeko")
+        self.assertEqual(carlos["profile"]["head"]["name"], "Kodjo Agbeko")
+        self.assertEqual(carlos["profile"]["spouse"]["name"], "Esi Agbeko")
+
+    def test_19_get_localized_reserved_names(self):
+        """Test that reserved names are locale-aware."""
+        from odoo.addons.spp_demo.models import demo_stories
+
+        ph_names = demo_stories.get_localized_reserved_names("fil_PH")
+        lk_names = demo_stories.get_localized_reserved_names("si_LK")
+        tg_names = demo_stories.get_localized_reserved_names("fr_TG")
+
+        # Default should return RESERVED_NAMES
+        self.assertEqual(ph_names, demo_stories.RESERVED_NAMES)
+
+        # si_LK should have Sinhalese names
+        self.assertIn("Kumari Perera", lk_names)
+        self.assertNotIn("Maria Santos", lk_names)
+
+        # fr_TG should have Togolese names
+        self.assertIn("Ama Koffi", tg_names)
+        self.assertNotIn("Maria Santos", tg_names)
+
+    def test_20_get_localized_name(self):
+        """Test single name lookup by story ID and locale."""
+        from odoo.addons.spp_demo.models import demo_stories
+
+        # Default/Filipino
+        self.assertEqual(demo_stories.get_localized_name("maria_santos"), "Maria Santos")
+        self.assertEqual(demo_stories.get_localized_name("maria_santos", "fil_PH"), "Maria Santos")
+
+        # Sri Lanka
+        self.assertEqual(demo_stories.get_localized_name("maria_santos", "si_LK"), "Kumari Perera")
+        self.assertEqual(demo_stories.get_localized_name("juan_dela_cruz", "si_LK"), "Nimal Bandara")
+
+        # Togo
+        self.assertEqual(demo_stories.get_localized_name("maria_santos", "fr_TG"), "Ama Koffi")
+
+        # Unknown story ID falls back to None
+        self.assertIsNone(demo_stories.get_localized_name("nonexistent", "si_LK"))
+
+    def test_21_locale_names_cover_all_stories(self):
+        """Test that all story IDs have entries in each locale."""
+        from odoo.addons.spp_demo.models import demo_stories
+
+        all_stories = demo_stories.get_all_stories()
+        story_ids = {s["id"] for s in all_stories}
+
+        for locale in ("si_LK", "fr_TG"):
+            locale_map = demo_stories.LOCALE_NAMES[locale]
+            mapped_ids = set(locale_map.keys())
+            missing = story_ids - mapped_ids
+            self.assertFalse(missing, f"Locale {locale} missing entries for: {missing}")
+
+    def test_22_localized_stories_preserve_structure(self):
+        """Test that localized stories keep non-name fields intact."""
+        from odoo.addons.spp_demo.models import demo_stories
+
+        orig_maria = demo_stories.get_story_by_id("maria_santos")
+        lk_stories = demo_stories.get_localized_stories("si_LK")
+        lk_maria = next(s for s in lk_stories if s["id"] == "maria_santos")
+
+        # Journey, profile (except names), demo_points should be unchanged
+        self.assertEqual(lk_maria["journey"], orig_maria["journey"])
+        self.assertEqual(lk_maria["profile"]["age"], orig_maria["profile"]["age"])
+        self.assertEqual(lk_maria["profile"]["gender"], orig_maria["profile"]["gender"])
+
+    def test_23_localized_stories_no_name_collisions(self):
+        """Test that localized names don't collide within a locale."""
+        from odoo.addons.spp_demo.models import demo_stories
+
+        for locale in ("si_LK", "fr_TG"):
+            names = demo_stories.get_localized_reserved_names(locale)
+            unique = set(names)
+            dupes = [n for n in names if names.count(n) > 1]
+            self.assertEqual(len(names), len(unique), f"Duplicate names in {locale}: {dupes}")
+
+    def test_24_localized_stories_dont_mutate_originals(self):
+        """Test that calling get_localized_stories doesn't mutate the originals."""
+        from odoo.addons.spp_demo.models import demo_stories
+
+        # Get original name
+        orig_name = demo_stories.DEMO_STORIES[0]["name"]
+
+        # Call localized
+        demo_stories.get_localized_stories("si_LK")
+
+        # Original should be unchanged
+        self.assertEqual(demo_stories.DEMO_STORIES[0]["name"], orig_name)

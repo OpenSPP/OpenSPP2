@@ -8,7 +8,10 @@ These stories provide predictable, documented personas for:
 - CI/Testing verification
 
 Each story demonstrates a specific workflow or feature set.
+Names are locale-aware: fil_PH (default), si_LK, fr_TG.
 """
+
+import copy
 
 # Reserved names that should not be used for random volume generation
 RESERVED_NAMES = [
@@ -100,8 +103,7 @@ DEMO_STORIES = [
             "farm_size_hectares": 2.5,  # CEL: Input Subsidy eligibility
             "farm_type": "crop",
             "main_crop": "rice",
-            "area_ref": "spp_demo.area_phl_quezon_city",
-            "area_kind": "municipality",
+            "district": "Northern District",
             "marital_status": "married",
             "household_size": 5,
         },
@@ -244,8 +246,7 @@ DEMO_STORIES = [
             "farm_size_hectares": 8.0,  # CEL: Large livestock farm
             "farm_type": "livestock",
             "main_livestock": "dairy",
-            "area_ref": "spp_demo.area_phl_calamba",
-            "area_kind": "municipality",
+            "district": "Central District",
             "marital_status": "married",
             "household_size": 6,
             "role": "cooperative_chairman",
@@ -280,8 +281,7 @@ DEMO_STORIES = [
             "farm_size_hectares": 3.0,  # CEL: Youth farmer eligibility
             "farm_type": "crop",
             "main_crop": "mixed_vegetables",
-            "area_ref": "spp_demo.area_phl_antipolo",
-            "area_kind": "municipality",
+            "district": "Eastern District",
             "marital_status": "single",
             "household_size": 2,
             "registration_channel": "mobile_app",
@@ -318,8 +318,7 @@ DEMO_STORIES = [
             "farm_size": 2.0,
             "farm_size_hectares": 2.0,  # CEL: Household farm size
             "child_count": 3,  # CEL: Child benefit eligibility
-            "area_ref": "spp_demo.area_phl_santa_rosa",
-            "area_kind": "municipality",
+            "district": "Southern District",
         },
         "journey": [
             {"action": "register_household", "days_back": 150},
@@ -357,8 +356,7 @@ DEMO_STORIES = [
             "vulnerability": ["single_parent", "low_income", "female_headed"],
             "vulnerability_score": 80,  # CEL: High vulnerability - single parent household
             "child_count": 3,  # CEL: Child benefit eligibility
-            "area_ref": "spp_demo.area_phl_makati",
-            "area_kind": "municipality",
+            "district": "Western District",
         },
         "journey": [
             {"action": "register_household", "days_back": 180},
@@ -403,8 +401,7 @@ DEMO_STORIES = [
             "farm_size": 5.0,
             "farm_size_hectares": 5.0,  # CEL: Multi-generational household farm
             "child_count": 3,  # CEL: Children under 18 (excluding 18-year-old)
-            "area_ref": "spp_demo.area_phl_quezon_city",
-            "area_kind": "municipality",
+            "district": "Northern District",
             "vulnerability": ["elderly_members"],
         },
         "journey": [
@@ -481,8 +478,7 @@ DEMO_STORIES = [
             "child_count": 3,  # CEL: Children under 18 (Xiao, Yan, Bo)
             "farm_type": "crop",
             "main_crop": "rice",
-            "area_ref": "spp_demo.area_phl_antipolo",
-            "area_kind": "municipality",
+            "district": "Eastern District",
         },
         "journey": [
             {"action": "register_household", "days_back": 200},
@@ -525,8 +521,7 @@ DEMO_STORIES = [
             "vulnerability": ["elderly", "health_issues", "limited_mobility"],
             "vulnerability_score": 70,  # CEL: Elderly couple vulnerability
             "has_formal_pension": False,  # CEL: Elderly pension eligibility
-            "area_ref": "spp_demo.area_phl_calamba",
-            "area_kind": "municipality",
+            "district": "Central District",
         },
         "journey": [
             {"action": "register_household", "days_back": 250},
@@ -574,8 +569,7 @@ DEMO_STORIES = [
             "farm_size": 6.0,
             "farm_size_hectares": 6.0,  # CEL: Extended family farm
             "farm_type": "mixed",
-            "area_ref": "spp_demo.area_phl_santa_rosa",
-            "area_kind": "municipality",
+            "district": "Southern District",
             "vulnerability": ["disability"],
             "vulnerability_score": 65,  # CEL: Disability in household
             "disabled_count": 1,  # CEL: Member with disability
@@ -690,8 +684,7 @@ DEMO_STORIES = [
             "farm_size_hectares": 1.5,  # CEL: Small farm household
             "disabled_count": 1,  # CEL: Disability Support Grant eligibility
             "child_count": 1,
-            "area_ref": "spp_demo.area_phl_makati",
-            "area_kind": "municipality",
+            "district": "Western District",
         },
         "journey": [
             {"action": "register_household", "days_back": 120},
@@ -922,6 +915,385 @@ TUTORIAL_STORIES = [
         ],
     },
 ]
+
+
+# ---------------------------------------------------------------------------
+# Locale-specific name overrides
+# ---------------------------------------------------------------------------
+# Each locale maps story_id → {"name": ..., "profile_names": {...}}
+# profile_names keys: "head", "spouse", "children" (list), "adults" (list)
+# fil_PH is the default — names are already in the story dicts above.
+
+LOCALE_NAMES = {
+    "fil_PH": {},  # Default locale — no overrides needed
+    # -----------------------------------------------------------------------
+    # Sri Lanka — Sinhalese names
+    # -----------------------------------------------------------------------
+    "si_LK": {
+        # DEMO_STORIES
+        "maria_santos": {"name": "Kumari Perera"},
+        "juan_dela_cruz": {"name": "Nimal Bandara"},
+        "rosa_garcia": {"name": "Malini Silva"},
+        "pedro_reyes": {"name": "Saman Jayawardena"},
+        "ana_mendoza": {"name": "Sachini Dissanayake"},
+        "carlos_elena_morales": {
+            "name": "Kasun Fernando",
+            "profile_names": {
+                "head": "Kasun Fernando",
+                "spouse": "Dilani Fernando",
+                "children": ["Nuwan Fernando", "Nethmi Fernando", "Chamara Fernando"],
+            },
+        },
+        "amina_osman_household": {
+            "name": "Anoma Herath",
+            "profile_names": {
+                "head": "Anoma Herath",
+                "children": ["Lahiru Herath", "Hiruni Herath", "Dinesh Herath"],
+            },
+        },
+        "jose_reyes_multigenerational": {
+            "name": "Kamal Rathnayake",
+            "profile_names": {
+                "head": "Kamal Rathnayake",
+                "spouse": "Ramya Rathnayake",
+                "adults": ["Ajith Rathnayake", "Sanduni Rathnayake"],
+                "children": [
+                    "Pradeep Rathnayake",
+                    "Wasana Rathnayake",
+                    "Ruwan Rathnayake",
+                    "Nimali Rathnayake",
+                ],
+            },
+        },
+        "chen_large_family": {
+            "name": "Thilak Gunasekara",
+            "profile_names": {
+                "head": "Thilak Gunasekara",
+                "spouse": "Kusum Gunasekara",
+                "children": [
+                    "Gayani Gunasekara",
+                    "Ashan Gunasekara",
+                    "Chathurika Gunasekara",
+                    "Ruwanthi Gunasekara",
+                    "Mahesh Gunasekara",
+                ],
+            },
+        },
+        "manuel_gloria_elderly": {
+            "name": "Sunil Wijesinghe",
+            "profile_names": {
+                "head": "Sunil Wijesinghe",
+                "spouse": "Sirima Wijesinghe",
+            },
+        },
+        "nguyen_extended_family": {
+            "name": "Ranjith Amarasinghe",
+            "profile_names": {
+                "head": "Ranjith Amarasinghe",
+                "adults": [
+                    "Champa Amarasinghe",
+                    "Chandana Amarasinghe",
+                    "Nadeesha Amarasinghe",
+                ],
+            },
+        },
+        "ibrahim_hassan": {"name": "Asanka Kumara"},
+        "fatima_al_rahman": {"name": "Ishara Senanayake"},
+        "david_sofia_martinez": {
+            "name": "Sanjeewa Wickramasinghe",
+            "profile_names": {
+                "head": "Sanjeewa Wickramasinghe",
+                "spouse": "Nisansala Wickramasinghe",
+                "children": ["Charitha Wickramasinghe"],
+            },
+        },
+        # BACKGROUND_STORIES
+        "luis_fernandez": {"name": "Dinesh Rajapaksa"},
+        "mary_johnson": {"name": "Priyanka Mendis"},
+        "ahmed_said": {"name": "Ruwan Weerasinghe"},
+        "grace_okonkwo": {"name": "Sanduni Karunaratne"},
+        "david_kim": {"name": "Mahesh Gamage"},
+        # TUTORIAL_STORIES
+        "tutorial_garcia_family": {
+            "name": "Pathirana Family",
+            "profile_names": {
+                "head": "Chaminda Pathirana",
+                "spouse": "Mala Pathirana",
+                "children": ["Kavinda Pathirana"],
+            },
+        },
+        "tutorial_santos_family": {
+            "name": "De Silva Family",
+            "profile_names": {
+                "head": "Rohan De Silva",
+                "spouse": "Dilini De Silva",
+                "children": ["Senuri De Silva"],
+            },
+        },
+        "tutorial_cruz_family": {
+            "name": "Cooray Family",
+            "profile_names": {
+                "head": "Upul Cooray",
+                "spouse": "Manel Cooray",
+                "children": ["Tharindu Cooray", "Rashmi Cooray"],
+            },
+        },
+        "tutorial_reyes_family": {
+            "name": "Gunawardena Family",
+            "profile_names": {
+                "head": "Sampath Gunawardena",
+                "spouse": "Harshani Gunawardena",
+                "children": ["Kaveesha Gunawardena"],
+            },
+        },
+        "tutorial_ramos_family": {
+            "name": "Senaratne Family",
+            "profile_names": {
+                "head": "Jagath Senaratne",
+                "spouse": "Priyadarshani Senaratne",
+                "children": ["Lakshan Senaratne", "Imalsha Senaratne"],
+            },
+        },
+    },
+    # -----------------------------------------------------------------------
+    # Togo — Ewe / French names
+    # -----------------------------------------------------------------------
+    "fr_TG": {
+        # DEMO_STORIES
+        "maria_santos": {"name": "Ama Koffi"},
+        "juan_dela_cruz": {"name": "Kofi Mensah"},
+        "rosa_garcia": {"name": "Adzo Amegah"},
+        "pedro_reyes": {"name": "Yao Dossou"},
+        "ana_mendoza": {"name": "Akua Ayivi"},
+        "carlos_elena_morales": {
+            "name": "Kodjo Agbeko",
+            "profile_names": {
+                "head": "Kodjo Agbeko",
+                "spouse": "Esi Agbeko",
+                "children": ["Komla Agbeko", "Ablavi Agbeko", "Koku Agbeko"],
+            },
+        },
+        "amina_osman_household": {
+            "name": "Adjoa Tetteh",
+            "profile_names": {
+                "head": "Adjoa Tetteh",
+                "children": ["Messan Tetteh", "Akossiwa Tetteh", "Edem Tetteh"],
+            },
+        },
+        "jose_reyes_multigenerational": {
+            "name": "Kwame Lawson",
+            "profile_names": {
+                "head": "Kwame Lawson",
+                "spouse": "Afia Lawson",
+                "adults": ["Kossi Lawson", "Ayoko Lawson"],
+                "children": [
+                    "Dela Lawson",
+                    "Dzidzor Lawson",
+                    "Kokou Lawson",
+                    "Ewoenam Lawson",
+                ],
+            },
+        },
+        "chen_large_family": {
+            "name": "Mawuli Akakpo",
+            "profile_names": {
+                "head": "Mawuli Akakpo",
+                "spouse": "Kafui Akakpo",
+                "children": [
+                    "Dede Akakpo",
+                    "Yaovi Akakpo",
+                    "Yawa Akakpo",
+                    "Abla Akakpo",
+                    "Komi Akakpo",
+                ],
+            },
+        },
+        "manuel_gloria_elderly": {
+            "name": "Atsu Amouzou",
+            "profile_names": {
+                "head": "Atsu Amouzou",
+                "spouse": "Akpene Amouzou",
+            },
+        },
+        "nguyen_extended_family": {
+            "name": "Selom Gbeho",
+            "profile_names": {
+                "head": "Selom Gbeho",
+                "adults": ["Mawusi Gbeho", "Senyo Gbeho", "Ayele Gbeho"],
+            },
+        },
+        "ibrahim_hassan": {"name": "Kosi Deku"},
+        "fatima_al_rahman": {"name": "Afia Sossou"},
+        "david_sofia_martinez": {
+            "name": "Ata Koudawo",
+            "profile_names": {
+                "head": "Ata Koudawo",
+                "spouse": "Ama Koudawo",
+                "children": ["Kofi Koudawo"],
+            },
+        },
+        # BACKGROUND_STORIES
+        "luis_fernandez": {"name": "Messan Ameganvi"},
+        "mary_johnson": {"name": "Ablavi Gbeassor"},
+        "ahmed_said": {"name": "Komla Agbodjan"},
+        "grace_okonkwo": {"name": "Akossiwa Adjakly"},
+        "david_kim": {"name": "Yaovi Assignon"},
+        # TUTORIAL_STORIES
+        "tutorial_garcia_family": {
+            "name": "Famille Agbo",
+            "profile_names": {
+                "head": "Komi Agbo",
+                "spouse": "Dede Agbo",
+                "children": ["Edem Agbo"],
+            },
+        },
+        "tutorial_santos_family": {
+            "name": "Famille Sodji",
+            "profile_names": {
+                "head": "Kodjo Sodji",
+                "spouse": "Esi Sodji",
+                "children": ["Ewoenam Sodji"],
+            },
+        },
+        "tutorial_cruz_family": {
+            "name": "Famille Nyaku",
+            "profile_names": {
+                "head": "Kwame Nyaku",
+                "spouse": "Adjoa Nyaku",
+                "children": ["Yao Nyaku", "Dzidzor Nyaku"],
+            },
+        },
+        "tutorial_reyes_family": {
+            "name": "Famille Bamezon",
+            "profile_names": {
+                "head": "Kossi Bamezon",
+                "spouse": "Ayoko Bamezon",
+                "children": ["Kafui Bamezon"],
+            },
+        },
+        "tutorial_ramos_family": {
+            "name": "Famille Djossou",
+            "profile_names": {
+                "head": "Mawuli Djossou",
+                "spouse": "Abla Djossou",
+                "children": ["Dela Djossou", "Yawa Djossou"],
+            },
+        },
+    },
+}
+
+
+# ---------------------------------------------------------------------------
+# Localization helpers
+# ---------------------------------------------------------------------------
+
+
+def _apply_locale_to_story(story, locale_entry):
+    """Apply locale name overrides to a deep-copied story dict."""
+    story["name"] = locale_entry["name"]
+    profile = story.get("profile", {})
+    pnames = locale_entry.get("profile_names", {})
+
+    # Head of household
+    if "head" in pnames and "head" in profile:
+        profile["head"]["name"] = pnames["head"]
+
+    # Spouse
+    if "spouse" in pnames and "spouse" in profile:
+        profile["spouse"]["name"] = pnames["spouse"]
+
+    # Children (positional replacement)
+    if "children" in pnames and "children" in profile:
+        for idx, child_name in enumerate(pnames["children"]):
+            if idx < len(profile["children"]):
+                profile["children"][idx]["name"] = child_name
+
+    # Adults (positional replacement)
+    if "adults" in pnames and "adults" in profile:
+        for idx, adult_name in enumerate(pnames["adults"]):
+            if idx < len(profile["adults"]):
+                profile["adults"][idx]["name"] = adult_name
+
+    # Also update journey references that mention member names
+    # (e.g., disability_assessment member field)
+    if "children" in pnames:
+        for step in story.get("journey", []):
+            if "member" in step:
+                # Find matching child by position
+                orig_children = get_story_by_id(story["id"])
+                if orig_children:
+                    orig_profile = orig_children.get("profile", {})
+                    for idx, child in enumerate(orig_profile.get("children", [])):
+                        if child.get("name") == step["member"] and idx < len(pnames["children"]):
+                            step["member"] = pnames["children"][idx]
+                            break
+
+    return story
+
+
+def get_localized_stories(locale=None):
+    """Return all stories with names replaced for the given locale.
+
+    If locale is None or "fil_PH", returns the original stories unchanged.
+    Otherwise, deep-copies all stories and applies LOCALE_NAMES overrides.
+    Stories without locale overrides keep their original names.
+    """
+    all_stories = DEMO_STORIES + BACKGROUND_STORIES + TUTORIAL_STORIES
+    if not locale or locale == "fil_PH" or locale not in LOCALE_NAMES:
+        return all_stories
+
+    locale_map = LOCALE_NAMES[locale]
+    result = []
+    for story in all_stories:
+        if story["id"] in locale_map:
+            localized = copy.deepcopy(story)
+            _apply_locale_to_story(localized, locale_map[story["id"]])
+            result.append(localized)
+        else:
+            result.append(story)
+    return result
+
+
+def get_localized_reserved_names(locale=None):
+    """Return the RESERVED_NAMES list for the given locale.
+
+    Collects all character names from localized stories.
+    """
+    if not locale or locale == "fil_PH" or locale not in LOCALE_NAMES:
+        return RESERVED_NAMES
+
+    stories = get_localized_stories(locale)
+    names = []
+    for story in stories:
+        names.append(story["name"])
+        profile = story.get("profile", {})
+        if "head" in profile:
+            names.append(profile["head"]["name"])
+        if "spouse" in profile:
+            names.append(profile["spouse"]["name"])
+        for child in profile.get("children", []):
+            names.append(child["name"])
+        for adult in profile.get("adults", []):
+            names.append(adult["name"])
+    # Deduplicate while preserving order
+    seen = set()
+    unique = []
+    for n in names:
+        if n not in seen:
+            seen.add(n)
+            unique.append(n)
+    return unique
+
+
+def get_localized_name(story_id, locale=None):
+    """Get the localized primary name for a single story."""
+    if locale and locale != "fil_PH" and locale in LOCALE_NAMES:
+        locale_map = LOCALE_NAMES[locale]
+        if story_id in locale_map:
+            return locale_map[story_id]["name"]
+    # Fallback to original
+    story = get_story_by_id(story_id)
+    return story["name"] if story else None
 
 
 def get_all_stories():

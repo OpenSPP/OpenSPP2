@@ -25,7 +25,6 @@ class TestMISDemoGenerator(TransactionCase):
         self.assertTrue(generator.create_demo_programs)
         self.assertTrue(generator.enroll_demo_stories)
         self.assertTrue(generator.generate_volume)
-        self.assertEqual(generator.volume_enrollments, 50)
         self.assertEqual(generator.state, "draft")
 
     def test_wizard_creation(self):
@@ -101,7 +100,6 @@ class TestMISDemoGenerator(TransactionCase):
                 "create_demo_programs": True,
                 "enroll_demo_stories": False,
                 "generate_volume": True,
-                "volume_enrollments": 10,
                 "create_cycles": False,
                 "locale_origin": self.test_country.id,
             }
@@ -392,7 +390,6 @@ class TestMISDemoGeneratorWithData(TransactionCase):
                 "create_demo_programs": True,
                 "enroll_demo_stories": False,
                 "generate_volume": True,
-                "volume_enrollments": 5,
                 "create_cycles": False,
                 "locale_origin": self.test_country.id,
             }
@@ -433,7 +430,6 @@ class TestMISDemoGeneratorWithData(TransactionCase):
                 "create_demo_programs": False,
                 "enroll_demo_stories": False,
                 "generate_volume": True,
-                "volume_enrollments": 50,
                 "create_cycles": False,
                 "locale_origin": self.test_country.id,
             }
@@ -481,7 +477,6 @@ class TestDemoStoryHouseholdMembers(TransactionCase):
                 "create_demo_programs": False,
                 "enroll_demo_stories": False,
                 "generate_volume": False,
-                "generate_random_groups": False,
                 "create_cycles": False,
                 "create_event_data": False,
                 "create_change_requests": False,
@@ -514,7 +509,7 @@ class TestDemoStoryHouseholdMembers(TransactionCase):
             self.assertEqual(
                 member_count,
                 expected_count,
-                f"Household '{story_name}' should have {expected_count} members, but has {member_count}",
+                f"Household '{story_name}' should have {expected_count} members, " f"but has {member_count}",
             )
 
     def test_chen_family_has_all_members(self):
@@ -644,9 +639,7 @@ class TestDemoStoryHouseholdMembers(TransactionCase):
             )
 
             self.assertEqual(
-                len(head_membership),
-                1,
-                f"Household '{story_name}' should have exactly one head of household",
+                len(head_membership), 1, f"Household '{story_name}' should have exactly one head of household"
             )
 
     def test_idempotent_member_creation(self):
@@ -670,11 +663,7 @@ class TestDemoStoryHouseholdMembers(TransactionCase):
         # Count should be the same
         second_count = self.env["spp.group.membership"].search_count([("group", "=", group.id)])
 
-        self.assertEqual(
-            first_count,
-            second_count,
-            "Running generator twice should not duplicate members",
-        )
+        self.assertEqual(first_count, second_count, "Running generator twice should not duplicate members")
 
     def test_individual_members_have_correct_attributes(self):
         """Test that created individual members have correct attributes."""
