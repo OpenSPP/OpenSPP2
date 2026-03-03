@@ -136,7 +136,9 @@
                     />
 
                     <!-- Context banner -->
-                    <div class="alert alert-light border d-flex align-items-center mb-4 py-2">
+                    <div
+                        class="alert alert-light border d-flex align-items-center mb-4 py-2"
+                    >
                         <i class="fa fa-search fa-lg text-primary me-3" />
                         <field name="stage_banner_html" nolabel="1" readonly="1" />
                     </div>
@@ -216,19 +218,31 @@
                                 <i class="fa fa-exclamation-triangle me-2" />
                                 Only images and PDF files can be previewed. Other file types must be downloaded to view.
                             </div>
-                            <field name="document_ids" readonly="1" nolabel="1"
-                                   invisible="not document_ids">
+                            <field
+                                name="document_ids"
+                                readonly="1"
+                                nolabel="1"
+                                invisible="not document_ids"
+                            >
                                 <list no_open="1">
                                     <field name="is_previewable" column_invisible="1" />
-                                    <field name="content" widget="preview_widget"
-                                           invisible="not is_previewable" />
-                                    <button name="action_download"
-                                            type="object"
-                                            icon="fa-download"
-                                            title="Download"
-                                            column_invisible="not parent.allow_document_download" />
+                                    <field
+                                        name="content"
+                                        widget="preview_widget"
+                                        invisible="not is_previewable"
+                                    />
+                                    <button
+                                        name="action_download"
+                                        type="object"
+                                        icon="fa-download"
+                                        title="Download"
+                                        column_invisible="not parent.allow_document_download"
+                                    />
                                     <field name="name" string="File" />
-                                    <field name="document_type_id" string="Document Type" />
+                                    <field
+                                        name="document_type_id"
+                                        string="Document Type"
+                                    />
                                     <field name="human_size" string="Size" />
                                     <field name="create_date" string="Uploaded" />
                                 </list>
@@ -243,7 +257,12 @@
                                 <list no_open="1">
                                     <field name="create_date" string="Date" />
                                     <field name="action_label" string="Action" />
-                                    <field name="user_id" string="By" widget="many2one" />
+                                    <field
+                                        name="user_id"
+                                        string="By"
+                                        widget="many2one"
+                                        options="{'no_open': true}"
+                                    />
                                     <field name="notes" />
                                 </list>
                             </field>
