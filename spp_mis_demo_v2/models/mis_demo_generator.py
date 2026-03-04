@@ -5,7 +5,7 @@ MIS Demo Generator V2
 Generates demo data for SP-MIS programs following the V2 architecture:
 1. Fixed Demo Programs - Predictable programs aligned with demo stories
 2. Story-based Enrollments - Enrolls demo personas with payment history
-3. Random Volume Data - Additional enrollments for realistic dashboards
+3. Deterministic Volume Data - Blueprint-based households for realistic dashboards
 """
 
 import datetime
@@ -15,8 +15,6 @@ import random
 from odoo import Command, _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import config
-
-from odoo.addons.spp_demo.locale_providers import create_faker
 
 from . import demo_programs
 
@@ -189,7 +187,7 @@ class SPPMISDemoGenerator(models.TransientModel):
         "res.country",
         string="Locale Origin",
         default=lambda self: self.env.user.company_id.country_id or self.env.ref("base.us"),
-        help="Country for Faker locale",
+        help="Country for locale-specific name generation",
     )
 
     # State tracking
@@ -429,9 +427,9 @@ class SPPMISDemoGenerator(models.TransientModel):
         try:
             # Resolve country configuration (locale, currency)
             country_cfg = self._get_country_config()
-            faker_locale = country_cfg["locale"]
+            demo_locale = country_cfg["locale"]
             # Store locale in context for use by story methods (locale-aware names)
-            self = self.with_context(demo_locale=faker_locale)
+            self = self.with_context(demo_locale=demo_locale)
 
             # Set company country and currency
             if country_cfg["country"]:
@@ -442,12 +440,9 @@ class SPPMISDemoGenerator(models.TransientModel):
             _logger.info(
                 "Country: %s, Locale: %s, Currency: %s",
                 self.country_id,
-                faker_locale,
+                demo_locale,
                 country_cfg["currency"].name if country_cfg["currency"] else "N/A",
             )
-
-            # Initialize Faker (for story generation and other non-blueprint uses)
-            fake = create_faker(faker_locale)
 
             created_data = {
                 "programs": [],
@@ -492,7 +487,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                 from .seeded_volume_generator import SeededVolumeGenerator
 
                 _logger.info("Generating deterministic households from %d blueprints...", len(HOUSEHOLD_BLUEPRINTS))
-                generator = SeededVolumeGenerator(self.env, faker_locale, seed=42)
+                generator = SeededVolumeGenerator(self.env, demo_locale, seed=42)
                 volume_households = generator.generate_all_households(HOUSEHOLD_BLUEPRINTS)
                 stats["random_groups_created"] = len(volume_households)
                 stats["random_individuals_created"] = sum(len(hh["members"]) for hh in volume_households)
@@ -525,7 +520,7 @@ class SPPMISDemoGenerator(models.TransientModel):
             # Step 4: Create cycles
             if self.create_cycles:
                 _logger.info("Creating program cycles...")
-                created_data["cycles"] = self._create_program_cycles(fake, stats)
+                created_data["cycles"] = self._create_program_cycles(stats)
 
             # Step 5: Create event data
             if self.create_event_data:
@@ -915,159 +910,6 @@ class SPPMISDemoGenerator(models.TransientModel):
 
         return member
 
-    def _generate_random_groups(self, fake, stats):
-        """Generate random groups/households with members."""
-        try:
-            from odoo.addons.spp_demo.models import demo_stories
-
-            locale = self.env.context.get("demo_locale")
-            reserved_names = demo_stories.get_localized_reserved_names(locale)
-        except ImportError:
-            reserved_names = []
-
-        groups_created = []
-        head_membership_type = self.env["spp.vocabulary.code"].get_code(
-            "urn:openspp:vocab:group-membership-type", "head"
-        )
-
-        for i in range(self.random_groups_count):
-            try:
-                # Generate family with head of household
-                head_gender = random.choice(["male", "female"])
-                head_first = fake.first_name_male() if head_gender == "male" else fake.first_name_female()
-                head_last = fake.last_name()
-                head_name = f"{head_first} {head_last}"
-
-                # Skip if name is reserved
-                if head_name in reserved_names:
-                    continue
-
-                head_age = random.randint(25, 65)
-
-                # Create the group (use family name only to distinguish from individuals)
-                registration_date = fake.date_between(start_date="-365d", end_date="-30d")
-                DemoGenerator = self.env["spp.demo.data.generator"]
-                group = DemoGenerator.create_group_from_params(head_last)
-                groups_created.append(group)
-                stats["random_groups_created"] += 1
-
-                # Backdate group creation
-                self.env.cr.execute(
-                    "UPDATE res_partner SET create_date = %s WHERE id = %s",
-                    (registration_date, group.id),
-                )
-
-                # Create head of household
-                head = self._create_random_individual(
-                    fake, head_name, head_gender, head_age, registration_date, reserved_names
-                )
-                if head:
-                    stats["random_individuals_created"] += 1
-                    self.env["spp.group.membership"].create(
-                        {
-                            "group": group.id,
-                            "individual": head.id,
-                            "membership_type_ids": [Command.link(head_membership_type.id)]
-                            if head_membership_type
-                            else [],
-                        }
-                    )
-
-                # Determine number of additional members
-                num_members = random.randint(self.members_per_group_min - 1, self.members_per_group_max - 1)
-
-                # Sometimes add spouse
-                if num_members > 0 and random.random() < 0.7:
-                    spouse_gender = "female" if head_gender == "male" else "male"
-                    spouse_first = fake.first_name_female() if spouse_gender == "female" else fake.first_name_male()
-                    spouse_name = f"{spouse_first} {head_last}"
-                    spouse_age = head_age + random.randint(-5, 5)
-
-                    if spouse_name not in reserved_names:
-                        spouse = self._create_random_individual(
-                            fake, spouse_name, spouse_gender, spouse_age, registration_date, reserved_names
-                        )
-                        if spouse:
-                            stats["random_individuals_created"] += 1
-                            self.env["spp.group.membership"].create(
-                                {
-                                    "group": group.id,
-                                    "individual": spouse.id,
-                                }
-                            )
-                        num_members -= 1
-
-                # Add children or other members
-                for _j in range(num_members):
-                    member_age = random.randint(3, 22) if random.random() < 0.6 else random.randint(60, 85)
-                    member_gender = random.choice(["male", "female"])
-                    member_first = fake.first_name_male() if member_gender == "male" else fake.first_name_female()
-                    member_name = f"{member_first} {head_last}"
-
-                    if member_name not in reserved_names:
-                        member = self._create_random_individual(
-                            fake, member_name, member_gender, member_age, registration_date, reserved_names
-                        )
-                        if member:
-                            stats["random_individuals_created"] += 1
-                            self.env["spp.group.membership"].create(
-                                {
-                                    "group": group.id,
-                                    "individual": member.id,
-                                }
-                            )
-
-            except Exception as e:
-                _logger.warning("Error creating random group %s: %s", i, e)
-
-        _logger.info(
-            "Created %s random groups with %s individuals",
-            stats["random_groups_created"],
-            stats["random_individuals_created"],
-        )
-        return groups_created
-
-    def _create_random_individual(self, fake, name, gender, age, registration_date, reserved_names):
-        """Create a random individual registrant with realistic demographic data.
-
-        Uses SPPDemoDataGenerator utility method for consistent individual creation,
-        adding MIS-specific fields (income, disability) via extra_vals.
-
-        Includes income and disability status for proper variable calculation:
-        - Adults (18+): Random income between 1000-8000 (most below poverty line)
-        - ~5% chance of disability (realistic population rate)
-        """
-        if name in reserved_names:
-            return None
-
-        # Build MIS-specific extra values
-        extra_vals = {}
-
-        # Monthly income for adults (for hh_total_income aggregate)
-        # Most households should be below poverty_line (2500) to be eligible
-        if age >= 18:
-            # 70% low income (500-2000), 25% moderate (2000-4000), 5% higher (4000-8000)
-            income_tier = random.random()
-            if income_tier < 0.70:
-                extra_vals["income"] = float(random.randint(500, 2000))
-            elif income_tier < 0.95:
-                extra_vals["income"] = float(random.randint(2000, 4000))
-            else:
-                extra_vals["income"] = float(random.randint(4000, 8000))
-
-        # Disability status (~5% of population for realistic demo data)
-        # Use SPPDemoDataGenerator utility for consistent individual creation
-        DemoGenerator = self.env["spp.demo.data.generator"]
-        individual = DemoGenerator.create_individual_from_params(name, gender, age, extra_vals)
-
-        # Backdate creation
-        self.env.cr.execute(
-            "UPDATE res_partner SET create_date = %s WHERE id = %s",
-            (registration_date, individual.id),
-        )
-
-        return individual
-
     def _create_demo_programs(self, stats):
         """Create demo programs from definitions."""
         created_programs = []
@@ -1229,7 +1071,7 @@ class SPPMISDemoGenerator(models.TransientModel):
             # Check if the model supports CEL mode (spp_programs CEL features)
             if "eligibility_mode" not in eligibility_manager._fields:
                 _logger.info(
-                    "CEL mode not available (spp_programs CEL not configured) " "for program (program_id=%s)",
+                    "CEL mode not available (spp_programs CEL not configured) for program (program_id=%s)",
                     program.id,
                 )
                 return
@@ -1885,122 +1727,7 @@ class SPPMISDemoGenerator(models.TransientModel):
             _logger.error("Could not create demo cycle: %s", e)
             return None
 
-    def _generate_volume_enrollments(self, fake, stats):
-        """Generate random volume enrollments with tracking."""
-        enrollments = []
-
-        # Get available programs
-        programs = self.env["spp.program"].search([("state", "=", "active")])
-        if not programs:
-            _logger.warning("No active programs found for volume generation")
-            return enrollments
-
-        # Separate programs by target type
-        group_programs = programs.filtered(lambda p: p.target_type == "group")
-        individual_programs = programs.filtered(lambda p: p.target_type == "individual")
-
-        # Get available registrants (excluding demo story names)
-        try:
-            from odoo.addons.spp_demo.models import demo_stories
-
-            locale = self.env.context.get("demo_locale")
-            reserved_names = demo_stories.get_localized_reserved_names(locale)
-        except ImportError:
-            reserved_names = []
-
-        # Get groups and individuals separately
-        groups = self.env["res.partner"].search(
-            [
-                ("is_registrant", "=", True),
-                ("is_group", "=", True),
-                ("name", "not in", reserved_names),
-            ],
-            limit=300,
-        )
-
-        individuals = self.env["res.partner"].search(
-            [
-                ("is_registrant", "=", True),
-                ("is_group", "=", False),
-                ("name", "not in", reserved_names),
-            ],
-            limit=300,
-        )
-
-        if not groups and not individuals:
-            _logger.warning("No registrants found for volume generation")
-            return enrollments
-
-        attempts = 0
-        max_attempts = self.volume_enrollments * 3  # Allow retries
-
-        while len(enrollments) < self.volume_enrollments and attempts < max_attempts:
-            attempts += 1
-
-            # Match program type to registrant type
-            use_group = random.choice([True, False])
-
-            if use_group and group_programs and groups:
-                program = random.choice(group_programs)
-                registrant = random.choice(groups)
-            elif not use_group and individual_programs and individuals:
-                program = random.choice(individual_programs)
-                registrant = random.choice(individuals)
-            else:
-                # Fallback
-                if group_programs and groups:
-                    program = random.choice(group_programs)
-                    registrant = random.choice(groups)
-                elif individual_programs and individuals:
-                    program = random.choice(individual_programs)
-                    registrant = random.choice(individuals)
-                else:
-                    continue
-
-            # Check if already enrolled
-            existing = self.env["spp.program.membership"].search(
-                [
-                    ("partner_id", "=", registrant.id),
-                    ("program_id", "=", program.id),
-                ],
-                limit=1,
-            )
-
-            if existing:
-                stats["volume_skipped"] += 1
-                continue
-
-            # Create enrollment
-            try:
-                enrollment_date = fake.date_between(start_date="-180d", end_date="-10d")
-                state = random.choices(["draft", "enrolled", "paused", "exited"], weights=[10, 60, 10, 20], k=1)[0]
-
-                membership = self.env["spp.program.membership"].create(
-                    {
-                        "partner_id": registrant.id,
-                        "program_id": program.id,
-                        "state": state,
-                    }
-                )
-
-                if state in ("enrolled", "exited"):
-                    self.env.cr.execute(
-                        "UPDATE spp_program_membership SET enrollment_date = %s WHERE id = %s",
-                        (enrollment_date, membership.id),
-                    )
-
-                enrollments.append(membership)
-                stats["enrollments_created"] += 1
-
-            except Exception as e:
-                _logger.warning("Could not create volume enrollment: %s", e)
-                stats["volume_skipped"] += 1
-
-        _logger.info("Volume generation: %d created, %d skipped", len(enrollments), stats["volume_skipped"])
-
-        return enrollments
-
-    def _create_program_cycles(self, fake, stats):
+    def _create_program_cycles(self, stats):
         """Create cycles with beneficiaries and entitlements for all programs.
 
         Uses direct record creation (same pattern as _create_story_payments)

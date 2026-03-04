@@ -1,6 +1,6 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """
-Tests for Blueprint + Seeded Faker reproducibility.
+Tests for Blueprint + Seeded RNG reproducibility.
 
 Verifies that:
 1. Same seed + same locale produces identical output

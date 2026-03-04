@@ -3,10 +3,9 @@
 Seeded Volume Generator for Deterministic Demo Data
 
 Generates households and members from blueprint definitions using:
-- random.Random(seed) for all structural choices (ages, incomes, genders)
-- Faker(locale, seed) for locale-appropriate names
+- random.Random(seed) for all structural choices (ages, incomes, genders, names)
 
-Same seed + same locale = identical output every run.
+Same seed = identical output every run.
 Different locale = different names but same household structure.
 
 Performance optimized with:
@@ -21,7 +20,7 @@ import random
 
 from odoo import fields
 
-from odoo.addons.spp_demo.locale_providers import create_faker
+from odoo.addons.spp_demo.locale_providers import get_faker_provider
 from odoo.addons.spp_demo.models.demo_stories import get_localized_reserved_names
 
 _logger = logging.getLogger(__name__)
@@ -30,7 +29,7 @@ BATCH_SIZE = 200
 
 
 class SeededVolumeGenerator:
-    """Deterministic household/member generator using seeded RNG and Faker.
+    """Deterministic household/member generator using seeded RNG.
 
     Not an ORM model — a utility class instantiated by the wizard.
     """
@@ -40,9 +39,19 @@ class SeededVolumeGenerator:
         self.locale = locale
         self.seed = seed
         self.rng = random.Random(seed)
-        self.faker = create_faker(locale)
-        self.faker.seed_instance(seed)
         self.reserved_names = set(get_localized_reserved_names(locale))
+
+        # Load locale-specific name arrays from provider (no Faker dependency)
+        provider = get_faker_provider(locale)
+        if provider:
+            self._male_names = list(provider.first_names_male)
+            self._female_names = list(provider.first_names_female)
+            self._last_names = list(provider.last_names)
+        else:
+            # Fallback: generic English names
+            self._male_names = ["John", "James", "Robert", "Michael", "David", "William"]
+            self._female_names = ["Mary", "Patricia", "Jennifer", "Linda", "Elizabeth", "Susan"]
+            self._last_names = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia"]
 
         # Caches
         self._gender_cache = {}
@@ -371,8 +380,8 @@ class SeededVolumeGenerator:
         return all_records
 
     def _generate_group_name(self):
-        """Generate a household name from seeded Faker."""
-        family_name = self.faker.last_name()
+        """Generate a household name from seeded RNG."""
+        family_name = self.rng.choice(self._last_names)
         return f"{family_name} Household"
 
     def _generate_member_name(self, gender):
@@ -380,10 +389,10 @@ class SeededVolumeGenerator:
         max_attempts = 20
         for _ in range(max_attempts):
             if gender == "male":
-                given = self.faker.first_name_male()
+                given = self.rng.choice(self._male_names)
             else:
-                given = self.faker.first_name_female()
-            family = self.faker.last_name()
+                given = self.rng.choice(self._female_names)
+            family = self.rng.choice(self._last_names)
             full_name = f"{given} {family}"
             if full_name not in self.reserved_names:
                 return given, family
