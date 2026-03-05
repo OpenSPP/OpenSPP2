@@ -45,7 +45,7 @@ class TestOAuthEndpoint(ApiV2HttpTestCase):
         self.assertIn("token_type", data)
         self.assertEqual(data["token_type"], "Bearer")
         self.assertIn("expires_in", data)
-        self.assertEqual(data["expires_in"], 3600)  # 1 hour
+        self.assertEqual(data["expires_in"], 86400)  # 24 hours (default)
         self.assertIn("scope", data)
         self.assertIn("individual:read", data["scope"])
         self.assertIn("group:search", data["scope"])
