@@ -25,7 +25,7 @@ class SPPCaseDemoGenerator(models.TransientModel):
     _name = "spp.case.demo.generator"
     _description = "Case Management Demo Data Generator"
 
-    name = fields.Char(string="Name", default="Case Management Demo Data", required=True)
+    name = fields.Char(default="Case Management Demo Data", required=True)
     number_of_cases = fields.Integer(string="Number of Cases", default=25, required=True)
     include_stories = fields.Boolean(
         string="Include Demo Stories",
@@ -70,7 +70,6 @@ class SPPCaseDemoGenerator(models.TransientModel):
 
     locale_origin = fields.Many2one(
         "res.country",
-        string="Locale Origin",
         default=lambda self: self.env.user.company_id.country_id or self.env.ref("base.us"),
         help="Country for Faker locale",
     )

@@ -13,8 +13,8 @@ class Session(models.Model):
     session_type_id = fields.Many2one("spp.session.type", required=True, string="Session Type", tracking=True)
 
     date = fields.Date(required=True, default=fields.Date.today, tracking=True)
-    start_time = fields.Float(string="Start Time")
-    end_time = fields.Float(string="End Time")
+    start_time = fields.Float()
+    end_time = fields.Float()
     duration_hours = fields.Float(compute="_compute_duration", store=True, string="Duration (Hours)")
 
     facilitator_id = fields.Many2one("res.users", required=True, string="Facilitator", tracking=True)
@@ -50,7 +50,7 @@ class Session(models.Model):
 
     # Attendance
     attendance_ids = fields.One2many("spp.session.attendance", "session_id", string="Attendance Records")
-    attendance_count = fields.Integer(compute="_compute_attendance", string="Attendance Count")
+    attendance_count = fields.Integer(compute="_compute_attendance")
     attendance_rate = fields.Float(compute="_compute_attendance", string="Attendance Rate (%)")
 
     state = fields.Selection(

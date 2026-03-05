@@ -29,7 +29,6 @@ class CaseAssessment(models.Model):
     )
 
     assessment_date = fields.Date(
-        string="Assessment Date",
         required=True,
         default=fields.Date.context_today,
         tracking=True,
@@ -51,7 +50,6 @@ class CaseAssessment(models.Model):
             ("closure", "Closure Assessment"),
             ("reassessment", "Reassessment"),
         ],
-        string="Assessment Type",
         required=True,
         default="periodic",
         tracking=True,
@@ -59,18 +57,15 @@ class CaseAssessment(models.Model):
 
     # Assessment Content
     findings = fields.Html(
-        string="Findings",
         help="Key findings from the assessment",
     )
 
     recommendations = fields.Html(
-        string="Recommendations",
         help="Recommended actions based on assessment",
     )
 
     # Risk Assessment
     risk_score = fields.Float(
-        string="Risk Score",
         help="Risk score from 0 to 100",
         tracking=True,
     )
@@ -82,7 +77,6 @@ class CaseAssessment(models.Model):
             ("high", "High"),
             ("critical", "Critical"),
         ],
-        string="Risk Level",
         compute="_compute_risk_level",
         store=True,
         tracking=True,
@@ -111,7 +105,6 @@ class CaseAssessment(models.Model):
             ("completed", "Completed"),
             ("reviewed", "Reviewed"),
         ],
-        string="State",
         default="draft",
         required=True,
         tracking=True,
@@ -126,7 +119,6 @@ class CaseAssessment(models.Model):
     )
 
     reviewed_date = fields.Datetime(
-        string="Reviewed Date",
         readonly=True,
         tracking=True,
     )
@@ -153,7 +145,6 @@ class CaseAssessment(models.Model):
 
     # UI Fields
     active = fields.Boolean(
-        string="Active",
         default=True,
     )
 

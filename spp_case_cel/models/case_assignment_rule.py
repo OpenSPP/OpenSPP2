@@ -108,7 +108,13 @@ class CaseAssignmentRule(models.Model):
                 try:
                     pass
                 except Exception as e:
-                    raise ValidationError(_("Invalid CEL expression in rule '%s': %s") % (rule.name, str(e))) from e
+                    raise ValidationError(
+                        _(
+                            "Invalid CEL expression in rule '%(rule_name)s': %(error)s",
+                            rule_name=rule.name,
+                            error=str(e),
+                        )
+                    ) from e
 
     def evaluate(self, case):
         """Evaluate if this rule applies to the given case."""

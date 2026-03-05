@@ -32,18 +32,15 @@ class CaseIntervention(models.Model):
     )
 
     sequence = fields.Integer(
-        string="Sequence",
         default=10,
         help="Order of interventions in the plan",
     )
 
     description = fields.Text(
-        string="Description",
         help="Detailed description of the intervention",
     )
 
     target_outcome = fields.Char(
-        string="Target Outcome",
         help="Expected result or outcome of this intervention",
     )
 
@@ -68,12 +65,10 @@ class CaseIntervention(models.Model):
 
     # Dates
     target_date = fields.Date(
-        string="Target Date",
         help="Target completion date",
     )
 
     completed_date = fields.Date(
-        string="Completed Date",
         readonly=True,
     )
 
@@ -92,19 +87,16 @@ class CaseIntervention(models.Model):
     )
 
     completion_notes = fields.Text(
-        string="Completion Notes",
         help="Notes about the completion or outcome of the intervention",
     )
 
     # Computed fields
     is_overdue = fields.Boolean(
-        string="Is Overdue",
         compute="_compute_is_overdue",
         store=False,
     )
 
     days_until_due = fields.Integer(
-        string="Days Until Due",
         compute="_compute_days_until_due",
         store=False,
     )

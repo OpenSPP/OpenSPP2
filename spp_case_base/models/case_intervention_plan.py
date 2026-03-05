@@ -27,7 +27,6 @@ class CaseInterventionPlan(models.Model):
     )
 
     version = fields.Integer(
-        string="Version",
         default=1,
         required=True,
         readonly=True,
@@ -49,36 +48,30 @@ class CaseInterventionPlan(models.Model):
 
     # Plan Content
     goals = fields.Html(
-        string="Goals",
         required=True,
         help="Case management goals to be achieved",
     )
 
     expected_outcomes = fields.Html(
-        string="Expected Outcomes",
         help="Expected outcomes and success criteria",
     )
 
     client_responsibilities = fields.Html(
-        string="Client Responsibilities",
         help="Client's roles and responsibilities in the plan",
     )
 
     # Dates
     start_date = fields.Date(
-        string="Start Date",
         default=fields.Date.context_today,
         required=True,
         tracking=True,
     )
 
     target_end_date = fields.Date(
-        string="Target End Date",
         tracking=True,
     )
 
     actual_end_date = fields.Date(
-        string="Actual End Date",
         readonly=True,
     )
 
@@ -107,7 +100,6 @@ class CaseInterventionPlan(models.Model):
     )
 
     approved_date = fields.Datetime(
-        string="Approved Date",
         readonly=True,
         tracking=True,
     )

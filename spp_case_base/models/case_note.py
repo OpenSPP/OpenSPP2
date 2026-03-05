@@ -18,7 +18,6 @@ class CaseNote(models.Model):
     )
 
     note_date = fields.Datetime(
-        string="Note Date",
         required=True,
         default=fields.Datetime.now,
     )
@@ -37,13 +36,11 @@ class CaseNote(models.Model):
             ("progress", "Progress Update"),
             ("supervision", "Supervision Note"),
         ],
-        string="Note Type",
         required=True,
         default="general",
     )
 
     content = fields.Html(
-        string="Content",
         required=True,
     )
 

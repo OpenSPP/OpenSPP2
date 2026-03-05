@@ -17,11 +17,9 @@ class SPPGRMTicketStage(models.Model):
     sequence = fields.Integer(default=1)
     active = fields.Boolean(default=True)
     unattended = fields.Boolean(
-        string="Unattended",
         help="Tickets in this stage are considered unattended",
     )
     is_closed = fields.Boolean(
-        string="Is Closed",
         default=False,
         help="Indicates this is a closed/final stage",
     )
@@ -52,7 +50,6 @@ class SPPGRMTicketStage(models.Model):
             ("closed", "Closed"),
             ("cancelled", "Cancelled"),
         ],
-        string="Stage Type",
         help="Categorization of the stage for workflow logic",
     )
 

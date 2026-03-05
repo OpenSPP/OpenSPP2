@@ -33,7 +33,6 @@ class SPPGRMSLARule(models.Model):
         help="Set to inactive to disable this rule without deleting it",
     )
     description = fields.Text(
-        string="Description",
         translate=True,
         help="Description of when this rule applies and what it does",
     )
@@ -47,7 +46,6 @@ class SPPGRMSLARule(models.Model):
 
     # Condition Fields
     condition_domain = fields.Char(
-        string="Condition Domain",
         help="Domain filter to determine which tickets this rule applies to. "
         "Example: [('severity','=','critical'),('category_id.code','=','ABUSE')]",
         default="[]",

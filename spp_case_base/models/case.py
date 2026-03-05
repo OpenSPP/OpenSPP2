@@ -37,7 +37,6 @@ class Case(models.Model):
             ("2", "Level 2 - Medium Intensity"),
             ("3", "Level 3 - High Intensity"),
         ],
-        string="Intensity Level",
         default="2",
         required=True,
         tracking=True,
@@ -51,7 +50,6 @@ class Case(models.Model):
             ("high", "High"),
             ("urgent", "Urgent"),
         ],
-        string="Priority",
         default="medium",
         required=True,
         tracking=True,
@@ -64,7 +62,6 @@ class Case(models.Model):
             ("household", "Household"),
             ("group", "Group"),
         ],
-        string="Client Type",
         default="individual",
         required=True,
     )
@@ -108,19 +105,16 @@ class Case(models.Model):
 
     # Dates
     opened_date = fields.Date(
-        string="Opened Date",
         default=fields.Date.context_today,
         required=True,
         tracking=True,
     )
 
     target_closure_date = fields.Date(
-        string="Target Closure Date",
         tracking=True,
     )
 
     actual_closure_date = fields.Date(
-        string="Actual Closure Date",
         readonly=True,
         tracking=True,
     )
@@ -135,17 +129,14 @@ class Case(models.Model):
             ("program", "Program Enrollment"),
             ("other", "Other"),
         ],
-        string="Intake Source",
         tracking=True,
     )
 
     referral_source = fields.Char(
-        string="Referral Source",
         help="Name or organization that referred the client",
     )
 
     presenting_issue = fields.Html(
-        string="Presenting Issue",
         help="Main issue or need that led to case opening",
     )
 
@@ -199,23 +190,18 @@ class Case(models.Model):
 
     # Count fields for stat buttons
     assessment_count = fields.Integer(
-        string="Assessment Count",
         compute="_compute_related_counts",
     )
     intervention_plan_count = fields.Integer(
-        string="Intervention Plan Count",
         compute="_compute_related_counts",
     )
     visit_count = fields.Integer(
-        string="Visit Count",
         compute="_compute_related_counts",
     )
     note_count = fields.Integer(
-        string="Note Count",
         compute="_compute_related_counts",
     )
     referral_count = fields.Integer(
-        string="Referral Count",
         compute="_compute_related_counts",
     )
 
@@ -236,22 +222,16 @@ class Case(models.Model):
             ("lost_contact", "Lost Contact"),
             ("other", "Other"),
         ],
-        string="Closure Outcome",
     )
 
-    closure_summary = fields.Html(
-        string="Closure Summary",
-    )
+    closure_summary = fields.Html()
 
     # Review Dates
     next_review_date = fields.Date(
-        string="Next Review Date",
         tracking=True,
     )
 
-    last_review_date = fields.Date(
-        string="Last Review Date",
-    )
+    last_review_date = fields.Date()
 
     # Company
     company_id = fields.Many2one(
@@ -262,7 +242,6 @@ class Case(models.Model):
 
     # UI Fields
     active = fields.Boolean(
-        string="Active",
         default=True,
         help="If unchecked, this record will be hidden from active views.",
     )
@@ -274,19 +253,16 @@ class Case(models.Model):
 
     # Computed Fields
     days_open = fields.Integer(
-        string="Days Open",
         compute="_compute_days_open",
         store=False,
     )
 
     is_active = fields.Boolean(
-        string="Is Active",
         compute="_compute_is_active",
         store=True,
     )
 
     has_active_plan = fields.Boolean(
-        string="Has Active Plan",
         compute="_compute_has_active_plan",
         store=False,
     )
@@ -459,7 +435,11 @@ class Case(models.Model):
                 "mail.mail_activity_data_todo",
                 date_deadline=today,
                 summary=_("Case review overdue"),
-                note=_("Case %s is due for review. Last review: %s") % (case.name, case.last_review_date or _("Never")),
+                note=_(
+                    "Case %(case_name)s is due for review. Last review: %(last_review)s",
+                    case_name=case.name,
+                    last_review=case.last_review_date or _("Never"),
+                ),
                 user_id=case.case_worker_id.id,
             )
 
@@ -489,7 +469,11 @@ class Case(models.Model):
                     "mail.mail_activity_data_todo",
                     date_deadline=case.next_review_date,
                     summary=_("Case review upcoming"),
-                    note=_("Case %s review is scheduled for %s") % (case.name, case.next_review_date),
+                    note=_(
+                        "Case %(case_name)s review is scheduled for %(review_date)s",
+                        case_name=case.name,
+                        review_date=case.next_review_date,
+                    ),
                     user_id=case.case_worker_id.id,
                 )
 

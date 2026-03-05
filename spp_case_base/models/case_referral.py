@@ -18,7 +18,6 @@ class CaseReferral(models.Model):
     )
 
     referral_date = fields.Date(
-        string="Referral Date",
         required=True,
         default=fields.Date.context_today,
     )
@@ -31,13 +30,11 @@ class CaseReferral(models.Model):
     )
 
     service_name = fields.Char(
-        string="Service Name",
         required=True,
         help="Name of the service being referred to",
     )
 
     provider_name = fields.Char(
-        string="Provider Name",
         help="Name of the organization or person providing the service",
     )
 
@@ -54,13 +51,11 @@ class CaseReferral(models.Model):
             ("rejected", "Rejected"),
             ("completed", "Completed"),
         ],
-        string="Status",
         required=True,
         default="pending",
     )
 
     outcome = fields.Text(
-        string="Outcome",
         help="Result or outcome of the referral",
     )
 
@@ -88,7 +83,6 @@ class CaseReferral(models.Model):
 
     # Computed fields
     is_overdue = fields.Boolean(
-        string="Is Overdue",
         compute="_compute_is_overdue",
         store=False,
     )

@@ -79,7 +79,6 @@ class GRMRoutingRule(models.Model):
             ("high", "High"),
             ("critical", "Critical"),
         ],
-        string="Set Severity",
         help="Override ticket severity when this rule matches",
     )
     set_priority = fields.Selection(
@@ -89,7 +88,6 @@ class GRMRoutingRule(models.Model):
             ("2", "High"),
             ("3", "Very High"),
         ],
-        string="Set Priority",
         help="Override ticket priority when this rule matches",
     )
 
@@ -118,7 +116,13 @@ class GRMRoutingRule(models.Model):
                         P.parse(rule.condition_cel)
                     # If parser not available, skip validation
                 except SyntaxError as e:
-                    raise ValidationError(_("Invalid CEL expression in rule '%s': %s") % (rule.name, str(e))) from e
+                    raise ValidationError(
+                        _(
+                            "Invalid CEL expression in rule '%(rule_name)s': %(error)s",
+                            rule_name=rule.name,
+                            error=str(e),
+                        )
+                    ) from e
 
     def evaluate(self, ticket):
         """Evaluate if this rule applies to the given ticket.

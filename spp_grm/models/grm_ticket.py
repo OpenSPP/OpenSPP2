@@ -131,7 +131,6 @@ class SPPGRMTicket(models.Model):
         help="User who closed this ticket",
     )
     is_closed = fields.Boolean(
-        string="Is Closed",
         compute="_compute_is_closed",
         store=True,
         help="Computed field indicating if ticket is in a closed stage",
@@ -149,7 +148,6 @@ class SPPGRMTicket(models.Model):
 
     # Intake Information (per spec Section 4.1)
     intake_date = fields.Datetime(
-        string="Intake Date",
         default=fields.Datetime.now,
         help="Date and time when the complaint was received",
     )
@@ -160,7 +158,6 @@ class SPPGRMTicket(models.Model):
         help="Staff member who recorded the complaint during intake",
     )
     desired_resolution = fields.Text(
-        string="Desired Resolution",
         help="What outcome the complainant is seeking",
     )
 
@@ -212,7 +209,6 @@ class SPPGRMTicket(models.Model):
             ("high", "High"),
             ("critical", "Critical"),
         ],
-        string="Severity",
         default="medium",
         required=True,
         tracking=True,
@@ -224,7 +220,6 @@ class SPPGRMTicket(models.Model):
             ("sensitive", "Sensitive"),
             ("highly_sensitive", "Highly Sensitive"),
         ],
-        string="Sensitivity",
         default="standard",
         tracking=True,
         help="Data sensitivity classification for handling requirements",
@@ -237,7 +232,6 @@ class SPPGRMTicket(models.Model):
             ("anonymous", "Anonymous"),
             ("other", "Other"),
         ],
-        string="Complainant Type",
         default="beneficiary",
         tracking=True,
         help="Type of person submitting the complaint",
@@ -245,15 +239,12 @@ class SPPGRMTicket(models.Model):
 
     # Anonymous Complaint Contact Fields
     contact_name = fields.Char(
-        string="Contact Name",
         help="Contact name for anonymous complaints (when partner_id is not set)",
     )
     contact_phone = fields.Char(
-        string="Contact Phone",
         help="Contact phone for anonymous complaints",
     )
     contact_email = fields.Char(
-        string="Contact Email",
         help="Contact email for anonymous complaints",
     )
 
@@ -287,18 +278,15 @@ class SPPGRMTicket(models.Model):
             ("redirected", "Redirected"),
             ("referred_to_case", "Referred to Case"),
         ],
-        string="Decision",
         tracking=True,
         help="Final decision on the complaint",
     )
     resolution_summary = fields.Text(
-        string="Resolution Summary",
         help="Detailed summary of the resolution",
     )
 
     # Escalation Fields
     is_escalated = fields.Boolean(
-        string="Is Escalated",
         default=False,
         tracking=True,
         help="Indicates if this ticket has been escalated",
@@ -310,17 +298,14 @@ class SPPGRMTicket(models.Model):
         help="User to whom this ticket was escalated",
     )
     escalation_date = fields.Datetime(
-        string="Escalation Date",
         help="Date when the ticket was escalated",
     )
     escalation_reason = fields.Text(
-        string="Escalation Reason",
         help="Reason for escalating the ticket",
     )
 
     # Appeal Fields
     is_appeal = fields.Boolean(
-        string="Is Appeal",
         default=False,
         help="Indicates if this ticket is an appeal of another ticket",
     )
@@ -347,7 +332,6 @@ class SPPGRMTicket(models.Model):
 
     # Computed Metrics
     days_open = fields.Integer(
-        string="Days Open",
         compute="_compute_days_open",
         store=True,
         help="Number of days the ticket has been open",

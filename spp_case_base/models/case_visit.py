@@ -18,7 +18,6 @@ class CaseVisit(models.Model):
     )
 
     visit_date = fields.Datetime(
-        string="Visit Date",
         required=True,
         default=fields.Datetime.now,
     )
@@ -30,7 +29,6 @@ class CaseVisit(models.Model):
             ("phone", "Phone Call"),
             ("virtual", "Virtual Meeting"),
         ],
-        string="Visit Type",
         required=True,
         default="office",
     )
@@ -41,7 +39,6 @@ class CaseVisit(models.Model):
     )
 
     purpose = fields.Char(
-        string="Purpose",
         help="Main purpose or objective of the visit",
     )
 

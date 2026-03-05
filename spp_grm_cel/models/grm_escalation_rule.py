@@ -66,7 +66,6 @@ class GRMEscalationRule(models.Model):
 
     # Time-based triggers
     trigger_after_hours = fields.Integer(
-        string="Trigger After Hours",
         default=0,
         help="Automatically trigger this rule after ticket is open for this many hours (0 = no time trigger)",
     )
@@ -117,7 +116,6 @@ class GRMEscalationRule(models.Model):
 
     # Case Management Integration
     create_case = fields.Boolean(
-        string="Create Case",
         default=False,
         help="Automatically create a case management record when escalating",
     )
@@ -152,7 +150,13 @@ class GRMEscalationRule(models.Model):
                         P.parse(rule.condition_cel)
                     # If parser not available, skip validation
                 except SyntaxError as e:
-                    raise ValidationError(_("Invalid CEL expression in rule '%s': %s") % (rule.name, str(e))) from e
+                    raise ValidationError(
+                        _(
+                            "Invalid CEL expression in rule '%(rule_name)s': %(error)s",
+                            rule_name=rule.name,
+                            error=str(e),
+                        )
+                    ) from e
 
     @api.constrains("trigger_after_hours")
     def _check_trigger_after_hours(self):

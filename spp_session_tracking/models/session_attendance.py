@@ -15,7 +15,7 @@ class SessionAttendance(models.Model):
     attendance_time = fields.Datetime(string="Time of Attendance")
 
     is_excused = fields.Boolean(default=False)
-    excuse_reason = fields.Char(string="Excuse Reason")
+    excuse_reason = fields.Char()
 
     notes = fields.Text()
 

@@ -61,7 +61,6 @@ class CaseType(models.Model):
     )
 
     recommended_caseload = fields.Integer(
-        string="Recommended Caseload",
         default=25,
         help="Recommended number of active cases per case worker",
     )

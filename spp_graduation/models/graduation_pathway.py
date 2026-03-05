@@ -28,7 +28,6 @@ class GraduationPathway(models.Model):
     )
 
     criteria_count = fields.Integer(
-        string="Criteria Count",
         compute="_compute_criteria_count",
         store=True,
         default=0,
