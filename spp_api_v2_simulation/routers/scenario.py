@@ -532,7 +532,11 @@ async def convert_to_program(
 
         # Check for duplicate program name
         program_name = request.name or scenario.name
-        existing = env["spp.program"].sudo().search([("name", "=", program_name)], limit=1)  # nosemgrep: odoo-sudo-without-context
+        existing = (
+            env["spp.program"]  # nosemgrep: odoo-sudo-without-context
+            .sudo()
+            .search([("name", "=", program_name)], limit=1)
+        )
         if existing:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,

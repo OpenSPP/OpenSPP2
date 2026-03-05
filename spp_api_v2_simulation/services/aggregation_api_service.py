@@ -124,8 +124,8 @@ class AggregationApiService:
             list[dict]: List of dimension info dicts
         """
         dimensions = (
-            self.env["spp.demographic.dimension"]
-            .sudo()  # nosemgrep: odoo-sudo-without-context
+            self.env["spp.demographic.dimension"]  # nosemgrep: odoo-sudo-without-context
+            .sudo()
             .get_active_dimensions(
                 applies_to=applies_to,
             )

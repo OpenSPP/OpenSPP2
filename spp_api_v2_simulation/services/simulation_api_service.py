@@ -28,8 +28,8 @@ class SimulationApiService:
             list[dict]: List of template info dicts
         """
         templates = (
-            self.env["spp.simulation.scenario.template"]
-            .sudo()  # nosemgrep: odoo-sudo-without-context
+            self.env["spp.simulation.scenario.template"]  # nosemgrep: odoo-sudo-without-context
+            .sudo()
             .search(
                 [("active", "=", True)],
                 order="sequence, name",
