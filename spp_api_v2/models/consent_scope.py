@@ -81,7 +81,7 @@ class ConsentScope(models.Model):
 
         if self.field_access == "basic":
             # Basic fields per spec
-            return {"identifier", "name", "active", "resourceType", "meta"}
+            return {"identifier", "name", "active", "type", "meta"}
 
         # Custom fields
         if self.custom_fields:
