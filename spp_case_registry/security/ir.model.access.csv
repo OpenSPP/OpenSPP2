@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_case_registry_user,spp.case.registry.user,spp_case_base.model_spp_case,spp_case_base.group_case_officer,1,1,1,0
+access_spp_case_registry_manager,spp.case.registry.manager,spp_case_base.model_spp_case,spp_case_base.group_case_manager,1,1,1,1

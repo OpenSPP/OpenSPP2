@@ -19,7 +19,7 @@
     <!-- All groups share the same privilege for unified UI presentation -->
     <record id="group_grm_viewer" model="res.groups">
         <field name="name">Viewer</field>
-        <field name="privilege_id" ref="privilege_grm_user" />
+        <field name="privilege_id" ref="privilege_grm" />
         <field
             name="comment"
         >Can view assigned GRM tickets only. Cannot modify data.</field>
@@ -28,7 +28,7 @@
 
     <record id="group_grm_officer" model="res.groups">
         <field name="name">Officer</field>
-        <field name="privilege_id" ref="privilege_grm_user" />
+        <field name="privilege_id" ref="privilege_grm" />
         <field
             name="comment"
         >Can create and edit own tickets, view team tickets. Cannot delete.</field>
@@ -40,7 +40,7 @@
 
     <record id="group_grm_manager" model="res.groups">
         <field name="name">Manager</field>
-        <field name="privilege_id" ref="privilege_grm_user" />
+        <field name="privilege_id" ref="privilege_grm" />
         <field
             name="comment"
         >Full GRM access including configuration and delete operations.</field>
@@ -50,7 +50,7 @@
     <!-- Special role: Supervisor (between officer and manager) -->
     <record id="group_grm_supervisor" model="res.groups">
         <field name="name">Supervisor</field>
-        <field name="privilege_id" ref="privilege_grm_user" />
+        <field name="privilege_id" ref="privilege_grm" />
         <field
             name="comment"
         >GRM: Can manage team tickets, approve resolutions. Positioned between Officer and Manager in the permission hierarchy. Inherits officer permissions.</field>

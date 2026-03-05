@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <!-- Default Session Types -->
+    <record id="session_type_training" model="spp.session.type">
+        <field name="name">Training Session</field>
+        <field name="code">TRAINING</field>
+        <field
+            name="description"
+        >General training and capacity building sessions for beneficiaries</field>
+        <field name="frequency">monthly</field>
+        <field name="duration_hours">3.0</field>
+        <field name="required_attendance_pct">80.0</field>
+        <field name="track_topics">True</field>
+    </record>
+
+    <record id="session_type_group_meeting" model="spp.session.type">
+        <field name="name">Group Meeting</field>
+        <field name="code">MEETING</field>
+        <field
+            name="description"
+        >Regular support group meetings for community members</field>
+        <field name="frequency">biweekly</field>
+        <field name="duration_hours">2.0</field>
+        <field name="required_attendance_pct">75.0</field>
+        <field name="track_topics">False</field>
+    </record>
+
+    <record id="session_type_fds" model="spp.session.type">
+        <field name="name">Family Development Session</field>
+        <field name="code">FDS</field>
+        <field
+            name="description"
+        >Family Development Sessions for conditional cash transfer programs</field>
+        <field name="frequency">monthly</field>
+        <field name="duration_hours">2.5</field>
+        <field name="required_attendance_pct">85.0</field>
+        <field name="track_topics">True</field>
+    </record>
+
+    <record id="session_type_workshop" model="spp.session.type">
+        <field name="name">Workshop</field>
+        <field name="code">WORKSHOP</field>
+        <field name="description">Specialized workshops on various topics</field>
+        <field name="frequency">one_time</field>
+        <field name="duration_hours">4.0</field>
+        <field name="required_attendance_pct">90.0</field>
+        <field name="track_topics">True</field>
+    </record>
+
+    <!-- Sample Topics for Family Development Session -->
+    <record id="topic_nutrition" model="spp.session.topic">
+        <field name="name">Nutrition and Health</field>
+        <field name="code">NUTRITION</field>
+        <field
+            name="description"
+        >Proper nutrition, health practices, and child care</field>
+        <field name="session_type_id" ref="session_type_fds" />
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="topic_education" model="spp.session.topic">
+        <field name="name">Education and Child Development</field>
+        <field name="code">EDUCATION</field>
+        <field
+            name="description"
+        >Importance of education and supporting children's learning</field>
+        <field name="session_type_id" ref="session_type_fds" />
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="topic_financial_literacy" model="spp.session.topic">
+        <field name="name">Financial Literacy</field>
+        <field name="code">FINANCE</field>
+        <field
+            name="description"
+        >Budgeting, saving, and financial planning for families</field>
+        <field name="session_type_id" ref="session_type_fds" />
+        <field name="sequence">30</field>
+    </record>
+
+    <record id="topic_parenting" model="spp.session.topic">
+        <field name="name">Positive Parenting</field>
+        <field name="code">PARENTING</field>
+        <field
+            name="description"
+        >Positive discipline, communication, and family relationships</field>
+        <field name="session_type_id" ref="session_type_fds" />
+        <field name="sequence">40</field>
+    </record>
+
+    <!-- Sample Topics for Training Session -->
+    <record id="topic_livelihood" model="spp.session.topic">
+        <field name="name">Livelihood Skills</field>
+        <field name="code">LIVELIHOOD</field>
+        <field name="description">Skills development for income generation</field>
+        <field name="session_type_id" ref="session_type_training" />
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="topic_business" model="spp.session.topic">
+        <field name="name">Basic Business Management</field>
+        <field name="code">BUSINESS</field>
+        <field name="description">Starting and managing a small business</field>
+        <field name="session_type_id" ref="session_type_training" />
+        <field name="sequence">20</field>
+    </record>
+</odoo>

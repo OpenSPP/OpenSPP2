@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Graduation Pathway Tree View -->
+    <record id="view_graduation_pathway_tree" model="ir.ui.view">
+        <field name="name">spp.graduation.pathway.tree</field>
+        <field name="model">spp.graduation.pathway</field>
+        <field name="arch" type="xml">
+            <list string="Graduation Pathways">
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="code" />
+                <field name="is_positive_exit" />
+                <field name="is_requires_assessment" />
+                <field name="is_requires_approval" />
+                <field name="post_graduation_monitoring_months" />
+                <field name="active" widget="boolean_toggle" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Graduation Pathway Form View -->
+    <record id="view_graduation_pathway_form" model="ir.ui.view">
+        <field name="name">spp.graduation.pathway.form</field>
+        <field name="model">spp.graduation.pathway</field>
+        <field name="arch" type="xml">
+            <form string="Graduation Pathway">
+                <sheet>
+                    <div class="oe_button_box" name="button_box" />
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="text-bg-danger"
+                        invisible="active"
+                    />
+                    <group>
+                        <group>
+                            <field name="name" />
+                            <field name="code" />
+                            <field name="sequence" />
+                            <field name="active" invisible="1" />
+                        </group>
+                        <group>
+                            <field name="is_positive_exit" />
+                            <field name="is_requires_assessment" />
+                            <field name="is_requires_approval" />
+                            <field name="post_graduation_monitoring_months" />
+                            <field
+                                name="company_id"
+                                groups="base.group_multi_company"
+                            />
+                        </group>
+                    </group>
+                    <group string="Description" col="2">
+                        <field
+                            name="description"
+                            nolabel="1"
+                            colspan="2"
+                            placeholder="Describe the graduation pathway..."
+                        />
+                    </group>
+                    <notebook>
+                        <page string="Criteria" name="criteria">
+                            <field name="criteria_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle" />
+                                    <field name="name" />
+                                    <field name="code" />
+                                    <field name="assessment_method" />
+                                    <field name="weight" />
+                                    <field name="is_required" />
+                                    <field name="active" widget="boolean_toggle" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Graduation Pathway Action -->
+    <record id="action_graduation_pathway" model="ir.actions.act_window">
+        <field name="name">Graduation Pathways</field>
+        <field name="res_model">spp.graduation.pathway</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new Graduation Pathway
+            </p>
+            <p>
+                Define pathways for beneficiary graduation from programs.
+            </p>
+        </field>
+    </record>
+</odoo>

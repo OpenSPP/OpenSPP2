@@ -1,0 +1,556 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Intervention Plan Form View -->
+    <record id="view_case_intervention_plan_form" model="ir.ui.view">
+        <field name="name">spp.case.intervention.plan.form</field>
+        <field name="model">spp.case.intervention.plan</field>
+        <field name="arch" type="xml">
+            <form string="Intervention Plan">
+                <header>
+                    <button
+                        name="action_submit_for_approval"
+                        string="Submit for Approval"
+                        type="object"
+                        class="btn-primary"
+                        invisible="state != 'draft'"
+                    />
+                    <button
+                        name="action_approve"
+                        string="Approve"
+                        type="object"
+                        class="btn-primary"
+                        invisible="state != 'pending_approval'"
+                        groups="spp_case_base.group_case_supervisor"
+                    />
+                    <button
+                        name="action_activate"
+                        string="Activate"
+                        type="object"
+                        class="btn-primary"
+                        invisible="state != 'approved'"
+                    />
+                    <button
+                        name="action_complete"
+                        string="Complete"
+                        type="object"
+                        class="btn-success"
+                        invisible="state != 'active'"
+                    />
+                    <button
+                        name="action_create_revision"
+                        string="Create Revision"
+                        type="object"
+                        class="btn-warning"
+                        invisible="state not in ['active', 'completed']"
+                    />
+                    <button
+                        name="action_reset_to_draft"
+                        string="Reset to Draft"
+                        type="object"
+                        invisible="state not in ['pending_approval', 'approved']"
+                    />
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="draft,pending_approval,approved,active,completed"
+                    />
+                </header>
+                <sheet>
+                    <widget
+                        name="web_ribbon"
+                        title="Current Plan"
+                        bg_color="text-bg-success"
+                        invisible="not is_current"
+                    />
+                    <widget
+                        name="web_ribbon"
+                        title="Revised"
+                        bg_color="text-bg-warning"
+                        invisible="state != 'revised'"
+                    />
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Plan Name" required="1" />
+                        </h1>
+                    </div>
+                    <group col="2">
+                        <group name="basic">
+                            <field
+                                name="case_id"
+                                required="1"
+                                options="{'no_create': True}"
+                            />
+                            <field name="version" readonly="1" />
+                            <field name="is_current" />
+                            <field
+                                name="previous_version_id"
+                                readonly="1"
+                                invisible="not previous_version_id"
+                            />
+                        </group>
+                        <group name="dates">
+                            <field name="start_date" required="1" />
+                            <field name="target_end_date" />
+                            <field name="actual_end_date" readonly="1" />
+                        </group>
+                    </group>
+                    <group col="2">
+                        <group name="progress_info">
+                            <field name="intervention_count" />
+                            <field name="completed_intervention_count" />
+                        </group>
+                        <group name="progress_bar">
+                            <field name="progress_percentage" widget="progressbar" />
+                        </group>
+                    </group>
+                    <group
+                        string="Approval Information"
+                        invisible="state not in ['approved', 'active', 'completed']"
+                    >
+                        <group>
+                            <field name="approved_by_id" readonly="1" />
+                            <field name="approved_date" readonly="1" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Goals &amp; Outcomes" name="goals">
+                            <separator string="Goals" />
+                            <field
+                                name="goals"
+                                nolabel="1"
+                                required="1"
+                                placeholder="Define the case management goals to be achieved..."
+                            />
+                            <separator string="Expected Outcomes" />
+                            <field
+                                name="expected_outcomes"
+                                nolabel="1"
+                                placeholder="Describe the expected outcomes and success criteria..."
+                            />
+                            <separator string="Client Responsibilities" />
+                            <field
+                                name="client_responsibilities"
+                                nolabel="1"
+                                placeholder="List the client's roles and responsibilities in the plan..."
+                            />
+                        </page>
+                        <page string="Interventions" name="interventions">
+                            <field
+                                name="intervention_ids"
+                                context="{'default_plan_id': id}"
+                            >
+                                <list
+                                    editable="bottom"
+                                    decoration-success="state == 'completed'"
+                                    decoration-warning="is_overdue == True"
+                                    decoration-muted="state in ['cancelled', 'not_completed']"
+                                >
+                                    <field name="sequence" widget="handle" />
+                                    <field name="name" />
+                                    <field name="responsible" />
+                                    <field name="provider_id" invisible="1" />
+                                    <field name="target_date" />
+                                    <field
+                                        name="state"
+                                        widget="badge"
+                                        decoration-info="state == 'planned'"
+                                        decoration-warning="state == 'in_progress'"
+                                        decoration-success="state == 'completed'"
+                                    />
+                                    <field name="is_overdue" invisible="1" />
+                                    <field name="days_until_due" invisible="1" />
+                                    <button
+                                        name="action_start"
+                                        string="Start"
+                                        type="object"
+                                        icon="fa-play"
+                                        invisible="state != 'planned'"
+                                    />
+                                    <button
+                                        name="action_complete"
+                                        string="Complete"
+                                        type="object"
+                                        icon="fa-check"
+                                        invisible="state not in ['planned', 'in_progress']"
+                                    />
+                                </list>
+                                <form>
+                                    <sheet>
+                                        <group col="2">
+                                            <group>
+                                                <field name="name" required="1" />
+                                                <field
+                                                    name="responsible"
+                                                    required="1"
+                                                />
+                                                <field
+                                                    name="provider_id"
+                                                    invisible="responsible != 'provider'"
+                                                />
+                                            </group>
+                                            <group>
+                                                <field name="state" />
+                                                <field name="target_date" />
+                                                <field
+                                                    name="completed_date"
+                                                    readonly="1"
+                                                />
+                                                <field
+                                                    name="is_overdue"
+                                                    invisible="1"
+                                                />
+                                            </group>
+                                        </group>
+                                        <group col="2" string="Target Outcome">
+                                            <field
+                                                name="target_outcome"
+                                                nolabel="1"
+                                                colspan="2"
+                                                placeholder="Expected result or outcome of this intervention..."
+                                            />
+                                        </group>
+                                        <group col="2" string="Description">
+                                            <field
+                                                name="description"
+                                                nolabel="1"
+                                                colspan="2"
+                                                placeholder="Detailed description of the intervention..."
+                                            />
+                                        </group>
+                                        <group
+                                            col="2"
+                                            string="Completion Notes"
+                                            invisible="state not in ['completed', 'not_completed']"
+                                        >
+                                            <field
+                                                name="completion_notes"
+                                                nolabel="1"
+                                                colspan="2"
+                                                invisible="state not in ['completed', 'not_completed']"
+                                                placeholder="Notes about the completion..."
+                                            />
+                                        </group>
+                                    </sheet>
+                                </form>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <!-- Intervention Plan Tree View -->
+    <record id="view_case_intervention_plan_tree" model="ir.ui.view">
+        <field name="name">spp.case.intervention.plan.tree</field>
+        <field name="model">spp.case.intervention.plan</field>
+        <field name="arch" type="xml">
+            <list
+                string="Intervention Plans"
+                decoration-muted="state in ['revised', 'completed']"
+            >
+                <field name="name" />
+                <field name="case_id" />
+                <field name="version" />
+                <field name="is_current" string="Current" />
+                <field
+                    name="state"
+                    widget="badge"
+                    decoration-info="state == 'draft'"
+                    decoration-warning="state == 'pending_approval'"
+                    decoration-success="state in ['approved', 'active']"
+                />
+                <field name="start_date" />
+                <field name="target_end_date" />
+                <field name="progress_percentage" widget="progressbar" />
+                <field name="intervention_count" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Intervention Plan Search View -->
+    <record id="view_case_intervention_plan_search" model="ir.ui.view">
+        <field name="name">spp.case.intervention.plan.search</field>
+        <field name="model">spp.case.intervention.plan</field>
+        <field name="arch" type="xml">
+            <search string="Search Intervention Plans">
+                <field name="name" />
+                <field name="case_id" />
+                <separator />
+                <filter
+                    string="Current Plans"
+                    name="current"
+                    domain="[('is_current', '=', True)]"
+                />
+                <filter
+                    string="Draft"
+                    name="draft"
+                    domain="[('state', '=', 'draft')]"
+                />
+                <filter
+                    string="Pending Approval"
+                    name="pending"
+                    domain="[('state', '=', 'pending_approval')]"
+                />
+                <filter
+                    string="Active"
+                    name="active_plans"
+                    domain="[('state', 'in', ['approved', 'active'])]"
+                />
+                <separator />
+                <group>
+                    <filter
+                        string="Case"
+                        name="group_case"
+                        context="{'group_by': 'case_id'}"
+                    />
+                    <filter
+                        string="Status"
+                        name="group_state"
+                        context="{'group_by': 'state'}"
+                    />
+                    <filter
+                        string="Start Date"
+                        name="group_start"
+                        context="{'group_by': 'start_date'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Intervention Plan Action -->
+    <record id="action_case_intervention_plan" model="ir.actions.act_window">
+        <field name="name">Intervention Plans</field>
+        <field name="res_model">spp.case.intervention.plan</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_current': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new intervention plan
+            </p>
+            <p>
+                Intervention plans define the goals, expected outcomes, and specific interventions
+                that will be implemented to support the client in achieving their case objectives.
+            </p>
+        </field>
+    </record>
+
+    <!-- Intervention Form View (standalone) -->
+    <record id="view_case_intervention_form" model="ir.ui.view">
+        <field name="name">spp.case.intervention.form</field>
+        <field name="model">spp.case.intervention</field>
+        <field name="arch" type="xml">
+            <form string="Intervention">
+                <header>
+                    <button
+                        name="action_start"
+                        string="Start"
+                        type="object"
+                        class="btn-primary"
+                        invisible="state != 'planned'"
+                    />
+                    <button
+                        name="action_complete"
+                        string="Complete"
+                        type="object"
+                        class="btn-success"
+                        invisible="state not in ['planned', 'in_progress']"
+                    />
+                    <button
+                        name="action_mark_not_completed"
+                        string="Mark Not Completed"
+                        type="object"
+                        invisible="state not in ['planned', 'in_progress']"
+                    />
+                    <button
+                        name="action_cancel"
+                        string="Cancel"
+                        type="object"
+                        invisible="state in ['completed', 'not_completed', 'cancelled']"
+                    />
+                    <button
+                        name="action_reset"
+                        string="Reset to Planned"
+                        type="object"
+                        invisible="state in ['planned', 'cancelled']"
+                    />
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="planned,in_progress,completed"
+                    />
+                </header>
+                <sheet>
+                    <widget
+                        name="web_ribbon"
+                        title="Overdue"
+                        bg_color="text-bg-danger"
+                        invisible="not is_overdue"
+                    />
+                    <div class="oe_title">
+                        <h1>
+                            <field
+                                name="name"
+                                placeholder="Intervention Name"
+                                required="1"
+                            />
+                        </h1>
+                    </div>
+                    <group col="2">
+                        <group name="basic">
+                            <field
+                                name="plan_id"
+                                required="1"
+                                options="{'no_create': True}"
+                            />
+                            <field name="case_id" readonly="1" />
+                            <field name="responsible" required="1" />
+                            <field
+                                name="provider_id"
+                                invisible="responsible != 'provider'"
+                            />
+                        </group>
+                        <group name="dates">
+                            <field name="target_date" />
+                            <field name="completed_date" readonly="1" />
+                            <field name="is_overdue" invisible="1" />
+                            <field name="days_until_due" invisible="not is_overdue" />
+                        </group>
+                    </group>
+                    <group col="2" string="Target Outcome">
+                        <field
+                            name="target_outcome"
+                            nolabel="1"
+                            colspan="2"
+                            placeholder="Expected result or outcome of this intervention..."
+                        />
+                    </group>
+                    <group col="2" string="Description">
+                        <field
+                            name="description"
+                            nolabel="1"
+                            colspan="2"
+                            placeholder="Detailed description of the intervention..."
+                        />
+                    </group>
+                    <group
+                        col="2"
+                        string="Completion Notes"
+                        invisible="state not in ['completed', 'not_completed']"
+                    >
+                        <field
+                            name="completion_notes"
+                            nolabel="1"
+                            colspan="2"
+                            invisible="state not in ['completed', 'not_completed']"
+                            placeholder="Notes about the completion or outcome..."
+                        />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Intervention Tree View -->
+    <record id="view_case_intervention_tree" model="ir.ui.view">
+        <field name="name">spp.case.intervention.tree</field>
+        <field name="model">spp.case.intervention</field>
+        <field name="arch" type="xml">
+            <list
+                string="Interventions"
+                decoration-success="state == 'completed'"
+                decoration-warning="is_overdue == True"
+                decoration-muted="state in ['cancelled', 'not_completed']"
+            >
+                <field name="case_id" />
+                <field name="plan_id" />
+                <field name="name" />
+                <field name="responsible" />
+                <field name="target_date" />
+                <field
+                    name="state"
+                    widget="badge"
+                    decoration-info="state == 'planned'"
+                    decoration-warning="state == 'in_progress'"
+                    decoration-success="state == 'completed'"
+                />
+                <field name="is_overdue" invisible="1" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Intervention Search View -->
+    <record id="view_case_intervention_search" model="ir.ui.view">
+        <field name="name">spp.case.intervention.search</field>
+        <field name="model">spp.case.intervention</field>
+        <field name="arch" type="xml">
+            <search string="Search Interventions">
+                <field name="name" />
+                <field name="case_id" />
+                <field name="plan_id" />
+                <separator />
+                <filter
+                    string="Planned"
+                    name="planned"
+                    domain="[('state', '=', 'planned')]"
+                />
+                <filter
+                    string="In Progress"
+                    name="in_progress"
+                    domain="[('state', '=', 'in_progress')]"
+                />
+                <filter
+                    string="Completed"
+                    name="completed"
+                    domain="[('state', '=', 'completed')]"
+                />
+                <filter
+                    string="Overdue"
+                    name="overdue"
+                    domain="[('target_date', '&lt;', context_today().strftime('%Y-%m-%d')), ('state', 'in', ['planned', 'in_progress'])]"
+                />
+                <separator />
+                <group>
+                    <filter
+                        string="Case"
+                        name="group_case"
+                        context="{'group_by': 'case_id'}"
+                    />
+                    <filter
+                        string="Plan"
+                        name="group_plan"
+                        context="{'group_by': 'plan_id'}"
+                    />
+                    <filter
+                        string="Status"
+                        name="group_state"
+                        context="{'group_by': 'state'}"
+                    />
+                    <filter
+                        string="Responsible Party"
+                        name="group_responsible"
+                        context="{'group_by': 'responsible'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Intervention Action -->
+    <record id="action_case_intervention" model="ir.actions.act_window">
+        <field name="name">Interventions</field>
+        <field name="res_model">spp.case.intervention</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No interventions found
+            </p>
+            <p>
+                Interventions are specific actions or services within an intervention plan.
+                Create intervention plans first, then add interventions to them.
+            </p>
+        </field>
+    </record>
+</odoo>

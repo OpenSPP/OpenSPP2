@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Inherit case form view to add program information -->
+    <record id="view_case_form_programs" model="ir.ui.view">
+        <field name="name">spp.case.form.programs</field>
+        <field name="model">spp.case</field>
+        <field name="inherit_id" ref="spp_case_base.view_case_form" />
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <!-- Add smart button for program enrollments -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button
+                    name="action_view_program_enrollments"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-graduation-cap"
+                    invisible="active_program_count == 0"
+                >
+                    <field
+                        name="active_program_count"
+                        widget="statinfo"
+                        string="Programs"
+                    />
+                </button>
+            </xpath>
+
+            <!-- Add triggered by program field in header -->
+            <xpath expr="//field[@name='priority']" position="after">
+                <field
+                    name="triggered_by_program_id"
+                    placeholder="Select Program..."
+                    options="{'no_create': True}"
+                />
+            </xpath>
+
+            <!-- Replace Programs tab placeholder with actual content -->
+            <xpath
+                expr="//page[@name='programs']//div[@name='no_programs_message']"
+                position="replace"
+            >
+                <group name="program_summary">
+                    <group name="program_summary_left">
+                        <field name="has_active_enrollment" />
+                        <field name="active_program_count" />
+                    </group>
+                    <group name="program_summary_right">
+                        <field
+                            name="enrolled_program_names"
+                            widget="text"
+                            readonly="1"
+                        />
+                    </group>
+                </group>
+
+                <separator string="Program Enrollments" />
+                <field name="program_membership_ids" nolabel="1">
+                    <list
+                        string="Program Enrollments"
+                        decoration-success="state == 'enrolled'"
+                        decoration-warning="state == 'paused'"
+                        decoration-muted="state in ['exited', 'not_eligible']"
+                        decoration-danger="state == 'duplicated'"
+                    >
+                        <field name="program_id" />
+                        <field name="state" widget="badge" />
+                        <field name="enrollment_date" />
+                        <field name="exit_date" />
+                        <button
+                            name="open_beneficiaries_form"
+                            type="object"
+                            icon="fa-external-link"
+                            title="View Details"
+                        />
+                    </list>
+                </field>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add program filters to case search view -->
+    <record id="view_case_search_programs" model="ir.ui.view">
+        <field name="name">spp.case.search.programs</field>
+        <field name="model">spp.case</field>
+        <field name="inherit_id" ref="spp_case_base.view_case_search" />
+        <field name="arch" type="xml">
+            <!-- Add program-related filters -->
+            <xpath expr="//filter[@name='high_priority']" position="after">
+                <separator />
+                <filter
+                    name="has_active_enrollment"
+                    string="Has Active Enrollment"
+                    domain="[('has_active_enrollment', '=', True)]"
+                />
+                <filter
+                    name="no_active_enrollment"
+                    string="No Active Enrollment"
+                    domain="[('has_active_enrollment', '=', False)]"
+                />
+                <filter
+                    name="triggered_by_program"
+                    string="Triggered by Program"
+                    domain="[('triggered_by_program_id', '!=', False)]"
+                />
+            </xpath>
+
+            <!-- Add program grouping -->
+            <xpath expr="//filter[@name='group_stage']" position="after">
+                <filter
+                    name="group_triggered_program"
+                    string="Triggered By Program"
+                    context="{'group_by': 'triggered_by_program_id'}"
+                />
+            </xpath>
+
+            <!-- Add search by program -->
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field
+                    name="triggered_by_program_id"
+                    string="Program"
+                    filter_domain="[('triggered_by_program_id', 'ilike', self)]"
+                />
+                <field
+                    name="program_membership_ids"
+                    string="Program Enrollment"
+                    filter_domain="[('program_membership_ids.program_id', 'ilike', self)]"
+                />
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add program info to case list view -->
+    <record id="view_case_list_programs" model="ir.ui.view">
+        <field name="name">spp.case.list.programs</field>
+        <field name="model">spp.case</field>
+        <field name="inherit_id" ref="spp_case_base.view_case_tree" />
+        <field name="arch" type="xml">
+            <!-- Add active programs column -->
+            <xpath expr="//field[@name='priority']" position="after">
+                <field name="active_program_count" string="Programs" />
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add program info to case kanban view -->
+    <record id="view_case_kanban_programs" model="ir.ui.view">
+        <field name="name">spp.case.kanban.programs</field>
+        <field name="model">spp.case</field>
+        <field name="inherit_id" ref="spp_case_base.view_case_kanban" />
+        <field name="arch" type="xml">
+            <!-- Add program fields to kanban -->
+            <xpath expr="//field[@name='priority']" position="after">
+                <field name="has_active_enrollment" />
+                <field name="active_program_count" />
+                <field name="enrolled_program_names" />
+            </xpath>
+
+            <!-- Add program info display in kanban card -->
+            <xpath expr="//div[hasclass('oe_kanban_bottom_left')]" position="inside">
+                <span
+                    invisible="active_program_count == 0"
+                    title="Active Program Enrollments"
+                >
+                    <i class="fa fa-graduation-cap" />
+                    <field name="active_program_count" />
+                </span>
+            </xpath>
+        </field>
+    </record>
+</odoo>

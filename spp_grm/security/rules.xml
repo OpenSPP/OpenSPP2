@@ -15,7 +15,7 @@
         <field name="perm_unlink" eval="False" />
     </record>
 
-    <!-- GRM Officer: Own tickets or team tickets -->
+    <!-- GRM Officer: Read/write own tickets or team tickets -->
     <record id="rule_spp_grm_ticket_officer" model="ir.rule">
         <field name="name">GRM Ticket: Officer Own and Team Tickets</field>
         <field ref="model_spp_grm_ticket" name="model_id" />
@@ -27,6 +27,18 @@
         <field name="groups" eval="[Command.link(ref('group_grm_officer'))]" />
         <field name="perm_read" eval="True" />
         <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="False" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+
+    <!-- GRM Officer: Can create any ticket -->
+    <record id="rule_spp_grm_ticket_officer_create" model="ir.rule">
+        <field name="name">GRM Ticket: Officer Create</field>
+        <field ref="model_spp_grm_ticket" name="model_id" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('group_grm_officer'))]" />
+        <field name="perm_read" eval="False" />
+        <field name="perm_write" eval="False" />
         <field name="perm_create" eval="True" />
         <field name="perm_unlink" eval="False" />
     </record>

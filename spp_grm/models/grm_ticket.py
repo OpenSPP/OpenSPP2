@@ -96,7 +96,7 @@ class SPPGRMTicket(models.Model):
     # Basic Information
     number = fields.Char(string="Ticket number", default="/", readonly=True)
     name = fields.Char(string="Title", required=True)
-    description = fields.Html(required=True, sanitize_style=True)
+    description = fields.Text(required=True)
     user_id = fields.Many2one(
         comodel_name="res.users",
         string="Assigned user",
@@ -119,10 +119,7 @@ class SPPGRMTicket(models.Model):
         index=True,
     )
     partner_id = fields.Many2one(
-        comodel_name="res.partner",
-        string="Contact",
-        required=True,
-        domain="[('is_registrant', '=', True)]",
+        comodel_name="res.partner", string="Contact", required=True, domain="[('is_registrant', '=', True)]"
     )
     partner_email = fields.Char(string="Email", related="partner_id.email", store=True)
     last_stage_update = fields.Datetime(default=fields.Datetime.now)
@@ -134,11 +131,11 @@ class SPPGRMTicket(models.Model):
         help="User who closed this ticket",
     )
     is_closed = fields.Boolean(
-        string="Is Closed",
         compute="_compute_is_closed",
         store=True,
         help="Computed field indicating if ticket is in a closed stage",
     )
+    stage_type = fields.Selection(related="stage_id.stage_type", store=True)
     unattended = fields.Boolean(related="stage_id.unattended", store=True)
     tag_ids = fields.Many2many(comodel_name="spp.grm.ticket.tag", string="Tags")
     company_id = fields.Many2one(
@@ -151,7 +148,6 @@ class SPPGRMTicket(models.Model):
 
     # Intake Information (per spec Section 4.1)
     intake_date = fields.Datetime(
-        string="Intake Date",
         default=fields.Datetime.now,
         help="Date and time when the complaint was received",
     )
@@ -162,7 +158,6 @@ class SPPGRMTicket(models.Model):
         help="Staff member who recorded the complaint during intake",
     )
     desired_resolution = fields.Text(
-        string="Desired Resolution",
         help="What outcome the complainant is seeking",
     )
 
@@ -214,7 +209,6 @@ class SPPGRMTicket(models.Model):
             ("high", "High"),
             ("critical", "Critical"),
         ],
-        string="Severity",
         default="medium",
         required=True,
         tracking=True,
@@ -226,7 +220,6 @@ class SPPGRMTicket(models.Model):
             ("sensitive", "Sensitive"),
             ("highly_sensitive", "Highly Sensitive"),
         ],
-        string="Sensitivity",
         default="standard",
         tracking=True,
         help="Data sensitivity classification for handling requirements",
@@ -239,7 +232,6 @@ class SPPGRMTicket(models.Model):
             ("anonymous", "Anonymous"),
             ("other", "Other"),
         ],
-        string="Complainant Type",
         default="beneficiary",
         tracking=True,
         help="Type of person submitting the complaint",
@@ -247,15 +239,12 @@ class SPPGRMTicket(models.Model):
 
     # Anonymous Complaint Contact Fields
     contact_name = fields.Char(
-        string="Contact Name",
         help="Contact name for anonymous complaints (when partner_id is not set)",
     )
     contact_phone = fields.Char(
-        string="Contact Phone",
         help="Contact phone for anonymous complaints",
     )
     contact_email = fields.Char(
-        string="Contact Email",
         help="Contact email for anonymous complaints",
     )
 
@@ -289,19 +278,15 @@ class SPPGRMTicket(models.Model):
             ("redirected", "Redirected"),
             ("referred_to_case", "Referred to Case"),
         ],
-        string="Decision",
         tracking=True,
         help="Final decision on the complaint",
     )
-    resolution_summary = fields.Html(
-        string="Resolution Summary",
-        sanitize_style=True,
+    resolution_summary = fields.Text(
         help="Detailed summary of the resolution",
     )
 
     # Escalation Fields
     is_escalated = fields.Boolean(
-        string="Is Escalated",
         default=False,
         tracking=True,
         help="Indicates if this ticket has been escalated",
@@ -313,17 +298,14 @@ class SPPGRMTicket(models.Model):
         help="User to whom this ticket was escalated",
     )
     escalation_date = fields.Datetime(
-        string="Escalation Date",
         help="Date when the ticket was escalated",
     )
     escalation_reason = fields.Text(
-        string="Escalation Reason",
         help="Reason for escalating the ticket",
     )
 
     # Appeal Fields
     is_appeal = fields.Boolean(
-        string="Is Appeal",
         default=False,
         help="Indicates if this ticket is an appeal of another ticket",
     )
@@ -350,7 +332,6 @@ class SPPGRMTicket(models.Model):
 
     # Computed Metrics
     days_open = fields.Integer(
-        string="Days Open",
         compute="_compute_days_open",
         store=True,
         help="Number of days the ticket has been open",
@@ -438,7 +419,8 @@ class SPPGRMTicket(models.Model):
     def _compute_user_id(self):
         """Compute assigned user based on team or category defaults.
 
-        This provides a suggested assignment but can be overridden manually.
+        Falls back to the current user so officers can always see
+        tickets they create (required by officer record rules).
         """
         for ticket in self:
             # Skip if already assigned
@@ -449,7 +431,7 @@ class SPPGRMTicket(models.Model):
             if ticket.team_id and ticket.team_id.manager_id:
                 ticket.user_id = ticket.team_id.manager_id
             else:
-                ticket.user_id = False
+                ticket.user_id = self.env.user
 
     @api.depends("stage_id", "stage_id.is_closed")
     def _compute_is_closed(self):
@@ -556,7 +538,8 @@ class SPPGRMTicket(models.Model):
             if ticket.sla_status == "breached" and old_status != "breached":
                 # Use sudo() to call _on_sla_breach in a new environment context
                 # to avoid triggering compute dependencies during the compute itself
-                ticket.sudo()._on_sla_breach()  # nosemgrep: odoo-sudo-without-context
+                # nosemgrep: semgrep.odoo-sudo-without-context
+                ticket.sudo()._on_sla_breach()
 
     def _on_sla_breach(self):
         """Called when ticket SLA status changes to breached.
@@ -575,10 +558,7 @@ class SPPGRMTicket(models.Model):
                 )
                 continue
 
-            _logger.info(
-                "SLA breach detected for ticket %s, triggering auto-escalation",
-                ticket.number,
-            )
+            _logger.info("SLA breach detected for ticket %s, triggering auto-escalation", ticket.number)
 
             # Try to apply escalation rules if spp_grm_cel module is installed
             if "spp.grm.escalation.rule" in self.env:
@@ -648,6 +628,43 @@ class SPPGRMTicket(models.Model):
     def assign_to_me(self):
         self.write({"user_id": self.env.user.id})
 
+    def _find_stage_by_type(self, stage_type):
+        """Find the first stage matching the given stage_type."""
+        stage = self.env["spp.grm.ticket.stage"].search([("stage_type", "=", stage_type)], limit=1)
+        if not stage:
+            raise UserError(_("No stage found with type '%s'.") % stage_type)
+        return stage
+
+    def action_start_progress(self):
+        """Move ticket to In Progress stage."""
+        stage = self._find_stage_by_type("in_progress")
+        self.write({"stage_id": stage.id})
+
+    def action_set_awaiting(self):
+        """Move ticket to Awaiting stage."""
+        stage = self._find_stage_by_type("waiting")
+        self.write({"stage_id": stage.id})
+
+    def action_resolve(self):
+        """Move ticket to Done/Resolved stage."""
+        stage = self._find_stage_by_type("resolved")
+        self.write({"stage_id": stage.id})
+
+    def action_cancel(self):
+        """Move ticket to Cancelled stage."""
+        stage = self._find_stage_by_type("cancelled")
+        self.write({"stage_id": stage.id})
+
+    def action_reject(self):
+        """Move ticket to Rejected stage."""
+        stage = self._find_stage_by_type("closed")
+        self.write({"stage_id": stage.id})
+
+    def action_reopen(self):
+        """Reopen a closed ticket back to New stage."""
+        stage = self._find_stage_by_type("new")
+        self.write({"stage_id": stage.id, "closed_date": False, "closed_by_id": False})
+
     def _prepare_ticket_number(self):
         # Generate ticket number
         return self.env["ir.sequence"].next_by_code("spp.grm.ticket.sequence")
@@ -661,7 +678,8 @@ class SPPGRMTicket(models.Model):
         """Send the ticket submission confirmation email."""
         template = self.env.ref("spp_grm.ticket_submission_confirmation", raise_if_not_found=False)
         if template:
-            template.sudo().send_mail(  # nosemgrep: odoo-sudo-without-context
+            # nosemgrep: semgrep.odoo-sudo-without-context -- mail templates require sudo
+            template.sudo().send_mail(
                 ticket.id,
                 force_send=True,
                 email_values={

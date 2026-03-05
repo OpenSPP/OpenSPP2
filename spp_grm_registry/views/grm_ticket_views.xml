@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Extend GRM Ticket Form View -->
+    <record id="view_spp_grm_ticket_form_registry" model="ir.ui.view">
+        <field name="name">spp.grm.ticket.form.registry</field>
+        <field name="model">spp.grm.ticket</field>
+        <field name="inherit_id" ref="spp_grm.ticket_view_form" />
+        <field name="arch" type="xml">
+            <!-- Add repeat ticket stat button in button box -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button
+                    name="action_view_previous_tickets"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-history"
+                    invisible="repeat_count == 0"
+                >
+                    <field name="repeat_count" widget="statinfo" string="Previous" />
+                </button>
+            </xpath>
+
+            <!-- Add repeat badge in sheet -->
+            <xpath expr="//sheet/div[@name='button_box']" position="after">
+                <div class="alert alert-warning" role="alert" invisible="not is_repeat">
+                    <strong>Repeat Ticket:</strong> This registrant has filed
+                    <field name="is_repeat" invisible="1" />
+                    <field name="repeat_count" /> other ticket(s) in the last 6 months.
+                </div>
+            </xpath>
+
+            <!-- Add registry fields group after partner_id -->
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="household_id" options="{'no_create': True}" />
+                <field
+                    name="registrant_id"
+                    options="{'no_create': True}"
+                    readonly="not household_id"
+                />
+                <field name="area_id" options="{'no_create': True}" />
+            </xpath>
+
+            <!-- Add previous tickets page -->
+            <xpath expr="//notebook" position="inside">
+                <page
+                    string="Previous Tickets"
+                    name="previous_tickets"
+                    invisible="repeat_count == 0"
+                >
+                    <!-- Odoo 19: list/form replaces tree/form -->
+                    <field name="previous_ticket_ids" mode="list">
+                        <list create="0" delete="0">
+                            <field name="name" />
+                            <field name="category_id" />
+                            <field name="priority" widget="priority" />
+                            <field name="stage_id" widget="badge" />
+                            <field name="create_date" />
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend GRM Ticket Tree View -->
+    <record id="view_spp_grm_ticket_tree_registry" model="ir.ui.view">
+        <field name="name">spp.grm.ticket.tree.registry</field>
+        <field name="model">spp.grm.ticket</field>
+        <field name="inherit_id" ref="spp_grm.ticket_view_tree" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="registrant_id" optional="show" />
+                <field name="household_id" optional="hide" />
+                <field name="area_id" optional="hide" />
+                <field name="is_repeat" optional="show" widget="boolean_toggle" />
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend GRM Ticket Search View -->
+    <record id="view_spp_grm_ticket_search_registry" model="ir.ui.view">
+        <field name="name">spp.grm.ticket.search.registry</field>
+        <field name="model">spp.grm.ticket</field>
+        <field name="inherit_id" ref="spp_grm.spp_grm_ticket_view_search" />
+        <field name="arch" type="xml">
+            <!-- Add search fields -->
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="registrant_id" />
+                <field name="household_id" />
+                <field name="area_id" />
+            </xpath>
+
+            <!-- Add filters -->
+            <xpath expr="//filter[@name='mytickets']" position="after">
+                <separator />
+                <filter
+                    name="filter_repeat_tickets"
+                    string="Repeat Tickets"
+                    domain="[('is_repeat', '=', True)]"
+                    help="Tickets from registrants with previous tickets"
+                />
+                <filter
+                    name="filter_has_registrant"
+                    string="Has Registrant"
+                    domain="[('registrant_id', '!=', False)]"
+                />
+                <filter
+                    name="filter_has_household"
+                    string="Has Household"
+                    domain="[('household_id', '!=', False)]"
+                />
+            </xpath>
+
+            <!-- Add groupby -->
+            <xpath expr="//search/group" position="inside">
+                <filter
+                    name="group_by_registrant"
+                    string="Registrant"
+                    context="{'group_by': 'registrant_id'}"
+                />
+                <filter
+                    name="group_by_household"
+                    string="Household"
+                    context="{'group_by': 'household_id'}"
+                />
+                <filter
+                    name="group_by_area"
+                    string="Area"
+                    context="{'group_by': 'area_id'}"
+                />
+                <filter
+                    name="group_by_is_repeat"
+                    string="Repeat Status"
+                    context="{'group_by': 'is_repeat'}"
+                />
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend GRM Ticket Kanban View -->
+    <record id="view_spp_grm_ticket_kanban_registry" model="ir.ui.view">
+        <field name="name">spp.grm.ticket.kanban.registry</field>
+        <field name="model">spp.grm.ticket</field>
+        <field name="inherit_id" ref="spp_grm.view_spp_grm_ticket_kanban" />
+        <field name="arch" type="xml">
+            <!-- Declare fields for kanban data loading -->
+            <xpath expr="//kanban/field[@name='number']" position="before">
+                <field name="registrant_id" />
+                <field name="is_repeat" />
+                <field name="repeat_count" />
+            </xpath>
+
+            <!-- Add repeat badge and registrant info before footer -->
+            <xpath expr="//footer" position="before">
+                <t t-if="record.is_repeat.raw_value">
+                    <span class="badge text-bg-warning">
+                        <i class="fa fa-repeat" />
+                        Repeat (<t t-esc="record.repeat_count.value" />)
+                    </span>
+                </t>
+                <t t-if="record.registrant_id.raw_value">
+                    <div>
+                        <strong>Registrant:</strong>
+                        <field name="registrant_id" />
+                    </div>
+                </t>
+            </xpath>
+        </field>
+    </record>
+</odoo>

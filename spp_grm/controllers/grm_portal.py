@@ -9,12 +9,7 @@ _logger = logging.getLogger(__name__)
 
 
 class SPPGrmPortal(CustomerPortal):
-    @http.route(
-        ["/my/tickets", "/my/tickets/page/<int:page>"],
-        type="http",
-        auth="user",
-        website=True,
-    )
+    @http.route(["/my/tickets", "/my/tickets/page/<int:page>"], type="http", auth="user", website=True)
     def portal_my_tickets(self, page=1, **kw):
         partner = request.env.user.partner_id
         ticket = request.env["spp.grm.ticket"]
@@ -52,12 +47,10 @@ class SPPGrmPortal(CustomerPortal):
             "channel_id": request.env.ref("spp_grm.grm_ticket_channel_web").id,
             "partner_id": partner.id,
         }
-        # nosemgrep: odoo-sudo-without-context — portal controller with partner-based access filtering
+        # nosemgrep: semgrep.odoo-sudo-without-context -- portal users need sudo to create tickets
         ticket = request.env["spp.grm.ticket"].sudo().create(vals)
 
         ticket.send_ticket_confirmation_email(ticket)
 
-        # Redirect to the fixed internal tickets page; target is a constant
-        # relative URL, so this is not an open redirect.
-        # nosemgrep: odoo-unvalidated-redirect — redirect target is fixed internal '/my/tickets' URL
+        # nosemgrep: semgrep.odoo-unvalidated-redirect -- fixed internal URL
         return request.redirect("/my/tickets")

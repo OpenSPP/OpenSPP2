@@ -12,12 +12,10 @@ class SPPGRMTicketSubcategory(models.Model):
     _order = "category_id, sequence, name"
 
     name = fields.Char(
-        string="Name",
         required=True,
         translate=True,
     )
     code = fields.Char(
-        string="Code",
         help="Unique code for this subcategory",
     )
     category_id = fields.Many2one(
@@ -38,7 +36,6 @@ class SPPGRMTicketSubcategory(models.Model):
             ("high", "High"),
             ("critical", "Critical"),
         ],
-        string="Default Severity",
     )
     default_sla_hours = fields.Integer(
         string="Default SLA Hours",

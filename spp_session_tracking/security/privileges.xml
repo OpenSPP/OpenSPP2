@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Session Tracking Privileges -->
+    <record id="privilege_session_user" model="res.groups.privilege">
+        <field name="name">User</field>
+        <field name="category_id" ref="spp_security.category_spp_sessions" />
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="privilege_session_manager" model="res.groups.privilege">
+        <field name="name">Manager</field>
+        <field name="category_id" ref="spp_security.category_spp_sessions" />
+        <field name="sequence">20</field>
+    </record>
+</odoo>

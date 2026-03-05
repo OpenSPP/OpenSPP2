@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Escalation Rule Tree View -->
+    <record id="view_grm_escalation_rule_tree" model="ir.ui.view">
+        <field name="name">spp.grm.escalation.rule.tree</field>
+        <field name="model">spp.grm.escalation.rule</field>
+        <field name="arch" type="xml">
+            <list string="Escalation Rules" decoration-muted="not active">
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="condition_cel" />
+                <field name="trigger_after_hours" />
+                <field name="escalate_to_user_id" />
+                <field name="escalate_to_team_id" />
+                <field name="escalation_count" />
+                <field name="active" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Escalation Rule Form View -->
+    <record id="view_grm_escalation_rule_form" model="ir.ui.view">
+        <field name="name">spp.grm.escalation.rule.form</field>
+        <field name="model">spp.grm.escalation.rule</field>
+        <field name="arch" type="xml">
+            <form string="Escalation Rule">
+                <sheet>
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="text-bg-danger"
+                        invisible="active"
+                    />
+                    <div class="oe_title">
+                        <label for="name" />
+                        <h1>
+                            <field
+                                name="name"
+                                placeholder="e.g., Escalate Breached SLA Tickets"
+                            />
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="sequence" />
+                            <field name="active" invisible="1" />
+                            <field
+                                name="company_id"
+                                groups="base.group_multi_company"
+                            />
+                        </group>
+                        <group>
+                            <field name="escalation_count" readonly="1" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Condition" name="condition">
+                            <group>
+                                <group>
+                                    <field name="trigger_after_hours" />
+                                </group>
+                                <group />
+                            </group>
+                            <group>
+                                <field
+                                    name="condition_cel"
+                                    widget="text"
+                                    placeholder="e.g., sla_status == 'breached' or (severity == 'critical' and days_open > 3)"
+                                />
+                            </group>
+                            <div class="alert alert-info" role="alert">
+                                <h4>Available Context Variables:</h4>
+                                <ul>
+                                    <li><strong
+                                    >ticket</strong> - The GRM ticket record</li>
+                                    <li><strong
+                                    >category</strong> - ticket.category_id</li>
+                                    <li><strong
+                                    >channel</strong> - ticket.channel_id</li>
+                                    <li><strong
+                                    >severity</strong> - ticket.severity (low, medium, high, critical)</li>
+                                    <li><strong
+                                    >priority</strong> - ticket.priority (0, 1, 2, 3)</li>
+                                    <li><strong
+                                    >partner</strong> - ticket.partner_id (the registrant)</li>
+                                    <li><strong>team</strong> - ticket.team_id</li>
+                                    <li><strong>user</strong> - ticket.user_id</li>
+                                    <li><strong
+                                    >sla_status</strong> - ticket.sla_status (on_track, at_risk, breached)</li>
+                                    <li><strong
+                                    >days_open</strong> - ticket.days_open (integer)</li>
+                                    <li><strong
+                                    >is_escalated</strong> - ticket.is_escalated (boolean)</li>
+                                </ul>
+                                <h4>Example Expressions:</h4>
+                                <ul>
+                                    <li><code
+                                    >sla_status == 'breached'</code> - Escalate when SLA is breached</li>
+                                    <li><code
+                                    >sla_status == 'breached' and not is_escalated</code> - Escalate only if not already escalated</li>
+                                    <li><code
+                                    >severity == 'critical' and days_open > 3</code> - Escalate critical tickets open more than 3 days</li>
+                                    <li><code
+                                    >(sla_status == 'at_risk' or sla_status == 'breached') and severity == 'high'</code> - Escalate high severity tickets at risk or breached</li>
+                                </ul>
+                            </div>
+                        </page>
+                        <page string="Actions" name="actions">
+                            <group>
+                                <group string="Escalation">
+                                    <field name="escalate_to_user_id" />
+                                    <field name="escalate_to_team_id" />
+                                    <field name="escalate_severity" />
+                                    <field name="escalate_priority" />
+                                </group>
+                                <group string="Notifications">
+                                    <field name="should_send_notification" />
+                                    <field
+                                        name="notification_template_id"
+                                        invisible="not should_send_notification"
+                                        required="should_send_notification"
+                                    />
+                                </group>
+                            </group>
+                            <group>
+                                <group string="Case Management">
+                                    <field name="create_case" />
+                                    <field
+                                        name="case_type_id"
+                                        invisible="not create_case"
+                                        required="create_case"
+                                    />
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Escalation Rule Search View -->
+    <record id="view_grm_escalation_rule_search" model="ir.ui.view">
+        <field name="name">spp.grm.escalation.rule.search</field>
+        <field name="model">spp.grm.escalation.rule</field>
+        <field name="arch" type="xml">
+            <search string="Escalation Rules">
+                <field name="name" />
+                <field name="condition_cel" />
+                <field name="escalate_to_user_id" />
+                <field name="escalate_to_team_id" />
+                <separator />
+                <filter
+                    string="Active"
+                    name="active"
+                    domain="[('active', '=', True)]"
+                />
+                <filter
+                    string="Inactive"
+                    name="inactive"
+                    domain="[('active', '=', False)]"
+                />
+                <filter
+                    string="With Time Trigger"
+                    name="with_time_trigger"
+                    domain="[('trigger_after_hours', '>', 0)]"
+                />
+                <filter
+                    string="With Notifications"
+                    name="with_notifications"
+                    domain="[('should_send_notification', '=', True)]"
+                />
+                <filter
+                    string="Creates Cases"
+                    name="creates_cases"
+                    domain="[('create_case', '=', True)]"
+                />
+                <group>
+                    <filter
+                        string="Team"
+                        name="group_team"
+                        context="{'group_by': 'escalate_to_team_id'}"
+                    />
+                    <filter
+                        string="User"
+                        name="group_user"
+                        context="{'group_by': 'escalate_to_user_id'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Escalation Rule Action -->
+    <record id="action_grm_escalation_rule" model="ir.actions.act_window">
+        <field name="name">Escalation Rules</field>
+        <field name="res_model">spp.grm.escalation.rule</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new escalation rule
+            </p>
+            <p>
+                Escalation rules automatically escalate tickets based on CEL conditions and time triggers.
+                Multiple escalation rules can apply to a single ticket.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu Item -->
+    <menuitem
+        id="menu_grm_escalation_rule"
+        name="Escalation Rules"
+        parent="spp_grm.spp_grm_ticket_config_main_menu"
+        action="action_grm_escalation_rule"
+        sequence="20"
+    />
+
+    <!-- Add escalation button to ticket form -->
+    <record id="view_grm_ticket_form_button" model="ir.ui.view">
+        <field name="name">spp.grm.ticket.form.button</field>
+        <field name="model">spp.grm.ticket</field>
+        <field name="inherit_id" ref="spp_grm.ticket_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button
+                    name="action_escalate"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-level-up"
+                >
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_text">Check</span>
+                        <span class="o_stat_text">Escalation</span>
+                    </div>
+                </button>
+            </xpath>
+        </field>
+    </record>
+</odoo>

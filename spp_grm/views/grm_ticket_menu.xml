@@ -5,7 +5,7 @@
         id="spp_grm_ticket_main_menu"
         name="Helpdesk"
         sequence="16"
-        web_icon="spp_grm,static/description/icon.png"
+        web_icon="spp_grm,static/description/OpenSPP-Helpdesk2-Icons.png"
     />
 
     <menuitem
