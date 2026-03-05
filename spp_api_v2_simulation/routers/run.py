@@ -195,11 +195,11 @@ async def list_runs(
             total_count=total_count,
         )
 
-    except Exception as e:
+    except Exception:
         _logger.exception("Failed to list runs")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to list runs: {str(e)}",
+            detail="Failed to list runs",
         ) from None
 
 
@@ -237,9 +237,9 @@ async def get_run(
 
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         _logger.exception("Failed to get run")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get run: {str(e)}",
+            detail="Failed to get run",
         ) from None

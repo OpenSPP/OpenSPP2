@@ -115,11 +115,11 @@ async def list_scenarios(
             total_count=total_count,
         )
 
-    except Exception as e:
+    except Exception:
         _logger.exception("Failed to list scenarios")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to list scenarios: {str(e)}",
+            detail="Failed to list scenarios",
         ) from None
 
 
@@ -185,11 +185,11 @@ async def create_scenario(
 
         return _scenario_to_response(scenario)
 
-    except Exception as e:
+    except Exception:
         _logger.exception("Failed to create scenario")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to create scenario: {str(e)}",
+            detail="Failed to create scenario",
         ) from None
 
 
@@ -226,11 +226,11 @@ async def get_scenario(
 
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         _logger.exception("Failed to get scenario")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get scenario: {str(e)}",
+            detail="Failed to get scenario",
         ) from None
 
 
@@ -300,11 +300,11 @@ async def update_scenario(
 
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         _logger.exception("Failed to update scenario")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to update scenario: {str(e)}",
+            detail="Failed to update scenario",
         ) from None
 
 
@@ -341,11 +341,11 @@ async def archive_scenario(
 
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         _logger.exception("Failed to archive scenario")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to archive scenario: {str(e)}",
+            detail="Failed to archive scenario",
         ) from None
 
 
@@ -380,10 +380,11 @@ async def mark_scenario_ready(
 
         try:
             scenario.action_set_ready()
-        except Exception as e:
+        except Exception:
+            _logger.exception("Failed to mark scenario as ready")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=str(e),
+                detail="Failed to mark scenario as ready",
             ) from None
 
         # Refresh to get updated state
@@ -393,11 +394,11 @@ async def mark_scenario_ready(
 
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         _logger.exception("Failed to mark scenario as ready")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to mark scenario as ready: {str(e)}",
+            detail="Failed to mark scenario as ready",
         ) from None
 
 
@@ -451,11 +452,11 @@ async def run_simulation(
 
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         _logger.exception("Failed to run simulation")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to run simulation: {str(e)}",
+            detail="Failed to run simulation",
         ) from None
 
 
@@ -552,11 +553,11 @@ async def convert_to_program(
 
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         _logger.exception("Failed to convert scenario to program")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to convert scenario to program: {str(e)}",
+            detail="Failed to convert scenario to program",
         ) from None
 
 

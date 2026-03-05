@@ -131,11 +131,11 @@ async def create_comparison(
 
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         _logger.exception("Failed to create comparison")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to create comparison: {str(e)}",
+            detail="Failed to create comparison",
         ) from None
 
 
@@ -172,9 +172,9 @@ async def get_comparison(
 
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         _logger.exception("Failed to get comparison")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get comparison: {str(e)}",
+            detail="Failed to get comparison",
         ) from None
