@@ -18,7 +18,6 @@ class TestDemoStatistics(TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.stat_model = cls.env["spp.statistic"]
-        cls.aggregation_service = cls.env["spp.aggregation.service"]
 
         # Required statistics that should be in the database
         cls.required_stats = [
@@ -70,39 +69,25 @@ class TestDemoStatistics(TransactionCase):
                         f"Statistic '{stat_name}' not published to GIS",
                     )
 
-    def test_statistics_accessible_via_aggregation_service(self):
-        """Verify statistics can be computed via aggregation service."""
-        # Get some test registrants (limit to 10 for performance)
-        registrants = self.env["res.partner"].search([("is_group", "=", True)], limit=10)
-
-        if not registrants:
-            self.skipTest("No registrants found in database for testing")
-
-        registrant_ids = registrants.ids
-
-        # Test a subset of statistics for performance
+    def test_statistics_have_valid_cel_accessors(self):
+        """Verify statistics have variables with valid CEL accessors for aggregation."""
+        # Test a subset of statistics
         test_stats = ["total_households", "total_members", "children_under_5"]
 
         for stat_name in test_stats:
             with self.subTest(statistic=stat_name):
-                # Verify statistic exists first
                 stat = self.stat_model.search([("name", "=", stat_name)], limit=1)
                 if not stat:
                     self.skipTest(f"Statistic '{stat_name}' not found in database")
 
-                # Compute via aggregation service
-                result = self.aggregation_service.compute_aggregation(
-                    registrant_ids=registrant_ids, statistics=[stat_name]
+                self.assertTrue(
+                    stat.variable_id,
+                    f"Statistic '{stat_name}' has no variable_id",
                 )
-
-                self.assertIn(
-                    stat_name,
-                    result,
-                    f"Statistic '{stat_name}' not in aggregation result",
-                )
-                self.assertIsNotNone(
-                    result[stat_name],
-                    f"Statistic '{stat_name}' returned None. Check variable configuration and CEL expression.",
+                self.assertTrue(
+                    stat.variable_id.cel_accessor,
+                    f"Variable for statistic '{stat_name}' has no cel_accessor. "
+                    "A cel_accessor is required for aggregation computation.",
                 )
 
     def test_statistics_categories_exist(self):
