@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Wizard Form View -->
     <record id="view_mis_demo_wizard_form" model="ir.ui.view">
@@ -7,23 +7,50 @@
         <field name="arch" type="xml">
             <form string="Load MIS Demo Data">
                 <sheet>
-                    <group>
+                    <field name="mis_demo_loaded" invisible="1" />
+                    <field name="has_grm_demo" invisible="1" />
+                    <field name="has_case_demo" invisible="1" />
+                    <div
+                        class="alert alert-warning"
+                        role="alert"
+                        invisible="not mis_demo_loaded"
+                    >
+                        <p class="mb-0">
+                            <strong
+                        >MIS Demo Data has already been loaded for this company.</strong>
+                            Loading it again may create duplicate records.
+                        </p>
+                    </div>
+                    <group invisible="mis_demo_loaded">
                         <field name="country_id" widget="radio" />
                     </group>
-                    <div class="alert alert-info" role="alert">
-                        <p><strong>This will load comprehensive MIS demo data:</strong></p>
+                    <div
+                        class="alert alert-info"
+                        role="alert"
+                        invisible="mis_demo_loaded"
+                    >
+                        <p>
+                            <strong>This will load comprehensive MIS demo data:</strong>
+                        </p>
                         <ul>
-                            <li>6 social protection programs (Child Grant, Pension, Emergency Relief, Cash Transfer, Disability Support, Food Assistance)</li>
-                            <li>8 demo personas with full stories and payment history</li>
-                            <li>~730 deterministic households with ~2,500 members (country-aware names)</li>
+                            <li
+                            >6 social protection programs (Child Grant, Pension, Emergency Relief, Cash Transfer, Disability Support, Food Assistance)</li>
+                            <li
+                            >8 demo personas with full stories and payment history</li>
+                            <li
+                            >~730 deterministic households with ~2,500 members (country-aware names)</li>
                             <li>Program enrollments based on household eligibility</li>
                             <li>Program cycles with entitlements</li>
                             <li>Logic Packs for eligibility rules</li>
                             <li>Change requests at various workflow stages</li>
-                            <li>GRM tickets and case records</li>
+                            <li invisible="not has_grm_demo">GRM tickets</li>
+                            <li invisible="not has_case_demo">Case records</li>
                             <li>Fairness analysis data</li>
                         </ul>
-                        <p class="mb-0"><em>Names are locale-aware and 100% reproducible per country selection.</em></p>
+                        <p class="mb-0">
+                            <em
+                            >Names are locale-aware and 100% reproducible per country selection.</em>
+                        </p>
                     </div>
                     <group string="Geographic Data">
                         <field name="load_geographic_data" />
@@ -34,8 +61,25 @@
                     </group>
                 </sheet>
                 <footer>
-                    <button name="action_generate_demo_data" string="Load Demo Data" type="object" class="btn-primary"/>
-                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    <button
+                        name="action_generate_demo_data"
+                        string="Load Demo Data"
+                        type="object"
+                        class="btn-primary"
+                        invisible="mis_demo_loaded"
+                    />
+                    <button
+                        string="Cancel"
+                        class="btn-secondary"
+                        special="cancel"
+                        invisible="mis_demo_loaded"
+                    />
+                    <button
+                        string="Close"
+                        class="btn-primary"
+                        special="cancel"
+                        invisible="not mis_demo_loaded"
+                    />
                 </footer>
             </form>
         </field>
@@ -47,15 +91,17 @@
         <field name="res_model">spp.mis.demo.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
-        <field name="view_id" ref="view_mis_demo_wizard_form"/>
+        <field name="view_id" ref="view_mis_demo_wizard_form" />
     </record>
 
     <!-- Parent menu for Demo Data (under Settings) -->
-    <menuitem id="menu_demo_data_root"
-              name="Demo Data"
-              parent="base.menu_administration"
-              sequence="100"
-              groups="base.group_system"/>
+    <menuitem
+        id="menu_demo_data_root"
+        name="Demo Data"
+        parent="base.menu_administration"
+        sequence="100"
+        groups="base.group_system"
+    />
 
     <!-- Menu Item (under Settings > Demo Data) -->
     <menuitem

@@ -571,6 +571,9 @@ class SPPMISDemoGenerator(models.TransientModel):
 
             self.state = "completed"
 
+            # Mark company as having loaded MIS demo data
+            self.env.company.mis_demo_loaded = True
+
             # Return success notification with detailed summary
             return self._show_success_notification(stats)
 
@@ -3739,6 +3742,32 @@ class SPPMISDemoWizard(models.TransientModel):
     _name = "spp.mis.demo.wizard"
     _description = "MIS Demo Data Wizard"
     _inherit = "spp.mis.demo.generator"
+
+    mis_demo_loaded = fields.Boolean(
+        related="company_id.mis_demo_loaded",
+        string="Demo Already Loaded",
+    )
+    company_id = fields.Many2one(
+        "res.company",
+        default=lambda self: self.env.company,
+    )
+    has_grm_demo = fields.Boolean(compute="_compute_has_optional_demos")
+    has_case_demo = fields.Boolean(compute="_compute_has_optional_demos")
+
+    def _compute_has_optional_demos(self):
+        installed_names = set(
+            self.env["ir.module.module"]
+            .search(
+                [
+                    ("name", "in", ["spp_grm_demo", "spp_case_demo"]),
+                    ("state", "=", "installed"),
+                ]
+            )
+            .mapped("name")
+        )
+        for rec in self:
+            rec.has_grm_demo = "spp_grm_demo" in installed_names
+            rec.has_case_demo = "spp_case_demo" in installed_names
 
     def action_generate_demo_data(self):
         """Action to generate demo data from wizard."""
