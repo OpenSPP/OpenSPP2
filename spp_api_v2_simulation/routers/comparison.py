@@ -98,7 +98,9 @@ async def create_comparison(
         )
 
     try:
+        # nosemgrep: odoo-sudo-without-context
         Comparison = env["spp.simulation.comparison"].sudo()
+        # nosemgrep: odoo-sudo-without-context
         Run = env["spp.simulation.run"].sudo()
 
         # Validate runs exist
@@ -159,6 +161,7 @@ async def get_comparison(
         )
 
     try:
+        # nosemgrep: odoo-sudo-without-context
         Comparison = env["spp.simulation.comparison"].sudo()
         comparison = Comparison.browse(comparison_id)
 

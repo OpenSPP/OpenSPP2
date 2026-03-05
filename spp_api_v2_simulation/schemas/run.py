@@ -29,7 +29,7 @@ class FairnessData(BaseModel):
 class GeographicData(BaseModel):
     """Geographic distribution data."""
 
-    areas: dict = Field(..., description="Area-level statistics keyed by area name")
+    areas: list = Field(..., description="Area-level statistics")
 
 
 class MetricResult(BaseModel):

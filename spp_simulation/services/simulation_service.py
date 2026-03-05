@@ -497,7 +497,7 @@ class SimulationService(models.AbstractModel):
 
         # Execute wizard to create program
         action = wizard.create_program()
-        program = self.env["spp.program"].browse(action["res_id"])
+        program = self.env["spp.program"].browse(action["params"]["program_id"])
 
         # Link scenario to converted program
         scenario.converted_program_id = program.id

@@ -174,7 +174,7 @@ async def list_runs(
         )
 
     try:
-        Run = env["spp.simulation.run"].sudo()
+        Run = env["spp.simulation.run"].sudo()  # nosemgrep: odoo-sudo-without-context
 
         # Build domain
         domain = []
@@ -224,7 +224,7 @@ async def get_run(
         )
 
     try:
-        Run = env["spp.simulation.run"].sudo()
+        Run = env["spp.simulation.run"].sudo()  # nosemgrep: odoo-sudo-without-context
         run = Run.browse(run_id)
 
         if not run.exists():

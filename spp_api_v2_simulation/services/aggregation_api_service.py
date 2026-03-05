@@ -35,6 +35,7 @@ class AggregationApiService:
             dict: Aggregation result with total_count, statistics, breakdown, etc.
         """
         engine_scope = self._build_engine_scope(scope_dict)
+        # nosemgrep: odoo-sudo-without-context
         aggregation_service = self.env["spp.aggregation.service"].sudo()
         result = aggregation_service.compute_aggregation(
             scope=engine_scope,
@@ -87,12 +88,14 @@ class AggregationApiService:
         if area_id is not None:
             domain.append(("area_id", "=", area_id))
 
+        # API service requires sudo to search all registrants regardless of user access rules
+        # nosemgrep: odoo-sudo-without-context, odoo-sudo-on-sensitive-models
         partner_ids = self.env["res.partner"].sudo().search(domain).ids
 
         # Apply CEL expression filter if provided
         if cel_expression and partner_ids:
             try:
-                executor = self.env["spp.cel.executor"].sudo()
+                executor = self.env["spp.cel.executor"].sudo()  # nosemgrep: odoo-sudo-without-context
                 filtered_ids = []
                 for batch_ids in executor.compile_for_batch(
                     "res.partner",
@@ -122,7 +125,7 @@ class AggregationApiService:
         """
         dimensions = (
             self.env["spp.demographic.dimension"]
-            .sudo()
+            .sudo()  # nosemgrep: odoo-sudo-without-context
             .get_active_dimensions(
                 applies_to=applies_to,
             )

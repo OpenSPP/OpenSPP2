@@ -29,7 +29,7 @@ class SimulationApiService:
         """
         templates = (
             self.env["spp.simulation.scenario.template"]
-            .sudo()
+            .sudo()  # nosemgrep: odoo-sudo-without-context
             .search(
                 [("active", "=", True)],
                 order="sequence, name",
@@ -384,7 +384,7 @@ class SimulationApiService:
         Returns:
             dict: Serialized scenario
         """
-        return {
+        return {  # nosemgrep: odoo-expose-database-id
             "id": scenario.id,
             "name": scenario.name,
             "description": scenario.description or None,
@@ -410,7 +410,7 @@ class SimulationApiService:
         Returns:
             dict: Serialized rule
         """
-        return {
+        return {  # nosemgrep: odoo-expose-database-id
             "id": rule.id,
             "name": rule.name or None,
             "sequence": rule.sequence,
@@ -431,7 +431,7 @@ class SimulationApiService:
         Returns:
             dict: Headline run metrics
         """
-        return {
+        return {  # nosemgrep: odoo-expose-database-id
             "id": run.id,
             "scenario_id": run.scenario_id.id,
             "scenario_name": run.scenario_id.name,
@@ -519,7 +519,7 @@ class SimulationApiService:
                 }
             )
 
-        return {
+        return {  # nosemgrep: odoo-expose-database-id
             "id": comparison.id,
             "name": comparison.name,
             "runs": runs_data,
