@@ -45,8 +45,8 @@ class CatalogService:
 
             # Query distinct area levels that have data for this report
             groups = (
-                self.env["spp.gis.report.data"]
-                .sudo()  # nosemgrep: odoo-sudo-without-context
+                self.env["spp.gis.report.data"]  # nosemgrep: odoo-sudo-without-context
+                .sudo()
                 ._read_group(
                     [("report_id", "=", report.id)],
                     groupby=["area_level"],

@@ -164,7 +164,7 @@ class QMLTemplateService:
         """
         # Query the data range at this admin level
         data = (
-            self.env["spp.gis.report.data"]
+            self.env["spp.gis.report.data"]  # nosemgrep: odoo-sudo-without-context
             .sudo()
             .search(
                 [
