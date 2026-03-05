@@ -20,6 +20,10 @@
         "spp_demo",
         # GIS Reports for geographic visualization
         "spp_gis_report",
+        # Statistics and aggregation for demo indicators
+        "spp_statistic",
+        "spp_aggregation",
+        "spp_studio",
         # QR Credentials (Claim 169)
         "spp_claim_169",
         # Demo-specific extensions
@@ -38,6 +42,8 @@
         "data/change_request_types.xml",
         "data/demo_change_requests_ux.xml",
         "data/demo_gis_reports.xml",
+        "data/demo_statistics.xml",
+        "data/demo_api_client.xml",
         "views/mis_demo_wizard_view.xml",
     ],
     "assets": {},
