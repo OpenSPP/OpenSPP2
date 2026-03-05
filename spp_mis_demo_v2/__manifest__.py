@@ -24,6 +24,8 @@
         "spp_statistic",
         "spp_aggregation",
         "spp_studio",
+        # GIS API for QGIS plugin (registers 'gis' scope for demo API client)
+        "spp_api_v2_gis",
         # QR Credentials (Claim 169)
         "spp_claim_169",
         # Demo-specific extensions
