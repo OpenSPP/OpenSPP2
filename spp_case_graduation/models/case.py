@@ -47,7 +47,6 @@ class Case(models.Model):
             ("deferred", "Deferred"),
         ],
         compute="_compute_graduation_stats",
-        string="Graduation Status",
     )
 
     @api.depends(

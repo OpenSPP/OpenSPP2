@@ -16,7 +16,6 @@ class GRMTicketCaseLink(models.Model):
         ondelete="restrict",
     )
     case_count = fields.Integer(
-        string="Case Count",
         compute="_compute_case_count",
         help="Number of cases linked to this ticket",
     )

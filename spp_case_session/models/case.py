@@ -31,7 +31,6 @@ class Case(models.Model):
 
     session_count = fields.Integer(
         compute="_compute_session_stats",
-        string="Session Count",
     )
 
     session_attendance_rate = fields.Float(
@@ -48,7 +47,6 @@ class Case(models.Model):
             ("not_applicable", "N/A"),
         ],
         compute="_compute_session_stats",
-        string="Session Compliance",
     )
 
     @api.depends("partner_id", "session_ids")

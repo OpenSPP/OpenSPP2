@@ -24,7 +24,6 @@ class Session(models.Model):
 
     case_count = fields.Integer(
         compute="_compute_case_count",
-        string="Case Count",
     )
 
     def _compute_case_count(self):

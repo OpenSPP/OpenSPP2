@@ -6,7 +6,7 @@
     "summary": "Link sessions and training attendance to cases",
     "version": "19.0.1.0.0",
     "license": "LGPL-3",
-    "development_status": "Stable",
+    "development_status": "Production/Stable",
     "maintainers": ["jeremi", "gonzalesedwin1123", "emjay0921"],
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",

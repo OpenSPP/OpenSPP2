@@ -45,7 +45,6 @@ class EscalateToCaseWizard(models.TransientModel):
             ("2", "Level 2 - Medium Intensity"),
             ("3", "Level 3 - High Intensity"),
         ],
-        string="Intensity Level",
         default="2",
         required=True,
         help="Level of case management intensity required",
@@ -88,7 +87,6 @@ class EscalateToCaseWizard(models.TransientModel):
             ("redirected", "Redirected"),
             ("referred_to_case", "Referred to Case"),
         ],
-        string="Close Decision",
         default="referred_to_case",
         help="Decision to record when closing ticket",
     )

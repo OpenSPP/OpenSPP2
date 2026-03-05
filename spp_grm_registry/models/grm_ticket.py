@@ -28,7 +28,6 @@ class GRMTicketRegistry(models.Model):
 
     # Repeat ticket detection
     repeat_count = fields.Integer(
-        string="Repeat Count",
         compute="_compute_repeat_count",
         store=True,
         help="Number of tickets from same registrant in last 6 months",

@@ -8,7 +8,7 @@ class TestStoryTicketDefinitions(TransactionCase):
 
     def test_grm_story_tickets_defined(self):
         """Test that GRM story tickets are properly defined."""
-        from odoo.addons.spp_grm_demo.models.generate_tickets import GRM_STORY_TICKETS
+        from ..models.generate_tickets import GRM_STORY_TICKETS
 
         self.assertIsInstance(GRM_STORY_TICKETS, dict)
         self.assertGreater(len(GRM_STORY_TICKETS), 0)
@@ -33,7 +33,7 @@ class TestStoryTicketDefinitions(TransactionCase):
 
     def test_story_tickets_have_required_fields(self):
         """Test that all story tickets have required fields."""
-        from odoo.addons.spp_grm_demo.models.generate_tickets import GRM_STORY_TICKETS
+        from ..models.generate_tickets import GRM_STORY_TICKETS
 
         required_fields = ["title", "description", "category", "priority", "days_back"]
 
@@ -50,7 +50,7 @@ class TestStoryTicketDefinitions(TransactionCase):
 
     def test_juan_dela_cruz_story(self):
         """Test Juan Dela Cruz story ticket definition."""
-        from odoo.addons.spp_grm_demo.models.generate_tickets import GRM_STORY_TICKETS
+        from ..models.generate_tickets import GRM_STORY_TICKETS
 
         juan = GRM_STORY_TICKETS.get("juan_dela_cruz")
         self.assertIsNotNone(juan)
@@ -73,7 +73,7 @@ class TestStoryTicketDefinitions(TransactionCase):
 
     def test_fatima_al_rahman_story(self):
         """Test Fatima Al-Rahman story ticket definition."""
-        from odoo.addons.spp_grm_demo.models.generate_tickets import GRM_STORY_TICKETS
+        from ..models.generate_tickets import GRM_STORY_TICKETS
 
         fatima = GRM_STORY_TICKETS.get("fatima_al_rahman")
         self.assertIsNotNone(fatima)
@@ -94,7 +94,7 @@ class TestStoryTicketDefinitions(TransactionCase):
 
     def test_ibrahim_hassan_story(self):
         """Test Ibrahim Hassan story ticket definition."""
-        from odoo.addons.spp_grm_demo.models.generate_tickets import GRM_STORY_TICKETS
+        from ..models.generate_tickets import GRM_STORY_TICKETS
 
         ibrahim = GRM_STORY_TICKETS.get("ibrahim_hassan")
         self.assertIsNotNone(ibrahim)
@@ -110,7 +110,7 @@ class TestStoryTicketDefinitions(TransactionCase):
 
     def test_ahmed_said_story(self):
         """Test Ahmed Said story with multiple tickets."""
-        from odoo.addons.spp_grm_demo.models.generate_tickets import GRM_STORY_TICKETS
+        from ..models.generate_tickets import GRM_STORY_TICKETS
 
         ahmed = GRM_STORY_TICKETS.get("ahmed_said")
         self.assertIsNotNone(ahmed)
@@ -133,7 +133,7 @@ class TestStoryTicketDefinitions(TransactionCase):
 
     def test_valid_categories(self):
         """Test that all tickets use valid categories."""
-        from odoo.addons.spp_grm_demo.models.generate_tickets import GRM_STORY_TICKETS
+        from ..models.generate_tickets import GRM_STORY_TICKETS
 
         valid_categories = [
             "payment",
@@ -155,7 +155,7 @@ class TestStoryTicketDefinitions(TransactionCase):
 
     def test_valid_priorities(self):
         """Test that all tickets use valid priorities."""
-        from odoo.addons.spp_grm_demo.models.generate_tickets import GRM_STORY_TICKETS
+        from ..models.generate_tickets import GRM_STORY_TICKETS
 
         valid_priorities = ["low", "medium", "high", "very_high"]
 
@@ -170,7 +170,7 @@ class TestStoryTicketDefinitions(TransactionCase):
 
     def test_valid_decisions(self):
         """Test that all resolutions use valid decisions."""
-        from odoo.addons.spp_grm_demo.models.generate_tickets import GRM_STORY_TICKETS
+        from ..models.generate_tickets import GRM_STORY_TICKETS
 
         valid_decisions = [
             "upheld",
@@ -193,7 +193,7 @@ class TestStoryTicketDefinitions(TransactionCase):
 
     def test_days_back_positive(self):
         """Test that all days_back values are positive."""
-        from odoo.addons.spp_grm_demo.models.generate_tickets import GRM_STORY_TICKETS
+        from ..models.generate_tickets import GRM_STORY_TICKETS
 
         for story_id, story_data in GRM_STORY_TICKETS.items():
             for ticket in story_data.get("tickets", []):
@@ -206,7 +206,7 @@ class TestStoryTicketDefinitions(TransactionCase):
 
     def test_resolution_notes_have_text(self):
         """Test that resolution notes have text content."""
-        from odoo.addons.spp_grm_demo.models.generate_tickets import GRM_STORY_TICKETS
+        from ..models.generate_tickets import GRM_STORY_TICKETS
 
         for story_id, story_data in GRM_STORY_TICKETS.items():
             for ticket in story_data.get("tickets", []):
@@ -227,7 +227,7 @@ class TestStoryTicketDefinitions(TransactionCase):
 
     def test_story_alignment_with_demo_stories(self):
         """Test that GRM stories match demo_stories.py personas."""
-        from odoo.addons.spp_grm_demo.models.generate_tickets import GRM_STORY_TICKETS
+        from ..models.generate_tickets import GRM_STORY_TICKETS
 
         # These should match the names in spp_demo/models/demo_stories.py
         # and spp_mis_demo_v2/data/demo_personas.xml

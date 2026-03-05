@@ -246,9 +246,8 @@ class SPPGRMDemoGenerator(models.TransientModel):
     _name = "spp.grm.demo.generator"
     _description = "GRM Demo Data Generator"
 
-    name = fields.Char(string="Name", default="GRM Demo Data", required=True)
+    name = fields.Char(default="GRM Demo Data", required=True)
     enroll_demo_stories = fields.Boolean(
-        string="Enroll Demo Stories",
         default=True,
         help="Generate tickets based on demo stories (Juan Dela Cruz, Ibrahim Hassan, etc.)",
     )
@@ -276,7 +275,6 @@ class SPPGRMDemoGenerator(models.TransientModel):
         help="Percentage of tickets that should be escalated (of unresolved tickets)",
     )
     assign_teams = fields.Boolean(
-        string="Assign Teams",
         default=True,
         help="Assign tickets to random GRM teams",
     )
@@ -302,7 +300,6 @@ class SPPGRMDemoGenerator(models.TransientModel):
     )
     locale_origin = fields.Many2one(
         "res.country",
-        string="Locale Origin",
         default=lambda self: self.env.user.company_id.country_id or self.env.ref("base.us"),
         help="Country for Faker locale",
     )
@@ -540,7 +537,7 @@ class SPPGRMDemoGenerator(models.TransientModel):
         for i, note in enumerate(notes):
             note_date = ticket_date + timedelta(days=int((i + 1) * resolution_days / (len(notes) + 1)))
             ticket.sudo().message_post(
-                body="<p>{}</p>".format(note.get("text", "")),
+                body=_("<p>%(note_text)s</p>", note_text=note.get("text", "")),
                 message_type="comment",
                 subtype_xmlid="mail.mt_note",
             )
@@ -733,7 +730,7 @@ class SPPGRMDemoGenerator(models.TransientModel):
 
             # Post message
             ticket.sudo().message_post(
-                body=f"<p>{step}</p>",
+                body=_("<p>%(step)s</p>", step=step),
                 message_type="comment",
                 subtype_xmlid="mail.mt_note",
             )

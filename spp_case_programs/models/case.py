@@ -27,7 +27,6 @@ class CasePrograms(models.Model):
 
     # Computed Program Info
     has_active_enrollment = fields.Boolean(
-        string="Has Active Enrollment",
         compute="_compute_program_info",
         store=True,
         help="Whether the client has any active program enrollments",

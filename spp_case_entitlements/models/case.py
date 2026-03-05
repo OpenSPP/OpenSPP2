@@ -20,14 +20,12 @@ class CaseEntitlements(models.Model):
 
     # Computed Entitlement Info
     entitlement_count = fields.Integer(
-        string="Entitlement Count",
         compute="_compute_entitlement_info",
         store=True,
         help="Number of entitlements related to this case",
     )
 
     has_entitlements = fields.Boolean(
-        string="Has Entitlements",
         compute="_compute_entitlement_info",
         store=True,
         help="Whether this case has any related entitlements",

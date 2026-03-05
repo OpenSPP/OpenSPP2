@@ -41,19 +41,16 @@ class GRMTicketPrograms(models.Model):
     # Computed information from related records
     enrollment_status = fields.Char(
         compute="_compute_program_info",
-        string="Enrollment Status",
         store=True,
         help="Current status of the program enrollment",
     )
     entitlement_amount = fields.Float(
         compute="_compute_program_info",
-        string="Entitlement Amount",
         store=True,
         help="Amount of the related entitlement",
     )
     payment_amount = fields.Float(
         compute="_compute_program_info",
-        string="Payment Amount",
         store=True,
         help="Amount of the related payment",
     )
