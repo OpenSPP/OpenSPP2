@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_gis_geofence_admin,Geofence Admin,model_spp_gis_geofence,spp_security.group_spp_admin,1,1,1,1
+access_spp_gis_geofence_manager,Geofence Manager,model_spp_gis_geofence,spp_registry.group_registry_manager,1,1,1,1
+access_spp_gis_geofence_officer,Geofence Officer,model_spp_gis_geofence,spp_registry.group_registry_officer,1,1,1,0
+access_spp_gis_geofence_read,Geofence Read,model_spp_gis_geofence,spp_registry.group_registry_read,1,0,0,0
