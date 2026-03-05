@@ -3887,7 +3887,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                         coordinates_generated += 1
 
             except Exception as e:
-                _logger.warning("[spp.mis.demo] Failed to generate coordinates for area %s: %s", area.name, e)
+                _logger.warning("[spp.mis.demo] Failed to generate coordinates for area %s: %s", area.id, e)
                 continue
 
         stats["coordinates_generated"] = coordinates_generated

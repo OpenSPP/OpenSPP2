@@ -26,8 +26,8 @@
         "spp_statistic",
         "spp_aggregation",
         "spp_studio",
-        # GIS API for QGIS plugin (registers 'gis' scope for demo API client)
-        "spp_api_v2_gis",
+        # NOTE: spp_api_v2_gis (GIS API for QGIS plugin) is a soft dependency.
+        # Install it separately to activate the 'gis' scopes on the demo API client.
         # QR Credentials (Claim 169)
         "spp_claim_169",
         # Demo-specific extensions
