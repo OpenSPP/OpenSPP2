@@ -181,6 +181,23 @@ class SPPMISDemoGenerator(models.TransientModel):
         help="Generate QR credentials for demo story personas (Maria Santos, etc.)",
     )
 
+    # Geographic data options
+    load_geographic_data = fields.Boolean(
+        string="Load Geographic Data",
+        default=True,
+        help="Load area data with GIS shapes and assign GPS coordinates to registrants for QGIS plugin demo",
+    )
+    country_code = fields.Selection(
+        [
+            ("phl", "Philippines"),
+            ("lka", "Sri Lanka"),
+            ("tgo", "Togo"),
+        ],
+        string="Country",
+        default="phl",
+        help="Country for geographic data (areas and GIS shapes)",
+    )
+
     # Locale settings
     locale_origin = fields.Many2one(
         "res.country",
@@ -256,6 +273,8 @@ class SPPMISDemoGenerator(models.TransientModel):
                 "case_volume_count": 10,
                 "generate_claim169_demo": True,
                 "generate_credentials_for_stories": True,
+                "load_geographic_data": True,
+                "country_code": "phl",
             },
             "training": {
                 "create_demo_programs": True,
@@ -278,6 +297,8 @@ class SPPMISDemoGenerator(models.TransientModel):
                 "case_volume_count": 25,
                 "generate_claim169_demo": True,
                 "generate_credentials_for_stories": True,
+                "load_geographic_data": True,
+                "country_code": "phl",
             },
             "testing": {
                 "create_demo_programs": True,
@@ -300,6 +321,8 @@ class SPPMISDemoGenerator(models.TransientModel):
                 "case_volume_count": 200,
                 "generate_claim169_demo": True,
                 "generate_credentials_for_stories": True,
+                "load_geographic_data": True,
+                "country_code": "phl",
             },
             "complete": {
                 "create_demo_programs": True,
@@ -322,6 +345,8 @@ class SPPMISDemoGenerator(models.TransientModel):
                 "case_volume_count": 50,
                 "generate_claim169_demo": True,
                 "generate_credentials_for_stories": True,
+                "load_geographic_data": True,
+                "country_code": "phl",
             },
         }
         defaults = mode_defaults.get(self.demo_mode, mode_defaults["sales"])
@@ -453,6 +478,13 @@ class SPPMISDemoGenerator(models.TransientModel):
                 self._create_test_personas()
                 stats["test_personas_created"] = True
 
+            # Step 0.4: Load geographic data (if enabled)
+            if self.load_geographic_data:
+                _logger.info(f"Loading geographic data for {self.country_code}...")
+                geo_result = self._load_geographic_data(stats)
+                if geo_result:
+                    stats["areas_loaded"] = geo_result.get("shapes_loaded", 0)
+
             # Step 0.5: Ensure demo stories exist (auto-generate if needed)
             stories_created = self._ensure_demo_stories_exist(stats)
             if stories_created:
@@ -521,6 +553,16 @@ class SPPMISDemoGenerator(models.TransientModel):
             if self.generate_claim169_demo:
                 _logger.info("Generating Claim 169 demo data...")
                 self._generate_claim169_demo(stats)
+
+            # Step 11: Assign areas and generate GPS coordinates (if geographic data loaded)
+            if self.load_geographic_data:
+                _logger.info("Assigning areas to registrants...")
+                self._assign_registrant_areas(stats)
+                _logger.info("Generating GPS coordinates for registrants...")
+                self._generate_coordinates(stats)
+
+            # Step 12: Refresh GIS reports so map data is available immediately
+            self._refresh_gis_reports(stats)
 
             self.state = "completed"
 
@@ -3618,6 +3660,9 @@ class SPPMISDemoGenerator(models.TransientModel):
                 if claim169_parts:
                     message_parts.append(_("QR Credentials: %s created") % ", ".join(claim169_parts))
 
+        # Geographic Data
+        self._append_geographic_summary(stats, message_parts)
+
         # Warnings
         if stats["missing_registrants"]:
             message_parts.append("")
@@ -3659,6 +3704,217 @@ class SPPMISDemoGenerator(models.TransientModel):
                 },
             },
         }
+
+    def _append_geographic_summary(self, stats, message_parts):
+        """Append geographic data summary to notification message parts."""
+        if not self.load_geographic_data:
+            return
+        geo_parts = []
+        if stats.get("areas_loaded", 0) > 0:
+            geo_parts.append(_("%(count)s areas with GIS shapes", count=stats["areas_loaded"]))
+        if stats.get("areas_assigned", 0) > 0:
+            geo_parts.append(_("%(count)s groups assigned to areas", count=stats["areas_assigned"]))
+        if stats.get("coordinates_generated", 0) > 0:
+            geo_parts.append(_("%(count)s registrants with GPS coordinates", count=stats["coordinates_generated"]))
+        if geo_parts:
+            message_parts.append(_("Geographic Data: %s") % ", ".join(geo_parts))
+
+    def _load_geographic_data(self, stats):
+        """Load geographic area data with GIS shapes.
+
+        Uses the DemoAreaLoader from spp_demo to load country-specific
+        area hierarchies with GIS polygon data for spatial queries.
+
+        Args:
+            stats: Statistics dictionary to update
+
+        Returns:
+            dict: Result with counts of loaded data
+        """
+        try:
+            loader = self.env["spp.demo.area.loader"]
+            result = loader.load_country_areas(self.country_code, load_shapes=True)
+            _logger.info(
+                "[spp.mis.demo] Loaded geographic data for %s: %d areas with GIS shapes",
+                self.country_code,
+                result.get("shapes_loaded", 0),
+            )
+            return result
+        except Exception as e:
+            _logger.warning("[spp.mis.demo] Failed to load geographic data: %s", e)
+            return None
+
+    def _assign_registrant_areas(self, stats):
+        """Assign geographic areas to registrants.
+
+        Strategy:
+        - Get all municipalities (level 3 areas) from the loaded country
+        - For each group, assign a random municipality to area_id
+        - Individual members inherit area_id from their group
+
+        Args:
+            stats: Statistics dictionary to update
+        """
+        Area = self.env["spp.area"]
+        Partner = self.env["res.partner"]
+
+        # Get all level 3 areas (municipalities) that have geo_polygon data
+        municipalities = Area.search([("area_level", "=", 3), ("geo_polygon", "!=", False)])
+
+        if not municipalities:
+            _logger.warning("[spp.mis.demo] No municipalities with GIS data found, skipping area assignment")
+            stats["areas_assigned"] = 0
+            return
+
+        _logger.info("[spp.mis.demo] Found %d municipalities with GIS data", len(municipalities))
+
+        # Get all groups (households)
+        groups = Partner.search([("is_group", "=", True), ("is_registrant", "=", True)])
+
+        if not groups:
+            _logger.warning("[spp.mis.demo] No groups found, skipping area assignment")
+            stats["areas_assigned"] = 0
+            return
+
+        # Assign random municipality to each group
+        groups_assigned = 0
+        for group in groups:
+            municipality = random.choice(municipalities)
+            group.write({"area_id": municipality.id})
+            groups_assigned += 1
+
+            # Members inherit area from group
+            members = Partner.search([("group_membership_ids.group", "=", group.id)])
+            if members:
+                members.write({"area_id": municipality.id})
+
+        stats["areas_assigned"] = groups_assigned
+        _logger.info("[spp.mis.demo] Assigned areas to %d groups", groups_assigned)
+
+    def _generate_coordinates(self, stats):
+        """Generate GPS coordinates for registrants.
+
+        For each registrant with an area_id that has geo_polygon data,
+        generates a random point within the area polygon and sets
+        the coordinates field (if spp_registrant_gis is installed).
+
+        Uses shapely to generate random points within polygons.
+
+        Args:
+            stats: Statistics dictionary to update
+        """
+        # Check if spp_registrant_gis is installed
+        if "coordinates" not in self.env["res.partner"]._fields:
+            _logger.info("[spp.mis.demo] spp_registrant_gis not installed, skipping coordinate generation")
+            stats["coordinates_generated"] = 0
+            return
+
+        try:
+            from shapely.geometry import shape
+            from shapely.wkb import loads as wkbloads
+        except ImportError:
+            _logger.warning("[spp.mis.demo] shapely not available, skipping coordinate generation")
+            stats["coordinates_generated"] = 0
+            return
+
+        Partner = self.env["res.partner"]
+        Area = self.env["spp.area"]
+
+        # Get all registrants with an area_id
+        registrants = Partner.search(
+            [
+                ("is_registrant", "=", True),
+                ("area_id", "!=", False),
+            ]
+        )
+
+        if not registrants:
+            _logger.warning("[spp.mis.demo] No registrants with areas found")
+            stats["coordinates_generated"] = 0
+            return
+
+        _logger.info("[spp.mis.demo] Generating coordinates for %d registrants", len(registrants))
+
+        coordinates_generated = 0
+
+        # Group registrants by area to minimize queries
+        registrants_by_area = {}
+        for registrant in registrants:
+            area_id = registrant.area_id.id
+            if area_id not in registrants_by_area:
+                registrants_by_area[area_id] = []
+            registrants_by_area[area_id].append(registrant)
+
+        # Process each area
+        for area_id, area_registrants in registrants_by_area.items():
+            area = Area.browse(area_id)
+
+            # Skip if no polygon data
+            if not area.geo_polygon:
+                continue
+
+            try:
+                # Convert WKB to shapely polygon
+                polygon = wkbloads(bytes(area.geo_polygon.data))
+
+                # Generate random points for all registrants in this area
+                minx, miny, maxx, maxy = polygon.bounds
+
+                for registrant in area_registrants:
+                    # Generate random point within bounding box, retry if outside polygon
+                    max_attempts = 10
+                    for _attempt in range(max_attempts):
+                        point_x = random.uniform(minx, maxx)
+                        point_y = random.uniform(miny, maxy)
+                        point = shape({"type": "Point", "coordinates": [point_x, point_y]})
+
+                        if polygon.contains(point):
+                            # Set the coordinates field (GeoPointField expects WKB)
+                            registrant.write(
+                                {
+                                    "coordinates": f"POINT({point_x} {point_y})",
+                                }
+                            )
+                            coordinates_generated += 1
+                            break
+                    else:
+                        # If we couldn't find a point inside after max_attempts, use centroid
+                        centroid = polygon.centroid
+                        registrant.write(
+                            {
+                                "coordinates": f"POINT({centroid.x} {centroid.y})",
+                            }
+                        )
+                        coordinates_generated += 1
+
+            except Exception as e:
+                _logger.warning("[spp.mis.demo] Failed to generate coordinates for area %s: %s", area.name, e)
+                continue
+
+        stats["coordinates_generated"] = coordinates_generated
+        _logger.info("[spp.mis.demo] Generated coordinates for %d registrants", coordinates_generated)
+
+    def _refresh_gis_reports(self, stats):
+        """Refresh all active GIS reports so map data is available immediately."""
+        GISReport = self.env["spp.gis.report"]
+        reports = GISReport.search([("active", "=", True)])
+
+        if not reports:
+            _logger.info("[spp.mis.demo] No active GIS reports found to refresh")
+            stats["gis_reports_refreshed"] = 0
+            return
+
+        refreshed = 0
+        for report in reports:
+            try:
+                report._refresh_data()
+                refreshed += 1
+                _logger.info("[spp.mis.demo] Refreshed GIS report: %s", report.name)
+            except Exception:
+                _logger.exception("[spp.mis.demo] Failed to refresh GIS report: %s", report.name)
+
+        stats["gis_reports_refreshed"] = refreshed
+        _logger.info("[spp.mis.demo] Refreshed %d GIS reports", refreshed)
 
 
 class SPPMISDemoWizard(models.TransientModel):

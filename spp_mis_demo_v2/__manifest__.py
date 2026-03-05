@@ -20,6 +20,8 @@
         "spp_demo",
         # GIS Reports for geographic visualization
         "spp_gis_report",
+        # Registrant GPS coordinates for QGIS plugin demo
+        "spp_registrant_gis",
         # Statistics and aggregation for demo indicators
         "spp_statistic",
         "spp_aggregation",

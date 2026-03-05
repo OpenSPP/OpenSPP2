@@ -24,6 +24,10 @@
                             <li>Fairness analysis data</li>
                         </ul>
                     </div>
+                    <group string="Geographic Data">
+                        <field name="load_geographic_data"/>
+                        <field name="country_code" invisible="not load_geographic_data"/>
+                    </group>
                 </sheet>
                 <footer>
                     <button
