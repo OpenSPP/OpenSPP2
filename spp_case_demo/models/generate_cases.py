@@ -218,7 +218,8 @@ class SPPCaseDemoGenerator(models.TransientModel):
             action_date = fields.Date.today() - timedelta(days=days_back)
 
             if action == "create_plan":
-                current_plan = Plan.sudo().create(                    {
+                current_plan = Plan.sudo().create(
+                    {
                         "case_id": case.id,
                         "name": step.get("plan_name", f"Plan for {case.partner_id.name}"),
                         "is_current": True,
@@ -229,7 +230,8 @@ class SPPCaseDemoGenerator(models.TransientModel):
                 )
 
             elif action == "add_intervention" and current_plan:
-                Intervention.sudo().create(                    {
+                Intervention.sudo().create(
+                    {
                         "plan_id": current_plan.id,
                         "name": step.get("intervention", "Intervention"),
                         "description": fake.sentence(),
@@ -250,7 +252,8 @@ class SPPCaseDemoGenerator(models.TransientModel):
                     intervention.sudo().write({"state": "completed"})
             elif action in ("home_visit", "office_visit", "final_visit"):
                 visit_type = "home" if action != "office_visit" else "office"
-                Visit.sudo().create(                    {
+                Visit.sudo().create(
+                    {
                         "case_id": case.id,
                         "visit_type": visit_type,
                         "purpose": step.get("purpose", "Check-in visit"),
@@ -260,7 +263,8 @@ class SPPCaseDemoGenerator(models.TransientModel):
                 )
 
             elif action == "progress_note":
-                Note.sudo().create(                    {
+                Note.sudo().create(
+                    {
                         "case_id": case.id,
                         "note_type": "progress",
                         "content": step.get("note", fake.paragraph()),
@@ -269,7 +273,8 @@ class SPPCaseDemoGenerator(models.TransientModel):
                 )
 
             elif action in ("assessment", "emergency_assessment", "safety_assessment"):
-                Note.sudo().create(                    {
+                Note.sudo().create(
+                    {
                         "case_id": case.id,
                         "note_type": "assessment",
                         "content": step.get(
@@ -282,7 +287,8 @@ class SPPCaseDemoGenerator(models.TransientModel):
             elif action == "add_referral":
                 service = self._get_or_create_service(step.get("service", "External Service"))
                 if service:
-                    Referral.sudo().create(                        {
+                    Referral.sudo().create(
+                        {
                             "case_id": case.id,
                             "service_id": service.id,
                             "referral_reason": step.get("reason", "Service needed"),
@@ -299,13 +305,15 @@ class SPPCaseDemoGenerator(models.TransientModel):
                     limit=1,
                 )
                 if closure_stage:
-                    case.sudo().write(                        {
+                    case.sudo().write(
+                        {
                             "stage_id": closure_stage.id,
                             "actual_closure_date": action_date,
                         }
                     )
                 if current_plan:
                     current_plan.sudo().write({"state": "completed"})
+
     def _create_random_case(self, fake, beneficiaries):
         """Create a random case with realistic data."""
         # Random date within range
@@ -370,7 +378,8 @@ class SPPCaseDemoGenerator(models.TransientModel):
         Plan = self.env["spp.case.intervention.plan"]
         Intervention = self.env["spp.case.intervention"]
 
-        plan = Plan.sudo().create(            {
+        plan = Plan.sudo().create(
+            {
                 "case_id": case.id,
                 "name": f"Support Plan - {case.partner_id.name or 'Client'}",
                 "is_current": True,
@@ -391,7 +400,8 @@ class SPPCaseDemoGenerator(models.TransientModel):
         ]
 
         for _i in range(random.randint(2, 4)):
-            Intervention.sudo().create(                {
+            Intervention.sudo().create(
+                {
                     "plan_id": plan.id,
                     "name": random.choice(intervention_names),
                     "description": fake.sentence(),
@@ -406,7 +416,8 @@ class SPPCaseDemoGenerator(models.TransientModel):
 
         for _i in range(random.randint(1, 3)):
             visit_date = intake_date + timedelta(days=random.randint(5, 60))
-            Visit.sudo().create(                {
+            Visit.sudo().create(
+                {
                     "case_id": case.id,
                     "visit_type": random.choice(["home", "office", "phone", "virtual"]),
                     "purpose": fake.sentence(nb_words=5),
@@ -421,7 +432,8 @@ class SPPCaseDemoGenerator(models.TransientModel):
 
         for _i in range(random.randint(1, 4)):
             note_date = intake_date + timedelta(days=random.randint(1, 60))
-            Note.sudo().create(                {
+            Note.sudo().create(
+                {
                     "case_id": case.id,
                     "note_type": random.choice(["progress", "assessment", "general", "supervision"]),
                     "content": fake.paragraph(nb_sentences=random.randint(2, 5)),
@@ -440,7 +452,8 @@ class SPPCaseDemoGenerator(models.TransientModel):
 
         if closure_stage:
             closure_date = intake_date + timedelta(days=random.randint(30, 90))
-            case.sudo().write(                {
+            case.sudo().write(
+                {
                     "stage_id": closure_stage.id,
                     "actual_closure_date": closure_date,
                 }
@@ -472,7 +485,8 @@ class SPPCaseDemoGenerator(models.TransientModel):
         CaseType = self.env["spp.case.type"]
         case_type = CaseType.search([("name", "=", type_name)], limit=1)
         if not case_type:
-            case_type = CaseType.sudo().create(                {
+            case_type = CaseType.sudo().create(
+                {
                     "name": type_name,
                     "code": type_name.upper().replace(" ", "_")[:10],
                 }
@@ -528,7 +542,8 @@ class SPPCaseDemoGenerator(models.TransientModel):
         Service = self.env["spp.service"]
         service = Service.search([("name", "=", service_name)], limit=1)
         if not service:
-            service = Service.sudo().create(                {
+            service = Service.sudo().create(
+                {
                     "name": service_name,
                     "service_type": "external",
                 }

@@ -538,6 +538,7 @@ class SPPGRMTicket(models.Model):
             if ticket.sla_status == "breached" and old_status != "breached":
                 # Use sudo() to call _on_sla_breach in a new environment context
                 # to avoid triggering compute dependencies during the compute itself
+                # nosemgrep: semgrep.odoo-sudo-without-context
                 ticket.sudo()._on_sla_breach()
 
     def _on_sla_breach(self):
@@ -677,6 +678,7 @@ class SPPGRMTicket(models.Model):
         """Send the ticket submission confirmation email."""
         template = self.env.ref("spp_grm.ticket_submission_confirmation", raise_if_not_found=False)
         if template:
+            # nosemgrep: semgrep.odoo-sudo-without-context -- mail templates require sudo
             template.sudo().send_mail(
                 ticket.id,
                 force_send=True,

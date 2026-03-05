@@ -259,6 +259,7 @@ class GRMRoutingRule(models.Model):
                 )
 
                 # Update match count
+                # nosemgrep: semgrep.odoo-sudo-without-context -- counter update needs sudo
                 rule.sudo().write({"match_count": rule.match_count + 1})
 
                 # Only apply the first matching rule

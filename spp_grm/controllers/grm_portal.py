@@ -47,12 +47,10 @@ class SPPGrmPortal(CustomerPortal):
             "channel_id": request.env.ref("spp_grm.grm_ticket_channel_web").id,
             "partner_id": partner.id,
         }
+        # nosemgrep: semgrep.odoo-sudo-without-context -- portal users need sudo to create tickets
         ticket = request.env["spp.grm.ticket"].sudo().create(vals)
 
         ticket.send_ticket_confirmation_email(ticket)
 
-        # Redirect to the fixed internal tickets page; target is a constant
-        # relative URL, so this is not an open redirect.
-        return request.redirect(
-            "/my/tickets"
-        )  # nosemgrep: odoo-unvalidated-redirect - Redirect target is fixed internal '/my/tickets' URL.
+        # nosemgrep: semgrep.odoo-unvalidated-redirect -- fixed internal URL
+        return request.redirect("/my/tickets")

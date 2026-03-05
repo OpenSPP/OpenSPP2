@@ -244,6 +244,7 @@ class CaseAssignmentRule(models.Model):
                         vals,
                     )
 
+                # nosemgrep: semgrep.odoo-sudo-without-context -- counter update needs sudo
                 rule.sudo().write({"match_count": rule.match_count + 1})
                 return True
 

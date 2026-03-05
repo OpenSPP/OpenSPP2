@@ -277,6 +277,7 @@ class Case(models.Model):
     @api.model
     def _get_next_case_number(self):
         """Generate next case number."""
+        # nosemgrep: semgrep.odoo-sudo-without-context -- sequence generation requires sudo
         sequence = self.env["ir.sequence"].sudo()
         # Try to get existing sequence, create if doesn't exist
         seq = sequence.search([("code", "=", "spp.case")], limit=1)

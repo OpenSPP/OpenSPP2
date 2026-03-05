@@ -234,6 +234,7 @@ class CaseTriageRule(models.Model):
                 if rule.add_vulnerability_ids:
                     case.write({"vulnerability_ids": [(4, v.id) for v in rule.add_vulnerability_ids]})
 
+                # nosemgrep: semgrep.odoo-sudo-without-context -- counter update needs sudo
                 rule.sudo().write({"match_count": rule.match_count + 1})
                 return True
 
