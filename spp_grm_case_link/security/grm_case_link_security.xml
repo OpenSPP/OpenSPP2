@@ -1,32 +1,27 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<odoo>
+<odoo noupdate="1">
     <!-- No new security groups needed - using existing GRM and Case Management groups -->
 
-    <data noupdate="1">
-        <!-- Record Rules: Wizard access follows GRM permissions -->
-        <record id="rule_spp_grm_escalate_wizard_user" model="ir.rule">
-            <field name="name">GRM User: Can escalate own tickets</field>
-            <field name="model_id" ref="model_spp_grm_escalate_wizard" />
-            <field name="domain_force">[('ticket_id.user_id', '=', user.id)]</field>
-            <field name="groups" eval="[Command.link(ref('spp_grm.group_grm_user'))]" />
-            <field name="perm_read" eval="True" />
-            <field name="perm_write" eval="True" />
-            <field name="perm_create" eval="True" />
-            <field name="perm_unlink" eval="True" />
-        </record>
+    <!-- Record Rules: Wizard access follows GRM permissions -->
+    <record id="rule_spp_grm_escalate_wizard_user" model="ir.rule">
+        <field name="name">GRM User: Can escalate own tickets</field>
+        <field name="model_id" ref="model_spp_grm_escalate_wizard" />
+        <field name="domain_force">[('ticket_id.user_id', '=', user.id)]</field>
+        <field name="groups" eval="[Command.link(ref('spp_grm.group_grm_user'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
 
-        <record id="rule_spp_grm_escalate_wizard_manager" model="ir.rule">
-            <field name="name">GRM Manager: Can escalate all tickets</field>
-            <field name="model_id" ref="model_spp_grm_escalate_wizard" />
-            <field name="domain_force">[(1, '=', 1)]</field>
-            <field
-                name="groups"
-                eval="[Command.link(ref('spp_grm.group_grm_manager'))]"
-            />
-            <field name="perm_read" eval="True" />
-            <field name="perm_write" eval="True" />
-            <field name="perm_create" eval="True" />
-            <field name="perm_unlink" eval="True" />
-        </record>
-    </data>
+    <record id="rule_spp_grm_escalate_wizard_manager" model="ir.rule">
+        <field name="name">GRM Manager: Can escalate all tickets</field>
+        <field name="model_id" ref="model_spp_grm_escalate_wizard" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[Command.link(ref('spp_grm.group_grm_manager'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="True" />
+        <field name="perm_create" eval="True" />
+        <field name="perm_unlink" eval="True" />
+    </record>
 </odoo>

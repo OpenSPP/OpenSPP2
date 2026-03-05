@@ -1,6 +1,7 @@
 # OpenSPP Case Programs Integration
 
-This module links cases to OpenSPP programs and provides compliance tracking functionality.
+This module links cases to OpenSPP programs and provides compliance tracking
+functionality.
 
 ## Features
 
@@ -77,7 +78,8 @@ Uses existing case security groups:
 
 ### Creating Program-Related Cases
 
-1. When creating a case, the system automatically loads program enrollments for the selected client
+1. When creating a case, the system automatically loads program enrollments for the
+   selected client
 2. Optionally specify which program triggered the case creation
 
 ### Viewing Program Information

@@ -1,6 +1,6 @@
 """Case Note Model."""
 
-from odoo import api, fields, models
+from odoo import _, api, fields, models
 
 
 class CaseNote(models.Model):
@@ -108,7 +108,7 @@ class CaseNote(models.Model):
             if note.case_id:
                 note_type_label = dict(note._fields["note_type"].selection).get(note.note_type)
                 note.case_id.message_post(
-                    body=f"New {note_type_label} added by {note.author_id.name}",
-                    subject=f"Case Note: {note_type_label}",
+                    body=_("New %(type)s added by %(author)s", type=note_type_label, author=note.author_id.name),
+                    subject=_("Case Note: %(type)s", type=note_type_label),
                 )
         return notes

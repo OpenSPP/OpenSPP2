@@ -1,6 +1,6 @@
 """Case Intervention Plan Model."""
 
-from odoo import api, fields, models
+from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
 
@@ -164,13 +164,15 @@ class CaseInterventionPlan(models.Model):
                     ]
                 )
                 if other_current:
-                    raise ValidationError("Only one plan can be marked as current for a case.")
+                    raise ValidationError(_("Only one plan can be marked as current for a case."))
 
     def action_submit_for_approval(self):
         """Submit plan for approval."""
         for plan in self:
             if not plan.intervention_ids:
-                raise ValidationError("Cannot submit plan without interventions. Please add at least one intervention.")
+                raise ValidationError(
+                    _("Cannot submit plan without interventions. Please add at least one intervention.")
+                )
             plan.state = "pending_approval"
         return True
 
@@ -190,7 +192,7 @@ class CaseInterventionPlan(models.Model):
         """Activate the plan."""
         for plan in self:
             if plan.state != "approved":
-                raise ValidationError("Only approved plans can be activated.")
+                raise ValidationError(_("Only approved plans can be activated."))
             plan.state = "active"
         return True
 
@@ -243,7 +245,7 @@ class CaseInterventionPlan(models.Model):
         """Reset plan to draft."""
         for plan in self:
             if plan.state in ["completed", "revised"]:
-                raise ValidationError("Cannot reset completed or revised plans.")
+                raise ValidationError(_("Cannot reset completed or revised plans."))
             plan.state = "draft"
         return True
 

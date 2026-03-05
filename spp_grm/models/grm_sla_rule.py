@@ -1,7 +1,7 @@
 import ast
 import logging
 
-from odoo import api, fields, models
+from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
 _logger = logging.getLogger(__name__)
@@ -102,11 +102,11 @@ class SPPGRMSLARule(models.Model):
         """Ensure all hour values are positive if set."""
         for rule in self:
             if rule.response_hours and rule.response_hours < 0:
-                raise ValidationError("Response hours must be positive.")
+                raise ValidationError(_("Response hours must be positive."))
             if rule.resolution_hours and rule.resolution_hours < 0:
-                raise ValidationError("Resolution hours must be positive.")
+                raise ValidationError(_("Resolution hours must be positive."))
             if rule.escalate_after_hours and rule.escalate_after_hours < 0:
-                raise ValidationError("Escalation hours must be positive.")
+                raise ValidationError(_("Escalation hours must be positive."))
 
     @api.constrains("response_hours", "resolution_hours")
     def _check_response_resolution_logic(self):
@@ -115,8 +115,12 @@ class SPPGRMSLARule(models.Model):
             if rule.response_hours and rule.resolution_hours:
                 if rule.response_hours > rule.resolution_hours:
                     raise ValidationError(
-                        "Response time cannot be greater than resolution time. "
-                        f"Response: {rule.response_hours}h, Resolution: {rule.resolution_hours}h"
+                        _(
+                            "Response time cannot be greater than resolution time. "
+                            "Response: %(response)sh, Resolution: %(resolution)sh",
+                            response=rule.response_hours,
+                            resolution=rule.resolution_hours,
+                        )
                     )
 
     def evaluate_ticket(self, ticket):
@@ -147,7 +151,7 @@ class SPPGRMSLARule(models.Model):
                     return False
             except Exception as e:
                 # Log error but don't fail - treat invalid domain as not matching
-                _logger.warning("Error evaluating SLA rule %s domain: %s", self.name, e)
+                _logger.warning("Error evaluating SLA rule %s domain: %s", self.id, e)
                 return False
 
         return True

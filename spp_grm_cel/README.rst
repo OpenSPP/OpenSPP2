@@ -10,17 +10,14 @@ OpenSPP GRM: CEL Rules
    !! source digest: sha256:f87ce3d23f64be61d2f167330338adc82add72cd29b6a407ab0860679a32e50c
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/maturity-Alpha-red.png
-    :target: https://odoo-community.org/page/development-status
-    :alt: Alpha
-.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2Fopenspp--modules-lightgray.png?logo=github
-    :target: https://github.com/OpenSPP/openspp-modules/tree/19.0/spp_grm_cel
-    :alt: OpenSPP/openspp-modules
+.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+    :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_grm_cel
+    :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2| |badge3|
+|badge1| |badge2|
 
 Automates GRM ticket routing and escalation using CEL (Common Expression
 Language) expressions. Routing rules assign new tickets to teams and
@@ -46,21 +43,21 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+-------------------------------+-------------------------------------+
-| Model                         | Description                         |
-+===============================+=====================================+
-| ``spp.grm.routing.rule``      | Routing rule with CEL condition     |
-|                               | that assigns tickets to teams/users |
-|                               | (first match wins)                  |
-+-------------------------------+-------------------------------------+
-| ``spp.grm.escalation.rule``   | Escalation rule with CEL condition  |
-|                               | and time trigger that escalates     |
-|                               | tickets                             |
-+-------------------------------+-------------------------------------+
-| ``spp.grm.ticket`` (extended) | Adds ``routing_rule_id`` and        |
-|                               | ``escalation_rule_ids`` fields to   |
-|                               | track applied rules                 |
-+-------------------------------+-------------------------------------+
++-------------------------------+--------------------------------------+
+| Model                         | Description                          |
++===============================+======================================+
+| ``spp.grm.routing.rule``      | Routing rule with CEL condition that |
+|                               | assigns tickets to teams/users       |
+|                               | (first match wins)                   |
++-------------------------------+--------------------------------------+
+| ``spp.grm.escalation.rule``   | Escalation rule with CEL condition   |
+|                               | and time trigger that escalates      |
+|                               | tickets                              |
++-------------------------------+--------------------------------------+
+| ``spp.grm.ticket`` (extended) | Adds ``routing_rule_id`` and         |
+|                               | ``escalation_rule_ids`` fields to    |
+|                               | track applied rules                  |
++-------------------------------+--------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -116,10 +113,6 @@ Dependencies
 
 ``spp_security``, ``spp_grm``, ``spp_cel_domain``, ``spp_case_base``
 
-.. IMPORTANT::
-   This is an alpha version, the data model and design can change at any time without warning.
-   Only for development or testing purpose, do not use in production.
-
 **Table of contents**
 
 .. contents::
@@ -128,10 +121,10 @@ Dependencies
 Bug Tracker
 ===========
 
-Bugs are tracked on `GitHub Issues <https://github.com/OpenSPP/openspp-modules/issues>`_.
+Bugs are tracked on `GitHub Issues <https://github.com/OpenSPP/OpenSPP2/issues>`_.
 In case of trouble, please check there if your issue has already been reported.
 If you spotted it first, help us to smash it by providing a detailed and welcomed
-`feedback <https://github.com/OpenSPP/openspp-modules/issues/new?body=module:%20spp_grm_cel%0Aversion:%2019.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**>`_.
+`feedback <https://github.com/OpenSPP/OpenSPP2/issues/new?body=module:%20spp_grm_cel%0Aversion:%2019.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**>`_.
 
 Do not contact contributors directly about support or help with technical issues.
 
@@ -141,11 +134,25 @@ Credits
 Authors
 -------
 
-* OpenSPP Community
+* OpenSPP.org
 
 Maintainers
 -----------
 
-This module is part of the `OpenSPP/openspp-modules <https://github.com/OpenSPP/openspp-modules/tree/19.0/spp_grm_cel>`_ project on GitHub.
+.. |maintainer-jeremi| image:: https://github.com/jeremi.png?size=40px
+    :target: https://github.com/jeremi
+    :alt: jeremi
+.. |maintainer-gonzalesedwin1123| image:: https://github.com/gonzalesedwin1123.png?size=40px
+    :target: https://github.com/gonzalesedwin1123
+    :alt: gonzalesedwin1123
+.. |maintainer-emjay0921| image:: https://github.com/emjay0921.png?size=40px
+    :target: https://github.com/emjay0921
+    :alt: emjay0921
+
+Current maintainers:
+
+|maintainer-jeremi| |maintainer-gonzalesedwin1123| |maintainer-emjay0921| 
+
+This module is part of the `OpenSPP/OpenSPP2 <https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_grm_cel>`_ project on GitHub.
 
 You are welcome to contribute.

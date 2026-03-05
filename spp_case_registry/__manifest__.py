@@ -5,7 +5,7 @@
     "version": "19.0.1.0.0",
     "sequence": 1,
     "author": "OpenSPP.org",
-    "website": "https://github.com/OpenSPP/openspp-modules",
+    "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
     "development_status": "Stable",
     "maintainers": ["jeremi", "gonzalesedwin1123", "emjay0921"],

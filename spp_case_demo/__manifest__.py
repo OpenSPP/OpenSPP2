@@ -7,7 +7,7 @@
     "category": "OpenSPP",
     "summary": "Demo data generator for Case Management",
     "author": "OpenSPP.org",
-    "website": "https://github.com/OpenSPP/openspp-modules",
+    "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
     "development_status": "Stable",
     "maintainers": ["jeremi", "gonzalesedwin1123", "emjay0921"],

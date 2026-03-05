@@ -9,7 +9,7 @@
     "development_status": "Stable",
     "maintainers": ["jeremi", "gonzalesedwin1123", "emjay0921"],
     "author": "OpenSPP.org",
-    "website": "https://github.com/OpenSPP/openspp-modules",
+    "website": "https://github.com/OpenSPP/OpenSPP2",
     "category": "OpenSPP/Monitoring",
     "depends": [
         "spp_security",

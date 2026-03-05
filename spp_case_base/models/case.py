@@ -397,13 +397,19 @@ class Case(models.Model):
 
             # Check if plan is required
             if case.stage_id.is_requires_plan and not case.has_active_plan:
-                raise ValidationError(f"Stage '{case.stage_id.name}' requires an approved intervention plan.")
+                raise ValidationError(
+                    _("Stage '%(stage)s' requires an approved intervention plan.", stage=case.stage_id.name)
+                )
 
             # Check minimum intensity level
             if case.stage_id.min_intensity:
                 if int(case.intensity_level) < int(case.stage_id.min_intensity):
                     raise ValidationError(
-                        f"Stage '{case.stage_id.name}' requires minimum intensity level {case.stage_id.min_intensity}."
+                        _(
+                            "Stage '%(stage)s' requires minimum intensity level %(level)s.",
+                            stage=case.stage_id.name,
+                            level=case.stage_id.min_intensity,
+                        )
                     )
 
     def action_close_case(self):
@@ -411,7 +417,7 @@ class Case(models.Model):
         self.ensure_one()
         closed_stage = self.env["spp.case.stage"].search([("is_closed", "=", True)], limit=1)
         if not closed_stage:
-            raise ValidationError("No closed stage found. Please configure a closed stage.")
+            raise ValidationError(_("No closed stage found. Please configure a closed stage."))
         self.write(
             {
                 "stage_id": closed_stage.id,
@@ -425,7 +431,7 @@ class Case(models.Model):
         self.ensure_one()
         intake_stage = self.env["spp.case.stage"].search([("phase", "=", "intake"), ("is_closed", "=", False)], limit=1)
         if not intake_stage:
-            raise ValidationError("No intake stage found. Please configure an intake stage.")
+            raise ValidationError(_("No intake stage found. Please configure an intake stage."))
         self.write(
             {
                 "stage_id": intake_stage.id,

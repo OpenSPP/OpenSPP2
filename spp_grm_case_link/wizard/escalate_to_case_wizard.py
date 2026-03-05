@@ -186,18 +186,25 @@ class EscalateToCaseWizard(models.TransientModel):
                 )
 
         # Post messages
-        ticket_message = f"Ticket escalated to Case <a href='/web#id={case.id}&model=spp.case'>{case.name}</a>"
+        ticket_message = _(
+            "Ticket escalated to Case <a href='/web#id=%(case_id)s&model=spp.case'>%(case_name)s</a>",
+            case_id=case.id,
+            case_name=case.name,
+        )
         if self.notes:
-            ticket_message += f"<br/><strong>Notes:</strong> {self.notes}"
+            ticket_message += "<br/><strong>{}</strong> {}".format(_("Notes:"), self.notes)
         self.ticket_id.message_post(
             body=ticket_message,
             subtype_xmlid="mail.mt_note",
         )
 
         case.message_post(
-            body=(
-                f"Case created from GRM Ticket <a href='/web#id={self.ticket_id.id}&model=spp.grm.ticket'>"
-                f"{self.ticket_id.number}</a>: {self.ticket_id.name}"
+            body=_(
+                "Case created from GRM Ticket "
+                "<a href='/web#id=%(ticket_id)s&model=spp.grm.ticket'>%(ticket_number)s</a>: %(ticket_name)s",
+                ticket_id=self.ticket_id.id,
+                ticket_number=self.ticket_id.number,
+                ticket_name=self.ticket_id.name,
             ),
             subtype_xmlid="mail.mt_note",
         )

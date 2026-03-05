@@ -1,6 +1,6 @@
 """Case Assessment Model."""
 
-from odoo import api, fields, models
+from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
 
@@ -194,13 +194,13 @@ class CaseAssessment(models.Model):
         """Validate risk score is between 0 and 100."""
         for assessment in self:
             if assessment.risk_score and (assessment.risk_score < 0 or assessment.risk_score > 100):
-                raise UserError("Risk score must be between 0 and 100.")
+                raise UserError(_("Risk score must be between 0 and 100."))
 
     def action_complete(self):
         """Move assessment from draft to completed."""
         for assessment in self:
             if assessment.state != "draft":
-                raise UserError("Only draft assessments can be completed.")
+                raise UserError(_("Only draft assessments can be completed."))
             assessment.write({"state": "completed"})
         return True
 
@@ -211,12 +211,12 @@ class CaseAssessment(models.Model):
         """
         for assessment in self:
             if assessment.state != "completed":
-                raise UserError("Only completed assessments can be reviewed.")
+                raise UserError(_("Only completed assessments can be reviewed."))
 
             # Check if current user is a supervisor
             supervisor_group = self.env.ref("spp_case_base.group_case_supervisor", raise_if_not_found=False)
             if supervisor_group and supervisor_group not in self.env.user.group_ids:
-                raise UserError("Only supervisors can review assessments.")
+                raise UserError(_("Only supervisors can review assessments."))
 
             assessment.write(
                 {
@@ -231,7 +231,7 @@ class CaseAssessment(models.Model):
         """Reset assessment to draft state."""
         for assessment in self:
             if assessment.state == "reviewed":
-                raise UserError("Reviewed assessments cannot be reset to draft.")
+                raise UserError(_("Reviewed assessments cannot be reset to draft."))
             assessment.write(
                 {
                     "state": "draft",

@@ -2,34 +2,39 @@
 
 ## Overview
 
-This module provides a comprehensive demo data generator for the OpenSPP Grievance Redress Mechanism (GRM). It uses the
-scenario-based system to create realistic ticket data that simulates real-world grievance cases.
+This module provides a comprehensive demo data generator for the OpenSPP Grievance
+Redress Mechanism (GRM). It uses the scenario-based system to create realistic ticket
+data that simulates real-world grievance cases.
 
 ## Features
 
-- **Scenario-Based Generation**: Leverages YAML scenario files to generate diverse, realistic GRM tickets
+- **Scenario-Based Generation**: Leverages YAML scenario files to generate diverse,
+  realistic GRM tickets
 - **Configurable Distribution**: Control the percentage of resolved vs. open tickets
 - **Workflow Simulation**: Automatically progresses tickets through resolution workflows
 - **Integration**: Links tickets to existing beneficiaries and programs
 - **Timeline Flexibility**: Generate tickets distributed over a customizable time period
-- **Multiple Categories**: Supports various ticket categories including payments, eligibility, service delivery, and
-  more
+- **Multiple Categories**: Supports various ticket categories including payments,
+  eligibility, service delivery, and more
 
 ## Dependencies
 
 - `spp_demo` - Consolidated demo module (creates registrants, programs)
 - `spp_grm` - Grievance Redress Mechanism module
-- `spp_grm_registry` - GRM registry integration (registrant/household linking, repeat detection)
+- `spp_grm_registry` - GRM registry integration (registrant/household linking, repeat
+  detection)
 - `spp_grm_programs` - GRM program integration (program/entitlement linking)
 - `spp_security` - Security roles and access control
 
-Optional: `spp_demo_scenarios` - Scenario library and loader (not required; falls back to built-in samples)
+Optional: `spp_demo_scenarios` - Scenario library and loader (not required; falls back
+to built-in samples)
 
 ## Installation
 
 1. Install the module through Odoo Apps menu
 2. The module will automatically create basic ticket categories
-3. If installed, `spp_demo_scenarios` scenarios will be used; otherwise built-in samples are used automatically
+3. If installed, `spp_demo_scenarios` scenarios will be used; otherwise built-in samples
+   are used automatically
 
 ## Usage
 
@@ -37,7 +42,6 @@ Optional: `spp_demo_scenarios` - Scenario library and loader (not required; fall
 
 1. Navigate to **GRM → Generate Demo Data** menu
 2. Configure the generation parameters:
-
    - **Number of Tickets**: How many tickets to generate (1-10,000)
    - **Days Back**: Distribute tickets over the last N days
    - **Scenarios**: Select specific scenarios or use all available
@@ -70,7 +74,8 @@ action = generator.generate_tickets()
 
 ## Scenarios
 
-If present, the module can consume scenario files from `spp_demo_scenarios/scenarios/grm/` which define:
+If present, the module can consume scenario files from
+`spp_demo_scenarios/scenarios/grm/` which define:
 
 - **Ticket Profiles**: Category, priority, expected resolution time
 - **Description Templates**: Realistic ticket descriptions with placeholders
@@ -82,24 +87,19 @@ If present, the module can consume scenario files from `spp_demo_scenarios/scena
 The following scenarios are included:
 
 - **Payment Issues**
-
   - `payment_not_received.yaml` - Beneficiary didn't receive payment
   - `payment_wrong_amount.yaml` - Incorrect payment amount
 
 - **Eligibility Disputes**
-
   - `eligibility_dispute.yaml` - Questioning eligibility decisions
 
 - **Service Quality**
-
   - `service_quality.yaml` - Complaints about service delivery
 
 - **Information Requests**
-
   - `information_request.yaml` - General information queries
 
 - **Data Updates**
-
   - `update_personal_info.yaml` - Requests to update beneficiary data
 
 - **Case Escalations**
@@ -110,7 +110,8 @@ The following scenarios are included:
 
 ### Shared Personas with MIS and Case Management
 
-The GRM demo uses the same personas as `spp_mis_demo_v2` and `spp_case_demo` for consistent cross-module demos:
+The GRM demo uses the same personas as `spp_mis_demo_v2` and `spp_case_demo` for
+consistent cross-module demos:
 
 | Persona          | GRM Ticket                | MIS Program              | Case                     |
 | ---------------- | ------------------------- | ------------------------ | ------------------------ |
@@ -125,15 +126,19 @@ The GRM demo uses the same personas as `spp_mis_demo_v2` and `spp_case_demo` for
 
 ### Repeat Ticket Detection
 
-The demo generator creates realistic repeat ticket patterns for the `spp_grm_registry` repeat detection feature:
+The demo generator creates realistic repeat ticket patterns for the `spp_grm_registry`
+repeat detection feature:
 
-- **Repeat Pool**: ~10% of beneficiaries are selected as "repeat filers" who get assigned to multiple tickets
-- **Biased Selection**: ~30% of volume tickets are assigned from the repeat pool, ensuring some registrants have 2-5+
-  tickets within 6 months
-- **Registry Fields**: When `spp_grm_registry` is installed, tickets automatically get `registrant_id`, `household_id`,
-  and `area_id` populated
-- **Story Repeats**: Ahmed Said has 3 story tickets, demonstrating a repeat filer pattern
-- **Previous Tickets Tab**: Repeat tickets show a "Previous Tickets" tab and stat button on the ticket form
+- **Repeat Pool**: ~10% of beneficiaries are selected as "repeat filers" who get
+  assigned to multiple tickets
+- **Biased Selection**: ~30% of volume tickets are assigned from the repeat pool,
+  ensuring some registrants have 2-5+ tickets within 6 months
+- **Registry Fields**: When `spp_grm_registry` is installed, tickets automatically get
+  `registrant_id`, `household_id`, and `area_id` populated
+- **Story Repeats**: Ahmed Said has 3 story tickets, demonstrating a repeat filer
+  pattern
+- **Previous Tickets Tab**: Repeat tickets show a "Previous Tickets" tab and stat button
+  on the ticket form
 
 This makes the following features visible in the demo:
 
@@ -145,9 +150,11 @@ This makes the following features visible in the demo:
 
 ### GRM-to-Case Escalation
 
-Story tickets can be marked for case escalation (`escalate_to_case: True`), demonstrating:
+Story tickets can be marked for case escalation (`escalate_to_case: True`),
+demonstrating:
 
-- **Payment Issues**: Juan Dela Cruz emergency → Case management for comprehensive support
+- **Payment Issues**: Juan Dela Cruz emergency → Case management for comprehensive
+  support
 - **Eligibility Inquiries**: Fatima Al-Rahman → Proactive case assessment
 - **Complex Needs**: Ibrahim Hassan resettlement → Multi-service coordination
 - **Pattern Detection**: Ahmed Said repeat tickets → Root cause case management
@@ -167,21 +174,18 @@ For comprehensive cross-module demos:
 For each ticket, the generator creates:
 
 1. **Basic Ticket Information**
-
    - Title (derived from scenario)
    - Description (from scenario templates with realistic data)
    - Creation date (random within specified range)
    - Priority (based on scenario profile)
 
 2. **Links and References**
-
    - Beneficiary (random registrant)
    - Program (if applicable)
    - Category (from scenario)
    - Channel (random submission channel)
 
 3. **Workflow Progression**
-
    - Resolution notes (for closed tickets)
    - Escalation notes (for escalated tickets)
    - Assignment to users
@@ -211,23 +215,24 @@ These can be extended or modified through the GRM configuration.
 
 ### Scenario Selection
 
-You can select specific scenarios in the wizard, or leave the selection empty to use all available GRM ticket scenarios.
-The generator uses weighted random selection based on the `weight` field in each scenario file.
+You can select specific scenarios in the wizard, or leave the selection empty to use all
+available GRM ticket scenarios. The generator uses weighted random selection based on
+the `weight` field in each scenario file.
 
 ## Prerequisites
 
 Before generating GRM demo data:
 
-1. **Beneficiaries Required**: The system must have registrants (beneficiaries) created. Use the base demo data
-   generator to create registrants first.
+1. **Beneficiaries Required**: The system must have registrants (beneficiaries) created.
+   Use the base demo data generator to create registrants first.
 
 2. **GRM Configuration**: Ensure the GRM module is properly configured with:
-
    - Ticket stages
    - Ticket channels (email, phone, portal, etc.)
    - Basic GRM settings
 
-3. **Optional Programs**: If linking to programs, create some programs first using the program management module.
+3. **Optional Programs**: If linking to programs, create some programs first using the
+   program management module.
 
 ## Technical Details
 
@@ -250,7 +255,6 @@ The generator simulates realistic ticket workflows:
 1. **Creation**: Ticket created with random date in range
 2. **Assignment**: May be assigned to a user
 3. **Resolution** (for resolved tickets):
-
    - Selects resolution path from scenario
    - Adds notes for each resolution step
    - Moves to closed stage
@@ -265,7 +269,6 @@ The generator simulates realistic ticket workflows:
 ### No tickets generated
 
 - **Error**: "No beneficiaries (registrants) found"
-
   - **Solution**: Create registrants first using `spp_base_demo` or similar
 
 - **Error**: "No scenarios found"
@@ -285,7 +288,8 @@ The generator simulates realistic ticket workflows:
 
 To add new scenarios:
 
-1. If you want custom scenarios, create a YAML file in `spp_demo_scenarios/scenarios/grm/`
+1. If you want custom scenarios, create a YAML file in
+   `spp_demo_scenarios/scenarios/grm/`
 2. Follow the scenario schema (see `spp_demo_common/lib/scenario_schema.py`)
 3. Set `category: grm_ticket` in the scenario file
 4. Include realistic description templates

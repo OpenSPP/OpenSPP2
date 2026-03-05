@@ -1,6 +1,6 @@
 """Case Referral Model."""
 
-from odoo import api, fields, models
+from odoo import _, api, fields, models
 
 
 class CaseReferral(models.Model):
@@ -140,7 +140,7 @@ class CaseReferral(models.Model):
         for referral in referrals:
             if referral.case_id:
                 referral.case_id.message_post(
-                    body=f"Referral created to {referral.service_name}",
-                    subject="New Referral",
+                    body=_("Referral created to %(service)s", service=referral.service_name),
+                    subject=_("New Referral"),
                 )
         return referrals

@@ -10,17 +10,14 @@ OpenSPP GRM Case Link
    !! source digest: sha256:cd1815836f65d0aa4a0e21cae5adf52d8721d14973a9044d8282225bcb5646d9
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/maturity-Alpha-red.png
-    :target: https://odoo-community.org/page/development-status
-    :alt: Alpha
-.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2Fopenspp--modules-lightgray.png?logo=github
-    :target: https://github.com/OpenSPP/openspp-modules/tree/19.0/spp_grm_case_link
-    :alt: OpenSPP/openspp-modules
+.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+    :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_grm_case_link
+    :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2| |badge3|
+|badge1| |badge2|
 
 Connects Grievance Redress Mechanism (GRM) tickets with Case Management
 cases to enable escalation workflows. When a ticket requires intensive
@@ -47,18 +44,18 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+-------------------------------+-------------------------------------+
-| Model                         | Description                         |
-+===============================+=====================================+
-| ``spp.grm.escalate.wizard``   | Transient wizard to configure and   |
-|                               | execute escalation                  |
-+-------------------------------+-------------------------------------+
-| ``spp.grm.ticket`` (extended) | Adds ``case_id`` field and          |
-|                               | escalation/view case actions        |
-+-------------------------------+-------------------------------------+
-| ``spp.case`` (extended)       | Adds ``source_grm_ticket_id``,      |
-|                               | ``grm_ticket_ids``, and count       |
-+-------------------------------+-------------------------------------+
++-------------------------------+--------------------------------------+
+| Model                         | Description                          |
++===============================+======================================+
+| ``spp.grm.escalate.wizard``   | Transient wizard to configure and    |
+|                               | execute escalation                   |
++-------------------------------+--------------------------------------+
+| ``spp.grm.ticket`` (extended) | Adds ``case_id`` field and           |
+|                               | escalation/view case actions         |
++-------------------------------+--------------------------------------+
+| ``spp.case`` (extended)       | Adds ``source_grm_ticket_id``,       |
+|                               | ``grm_ticket_ids``, and count        |
++-------------------------------+--------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -116,10 +113,6 @@ Dependencies
 
 ``spp_security``, ``spp_grm``, ``spp_case_base``
 
-.. IMPORTANT::
-   This is an alpha version, the data model and design can change at any time without warning.
-   Only for development or testing purpose, do not use in production.
-
 **Table of contents**
 
 .. contents::
@@ -128,10 +121,10 @@ Dependencies
 Bug Tracker
 ===========
 
-Bugs are tracked on `GitHub Issues <https://github.com/OpenSPP/openspp-modules/issues>`_.
+Bugs are tracked on `GitHub Issues <https://github.com/OpenSPP/OpenSPP2/issues>`_.
 In case of trouble, please check there if your issue has already been reported.
 If you spotted it first, help us to smash it by providing a detailed and welcomed
-`feedback <https://github.com/OpenSPP/openspp-modules/issues/new?body=module:%20spp_grm_case_link%0Aversion:%2019.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**>`_.
+`feedback <https://github.com/OpenSPP/OpenSPP2/issues/new?body=module:%20spp_grm_case_link%0Aversion:%2019.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**>`_.
 
 Do not contact contributors directly about support or help with technical issues.
 
@@ -141,11 +134,25 @@ Credits
 Authors
 -------
 
-* OpenSPP
+* OpenSPP.org
 
 Maintainers
 -----------
 
-This module is part of the `OpenSPP/openspp-modules <https://github.com/OpenSPP/openspp-modules/tree/19.0/spp_grm_case_link>`_ project on GitHub.
+.. |maintainer-jeremi| image:: https://github.com/jeremi.png?size=40px
+    :target: https://github.com/jeremi
+    :alt: jeremi
+.. |maintainer-gonzalesedwin1123| image:: https://github.com/gonzalesedwin1123.png?size=40px
+    :target: https://github.com/gonzalesedwin1123
+    :alt: gonzalesedwin1123
+.. |maintainer-emjay0921| image:: https://github.com/emjay0921.png?size=40px
+    :target: https://github.com/emjay0921
+    :alt: emjay0921
+
+Current maintainers:
+
+|maintainer-jeremi| |maintainer-gonzalesedwin1123| |maintainer-emjay0921| 
+
+This module is part of the `OpenSPP/OpenSPP2 <https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_grm_case_link>`_ project on GitHub.
 
 You are welcome to contribute.

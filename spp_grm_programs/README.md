@@ -1,7 +1,7 @@
 # OpenSPP GRM Programs Integration
 
-This module integrates the OpenSPP Grievance Redress Mechanism (GRM) with the Programs module, allowing GRM tickets to
-be linked to programs, entitlements, and payments.
+This module integrates the OpenSPP Grievance Redress Mechanism (GRM) with the Programs
+module, allowing GRM tickets to be linked to programs, entitlements, and payments.
 
 ## Features
 
@@ -15,10 +15,12 @@ be linked to programs, entitlements, and payments.
 
 ### Auto-fill Functionality
 
-- When a registrant and program are selected, automatically finds and suggests the program membership
+- When a registrant and program are selected, automatically finds and suggests the
+  program membership
 - When a membership is selected, automatically fills the program and registrant
 - When a cycle is selected, automatically fills the program
-- When an entitlement is selected, automatically fills the cycle, program, and registrant
+- When an entitlement is selected, automatically fills the cycle, program, and
+  registrant
 - When a payment is selected, automatically fills the entitlement, cycle, and registrant
 
 ### Computed Information
@@ -52,7 +54,8 @@ be linked to programs, entitlements, and payments.
 
 ### Viewing Related Records
 
-- Use the stat buttons in the ticket header to quickly navigate to the related program, entitlement, or payment
+- Use the stat buttons in the ticket header to quickly navigate to the related program,
+  entitlement, or payment
 - The computed fields show key information without needing to open the related records
 
 ### Filtering and Grouping

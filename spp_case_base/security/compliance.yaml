@@ -44,13 +44,17 @@ groups:
     tier: 2
     privilege_id: privilege_case_user
     implied_ids: [group_case_viewer]
-    comment: "SPECIALIZED ROLE: Manage own cases and case activities. Between Viewer and Officer."
+    comment:
+      "SPECIALIZED ROLE: Manage own cases and case activities. Between Viewer and
+      Officer."
 
   - id: group_case_supervisor
     tier: 2
     privilege_id: privilege_case_supervisor
     implied_ids: [group_case_worker]
-    comment: "SPECIALIZED ROLE: Supervise team cases and approve plans. Between Officer and Manager."
+    comment:
+      "SPECIALIZED ROLE: Supervise team cases and approve plans. Between Officer and
+      Manager."
 
   - id: group_case_manager
     tier: 2
@@ -183,7 +187,8 @@ record_rules:
     perm_create: true
     perm_unlink: false
     domain_pattern: team_records
-    domain: "['|', ('supervisor_id', '=', user.id), ('team_id.supervisor_id', '=', user.id)]"
+    domain:
+      "['|', ('supervisor_id', '=', user.id), ('team_id.supervisor_id', '=', user.id)]"
     domain_field: supervisor_id
 
   # Case access - manager sees all

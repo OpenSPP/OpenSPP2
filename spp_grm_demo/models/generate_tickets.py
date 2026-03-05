@@ -540,7 +540,7 @@ class SPPGRMDemoGenerator(models.TransientModel):
         for i, note in enumerate(notes):
             note_date = ticket_date + timedelta(days=int((i + 1) * resolution_days / (len(notes) + 1)))
             ticket.sudo().message_post(
-                body=f"<p>{note.get('text', '')}</p>",
+                body="<p>{}</p>".format(note.get("text", "")),
                 message_type="comment",
                 subtype_xmlid="mail.mt_note",
             )
@@ -752,7 +752,7 @@ class SPPGRMDemoGenerator(models.TransientModel):
         case_type = escalation.get("case_type", "general_investigation")
 
         ticket.sudo().message_post(
-            body=f"<p>Ticket escalated to case management ({case_type})</p>",
+            body=_("<p>Ticket escalated to case management (%(case_type)s)</p>", case_type=case_type),
             message_type="comment",
             subtype_xmlid="mail.mt_note",
         )

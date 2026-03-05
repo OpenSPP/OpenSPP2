@@ -10,17 +10,14 @@ OpenSPP Case Management Base
    !! source digest: sha256:e58edc2517398a8339ded8ff8bf1eb6b07df10f996637a160c55d36dbf41b8a6
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/maturity-Alpha-red.png
-    :target: https://odoo-community.org/page/development-status
-    :alt: Alpha
-.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge1| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2Fopenspp--modules-lightgray.png?logo=github
-    :target: https://github.com/OpenSPP/openspp-modules/tree/19.0/spp_case_base
-    :alt: OpenSPP/openspp-modules
+.. |badge2| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
+    :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_case_base
+    :alt: OpenSPP/OpenSPP2
 
-|badge1| |badge2| |badge3|
+|badge1| |badge2|
 
 Case management system for social protection programs. Tracks cases from
 intake through assessment, intervention planning, and closure with
@@ -45,43 +42,42 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+--------------------------------+------------------------------------+
-| Model                          | Description                        |
-+================================+====================================+
-| ``spp.case``                   | Core case record with client and   |
-|                                | assignment                         |
-+--------------------------------+------------------------------------+
-| ``spp.case.type``              | Case type with default intensity   |
-|                                | and caseload                       |
-+--------------------------------+------------------------------------+
-| ``spp.case.stage``             | Workflow stage with phase and      |
-|                                | requirements                       |
-+--------------------------------+------------------------------------+
-| ``spp.case.assessment``        | Assessment with risk score and     |
-|                                | findings                           |
-+--------------------------------+------------------------------------+
-| ``spp.case.intervention.plan`` | Versioned plan with approval       |
-|                                | workflow                           |
-+--------------------------------+------------------------------------+
-| ``spp.case.intervention``      | Individual intervention with       |
-|                                | status tracking                    |
-+--------------------------------+------------------------------------+
-| ``spp.case.visit``             | Client visit with type and notes   |
-+--------------------------------+------------------------------------+
-| ``spp.case.note``              | Case note with confidentiality     |
-|                                | flag                               |
-+--------------------------------+------------------------------------+
-| ``spp.case.referral``          | External service referral with     |
-|                                | status                             |
-+--------------------------------+------------------------------------+
-| ``spp.case.team``              | Team with supervisor and members   |
-+--------------------------------+------------------------------------+
-| ``spp.case.risk.factor``       | Risk factor with severity weight   |
-+--------------------------------+------------------------------------+
-| ``spp.case.vulnerability``     | Vulnerability for assessment       |
-+--------------------------------+------------------------------------+
-| ``spp.case.closure.reason``    | Closure reason with outcome type   |
-+--------------------------------+------------------------------------+
++--------------------------------+-------------------------------------+
+| Model                          | Description                         |
++================================+=====================================+
+| ``spp.case``                   | Core case record with client and    |
+|                                | assignment                          |
++--------------------------------+-------------------------------------+
+| ``spp.case.type``              | Case type with default intensity    |
+|                                | and caseload                        |
++--------------------------------+-------------------------------------+
+| ``spp.case.stage``             | Workflow stage with phase and       |
+|                                | requirements                        |
++--------------------------------+-------------------------------------+
+| ``spp.case.assessment``        | Assessment with risk score and      |
+|                                | findings                            |
++--------------------------------+-------------------------------------+
+| ``spp.case.intervention.plan`` | Versioned plan with approval        |
+|                                | workflow                            |
++--------------------------------+-------------------------------------+
+| ``spp.case.intervention``      | Individual intervention with status |
+|                                | tracking                            |
++--------------------------------+-------------------------------------+
+| ``spp.case.visit``             | Client visit with type and notes    |
++--------------------------------+-------------------------------------+
+| ``spp.case.note``              | Case note with confidentiality flag |
++--------------------------------+-------------------------------------+
+| ``spp.case.referral``          | External service referral with      |
+|                                | status                              |
++--------------------------------+-------------------------------------+
+| ``spp.case.team``              | Team with supervisor and members    |
++--------------------------------+-------------------------------------+
+| ``spp.case.risk.factor``       | Risk factor with severity weight    |
++--------------------------------+-------------------------------------+
+| ``spp.case.vulnerability``     | Vulnerability for assessment        |
++--------------------------------+-------------------------------------+
+| ``spp.case.closure.reason``    | Closure reason with outcome type    |
++--------------------------------+-------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -144,10 +140,6 @@ Dependencies
 
 ``base``, ``mail``, ``portal``, ``spp_security``
 
-.. IMPORTANT::
-   This is an alpha version, the data model and design can change at any time without warning.
-   Only for development or testing purpose, do not use in production.
-
 **Table of contents**
 
 .. contents::
@@ -156,10 +148,10 @@ Dependencies
 Bug Tracker
 ===========
 
-Bugs are tracked on `GitHub Issues <https://github.com/OpenSPP/openspp-modules/issues>`_.
+Bugs are tracked on `GitHub Issues <https://github.com/OpenSPP/OpenSPP2/issues>`_.
 In case of trouble, please check there if your issue has already been reported.
 If you spotted it first, help us to smash it by providing a detailed and welcomed
-`feedback <https://github.com/OpenSPP/openspp-modules/issues/new?body=module:%20spp_case_base%0Aversion:%2019.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**>`_.
+`feedback <https://github.com/OpenSPP/OpenSPP2/issues/new?body=module:%20spp_case_base%0Aversion:%2019.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**>`_.
 
 Do not contact contributors directly about support or help with technical issues.
 
@@ -169,11 +161,25 @@ Credits
 Authors
 -------
 
-* OpenSPP
+* OpenSPP.org
 
 Maintainers
 -----------
 
-This module is part of the `OpenSPP/openspp-modules <https://github.com/OpenSPP/openspp-modules/tree/19.0/spp_case_base>`_ project on GitHub.
+.. |maintainer-jeremi| image:: https://github.com/jeremi.png?size=40px
+    :target: https://github.com/jeremi
+    :alt: jeremi
+.. |maintainer-gonzalesedwin1123| image:: https://github.com/gonzalesedwin1123.png?size=40px
+    :target: https://github.com/gonzalesedwin1123
+    :alt: gonzalesedwin1123
+.. |maintainer-emjay0921| image:: https://github.com/emjay0921.png?size=40px
+    :target: https://github.com/emjay0921
+    :alt: emjay0921
+
+Current maintainers:
+
+|maintainer-jeremi| |maintainer-gonzalesedwin1123| |maintainer-emjay0921| 
+
+This module is part of the `OpenSPP/OpenSPP2 <https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_case_base>`_ project on GitHub.
 
 You are welcome to contribute.

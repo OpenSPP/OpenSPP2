@@ -6,7 +6,7 @@
     "version": "19.0.1.3.1",
     "sequence": 1,
     "author": "OpenSPP.org",
-    "website": "https://github.com/OpenSPP/openspp-modules",
+    "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
     "development_status": "Stable",
     "category": "OpenSPP/Monitoring",

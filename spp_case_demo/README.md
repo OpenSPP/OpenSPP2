@@ -2,14 +2,16 @@
 
 ## Overview
 
-This module provides demo data generation for the OpenSPP Case Management system. It creates realistic case management
-scenarios that integrate with MIS programs (spp_mis_demo_v2) and GRM tickets (spp_grm_demo) for comprehensive
-cross-module demonstrations.
+This module provides demo data generation for the OpenSPP Case Management system. It
+creates realistic case management scenarios that integrate with MIS programs
+(spp_mis_demo_v2) and GRM tickets (spp_grm_demo) for comprehensive cross-module
+demonstrations.
 
 ## Features
 
 - **Story-Based Cases**: 9 predefined case stories with memorable personas
-- **Complete Case Lifecycle**: Intake → Assessment → Planning → Implementation → Monitoring → Closure
+- **Complete Case Lifecycle**: Intake → Assessment → Planning → Implementation →
+  Monitoring → Closure
 - **Cross-Module Integration**: Cases linked to MIS programs and GRM tickets
 - **Intervention Plans**: Multi-service coordination with referrals
 - **Home Visits & Notes**: Realistic case activity documentation

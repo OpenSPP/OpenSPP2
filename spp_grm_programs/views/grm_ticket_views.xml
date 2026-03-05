@@ -5,6 +5,7 @@
         <field name="name">spp.grm.ticket.form.programs</field>
         <field name="model">spp.grm.ticket</field>
         <field name="inherit_id" ref="spp_grm.ticket_view_form" />
+        <field name="priority">99</field>
         <field name="arch" type="xml">
             <!-- Add program stat buttons in button box -->
             <xpath expr="//div[@name='button_box']" position="inside">
