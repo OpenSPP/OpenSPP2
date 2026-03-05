@@ -6,11 +6,11 @@
         <field name="model">spp.session.topic</field>
         <field name="arch" type="xml">
             <list editable="bottom">
-                <field name="sequence" widget="handle"/>
-                <field name="code"/>
-                <field name="name"/>
-                <field name="description"/>
-                <field name="active"/>
+                <field name="sequence" widget="handle" />
+                <field name="code" />
+                <field name="name" />
+                <field name="description" />
+                <field name="active" />
             </list>
         </field>
     </record>
@@ -29,29 +29,36 @@
                             class="oe_stat_button"
                             icon="fa-calendar"
                         >
-                            <field name="session_count" widget="statinfo" string="Sessions"/>
+                            <field
+                                name="session_count"
+                                widget="statinfo"
+                                string="Sessions"
+                            />
                         </button>
                     </div>
                     <group>
                         <group>
-                            <field name="name"/>
-                            <field name="code"/>
-                            <field name="frequency"/>
-                            <field name="active"/>
+                            <field name="name" />
+                            <field name="code" />
+                            <field name="frequency" />
+                            <field name="active" />
                         </group>
                         <group>
-                            <field name="duration_hours"/>
-                            <field name="required_attendance_pct"/>
-                            <field name="track_topics"/>
-                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="duration_hours" />
+                            <field name="required_attendance_pct" />
+                            <field name="track_topics" />
+                            <field
+                                name="company_id"
+                                groups="base.group_multi_company"
+                            />
                         </group>
                     </group>
                     <notebook>
                         <page string="Description">
-                            <field name="description"/>
+                            <field name="description" />
                         </page>
                         <page string="Topics" invisible="not track_topics">
-                            <field name="topic_ids"/>
+                            <field name="topic_ids" />
                         </page>
                     </notebook>
                 </sheet>
@@ -65,13 +72,13 @@
         <field name="model">spp.session.type</field>
         <field name="arch" type="xml">
             <list>
-                <field name="name"/>
-                <field name="code"/>
-                <field name="frequency"/>
-                <field name="duration_hours"/>
-                <field name="required_attendance_pct"/>
-                <field name="session_count"/>
-                <field name="active"/>
+                <field name="name" />
+                <field name="code" />
+                <field name="frequency" />
+                <field name="duration_hours" />
+                <field name="required_attendance_pct" />
+                <field name="session_count" />
+                <field name="active" />
             </list>
         </field>
     </record>
@@ -82,12 +89,24 @@
         <field name="model">spp.session.type</field>
         <field name="arch" type="xml">
             <search>
-                <field name="name"/>
-                <field name="code"/>
-                <filter string="Active" name="active" domain="[('active', '=', True)]"/>
-                <filter string="Inactive" name="inactive" domain="[('active', '=', False)]"/>
+                <field name="name" />
+                <field name="code" />
+                <filter
+                    string="Active"
+                    name="active"
+                    domain="[('active', '=', True)]"
+                />
+                <filter
+                    string="Inactive"
+                    name="inactive"
+                    domain="[('active', '=', False)]"
+                />
                 <group>
-                    <filter string="Frequency" name="group_frequency" context="{'group_by': 'frequency'}"/>
+                    <filter
+                        string="Frequency"
+                        name="group_frequency"
+                        context="{'group_by': 'frequency'}"
+                    />
                 </group>
             </search>
         </field>

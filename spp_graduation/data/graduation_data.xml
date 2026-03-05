@@ -1,117 +1,137 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
-        <!-- Standard Graduation Pathway -->
-        <record id="pathway_standard_graduation" model="spp.graduation.pathway">
-            <field name="name">Standard Graduation</field>
-            <field name="code">STANDARD</field>
-            <field name="sequence">10</field>
-            <field name="is_positive_exit" eval="True" />
-            <field name="is_requires_assessment" eval="True" />
-            <field name="is_requires_approval" eval="True" />
-            <field name="post_graduation_monitoring_months">12</field>
-            <field name="description">Standard graduation pathway for beneficiaries who have met all program objectives and are ready to exit successfully.</field>
-        </record>
+    <!-- Standard Graduation Pathway -->
+    <record id="pathway_standard_graduation" model="spp.graduation.pathway">
+        <field name="name">Standard Graduation</field>
+        <field name="code">STANDARD</field>
+        <field name="sequence">10</field>
+        <field name="is_positive_exit" eval="True" />
+        <field name="is_requires_assessment" eval="True" />
+        <field name="is_requires_approval" eval="True" />
+        <field name="post_graduation_monitoring_months">12</field>
+        <field
+            name="description"
+        >Standard graduation pathway for beneficiaries who have met all program objectives and are ready to exit successfully.</field>
+    </record>
 
-        <!-- Early Graduation Pathway -->
-        <record id="pathway_early_graduation" model="spp.graduation.pathway">
-            <field name="name">Early Graduation</field>
-            <field name="code">EARLY</field>
-            <field name="sequence">20</field>
-            <field name="is_positive_exit" eval="True" />
-            <field name="is_requires_assessment" eval="True" />
-            <field name="is_requires_approval" eval="True" />
-            <field name="post_graduation_monitoring_months">18</field>
-            <field name="description">Early graduation pathway for beneficiaries who have exceeded program expectations and are ready to graduate ahead of schedule.</field>
-        </record>
+    <!-- Early Graduation Pathway -->
+    <record id="pathway_early_graduation" model="spp.graduation.pathway">
+        <field name="name">Early Graduation</field>
+        <field name="code">EARLY</field>
+        <field name="sequence">20</field>
+        <field name="is_positive_exit" eval="True" />
+        <field name="is_requires_assessment" eval="True" />
+        <field name="is_requires_approval" eval="True" />
+        <field name="post_graduation_monitoring_months">18</field>
+        <field
+            name="description"
+        >Early graduation pathway for beneficiaries who have exceeded program expectations and are ready to graduate ahead of schedule.</field>
+    </record>
 
-        <!-- Administrative Exit Pathway -->
-        <record id="pathway_administrative_exit" model="spp.graduation.pathway">
-            <field name="name">Administrative Exit</field>
-            <field name="code">ADMIN_EXIT</field>
-            <field name="sequence">30</field>
-            <field name="is_positive_exit" eval="False" />
-            <field name="is_requires_assessment" eval="False" />
-            <field name="is_requires_approval" eval="True" />
-            <field name="post_graduation_monitoring_months">0</field>
-            <field name="description">Administrative exit for beneficiaries who are removed from the program due to non-compliance, ineligibility, or other administrative reasons.</field>
-        </record>
+    <!-- Administrative Exit Pathway -->
+    <record id="pathway_administrative_exit" model="spp.graduation.pathway">
+        <field name="name">Administrative Exit</field>
+        <field name="code">ADMIN_EXIT</field>
+        <field name="sequence">30</field>
+        <field name="is_positive_exit" eval="False" />
+        <field name="is_requires_assessment" eval="False" />
+        <field name="is_requires_approval" eval="True" />
+        <field name="post_graduation_monitoring_months">0</field>
+        <field
+            name="description"
+        >Administrative exit for beneficiaries who are removed from the program due to non-compliance, ineligibility, or other administrative reasons.</field>
+    </record>
 
-        <!-- Sample Criteria for Standard Graduation -->
-        <record id="criteria_income_threshold" model="spp.graduation.criteria">
-            <field name="name">Income Above Poverty Line</field>
-            <field name="code">INCOME_THRESHOLD</field>
-            <field name="pathway_id" ref="pathway_standard_graduation" />
-            <field name="sequence">10</field>
-            <field name="weight">2.0</field>
-            <field name="assessment_method">verification</field>
-            <field name="is_required" eval="True" />
-            <field name="description">Household income is sustainably above the poverty line for at least 6 months.</field>
-        </record>
+    <!-- Sample Criteria for Standard Graduation -->
+    <record id="criteria_income_threshold" model="spp.graduation.criteria">
+        <field name="name">Income Above Poverty Line</field>
+        <field name="code">INCOME_THRESHOLD</field>
+        <field name="pathway_id" ref="pathway_standard_graduation" />
+        <field name="sequence">10</field>
+        <field name="weight">2.0</field>
+        <field name="assessment_method">verification</field>
+        <field name="is_required" eval="True" />
+        <field
+            name="description"
+        >Household income is sustainably above the poverty line for at least 6 months.</field>
+    </record>
 
-        <record id="criteria_livelihood_established" model="spp.graduation.criteria">
-            <field name="name">Sustainable Livelihood Established</field>
-            <field name="code">LIVELIHOOD</field>
-            <field name="pathway_id" ref="pathway_standard_graduation" />
-            <field name="sequence">20</field>
-            <field name="weight">2.0</field>
-            <field name="assessment_method">verification</field>
-            <field name="is_required" eval="False" />
-            <field name="description">Beneficiary has established a sustainable livelihood or income source.</field>
-        </record>
+    <record id="criteria_livelihood_established" model="spp.graduation.criteria">
+        <field name="name">Sustainable Livelihood Established</field>
+        <field name="code">LIVELIHOOD</field>
+        <field name="pathway_id" ref="pathway_standard_graduation" />
+        <field name="sequence">20</field>
+        <field name="weight">2.0</field>
+        <field name="assessment_method">verification</field>
+        <field name="is_required" eval="False" />
+        <field
+            name="description"
+        >Beneficiary has established a sustainable livelihood or income source.</field>
+    </record>
 
-        <record id="criteria_savings_account" model="spp.graduation.criteria">
-            <field name="name">Active Savings Account</field>
-            <field name="code">SAVINGS</field>
-            <field name="pathway_id" ref="pathway_standard_graduation" />
-            <field name="sequence">30</field>
-            <field name="weight">1.0</field>
-            <field name="assessment_method">verification</field>
-            <field name="is_required" eval="False" />
-            <field name="description">Beneficiary has an active savings account with regular deposits.</field>
-        </record>
+    <record id="criteria_savings_account" model="spp.graduation.criteria">
+        <field name="name">Active Savings Account</field>
+        <field name="code">SAVINGS</field>
+        <field name="pathway_id" ref="pathway_standard_graduation" />
+        <field name="sequence">30</field>
+        <field name="weight">1.0</field>
+        <field name="assessment_method">verification</field>
+        <field name="is_required" eval="False" />
+        <field
+            name="description"
+        >Beneficiary has an active savings account with regular deposits.</field>
+    </record>
 
-        <record id="criteria_children_school" model="spp.graduation.criteria">
-            <field name="name">School-Age Children Enrolled</field>
-            <field name="code">SCHOOL_ENROLLMENT</field>
-            <field name="pathway_id" ref="pathway_standard_graduation" />
-            <field name="sequence">40</field>
-            <field name="weight">1.5</field>
-            <field name="assessment_method">verification</field>
-            <field name="is_required" eval="True" />
-            <field name="description">All school-age children in the household are enrolled and attending school regularly.</field>
-        </record>
+    <record id="criteria_children_school" model="spp.graduation.criteria">
+        <field name="name">School-Age Children Enrolled</field>
+        <field name="code">SCHOOL_ENROLLMENT</field>
+        <field name="pathway_id" ref="pathway_standard_graduation" />
+        <field name="sequence">40</field>
+        <field name="weight">1.5</field>
+        <field name="assessment_method">verification</field>
+        <field name="is_required" eval="True" />
+        <field
+            name="description"
+        >All school-age children in the household are enrolled and attending school regularly.</field>
+    </record>
 
-        <record id="criteria_health_access" model="spp.graduation.criteria">
-            <field name="name">Access to Health Services</field>
-            <field name="code">HEALTH_ACCESS</field>
-            <field name="pathway_id" ref="pathway_standard_graduation" />
-            <field name="sequence">50</field>
-            <field name="weight">1.0</field>
-            <field name="assessment_method">verification</field>
-            <field name="is_required" eval="False" />
-            <field name="description">Household has access to and utilizes basic health services.</field>
-        </record>
+    <record id="criteria_health_access" model="spp.graduation.criteria">
+        <field name="name">Access to Health Services</field>
+        <field name="code">HEALTH_ACCESS</field>
+        <field name="pathway_id" ref="pathway_standard_graduation" />
+        <field name="sequence">50</field>
+        <field name="weight">1.0</field>
+        <field name="assessment_method">verification</field>
+        <field name="is_required" eval="False" />
+        <field
+            name="description"
+        >Household has access to and utilizes basic health services.</field>
+    </record>
 
-        <!-- Sample Criteria for Early Graduation -->
-        <record id="criteria_early_income" model="spp.graduation.criteria">
-            <field name="name">Income Significantly Above Poverty Line</field>
-            <field name="code">INCOME_HIGH</field>
-            <field name="pathway_id" ref="pathway_early_graduation" />
-            <field name="sequence">10</field>
-            <field name="weight">2.0</field>
-            <field name="assessment_method">verification</field>
-            <field name="is_required" eval="True" />
-            <field name="description">Household income is significantly above the poverty line (150%+) for at least 6 months.</field>
-        </record>
+    <!-- Sample Criteria for Early Graduation -->
+    <record id="criteria_early_income" model="spp.graduation.criteria">
+        <field name="name">Income Significantly Above Poverty Line</field>
+        <field name="code">INCOME_HIGH</field>
+        <field name="pathway_id" ref="pathway_early_graduation" />
+        <field name="sequence">10</field>
+        <field name="weight">2.0</field>
+        <field name="assessment_method">verification</field>
+        <field name="is_required" eval="True" />
+        <field
+            name="description"
+        >Household income is significantly above the poverty line (150%+) for at least 6 months.</field>
+    </record>
 
-        <record id="criteria_early_business" model="spp.graduation.criteria">
-            <field name="name">Thriving Business or Employment</field>
-            <field name="code">BUSINESS_SUCCESS</field>
-            <field name="pathway_id" ref="pathway_early_graduation" />
-            <field name="sequence">20</field>
-            <field name="weight">2.0</field>
-            <field name="assessment_method">verification</field>
-            <field name="is_required" eval="True" />
-            <field name="description">Beneficiary has a thriving business or stable formal employment.</field>
-        </record>
+    <record id="criteria_early_business" model="spp.graduation.criteria">
+        <field name="name">Thriving Business or Employment</field>
+        <field name="code">BUSINESS_SUCCESS</field>
+        <field name="pathway_id" ref="pathway_early_graduation" />
+        <field name="sequence">20</field>
+        <field name="weight">2.0</field>
+        <field name="assessment_method">verification</field>
+        <field name="is_required" eval="True" />
+        <field
+            name="description"
+        >Beneficiary has a thriving business or stable formal employment.</field>
+    </record>
 </odoo>
