@@ -3811,7 +3811,6 @@ class SPPMISDemoGenerator(models.TransientModel):
 
         try:
             from shapely.geometry import shape
-            from shapely.wkb import loads as wkbloads
         except ImportError:
             _logger.warning("[spp.mis.demo] shapely not available, skipping coordinate generation")
             stats["coordinates_generated"] = 0
@@ -3854,8 +3853,8 @@ class SPPMISDemoGenerator(models.TransientModel):
                 continue
 
             try:
-                # Convert WKB to shapely polygon
-                polygon = wkbloads(bytes(area.geo_polygon.data))
+                # The ORM returns geo_polygon as a Shapely geometry object
+                polygon = area.geo_polygon
 
                 # Generate random points for all registrants in this area
                 minx, miny, maxx, maxy = polygon.bounds
