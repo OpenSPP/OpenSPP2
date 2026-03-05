@@ -1,6 +1,7 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """OAuth 2.0 endpoints for API V2"""
 
+import base64
 import logging
 import os
 from datetime import datetime, timedelta
@@ -53,14 +54,12 @@ async def _parse_token_request(http_request: Request) -> TokenRequest:
     basic_client_secret = ""
     auth_header = http_request.headers.get("authorization", "")
     if auth_header.startswith("Basic "):
-        import base64
-
         try:
             decoded = base64.b64decode(auth_header[6:]).decode("utf-8")
             if ":" in decoded:
                 basic_client_id, basic_client_secret = decoded.split(":", 1)
-        except (ValueError, UnicodeDecodeError):
-            pass
+        except (ValueError, UnicodeDecodeError) as e:
+            _logger.debug("Failed to decode Basic Auth header: %s", e)
 
     content_type = http_request.headers.get("content-type", "")
     if "application/x-www-form-urlencoded" in content_type:
@@ -75,8 +74,8 @@ async def _parse_token_request(http_request: Request) -> TokenRequest:
     try:
         body = await http_request.json()
         return TokenRequest(**body)
-    except Exception:
-        pass
+    except Exception as e:
+        _logger.debug("Could not parse token request from JSON body, falling back: %s", e)
 
     # Fall back to Basic Auth only (grant_type defaults to client_credentials)
     if basic_client_id:
@@ -126,9 +125,14 @@ async def get_token(
             detail="Invalid client credentials",
         )
 
+    # Read configurable token lifetime (default: 24 hours for long-lived sessions)
+    # nosemgrep: odoo-sudo-without-context
+    token_lifetime_hours = int(env["ir.config_parameter"].sudo().get_param("spp_api_v2.token_lifetime_hours", "24"))
+    expires_in = token_lifetime_hours * 3600
+
     # Generate JWT token
     try:
-        token = _generate_jwt_token(env, api_client)
+        token = _generate_jwt_token(env, api_client, token_lifetime_hours)
     except Exception as e:
         _logger.exception("Error generating JWT token")
         raise HTTPException(
@@ -138,11 +142,6 @@ async def get_token(
 
     # Build scope string from client scopes
     scope_str = " ".join(f"{s.resource}:{s.action}" for s in api_client.scope_ids)
-
-    # Read configurable token lifetime (default: 24 hours for long-lived sessions)
-    # nosemgrep: odoo-sudo-without-context
-    token_lifetime_hours = int(env["ir.config_parameter"].sudo().get_param("spp_api_v2.token_lifetime_hours", "24"))
-    expires_in = token_lifetime_hours * 3600
 
     return TokenResponse(
         access_token=token,
@@ -189,14 +188,14 @@ def _get_jwt_secret(env: Environment) -> str:
     return secret
 
 
-def _generate_jwt_token(env: Environment, api_client) -> str:
+def _generate_jwt_token(env: Environment, api_client, token_lifetime_hours: int) -> str:
     """
     Generate JWT access token for API client.
 
     Token contains:
     - client_id (external identifier, NOT database ID)
     - scopes
-    - expiration (1 hour)
+    - expiration time determined by token_lifetime_hours
 
     SECURITY: Never include database IDs in JWT.
     The auth middleware loads the full api_client record from DB using client_id.
@@ -215,10 +214,6 @@ def _generate_jwt_token(env: Environment, api_client) -> str:
     # Build payload
     # SECURITY: Never include database IDs in JWT - use client_id only
     # The auth middleware looks up the full api_client record using client_id
-    # Read configurable token lifetime (default: 24 hours)
-    # nosemgrep: odoo-sudo-without-context
-    token_lifetime_hours = int(env["ir.config_parameter"].sudo().get_param("spp_api_v2.token_lifetime_hours", "24"))
-
     now = datetime.utcnow()
     payload = {
         "iss": "openspp-api-v2",  # Issuer
