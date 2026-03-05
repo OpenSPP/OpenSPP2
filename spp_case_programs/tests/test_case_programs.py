@@ -191,3 +191,148 @@ class TestCasePrograms(TransactionCase):
 
         # Should return False
         self.assertFalse(action)
+
+    def test_onchange_partner_programs_clears_when_no_partner(self):
+        """Test that program memberships are cleared when partner is removed."""
+        new_case = self.env["spp.case"].create(
+            {
+                "partner_id": self.client.id,
+                "case_type_id": self.case_type.id,
+                "case_worker_id": self.case_worker.id,
+                "presenting_issue": "<p>Test issue</p>",
+                "program_membership_ids": [Command.set([self.membership_enrolled.id])],
+            }
+        )
+
+        # Simulate clearing the partner (as would happen in form view onchange)
+        new_case.partner_id = False
+        new_case._onchange_partner_programs()
+
+        # Memberships should be cleared
+        self.assertFalse(new_case.program_membership_ids, "Memberships should be cleared when partner is removed")
+
+    def test_compute_program_info_only_enrolled(self):
+        """Test compute when only enrolled (not paused) memberships exist."""
+        self.case.program_membership_ids = [Command.set([self.membership_enrolled.id])]
+        self.case._compute_program_info()
+
+        self.assertTrue(self.case.has_active_enrollment)
+        self.assertEqual(self.case.active_program_count, 1)
+        self.assertIn("Test Program", self.case.enrolled_program_names)
+
+    def test_compute_program_info_only_paused(self):
+        """Test compute when only paused memberships exist."""
+        self.case.program_membership_ids = [Command.set([self.membership_paused.id])]
+        self.case._compute_program_info()
+
+        self.assertTrue(self.case.has_active_enrollment)
+        self.assertEqual(self.case.active_program_count, 1)
+        self.assertIn("Test Program Paused", self.case.enrolled_program_names)
+
+    def test_compute_program_info_no_memberships(self):
+        """Test compute when no memberships are set."""
+        self.case.program_membership_ids = [Command.set([])]
+        self.case._compute_program_info()
+
+        self.assertFalse(self.case.has_active_enrollment)
+        self.assertEqual(self.case.active_program_count, 0)
+        self.assertEqual(self.case.enrolled_program_names, "")
+
+    def test_enrolled_program_names_joins_with_comma(self):
+        """Test that enrolled_program_names joins multiple names with ', '."""
+        self.case.program_membership_ids = [Command.set([self.membership_enrolled.id, self.membership_paused.id])]
+        self.case._compute_program_info()
+
+        # Names should be joined with ", "
+        names = self.case.enrolled_program_names
+        self.assertIn(", ", names, "Multiple program names should be comma-separated")
+        self.assertIn("Test Program", names)
+        self.assertIn("Test Program Paused", names)
+
+    def test_action_view_program_enrollments_context(self):
+        """Test that action_view_program_enrollments sets correct context."""
+        self.case.program_membership_ids = [Command.set([self.membership_enrolled.id])]
+
+        action = self.case.action_view_program_enrollments()
+
+        self.assertIn("context", action)
+        self.assertFalse(action["context"]["create"], "Create should be disabled in context")
+        self.assertEqual(
+            action["context"]["default_partner_id"],
+            self.client.id,
+            "default_partner_id should be set to case partner",
+        )
+
+    def test_action_view_triggered_program_target(self):
+        """Test that action_view_triggered_program sets target to current."""
+        self.case.triggered_by_program_id = self.program
+
+        action = self.case.action_view_triggered_program()
+
+        self.assertEqual(action["target"], "current", "Action target should be 'current'")
+        self.assertEqual(action["type"], "ir.actions.act_window")
+
+    def test_case_created_with_triggered_program(self):
+        """Test creating a case with triggered_by_program_id set at creation."""
+        new_case = self.env["spp.case"].create(
+            {
+                "partner_id": self.client.id,
+                "case_type_id": self.case_type.id,
+                "case_worker_id": self.case_worker.id,
+                "presenting_issue": "<p>Non-compliance case</p>",
+                "triggered_by_program_id": self.program.id,
+            }
+        )
+
+        self.assertEqual(
+            new_case.triggered_by_program_id,
+            self.program,
+            "triggered_by_program_id should be set on the case",
+        )
+
+    def test_membership_state_change_updates_computed_fields(self):
+        """Test that changing membership state triggers recompute of program info."""
+        # Create a fresh membership in draft state for a new partner to avoid
+        # uniqueness constraint conflicts
+        partner_b = self.env["res.partner"].create({"name": "Partner B"})
+        program_b = self.env["spp.program"].create(
+            {
+                "name": "Program B State Test",
+                "target_type": "individual",
+            }
+        )
+        membership_draft = self.env["spp.program.membership"].create(
+            {
+                "partner_id": partner_b.id,
+                "program_id": program_b.id,
+                "state": "draft",
+            }
+        )
+
+        case_b = self.env["spp.case"].create(
+            {
+                "partner_id": partner_b.id,
+                "case_type_id": self.case_type.id,
+                "case_worker_id": self.case_worker.id,
+                "presenting_issue": "<p>State change test</p>",
+                "program_membership_ids": [Command.set([membership_draft.id])],
+            }
+        )
+
+        # Initially draft — not active
+        case_b._compute_program_info()
+        self.assertFalse(case_b.has_active_enrollment, "Draft membership should not count as active")
+
+        # Change state to enrolled
+        membership_draft.write({"state": "enrolled"})
+        case_b._compute_program_info()
+        self.assertTrue(case_b.has_active_enrollment, "Enrolled membership should count as active")
+        self.assertEqual(case_b.active_program_count, 1)
+
+    def test_action_view_program_enrollments_type(self):
+        """Test that action_view_program_enrollments returns correct action type."""
+        self.case.program_membership_ids = [Command.set([self.membership_enrolled.id])]
+
+        action = self.case.action_view_program_enrollments()
+
+        self.assertEqual(action["type"], "ir.actions.act_window")
