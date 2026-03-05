@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Session Topic List View (for embedding) -->
+    <record id="view_session_topic_list" model="ir.ui.view">
+        <field name="name">spp.session.topic.list</field>
+        <field name="model">spp.session.topic</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="description"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Session Type Form View -->
+    <record id="view_session_type_form" model="ir.ui.view">
+        <field name="name">spp.session.type.form</field>
+        <field name="model">spp.session.type</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="action_view_sessions"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-calendar"
+                        >
+                            <field name="session_count" widget="statinfo" string="Sessions"/>
+                        </button>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="code"/>
+                            <field name="frequency"/>
+                            <field name="active"/>
+                        </group>
+                        <group>
+                            <field name="duration_hours"/>
+                            <field name="required_attendance_pct"/>
+                            <field name="track_topics"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Description">
+                            <field name="description"/>
+                        </page>
+                        <page string="Topics" invisible="not track_topics">
+                            <field name="topic_ids"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Session Type Tree View -->
+    <record id="view_session_type_tree" model="ir.ui.view">
+        <field name="name">spp.session.type.tree</field>
+        <field name="model">spp.session.type</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="frequency"/>
+                <field name="duration_hours"/>
+                <field name="required_attendance_pct"/>
+                <field name="session_count"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Session Type Search View -->
+    <record id="view_session_type_search" model="ir.ui.view">
+        <field name="name">spp.session.type.search</field>
+        <field name="model">spp.session.type</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="code"/>
+                <filter string="Active" name="active" domain="[('active', '=', True)]"/>
+                <filter string="Inactive" name="inactive" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter string="Frequency" name="group_frequency" context="{'group_by': 'frequency'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Session Type Action -->
+    <record id="action_session_type" model="ir.actions.act_window">
+        <field name="name">Session Types</field>
+        <field name="res_model">spp.session.type</field>
+        <!-- Odoo 19: Changed tree to list -->
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new session type
+            </p>
+            <p>
+                Session types define the categories of sessions you want to track,
+                such as training workshops, family development sessions, or support group meetings.
+            </p>
+        </field>
+    </record>
+</odoo>

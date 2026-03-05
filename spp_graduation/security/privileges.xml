@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Graduation Domain Privileges -->
+    <!-- These privileges organize graduation groups in the user settings UI -->
+
+    <!-- User privilege -->
+    <record id="privilege_graduation_user" model="res.groups.privilege">
+        <field name="name">User</field>
+        <field name="category_id" ref="spp_security.category_spp_graduation"/>
+        <field name="sequence">10</field>
+    </record>
+
+    <!-- Manager privilege -->
+    <record id="privilege_graduation_manager" model="res.groups.privilege">
+        <field name="name">Manager</field>
+        <field name="category_id" ref="spp_security.category_spp_graduation"/>
+        <field name="sequence">20</field>
+    </record>
+</odoo>

@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Session Form View -->
+    <record id="view_session_form" model="ir.ui.view">
+        <field name="name">spp.session.form</field>
+        <field name="model">spp.session</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button
+                        name="action_start"
+                        string="Start"
+                        type="object"
+                        class="oe_highlight"
+                        invisible="state != 'scheduled'"
+                    />
+                    <button
+                        name="action_complete"
+                        string="Complete"
+                        type="object"
+                        class="oe_highlight"
+                        invisible="state != 'in_progress'"
+                    />
+                    <button
+                        name="action_cancel"
+                        string="Cancel"
+                        type="object"
+                        invisible="state in ['completed', 'cancelled']"
+                    />
+                    <field name="state" widget="statusbar" statusbar_visible="scheduled,in_progress,completed"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" readonly="state in ['completed', 'cancelled']"/>
+                            <field name="session_type_id" readonly="state in ['completed', 'cancelled']"/>
+                            <field name="date" readonly="state in ['completed', 'cancelled']"/>
+                            <field name="location" readonly="state in ['completed', 'cancelled']"/>
+                            <field name="area_id" readonly="state in ['completed', 'cancelled']"/>
+                        </group>
+                        <group>
+                            <field name="facilitator_id" readonly="state in ['completed', 'cancelled']"/>
+                            <field name="co_facilitator_ids" widget="many2many_tags" readonly="state in ['completed', 'cancelled']"/>
+                            <field name="start_time" widget="float_time" readonly="state in ['completed', 'cancelled']"/>
+                            <field name="end_time" widget="float_time" readonly="state in ['completed', 'cancelled']"/>
+                            <field name="duration_hours"/>
+                            <field name="max_participants" readonly="state in ['completed', 'cancelled']"/>
+                            <field name="company_id" groups="base.group_multi_company" readonly="state in ['completed', 'cancelled']"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Participants">
+                            <group>
+                                <field name="expected_participant_ids" widget="many2many_tags" nolabel="1" readonly="state in ['completed', 'cancelled']"/>
+                            </group>
+                        </page>
+                        <page string="Attendance">
+                            <group>
+                                <group>
+                                    <field name="attendance_count"/>
+                                    <field name="attendance_rate"/>
+                                </group>
+                            </group>
+                            <field name="attendance_ids" readonly="state in ['completed', 'cancelled']">
+                                <list editable="bottom">
+                                    <field name="participant_id"/>
+                                    <field name="is_attended"/>
+                                    <field name="attendance_time"/>
+                                    <field name="is_excused"/>
+                                    <field name="excuse_reason"/>
+                                    <field name="notes"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Topics" invisible="not session_type_id.track_topics">
+                            <group colspan="2">
+                                <field name="topic_ids" widget="many2many_tags" nolabel="1" readonly="state in ['completed', 'cancelled']"/>
+                            </group>
+                        </page>
+                        <page string="Notes">
+                            <field name="notes" readonly="state in ['completed', 'cancelled']"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Session Tree View -->
+    <record id="view_session_tree" model="ir.ui.view">
+        <field name="name">spp.session.tree</field>
+        <field name="model">spp.session</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="date"/>
+                <field name="name"/>
+                <field name="session_type_id"/>
+                <field name="facilitator_id"/>
+                <field name="location"/>
+                <field name="attendance_count"/>
+                <field name="attendance_rate"/>
+                <field name="state" decoration-info="state == 'scheduled'" decoration-warning="state == 'in_progress'" decoration-success="state == 'completed'" decoration-muted="state == 'cancelled'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Session Calendar View -->
+    <record id="view_session_calendar" model="ir.ui.view">
+        <field name="name">spp.session.calendar</field>
+        <field name="model">spp.session</field>
+        <field name="arch" type="xml">
+            <calendar string="Sessions" date_start="date" color="session_type_id" mode="month">
+                <field name="name"/>
+                <field name="facilitator_id"/>
+                <field name="state"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Session Kanban View -->
+    <record id="view_session_kanban" model="ir.ui.view">
+        <field name="name">spp.session.kanban</field>
+        <field name="model">spp.session</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state">
+                <field name="name"/>
+                <field name="session_type_id"/>
+                <field name="date"/>
+                <field name="facilitator_id"/>
+                <field name="attendance_rate"/>
+                <field name="state"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_card">
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_record_title">
+                                    <strong><field name="name"/></strong>
+                                </div>
+                                <div class="o_kanban_record_body">
+                                    <field name="session_type_id"/>
+                                    <br/>
+                                    <field name="date"/>
+                                    <br/>
+                                    <field name="facilitator_id"/>
+                                    <br/>
+                                    Attendance: <field name="attendance_rate"/>%
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Session Search View -->
+    <record id="view_session_search" model="ir.ui.view">
+        <field name="name">spp.session.search</field>
+        <field name="model">spp.session</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="session_type_id"/>
+                <field name="facilitator_id"/>
+                <field name="location"/>
+                <field name="area_id"/>
+                <filter string="Scheduled" name="scheduled" domain="[('state', '=', 'scheduled')]"/>
+                <filter string="In Progress" name="in_progress" domain="[('state', '=', 'in_progress')]"/>
+                <filter string="Completed" name="completed" domain="[('state', '=', 'completed')]"/>
+                <filter string="My Sessions" name="my_sessions" domain="[('facilitator_id', '=', uid)]"/>
+                <separator/>
+                <filter string="This Month" name="this_month" domain="[('date', '&gt;=', datetime.datetime.now().strftime('%Y-%m-01')), ('date', '&lt;', (datetime.datetime.now() + relativedelta(months=1)).strftime('%Y-%m-01'))]"/>
+                <group>
+                    <filter string="Session Type" name="group_session_type" context="{'group_by': 'session_type_id'}"/>
+                    <filter string="Facilitator" name="group_facilitator" context="{'group_by': 'facilitator_id'}"/>
+                    <filter string="State" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Date" name="group_date" context="{'group_by': 'date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Session Action -->
+    <record id="action_session_view" model="ir.actions.act_window">
+        <field name="name">Sessions</field>
+        <field name="res_model">spp.session</field>
+        <!-- Odoo 19: Changed tree to list -->
+        <field name="view_mode">list,form,calendar,kanban</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new session
+            </p>
+            <p>
+                Track attendance at training sessions, workshops, meetings, and other events.
+            </p>
+        </field>
+    </record>
+
+    <!-- My Sessions Action -->
+    <record id="action_my_sessions" model="ir.actions.act_window">
+        <field name="name">My Sessions</field>
+        <field name="res_model">spp.session</field>
+        <!-- Odoo 19: Changed tree to list -->
+        <field name="view_mode">list,form,calendar,kanban</field>
+        <field name="context">{'search_default_my_sessions': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                You have no sessions yet
+            </p>
+            <p>
+                Sessions where you are the facilitator will appear here.
+            </p>
+        </field>
+    </record>
+</odoo>
