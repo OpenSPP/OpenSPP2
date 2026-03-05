@@ -9,8 +9,7 @@
     The separation allows the same underlying variable to be published
     to multiple contexts with different presentation settings.
 -->
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
         <!-- ═══════════════════════════════════════════════════════════════════════
          CEL VARIABLES - Define the computation logic
          ═══════════════════════════════════════════════════════════════════════ -->
@@ -274,5 +273,4 @@
             <field name="is_published_gis" eval="True" />
             <field name="is_published_dashboard" eval="True" />
         </record>
-    </data>
 </odoo>

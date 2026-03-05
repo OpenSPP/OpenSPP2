@@ -13,8 +13,7 @@
     IMPORTANT: This is demo data for testing only. In production,
     create API clients through the UI with proper access controls.
 -->
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
         <!-- Demo API Client for QGIS Plugin -->
         <record id="demo_api_client_qgis" model="spp.api.client">
             <field name="name">QGIS Demo Client</field>
@@ -45,5 +44,4 @@
                 name="description"
             >Full GIS access including creating and managing geofences.</field>
         </record>
-    </data>
 </odoo>
