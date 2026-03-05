@@ -3,9 +3,7 @@
     <data>
         <record model="ir.module.category" id="module_openspp_grm_category">
             <field name="name">Grievance Redress Mechanism</field>
-            <field
-                name="description"
-            >Grievance Redress Mechanism (GRM) for OpenSPP.</field>
+            <field name="description">Grievance Redress Mechanism (GRM) for OpenSPP.</field>
             <field name="sequence">9</field>
         </record>
     </data>
@@ -26,6 +24,7 @@
         <record id="grm_ticket_stage_new" model="spp.grm.ticket.stage">
             <field name="sequence">1</field>
             <field name="name">New</field>
+            <field name="stage_type">new</field>
             <field name="unattended">True</field>
             <field name="is_closed">False</field>
             <field name="company_id" />
@@ -33,6 +32,7 @@
         <record id="grm_ticket_stage_in_progress" model="spp.grm.ticket.stage">
             <field name="sequence">2</field>
             <field name="name">In Progress</field>
+            <field name="stage_type">in_progress</field>
             <field name="unattended">False</field>
             <field name="is_closed">False</field>
             <field name="company_id" />
@@ -40,6 +40,7 @@
         <record id="grm_ticket_stage_awaiting" model="spp.grm.ticket.stage">
             <field name="sequence">3</field>
             <field name="name">Awaiting</field>
+            <field name="stage_type">waiting</field>
             <field name="unattended">False</field>
             <field name="is_closed">False</field>
             <field name="company_id" />
@@ -47,6 +48,7 @@
         <record id="grm_ticket_stage_done" model="spp.grm.ticket.stage">
             <field name="sequence">4</field>
             <field name="name">Done</field>
+            <field name="stage_type">resolved</field>
             <field name="unattended">False</field>
             <field name="is_closed">True</field>
             <field name="fold">True</field>
@@ -56,6 +58,7 @@
         <record id="grm_ticket_stage_cancelled" model="spp.grm.ticket.stage">
             <field name="sequence">5</field>
             <field name="name">Cancelled</field>
+            <field name="stage_type">cancelled</field>
             <field name="unattended">False</field>
             <field name="is_closed">True</field>
             <field name="fold">True</field>
@@ -65,6 +68,7 @@
         <record id="grm_ticket_stage_rejected" model="spp.grm.ticket.stage">
             <field name="sequence">6</field>
             <field name="name">Rejected</field>
+            <field name="stage_type">closed</field>
             <field name="unattended">False</field>
             <field name="is_closed">True</field>
             <field name="fold">True</field>

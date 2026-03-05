@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Extend Case Form to show sessions -->
+    <record id="view_case_form_session" model="ir.ui.view">
+        <field name="name">spp.case.form.session</field>
+        <field name="model">spp.case</field>
+        <field name="inherit_id" ref="spp_case_base.view_case_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_sessions" type="object"
+                        class="oe_stat_button" icon="fa-calendar-check-o">
+                    <field name="session_count" widget="statinfo" string="Sessions"/>
+                </button>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="Sessions" name="sessions">
+                    <group>
+                        <group>
+                            <field name="session_attendance_rate" widget="progressbar"/>
+                            <field name="session_compliance" widget="badge"
+                                   decoration-success="session_compliance == 'compliant'"
+                                   decoration-warning="session_compliance == 'partial'"
+                                   decoration-danger="session_compliance == 'non_compliant'"/>
+                        </group>
+                    </group>
+                    <field name="session_ids" widget="many2many_tags"/>
+                    <label for="session_attendance_ids"/>
+                    <field name="session_attendance_ids" nolabel="1">
+                        <list create="0" delete="0" edit="0">
+                            <field name="session_id"/>
+                            <field name="is_attended"/>
+                            <field name="notes"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

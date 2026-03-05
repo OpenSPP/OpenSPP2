@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Case Demo Wizard Form -->
+    <record id="view_case_demo_wizard_form" model="ir.ui.view">
+        <field name="name">spp.case.demo.wizard.form</field>
+        <field name="model">spp.case.demo.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Generate Case Management Demo Data">
+                <sheet>
+                    <group>
+                        <group string="Basic Settings">
+                            <field name="name"/>
+                            <field name="number_of_cases"/>
+                            <field name="cases_days_back"/>
+                            <field name="include_stories"/>
+                        </group>
+                        <group string="Locale">
+                            <field name="locale_origin"/>
+                            <field name="locale_origin_faker_locale" readonly="1"/>
+                            <field name="link_to_beneficiaries"/>
+                        </group>
+                    </group>
+                    <group string="Data Distribution">
+                        <group>
+                            <field name="percentage_with_plans" widget="percentage"/>
+                            <field name="percentage_with_visits" widget="percentage"/>
+                        </group>
+                        <group>
+                            <field name="percentage_with_notes" widget="percentage"/>
+                            <field name="percentage_closed" widget="percentage"/>
+                        </group>
+                    </group>
+                    <div class="alert alert-info" role="alert">
+                        <h4>Demo Stories</h4>
+                        <p>When "Include Demo Stories" is checked, the following predictable cases will be created:</p>
+                        <ul>
+                            <li><strong>Santos Family Support</strong> - Full case lifecycle</li>
+                            <li><strong>Dela Cruz Emergency</strong> - High intensity emergency case</li>
+                            <li><strong>Garcia Elder Care</strong> - Long-term care coordination</li>
+                            <li><strong>Mendoza Child Welfare</strong> - Child protection case</li>
+                            <li><strong>Hassan Resettlement</strong> - Displaced person support</li>
+                            <li><strong>Morales Household Crisis</strong> - Multi-member household</li>
+                        </ul>
+                    </div>
+                </sheet>
+                <footer>
+                    <button name="generate_cases" string="Generate Cases" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action to open wizard -->
+    <record id="action_case_demo_wizard" model="ir.actions.act_window">
+        <field name="name">Generate Case Demo Data</field>
+        <field name="res_model">spp.case.demo.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Menu item under Case Management -->
+    <menuitem id="menu_case_demo_data"
+              name="Generate Demo Data"
+              parent="spp_case_base.menu_case_management_config"
+              action="action_case_demo_wizard"
+              sequence="100"/>
+</odoo>

@@ -1,2 +1,3 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_grm_demo_generator_admin,access_spp_grm_demo_generator_admin,model_spp_grm_demo_generator,spp_security.group_spp_admin,1,1,1,1
 access_spp_grm_demo_wizard_admin,access_spp_grm_demo_wizard_admin,model_spp_grm_demo_wizard,spp_security.group_spp_admin,1,1,1,1

@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
     <!-- GRM Ticket Categories -->
-    <record id="grm_category_payment" model="spp.grm.ticket.category">
-        <field name="name">Payment Issues</field>
-    </record>
+        <record id="grm_category_payment" model="spp.grm.ticket.category">
+            <field name="name">Payment Issues</field>
+        </record>
 
-    <record id="grm_category_eligibility" model="spp.grm.ticket.category">
-        <field name="name">Eligibility Questions</field>
-    </record>
+        <record id="grm_category_eligibility" model="spp.grm.ticket.category">
+            <field name="name">Eligibility Questions</field>
+        </record>
 
-    <record id="grm_category_service_delivery" model="spp.grm.ticket.category">
-        <field name="name">Service Delivery</field>
-    </record>
+        <record id="grm_category_service_delivery" model="spp.grm.ticket.category">
+            <field name="name">Service Delivery</field>
+        </record>
 
-    <record id="grm_category_information" model="spp.grm.ticket.category">
-        <field name="name">Information Requests</field>
-    </record>
+        <record id="grm_category_information" model="spp.grm.ticket.category">
+            <field name="name">Information Requests</field>
+        </record>
 
-    <record id="grm_category_data_update" model="spp.grm.ticket.category">
-        <field name="name">Data Update Requests</field>
-    </record>
+        <record id="grm_category_data_update" model="spp.grm.ticket.category">
+            <field name="name">Data Update Requests</field>
+        </record>
 
-    <record id="grm_category_general" model="spp.grm.ticket.category">
-        <field name="name">General</field>
-    </record>
+        <record id="grm_category_general" model="spp.grm.ticket.category">
+            <field name="name">General</field>
+        </record>
 
-    <record id="grm_category_complaint" model="spp.grm.ticket.category">
-        <field name="name">Complaint</field>
-    </record>
+        <record id="grm_category_complaint" model="spp.grm.ticket.category">
+            <field name="name">Complaint</field>
+        </record>
 
-    <record id="grm_category_feedback" model="spp.grm.ticket.category">
-        <field name="name">Feedback</field>
-    </record>
+        <record id="grm_category_feedback" model="spp.grm.ticket.category">
+            <field name="name">Feedback</field>
+        </record>
 </odoo>

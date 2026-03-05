@@ -53,12 +53,9 @@
                     </group>
                     <separator />
                     <div class="alert alert-info" role="alert">
-                        <p><strong
-                        >Story Tickets:</strong> Juan Dela Cruz (payment issue), Ibrahim Hassan (resettlement inquiry), Fatima Al-Rahman (program inquiry), Ahmed Said (multiple tickets)</p>
-                        <p><strong
-                        >Volume Data:</strong> Random tickets distributed over the specified time period</p>
-                        <p><strong
-                        >Note:</strong> Run "Generate Stories" in spp_demo first to create the demo registrants.</p>
+                        <p><strong>Story Tickets:</strong> Juan Dela Cruz (payment issue), Ibrahim Hassan (resettlement inquiry), Fatima Al-Rahman (program inquiry), Ahmed Said (multiple tickets)</p>
+                        <p><strong>Volume Data:</strong> Random tickets distributed over the specified time period</p>
+                        <p><strong>Note:</strong> Run "Generate Stories" in spp_demo first to create the demo registrants.</p>
                     </div>
                 </sheet>
                 <footer>

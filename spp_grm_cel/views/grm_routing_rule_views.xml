@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Routing Rule Tree View -->
+    <record id="view_grm_routing_rule_tree" model="ir.ui.view">
+        <field name="name">spp.grm.routing.rule.tree</field>
+        <field name="model">spp.grm.routing.rule</field>
+        <field name="arch" type="xml">
+            <list string="Routing Rules" decoration-muted="not active">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="condition_cel"/>
+                <field name="assign_team_id"/>
+                <field name="assign_user_id"/>
+                <field name="set_severity"/>
+                <field name="set_priority"/>
+                <field name="match_count"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Routing Rule Form View -->
+    <record id="view_grm_routing_rule_form" model="ir.ui.view">
+        <field name="name">spp.grm.routing.rule.form</field>
+        <field name="model">spp.grm.routing.rule</field>
+        <field name="arch" type="xml">
+            <form string="Routing Rule">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g., Route Critical Tickets to Emergency Team"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="sequence"/>
+                            <field name="active" invisible="1"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group>
+                            <field name="match_count" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Condition" name="condition">
+                            <group>
+                                <field name="condition_cel" widget="text" placeholder="e.g., severity == 'critical' or category.name == 'Fraud'"/>
+                            </group>
+                            <div class="alert alert-info" role="alert">
+                                <h4>Available Context Variables:</h4>
+                                <ul>
+                                    <li><strong>ticket</strong> - The GRM ticket record</li>
+                                    <li><strong>category</strong> - ticket.category_id</li>
+                                    <li><strong>channel</strong> - ticket.channel_id</li>
+                                    <li><strong>severity</strong> - ticket.severity (low, medium, high, critical)</li>
+                                    <li><strong>priority</strong> - ticket.priority (0, 1, 2, 3)</li>
+                                    <li><strong>partner</strong> - ticket.partner_id (the registrant)</li>
+                                    <li><strong>team</strong> - ticket.team_id</li>
+                                    <li><strong>user</strong> - ticket.user_id</li>
+                                </ul>
+                                <h4>Example Expressions:</h4>
+                                <ul>
+                                    <li><code>severity == 'critical'</code> - Match critical severity tickets</li>
+                                    <li><code>severity == 'critical' or severity == 'high'</code> - Match critical or high severity</li>
+                                    <li><code>priority == '3'</code> - Match very high priority tickets</li>
+                                    <li><code>severity == 'critical' and priority == '3'</code> - Match critical AND very high priority</li>
+                                </ul>
+                            </div>
+                        </page>
+                        <page string="Actions" name="actions">
+                            <group>
+                                <group string="Assignment">
+                                    <field name="assign_team_id"/>
+                                    <field name="assign_user_id"/>
+                                </group>
+                                <group string="Classification">
+                                    <field name="set_severity"/>
+                                    <field name="set_priority"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Routing Rule Search View -->
+    <record id="view_grm_routing_rule_search" model="ir.ui.view">
+        <field name="name">spp.grm.routing.rule.search</field>
+        <field name="model">spp.grm.routing.rule</field>
+        <field name="arch" type="xml">
+            <search string="Routing Rules">
+                <field name="name"/>
+                <field name="condition_cel"/>
+                <field name="assign_team_id"/>
+                <field name="assign_user_id"/>
+                <separator/>
+                <filter string="Active" name="active" domain="[('active', '=', True)]"/>
+                <filter string="Inactive" name="inactive" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter string="Team" name="group_team" context="{'group_by': 'assign_team_id'}"/>
+                    <filter string="User" name="group_user" context="{'group_by': 'assign_user_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Routing Rule Action -->
+    <record id="action_grm_routing_rule" model="ir.actions.act_window">
+        <field name="name">Routing Rules</field>
+        <field name="res_model">spp.grm.routing.rule</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new routing rule
+            </p>
+            <p>
+                Routing rules automatically assign tickets to teams and users based on CEL conditions.
+                Rules are evaluated in sequence order, and only the first matching rule is applied.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu Item -->
+    <menuitem
+        id="menu_grm_routing_rule"
+        name="Routing Rules"
+        parent="spp_grm.spp_grm_ticket_config_main_menu"
+        action="action_grm_routing_rule"
+        sequence="10"
+    />
+
+</odoo>

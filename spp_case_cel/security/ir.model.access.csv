@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_case_triage_rule_user,spp.case.triage.rule.user,model_spp_case_triage_rule,spp_case_base.group_case_worker,1,0,0,0
+access_case_triage_rule_manager,spp.case.triage.rule.manager,model_spp_case_triage_rule,spp_case_base.group_case_manager,1,1,1,1
+access_case_assignment_rule_user,spp.case.assignment.rule.user,model_spp_case_assignment_rule,spp_case_base.group_case_worker,1,0,0,0
+access_case_assignment_rule_manager,spp.case.assignment.rule.manager,model_spp_case_assignment_rule,spp_case_base.group_case_manager,1,1,1,1

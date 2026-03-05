@@ -51,7 +51,6 @@ GRM_STORY_TICKETS = {
                     "Wants to understand requirements and application process."
                 ),
                 "category": "eligibility",
-                "ticket_type": "inquiry",
                 "priority": "low",
                 "days_back": 45,  # Before her case was opened
                 "program_name": "Universal Child Grant",
@@ -78,7 +77,6 @@ GRM_STORY_TICKETS = {
                     "Needs assistance with Emergency Relief Fund and permanent resettlement."
                 ),
                 "category": "service",
-                "ticket_type": "inquiry",
                 "priority": "medium",
                 "severity": "high",
                 "days_back": 65,  # Before his case was opened
@@ -112,7 +110,7 @@ GRM_STORY_TICKETS = {
             },
             {
                 "title": "Update bank account information",
-                "description": ("Need to update bank account to new provider. Previous bank closed local branch."),
+                "description": ("Need to update bank account to new provider. " "Previous bank closed local branch."),
                 "category": "registration",
                 "priority": "medium",
                 "days_back": 10,
@@ -150,7 +148,6 @@ GRM_STORY_TICKETS = {
                     "Need funds for wheelchair and medical equipment."
                 ),
                 "category": "eligibility",
-                "ticket_type": "inquiry",
                 "priority": "medium",
                 "days_back": 105,  # Before case was opened
                 "program_name": "Disability Support Grant",
@@ -177,7 +174,6 @@ GRM_STORY_TICKETS = {
                     "Wants to understand next steps and any continued support available."
                 ),
                 "category": "general",
-                "ticket_type": "inquiry",
                 "priority": "low",
                 "days_back": 10,
                 "program_name": "Cash Transfer Program",
@@ -203,7 +199,6 @@ GRM_STORY_TICKETS = {
                     "Also enrolled in Elderly Social Pension."
                 ),
                 "category": "service",
-                "ticket_type": "inquiry",
                 "priority": "low",
                 "days_back": 50,
                 "program_name": "Food Assistance",
@@ -263,16 +258,6 @@ class SPPGRMDemoGenerator(models.TransientModel):
         help="Generate volume tickets in addition to story tickets",
     )
     number_of_tickets = fields.Integer(string="Number of Tickets", default=50, required=True)
-    use_scenarios = fields.Boolean(string="Use Scenarios", default=True)
-    scenario_ids = fields.Many2many(
-        # Placeholder - actual model spp.demo.scenario.registry may not be installed
-        comodel_name="res.partner",
-        string="Scenarios",
-        help=(
-            "Select specific scenarios to use. If empty, all GRM ticket scenarios will be used. "
-            "Note: This field requires spp_demo_scenarios module."
-        ),
-    )
     tickets_days_back = fields.Integer(
         string="Days Back",
         default=90,
@@ -350,7 +335,7 @@ class SPPGRMDemoGenerator(models.TransientModel):
         # Validate that at least one generation option is enabled
         if not self.enroll_demo_stories and not self.generate_volume:
             raise UserError(
-                _("Please enable at least one generation option: 'Enroll Demo Stories' or 'Generate Volume Data'.")
+                _("Please enable at least one generation option: " "'Enroll Demo Stories' or 'Generate Volume Data'.")
             )
 
         # Initialize Faker
@@ -398,6 +383,14 @@ class SPPGRMDemoGenerator(models.TransientModel):
             if self.assign_teams:
                 _logger.info("Found %d teams for assignment", len(teams))
 
+            # Build repeat pool: ~10% of beneficiaries will file multiple tickets
+            repeat_pool = self._build_repeat_pool(beneficiaries) if beneficiaries else []
+            if repeat_pool:
+                _logger.info(
+                    "Built repeat pool of %d registrants for repeat ticket detection",
+                    len(repeat_pool),
+                )
+
             # Generate volume tickets
             for i in range(self.number_of_tickets):
                 try:
@@ -411,6 +404,7 @@ class SPPGRMDemoGenerator(models.TransientModel):
                         beneficiaries,
                         programs,
                         teams,
+                        repeat_pool=repeat_pool,
                     )
 
                     if ticket:
@@ -433,7 +427,7 @@ class SPPGRMDemoGenerator(models.TransientModel):
             "type": "ir.actions.act_window",
             "name": "Generated GRM Tickets",
             "res_model": "spp.grm.ticket",
-            "view_mode": "tree,form,kanban",
+            "view_mode": "list,form,kanban",
             "domain": [("id", "in", created_tickets.ids)],
             "context": {"search_default_group_by_stage": 1},
         }
@@ -481,12 +475,7 @@ class SPPGRMDemoGenerator(models.TransientModel):
                     if ticket:
                         created_tickets |= ticket
                 except Exception as e:
-                    _logger.error(
-                        "Error creating story ticket for %s: %s",
-                        story_id,
-                        e,
-                        exc_info=True,
-                    )
+                    _logger.error("Error creating story ticket for %s: %s", story_id, e, exc_info=True)
                     continue
 
         return created_tickets
@@ -524,7 +513,9 @@ class SPPGRMDemoGenerator(models.TransientModel):
             "create_date": ticket_date,
         }
 
-        # nosemgrep: odoo-sudo-without-context — demo data generation runs as admin
+        # Set registrant/household fields if spp_grm_registry is installed
+        vals.update(self._get_registrant_vals(partner))
+
         ticket = self.env["spp.grm.ticket"].sudo().create(vals)
 
         # Backdate creation
@@ -548,7 +539,7 @@ class SPPGRMDemoGenerator(models.TransientModel):
 
         for i, note in enumerate(notes):
             note_date = ticket_date + timedelta(days=int((i + 1) * resolution_days / (len(notes) + 1)))
-            ticket.sudo().message_post(  # nosemgrep: odoo-sudo-without-context — demo data generation runs as admin
+            ticket.sudo().message_post(
                 body=f"<p>{note.get('text', '')}</p>",
                 message_type="comment",
                 subtype_xmlid="mail.mt_note",
@@ -567,7 +558,7 @@ class SPPGRMDemoGenerator(models.TransientModel):
             close_date = ticket_date + timedelta(days=resolution_days)
             decision = resolution.get("decision", "upheld")
 
-            ticket.sudo().write(  # nosemgrep: odoo-sudo-without-context — demo data generation runs as admin
+            ticket.sudo().write(
                 {
                     "stage_id": closed_stage.id,
                     "decision": decision,
@@ -586,21 +577,6 @@ class SPPGRMDemoGenerator(models.TransientModel):
 
         if loader:
             try:
-                if self.scenario_ids:
-                    scenarios = []
-                    for scenario_record in self.scenario_ids:
-                        try:
-                            scenario_dict = loader._load_yaml_file(scenario_record.source_file)
-                            scenarios.append(scenario_dict)
-                        except Exception as e:
-                            _logger.warning(
-                                "Failed to load scenario %s: %s",
-                                scenario_record.name,
-                                e,
-                            )
-                    if scenarios:
-                        return scenarios
-
                 scenarios = loader.load_scenarios(category="grm_ticket")
                 if scenarios:
                     return scenarios
@@ -646,7 +622,7 @@ class SPPGRMDemoGenerator(models.TransientModel):
         weights = [scenario.get("weight", 10) for scenario in scenarios]
         return random.choices(scenarios, weights=weights, k=1)[0]
 
-    def _create_ticket_from_scenario(self, scenario, fake, beneficiaries, programs, teams):
+    def _create_ticket_from_scenario(self, scenario, fake, beneficiaries, programs, teams, repeat_pool=None):
         """Create a GRM ticket from a scenario"""
         ticket_profile = scenario.get("ticket_profile", {})
         description_templates = scenario.get("description_templates", [])
@@ -654,8 +630,8 @@ class SPPGRMDemoGenerator(models.TransientModel):
         # Get ticket date (random within range)
         ticket_date = self._random_date_in_range(self.tickets_days_back)
 
-        # Get beneficiary
-        partner = self._select_random_beneficiary(beneficiaries) if beneficiaries else None
+        # Get beneficiary (biased toward repeat pool)
+        partner = self._select_random_beneficiary(beneficiaries, repeat_pool) if beneficiaries else None
         if not partner:
             _logger.warning("No beneficiary found, skipping ticket creation")
             return None
@@ -701,7 +677,9 @@ class SPPGRMDemoGenerator(models.TransientModel):
             "create_date": ticket_date,
         }
 
-        # nosemgrep: odoo-sudo-without-context — demo data generation runs as admin
+        # Set registrant/household fields if spp_grm_registry is installed
+        vals.update(self._get_registrant_vals(partner))
+
         ticket = self.env["spp.grm.ticket"].sudo().create(vals)
 
         # Backdate creation
@@ -754,7 +732,7 @@ class SPPGRMDemoGenerator(models.TransientModel):
             note_date = ticket.create_date + timedelta(days=days_offset)
 
             # Post message
-            ticket.sudo().message_post(  # nosemgrep: odoo-sudo-without-context — demo data generation runs as admin
+            ticket.sudo().message_post(
                 body=f"<p>{step}</p>",
                 message_type="comment",
                 subtype_xmlid="mail.mt_note",
@@ -773,7 +751,7 @@ class SPPGRMDemoGenerator(models.TransientModel):
         escalation = scenario.get("escalation", {})
         case_type = escalation.get("case_type", "general_investigation")
 
-        ticket.sudo().message_post(  # nosemgrep: odoo-sudo-without-context — demo data generation runs as admin
+        ticket.sudo().message_post(
             body=f"<p>Ticket escalated to case management ({case_type})</p>",
             message_type="comment",
             subtype_xmlid="mail.mt_note",
@@ -803,7 +781,7 @@ class SPPGRMDemoGenerator(models.TransientModel):
                 decision_choices, weights = zip(*decisions, strict=False)
                 decision = random.choices(decision_choices, weights=weights, k=1)[0]
 
-            ticket.sudo().write(  # nosemgrep: odoo-sudo-without-context — demo data generation runs as admin
+            ticket.sudo().write(
                 {
                     "stage_id": closed_stage.id,
                     "decision": decision,
@@ -821,7 +799,6 @@ class SPPGRMDemoGenerator(models.TransientModel):
         users = self.env["res.users"].search([("active", "=", True)], limit=20)
         if users:
             user = random.choice(users)
-            # nosemgrep: odoo-sudo-without-context — demo data generation runs as admin
             ticket.sudo().write({"user_id": user.id})
 
     def _render_description_template(self, template, fake, programs):
@@ -868,15 +845,74 @@ class SPPGRMDemoGenerator(models.TransientModel):
 
         return result
 
-    def _select_random_beneficiary(self, beneficiaries):
-        """Select a random beneficiary from available registrants"""
+    def _build_repeat_pool(self, beneficiaries, pool_ratio=0.10):
+        """Select a subset of beneficiaries who will file multiple tickets.
+
+        Args:
+            beneficiaries: Recordset of individual registrants
+            pool_ratio: Fraction of beneficiaries to use as repeat filers (default 10%)
+
+        Returns:
+            list of partner records that should get multiple tickets
+        """
+        if not beneficiaries:
+            return []
+        pool_size = max(3, int(len(beneficiaries) * pool_ratio))
+        return random.sample(list(beneficiaries), min(pool_size, len(beneficiaries)))
+
+    def _select_random_beneficiary(self, beneficiaries, repeat_pool=None):
+        """Select a beneficiary, biased toward repeat pool.
+
+        ~30% of the time picks from the repeat pool (if available),
+        ensuring some registrants get multiple tickets for repeat detection.
+        """
         if not beneficiaries:
             return None
+        if repeat_pool and random.random() < 0.30:
+            return random.choice(repeat_pool)
         return random.choice(beneficiaries)
 
     def _get_available_beneficiaries(self):
-        """Get list of available beneficiaries (registrants)"""
-        return self.env["res.partner"].search([("is_registrant", "=", True)], limit=1000)
+        """Get list of available individual registrants (not groups).
+
+        Returns individual registrants that can be used as complainants.
+        When spp_grm_registry is installed, these will be linked via
+        registrant_id and their household via household_id.
+        """
+        return self.env["res.partner"].search(
+            [("is_registrant", "=", True), ("is_group", "=", False)],
+            limit=1000,
+        )
+
+    def _has_registry_fields(self):
+        """Check if spp_grm_registry is installed (registrant_id field exists)."""
+        return "registrant_id" in self.env["spp.grm.ticket"]._fields
+
+    def _get_registrant_vals(self, partner):
+        """Get registrant_id, household_id, and area_id vals for a ticket.
+
+        Args:
+            partner: Individual registrant (res.partner with is_group=False)
+
+        Returns:
+            dict with registrant/household/area fields to merge into ticket vals
+        """
+        if not self._has_registry_fields():
+            return {}
+
+        vals = {"registrant_id": partner.id}
+
+        # Find household via membership
+        if hasattr(partner, "individual_membership_ids") and partner.individual_membership_ids:
+            household = partner.individual_membership_ids[0].group
+            if household:
+                vals["household_id"] = household.id
+
+        # Fill area if available
+        if hasattr(partner, "area_id") and partner.area_id:
+            vals["area_id"] = partner.area_id.id
+
+        return vals
 
     def _get_available_programs(self):
         """Get list of available programs"""
@@ -907,7 +943,6 @@ class SPPGRMDemoGenerator(models.TransientModel):
             except Exception:
                 # Create new category
                 category = (
-                    # nosemgrep: odoo-sudo-without-context — demo data generation runs as admin
                     self.env["spp.grm.ticket.category"]
                     .sudo()
                     .create(

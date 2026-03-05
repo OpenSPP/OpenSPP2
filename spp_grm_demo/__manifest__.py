@@ -3,22 +3,25 @@
 
 {
     "name": "OpenSPP GRM Demo Data",
-    "version": "19.0.2.0.0",
+    "version": "19.0.1.0.0",
     "category": "OpenSPP/Monitoring",
     "summary": "Demo data generator for Grievance Redress Mechanism",
     "author": "OpenSPP.org",
-    "website": "https://github.com/OpenSPP/OpenSPP2",
+    "website": "https://github.com/OpenSPP/openspp-modules",
     "license": "LGPL-3",
-    "development_status": "Alpha",
-    "maintainers": ["jeremi", "gonzalesedwin1123"],
+    "development_status": "Stable",
+    "maintainers": ["jeremi", "gonzalesedwin1123", "emjay0921"],
     "depends": [
         "spp_demo",  # Consolidated demo module
         "spp_grm",
+        "spp_grm_registry",
+        "spp_grm_programs",
         "spp_security",
     ],
-    "external_dependencies": {"python": []},
+    "external_dependencies": {"python": ["faker"]},
     "data": [
         "security/ir.model.access.csv",
+        "data/demo_users.xml",
         "data/ticket_categories.xml",
         "views/grm_demo_wizard_view.xml",
     ],

@@ -96,7 +96,7 @@ class SPPGRMTicket(models.Model):
     # Basic Information
     number = fields.Char(string="Ticket number", default="/", readonly=True)
     name = fields.Char(string="Title", required=True)
-    description = fields.Html(required=True, sanitize_style=True)
+    description = fields.Text(required=True)
     user_id = fields.Many2one(
         comodel_name="res.users",
         string="Assigned user",
@@ -119,10 +119,7 @@ class SPPGRMTicket(models.Model):
         index=True,
     )
     partner_id = fields.Many2one(
-        comodel_name="res.partner",
-        string="Contact",
-        required=True,
-        domain="[('is_registrant', '=', True)]",
+        comodel_name="res.partner", string="Contact", required=True, domain="[('is_registrant', '=', True)]"
     )
     partner_email = fields.Char(string="Email", related="partner_id.email", store=True)
     last_stage_update = fields.Datetime(default=fields.Datetime.now)
@@ -139,6 +136,7 @@ class SPPGRMTicket(models.Model):
         store=True,
         help="Computed field indicating if ticket is in a closed stage",
     )
+    stage_type = fields.Selection(related="stage_id.stage_type", store=True)
     unattended = fields.Boolean(related="stage_id.unattended", store=True)
     tag_ids = fields.Many2many(comodel_name="spp.grm.ticket.tag", string="Tags")
     company_id = fields.Many2one(
@@ -293,9 +291,8 @@ class SPPGRMTicket(models.Model):
         tracking=True,
         help="Final decision on the complaint",
     )
-    resolution_summary = fields.Html(
+    resolution_summary = fields.Text(
         string="Resolution Summary",
-        sanitize_style=True,
         help="Detailed summary of the resolution",
     )
 
@@ -398,7 +395,10 @@ class SPPGRMTicket(models.Model):
                     # For now, only supervisors/managers can move to approval-required stages
                     if not self.env.user.has_group("spp_grm.group_grm_supervisor"):
                         raise UserError(
-                            _("Stage '%s' requires supervisor approval. Please request approval from your supervisor.")
+                            _(
+                                "Stage '%s' requires supervisor approval. "
+                                "Please request approval from your supervisor."
+                            )
                             % new_stage.name
                         )
 
@@ -438,7 +438,8 @@ class SPPGRMTicket(models.Model):
     def _compute_user_id(self):
         """Compute assigned user based on team or category defaults.
 
-        This provides a suggested assignment but can be overridden manually.
+        Falls back to the current user so officers can always see
+        tickets they create (required by officer record rules).
         """
         for ticket in self:
             # Skip if already assigned
@@ -449,7 +450,7 @@ class SPPGRMTicket(models.Model):
             if ticket.team_id and ticket.team_id.manager_id:
                 ticket.user_id = ticket.team_id.manager_id
             else:
-                ticket.user_id = False
+                ticket.user_id = self.env.user
 
     @api.depends("stage_id", "stage_id.is_closed")
     def _compute_is_closed(self):
@@ -556,7 +557,7 @@ class SPPGRMTicket(models.Model):
             if ticket.sla_status == "breached" and old_status != "breached":
                 # Use sudo() to call _on_sla_breach in a new environment context
                 # to avoid triggering compute dependencies during the compute itself
-                ticket.sudo()._on_sla_breach()  # nosemgrep: odoo-sudo-without-context
+                ticket.sudo()._on_sla_breach()
 
     def _on_sla_breach(self):
         """Called when ticket SLA status changes to breached.
@@ -575,10 +576,7 @@ class SPPGRMTicket(models.Model):
                 )
                 continue
 
-            _logger.info(
-                "SLA breach detected for ticket %s, triggering auto-escalation",
-                ticket.number,
-            )
+            _logger.info("SLA breach detected for ticket %s, triggering auto-escalation", ticket.number)
 
             # Try to apply escalation rules if spp_grm_cel module is installed
             if "spp.grm.escalation.rule" in self.env:
@@ -648,6 +646,43 @@ class SPPGRMTicket(models.Model):
     def assign_to_me(self):
         self.write({"user_id": self.env.user.id})
 
+    def _find_stage_by_type(self, stage_type):
+        """Find the first stage matching the given stage_type."""
+        stage = self.env["spp.grm.ticket.stage"].search([("stage_type", "=", stage_type)], limit=1)
+        if not stage:
+            raise UserError(_("No stage found with type '%s'.") % stage_type)
+        return stage
+
+    def action_start_progress(self):
+        """Move ticket to In Progress stage."""
+        stage = self._find_stage_by_type("in_progress")
+        self.write({"stage_id": stage.id})
+
+    def action_set_awaiting(self):
+        """Move ticket to Awaiting stage."""
+        stage = self._find_stage_by_type("waiting")
+        self.write({"stage_id": stage.id})
+
+    def action_resolve(self):
+        """Move ticket to Done/Resolved stage."""
+        stage = self._find_stage_by_type("resolved")
+        self.write({"stage_id": stage.id})
+
+    def action_cancel(self):
+        """Move ticket to Cancelled stage."""
+        stage = self._find_stage_by_type("cancelled")
+        self.write({"stage_id": stage.id})
+
+    def action_reject(self):
+        """Move ticket to Rejected stage."""
+        stage = self._find_stage_by_type("closed")
+        self.write({"stage_id": stage.id})
+
+    def action_reopen(self):
+        """Reopen a closed ticket back to New stage."""
+        stage = self._find_stage_by_type("new")
+        self.write({"stage_id": stage.id, "closed_date": False, "closed_by_id": False})
+
     def _prepare_ticket_number(self):
         # Generate ticket number
         return self.env["ir.sequence"].next_by_code("spp.grm.ticket.sequence")
@@ -661,7 +696,7 @@ class SPPGRMTicket(models.Model):
         """Send the ticket submission confirmation email."""
         template = self.env.ref("spp_grm.ticket_submission_confirmation", raise_if_not_found=False)
         if template:
-            template.sudo().send_mail(  # nosemgrep: odoo-sudo-without-context
+            template.sudo().send_mail(
                 ticket.id,
                 force_send=True,
                 email_values={

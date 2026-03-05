@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+        <!-- Default Case Types for Demo -->
+        <record id="case_type_general" model="spp.case.type">
+            <field name="name">General Support</field>
+            <field name="code">GEN</field>
+            <field name="default_intensity">1</field>
+        </record>
+
+        <record id="case_type_emergency" model="spp.case.type">
+            <field name="name">Emergency Assistance</field>
+            <field name="code">EMG</field>
+            <field name="default_intensity">3</field>
+        </record>
+
+        <record id="case_type_child" model="spp.case.type">
+            <field name="name">Child Protection</field>
+            <field name="code">CHP</field>
+            <field name="default_intensity">2</field>
+        </record>
+
+        <record id="case_type_health" model="spp.case.type">
+            <field name="name">Health Support</field>
+            <field name="code">HLT</field>
+            <field name="default_intensity">1</field>
+        </record>
+
+        <record id="case_type_livelihood" model="spp.case.type">
+            <field name="name">Livelihood Development</field>
+            <field name="code">LIV</field>
+            <field name="default_intensity">2</field>
+        </record>
+
+        <record id="case_type_housing" model="spp.case.type">
+            <field name="name">Housing Assistance</field>
+            <field name="code">HSG</field>
+            <field name="default_intensity">2</field>
+        </record>
+</odoo>

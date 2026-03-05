@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Extend Session Form to show related cases -->
+    <record id="view_session_form_case" model="ir.ui.view">
+        <field name="name">spp.session.form.case</field>
+        <field name="model">spp.session</field>
+        <field name="inherit_id" ref="spp_session_tracking.view_session_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/group[1]" position="before">
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_view_cases" type="object"
+                            class="oe_stat_button" icon="fa-folder-open">
+                        <field name="case_count" widget="statinfo" string="Cases"/>
+                    </button>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

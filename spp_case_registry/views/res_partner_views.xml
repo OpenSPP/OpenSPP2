@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Registrant Form View - Add Cases Tab -->
+    <record id="view_res_partner_form_case" model="ir.ui.view">
+        <field name="name">res.partner.form.case</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form" />
+        <field name="arch" type="xml">
+            <!-- Add Cases smart button -->
+            <div name="button_box" position="inside">
+                <button
+                    class="oe_stat_button"
+                    type="object"
+                    name="action_view_cases"
+                    icon="fa-folder-open"
+                    invisible="case_count == 0"
+                >
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_value">
+                            <field name="case_active_count" widget="integer" />
+                            /
+                            <field name="case_count" widget="integer" />
+                        </span>
+                        <span class="o_stat_text">Cases</span>
+                    </div>
+                </button>
+            </div>
+
+            <!-- Add Cases tab for registrants -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Cases" name="cases" invisible="not is_registrant or case_count == 0">
+                    <group>
+                        <group>
+                            <field name="case_count" readonly="1" />
+                            <field name="case_active_count" readonly="1" />
+                        </group>
+                    </group>
+                    <group string="Cases as Registrant">
+                        <!-- Odoo 19: list/form replaces tree/form -->
+                        <field name="case_registrant_ids" nolabel="1" mode="list">
+                            <list>
+                                <field name="name" string="Case Number"/>
+                                <field name="case_type_id"/>
+                                <field name="stage_id" widget="statusbar"/>
+                                <field name="priority" widget="priority" />
+                                <field name="case_worker_id" widget="many2one_avatar_user" />
+                                <field name="opened_date" />
+                            </list>
+                        </field>
+                    </group>
+                    <group string="Cases as Household" invisible="not is_group">
+                        <!-- Odoo 19: list/form replaces tree/form -->
+                        <field name="case_household_ids" nolabel="1" mode="list">
+                            <list>
+                                <field name="name" string="Case Number"/>
+                                <field name="case_type_id"/>
+                                <field name="stage_id" widget="statusbar"/>
+                                <field name="priority" widget="priority" />
+                                <field name="case_worker_id" widget="many2one_avatar_user" />
+                                <field name="opened_date" />
+                            </list>
+                        </field>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Registrant Search View - Add case filters -->
+    <record id="view_res_partner_search_case" model="ir.ui.view">
+        <field name="name">res.partner.search.case</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter" />
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='inactive']" position="before">
+            </xpath>
+        </field>
+    </record>
+</odoo>

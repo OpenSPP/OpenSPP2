@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ========== Case Visit Views ========== -->
+
+    <!-- Case Visit Form View -->
+    <record id="view_case_visit_form" model="ir.ui.view">
+        <field name="name">spp.case.visit.form</field>
+        <field name="model">spp.case.visit</field>
+        <field name="arch" type="xml">
+            <form string="Case Visit">
+                <sheet>
+                    <group col="2">
+                        <group name="visit_info">
+                            <field name="case_id" required="1" options="{'no_create': True}"/>
+                            <field name="client_id" readonly="1"/>
+                            <field name="visit_type" required="1"/>
+                            <field name="visit_date" required="1"/>
+                            <field name="duration_minutes"/>
+                        </group>
+                        <group name="conducted_info">
+                            <field name="conducted_by_id" required="1" widget="many2one_avatar_user"/>
+                            <field name="purpose" placeholder="Brief description of visit purpose"/>
+                        </group>
+                    </group>
+                    <group name="attendees_group" string="Attendees">
+                        <field name="attendee_ids" nolabel="1" widget="many2many_tags" placeholder="Add attendees..." colspan="2"/>
+                    </group>
+                    <separator string="Visit Notes"/>
+                    <field name="notes" nolabel="1" placeholder="Enter detailed notes from this visit..."/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Case Visit Tree View -->
+    <record id="view_case_visit_tree" model="ir.ui.view">
+        <field name="name">spp.case.visit.tree</field>
+        <field name="model">spp.case.visit</field>
+        <field name="arch" type="xml">
+            <list string="Case Visits">
+                <field name="visit_date"/>
+                <field name="case_id"/>
+                <field name="client_id"/>
+                <field name="visit_type"/>
+                <field name="conducted_by_id" widget="many2one_avatar_user"/>
+                <field name="duration_minutes" string="Duration (min)"/>
+                <field name="purpose"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Case Visit Calendar View -->
+    <record id="view_case_visit_calendar" model="ir.ui.view">
+        <field name="name">spp.case.visit.calendar</field>
+        <field name="model">spp.case.visit</field>
+        <field name="arch" type="xml">
+            <calendar string="Case Visits" date_start="visit_date" color="visit_type" mode="month">
+                <field name="case_id"/>
+                <field name="client_id"/>
+                <field name="visit_type"/>
+                <field name="conducted_by_id"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Case Visit Search View -->
+    <record id="view_case_visit_search" model="ir.ui.view">
+        <field name="name">spp.case.visit.search</field>
+        <field name="model">spp.case.visit</field>
+        <field name="arch" type="xml">
+            <search string="Search Case Visits">
+                <field name="case_id"/>
+                <field name="client_id"/>
+                <field name="conducted_by_id"/>
+                <separator/>
+                <filter string="My Visits" name="my_visits" domain="[('conducted_by_id', '=', uid)]"/>
+                <filter string="This Week" name="this_week"
+                        domain="[('visit_date', '&gt;=', (context_today() - datetime.timedelta(days=context_today().weekday())).strftime('%Y-%m-%d')),
+                                 ('visit_date', '&lt;=', (context_today() + datetime.timedelta(days=6-context_today().weekday())).strftime('%Y-%m-%d'))]"/>
+                <filter string="This Month" name="this_month"
+                        domain="[('visit_date', '&gt;=', (context_today().replace(day=1)).strftime('%Y-%m-%d'))]"/>
+                <separator/>
+                <group>
+                    <filter string="Case" name="group_case" context="{'group_by': 'case_id'}"/>
+                    <filter string="Visit Type" name="group_type" context="{'group_by': 'visit_type'}"/>
+                    <filter string="Conducted By" name="group_conducted" context="{'group_by': 'conducted_by_id'}"/>
+                    <filter string="Visit Date" name="group_date" context="{'group_by': 'visit_date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Case Visit Action -->
+    <record id="action_case_visit" model="ir.actions.act_window">
+        <field name="name">Case Visits</field>
+        <field name="res_model">spp.case.visit</field>
+        <field name="view_mode">list,calendar,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Schedule a new case visit
+            </p>
+            <p>
+                Track all visits and contacts with case clients, including home visits,
+                office visits, phone calls, and virtual meetings.
+            </p>
+        </field>
+    </record>
+
+    <!-- ========== Case Note Views ========== -->
+
+    <!-- Case Note Form View -->
+    <record id="view_case_note_form" model="ir.ui.view">
+        <field name="name">spp.case.note.form</field>
+        <field name="model">spp.case.note</field>
+        <field name="arch" type="xml">
+            <form string="Case Note">
+                <sheet>
+                    <widget name="web_ribbon" title="Confidential" bg_color="text-bg-danger" invisible="not is_confidential"/>
+                    <group col="2">
+                        <group name="note_info">
+                            <field name="case_id" required="1" options="{'no_create': True}"/>
+                            <field name="client_id" readonly="1"/>
+                            <field name="note_type" required="1"/>
+                            <field name="note_date" required="1"/>
+                        </group>
+                        <group name="author_info">
+                            <field name="author_id" required="1" readonly="1" widget="many2one_avatar_user"/>
+                            <field name="is_confidential"/>
+                        </group>
+                    </group>
+                    <separator string="Note Content"/>
+                    <field name="content" nolabel="1" required="1" placeholder="Enter note content..."/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Case Note Tree View -->
+    <record id="view_case_note_tree" model="ir.ui.view">
+        <field name="name">spp.case.note.tree</field>
+        <field name="model">spp.case.note</field>
+        <field name="arch" type="xml">
+            <list string="Case Notes" decoration-danger="is_confidential == True">
+                <field name="note_date"/>
+                <field name="case_id"/>
+                <field name="client_id"/>
+                <field name="note_type"/>
+                <field name="author_id" widget="many2one_avatar_user"/>
+                <field name="is_confidential" string="Confidential"/>
+                <field name="content" widget="html" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Case Note Search View -->
+    <record id="view_case_note_search" model="ir.ui.view">
+        <field name="name">spp.case.note.search</field>
+        <field name="model">spp.case.note</field>
+        <field name="arch" type="xml">
+            <search string="Search Case Notes">
+                <field name="case_id"/>
+                <field name="client_id"/>
+                <field name="author_id"/>
+                <field name="content"/>
+                <separator/>
+                <filter string="My Notes" name="my_notes" domain="[('author_id', '=', uid)]"/>
+                <filter string="Confidential" name="confidential" domain="[('is_confidential', '=', True)]"/>
+                <filter string="Assessment Notes" name="assessment" domain="[('note_type', '=', 'assessment')]"/>
+                <filter string="Progress Updates" name="progress" domain="[('note_type', '=', 'progress')]"/>
+                <separator/>
+                <group>
+                    <filter string="Case" name="group_case" context="{'group_by': 'case_id'}"/>
+                    <filter string="Note Type" name="group_type" context="{'group_by': 'note_type'}"/>
+                    <filter string="Author" name="group_author" context="{'group_by': 'author_id'}"/>
+                    <filter string="Date" name="group_date" context="{'group_by': 'note_date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Case Note Action -->
+    <record id="action_case_note" model="ir.actions.act_window">
+        <field name="name">Case Notes</field>
+        <field name="res_model">spp.case.note</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new case note
+            </p>
+            <p>
+                Document important information, assessments, and progress updates for cases.
+                Mark sensitive information as confidential to restrict access.
+            </p>
+        </field>
+    </record>
+
+    <!-- ========== Case Referral Views ========== -->
+
+    <!-- Case Referral Form View -->
+    <record id="view_case_referral_form" model="ir.ui.view">
+        <field name="name">spp.case.referral.form</field>
+        <field name="model">spp.case.referral</field>
+        <field name="arch" type="xml">
+            <form string="Case Referral">
+                <header>
+                    <button name="action_accept" string="Accept" type="object" class="btn-success"
+                            invisible="status != 'pending'"/>
+                    <button name="action_reject" string="Reject" type="object" class="btn-danger"
+                            invisible="status != 'pending'"/>
+                    <button name="action_complete" string="Complete" type="object" class="btn-primary"
+                            invisible="status not in ['pending', 'accepted']"/>
+                    <field name="status" widget="statusbar" statusbar_visible="pending,accepted,completed"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Overdue" bg_color="text-bg-danger" invisible="not is_overdue"/>
+                    <field name="is_overdue" invisible="1"/>
+                    <group col="2">
+                        <group name="case_info">
+                            <field name="case_id" required="1" options="{'no_create': True}"/>
+                            <field name="client_id" readonly="1"/>
+                            <field name="service_name" required="1" placeholder="e.g. Mental Health Counseling"/>
+                            <field name="provider_name" placeholder="e.g. Community Health Center"/>
+                        </group>
+                        <group name="referral_info">
+                            <field name="referred_by_id" required="1" readonly="1" widget="many2one_avatar_user"/>
+                            <field name="referral_date" required="1"/>
+                            <field name="follow_up_date"/>
+                        </group>
+                    </group>
+                    <separator string="Reason for Referral"/>
+                    <field name="reason" nolabel="1" required="1" placeholder="Enter reason for this referral..."/>
+                    <separator string="Outcome" invisible="status not in ['completed', 'rejected']"/>
+                    <field name="outcome" nolabel="1" invisible="status not in ['completed', 'rejected']" placeholder="Enter referral outcome..."/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Case Referral Tree View -->
+    <record id="view_case_referral_tree" model="ir.ui.view">
+        <field name="name">spp.case.referral.tree</field>
+        <field name="model">spp.case.referral</field>
+        <field name="arch" type="xml">
+            <list string="Case Referrals" decoration-warning="status == 'pending'"
+                  decoration-success="status == 'completed'" decoration-danger="is_overdue == True">
+                <field name="referral_date"/>
+                <field name="case_id"/>
+                <field name="client_id"/>
+                <field name="service_name"/>
+                <field name="provider_name"/>
+                <field name="referred_by_id" widget="many2one_avatar_user"/>
+                <field name="status" widget="badge"
+                       decoration-warning="status == 'pending'"
+                       decoration-success="status == 'accepted'"
+                       decoration-info="status == 'completed'"
+                       decoration-danger="status == 'rejected'"/>
+                <field name="follow_up_date"/>
+                <field name="is_overdue" invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Case Referral Kanban View -->
+    <record id="view_case_referral_kanban" model="ir.ui.view">
+        <field name="name">spp.case.referral.kanban</field>
+        <field name="model">spp.case.referral</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="status" class="o_kanban_small_column">
+                <field name="service_name"/>
+                <field name="provider_name"/>
+                <field name="case_id"/>
+                <field name="client_id"/>
+                <field name="referral_date"/>
+                <field name="is_overdue"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_content">
+                            <div class="o_kanban_record_top">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title">
+                                        <field name="service_name"/>
+                                    </strong>
+                                    <div class="o_kanban_record_subtitle">
+                                        <field name="case_id"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="o_kanban_record_body">
+                                <field name="provider_name"/>
+                                <div t-if="record.is_overdue.raw_value">
+                                    <span class="badge text-bg-danger">Overdue</span>
+                                </div>
+                            </div>
+                            <div class="o_kanban_record_bottom">
+                                <div class="oe_kanban_bottom_left">
+                                    <t t-esc="record.referral_date.value"/>
+                                </div>
+                                <div class="oe_kanban_bottom_right">
+                                    <field name="referred_by_id" widget="many2one_avatar_user"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Case Referral Search View -->
+    <record id="view_case_referral_search" model="ir.ui.view">
+        <field name="name">spp.case.referral.search</field>
+        <field name="model">spp.case.referral</field>
+        <field name="arch" type="xml">
+            <search string="Search Case Referrals">
+                <field name="case_id"/>
+                <field name="client_id"/>
+                <field name="service_name"/>
+                <field name="provider_name"/>
+                <field name="referred_by_id"/>
+                <separator/>
+                <filter string="My Referrals" name="my_referrals" domain="[('referred_by_id', '=', uid)]"/>
+                <filter string="Pending" name="pending" domain="[('status', '=', 'pending')]"/>
+                <filter string="Accepted" name="accepted" domain="[('status', '=', 'accepted')]"/>
+                <filter string="Overdue" name="overdue" domain="[('follow_up_date', '&lt;', context_today().strftime('%Y-%m-%d')), ('status', 'not in', ['completed', 'rejected'])]"/>
+                <separator/>
+                <group>
+                    <filter string="Case" name="group_case" context="{'group_by': 'case_id'}"/>
+                    <filter string="Status" name="group_status" context="{'group_by': 'status'}"/>
+                    <filter string="Service" name="group_service" context="{'group_by': 'service_name'}"/>
+                    <filter string="Referred By" name="group_referred" context="{'group_by': 'referred_by_id'}"/>
+                    <filter string="Referral Date" name="group_date" context="{'group_by': 'referral_date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Case Referral Action -->
+    <record id="action_case_referral" model="ir.actions.act_window">
+        <field name="name">Case Referrals</field>
+        <field name="res_model">spp.case.referral</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new referral
+            </p>
+            <p>
+                Track referrals to external services and organizations.
+                Monitor the status and follow-up on each referral to ensure clients receive needed support.
+            </p>
+        </field>
+    </record>
+</odoo>

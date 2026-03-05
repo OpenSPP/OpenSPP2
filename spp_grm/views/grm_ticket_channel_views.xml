@@ -5,14 +5,10 @@
         <field name="model">spp.grm.ticket.channel</field>
         <field name="arch" type="xml">
             <form string="Stages">
-                <header />
+                <header>
+                </header>
                 <sheet>
-                    <widget
-                        name="web_ribbon"
-                        title="Archived"
-                        bg_color="bg-danger"
-                        invisible="active"
-                    />
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" invisible="active" />
                     <div class="oe_title">
                         <label for="name" class="oe_edit_only" />
                         <h1>
@@ -35,11 +31,7 @@
             <list editable="bottom">
                 <field name="sequence" widget="handle" />
                 <field name="name" />
-                <field
-                    name="company_id"
-                    optional="hide"
-                    groups="base.group_multi_company"
-                />
+                <field name="company_id" optional="hide" groups="base.group_multi_company" />
             </list>
         </field>
     </record>
@@ -49,11 +41,7 @@
         <field name="model">spp.grm.ticket.channel</field>
         <field name="arch" type="xml">
             <search string="Grievance Redress Mechanism Category Search">
-                <filter
-                    string="Archived"
-                    name="inactive"
-                    domain="[('active','=',False)]"
-                />
+                <filter string="Archived" name="inactive" domain="[('active','=',False)]" />
                 <separator />
                 <field name="name" filter_domain="[('name', 'ilike', self)]" />
                 <field name="company_id" groups="base.group_multi_company" />
@@ -84,4 +72,5 @@
         action="spp_grm_ticket_channel_action"
         sequence="5"
     />
+
 </odoo>

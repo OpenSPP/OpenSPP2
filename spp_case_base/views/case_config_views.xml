@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ========== Risk Factor Views ========== -->
+
+    <!-- Risk Factor Form View -->
+    <record id="view_case_risk_factor_form" model="ir.ui.view">
+        <field name="name">spp.case.risk.factor.form</field>
+        <field name="model">spp.case.risk.factor</field>
+        <field name="arch" type="xml">
+            <form string="Risk Factor">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <group>
+                        <group name="basic">
+                            <field name="name" required="1"/>
+                            <field name="code" required="1"/>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                        </group>
+                        <group name="settings">
+                            <field name="severity_weight"/>
+                        </group>
+                    </group>
+                    <group col="2" string="Description">
+                        <field name="description" nolabel="1" colspan="2" placeholder="Risk factor description..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Risk Factor Tree View -->
+    <record id="view_case_risk_factor_tree" model="ir.ui.view">
+        <field name="name">spp.case.risk.factor.tree</field>
+        <field name="model">spp.case.risk.factor</field>
+        <field name="arch" type="xml">
+            <list string="Risk Factors" default_order="sequence,name" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="severity_weight"/>
+                <field name="description"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Risk Factor Search View -->
+    <record id="view_case_risk_factor_search" model="ir.ui.view">
+        <field name="name">spp.case.risk.factor.search</field>
+        <field name="model">spp.case.risk.factor</field>
+        <field name="arch" type="xml">
+            <search string="Search Risk Factors">
+                <field name="name"/>
+                <field name="code"/>
+                <separator/>
+                <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Risk Factor Action -->
+    <record id="action_case_risk_factor" model="ir.actions.act_window">
+        <field name="name">Risk Factors</field>
+        <field name="path">case-risk-factors</field>
+        <field name="res_model">spp.case.risk.factor</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new risk factor
+            </p>
+            <p>
+                Define risk factors that can be associated with cases to identify
+                and track potential risks affecting clients.
+            </p>
+        </field>
+    </record>
+
+    <!-- ========== Vulnerability Views ========== -->
+
+    <!-- Vulnerability Form View -->
+    <record id="view_case_vulnerability_form" model="ir.ui.view">
+        <field name="name">spp.case.vulnerability.form</field>
+        <field name="model">spp.case.vulnerability</field>
+        <field name="arch" type="xml">
+            <form string="Vulnerability">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <group>
+                        <group name="basic">
+                            <field name="name" required="1"/>
+                            <field name="code" required="1"/>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <group col="2" string="Description">
+                        <field name="description" nolabel="1" colspan="2" placeholder="Vulnerability description..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vulnerability Tree View -->
+    <record id="view_case_vulnerability_tree" model="ir.ui.view">
+        <field name="name">spp.case.vulnerability.tree</field>
+        <field name="model">spp.case.vulnerability</field>
+        <field name="arch" type="xml">
+            <list string="Vulnerabilities" default_order="sequence,name" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="description"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vulnerability Search View -->
+    <record id="view_case_vulnerability_search" model="ir.ui.view">
+        <field name="name">spp.case.vulnerability.search</field>
+        <field name="model">spp.case.vulnerability</field>
+        <field name="arch" type="xml">
+            <search string="Search Vulnerabilities">
+                <field name="name"/>
+                <field name="code"/>
+                <separator/>
+                <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Vulnerability Action -->
+    <record id="action_case_vulnerability" model="ir.actions.act_window">
+        <field name="name">Vulnerabilities</field>
+        <field name="path">case-vulnerabilities</field>
+        <field name="res_model">spp.case.vulnerability</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new vulnerability
+            </p>
+            <p>
+                Define vulnerabilities that can be associated with cases to identify
+                and track client vulnerabilities requiring special attention.
+            </p>
+        </field>
+    </record>
+
+    <!-- ========== Closure Reason Views ========== -->
+
+    <!-- Closure Reason Form View -->
+    <record id="view_case_closure_reason_form" model="ir.ui.view">
+        <field name="name">spp.case.closure.reason.form</field>
+        <field name="model">spp.case.closure.reason</field>
+        <field name="arch" type="xml">
+            <form string="Closure Reason">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <group>
+                        <group name="basic">
+                            <field name="name" required="1"/>
+                            <field name="code" required="1"/>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                        </group>
+                        <group name="settings">
+                            <field name="outcome_type" required="1"/>
+                        </group>
+                    </group>
+                    <group col="2" string="Description">
+                        <field name="description" nolabel="1" colspan="2" placeholder="Closure reason description..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Closure Reason Tree View -->
+    <record id="view_case_closure_reason_tree" model="ir.ui.view">
+        <field name="name">spp.case.closure.reason.tree</field>
+        <field name="model">spp.case.closure.reason</field>
+        <field name="arch" type="xml">
+            <list string="Closure Reasons" default_order="sequence,name" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="outcome_type"/>
+                <field name="description"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Closure Reason Search View -->
+    <record id="view_case_closure_reason_search" model="ir.ui.view">
+        <field name="name">spp.case.closure.reason.search</field>
+        <field name="model">spp.case.closure.reason</field>
+        <field name="arch" type="xml">
+            <search string="Search Closure Reasons">
+                <field name="name"/>
+                <field name="code"/>
+                <separator/>
+                <filter string="Positive Outcome" name="positive" domain="[('outcome_type', '=', 'positive')]"/>
+                <filter string="Negative Outcome" name="negative" domain="[('outcome_type', '=', 'negative')]"/>
+                <separator/>
+                <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter string="Outcome Type" name="group_outcome" context="{'group_by': 'outcome_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Closure Reason Action -->
+    <record id="action_case_closure_reason" model="ir.actions.act_window">
+        <field name="name">Closure Reasons</field>
+        <field name="path">case-closure-reasons</field>
+        <field name="res_model">spp.case.closure.reason</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new closure reason
+            </p>
+            <p>
+                Define reasons for case closure to track outcomes and ensure
+                proper documentation of case endings.
+            </p>
+        </field>
+    </record>
+
+    <!-- ========== Case Team Views ========== -->
+
+    <!-- Case Team Form View -->
+    <record id="view_case_team_form" model="ir.ui.view">
+        <field name="name">spp.case.team.form</field>
+        <field name="model">spp.case.team</field>
+        <field name="arch" type="xml">
+            <form string="Case Team">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_cases" type="object" class="oe_stat_button" icon="fa-folder-open">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="active_case_count"/> / <field name="total_case_count"/>
+                                </span>
+                                <span class="o_stat_text">Cases</span>
+                            </div>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Team Name" required="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group name="basic">
+                            <field name="supervisor_id"/>
+                            <field name="active"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group name="settings">
+                            <field name="color" widget="color_picker"/>
+                        </group>
+                    </group>
+                    <group col="2" string="Team Members">
+                        <field name="member_ids" nolabel="1" colspan="2" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                    </group>
+                    <group col="2" string="Case Types">
+                        <field name="case_type_ids" nolabel="1" colspan="2" widget="many2many_tags" options="{'color_field': 'color', 'no_create': True}"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Case Team Tree View -->
+    <record id="view_case_team_tree" model="ir.ui.view">
+        <field name="name">spp.case.team.tree</field>
+        <field name="model">spp.case.team</field>
+        <field name="arch" type="xml">
+            <list string="Case Teams">
+                <field name="name"/>
+                <field name="supervisor_id" widget="many2one_avatar_user"/>
+                <field name="member_ids" widget="many2many_tags"/>
+                <field name="active_case_count" string="Active Cases"/>
+                <field name="total_case_count" string="Total Cases"/>
+                <field name="active" widget="boolean_toggle"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Case Team Kanban View -->
+    <record id="view_case_team_kanban" model="ir.ui.view">
+        <field name="name">spp.case.team.kanban</field>
+        <field name="model">spp.case.team</field>
+        <field name="arch" type="xml">
+            <kanban highlight_color="color">
+                <field name="name"/>
+                <field name="supervisor_id"/>
+                <field name="member_ids"/>
+                <field name="active_case_count"/>
+                <field name="total_case_count"/>
+                <field name="color"/>
+                <templates>
+                    <t t-name="card">
+                        <field name="name" class="fw-bold fs-5"/>
+                        <div class="mt-2 mb-2" t-if="record.supervisor_id.value">
+                            <span class="text-muted small">Supervisor:</span>
+                            <field name="supervisor_id" widget="many2one_avatar_user"/>
+                        </div>
+                        <div class="mb-2" t-if="record.member_ids.raw_value.length">
+                            <span class="text-muted small d-block">Team Members:</span>
+                            <field name="member_ids" widget="many2many_avatar_user"/>
+                        </div>
+                        <div class="mt-2">
+                            <span class="badge text-bg-primary">
+                                <i class="fa fa-folder-open me-1"/>
+                                <t t-esc="record.active_case_count.value"/> / <t t-esc="record.total_case_count.value"/> cases
+                            </span>
+                        </div>
+                    </t>
+                    <t t-name="menu">
+                        <a role="menuitem" type="edit" class="dropdown-item">Edit</a>
+                        <a role="menuitem" type="delete" class="dropdown-item">Delete</a>
+                        <div role="separator" class="dropdown-divider"/>
+                        <field name="color" widget="kanban_color_picker"/>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Case Team Search View -->
+    <record id="view_case_team_search" model="ir.ui.view">
+        <field name="name">spp.case.team.search</field>
+        <field name="model">spp.case.team</field>
+        <field name="arch" type="xml">
+            <search string="Search Case Teams">
+                <field name="name"/>
+                <field name="supervisor_id"/>
+                <field name="member_ids"/>
+                <separator/>
+                <filter string="My Teams" name="my_teams" domain="[('member_ids', 'in', uid)]"/>
+                <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter string="Supervisor" name="group_supervisor" context="{'group_by': 'supervisor_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Case Team Action -->
+    <record id="action_case_team" model="ir.actions.act_window">
+        <field name="name">Case Teams</field>
+        <field name="path">case-teams</field>
+        <field name="res_model">spp.case.team</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new case team
+            </p>
+            <p>
+                Organize case workers into teams with designated supervisors.
+                Teams can be assigned to specific case types and track their caseload collectively.
+            </p>
+        </field>
+    </record>
+</odoo>

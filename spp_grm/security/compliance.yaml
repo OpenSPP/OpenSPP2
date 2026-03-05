@@ -50,16 +50,13 @@ groups:
     tier: 2
     privilege_id: privilege_grm_supervisor
     implied_ids: [group_grm_officer]
-    comment:
-      "SPECIALIZED ROLE: Manage team tickets, approve resolutions. Between Officer and
-      Manager."
+    comment: "SPECIALIZED ROLE: Manage team tickets, approve resolutions. Between Officer and Manager."
 
   # --- Backward compatibility ---
   - id: group_grm_user
     tier: 2
     implied_ids: [group_grm_viewer]
-    comment:
-      "Deprecated: Use group_grm_viewer instead. Kept for backward compatibility."
+    comment: "Deprecated: Use group_grm_viewer instead. Kept for backward compatibility."
 
 # Admin linkage - manager group links to spp_security.group_spp_admin
 admin_link_group: group_grm_manager

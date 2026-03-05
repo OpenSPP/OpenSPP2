@@ -83,7 +83,6 @@ class TestStoryTicketDefinitions(TransactionCase):
 
         ticket = tickets[0]
         self.assertEqual(ticket["title"], "How do I qualify for Universal Child Grant?")
-        self.assertEqual(ticket["ticket_type"], "inquiry")
         self.assertEqual(ticket["priority"], "low")
         self.assertEqual(ticket["program_name"], "Universal Child Grant")
         self.assertTrue(ticket.get("escalate_to_case"))  # Should escalate to case assessment
@@ -105,7 +104,6 @@ class TestStoryTicketDefinitions(TransactionCase):
 
         ticket = tickets[0]
         self.assertEqual(ticket["title"], "Request for resettlement support")
-        self.assertEqual(ticket["ticket_type"], "inquiry")
 
         # Should remain open (no resolution)
         self.assertIsNone(ticket.get("resolution"))

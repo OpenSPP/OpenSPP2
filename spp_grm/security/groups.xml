@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!-- GRM Domain Groups -->
     <!-- Following ADR-004 three-tier architecture with GRM-specific 4-level hierarchy -->
@@ -12,62 +12,49 @@
     <record id="group_grm_write" model="res.groups">
         <field name="name">GRM: Write</field>
         <field name="comment">Technical group for write access to GRM models.</field>
-        <field name="implied_ids" eval="[Command.link(ref('group_grm_read'))]" />
+        <field name="implied_ids" eval="[Command.link(ref('group_grm_read'))]"/>
     </record>
 
     <!-- Tier 2: User-facing groups -->
     <!-- All groups share the same privilege for unified UI presentation -->
     <record id="group_grm_viewer" model="res.groups">
         <field name="name">Viewer</field>
-        <field name="privilege_id" ref="privilege_grm_user" />
-        <field
-            name="comment"
-        >Can view assigned GRM tickets only. Cannot modify data.</field>
-        <field name="implied_ids" eval="[Command.link(ref('group_grm_read'))]" />
+        <field name="privilege_id" ref="privilege_grm"/>
+        <field name="comment">Can view assigned GRM tickets only. Cannot modify data.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_grm_read'))]"/>
     </record>
 
     <record id="group_grm_officer" model="res.groups">
         <field name="name">Officer</field>
-        <field name="privilege_id" ref="privilege_grm_user" />
-        <field
-            name="comment"
-        >Can create and edit own tickets, view team tickets. Cannot delete.</field>
-        <field
-            name="implied_ids"
-            eval="[Command.link(ref('group_grm_viewer')), Command.link(ref('group_grm_write'))]"
-        />
+        <field name="privilege_id" ref="privilege_grm"/>
+        <field name="comment">Can create and edit own tickets, view team tickets. Cannot delete.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_grm_viewer')), Command.link(ref('group_grm_write'))]"/>
     </record>
 
     <record id="group_grm_manager" model="res.groups">
         <field name="name">Manager</field>
-        <field name="privilege_id" ref="privilege_grm_user" />
-        <field
-            name="comment"
-        >Full GRM access including configuration and delete operations.</field>
-        <field name="implied_ids" eval="[Command.link(ref('group_grm_officer'))]" />
+        <field name="privilege_id" ref="privilege_grm"/>
+        <field name="comment">Full GRM access including configuration and delete operations.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_grm_officer'))]"/>
     </record>
 
     <!-- Special role: Supervisor (between officer and manager) -->
     <record id="group_grm_supervisor" model="res.groups">
         <field name="name">Supervisor</field>
-        <field name="privilege_id" ref="privilege_grm_user" />
-        <field
-            name="comment"
-        >GRM: Can manage team tickets, approve resolutions. Positioned between Officer and Manager in the permission hierarchy. Inherits officer permissions.</field>
-        <field name="implied_ids" eval="[Command.link(ref('group_grm_officer'))]" />
+        <field name="privilege_id" ref="privilege_grm"/>
+        <field name="comment">GRM: Can manage team tickets, approve resolutions. Positioned between Officer and Manager in the permission hierarchy. Inherits officer permissions.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_grm_officer'))]"/>
     </record>
 
     <!-- Link manager to admin (IMPORTANT!) -->
     <record id="spp_security.group_spp_admin" model="res.groups">
-        <field name="implied_ids" eval="[Command.link(ref('group_grm_manager'))]" />
+        <field name="implied_ids" eval="[Command.link(ref('group_grm_manager'))]"/>
     </record>
 
     <!-- Backward compatibility: Map old group names to new ones -->
     <record id="group_grm_user" model="res.groups">
         <field name="name">GRM User (Deprecated)</field>
-        <field
-            name="comment"
-        >Deprecated: Use group_grm_viewer instead. This group is kept for backward compatibility.</field>
-        <field name="implied_ids" eval="[Command.link(ref('group_grm_viewer'))]" />
+        <field name="comment">Deprecated: Use group_grm_viewer instead. This group is kept for backward compatibility.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_grm_viewer'))]"/>
     </record>
 </odoo>

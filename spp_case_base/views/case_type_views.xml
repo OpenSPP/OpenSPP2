@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Case Type Form View -->
+    <record id="view_case_type_form" model="ir.ui.view">
+        <field name="name">spp.case.type.form</field>
+        <field name="model">spp.case.type</field>
+        <field name="arch" type="xml">
+            <form string="Case Type">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button type="object" name="action_view_cases" class="oe_stat_button" icon="fa-folder-open">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="active_case_count"/> / <field name="case_count"/>
+                                </span>
+                                <span class="o_stat_text">Cases</span>
+                            </div>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Case Type Name" required="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group name="basic">
+                            <field name="code" required="1"/>
+                            <field name="sequence"/>
+                            <field name="domain" required="1"/>
+                            <field name="active"/>
+                        </group>
+                        <group name="settings">
+                            <field name="default_intensity" required="1"/>
+                            <field name="color" widget="color_picker"/>
+                        </group>
+                    </group>
+                    <group string="Caseload Management">
+                        <group>
+                            <field name="recommended_caseload"/>
+                            <field name="max_caseload"/>
+                        </group>
+                        <group>
+                            <field name="review_frequency_days"/>
+                        </group>
+                    </group>
+                    <group col="2" string="Available Stages">
+                        <field name="stage_ids" nolabel="1" colspan="2" widget="many2many_tags" options="{'color_field': 'color', 'no_create': True}"/>
+                    </group>
+                    <group col="2" string="Description">
+                        <field name="description" nolabel="1" colspan="2" placeholder="Case type description..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Case Type Tree View -->
+    <record id="view_case_type_tree" model="ir.ui.view">
+        <field name="name">spp.case.type.tree</field>
+        <field name="model">spp.case.type</field>
+        <field name="arch" type="xml">
+            <list string="Case Types" default_order="sequence,name">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="domain"/>
+                <field name="default_intensity"/>
+                <field name="active_case_count" string="Active Cases"/>
+                <field name="case_count" string="Total Cases"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Case Type Kanban View -->
+    <record id="view_case_type_kanban" model="ir.ui.view">
+        <field name="name">spp.case.type.kanban</field>
+        <field name="model">spp.case.type</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="domain"/>
+                <field name="active_case_count"/>
+                <field name="case_count"/>
+                <field name="color"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_content">
+                            <div class="o_kanban_record_top">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title">
+                                        <field name="name"/>
+                                    </strong>
+                                    <div class="o_kanban_record_subtitle">
+                                        <field name="code"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="o_kanban_record_body">
+                                <field name="domain"/>
+                            </div>
+                            <div class="o_kanban_record_bottom">
+                                <div class="oe_kanban_bottom_left">
+                                    <span class="badge text-bg-primary">
+                                        <t t-esc="record.active_case_count.value"/> / <t t-esc="record.case_count.value"/> cases
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Case Type Search View -->
+    <record id="view_case_type_search" model="ir.ui.view">
+        <field name="name">spp.case.type.search</field>
+        <field name="model">spp.case.type</field>
+        <field name="arch" type="xml">
+            <search string="Search Case Types">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="domain"/>
+                <separator/>
+                <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter string="Domain" name="group_domain" context="{'group_by': 'domain'}"/>
+                    <filter string="Intensity Level" name="group_intensity" context="{'group_by': 'default_intensity'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Case Type Action -->
+    <record id="action_case_type" model="ir.actions.act_window">
+        <field name="name">Case Types</field>
+        <field name="path">case-types</field>
+        <field name="res_model">spp.case.type</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new case type
+            </p>
+            <p>
+                Case types define the different categories of cases your organization manages,
+                such as social protection, child protection, or GBV cases.
+                Each type can have specific settings for intensity levels, caseload limits, and available stages.
+            </p>
+        </field>
+    </record>
+</odoo>

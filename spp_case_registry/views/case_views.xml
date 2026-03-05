@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Case Form View - Registry Integration -->
+    <record id="view_spp_case_form_registry" model="ir.ui.view">
+        <field name="name">spp.case.form.registry</field>
+        <field name="model">spp.case</field>
+        <field name="inherit_id" ref="spp_case_base.view_case_form" />
+        <field name="arch" type="xml">
+            <!-- Add registry fields in basic info section -->
+            <xpath expr="//group[@name='basic_info']" position="inside">
+                <field name="registrant_id" />
+                <field name="household_id" />
+                <field name="area_id" />
+            </xpath>
+
+            <!-- Add household members tab -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Household Members" invisible="not household_member_ids">
+                    <!-- Odoo 19: use list/form instead of tree/form -->
+                    <field name="household_member_ids" mode="list">
+                        <list>
+                            <field name="name" />
+                            <field name="phone" />
+                            <field name="email" />
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Case Tree View - Add registry columns -->
+    <record id="view_spp_case_tree_registry" model="ir.ui.view">
+        <field name="name">spp.case.tree.registry</field>
+        <field name="model">spp.case</field>
+        <field name="inherit_id" ref="spp_case_base.view_case_tree" />
+        <field name="arch" type="xml">
+            <field name="partner_id" position="after">
+                <field name="registrant_id" optional="show" />
+                <field name="household_id" optional="hide" />
+                <field name="area_id" optional="hide" />
+            </field>
+        </field>
+    </record>
+
+    <!-- Case Search View - Add filters -->
+    <record id="view_spp_case_search_registry" model="ir.ui.view">
+        <field name="name">spp.case.search.registry</field>
+        <field name="model">spp.case</field>
+        <field name="inherit_id" ref="spp_case_base.view_case_search" />
+        <field name="arch" type="xml">
+            <field name="partner_id" position="after">
+                <field name="registrant_id" />
+                <field name="household_id" />
+                <field name="area_id" />
+            </field>
+
+            <filter name="archived" position="before">
+                <separator />
+                <filter
+                    string="Has Registrant"
+                    name="has_registrant"
+                    domain="[('registrant_id', '!=', False)]"
+                />
+                <filter
+                    string="Has Household"
+                    name="has_household"
+                    domain="[('household_id', '!=', False)]"
+                />
+                <separator />
+            </filter>
+
+            <group position="inside">
+                <filter string="Registrant" name="group_registrant" context="{'group_by': 'registrant_id'}" />
+                <filter string="Household" name="group_household" context="{'group_by': 'household_id'}" />
+                <filter string="Area" name="group_area" context="{'group_by': 'area_id'}" />
+            </group>
+        </field>
+    </record>
+
+</odoo>

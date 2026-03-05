@@ -1,0 +1,121 @@
+import logging
+
+from odoo import api, fields, models
+
+_logger = logging.getLogger(__name__)
+
+
+class SPPGRMTicket(models.Model):
+    """Extend GRM Ticket to apply CEL-based routing and escalation rules."""
+
+    _inherit = "spp.grm.ticket"
+
+    # Add fields to track rule application
+    routing_rule_id = fields.Many2one(
+        comodel_name="spp.grm.routing.rule",
+        string="Applied Routing Rule",
+        readonly=True,
+        help="The routing rule that was applied to this ticket",
+    )
+    escalation_rule_ids = fields.Many2many(
+        comodel_name="spp.grm.escalation.rule",
+        relation="grm_ticket_escalation_rule_rel",
+        column1="ticket_id",
+        column2="rule_id",
+        string="Applied Escalation Rules",
+        readonly=True,
+        help="Escalation rules that have been applied to this ticket",
+    )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Override create to apply routing rules to new tickets."""
+        tickets = super().create(vals_list)
+
+        # Apply routing rules to each new ticket
+        for ticket in tickets:
+            self._apply_routing_rules(ticket)
+
+        return tickets
+
+    def write(self, vals):
+        """Override write to check for escalation triggers on stage change."""
+        result = super().write(vals)
+
+        # Check if stage changed
+        if "stage_id" in vals:
+            for ticket in self:
+                self._check_escalation_rules(ticket)
+
+        return result
+
+    @api.model
+    def _apply_routing_rules(self, ticket):
+        """Apply routing rules to a ticket.
+
+        Args:
+            ticket: spp.grm.ticket record
+        """
+        try:
+            _logger.debug("Applying routing rules to ticket %s", ticket.number)
+
+            # Get routing rule model
+            routing_model = self.env["spp.grm.routing.rule"]
+
+            # Apply routing rules
+            if routing_model.apply_routing(ticket):
+                _logger.info("Routing rules applied to ticket %s", ticket.number)
+            else:
+                _logger.debug("No routing rules matched for ticket %s", ticket.number)
+
+        except Exception as e:
+            _logger.error(
+                "Error applying routing rules to ticket %s: %s",
+                ticket.number,
+                str(e),
+            )
+
+    @api.model
+    def _check_escalation_rules(self, ticket):
+        """Check and apply escalation rules to a ticket.
+
+        Args:
+            ticket: spp.grm.ticket record
+        """
+        try:
+            _logger.debug("Checking escalation rules for ticket %s", ticket.number)
+
+            # Get escalation rule model
+            escalation_model = self.env["spp.grm.escalation.rule"]
+
+            # Apply escalation rules
+            if escalation_model.apply_escalations(ticket):
+                _logger.info("Escalation rules applied to ticket %s", ticket.number)
+            else:
+                _logger.debug("No escalation rules matched for ticket %s", ticket.number)
+
+        except Exception as e:
+            _logger.error(
+                "Error checking escalation rules for ticket %s: %s",
+                ticket.number,
+                str(e),
+            )
+
+    def action_escalate(self):
+        """Manual action to trigger escalation rule evaluation.
+
+        Can be called from the UI to manually check if any escalation rules apply.
+        """
+        self.ensure_one()
+        self._check_escalation_rules(self)
+
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "title": "Escalation Check",
+                "message": "Escalation rules have been evaluated for this ticket.",
+                "type": "info",
+                "sticky": False,
+            },
+        }

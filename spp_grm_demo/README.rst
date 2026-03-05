@@ -10,15 +10,15 @@ OpenSPP GRM Demo Data
    !! source digest: sha256:e06d51d82fd6af706b02cdfeac83514a24586b5176e2052f2fbc269ff30eccda
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/maturity-Alpha-red.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Beta-yellow.png
     :target: https://odoo-community.org/page/development-status
-    :alt: Alpha
+    :alt: Beta
 .. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
-.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github
-    :target: https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_grm_demo
-    :alt: OpenSPP/OpenSPP2
+.. |badge3| image:: https://img.shields.io/badge/github-OpenSPP%2Fopenspp--modules-lightgray.png?logo=github
+    :target: https://github.com/OpenSPP/openspp-modules/tree/19.0/spp_grm_demo
+    :alt: OpenSPP/openspp-modules
 
 |badge1| |badge2| |badge3|
 
@@ -47,15 +47,15 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+----------------------------+-----------------------------------------+
-| Model                      | Description                             |
-+============================+=========================================+
-| ``spp.grm.demo.generator`` | Transient model containing generation   |
-|                            | logic and workflow simulation           |
-+----------------------------+-----------------------------------------+
-| ``spp.grm.demo.wizard``    | Transient model inheriting from         |
-|                            | generator for wizard UI configuration   |
-+----------------------------+-----------------------------------------+
++----------------------------+----------------------------------------+
+| Model                      | Description                            |
++============================+========================================+
+| ``spp.grm.demo.generator`` | Transient model containing generation  |
+|                            | logic and workflow simulation          |
++----------------------------+----------------------------------------+
+| ``spp.grm.demo.wizard``    | Transient model inheriting from        |
+|                            | generator for wizard UI configuration  |
++----------------------------+----------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -111,10 +111,6 @@ Dependencies
 
 ``spp_demo``, ``spp_grm``, ``spp_security``
 
-.. IMPORTANT::
-   This is an alpha version, the data model and design can change at any time without warning.
-   Only for development or testing purpose, do not use in production.
-
 **Table of contents**
 
 .. contents::
@@ -123,10 +119,10 @@ Dependencies
 Bug Tracker
 ===========
 
-Bugs are tracked on `GitHub Issues <https://github.com/OpenSPP/OpenSPP2/issues>`_.
+Bugs are tracked on `GitHub Issues <https://github.com/OpenSPP/openspp-modules/issues>`_.
 In case of trouble, please check there if your issue has already been reported.
 If you spotted it first, help us to smash it by providing a detailed and welcomed
-`feedback <https://github.com/OpenSPP/OpenSPP2/issues/new?body=module:%20spp_grm_demo%0Aversion:%2019.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**>`_.
+`feedback <https://github.com/OpenSPP/openspp-modules/issues/new?body=module:%20spp_grm_demo%0Aversion:%2019.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**>`_.
 
 Do not contact contributors directly about support or help with technical issues.
 
@@ -152,6 +148,6 @@ Current maintainers:
 
 |maintainer-jeremi| |maintainer-gonzalesedwin1123| 
 
-This module is part of the `OpenSPP/OpenSPP2 <https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_grm_demo>`_ project on GitHub.
+This module is part of the `OpenSPP/openspp-modules <https://github.com/OpenSPP/openspp-modules/tree/19.0/spp_grm_demo>`_ project on GitHub.
 
 You are welcome to contribute.
