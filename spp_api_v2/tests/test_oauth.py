@@ -224,9 +224,11 @@ class TestOAuthEndpoint(ApiV2HttpTestCase):
         """HTTP Basic Auth header returns access token"""
         credentials = base64.b64encode(f"{self.client.client_id}:{self.client.client_secret}".encode()).decode("utf-8")
 
+        body = urlencode({"grant_type": "client_credentials"})
+
         response = self.url_open(
             self.url,
-            data="",
+            data=body,
             headers={
                 "Content-Type": "application/x-www-form-urlencoded",
                 "Authorization": f"Basic {credentials}",
