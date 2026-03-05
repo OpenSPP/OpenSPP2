@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
-
     <!-- Extend Local Registrar role to include GRM Manager access -->
     <record id="spp_user_roles.local_role_registrar" model="res.users.role">
         <field
@@ -39,29 +38,42 @@
     </record>
 
     <!-- Demo GRM Manager User -->
-    <record id="demo_user_grm_manager" model="res.users" context="{'no_reset_password': True}">
+    <record
+        id="demo_user_grm_manager"
+        model="res.users"
+        context="{'no_reset_password': True}"
+    >
         <field name="name">Demo GRM Manager</field>
         <field name="login">demo_grm_manager</field>
         <field name="email">demo_grm_manager@demo.spp</field>
         <field name="password">demo</field>
-        <field name="role_line_ids" eval="[
+        <field
+            name="role_line_ids"
+            eval="[
             (0, 0, {'role_id': ref('spp_user_roles.local_role_support')}),
-        ]"/>
-        <field name="company_id" ref="base.main_company"/>
-        <field name="active" eval="True"/>
+        ]"
+        />
+        <field name="company_id" ref="base.main_company" />
+        <field name="active" eval="True" />
     </record>
 
     <!-- Demo GRM Officer User -->
-    <record id="demo_user_grm_officer" model="res.users" context="{'no_reset_password': True}">
+    <record
+        id="demo_user_grm_officer"
+        model="res.users"
+        context="{'no_reset_password': True}"
+    >
         <field name="name">Demo GRM Officer</field>
         <field name="login">demo_grm_officer</field>
         <field name="email">demo_grm_officer@demo.spp</field>
         <field name="password">demo</field>
-        <field name="role_line_ids" eval="[
+        <field
+            name="role_line_ids"
+            eval="[
             (0, 0, {'role_id': ref('demo_role_grm_officer')}),
-        ]"/>
-        <field name="company_id" ref="base.main_company"/>
-        <field name="active" eval="True"/>
+        ]"
+        />
+        <field name="company_id" ref="base.main_company" />
+        <field name="active" eval="True" />
     </record>
-
 </odoo>

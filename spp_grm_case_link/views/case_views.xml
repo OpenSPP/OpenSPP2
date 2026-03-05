@@ -38,8 +38,15 @@
 
             <!-- Add GRM Tickets tab -->
             <xpath expr="//notebook" position="inside">
-                <page string="GRM Tickets" name="grm_tickets" invisible="grm_ticket_count == 0">
-                    <separator string="Source Ticket" invisible="not source_grm_ticket_id" />
+                <page
+                    string="GRM Tickets"
+                    name="grm_tickets"
+                    invisible="grm_ticket_count == 0"
+                >
+                    <separator
+                        string="Source Ticket"
+                        invisible="not source_grm_ticket_id"
+                    />
                     <field
                         name="source_grm_ticket_id"
                         readonly="1"
@@ -47,7 +54,12 @@
                         options="{'no_create': True}"
                     />
                     <separator string="Related Tickets" />
-                    <field name="grm_ticket_ids" nolabel="1" readonly="1" options="{'no_create': True}">
+                    <field
+                        name="grm_ticket_ids"
+                        nolabel="1"
+                        readonly="1"
+                        options="{'no_create': True}"
+                    >
                         <list>
                             <field name="number" />
                             <field name="name" />
@@ -90,7 +102,11 @@
             <!-- Add filter for cases from GRM -->
             <xpath expr="//search/filter[@name='my_cases']" position="after">
                 <separator />
-                <filter string="From GRM" name="from_grm" domain="[('intake_source', '=', 'grm')]" />
+                <filter
+                    string="From GRM"
+                    name="from_grm"
+                    domain="[('intake_source', '=', 'grm')]"
+                />
                 <filter
                     string="Has GRM Tickets"
                     name="has_grm_tickets"

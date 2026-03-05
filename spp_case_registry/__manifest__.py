@@ -8,7 +8,7 @@
     "website": "https://github.com/OpenSPP/openspp-modules",
     "license": "LGPL-3",
     "development_status": "Stable",
-    "maintainers": ["jeremi", "gonzalesedwin1123","emjay0921"],
+    "maintainers": ["jeremi", "gonzalesedwin1123", "emjay0921"],
     "depends": [
         "spp_security",
         "spp_case_base",

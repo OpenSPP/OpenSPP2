@@ -110,7 +110,7 @@ GRM_STORY_TICKETS = {
             },
             {
                 "title": "Update bank account information",
-                "description": ("Need to update bank account to new provider. " "Previous bank closed local branch."),
+                "description": ("Need to update bank account to new provider. Previous bank closed local branch."),
                 "category": "registration",
                 "priority": "medium",
                 "days_back": 10,
@@ -335,7 +335,7 @@ class SPPGRMDemoGenerator(models.TransientModel):
         # Validate that at least one generation option is enabled
         if not self.enroll_demo_stories and not self.generate_volume:
             raise UserError(
-                _("Please enable at least one generation option: " "'Enroll Demo Stories' or 'Generate Volume Data'.")
+                _("Please enable at least one generation option: 'Enroll Demo Stories' or 'Generate Volume Data'.")
             )
 
         # Initialize Faker

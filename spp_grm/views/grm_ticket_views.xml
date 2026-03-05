@@ -6,28 +6,61 @@
         <field name="arch" type="xml">
             <form string="Helpdesk Ticket">
                 <header>
-                    <button string="Assign to me" name="assign_to_me" type="object" invisible="user_id or is_closed" />
-                    <button string="Start Progress" name="action_start_progress" type="object"
+                    <button
+                        string="Assign to me"
+                        name="assign_to_me"
+                        type="object"
+                        invisible="user_id or is_closed"
+                    />
+                    <button
+                        string="Start Progress"
+                        name="action_start_progress"
+                        type="object"
                         class="btn-primary"
-                        invisible="stage_type != 'new'" />
-                    <button string="Resolve" name="action_resolve" type="object"
+                        invisible="stage_type != 'new'"
+                    />
+                    <button
+                        string="Resolve"
+                        name="action_resolve"
+                        type="object"
                         class="btn-primary"
-                        invisible="stage_type not in ('in_progress', 'waiting')" />
-                    <button string="Set Awaiting" name="action_set_awaiting" type="object"
+                        invisible="stage_type not in ('in_progress', 'waiting')"
+                    />
+                    <button
+                        string="Set Awaiting"
+                        name="action_set_awaiting"
+                        type="object"
                         class="btn-secondary"
-                        invisible="stage_type != 'in_progress'" />
-                    <button string="Resume" name="action_start_progress" type="object"
+                        invisible="stage_type != 'in_progress'"
+                    />
+                    <button
+                        string="Resume"
+                        name="action_start_progress"
+                        type="object"
                         class="btn-secondary"
-                        invisible="stage_type != 'waiting'" />
-                    <button string="Cancel" name="action_cancel" type="object"
+                        invisible="stage_type != 'waiting'"
+                    />
+                    <button
+                        string="Cancel"
+                        name="action_cancel"
+                        type="object"
                         class="btn-secondary"
-                        invisible="stage_type not in ('in_progress', 'waiting')" />
-                    <button string="Reject" name="action_reject" type="object"
+                        invisible="stage_type not in ('in_progress', 'waiting')"
+                    />
+                    <button
+                        string="Reject"
+                        name="action_reject"
+                        type="object"
                         class="btn-danger"
-                        invisible="stage_type not in ('in_progress', 'waiting')" />
-                    <button string="Reopen" name="action_reopen" type="object"
+                        invisible="stage_type not in ('in_progress', 'waiting')"
+                    />
+                    <button
+                        string="Reopen"
+                        name="action_reopen"
+                        type="object"
                         class="btn-warning"
-                        invisible="not is_closed" />
+                        invisible="not is_closed"
+                    />
                     <field
                         name="stage_id"
                         widget="statusbar"
@@ -35,15 +68,23 @@
                     />
                 </header>
                 <sheet>
-                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" invisible="active" />
-                    <div class="oe_button_box" name="button_box">
-                    </div>
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="bg-danger"
+                        invisible="active"
+                    />
+                    <div class="oe_button_box" name="button_box" />
                     <div class="oe_title">
                         <h1 class="oe_title" invisible="number == '/'">
                             <field name="number" force_save="1" />
                         </h1>
                         <h2 class="o_row">
-                            <field name="name" placeholder="Ticket Title..." readonly="is_closed" />
+                            <field
+                                name="name"
+                                placeholder="Ticket Title..."
+                                readonly="is_closed"
+                            />
                         </h2>
                     </div>
 
@@ -59,14 +100,25 @@
                         <page string="Details" name="details">
                             <!-- Description Section -->
                             <separator string="Description" />
-                            <field name="description" widget="text" nolabel="1" readonly="is_closed" placeholder="Describe the complaint..." />
+                            <field
+                                name="description"
+                                widget="text"
+                                nolabel="1"
+                                readonly="is_closed"
+                                placeholder="Describe the complaint..."
+                            />
 
                             <!-- Classification Section -->
                             <separator string="Classification" />
                             <group name="classification_section" col="2">
                                 <group>
                                     <field name="category_id" readonly="is_closed" />
-                                    <field name="subcategory_id" readonly="is_closed or not category_id" domain="[('category_id', '=', category_id)]" context="{'default_category_id': category_id}" />
+                                    <field
+                                        name="subcategory_id"
+                                        readonly="is_closed or not category_id"
+                                        domain="[('category_id', '=', category_id)]"
+                                        context="{'default_category_id': category_id}"
+                                    />
                                     <field
                                         name="tag_ids"
                                         widget="many2many_tags"
@@ -75,8 +127,16 @@
                                     />
                                 </group>
                                 <group>
-                                    <field name="priority" widget="priority" readonly="is_closed" />
-                                    <field name="severity" widget="priority" readonly="is_closed" />
+                                    <field
+                                        name="priority"
+                                        widget="priority"
+                                        readonly="is_closed"
+                                    />
+                                    <field
+                                        name="severity"
+                                        widget="priority"
+                                        readonly="is_closed"
+                                    />
                                     <field name="sensitivity" readonly="is_closed" />
                                 </group>
                             </group>
@@ -122,7 +182,11 @@
                                 </group>
                                 <group>
                                     <field name="days_open" readonly="1" />
-                                    <field name="sequence" groups="base.group_no_one" readonly="is_closed" />
+                                    <field
+                                        name="sequence"
+                                        groups="base.group_no_one"
+                                        readonly="is_closed"
+                                    />
                                 </group>
                             </group>
                         </page>
@@ -133,7 +197,10 @@
                             <separator string="Complainant Information" />
                             <group name="complainant_type_section" col="2">
                                 <group>
-                                    <field name="complainant_type" readonly="is_closed" />
+                                    <field
+                                        name="complainant_type"
+                                        readonly="is_closed"
+                                    />
                                 </group>
                                 <group />
                             </group>
@@ -147,12 +214,27 @@
                                         invisible="complainant_type == 'anonymous'"
                                         readonly="is_closed"
                                     />
-                                    <field name="partner_email" invisible="complainant_type == 'anonymous'" />
+                                    <field
+                                        name="partner_email"
+                                        invisible="complainant_type == 'anonymous'"
+                                    />
                                 </group>
                                 <group>
-                                    <field name="contact_name" invisible="complainant_type != 'anonymous'" readonly="is_closed" />
-                                    <field name="contact_phone" invisible="complainant_type != 'anonymous'" readonly="is_closed" />
-                                    <field name="contact_email" invisible="complainant_type != 'anonymous'" readonly="is_closed" />
+                                    <field
+                                        name="contact_name"
+                                        invisible="complainant_type != 'anonymous'"
+                                        readonly="is_closed"
+                                    />
+                                    <field
+                                        name="contact_phone"
+                                        invisible="complainant_type != 'anonymous'"
+                                        readonly="is_closed"
+                                    />
+                                    <field
+                                        name="contact_email"
+                                        invisible="complainant_type != 'anonymous'"
+                                        readonly="is_closed"
+                                    />
                                 </group>
                             </group>
 
@@ -174,7 +256,12 @@
                             </group>
                             <separator string="Resolution Summary" />
                             <group name="resolution_summary_section">
-                                <field name="resolution_summary" nolabel="1" colspan="2" readonly="is_closed" />
+                                <field
+                                    name="resolution_summary"
+                                    nolabel="1"
+                                    colspan="2"
+                                    readonly="is_closed"
+                                />
                             </group>
 
                             <!-- Escalation Section -->
@@ -182,14 +269,29 @@
                             <group name="escalation_section" col="2">
                                 <group>
                                     <field name="is_escalated" readonly="is_closed" />
-                                    <field name="escalated_to_id" invisible="not is_escalated" readonly="is_closed" />
+                                    <field
+                                        name="escalated_to_id"
+                                        invisible="not is_escalated"
+                                        readonly="is_closed"
+                                    />
                                 </group>
                                 <group>
-                                    <field name="escalation_date" readonly="1" invisible="not is_escalated" />
+                                    <field
+                                        name="escalation_date"
+                                        readonly="1"
+                                        invisible="not is_escalated"
+                                    />
                                 </group>
                             </group>
                             <group name="escalation_reason_section">
-                                <field name="escalation_reason" widget="text" nolabel="1" colspan="2" invisible="not is_escalated" readonly="is_closed" />
+                                <field
+                                    name="escalation_reason"
+                                    widget="text"
+                                    nolabel="1"
+                                    colspan="2"
+                                    invisible="not is_escalated"
+                                    readonly="is_closed"
+                                />
                             </group>
 
                             <!-- Appeal Section -->
@@ -197,7 +299,11 @@
                             <group name="appeal_section" col="2">
                                 <group>
                                     <field name="is_appeal" readonly="is_closed" />
-                                    <field name="original_ticket_id" invisible="not is_appeal" readonly="is_closed" />
+                                    <field
+                                        name="original_ticket_id"
+                                        invisible="not is_appeal"
+                                        readonly="is_closed"
+                                    />
                                 </group>
                                 <group />
                             </group>
@@ -229,7 +335,11 @@
                                 </group>
                                 <group>
                                     <field name="write_date" readonly="1" />
-                                    <field name="write_uid" readonly="1" options="{'no_open':True}" />
+                                    <field
+                                        name="write_uid"
+                                        readonly="1"
+                                        options="{'no_open':True}"
+                                    />
                                 </group>
                             </group>
 
@@ -242,7 +352,11 @@
                                 </group>
                                 <group>
                                     <field name="closed_date" readonly="1" />
-                                    <field name="closed_by_id" readonly="1" options="{'no_open':True}" />
+                                    <field
+                                        name="closed_by_id"
+                                        readonly="1"
+                                        options="{'no_open':True}"
+                                    />
                                 </group>
                             </group>
 
@@ -253,7 +367,7 @@
                         </page>
                     </notebook>
                 </sheet>
-                <chatter/>
+                <chatter />
             </form>
         </field>
     </record>
@@ -287,8 +401,17 @@
                     decoration-danger="sla_status == 'breached'"
                     optional="show"
                 />
-                <field name="create_date" widget="remaining_days" readonly="1" optional="show" />
-                <field name="last_stage_update" widget="remaining_days" optional="show" />
+                <field
+                    name="create_date"
+                    widget="remaining_days"
+                    readonly="1"
+                    optional="show"
+                />
+                <field
+                    name="last_stage_update"
+                    widget="remaining_days"
+                    optional="show"
+                />
                 <field name="activity_ids" widget="list_activity" optional="hide" />
                 <field
                     name="stage_id"
@@ -317,26 +440,86 @@
                 <field name="name" />
                 <field name="tag_ids" />
                 <field name="stage_id" />
-                <filter string="Unassigned" name="unassigned" domain="[('user_id','=',False)]" />
-                <filter string="Open" name="open" domain="[('is_closed', '=', False)]" />
-                <filter string="Unattended" name="unattended" domain="[('unattended', '=', True )]" />
-                <filter string="High Priority" name="high_priority" domain="[('priority','=','3')]" />
+                <filter
+                    string="Unassigned"
+                    name="unassigned"
+                    domain="[('user_id','=',False)]"
+                />
+                <filter
+                    string="Open"
+                    name="open"
+                    domain="[('is_closed', '=', False)]"
+                />
+                <filter
+                    string="Unattended"
+                    name="unattended"
+                    domain="[('unattended', '=', True )]"
+                />
+                <filter
+                    string="High Priority"
+                    name="high_priority"
+                    domain="[('priority','=','3')]"
+                />
                 <separator />
-                <filter string="Critical Severity" name="critical_severity" domain="[('severity','=','3')]" />
-                <filter string="High Severity" name="high_severity" domain="[('severity','=','2')]" />
-                <filter string="Medium Severity" name="medium_severity" domain="[('severity','=','1')]" />
-                <filter string="Low Severity" name="low_severity" domain="[('severity','=','0')]" />
+                <filter
+                    string="Critical Severity"
+                    name="critical_severity"
+                    domain="[('severity','=','3')]"
+                />
+                <filter
+                    string="High Severity"
+                    name="high_severity"
+                    domain="[('severity','=','2')]"
+                />
+                <filter
+                    string="Medium Severity"
+                    name="medium_severity"
+                    domain="[('severity','=','1')]"
+                />
+                <filter
+                    string="Low Severity"
+                    name="low_severity"
+                    domain="[('severity','=','0')]"
+                />
                 <separator />
-                <filter string="SLA On Track" name="sla_on_track" domain="[('sla_status','=','on_track')]" />
-                <filter string="SLA At Risk" name="sla_at_risk" domain="[('sla_status','=','at_risk')]" />
-                <filter string="SLA Breached" name="sla_breached" domain="[('sla_status','=','breached')]" />
+                <filter
+                    string="SLA On Track"
+                    name="sla_on_track"
+                    domain="[('sla_status','=','on_track')]"
+                />
+                <filter
+                    string="SLA At Risk"
+                    name="sla_at_risk"
+                    domain="[('sla_status','=','at_risk')]"
+                />
+                <filter
+                    string="SLA Breached"
+                    name="sla_breached"
+                    domain="[('sla_status','=','breached')]"
+                />
                 <separator />
-                <filter string="Escalated" name="escalated" domain="[('is_escalated','=',True)]" />
-                <filter string="Appeals" name="appeals" domain="[('is_appeal','=',True)]" />
+                <filter
+                    string="Escalated"
+                    name="escalated"
+                    domain="[('is_escalated','=',True)]"
+                />
+                <filter
+                    string="Appeals"
+                    name="appeals"
+                    domain="[('is_appeal','=',True)]"
+                />
                 <separator />
-                <filter string="Archived" name="archived" domain="[('active','=',False)]" />
+                <filter
+                    string="Archived"
+                    name="archived"
+                    domain="[('active','=',False)]"
+                />
                 <separator />
-                <filter string="My Tickets" name="mytickets" domain="[('user_id','=',uid)]" />
+                <filter
+                    string="My Tickets"
+                    name="mytickets"
+                    domain="[('user_id','=',uid)]"
+                />
                 <filter
                     string="My Followed Tickets"
                     name="my_followed_tickets"
@@ -378,12 +561,42 @@
                         domain="[]"
                         context="{'group_by':'partner_id'}"
                     />
-                    <filter string="User" name="group_user" domain="[]" context="{'group_by':'user_id'}" />
-                    <filter string="Team" name="group_team" domain="[]" context="{'group_by':'team_id'}" />
-                    <filter string="Stage" name="group_stage" domain="[]" context="{'group_by':'stage_id'}" />
-                    <filter string="Tag" name="group_tag" domain="[]" context="{'group_by':'tag_ids'}" />
-                    <filter string="Severity" name="group_severity" domain="[]" context="{'group_by':'severity'}" />
-                    <filter string="SLA Status" name="group_sla_status" domain="[]" context="{'group_by':'sla_status'}" />
+                    <filter
+                        string="User"
+                        name="group_user"
+                        domain="[]"
+                        context="{'group_by':'user_id'}"
+                    />
+                    <filter
+                        string="Team"
+                        name="group_team"
+                        domain="[]"
+                        context="{'group_by':'team_id'}"
+                    />
+                    <filter
+                        string="Stage"
+                        name="group_stage"
+                        domain="[]"
+                        context="{'group_by':'stage_id'}"
+                    />
+                    <filter
+                        string="Tag"
+                        name="group_tag"
+                        domain="[]"
+                        context="{'group_by':'tag_ids'}"
+                    />
+                    <filter
+                        string="Severity"
+                        name="group_severity"
+                        domain="[]"
+                        context="{'group_by':'severity'}"
+                    />
+                    <filter
+                        string="SLA Status"
+                        name="group_sla_status"
+                        domain="[]"
+                        context="{'group_by':'sla_status'}"
+                    />
                 </group>
             </search>
         </field>
@@ -422,10 +635,7 @@
                         </small>
                         <footer>
                             <field name="priority" widget="priority" />
-                            <field
-                                name="activity_ids"
-                                widget="kanban_activity"
-                            />
+                            <field name="activity_ids" widget="kanban_activity" />
                             <field name="kanban_state" widget="state_selection" />
                             <field name="user_id" widget="many2one_avatar_user" />
                         </footer>
@@ -450,5 +660,4 @@
         action="spp_grm_ticket_action"
         sequence="10"
     />
-
 </odoo>

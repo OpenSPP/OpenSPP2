@@ -149,8 +149,7 @@ class EscalateToCaseWizard(models.TransientModel):
         # Copy description if requested
         if self.copy_description and self.ticket_id.description:
             case_vals["presenting_issue"] = (
-                f"<p><strong>Escalated from GRM Ticket {self.ticket_id.number}</strong></p>"
-                f"{self.ticket_id.description}"
+                f"<p><strong>Escalated from GRM Ticket {self.ticket_id.number}</strong></p>{self.ticket_id.description}"
             )
             if self.notes:
                 case_vals["presenting_issue"] += f"<p><strong>Escalation Notes:</strong></p><p>{self.notes}</p>"

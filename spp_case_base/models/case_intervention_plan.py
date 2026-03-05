@@ -170,9 +170,7 @@ class CaseInterventionPlan(models.Model):
         """Submit plan for approval."""
         for plan in self:
             if not plan.intervention_ids:
-                raise ValidationError(
-                    "Cannot submit plan without interventions. " "Please add at least one intervention."
-                )
+                raise ValidationError("Cannot submit plan without interventions. Please add at least one intervention.")
             plan.state = "pending_approval"
         return True
 

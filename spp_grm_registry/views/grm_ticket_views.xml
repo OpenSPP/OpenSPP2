@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <!-- Extend GRM Ticket Form View -->
     <record id="view_spp_grm_ticket_form_registry" model="ir.ui.view">
         <field name="name">spp.grm.ticket.form.registry</field>
         <field name="model">spp.grm.ticket</field>
         <field name="inherit_id" ref="spp_grm.ticket_view_form" />
         <field name="arch" type="xml">
-
             <!-- Add repeat ticket stat button in button box -->
             <xpath expr="//div[@name='button_box']" position="inside">
                 <button
@@ -33,13 +31,21 @@
             <!-- Add registry fields group after partner_id -->
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="household_id" options="{'no_create': True}" />
-                <field name="registrant_id" options="{'no_create': True}" readonly="not household_id" />
+                <field
+                    name="registrant_id"
+                    options="{'no_create': True}"
+                    readonly="not household_id"
+                />
                 <field name="area_id" options="{'no_create': True}" />
             </xpath>
 
             <!-- Add previous tickets page -->
             <xpath expr="//notebook" position="inside">
-                <page string="Previous Tickets" name="previous_tickets" invisible="repeat_count == 0">
+                <page
+                    string="Previous Tickets"
+                    name="previous_tickets"
+                    invisible="repeat_count == 0"
+                >
                     <!-- Odoo 19: list/form replaces tree/form -->
                     <field name="previous_ticket_ids" mode="list">
                         <list create="0" delete="0">
@@ -52,7 +58,6 @@
                     </field>
                 </page>
             </xpath>
-
         </field>
     </record>
 
@@ -62,14 +67,12 @@
         <field name="model">spp.grm.ticket</field>
         <field name="inherit_id" ref="spp_grm.ticket_view_tree" />
         <field name="arch" type="xml">
-
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="registrant_id" optional="show" />
                 <field name="household_id" optional="hide" />
                 <field name="area_id" optional="hide" />
                 <field name="is_repeat" optional="show" widget="boolean_toggle" />
             </xpath>
-
         </field>
     </record>
 
@@ -79,7 +82,6 @@
         <field name="model">spp.grm.ticket</field>
         <field name="inherit_id" ref="spp_grm.spp_grm_ticket_view_search" />
         <field name="arch" type="xml">
-
             <!-- Add search fields -->
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="registrant_id" />
@@ -115,15 +117,22 @@
                     string="Registrant"
                     context="{'group_by': 'registrant_id'}"
                 />
-                <filter name="group_by_household" string="Household" context="{'group_by': 'household_id'}" />
-                <filter name="group_by_area" string="Area" context="{'group_by': 'area_id'}" />
+                <filter
+                    name="group_by_household"
+                    string="Household"
+                    context="{'group_by': 'household_id'}"
+                />
+                <filter
+                    name="group_by_area"
+                    string="Area"
+                    context="{'group_by': 'area_id'}"
+                />
                 <filter
                     name="group_by_is_repeat"
                     string="Repeat Status"
                     context="{'group_by': 'is_repeat'}"
                 />
             </xpath>
-
         </field>
     </record>
 
@@ -133,7 +142,6 @@
         <field name="model">spp.grm.ticket</field>
         <field name="inherit_id" ref="spp_grm.view_spp_grm_ticket_kanban" />
         <field name="arch" type="xml">
-
             <!-- Declare fields for kanban data loading -->
             <xpath expr="//kanban/field[@name='number']" position="before">
                 <field name="registrant_id" />
@@ -156,8 +164,6 @@
                     </div>
                 </t>
             </xpath>
-
         </field>
     </record>
-
 </odoo>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Case Stage Form View -->
     <record id="view_case_stage_form" model="ir.ui.view">
@@ -7,33 +7,43 @@
         <field name="arch" type="xml">
             <form string="Case Stage">
                 <sheet>
-                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="text-bg-danger"
+                        invisible="active"
+                    />
                     <group>
                         <group name="basic">
-                            <field name="name" required="1"/>
-                            <field name="sequence"/>
-                            <field name="phase" required="1"/>
-                            <field name="active"/>
+                            <field name="name" required="1" />
+                            <field name="sequence" />
+                            <field name="phase" required="1" />
+                            <field name="active" />
                         </group>
                         <group name="display">
-                            <field name="color"/>
-                            <field name="fold"/>
-                            <field name="case_count"/>
+                            <field name="color" />
+                            <field name="fold" />
+                            <field name="case_count" />
                         </group>
                     </group>
                     <group string="Stage Requirements">
                         <group>
-                            <field name="is_closed"/>
-                            <field name="is_requires_plan"/>
-                            <field name="is_requires_assessment"/>
+                            <field name="is_closed" />
+                            <field name="is_requires_plan" />
+                            <field name="is_requires_assessment" />
                         </group>
                         <group>
-                            <field name="is_requires_approval"/>
-                            <field name="min_intensity"/>
+                            <field name="is_requires_approval" />
+                            <field name="min_intensity" />
                         </group>
                     </group>
-                    <separator string="Description"/>
-                    <field name="description" nolabel="1" placeholder="Stage description..." class="oe_inline"/>
+                    <separator string="Description" />
+                    <field
+                        name="description"
+                        nolabel="1"
+                        placeholder="Stage description..."
+                        class="oe_inline"
+                    />
                 </sheet>
             </form>
         </field>
@@ -45,16 +55,20 @@
         <field name="model">spp.case.stage</field>
         <field name="arch" type="xml">
             <list string="Case Stages" default_order="sequence,name" editable="bottom">
-                <field name="sequence" widget="handle"/>
-                <field name="name"/>
-                <field name="phase"/>
-                <field name="is_closed" string="Closed" widget="boolean_toggle"/>
-                <field name="is_requires_plan" string="Requires Plan" widget="boolean_toggle"/>
-                <field name="is_requires_assessment" string="Requires Assessment"/>
-                <field name="min_intensity"/>
-                <field name="case_count"/>
-                <field name="fold"/>
-                <field name="active" widget="boolean_toggle"/>
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="phase" />
+                <field name="is_closed" string="Closed" widget="boolean_toggle" />
+                <field
+                    name="is_requires_plan"
+                    string="Requires Plan"
+                    widget="boolean_toggle"
+                />
+                <field name="is_requires_assessment" string="Requires Assessment" />
+                <field name="min_intensity" />
+                <field name="case_count" />
+                <field name="fold" />
+                <field name="active" widget="boolean_toggle" />
             </list>
         </field>
     </record>
@@ -65,8 +79,12 @@
         <field name="model">spp.case.stage</field>
         <field name="arch" type="xml">
             <search string="Search Case Stages">
-                <field name="name"/>
-                <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
+                <field name="name" />
+                <filter
+                    string="Archived"
+                    name="archived"
+                    domain="[('active', '=', False)]"
+                />
             </search>
         </field>
     </record>

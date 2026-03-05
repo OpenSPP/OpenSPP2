@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <!-- Extend Registrant Form View -->
     <record id="view_individuals_form_grm" model="ir.ui.view">
         <field name="name">res.partner.form.grm</field>
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="spp_registry.view_individuals_form" />
         <field name="arch" type="xml">
-
             <!-- Add GRM Tickets smart button for individuals -->
             <xpath expr="//div[@name='button_box']" position="inside">
                 <button
@@ -26,7 +24,11 @@
 
             <!-- Add GRM Tickets notebook page for individuals -->
             <xpath expr="//notebook[@name='individual_detail']" position="inside">
-                <page string="GRM Tickets" name="grm_tickets" invisible="is_group or not is_registrant">
+                <page
+                    string="GRM Tickets"
+                    name="grm_tickets"
+                    invisible="is_group or not is_registrant"
+                >
                     <group>
                         <group>
                             <field name="grm_registrant_ticket_count" />
@@ -46,7 +48,6 @@
                     </field>
                 </page>
             </xpath>
-
         </field>
     </record>
 
@@ -56,7 +57,6 @@
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="spp_registry.view_individuals_form" />
         <field name="arch" type="xml">
-
             <!-- Add GRM Tickets smart button for households -->
             <xpath expr="//div[@name='button_box']" position="inside">
                 <button
@@ -96,8 +96,6 @@
                     </field>
                 </page>
             </xpath>
-
         </field>
     </record>
-
 </odoo>

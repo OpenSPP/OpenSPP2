@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Escalate to Case Wizard Form View -->
     <record id="view_escalate_to_case_wizard_form" model="ir.ui.view">
@@ -8,46 +8,71 @@
             <form string="Escalate Ticket to Case">
                 <group>
                     <group string="Ticket Information">
-                        <field name="ticket_id" invisible="1"/>
-                        <field name="ticket_number" readonly="1"/>
-                        <field name="partner_id" readonly="1"/>
-                        <field name="ticket_description" readonly="1"/>
+                        <field name="ticket_id" invisible="1" />
+                        <field name="ticket_number" readonly="1" />
+                        <field name="partner_id" readonly="1" />
+                        <field name="ticket_description" readonly="1" />
                     </group>
                 </group>
 
-                <separator string="Case Details"/>
+                <separator string="Case Details" />
                 <group>
                     <group string="Case Setup">
-                        <field name="case_type_id" required="1"
-                               options="{'no_create': True, 'no_create_edit': True}"/>
-                        <field name="intensity_level" widget="radio" options="{'horizontal': true}"/>
-                        <field name="team_id" options="{'no_create': True}"/>
+                        <field
+                            name="case_type_id"
+                            required="1"
+                            options="{'no_create': True, 'no_create_edit': True}"
+                        />
+                        <field
+                            name="intensity_level"
+                            widget="radio"
+                            options="{'horizontal': true}"
+                        />
+                        <field name="team_id" options="{'no_create': True}" />
                     </group>
                     <group string="Assignment">
-                        <field name="case_worker_id" options="{'no_create': True}"
-                               placeholder="Defaults to ticket assignee"/>
-                        <field name="supervisor_id" options="{'no_create': True}"/>
+                        <field
+                            name="case_worker_id"
+                            options="{'no_create': True}"
+                            placeholder="Defaults to ticket assignee"
+                        />
+                        <field name="supervisor_id" options="{'no_create': True}" />
                     </group>
                 </group>
 
-                <separator string="Options"/>
+                <separator string="Options" />
                 <group>
                     <group>
-                        <field name="copy_description"/>
-                        <field name="notes" widget="text" placeholder="Additional notes about the escalation..."/>
+                        <field name="copy_description" />
+                        <field
+                            name="notes"
+                            widget="text"
+                            placeholder="Additional notes about the escalation..."
+                        />
                     </group>
                     <group>
-                        <field name="close_ticket"/>
-                        <field name="close_decision" invisible="not close_ticket"
-                               required="close_ticket"/>
+                        <field name="close_ticket" />
+                        <field
+                            name="close_decision"
+                            invisible="not close_ticket"
+                            required="close_ticket"
+                        />
                     </group>
                 </group>
 
                 <footer>
-                    <button string="Escalate to Case" name="action_escalate" type="object"
-                            class="btn-primary"/>
-                    <button string="Cancel" name="action_cancel" type="object"
-                            class="btn-secondary"/>
+                    <button
+                        string="Escalate to Case"
+                        name="action_escalate"
+                        type="object"
+                        class="btn-primary"
+                    />
+                    <button
+                        string="Cancel"
+                        name="action_cancel"
+                        type="object"
+                        class="btn-secondary"
+                    />
                 </footer>
             </form>
         </field>

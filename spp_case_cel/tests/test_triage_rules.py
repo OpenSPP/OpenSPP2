@@ -311,7 +311,7 @@ class TestTriageRules(TransactionCase):
             {
                 "name": "Complex Triage Rule",
                 "condition_cel": (
-                    "(intake_source == 'grm' or intake_source == 'referral') " "and client_type == 'household'"
+                    "(intake_source == 'grm' or intake_source == 'referral') and client_type == 'household'"
                 ),
                 "set_intensity": "3",
                 "set_priority": "high",

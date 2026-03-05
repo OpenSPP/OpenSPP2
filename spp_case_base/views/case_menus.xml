@@ -1,139 +1,185 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Root Menu -->
-    <menuitem id="menu_case_management_root"
-              name="Case Management"
-              sequence="10"
-              web_icon="spp_case_base,static/description/OpenSPP-Case-Management-Icons.png"/>
+    <menuitem
+        id="menu_case_management_root"
+        name="Case Management"
+        sequence="10"
+        web_icon="spp_case_base,static/description/OpenSPP-Case-Management-Icons.png"
+    />
 
     <!-- Cases Menu -->
-    <menuitem id="menu_case_management_cases"
-              name="Cases"
-              parent="menu_case_management_root"
-              sequence="10"/>
+    <menuitem
+        id="menu_case_management_cases"
+        name="Cases"
+        parent="menu_case_management_root"
+        sequence="10"
+    />
 
-    <menuitem id="menu_case_all"
-              name="All Cases"
-              parent="menu_case_management_cases"
-              action="action_case"
-              sequence="10"/>
+    <menuitem
+        id="menu_case_all"
+        name="All Cases"
+        parent="menu_case_management_cases"
+        action="action_case"
+        sequence="10"
+    />
 
-    <menuitem id="menu_case_my_cases"
-              name="My Cases"
-              parent="menu_case_management_cases"
-              action="action_my_cases"
-              sequence="20"/>
+    <menuitem
+        id="menu_case_my_cases"
+        name="My Cases"
+        parent="menu_case_management_cases"
+        action="action_my_cases"
+        sequence="20"
+    />
 
-    <menuitem id="menu_case_unassigned"
-              name="Unassigned Cases"
-              parent="menu_case_management_cases"
-              action="action_unassigned_cases"
-              sequence="30"
-              groups="group_case_supervisor"/>
+    <menuitem
+        id="menu_case_unassigned"
+        name="Unassigned Cases"
+        parent="menu_case_management_cases"
+        action="action_unassigned_cases"
+        sequence="30"
+        groups="group_case_supervisor"
+    />
 
     <!-- Activities Menu -->
-    <menuitem id="menu_case_management_activities"
-              name="Activities"
-              parent="menu_case_management_root"
-              sequence="20"/>
+    <menuitem
+        id="menu_case_management_activities"
+        name="Activities"
+        parent="menu_case_management_root"
+        sequence="20"
+    />
 
-    <menuitem id="menu_case_visits"
-              name="Visits"
-              parent="menu_case_management_activities"
-              action="action_case_visit"
-              sequence="10"/>
+    <menuitem
+        id="menu_case_visits"
+        name="Visits"
+        parent="menu_case_management_activities"
+        action="action_case_visit"
+        sequence="10"
+    />
 
-    <menuitem id="menu_case_notes"
-              name="Notes"
-              parent="menu_case_management_activities"
-              action="action_case_note"
-              sequence="20"/>
+    <menuitem
+        id="menu_case_notes"
+        name="Notes"
+        parent="menu_case_management_activities"
+        action="action_case_note"
+        sequence="20"
+    />
 
-    <menuitem id="menu_case_referrals"
-              name="Referrals"
-              parent="menu_case_management_activities"
-              action="action_case_referral"
-              sequence="30"/>
+    <menuitem
+        id="menu_case_referrals"
+        name="Referrals"
+        parent="menu_case_management_activities"
+        action="action_case_referral"
+        sequence="30"
+    />
 
-    <menuitem id="menu_case_assessment"
-              name="Assessments"
-              parent="menu_case_management_activities"
-              action="action_case_assessment"
-              sequence="40"/>
+    <menuitem
+        id="menu_case_assessment"
+        name="Assessments"
+        parent="menu_case_management_activities"
+        action="action_case_assessment"
+        sequence="40"
+    />
 
     <!-- Planning Menu -->
-    <menuitem id="menu_case_management_planning"
-              name="Planning"
-              parent="menu_case_management_root"
-              sequence="30"/>
+    <menuitem
+        id="menu_case_management_planning"
+        name="Planning"
+        parent="menu_case_management_root"
+        sequence="30"
+    />
 
-    <menuitem id="menu_case_intervention_plans"
-              name="Intervention Plans"
-              parent="menu_case_management_planning"
-              action="action_case_intervention_plan"
-              sequence="10"/>
+    <menuitem
+        id="menu_case_intervention_plans"
+        name="Intervention Plans"
+        parent="menu_case_management_planning"
+        action="action_case_intervention_plan"
+        sequence="10"
+    />
 
-    <menuitem id="menu_case_interventions"
-              name="Interventions"
-              parent="menu_case_management_planning"
-              action="action_case_intervention"
-              sequence="20"/>
+    <menuitem
+        id="menu_case_interventions"
+        name="Interventions"
+        parent="menu_case_management_planning"
+        action="action_case_intervention"
+        sequence="20"
+    />
 
     <!-- Configuration Menu -->
-    <menuitem id="menu_case_management_config"
-              name="Configuration"
-              parent="menu_case_management_root"
-              sequence="100"
-              groups="group_case_manager"/>
+    <menuitem
+        id="menu_case_management_config"
+        name="Configuration"
+        parent="menu_case_management_root"
+        sequence="100"
+        groups="group_case_manager"
+    />
 
-    <menuitem id="menu_case_config_case_setup"
-              name="Case Setup"
-              parent="menu_case_management_config"
-              sequence="10"/>
+    <menuitem
+        id="menu_case_config_case_setup"
+        name="Case Setup"
+        parent="menu_case_management_config"
+        sequence="10"
+    />
 
-    <menuitem id="menu_case_types"
-              name="Case Types"
-              parent="menu_case_config_case_setup"
-              action="action_case_type"
-              sequence="10"/>
+    <menuitem
+        id="menu_case_types"
+        name="Case Types"
+        parent="menu_case_config_case_setup"
+        action="action_case_type"
+        sequence="10"
+    />
 
-    <menuitem id="menu_case_stages"
-              name="Case Stages"
-              parent="menu_case_config_case_setup"
-              action="action_case_stage"
-              sequence="20"/>
+    <menuitem
+        id="menu_case_stages"
+        name="Case Stages"
+        parent="menu_case_config_case_setup"
+        action="action_case_stage"
+        sequence="20"
+    />
 
-    <menuitem id="menu_case_teams"
-              name="Case Teams"
-              parent="menu_case_config_case_setup"
-              action="action_case_team"
-              sequence="30"/>
+    <menuitem
+        id="menu_case_teams"
+        name="Case Teams"
+        parent="menu_case_config_case_setup"
+        action="action_case_team"
+        sequence="30"
+    />
 
-    <menuitem id="menu_case_config_assessment"
-              name="Assessment"
-              parent="menu_case_management_config"
-              sequence="20"/>
+    <menuitem
+        id="menu_case_config_assessment"
+        name="Assessment"
+        parent="menu_case_management_config"
+        sequence="20"
+    />
 
-    <menuitem id="menu_case_risk_factors"
-              name="Risk Factors"
-              parent="menu_case_config_assessment"
-              action="action_case_risk_factor"
-              sequence="10"/>
+    <menuitem
+        id="menu_case_risk_factors"
+        name="Risk Factors"
+        parent="menu_case_config_assessment"
+        action="action_case_risk_factor"
+        sequence="10"
+    />
 
-    <menuitem id="menu_case_vulnerabilities"
-              name="Vulnerabilities"
-              parent="menu_case_config_assessment"
-              action="action_case_vulnerability"
-              sequence="20"/>
+    <menuitem
+        id="menu_case_vulnerabilities"
+        name="Vulnerabilities"
+        parent="menu_case_config_assessment"
+        action="action_case_vulnerability"
+        sequence="20"
+    />
 
-    <menuitem id="menu_case_config_closure"
-              name="Closure"
-              parent="menu_case_management_config"
-              sequence="30"/>
+    <menuitem
+        id="menu_case_config_closure"
+        name="Closure"
+        parent="menu_case_management_config"
+        sequence="30"
+    />
 
-    <menuitem id="menu_case_closure_reasons"
-              name="Closure Reasons"
-              parent="menu_case_config_closure"
-              action="action_case_closure_reason"
-              sequence="10"/>
+    <menuitem
+        id="menu_case_closure_reasons"
+        name="Closure Reasons"
+        parent="menu_case_config_closure"
+        action="action_case_closure_reason"
+        sequence="10"
+    />
 </odoo>

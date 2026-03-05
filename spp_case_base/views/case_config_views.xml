@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- ========== Risk Factor Views ========== -->
 
@@ -9,20 +9,30 @@
         <field name="arch" type="xml">
             <form string="Risk Factor">
                 <sheet>
-                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="text-bg-danger"
+                        invisible="active"
+                    />
                     <group>
                         <group name="basic">
-                            <field name="name" required="1"/>
-                            <field name="code" required="1"/>
-                            <field name="sequence"/>
-                            <field name="active"/>
+                            <field name="name" required="1" />
+                            <field name="code" required="1" />
+                            <field name="sequence" />
+                            <field name="active" />
                         </group>
                         <group name="settings">
-                            <field name="severity_weight"/>
+                            <field name="severity_weight" />
                         </group>
                     </group>
                     <group col="2" string="Description">
-                        <field name="description" nolabel="1" colspan="2" placeholder="Risk factor description..."/>
+                        <field
+                            name="description"
+                            nolabel="1"
+                            colspan="2"
+                            placeholder="Risk factor description..."
+                        />
                     </group>
                 </sheet>
             </form>
@@ -35,12 +45,12 @@
         <field name="model">spp.case.risk.factor</field>
         <field name="arch" type="xml">
             <list string="Risk Factors" default_order="sequence,name" editable="bottom">
-                <field name="sequence" widget="handle"/>
-                <field name="name"/>
-                <field name="code"/>
-                <field name="severity_weight"/>
-                <field name="description"/>
-                <field name="active" widget="boolean_toggle"/>
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="code" />
+                <field name="severity_weight" />
+                <field name="description" />
+                <field name="active" widget="boolean_toggle" />
             </list>
         </field>
     </record>
@@ -51,10 +61,14 @@
         <field name="model">spp.case.risk.factor</field>
         <field name="arch" type="xml">
             <search string="Search Risk Factors">
-                <field name="name"/>
-                <field name="code"/>
-                <separator/>
-                <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
+                <field name="name" />
+                <field name="code" />
+                <separator />
+                <filter
+                    string="Archived"
+                    name="archived"
+                    domain="[('active', '=', False)]"
+                />
             </search>
         </field>
     </record>
@@ -85,17 +99,27 @@
         <field name="arch" type="xml">
             <form string="Vulnerability">
                 <sheet>
-                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="text-bg-danger"
+                        invisible="active"
+                    />
                     <group>
                         <group name="basic">
-                            <field name="name" required="1"/>
-                            <field name="code" required="1"/>
-                            <field name="sequence"/>
-                            <field name="active"/>
+                            <field name="name" required="1" />
+                            <field name="code" required="1" />
+                            <field name="sequence" />
+                            <field name="active" />
                         </group>
                     </group>
                     <group col="2" string="Description">
-                        <field name="description" nolabel="1" colspan="2" placeholder="Vulnerability description..."/>
+                        <field
+                            name="description"
+                            nolabel="1"
+                            colspan="2"
+                            placeholder="Vulnerability description..."
+                        />
                     </group>
                 </sheet>
             </form>
@@ -107,12 +131,16 @@
         <field name="name">spp.case.vulnerability.tree</field>
         <field name="model">spp.case.vulnerability</field>
         <field name="arch" type="xml">
-            <list string="Vulnerabilities" default_order="sequence,name" editable="bottom">
-                <field name="sequence" widget="handle"/>
-                <field name="name"/>
-                <field name="code"/>
-                <field name="description"/>
-                <field name="active" widget="boolean_toggle"/>
+            <list
+                string="Vulnerabilities"
+                default_order="sequence,name"
+                editable="bottom"
+            >
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="code" />
+                <field name="description" />
+                <field name="active" widget="boolean_toggle" />
             </list>
         </field>
     </record>
@@ -123,10 +151,14 @@
         <field name="model">spp.case.vulnerability</field>
         <field name="arch" type="xml">
             <search string="Search Vulnerabilities">
-                <field name="name"/>
-                <field name="code"/>
-                <separator/>
-                <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
+                <field name="name" />
+                <field name="code" />
+                <separator />
+                <filter
+                    string="Archived"
+                    name="archived"
+                    domain="[('active', '=', False)]"
+                />
             </search>
         </field>
     </record>
@@ -157,20 +189,30 @@
         <field name="arch" type="xml">
             <form string="Closure Reason">
                 <sheet>
-                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="text-bg-danger"
+                        invisible="active"
+                    />
                     <group>
                         <group name="basic">
-                            <field name="name" required="1"/>
-                            <field name="code" required="1"/>
-                            <field name="sequence"/>
-                            <field name="active"/>
+                            <field name="name" required="1" />
+                            <field name="code" required="1" />
+                            <field name="sequence" />
+                            <field name="active" />
                         </group>
                         <group name="settings">
-                            <field name="outcome_type" required="1"/>
+                            <field name="outcome_type" required="1" />
                         </group>
                     </group>
                     <group col="2" string="Description">
-                        <field name="description" nolabel="1" colspan="2" placeholder="Closure reason description..."/>
+                        <field
+                            name="description"
+                            nolabel="1"
+                            colspan="2"
+                            placeholder="Closure reason description..."
+                        />
                     </group>
                 </sheet>
             </form>
@@ -182,13 +224,17 @@
         <field name="name">spp.case.closure.reason.tree</field>
         <field name="model">spp.case.closure.reason</field>
         <field name="arch" type="xml">
-            <list string="Closure Reasons" default_order="sequence,name" editable="bottom">
-                <field name="sequence" widget="handle"/>
-                <field name="name"/>
-                <field name="code"/>
-                <field name="outcome_type"/>
-                <field name="description"/>
-                <field name="active" widget="boolean_toggle"/>
+            <list
+                string="Closure Reasons"
+                default_order="sequence,name"
+                editable="bottom"
+            >
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="code" />
+                <field name="outcome_type" />
+                <field name="description" />
+                <field name="active" widget="boolean_toggle" />
             </list>
         </field>
     </record>
@@ -199,15 +245,31 @@
         <field name="model">spp.case.closure.reason</field>
         <field name="arch" type="xml">
             <search string="Search Closure Reasons">
-                <field name="name"/>
-                <field name="code"/>
-                <separator/>
-                <filter string="Positive Outcome" name="positive" domain="[('outcome_type', '=', 'positive')]"/>
-                <filter string="Negative Outcome" name="negative" domain="[('outcome_type', '=', 'negative')]"/>
-                <separator/>
-                <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
+                <field name="name" />
+                <field name="code" />
+                <separator />
+                <filter
+                    string="Positive Outcome"
+                    name="positive"
+                    domain="[('outcome_type', '=', 'positive')]"
+                />
+                <filter
+                    string="Negative Outcome"
+                    name="negative"
+                    domain="[('outcome_type', '=', 'negative')]"
+                />
+                <separator />
+                <filter
+                    string="Archived"
+                    name="archived"
+                    domain="[('active', '=', False)]"
+                />
                 <group>
-                    <filter string="Outcome Type" name="group_outcome" context="{'group_by': 'outcome_type'}"/>
+                    <filter
+                        string="Outcome Type"
+                        name="group_outcome"
+                        context="{'group_by': 'outcome_type'}"
+                    />
                 </group>
             </search>
         </field>
@@ -240,36 +302,63 @@
             <form string="Case Team">
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button name="action_view_cases" type="object" class="oe_stat_button" icon="fa-folder-open">
+                        <button
+                            name="action_view_cases"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-folder-open"
+                        >
                             <div class="o_field_widget o_stat_info">
                                 <span class="o_stat_value">
-                                    <field name="active_case_count"/> / <field name="total_case_count"/>
+                                    <field name="active_case_count" /> / <field
+                                    name="total_case_count"
+                                />
                                 </span>
                                 <span class="o_stat_text">Cases</span>
                             </div>
                         </button>
                     </div>
-                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="text-bg-danger"
+                        invisible="active"
+                    />
                     <div class="oe_title">
                         <h1>
-                            <field name="name" placeholder="Team Name" required="1"/>
+                            <field name="name" placeholder="Team Name" required="1" />
                         </h1>
                     </div>
                     <group>
                         <group name="basic">
-                            <field name="supervisor_id"/>
-                            <field name="active"/>
-                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="supervisor_id" />
+                            <field name="active" />
+                            <field
+                                name="company_id"
+                                groups="base.group_multi_company"
+                            />
                         </group>
                         <group name="settings">
-                            <field name="color" widget="color_picker"/>
+                            <field name="color" widget="color_picker" />
                         </group>
                     </group>
                     <group col="2" string="Team Members">
-                        <field name="member_ids" nolabel="1" colspan="2" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                        <field
+                            name="member_ids"
+                            nolabel="1"
+                            colspan="2"
+                            widget="many2many_tags"
+                            options="{'color_field': 'color'}"
+                        />
                     </group>
                     <group col="2" string="Case Types">
-                        <field name="case_type_ids" nolabel="1" colspan="2" widget="many2many_tags" options="{'color_field': 'color', 'no_create': True}"/>
+                        <field
+                            name="case_type_ids"
+                            nolabel="1"
+                            colspan="2"
+                            widget="many2many_tags"
+                            options="{'color_field': 'color', 'no_create': True}"
+                        />
                     </group>
                 </sheet>
             </form>
@@ -282,13 +371,13 @@
         <field name="model">spp.case.team</field>
         <field name="arch" type="xml">
             <list string="Case Teams">
-                <field name="name"/>
-                <field name="supervisor_id" widget="many2one_avatar_user"/>
-                <field name="member_ids" widget="many2many_tags"/>
-                <field name="active_case_count" string="Active Cases"/>
-                <field name="total_case_count" string="Total Cases"/>
-                <field name="active" widget="boolean_toggle"/>
-                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="name" />
+                <field name="supervisor_id" widget="many2one_avatar_user" />
+                <field name="member_ids" widget="many2many_tags" />
+                <field name="active_case_count" string="Active Cases" />
+                <field name="total_case_count" string="Total Cases" />
+                <field name="active" widget="boolean_toggle" />
+                <field name="company_id" groups="base.group_multi_company" />
             </list>
         </field>
     </record>
@@ -299,35 +388,41 @@
         <field name="model">spp.case.team</field>
         <field name="arch" type="xml">
             <kanban highlight_color="color">
-                <field name="name"/>
-                <field name="supervisor_id"/>
-                <field name="member_ids"/>
-                <field name="active_case_count"/>
-                <field name="total_case_count"/>
-                <field name="color"/>
+                <field name="name" />
+                <field name="supervisor_id" />
+                <field name="member_ids" />
+                <field name="active_case_count" />
+                <field name="total_case_count" />
+                <field name="color" />
                 <templates>
                     <t t-name="card">
-                        <field name="name" class="fw-bold fs-5"/>
+                        <field name="name" class="fw-bold fs-5" />
                         <div class="mt-2 mb-2" t-if="record.supervisor_id.value">
                             <span class="text-muted small">Supervisor:</span>
-                            <field name="supervisor_id" widget="many2one_avatar_user"/>
+                            <field name="supervisor_id" widget="many2one_avatar_user" />
                         </div>
                         <div class="mb-2" t-if="record.member_ids.raw_value.length">
                             <span class="text-muted small d-block">Team Members:</span>
-                            <field name="member_ids" widget="many2many_avatar_user"/>
+                            <field name="member_ids" widget="many2many_avatar_user" />
                         </div>
                         <div class="mt-2">
                             <span class="badge text-bg-primary">
-                                <i class="fa fa-folder-open me-1"/>
-                                <t t-esc="record.active_case_count.value"/> / <t t-esc="record.total_case_count.value"/> cases
+                                <i class="fa fa-folder-open me-1" />
+                                <t t-esc="record.active_case_count.value" /> / <t
+                                t-esc="record.total_case_count.value"
+                            /> cases
                             </span>
                         </div>
                     </t>
                     <t t-name="menu">
                         <a role="menuitem" type="edit" class="dropdown-item">Edit</a>
-                        <a role="menuitem" type="delete" class="dropdown-item">Delete</a>
-                        <div role="separator" class="dropdown-divider"/>
-                        <field name="color" widget="kanban_color_picker"/>
+                        <a
+                            role="menuitem"
+                            type="delete"
+                            class="dropdown-item"
+                        >Delete</a>
+                        <div role="separator" class="dropdown-divider" />
+                        <field name="color" widget="kanban_color_picker" />
                     </t>
                 </templates>
             </kanban>
@@ -340,14 +435,26 @@
         <field name="model">spp.case.team</field>
         <field name="arch" type="xml">
             <search string="Search Case Teams">
-                <field name="name"/>
-                <field name="supervisor_id"/>
-                <field name="member_ids"/>
-                <separator/>
-                <filter string="My Teams" name="my_teams" domain="[('member_ids', 'in', uid)]"/>
-                <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
+                <field name="name" />
+                <field name="supervisor_id" />
+                <field name="member_ids" />
+                <separator />
+                <filter
+                    string="My Teams"
+                    name="my_teams"
+                    domain="[('member_ids', 'in', uid)]"
+                />
+                <filter
+                    string="Archived"
+                    name="archived"
+                    domain="[('active', '=', False)]"
+                />
                 <group>
-                    <filter string="Supervisor" name="group_supervisor" context="{'group_by': 'supervisor_id'}"/>
+                    <filter
+                        string="Supervisor"
+                        name="group_supervisor"
+                        context="{'group_by': 'supervisor_id'}"
+                    />
                 </group>
             </search>
         </field>

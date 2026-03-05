@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Tree View -->
     <record id="view_case_assignment_rule_tree" model="ir.ui.view">
@@ -6,13 +6,13 @@
         <field name="model">spp.case.assignment.rule</field>
         <field name="arch" type="xml">
             <list>
-                <field name="sequence" widget="handle"/>
-                <field name="name"/>
-                <field name="assign_team_id"/>
-                <field name="assign_worker_id"/>
-                <field name="is_consider_workload"/>
-                <field name="match_count"/>
-                <field name="active"/>
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="assign_team_id" />
+                <field name="assign_worker_id" />
+                <field name="is_consider_workload" />
+                <field name="match_count" />
+                <field name="active" />
             </list>
         </field>
     </record>
@@ -62,38 +62,57 @@
                             <separator string="Available Variables" />
                             <div>
                                 <ul>
-                                    <li><b>case</b> - The full case record (spp.case). Example: <code>case.opened_date > "2026-01-01"</code></li>
-                                    <li><b>case_type</b> - Case type record (spp.case.type via case.case_type_id). Example: <code>case_type.code == "EMG"</code></li>
-                                    <li><b>intensity</b> - Intensity level (selection: "1" = Low, "2" = Medium, "3" = High). Example: <code>intensity == "3"</code></li>
-                                    <li><b>priority</b> - Case priority (selection: "low", "medium", "high", "urgent"). Example: <code>priority == "urgent"</code></li>
-                                    <li><b>client</b> - The beneficiary/client (res.partner via case.partner_id). Example: <code>client.name == "Maria Santos"</code></li>
-                                    <li><b>client_type</b> - Type of client (selection: "individual", "household", "group"). Example: <code>client_type == "household"</code></li>
-                                    <li><b>intake_source</b> - How the case was received (selection: "walk_in", "referral", "outreach", "grm", "program", "other"). Example: <code>intake_source == "grm"</code></li>
+                                    <li><b
+                                    >case</b> - The full case record (spp.case). Example: <code
+                                    >case.opened_date > "2026-01-01"</code></li>
+                                    <li><b
+                                    >case_type</b> - Case type record (spp.case.type via case.case_type_id). Example: <code
+                                    >case_type.code == "EMG"</code></li>
+                                    <li><b
+                                    >intensity</b> - Intensity level (selection: "1" = Low, "2" = Medium, "3" = High). Example: <code
+                                    >intensity == "3"</code></li>
+                                    <li><b
+                                    >priority</b> - Case priority (selection: "low", "medium", "high", "urgent"). Example: <code
+                                    >priority == "urgent"</code></li>
+                                    <li><b
+                                    >client</b> - The beneficiary/client (res.partner via case.partner_id). Example: <code
+                                    >client.name == "Maria Santos"</code></li>
+                                    <li><b
+                                    >client_type</b> - Type of client (selection: "individual", "household", "group"). Example: <code
+                                    >client_type == "household"</code></li>
+                                    <li><b
+                                    >intake_source</b> - How the case was received (selection: "walk_in", "referral", "outreach", "grm", "program", "other"). Example: <code
+                                    >intake_source == "grm"</code></li>
                                 </ul>
                             </div>
                             <separator string="Common Patterns" />
                             <div>
                                 <ul>
-                                    <li>Assign urgent cases: <code>priority == "urgent" || intensity == "3"</code></li>
-                                    <li>Assign GRM escalations to specific team: <code>intake_source == "grm" &amp;&amp; intensity == "2"</code></li>
-                                    <li>Assign all low-intensity cases: <code>intensity == "1"</code></li>
+                                    <li>Assign urgent cases: <code
+                                    >priority == "urgent" || intensity == "3"</code></li>
+                                    <li>Assign GRM escalations to specific team: <code
+                                    >intake_source == "grm" &amp;&amp; intensity == "2"</code></li>
+                                    <li>Assign all low-intensity cases: <code
+                                    >intensity == "1"</code></li>
                                 </ul>
                             </div>
                         </page>
                         <page string="Assignment" name="assignment">
                             <group col="2">
                                 <group string="Team Assignment">
-                                    <field name="assign_team_id"/>
-                                    <field name="assign_supervisor_id"/>
+                                    <field name="assign_team_id" />
+                                    <field name="assign_supervisor_id" />
                                 </group>
                                 <group string="Worker Assignment">
-                                    <field name="assign_worker_id"/>
+                                    <field name="assign_worker_id" />
                                 </group>
                             </group>
                             <group string="Workload Balancing">
-                                <field name="is_consider_workload"/>
-                                <field name="max_cases_per_worker"
-                                       invisible="not is_consider_workload"/>
+                                <field name="is_consider_workload" />
+                                <field
+                                    name="max_cases_per_worker"
+                                    invisible="not is_consider_workload"
+                                />
                             </group>
                         </page>
                     </notebook>

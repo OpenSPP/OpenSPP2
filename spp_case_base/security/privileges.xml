@@ -1,12 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Case Management Domain Privilege -->
     <!-- Single consolidated privilege for all case management access levels -->
 
     <record id="privilege_case" model="res.groups.privilege">
         <field name="name">Case Management</field>
-        <field name="category_id" ref="spp_security.category_spp_case"/>
+        <field name="category_id" ref="spp_security.category_spp_case" />
         <field name="description">Access to case management and social work</field>
     </record>
-
 </odoo>

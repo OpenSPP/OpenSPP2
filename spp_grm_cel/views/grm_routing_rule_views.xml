@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Routing Rule Tree View -->
     <record id="view_grm_routing_rule_tree" model="ir.ui.view">
@@ -6,15 +6,15 @@
         <field name="model">spp.grm.routing.rule</field>
         <field name="arch" type="xml">
             <list string="Routing Rules" decoration-muted="not active">
-                <field name="sequence" widget="handle"/>
-                <field name="name"/>
-                <field name="condition_cel"/>
-                <field name="assign_team_id"/>
-                <field name="assign_user_id"/>
-                <field name="set_severity"/>
-                <field name="set_priority"/>
-                <field name="match_count"/>
-                <field name="active"/>
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="condition_cel" />
+                <field name="assign_team_id" />
+                <field name="assign_user_id" />
+                <field name="set_severity" />
+                <field name="set_priority" />
+                <field name="match_count" />
+                <field name="active" />
             </list>
         </field>
     </record>
@@ -26,58 +26,83 @@
         <field name="arch" type="xml">
             <form string="Routing Rule">
                 <sheet>
-                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="text-bg-danger"
+                        invisible="active"
+                    />
                     <div class="oe_title">
-                        <label for="name"/>
+                        <label for="name" />
                         <h1>
-                            <field name="name" placeholder="e.g., Route Critical Tickets to Emergency Team"/>
+                            <field
+                                name="name"
+                                placeholder="e.g., Route Critical Tickets to Emergency Team"
+                            />
                         </h1>
                     </div>
                     <group>
                         <group>
-                            <field name="sequence"/>
-                            <field name="active" invisible="1"/>
-                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="sequence" />
+                            <field name="active" invisible="1" />
+                            <field
+                                name="company_id"
+                                groups="base.group_multi_company"
+                            />
                         </group>
                         <group>
-                            <field name="match_count" readonly="1"/>
+                            <field name="match_count" readonly="1" />
                         </group>
                     </group>
                     <notebook>
                         <page string="Condition" name="condition">
                             <group>
-                                <field name="condition_cel" widget="text" placeholder="e.g., severity == 'critical' or category.name == 'Fraud'"/>
+                                <field
+                                    name="condition_cel"
+                                    widget="text"
+                                    placeholder="e.g., severity == 'critical' or category.name == 'Fraud'"
+                                />
                             </group>
                             <div class="alert alert-info" role="alert">
                                 <h4>Available Context Variables:</h4>
                                 <ul>
-                                    <li><strong>ticket</strong> - The GRM ticket record</li>
-                                    <li><strong>category</strong> - ticket.category_id</li>
-                                    <li><strong>channel</strong> - ticket.channel_id</li>
-                                    <li><strong>severity</strong> - ticket.severity (low, medium, high, critical)</li>
-                                    <li><strong>priority</strong> - ticket.priority (0, 1, 2, 3)</li>
-                                    <li><strong>partner</strong> - ticket.partner_id (the registrant)</li>
+                                    <li><strong
+                                    >ticket</strong> - The GRM ticket record</li>
+                                    <li><strong
+                                    >category</strong> - ticket.category_id</li>
+                                    <li><strong
+                                    >channel</strong> - ticket.channel_id</li>
+                                    <li><strong
+                                    >severity</strong> - ticket.severity (low, medium, high, critical)</li>
+                                    <li><strong
+                                    >priority</strong> - ticket.priority (0, 1, 2, 3)</li>
+                                    <li><strong
+                                    >partner</strong> - ticket.partner_id (the registrant)</li>
                                     <li><strong>team</strong> - ticket.team_id</li>
                                     <li><strong>user</strong> - ticket.user_id</li>
                                 </ul>
                                 <h4>Example Expressions:</h4>
                                 <ul>
-                                    <li><code>severity == 'critical'</code> - Match critical severity tickets</li>
-                                    <li><code>severity == 'critical' or severity == 'high'</code> - Match critical or high severity</li>
-                                    <li><code>priority == '3'</code> - Match very high priority tickets</li>
-                                    <li><code>severity == 'critical' and priority == '3'</code> - Match critical AND very high priority</li>
+                                    <li><code
+                                    >severity == 'critical'</code> - Match critical severity tickets</li>
+                                    <li><code
+                                    >severity == 'critical' or severity == 'high'</code> - Match critical or high severity</li>
+                                    <li><code
+                                    >priority == '3'</code> - Match very high priority tickets</li>
+                                    <li><code
+                                    >severity == 'critical' and priority == '3'</code> - Match critical AND very high priority</li>
                                 </ul>
                             </div>
                         </page>
                         <page string="Actions" name="actions">
                             <group>
                                 <group string="Assignment">
-                                    <field name="assign_team_id"/>
-                                    <field name="assign_user_id"/>
+                                    <field name="assign_team_id" />
+                                    <field name="assign_user_id" />
                                 </group>
                                 <group string="Classification">
-                                    <field name="set_severity"/>
-                                    <field name="set_priority"/>
+                                    <field name="set_severity" />
+                                    <field name="set_priority" />
                                 </group>
                             </group>
                         </page>
@@ -93,16 +118,32 @@
         <field name="model">spp.grm.routing.rule</field>
         <field name="arch" type="xml">
             <search string="Routing Rules">
-                <field name="name"/>
-                <field name="condition_cel"/>
-                <field name="assign_team_id"/>
-                <field name="assign_user_id"/>
-                <separator/>
-                <filter string="Active" name="active" domain="[('active', '=', True)]"/>
-                <filter string="Inactive" name="inactive" domain="[('active', '=', False)]"/>
+                <field name="name" />
+                <field name="condition_cel" />
+                <field name="assign_team_id" />
+                <field name="assign_user_id" />
+                <separator />
+                <filter
+                    string="Active"
+                    name="active"
+                    domain="[('active', '=', True)]"
+                />
+                <filter
+                    string="Inactive"
+                    name="inactive"
+                    domain="[('active', '=', False)]"
+                />
                 <group>
-                    <filter string="Team" name="group_team" context="{'group_by': 'assign_team_id'}"/>
-                    <filter string="User" name="group_user" context="{'group_by': 'assign_user_id'}"/>
+                    <filter
+                        string="Team"
+                        name="group_team"
+                        context="{'group_by': 'assign_team_id'}"
+                    />
+                    <filter
+                        string="User"
+                        name="group_user"
+                        context="{'group_by': 'assign_user_id'}"
+                    />
                 </group>
             </search>
         </field>
@@ -133,5 +174,4 @@
         action="action_grm_routing_rule"
         sequence="10"
     />
-
 </odoo>

@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <!-- Inherit case form view to add entitlement information -->
     <record id="view_case_form_entitlements" model="ir.ui.view">
         <field name="name">spp.case.form.entitlements</field>
         <field name="model">spp.case</field>
         <field name="inherit_id" ref="spp_case_base.view_case_form" />
         <field name="arch" type="xml">
-
             <!-- Add smart button for entitlements -->
             <xpath expr="//div[@name='button_box']" position="inside">
                 <button
@@ -17,7 +15,11 @@
                     icon="fa-gift"
                     invisible="entitlement_count == 0"
                 >
-                    <field name="entitlement_count" widget="statinfo" string="Entitlements" />
+                    <field
+                        name="entitlement_count"
+                        widget="statinfo"
+                        string="Entitlements"
+                    />
                 </button>
                 <button
                     name="action_view_approved_entitlements"
@@ -26,7 +28,11 @@
                     icon="fa-check-circle"
                     invisible="approved_entitlement_count == 0"
                 >
-                    <field name="approved_entitlement_count" widget="statinfo" string="Approved" />
+                    <field
+                        name="approved_entitlement_count"
+                        widget="statinfo"
+                        string="Approved"
+                    />
                 </button>
                 <button
                     name="action_view_pending_entitlements"
@@ -35,7 +41,11 @@
                     icon="fa-clock-o"
                     invisible="pending_entitlement_count == 0"
                 >
-                    <field name="pending_entitlement_count" widget="statinfo" string="Pending" />
+                    <field
+                        name="pending_entitlement_count"
+                        widget="statinfo"
+                        string="Pending"
+                    />
                 </button>
             </xpath>
 
@@ -84,7 +94,6 @@
                     </field>
                 </page>
             </xpath>
-
         </field>
     </record>
 
@@ -94,7 +103,6 @@
         <field name="model">spp.case</field>
         <field name="inherit_id" ref="spp_case_base.view_case_search" />
         <field name="arch" type="xml">
-
             <!-- Add entitlement-related filters -->
             <xpath expr="//filter[@name='high_priority']" position="after">
                 <separator />
@@ -137,7 +145,6 @@
                     filter_domain="[('entitlement_ids.code', 'ilike', self)]"
                 />
             </xpath>
-
         </field>
     </record>
 
@@ -147,13 +154,15 @@
         <field name="model">spp.case</field>
         <field name="inherit_id" ref="spp_case_base.view_case_tree" />
         <field name="arch" type="xml">
-
             <!-- Add entitlement count column -->
             <xpath expr="//field[@name='priority']" position="after">
                 <field name="entitlement_count" string="Entitlements" />
-                <field name="approved_entitlement_count" string="Approved" optional="hide" />
+                <field
+                    name="approved_entitlement_count"
+                    string="Approved"
+                    optional="hide"
+                />
             </xpath>
-
         </field>
     </record>
 
@@ -163,7 +172,6 @@
         <field name="model">spp.case</field>
         <field name="inherit_id" ref="spp_case_base.view_case_kanban" />
         <field name="arch" type="xml">
-
             <!-- Add entitlement fields to kanban -->
             <xpath expr="//field[@name='priority']" position="after">
                 <field name="has_entitlements" />
@@ -186,8 +194,6 @@
                     <field name="approved_entitlement_count" />
                 </span>
             </xpath>
-
         </field>
     </record>
-
 </odoo>

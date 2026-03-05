@@ -71,11 +71,22 @@
             </filter>
 
             <group position="inside">
-                <filter string="Registrant" name="group_registrant" context="{'group_by': 'registrant_id'}" />
-                <filter string="Household" name="group_household" context="{'group_by': 'household_id'}" />
-                <filter string="Area" name="group_area" context="{'group_by': 'area_id'}" />
+                <filter
+                    string="Registrant"
+                    name="group_registrant"
+                    context="{'group_by': 'registrant_id'}"
+                />
+                <filter
+                    string="Household"
+                    name="group_household"
+                    context="{'group_by': 'household_id'}"
+                />
+                <filter
+                    string="Area"
+                    name="group_area"
+                    context="{'group_by': 'area_id'}"
+                />
             </group>
         </field>
     </record>
-
 </odoo>

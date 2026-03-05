@@ -1,48 +1,65 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Extend Case Form to show graduation info -->
     <record id="view_case_form_graduation" model="ir.ui.view">
         <field name="name">spp.case.form.graduation</field>
         <field name="model">spp.case</field>
-        <field name="inherit_id" ref="spp_case_base.view_case_form"/>
+        <field name="inherit_id" ref="spp_case_base.view_case_form" />
         <field name="arch" type="xml">
             <xpath expr="//div[@name='button_box']" position="inside">
-                <button name="action_view_graduation_assessments" type="object"
-                        class="oe_stat_button" icon="fa-graduation-cap">
-                    <field name="graduation_assessment_count" widget="statinfo"
-                           string="Assessments"/>
+                <button
+                    name="action_view_graduation_assessments"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-graduation-cap"
+                >
+                    <field
+                        name="graduation_assessment_count"
+                        widget="statinfo"
+                        string="Assessments"
+                    />
                 </button>
             </xpath>
             <xpath expr="//notebook" position="inside">
                 <page string="Graduation" name="graduation">
                     <group>
                         <group string="Graduation Status">
-                            <field name="graduation_status" widget="badge"
-                                   decoration-success="graduation_status == 'graduated'"
-                                   decoration-info="graduation_status == 'approved'"
-                                   decoration-warning="graduation_status == 'pending_approval'"
-                                   decoration-muted="graduation_status == 'not_assessed'"/>
-                            <field name="graduation_readiness" widget="progressbar"/>
+                            <field
+                                name="graduation_status"
+                                widget="badge"
+                                decoration-success="graduation_status == 'graduated'"
+                                decoration-info="graduation_status == 'approved'"
+                                decoration-warning="graduation_status == 'pending_approval'"
+                                decoration-muted="graduation_status == 'not_assessed'"
+                            />
+                            <field name="graduation_readiness" widget="progressbar" />
                         </group>
                         <group string="Latest Assessment">
-                            <field name="latest_graduation_assessment_id"/>
+                            <field name="latest_graduation_assessment_id" />
                         </group>
                     </group>
                     <group>
-                        <button name="action_create_graduation_assessment" type="object"
-                                string="New Assessment" class="btn-primary"
-                                icon="fa-plus"/>
+                        <button
+                            name="action_create_graduation_assessment"
+                            type="object"
+                            string="New Assessment"
+                            class="btn-primary"
+                            icon="fa-plus"
+                        />
                     </group>
                     <field name="graduation_assessment_ids" nolabel="1">
                         <list create="0" delete="0">
-                            <field name="assessment_date"/>
-                            <field name="pathway_id"/>
-                            <field name="readiness_score" widget="progressbar"/>
-                            <field name="recommendation"/>
-                            <field name="state" widget="badge"
-                                   decoration-success="state == 'approved'"
-                                   decoration-info="state == 'submitted'"
-                                   decoration-danger="state == 'rejected'"/>
+                            <field name="assessment_date" />
+                            <field name="pathway_id" />
+                            <field name="readiness_score" widget="progressbar" />
+                            <field name="recommendation" />
+                            <field
+                                name="state"
+                                widget="badge"
+                                decoration-success="state == 'approved'"
+                                decoration-info="state == 'submitted'"
+                                decoration-danger="state == 'rejected'"
+                            />
                         </list>
                     </field>
                 </page>

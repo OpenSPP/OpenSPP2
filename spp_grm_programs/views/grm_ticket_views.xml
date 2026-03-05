@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <!-- Extend GRM Ticket Form View -->
     <record id="view_spp_grm_ticket_form_programs" model="ir.ui.view">
         <field name="name">spp.grm.ticket.form.programs</field>
         <field name="model">spp.grm.ticket</field>
         <field name="inherit_id" ref="spp_grm.ticket_view_form" />
         <field name="arch" type="xml">
-
             <!-- Add program stat buttons in button box -->
             <xpath expr="//div[@name='button_box']" position="inside">
                 <button
@@ -43,7 +41,10 @@
                     <group name="program_info" col="2">
                         <group>
                             <field name="program_id" options="{'no_create': True}" />
-                            <field name="program_membership_id" options="{'no_create': True}" />
+                            <field
+                                name="program_membership_id"
+                                options="{'no_create': True}"
+                            />
                             <field
                                 name="enrollment_status"
                                 readonly="1"
@@ -51,15 +52,30 @@
                             />
                         </group>
                         <group>
-                            <field name="cycle_id" options="{'no_create': True}" domain="[('program_id', '=', program_id)]" readonly="not program_id" />
-                            <field name="entitlement_id" options="{'no_create': True}" domain="[('cycle_id', '=', cycle_id)]" readonly="not cycle_id" />
+                            <field
+                                name="cycle_id"
+                                options="{'no_create': True}"
+                                domain="[('program_id', '=', program_id)]"
+                                readonly="not program_id"
+                            />
+                            <field
+                                name="entitlement_id"
+                                options="{'no_create': True}"
+                                domain="[('cycle_id', '=', cycle_id)]"
+                                readonly="not cycle_id"
+                            />
                             <field
                                 name="entitlement_amount"
                                 readonly="1"
                                 invisible="not entitlement_id"
                                 widget="monetary"
                             />
-                            <field name="payment_id" options="{'no_create': True}" domain="[('entitlement_id', '=', entitlement_id)]" readonly="not entitlement_id" />
+                            <field
+                                name="payment_id"
+                                options="{'no_create': True}"
+                                domain="[('entitlement_id', '=', entitlement_id)]"
+                                readonly="not entitlement_id"
+                            />
                             <field
                                 name="payment_amount"
                                 readonly="1"
@@ -70,7 +86,6 @@
                     </group>
                 </div>
             </xpath>
-
         </field>
     </record>
 
@@ -80,7 +95,6 @@
         <field name="model">spp.grm.ticket</field>
         <field name="inherit_id" ref="spp_grm.ticket_view_tree" />
         <field name="arch" type="xml">
-
             <!-- Add program fields to tree view -->
             <xpath expr="//field[@name='user_id']" position="after">
                 <field name="program_id" optional="hide" />
@@ -88,7 +102,6 @@
                 <field name="entitlement_id" optional="hide" />
                 <field name="payment_id" optional="hide" />
             </xpath>
-
         </field>
     </record>
 
@@ -98,7 +111,6 @@
         <field name="model">spp.grm.ticket</field>
         <field name="inherit_id" ref="spp_grm.spp_grm_ticket_view_search" />
         <field name="arch" type="xml">
-
             <!-- Add program search fields -->
             <xpath expr="//field[@name='user_id']" position="after">
                 <field name="program_id" />
@@ -149,7 +161,6 @@
                     context="{'group_by': 'enrollment_status'}"
                 />
             </xpath>
-
         </field>
     </record>
 
@@ -159,7 +170,6 @@
         <field name="model">spp.grm.ticket</field>
         <field name="inherit_id" ref="spp_grm.view_spp_grm_ticket_kanban" />
         <field name="arch" type="xml">
-
             <!-- Declare fields for kanban data loading -->
             <xpath expr="//kanban/field[@name='number']" position="before">
                 <field name="program_id" />
@@ -188,8 +198,6 @@
                     </div>
                 </t>
             </xpath>
-
         </field>
     </record>
-
 </odoo>

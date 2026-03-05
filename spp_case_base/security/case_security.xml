@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- This file is kept for backward compatibility but groups and rules are now in groups.xml and rules.xml -->
     <!-- Groups are defined in security/groups.xml following ADR-004 -->

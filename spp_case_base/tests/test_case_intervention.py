@@ -406,7 +406,7 @@ class TestCaseIntervention(TransactionCase):
         for i in range(5):
             intervention = self.env["spp.case.intervention"].create(
                 {
-                    "name": f"Intervention {i+1}",
+                    "name": f"Intervention {i + 1}",
                     "plan_id": self.plan.id,
                     "state": "planned",
                     "sequence": (i + 1) * 10,

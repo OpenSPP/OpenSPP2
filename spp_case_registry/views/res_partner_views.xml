@@ -28,7 +28,11 @@
 
             <!-- Add Cases tab for registrants -->
             <xpath expr="//notebook" position="inside">
-                <page string="Cases" name="cases" invisible="not is_registrant or case_count == 0">
+                <page
+                    string="Cases"
+                    name="cases"
+                    invisible="not is_registrant or case_count == 0"
+                >
                     <group>
                         <group>
                             <field name="case_count" readonly="1" />
@@ -39,11 +43,14 @@
                         <!-- Odoo 19: list/form replaces tree/form -->
                         <field name="case_registrant_ids" nolabel="1" mode="list">
                             <list>
-                                <field name="name" string="Case Number"/>
-                                <field name="case_type_id"/>
-                                <field name="stage_id" widget="statusbar"/>
+                                <field name="name" string="Case Number" />
+                                <field name="case_type_id" />
+                                <field name="stage_id" widget="statusbar" />
                                 <field name="priority" widget="priority" />
-                                <field name="case_worker_id" widget="many2one_avatar_user" />
+                                <field
+                                    name="case_worker_id"
+                                    widget="many2one_avatar_user"
+                                />
                                 <field name="opened_date" />
                             </list>
                         </field>
@@ -52,11 +59,14 @@
                         <!-- Odoo 19: list/form replaces tree/form -->
                         <field name="case_household_ids" nolabel="1" mode="list">
                             <list>
-                                <field name="name" string="Case Number"/>
-                                <field name="case_type_id"/>
-                                <field name="stage_id" widget="statusbar"/>
+                                <field name="name" string="Case Number" />
+                                <field name="case_type_id" />
+                                <field name="stage_id" widget="statusbar" />
                                 <field name="priority" widget="priority" />
-                                <field name="case_worker_id" widget="many2one_avatar_user" />
+                                <field
+                                    name="case_worker_id"
+                                    widget="many2one_avatar_user"
+                                />
                                 <field name="opened_date" />
                             </list>
                         </field>
@@ -72,8 +82,7 @@
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="base.view_res_partner_filter" />
         <field name="arch" type="xml">
-            <xpath expr="//filter[@name='inactive']" position="before">
-            </xpath>
+            <xpath expr="//filter[@name='inactive']" position="before" />
         </field>
     </record>
 </odoo>

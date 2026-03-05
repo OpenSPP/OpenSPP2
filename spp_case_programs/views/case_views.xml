@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <!-- Inherit case form view to add program information -->
     <record id="view_case_form_programs" model="ir.ui.view">
         <field name="name">spp.case.form.programs</field>
         <field name="model">spp.case</field>
         <field name="inherit_id" ref="spp_case_base.view_case_form" />
         <field name="arch" type="xml">
-
             <!-- Add smart button for program enrollments -->
             <xpath expr="//div[@name='button_box']" position="inside">
                 <button
@@ -17,7 +15,11 @@
                     icon="fa-graduation-cap"
                     invisible="active_program_count == 0"
                 >
-                    <field name="active_program_count" widget="statinfo" string="Programs" />
+                    <field
+                        name="active_program_count"
+                        widget="statinfo"
+                        string="Programs"
+                    />
                 </button>
             </xpath>
 
@@ -31,14 +33,21 @@
             </xpath>
 
             <!-- Replace Programs tab placeholder with actual content -->
-            <xpath expr="//page[@name='programs']//div[@name='no_programs_message']" position="replace">
+            <xpath
+                expr="//page[@name='programs']//div[@name='no_programs_message']"
+                position="replace"
+            >
                 <group name="program_summary">
                     <group name="program_summary_left">
                         <field name="has_active_enrollment" />
                         <field name="active_program_count" />
                     </group>
                     <group name="program_summary_right">
-                        <field name="enrolled_program_names" widget="text" readonly="1" />
+                        <field
+                            name="enrolled_program_names"
+                            widget="text"
+                            readonly="1"
+                        />
                     </group>
                 </group>
 
@@ -64,7 +73,6 @@
                     </list>
                 </field>
             </xpath>
-
         </field>
     </record>
 
@@ -74,7 +82,6 @@
         <field name="model">spp.case</field>
         <field name="inherit_id" ref="spp_case_base.view_case_search" />
         <field name="arch" type="xml">
-
             <!-- Add program-related filters -->
             <xpath expr="//filter[@name='high_priority']" position="after">
                 <separator />
@@ -117,7 +124,6 @@
                     filter_domain="[('program_membership_ids.program_id', 'ilike', self)]"
                 />
             </xpath>
-
         </field>
     </record>
 
@@ -127,12 +133,10 @@
         <field name="model">spp.case</field>
         <field name="inherit_id" ref="spp_case_base.view_case_tree" />
         <field name="arch" type="xml">
-
             <!-- Add active programs column -->
             <xpath expr="//field[@name='priority']" position="after">
                 <field name="active_program_count" string="Programs" />
             </xpath>
-
         </field>
     </record>
 
@@ -142,7 +146,6 @@
         <field name="model">spp.case</field>
         <field name="inherit_id" ref="spp_case_base.view_case_kanban" />
         <field name="arch" type="xml">
-
             <!-- Add program fields to kanban -->
             <xpath expr="//field[@name='priority']" position="after">
                 <field name="has_active_enrollment" />
@@ -152,13 +155,14 @@
 
             <!-- Add program info display in kanban card -->
             <xpath expr="//div[hasclass('oe_kanban_bottom_left')]" position="inside">
-                <span invisible="active_program_count == 0" title="Active Program Enrollments">
+                <span
+                    invisible="active_program_count == 0"
+                    title="Active Program Enrollments"
+                >
                     <i class="fa fa-graduation-cap" />
                     <field name="active_program_count" />
                 </span>
             </xpath>
-
         </field>
     </record>
-
 </odoo>

@@ -403,8 +403,7 @@ class Case(models.Model):
             if case.stage_id.min_intensity:
                 if int(case.intensity_level) < int(case.stage_id.min_intensity):
                     raise ValidationError(
-                        f"Stage '{case.stage_id.name}' requires minimum intensity level "
-                        f"{case.stage_id.min_intensity}."
+                        f"Stage '{case.stage_id.name}' requires minimum intensity level {case.stage_id.min_intensity}."
                     )
 
     def action_close_case(self):

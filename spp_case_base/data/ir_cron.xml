@@ -3,12 +3,12 @@
     <data noupdate="1">
         <record id="cron_check_case_reviews" model="ir.cron">
             <field name="name">Case Management: Check Review Schedules</field>
-            <field name="model_id" ref="model_spp_case"/>
+            <field name="model_id" ref="model_spp_case" />
             <field name="state">code</field>
             <field name="code">model._cron_check_reviews()</field>
             <field name="interval_number">1</field>
             <field name="interval_type">days</field>
-            <field name="active" eval="True"/>
+            <field name="active" eval="True" />
         </record>
     </data>
 </odoo>
