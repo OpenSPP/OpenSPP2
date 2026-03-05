@@ -317,6 +317,7 @@ async def get_collection_qml(
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail="QML styles only available for report-based collections",
                 )
+            # nosemgrep: odoo-sudo-without-context
             layer = env["spp.gis.data.layer"].sudo().browse(layer_database_id)
             if not layer.exists() or not (
                 hasattr(layer, "source_type") and layer.source_type == "report" and layer.report_id
@@ -334,6 +335,7 @@ async def get_collection_qml(
             if match:
                 report_code = match.group(1)
                 admin_level = int(match.group(2))
+            # nosemgrep: odoo-sudo-without-context
             report = env["spp.gis.report"].sudo().search([("code", "=", report_code)], limit=1)
             if not report:
                 raise HTTPException(

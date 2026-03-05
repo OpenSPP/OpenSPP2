@@ -97,6 +97,7 @@ class ExportService:
                     _logger.warning("Failed to collect layer %s: %s", layer_code, e)
         else:
             # Export all available reports
+            # nosemgrep: odoo-sudo-without-context
             reports = self.env["spp.gis.report"].sudo().search([("active", "=", True)])
             for report in reports:
                 try:

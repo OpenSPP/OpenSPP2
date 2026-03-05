@@ -509,7 +509,8 @@ class OGCService:
         Returns:
             int: base_area_level or None if report not found
         """
-        report = self.env["spp.gis.report"].sudo().search([("code", "=", report_code)], limit=1)  # nosemgrep: odoo-sudo-without-context
+        # nosemgrep: odoo-sudo-without-context
+        report = self.env["spp.gis.report"].sudo().search([("code", "=", report_code)], limit=1)
         if report:
             return report.base_area_level
         return None

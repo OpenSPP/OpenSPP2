@@ -35,7 +35,8 @@ class CatalogService:
         Returns:
             list[dict]: List of report info dictionaries
         """
-        Report = self.env["spp.gis.report"].sudo()  # nosemgrep: odoo-sudo-without-context
+        # nosemgrep: odoo-sudo-without-context
+        Report = self.env["spp.gis.report"].sudo()
         reports = Report.search([("active", "=", True)], order="sequence, name")
 
         result = []
@@ -45,7 +46,8 @@ class CatalogService:
 
             # Query distinct area levels that have data for this report
             groups = (
-                self.env["spp.gis.report.data"]  # nosemgrep: odoo-sudo-without-context
+                # nosemgrep: odoo-sudo-without-context
+                self.env["spp.gis.report.data"]
                 .sudo()
                 ._read_group(
                     [("report_id", "=", report.id)],
@@ -77,7 +79,8 @@ class CatalogService:
         Returns:
             list[dict]: List of data layer info dictionaries
         """
-        Layer = self.env["spp.gis.data.layer"].sudo()  # nosemgrep: odoo-sudo-without-context
+        # nosemgrep: odoo-sudo-without-context
+        Layer = self.env["spp.gis.data.layer"].sudo()
         layers = Layer.search([], order="sequence, name")
 
         result = []
