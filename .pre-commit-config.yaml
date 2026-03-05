@@ -304,4 +304,4 @@ repos:
         # Only scan OpenSPP spp_* modules (not scripts, endpoint handlers, etc.)
         files: ^spp_
         # Exclude test files, migrations, and demo-only modules
-        exclude: ^(tests/|scripts/tests/|.*/tests/.*|.*/migrations/.*|spp_4ps_demo/)
+        exclude: ^(tests/|scripts/tests/|.*/tests/.*|.*/migrations/.*|spp_4ps_demo/|spp_case_demo/|spp_grm_demo/)
