@@ -122,7 +122,7 @@ class QMLTemplateService:
         # Get thresholds
         thresholds = report.threshold_ids.sorted("sequence")
         if not thresholds:
-            _logger.warning("No thresholds defined for report: %s", report.name)
+            _logger.warning("No thresholds defined for report: %s", report.id)
             # Generate default single-class QML
             return self._generate_default_polygon(template, field_name, opacity)
 

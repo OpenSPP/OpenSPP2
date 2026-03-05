@@ -207,7 +207,7 @@ class SpatialQueryService:
                   p.coordinates,
                   ST_SetSRID(ST_GeomFromGeoJSON(%s), 4326)
               )
-        """
+        """  # nosec B608 - SQL clauses built from hardcoded fragments, data uses %s params
 
         # Add geometry parameter at the beginning
         params = [geometry_json] + params[1:]
@@ -299,7 +299,7 @@ class SpatialQueryService:
                       )
                   )
               ){extra_where}
-        """
+        """  # nosec B608 - SQL clauses built from hardcoded fragments, data uses %s params
 
         params = [area_tuple, area_tuple] + extra_params
         self.env.cr.execute(registrants_query, params)
@@ -623,7 +623,7 @@ class SpatialQueryService:
                       SELECT 1 FROM _prox_ref_points r
                       WHERE ST_Intersects(p.coordinates, r.buffer_geom)
                   ){extra_where}
-            """
+            """  # nosec B608 - SQL clauses built from hardcoded fragments, data uses %s params
         else:
             # "beyond": find all registrants with coords, minus those within
             query = f"""
@@ -641,7 +641,7 @@ class SpatialQueryService:
                             WHERE ST_Intersects(p2.coordinates, r.buffer_geom)
                         )
                   ){extra_where}
-            """
+            """  # nosec B608 - SQL clauses built from hardcoded fragments, data uses %s params
 
         self.env.cr.execute(query, extra_params)
         registrant_ids = [row[0] for row in self.env.cr.fetchall()]
@@ -726,7 +726,7 @@ class SpatialQueryService:
                       )
                   )
               ){extra_where}
-        """
+        """  # nosec B608 - SQL clauses built from hardcoded fragments, data uses %s params
 
         params = [area_tuple, area_tuple] + extra_params
         self.env.cr.execute(registrants_query, params)

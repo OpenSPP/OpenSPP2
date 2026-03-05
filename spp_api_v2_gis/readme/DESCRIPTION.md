@@ -19,7 +19,7 @@ Follows thin client architecture where QGIS displays data and OpenSPP performs a
 
 ## API Endpoints
 
-### OGC API - Features (primary interface)
+**OGC API - Features (primary interface)**
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
@@ -31,7 +31,7 @@ Follows thin client architecture where QGIS displays data and OpenSPP performs a
 | `/gis/ogc/collections/{id}/items/{fid}` | GET | Single feature |
 | `/gis/ogc/collections/{id}/qml` | GET | QGIS style file (extension) |
 
-### Additional endpoints
+**Additional endpoints**
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
@@ -42,14 +42,14 @@ Follows thin client architecture where QGIS displays data and OpenSPP performs a
 
 ## Scopes and Data Privacy
 
-### OAuth Scopes
+**OAuth Scopes**
 
 | Scope | Access | Description |
 |-------|--------|-------------|
 | `gis:read` | Read-only | View collections, layers, statistics, export data |
 | `gis:geofence` | Read + Write | Create and archive geofences (also requires `gis:read` for listing) |
 
-### What data is exposed
+**What data is exposed**
 
 **Aggregated statistics only.** No endpoint in this module returns individual registrant records.
 
@@ -58,13 +58,13 @@ Follows thin client architecture where QGIS displays data and OpenSPP performs a
 - **Exports** (GeoPackage/GeoJSON): Contain the same area-level aggregated layer data, not registrant-level records.
 - **Geofences**: Store only geometry and metadata — no registrant data.
 
-### Privacy controls
+**Privacy controls**
 
 - **K-anonymity suppression**: Statistics backed by CEL variables can apply k-anonymity thresholds. When a cell count falls below the configured minimum, the value is replaced with a suppression marker and flagged as `"suppressed": true` in the response. This prevents re-identification in small populations.
 - **CEL variable configuration**: Administrators control which statistics are published and their suppression thresholds via `spp.statistic` records.
 - **Scope separation**: `gis:read` and `gis:geofence` are separate scopes, allowing clients to be granted read-only access without write capability.
 
-### Design rationale
+**Design rationale**
 
 This module follows a **thin client** architecture: QGIS (or any OGC-compatible client) displays pre-aggregated data, while OpenSPP retains all individual-level data server-side. This ensures that GIS API clients — including the QGIS plugin — never need access to personally identifiable information.
 

@@ -300,7 +300,7 @@ class LayersService:
             "styling": styling,
         }
 
-        _logger.info("Generated GeoJSON for layer: %s with %d features", layer.name, len(features))
+        _logger.info("Generated GeoJSON for layer: %s with %d features", layer.id, len(features))
 
         return geojson
 
@@ -318,7 +318,7 @@ class LayersService:
             list: List of GeoJSON features
         """
         if not layer.model_name or not layer.geo_field_id:
-            _logger.warning("Layer %s has no model or geo field configured", layer.name)
+            _logger.warning("Layer %s has no model or geo field configured", layer.id)
             return []
 
         Model = self.env[layer.model_name].sudo()
@@ -331,7 +331,7 @@ class LayersService:
 
                 domain = literal_eval(layer.domain)
             except (ValueError, SyntaxError) as e:
-                _logger.warning("Invalid domain on layer %s: %s", layer.name, e)
+                _logger.warning("Invalid domain on layer %s: %s", layer.id, e)
 
         # Apply bbox spatial filter via PostGIS ST_Intersects
         if bbox:

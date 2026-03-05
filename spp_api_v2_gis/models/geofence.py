@@ -136,7 +136,7 @@ class GisGeofence(models.Model):
                 result = self.env.cr.fetchone()
                 rec.area_sqkm = result[0] if result else 0.0
             except Exception as e:
-                _logger.warning("Failed to compute area for geofence %s: %s", rec.name, str(e))
+                _logger.warning("Failed to compute area for geofence %s: %s", rec.id, str(e))
                 rec.area_sqkm = 0.0
 
     @api.constrains("name", "active")
@@ -186,7 +186,7 @@ class GisGeofence(models.Model):
         try:
             geometry_dict = mapping(self.geometry)
         except Exception as e:
-            _logger.warning("Failed to convert geometry to GeoJSON for geofence %s: %s", self.name, str(e))
+            _logger.warning("Failed to convert geometry to GeoJSON for geofence %s: %s", self.id, str(e))
             geometry_dict = None
 
         return {

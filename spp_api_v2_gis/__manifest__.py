@@ -31,36 +31,4 @@
     "summary": """
         OGC API - Features compliant GIS endpoints for QGIS and GovStack GIS BB.
     """,
-    "description": """
-OpenSPP GIS API
-===============
-
-Extends OpenSPP API V2 with OGC API - Features compliant endpoints,
-enabling GovStack GIS Building Block compliance and interoperability
-with any OGC client (QGIS, ArcGIS, Leaflet, ogr2ogr, etc.).
-
-OGC API - Features Endpoints
------------------------------
-- ``GET /gis/ogc/`` - Landing page
-- ``GET /gis/ogc/conformance`` - Conformance declaration
-- ``GET /gis/ogc/collections`` - List feature collections
-- ``GET /gis/ogc/collections/{id}`` - Collection metadata
-- ``GET /gis/ogc/collections/{id}/items`` - Feature items (GeoJSON)
-- ``GET /gis/ogc/collections/{id}/items/{fid}`` - Single feature
-- ``GET /gis/ogc/collections/{id}/qml`` - QGIS style file (extension)
-
-Proprietary Endpoints
----------------------
-- ``POST /gis/query/statistics`` - Spatial statistics query
-- ``CRUD /gis/geofences`` - Manage saved areas of interest
-- ``GET /gis/export/geopackage`` - Export layers for offline use
-
-Design Principles
------------------
-- OGC API - Features Core + GeoJSON conformance
-- Thin client architecture (QGIS displays, OpenSPP computes)
-- Pre-aggregated data for performance
-- PostGIS spatial queries
-- Requires authentication via OAuth 2.0
-    """,
 }
