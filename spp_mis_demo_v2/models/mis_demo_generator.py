@@ -3908,9 +3908,9 @@ class SPPMISDemoGenerator(models.TransientModel):
             try:
                 report._refresh_data()
                 refreshed += 1
-                _logger.info("[spp.mis.demo] Refreshed GIS report: %s", report.name)
+                _logger.info("[spp.mis.demo] Refreshed GIS report: %s", report.id)
             except Exception:
-                _logger.exception("[spp.mis.demo] Failed to refresh GIS report: %s", report.name)
+                _logger.exception("[spp.mis.demo] Failed to refresh GIS report: %s", report.id)
 
         stats["gis_reports_refreshed"] = refreshed
         _logger.info("[spp.mis.demo] Refreshed %d GIS reports", refreshed)
