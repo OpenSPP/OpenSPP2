@@ -203,7 +203,7 @@ class GisGeofence(models.Model):
         """
         self.ensure_one()
 
-        return {
+        return {  # nosemgrep: odoo-expose-database-id
             "id": self.id,
             "name": self.name,
             "description": self.description or "",

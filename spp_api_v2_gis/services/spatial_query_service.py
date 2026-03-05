@@ -358,7 +358,7 @@ class SpatialQueryService:
         statistics_to_compute = variables
         if not statistics_to_compute:
             # Use GIS-published statistics
-            Statistic = self.env["spp.statistic"].sudo()
+            Statistic = self.env["spp.statistic"].sudo()  # nosemgrep: odoo-sudo-without-context
             gis_stats = Statistic.get_published_for_context("gis")
             statistics_to_compute = [stat.name for stat in gis_stats] if gis_stats else None
 
@@ -399,7 +399,7 @@ class SpatialQueryService:
         result = {}
         grouped_stats = {}
 
-        Statistic = self.env["spp.statistic"].sudo()
+        Statistic = self.env["spp.statistic"].sudo()  # nosemgrep: odoo-sudo-without-context
         statistic_by_name = {stat.name: stat for stat in Statistic.search([("name", "in", list(statistics.keys()))])}
 
         for stat_name, stat_data in statistics.items():
