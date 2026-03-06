@@ -28,12 +28,11 @@ class TestDemoStatistics(TransactionCase):
             "elderly_60_plus",
             "female_members",
             "male_members",
-            "disabled_members",
             "enrolled_any_program",
         ]
 
     def test_all_demo_statistics_exist(self):
-        """Verify all 9 demo statistics are in the database."""
+        """Verify all 8 demo statistics are in the database."""
         for stat_name in self.required_stats:
             with self.subTest(statistic=stat_name):
                 stat = self.stat_model.search([("name", "=", stat_name)], limit=1)
@@ -102,7 +101,6 @@ class TestDemoStatistics(TransactionCase):
                 "female_members",
                 "male_members",
             ],
-            "vulnerability": ["disabled_members"],
             "programs": ["enrolled_any_program"],
         }
 

@@ -61,21 +61,6 @@
         <field name="sequence">40</field>
     </record>
 
-    <!-- Disabled Members -->
-    <record id="cel_var_disabled_members" model="spp.cel.variable">
-        <field name="name">demo_disabled_members</field>
-        <field name="cel_accessor">disabled_members</field>
-        <field name="source_type">aggregate</field>
-        <field name="aggregate_type">count</field>
-        <field name="aggregate_target">members</field>
-        <field name="aggregate_filter">m.disabled != null</field>
-        <field name="value_type">number</field>
-        <field name="applies_to">group</field>
-        <field name="category_id" ref="spp_studio.variable_category_characteristics" />
-        <field name="state">active</field>
-        <field name="sequence">50</field>
-    </record>
-
     <!-- Female Members -->
     <record id="cel_var_female_members" model="spp.cel.variable">
         <field name="name">demo_female_members</field>
@@ -231,20 +216,6 @@
         <field name="unit">people</field>
         <field name="category_id" ref="spp_statistic.category_demographics" />
         <field name="sequence">46</field>
-        <field name="is_published_gis" eval="True" />
-        <field name="is_published_dashboard" eval="True" />
-    </record>
-
-    <!-- Disabled Members -->
-    <record id="stat_disabled_members" model="spp.statistic">
-        <field name="name">disabled_members</field>
-        <field name="label">Disabled Members</field>
-        <field name="description">Count of household members with disabilities</field>
-        <field name="variable_id" ref="cel_var_disabled_members" />
-        <field name="format">count</field>
-        <field name="unit">people</field>
-        <field name="category_id" ref="spp_statistic.category_vulnerability" />
-        <field name="sequence">50</field>
         <field name="is_published_gis" eval="True" />
         <field name="is_published_dashboard" eval="True" />
     </record>
