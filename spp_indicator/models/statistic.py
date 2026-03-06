@@ -24,7 +24,7 @@ class Statistic(models.Model):
     (name, label, description, category_id, sequence, etc.)
     """
 
-    _name = "spp.statistic"
+    _name = "spp.indicator"
     _description = "Publishable Statistic"
     _inherit = ["spp.metric.base"]
     _order = "category_id, sequence, name"
@@ -96,7 +96,7 @@ class Statistic(models.Model):
 
     # ─── Organization ───────────────────────────────────────────────────
     # category_id and sequence inherited from spp.metric.base
-    # Note: category_id points to spp.metric.category (migrated from spp.statistic.category)
+    # Note: category_id points to spp.metric.category (migrated from spp.indicator.category)
 
     # ─── Publication Flags ──────────────────────────────────────────────
     is_published_gis = fields.Boolean(
@@ -122,7 +122,7 @@ class Statistic(models.Model):
 
     # ─── Context-specific Configuration ─────────────────────────────────
     context_ids = fields.One2many(
-        comodel_name="spp.statistic.context",
+        comodel_name="spp.indicator.context",
         inverse_name="statistic_id",
         string="Context Configurations",
         help="Context-specific presentation overrides",
@@ -265,24 +265,10 @@ class Statistic(models.Model):
         if count is None:
             count = value if isinstance(value, int) else 0
 
-        # Delegate to unified privacy service
-        privacy_service = self.env.get("spp.metrics.privacy")
-        if privacy_service is not None:
-            stat_config = {"minimum_count": min_count, "suppression_display": display_mode}
-            return privacy_service.suppress_value(value, count, stat_config=stat_config)
-
-        # Fallback: inline suppression if service unavailable
-        if count < min_count:
-            if display_mode == "null":
-                return None, True
-            elif display_mode == "asterisk":
-                return "*", True
-            elif display_mode == "less_than":
-                return f"<{min_count}", True
-            else:
-                return None, True
-
-        return value, False
+        # Delegate to unified privacy service (spp_metric_service is a hard dependency)
+        privacy_service = self.env["spp.metric.privacy"]
+        stat_config = {"minimum_count": min_count, "suppression_display": display_mode}
+        return privacy_service.suppress_value(value, count, stat_config=stat_config)
 
     def to_dict(self, context=None):
         """Convert statistic to dictionary for API/UI consumption.

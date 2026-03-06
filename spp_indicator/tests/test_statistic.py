@@ -46,7 +46,7 @@ class TestStatisticCategory(TransactionCase):
             }
         )
 
-        stat = self.env["spp.statistic"].create(
+        stat = self.env["spp.indicator"].create(
             {
                 "name": "test_stat",
                 "label": "Test Stat",
@@ -91,7 +91,7 @@ class TestStatistic(TransactionCase):
 
     def test_create_statistic(self):
         """Test creating a statistic."""
-        Statistic = self.env["spp.statistic"]
+        Statistic = self.env["spp.indicator"]
 
         stat = Statistic.create(
             {
@@ -113,7 +113,7 @@ class TestStatistic(TransactionCase):
 
     def test_name_format_validation(self):
         """Test that statistic names must be snake_case."""
-        Statistic = self.env["spp.statistic"]
+        Statistic = self.env["spp.indicator"]
 
         # Valid names
         stat = Statistic.create(
@@ -147,7 +147,7 @@ class TestStatistic(TransactionCase):
 
     def test_get_published_for_context(self):
         """Test querying statistics by context."""
-        Statistic = self.env["spp.statistic"]
+        Statistic = self.env["spp.indicator"]
 
         # Create statistics with different publication flags
         stat_gis = Statistic.create(
@@ -190,7 +190,7 @@ class TestStatistic(TransactionCase):
 
     def test_get_published_by_category(self):
         """Test grouping statistics by category."""
-        Statistic = self.env["spp.statistic"]
+        Statistic = self.env["spp.indicator"]
 
         cat2 = self.env["spp.metric.category"].create({"name": "Second", "code": "second"})
 
@@ -220,7 +220,7 @@ class TestStatistic(TransactionCase):
 
     def test_to_dict(self):
         """Test dictionary conversion for API."""
-        Statistic = self.env["spp.statistic"]
+        Statistic = self.env["spp.indicator"]
 
         stat = Statistic.create(
             {
@@ -262,7 +262,7 @@ class TestStatisticContext(TransactionCase):
             }
         )
 
-        cls.statistic = cls.env["spp.statistic"].create(
+        cls.statistic = cls.env["spp.indicator"].create(
             {
                 "name": "context_test_stat",
                 "label": "Default Label",
@@ -275,7 +275,7 @@ class TestStatisticContext(TransactionCase):
 
     def test_context_override(self):
         """Test that context-specific config overrides defaults."""
-        Context = self.env["spp.statistic.context"]
+        Context = self.env["spp.indicator.context"]
 
         # Create GIS-specific override
         Context.create(
@@ -301,7 +301,7 @@ class TestStatisticContext(TransactionCase):
 
     def test_context_unique_constraint(self):
         """Test that each statistic can only have one config per context."""
-        Context = self.env["spp.statistic.context"]
+        Context = self.env["spp.indicator.context"]
 
         Context.create(
             {

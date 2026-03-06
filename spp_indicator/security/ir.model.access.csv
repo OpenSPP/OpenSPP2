@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_indicator_user,spp.indicator.user,model_spp_indicator,base.group_user,1,0,0,0
+access_spp_indicator_admin,spp.indicator.admin,model_spp_indicator,spp_security.group_spp_admin,1,1,1,1
+access_spp_indicator_context_user,spp.indicator.context.user,model_spp_indicator_context,base.group_user,1,0,0,0
+access_spp_indicator_context_admin,spp.indicator.context.admin,model_spp_indicator_context,spp_security.group_spp_admin,1,1,1,1

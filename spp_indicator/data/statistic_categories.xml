@@ -5,7 +5,7 @@
     Standard categories for organizing publishable statistics.
     These align with common social protection reporting needs.
 
-    Note: Uses spp.metric.category (migrated from spp.statistic.category)
+    Note: Uses spp.metric.category (migrated from spp.indicator.category)
 -->
 <odoo noupdate="1">
     <!-- Demographics - Population composition -->

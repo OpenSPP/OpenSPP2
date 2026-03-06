@@ -12,12 +12,12 @@ class StatisticContext(models.Model):
     a different label or grouping in the GIS context vs. dashboard.
     """
 
-    _name = "spp.statistic.context"
+    _name = "spp.indicator.context"
     _description = "Statistic Context Configuration"
     _order = "statistic_id, context"
 
     statistic_id = fields.Many2one(
-        comodel_name="spp.statistic",
+        comodel_name="spp.indicator",
         string="Statistic",
         required=True,
         ondelete="cascade",

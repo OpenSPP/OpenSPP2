@@ -24,11 +24,11 @@ class MetricBase(models.AbstractModel):
     -----
     Concrete models inherit this to avoid field duplication:
 
-        class Statistic(models.Model):
-            _name = "spp.statistic"
+        class Indicator(models.Model):
+            _name = "spp.indicator"
             _inherit = ["spp.metric.base"]
 
-            # Add statistic-specific fields
+            # Add indicator-specific fields
             variable_id = fields.Many2one(...)
             format = fields.Selection([("count", "Count"), ...])
             is_published_gis = fields.Boolean()

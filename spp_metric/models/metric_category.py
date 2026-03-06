@@ -13,7 +13,7 @@ class MetricCategory(models.Model):
     """Categorization for metrics.
 
     Provides unified category management for all metric types:
-    - Statistics (spp.statistic)
+    - Indicators (spp.indicator)
     - Simulation metrics (spp.simulation.metric)
     - Future metric types
 

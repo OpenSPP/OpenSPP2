@@ -1,7 +1,7 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 {
-    "name": "OpenSPP Statistics",
-    "summary": "Publishable statistics based on CEL variables for dashboards, GIS, and APIs",
+    "name": "OpenSPP Indicator",
+    "summary": "Publishable indicators based on CEL variables for dashboards, GIS, and APIs",
     "category": "OpenSPP",
     "version": "19.0.2.0.0",
     "sequence": 1,
@@ -11,8 +11,9 @@
     "development_status": "Alpha",
     "maintainers": ["jeremi", "gonzalesedwin1123"],
     "depends": [
+        "spp_metric",
+        "spp_metric_service",
         "spp_cel_domain",
-        "spp_metrics_core",
         "spp_security",
     ],
     "data": [
