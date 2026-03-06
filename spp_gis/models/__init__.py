@@ -7,3 +7,4 @@ from . import ir_view
 from . import ir_model
 from . import area
 from . import area_import
+from . import geofence

@@ -2,7 +2,10 @@
 
 from unittest.mock import patch
 
+from psycopg2 import IntegrityError
+
 from odoo.tests import common, tagged
+from odoo.tools import mute_logger
 
 
 @tagged("post_install", "-at_install")
@@ -23,9 +26,7 @@ class TestHdxCodSource(common.TransactionCase):
 
     def test_unique_country_constraint(self):
         """Test that only one source per country is allowed."""
-        from odoo.exceptions import ValidationError
-
-        with self.assertRaises(ValidationError):
+        with self.assertRaises(IntegrityError), mute_logger("odoo.sql_db"):
             self.env["spp.hdx.cod.source"].create(
                 {
                     "country_id": self.country_lk.id,

@@ -2,7 +2,10 @@
 
 import json
 
+from psycopg2 import IntegrityError
+
 from odoo.tests import common, tagged
+from odoo.tools import mute_logger
 
 
 @tagged("post_install", "-at_install")
@@ -157,9 +160,7 @@ class TestAreaGpsLookup(common.TransactionCase):
 
     def test_hdx_pcode_unique_constraint(self):
         """Test that HDX P-codes must be unique."""
-        from odoo.exceptions import ValidationError
-
-        with self.assertRaises(ValidationError):
+        with self.assertRaises(IntegrityError), mute_logger("odoo.sql_db"):
             self.env["spp.area"].create(
                 {
                     "draft_name": "Duplicate",

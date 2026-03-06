@@ -20,6 +20,7 @@
         "spp_security",
         "spp_registry",
         "spp_area",
+        "spp_gis",
     ],
     "data": [
         "security/groups.xml",

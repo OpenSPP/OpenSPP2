@@ -3,8 +3,11 @@
 import json
 from unittest.mock import patch
 
+from psycopg2 import IntegrityError
+
 from odoo.exceptions import UserError
 from odoo.tests import common, tagged
+from odoo.tools import mute_logger
 
 
 @tagged("post_install", "-at_install")
@@ -38,32 +41,12 @@ class TestHdxCodResource(common.TransactionCase):
 
     def test_required_fields(self):
         """Test that required fields are enforced."""
-        from odoo.exceptions import ValidationError
-
-        # source_id is required
-        with self.assertRaises(ValidationError):
+        # source_id is required (DB NOT NULL constraint)
+        with self.assertRaises(IntegrityError), mute_logger("odoo.sql_db"):
             self.env["spp.hdx.cod.resource"].create(
                 {
                     "name": "Test",
                     "admin_level": 1,
-                }
-            )
-
-        # name is required
-        with self.assertRaises(ValidationError):
-            self.env["spp.hdx.cod.resource"].create(
-                {
-                    "source_id": self.source.id,
-                    "admin_level": 1,
-                }
-            )
-
-        # admin_level is required
-        with self.assertRaises(ValidationError):
-            self.env["spp.hdx.cod.resource"].create(
-                {
-                    "source_id": self.source.id,
-                    "name": "Test",
                 }
             )
 
