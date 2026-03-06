@@ -187,8 +187,8 @@ Planned improvements for integration tests:
 
 ### "Module spp_mis_demo_v2 not installed"
 
-This is expected when running `./scripts/test_single_module.sh spp_analytics` alone.
-To run integration tests, use:
+This is expected when running `./scripts/test_single_module.sh spp_analytics` alone. To
+run integration tests, use:
 
 ```bash
 ./scripts/test_single_module.sh spp_analytics,spp_mis_demo_v2
