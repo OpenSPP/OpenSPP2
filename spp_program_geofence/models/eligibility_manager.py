@@ -108,8 +108,8 @@ class GeofenceMembershipManager(models.Model):
             ids = membership.mapped("partner_id.id")
             domain += [("id", "in", ids)]
 
-        # Exclude disabled registrants
-        domain += [("disabled", "=", False)]
+        # Exclude disabled registrants (disabled is a Datetime field)
+        domain += [("disabled", "=", None)]
 
         if self.program_id.target_type == "group":
             domain += [("is_group", "=", True), ("is_registrant", "=", True)]
@@ -145,7 +145,7 @@ class GeofenceMembershipManager(models.Model):
         base_domain = self._prepare_eligible_domain(membership)
 
         # Tier 1: registrants with coordinates inside the geofence
-        tier1_domain = base_domain + [("coordinates", "gis_within", combined_geojson)]
+        tier1_domain = base_domain + [("coordinates", "gis_intersects", combined_geojson)]
         tier1 = self.env["res.partner"].search(tier1_domain)
 
         # Tier 2: registrants whose area intersects the geofence

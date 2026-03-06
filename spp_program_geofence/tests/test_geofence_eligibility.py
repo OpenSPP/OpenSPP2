@@ -3,6 +3,7 @@
 
 import json
 
+from odoo import Command, fields
 from odoo.tests import TransactionCase, tagged
 
 
@@ -148,7 +149,7 @@ class TestGeofenceEligibility(TransactionCase):
                 "name": "Disabled Registrant",
                 "is_registrant": True,
                 "is_group": False,
-                "disabled": True,
+                "disabled": fields.Datetime.now(),
                 "coordinates": point_inside,
             }
         )
@@ -402,15 +403,9 @@ class TestGeofenceEligibilityOfficer(TransactionCase):
             {
                 "name": "Test Officer",
                 "login": "test_geofence_officer",
-                "groups_id": [
-                    (
-                        6,
-                        0,
-                        [
-                            cls.env.ref("spp_programs.group_programs_officer").id,
-                            cls.env.ref("base.group_user").id,
-                        ],
-                    )
+                "group_ids": [
+                    Command.link(cls.env.ref("spp_programs.group_programs_officer").id),
+                    Command.link(cls.env.ref("base.group_user").id),
                 ],
             }
         )
