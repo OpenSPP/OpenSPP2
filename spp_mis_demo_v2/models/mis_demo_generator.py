@@ -564,6 +564,9 @@ class SPPMISDemoGenerator(models.TransientModel):
             # Step 12: Refresh GIS reports so map data is available immediately
             self._refresh_gis_reports(stats)
 
+            # Step 13: Create PRISM API client with known credentials
+            self._create_prism_api_client(stats)
+
             self.state = "completed"
 
             # Return success notification with detailed summary
@@ -3914,6 +3917,48 @@ class SPPMISDemoGenerator(models.TransientModel):
 
         stats["gis_reports_refreshed"] = refreshed
         _logger.info("[spp.mis.demo] Refreshed %d GIS reports", refreshed)
+
+    def _create_prism_api_client(self, stats):
+        """Create an API client with known credentials for PRISM frontend integration.
+
+        Uses fixed client_id='prism' and client_secret='prism-secret' so the
+        docker-compose PRISM service can authenticate without manual configuration.
+        Skips creation if a client with client_id='prism' already exists.
+        """
+        ApiClient = self.env["spp.api.client"]
+        existing = ApiClient.search([("client_id", "=", "prism")], limit=1)
+        if existing:
+            _logger.info("[spp.mis.demo] PRISM API client already exists, skipping")
+            stats["prism_api_client"] = "already_exists"
+            return
+
+        client = ApiClient.create(
+            {
+                "name": "PRISM Frontend",
+                "description": "API client for PRISM crisis data visualization frontend. "
+                "Created by demo generator with known credentials for docker-compose integration.",
+                "client_id": "prism",
+                "client_secret": "prism-secret",
+                "partner_id": self.env.ref("base.main_partner").id,
+                "organization_type_id": self.env.ref("spp_consent.org_type_government").id,
+            }
+        )
+
+        # Create GIS scopes
+        ScopeModel = self.env["spp.api.client.scope"]
+        for resource, action in [("gis", "read"), ("gis", "all")]:
+            ScopeModel.create(
+                {
+                    "client_id": client.id,
+                    "resource": resource,
+                    "action": action,
+                }
+            )
+
+        _logger.info(
+            "[spp.mis.demo] Created PRISM API client (client_id=prism) with GIS scopes"
+        )
+        stats["prism_api_client"] = "created"
 
 
 class SPPMISDemoWizard(models.TransientModel):

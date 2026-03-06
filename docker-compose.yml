@@ -8,6 +8,7 @@
 #   openspp-dev - Dev server (dynamic port)
 #   test        - Unit test runner
 #   e2e-runner  - Playwright E2E runner
+#   prism       - PRISM frontend on port 3000 (optional)
 #
 # All openspp services share the same image (openspp-dev).
 # Building any of them updates the shared image.
@@ -16,6 +17,7 @@
 #   dev   - Development with dynamic port (avoids port conflicts)
 #   ui    - Launch web interface on fixed port 8069
 #   e2e   - Full E2E testing environment with Playwright
+#   prism - PRISM frontend (WFP crisis data visualization)
 #
 # Usage:
 #   # Launch for development (dynamic port - check output for assigned port)
@@ -212,6 +214,33 @@ services:
       - ./e2e:/app:ro,z
       - ./e2e/reports:/app/reports
       - e2e_snapshots:/snapshots
+    networks:
+      - openspp
+
+  # PRISM Frontend - WFP crisis data visualization (optional)
+  # Requires prism-app repo. Set PRISM_PATH to override the default location.
+  # Usage: ./spp start --prism
+  prism:
+    build:
+      context: ${PRISM_PATH:-../external/prism-app}
+      dockerfile: ./frontend/Dockerfile
+    entrypoint: yarn start
+    profiles:
+      - prism
+    depends_on:
+      openspp:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    volumes:
+      - ${PRISM_PATH:-../external/prism-app}/common:/common
+      - ${PRISM_PATH:-../external/prism-app}/frontend:/frontend
+      - /frontend/node_modules
+    environment:
+      REACT_APP_COUNTRY: ${REACT_APP_COUNTRY:-philippines}
+      REACT_APP_OPENSPP_API_URL: /api/v2/spp
+      REACT_APP_OPENSPP_CLIENT_ID: ${OPENSPP_CLIENT_ID:-prism}
+      REACT_APP_OPENSPP_CLIENT_SECRET: ${OPENSPP_CLIENT_SECRET:-prism-secret}
     networks:
       - openspp
 

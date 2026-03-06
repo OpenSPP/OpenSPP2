@@ -73,7 +73,7 @@ async def list_statistics(
                 StatisticCategoryInfo(
                     code=category_code,
                     name=category_record.name if category_record else category_code.replace("_", " ").title(),
-                    icon=category_record.icon if category_record else None,
+                    icon=getattr(category_record, "icon", None) if category_record else None,
                     statistics=stat_items,
                 )
             )
