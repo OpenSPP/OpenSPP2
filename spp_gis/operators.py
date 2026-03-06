@@ -93,6 +93,8 @@ class Operator:
         "Point": "point",
         "LineString": "line",
         "Polygon": "polygon",
+        "MultiPolygon": "multipolygon",
+        "GeometryCollection": "geometrycollection",
     }
 
     def __init__(self, field, table_alias=None):
@@ -255,6 +257,15 @@ class Operator:
         points = [self.st_makepoint(*coord) for coord in coordinates[0]]
         polygon = self.st_makepolygon(points)
         return self.st_setsrid(polygon, srid)
+
+    def create_from_geojson(self, geojson_dict, srid):
+        """Create geometry from full GeoJSON using ST_GeomFromGeoJSON.
+
+        Used for complex geometry types (MultiPolygon, GeometryCollection)
+        that cannot be easily constructed from coordinates.
+        """
+        geojson_str = json.dumps(geojson_dict)
+        return self.st_setsrid(f"ST_GeomFromGeoJSON('{geojson_str}')", srid)
 
     def validate_coordinates_for_point(self, coordinates):
         """
@@ -454,7 +465,9 @@ class Operator:
         to validate the structure of the GeoJSON using the `shape` function
         """
         if geojson.get("type") not in self.ALLOWED_LAYER_TYPE:
-            raise ValueError("Invalid geojson type. Allowed types are Point, LineString, and Polygon.")
+            raise ValueError(
+                "Invalid geojson type. Allowed types are Point, LineString, Polygon, MultiPolygon, and GeometryCollection."
+            )
         try:
             shape(geojson)
         except Exception as e:
@@ -487,6 +500,11 @@ class Operator:
 
         operation = self.OPERATION_TO_RELATION[operator]
         layer_type = self.ALLOWED_LAYER_TYPE[geojson_val["type"]]
-        coordinates = geojson_val["coordinates"]
 
+        if layer_type in ("multipolygon", "geometrycollection"):
+            # Complex types use ST_GeomFromGeoJSON directly
+            geom = self.create_from_geojson(geojson_val, self.field.srid)
+            return SQL(f"{self.POSTGIS_SPATIAL_RELATION[operation]}({geom}, {self.qualified_field_name})")
+
+        coordinates = geojson_val["coordinates"]
         return SQL(self.get_postgis_query(operation, coordinates, distance=distance, layer_type=layer_type))
