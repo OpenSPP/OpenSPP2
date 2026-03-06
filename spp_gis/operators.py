@@ -264,7 +264,7 @@ class Operator:
         Used for complex geometry types (MultiPolygon, GeometryCollection)
         that cannot be easily constructed from coordinates.
         """
-        geojson_str = json.dumps(geojson_dict)
+        geojson_str = json.dumps(geojson_dict).replace("'", "''")
         return self.st_setsrid(f"ST_GeomFromGeoJSON('{geojson_str}')", srid)
 
     def validate_coordinates_for_point(self, coordinates):

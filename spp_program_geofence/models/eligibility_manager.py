@@ -52,26 +52,13 @@ class GeofenceMembershipManager(models.Model):
         string="Program Geofences",
     )
     preview_count = fields.Integer(
-        compute="_compute_preview",
-        store=False,
         string="Preview Count",
+        readonly=True,
     )
     preview_error = fields.Char(
-        compute="_compute_preview",
-        store=False,
         string="Preview Error",
+        readonly=True,
     )
-
-    @api.depends("program_id.geofence_ids")
-    def _compute_preview(self):
-        for rec in self:
-            try:
-                eligible = rec._find_eligible_registrants()
-                rec.preview_count = len(eligible)
-                rec.preview_error = False
-            except Exception as e:
-                rec.preview_count = 0
-                rec.preview_error = str(e)
 
     def _get_combined_geometry(self):
         """Return the union of all geofence geometries for this manager's program.
@@ -113,7 +100,7 @@ class GeofenceMembershipManager(models.Model):
 
         if self.program_id.target_type == "group":
             domain += [("is_group", "=", True), ("is_registrant", "=", True)]
-        if self.program_id.target_type == "individual":
+        elif self.program_id.target_type == "individual":
             domain += [("is_group", "=", False), ("is_registrant", "=", True)]
 
         return domain
@@ -225,9 +212,9 @@ class GeofenceMembershipManager(models.Model):
 
     def _import_registrants(self, new_beneficiaries, state="draft", do_count=False):
         _logger.info("spp_program_geofence: Importing %s beneficiaries", len(new_beneficiaries))
-        beneficiaries_val = []
-        for beneficiary in new_beneficiaries:
-            beneficiaries_val.append(Command.create({"partner_id": beneficiary.id, "state": state}))
+        beneficiaries_val = [
+            Command.create({"partner_id": b.id, "state": state}) for b in new_beneficiaries
+        ]
         self.program_id.update({"program_membership_ids": beneficiaries_val})
 
         if do_count:
@@ -236,7 +223,13 @@ class GeofenceMembershipManager(models.Model):
 
     def action_preview_eligible(self):
         self.ensure_one()
-        self._compute_preview()
+        try:
+            eligible = self._find_eligible_registrants()
+            self.preview_count = len(eligible)
+            self.preview_error = False
+        except Exception as e:
+            self.preview_count = 0
+            self.preview_error = str(e)
         return {
             "type": "ir.actions.client",
             "tag": "display_notification",
