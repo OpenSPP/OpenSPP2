@@ -63,6 +63,7 @@ class ScopeResolverService(models.AbstractModel):
             "spatial_polygon": self._resolve_spatial_polygon_inline,
             "spatial_buffer": self._resolve_spatial_buffer_inline,
             "explicit": self._resolve_explicit_inline,
+            "all_registrants": self._resolve_all_registrants_inline,
         }
 
         resolver = resolver_map.get(scope_type)
@@ -320,6 +321,23 @@ class ScopeResolverService(models.AbstractModel):
         )
 
         return valid_ids
+
+    # -------------------------------------------------------------------------
+    # All Registrants Resolution
+    # -------------------------------------------------------------------------
+    def _resolve_all_registrants_inline(self, scope_dict):
+        """Resolve all registrants scope.
+
+        Returns IDs of all registrants in the system. This is more efficient
+        than passing all IDs via explicit scope, as the search happens
+        server-side without transferring the full ID list through the caller.
+        """
+        return (
+            self.env["res.partner"]  # nosemgrep: odoo-sudo-without-context, odoo-sudo-on-sensitive-models
+            .sudo()
+            .search([("is_registrant", "=", True)])
+            .ids
+        )
 
     # -------------------------------------------------------------------------
     # Batch Resolution

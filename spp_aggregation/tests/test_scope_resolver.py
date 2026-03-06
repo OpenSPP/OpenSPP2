@@ -133,6 +133,20 @@ class TestScopeResolver(AggregationTestCase):
         # Without PostGIS bridge, returns empty
         self.assertEqual(ids, [])
 
+    def test_resolve_all_registrants_scope(self):
+        """Test resolving all_registrants scope returns all registrants."""
+        resolver = self.env["spp.aggregation.scope.resolver"]
+        ids = resolver.resolve({"scope_type": "all_registrants"})
+
+        # Should include all our test registrants
+        for reg in self.registrants:
+            self.assertIn(reg.id, ids)
+
+        # All returned IDs should be actual registrants
+        partners = self.env["res.partner"].browse(ids)
+        for partner in partners:
+            self.assertTrue(partner.is_registrant)
+
     def test_resolve_inline_area_scope(self):
         """Test resolving inline area scope definition."""
         resolver = self.env["spp.aggregation.scope.resolver"]

@@ -65,10 +65,11 @@ class TestDashboardIntegration(TransactionCase):
         DashData = self.env["spp.dashboard.data"]
         scope = DashData._build_scope(False, False)
 
-        self.assertEqual(scope["scope_type"], "explicit")
+        self.assertEqual(scope["scope_type"], "all_registrants")
 
-        # The explicit_partner_ids should contain our registrants
-        partner_ids = scope["explicit_partner_ids"]
+        # Resolve through the scope resolver to verify it returns our registrants
+        resolver = self.env["spp.aggregation.scope.resolver"]
+        partner_ids = resolver.resolve(scope)
         self.assertGreaterEqual(
             len(partner_ids),
             len(self.registrants),

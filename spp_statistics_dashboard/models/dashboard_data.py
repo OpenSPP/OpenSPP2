@@ -309,17 +309,10 @@ class DashboardData(models.Model):
                 "include_child_areas": True,
             }
 
-        # System-wide scope: query all registrant IDs directly and use
-        # explicit scope. We can't use CEL scope because the scope resolver's
-        # env.get() check on the AbstractModel executor returns falsy.
-        # sudo() is needed because this runs as a queue_job (cron user context).
-        # Only reads IDs, no sensitive data is exposed.
-        # nosemgrep: semgrep.odoo-sudo-on-sensitive-models, semgrep.odoo-sudo-without-context
-        all_ids = self.env["res.partner"].sudo().search([("is_registrant", "=", True)]).ids
-        return {
-            "scope_type": "explicit",
-            "explicit_partner_ids": all_ids,
-        }
+        # System-wide scope: delegate to the scope resolver's all_registrants
+        # type, which searches server-side without loading all IDs into the
+        # caller's memory.
+        return {"scope_type": "all_registrants"}
 
     def _upsert_data(self, stat, area, program, result):
         """Insert or update a dashboard data row from aggregation result.
