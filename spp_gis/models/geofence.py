@@ -6,7 +6,6 @@ import logging
 import uuid
 
 import psycopg2
-
 from shapely.geometry import mapping
 
 from odoo import _, api, fields, models
