@@ -50,7 +50,7 @@ class TestDashboardAccess(TransactionCase):
         )
 
         # Create test users
-        viewer_group = cls.env.ref("spp_dashboard.group_dashboard_viewer")
+        viewer_group = cls.env.ref("spp_statistics_dashboard.group_dashboard_viewer")
         cls.viewer_user = cls.env["res.users"].create(
             {
                 "name": "Dashboard Viewer",
@@ -62,7 +62,7 @@ class TestDashboardAccess(TransactionCase):
             }
         )
 
-        manager_group = cls.env.ref("spp_dashboard.group_dashboard_manager")
+        manager_group = cls.env.ref("spp_statistics_dashboard.group_dashboard_manager")
         cls.manager_user = cls.env["res.users"].create(
             {
                 "name": "Dashboard Manager",
@@ -187,10 +187,10 @@ class TestDashboardAccess(TransactionCase):
 
     def test_manager_implies_viewer(self):
         """Test that manager group implies viewer group (read access)."""
-        manager_group = self.env.ref("spp_dashboard.group_dashboard_manager")
-        viewer_group = self.env.ref("spp_dashboard.group_dashboard_viewer")
-        read_group = self.env.ref("spp_dashboard.group_dashboard_read")
-        manage_group = self.env.ref("spp_dashboard.group_dashboard_manage")
+        manager_group = self.env.ref("spp_statistics_dashboard.group_dashboard_manager")
+        viewer_group = self.env.ref("spp_statistics_dashboard.group_dashboard_viewer")
+        read_group = self.env.ref("spp_statistics_dashboard.group_dashboard_read")
+        manage_group = self.env.ref("spp_statistics_dashboard.group_dashboard_manage")
 
         self.assertIn(viewer_group, manager_group.implied_ids)
         self.assertIn(manage_group, manager_group.implied_ids)
@@ -198,8 +198,8 @@ class TestDashboardAccess(TransactionCase):
 
     def test_viewer_has_read_group(self):
         """Test that viewer user has the technical read group."""
-        self.assertTrue(self.viewer_user.has_group("spp_dashboard.group_dashboard_read"))
+        self.assertTrue(self.viewer_user.has_group("spp_statistics_dashboard.group_dashboard_read"))
 
     def test_manager_has_manage_group(self):
         """Test that manager user has the technical manage group."""
-        self.assertTrue(self.manager_user.has_group("spp_dashboard.group_dashboard_manage"))
+        self.assertTrue(self.manager_user.has_group("spp_statistics_dashboard.group_dashboard_manage"))

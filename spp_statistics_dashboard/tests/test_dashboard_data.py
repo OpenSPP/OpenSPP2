@@ -223,42 +223,42 @@ class TestDashboardViews(TransactionCase):
 
     def test_kanban_view_loads(self):
         """Test kanban view can be loaded without error."""
-        view = self.env.ref("spp_dashboard.spp_dashboard_data_view_kanban")
+        view = self.env.ref("spp_statistics_dashboard.spp_dashboard_data_view_kanban")
         result = self.env["spp.dashboard.data"].get_view(view.id, view_type="kanban")
         self.assertIn("arch", result)
 
     def test_list_view_loads(self):
         """Test list view can be loaded without error."""
-        view = self.env.ref("spp_dashboard.spp_dashboard_data_view_list")
+        view = self.env.ref("spp_statistics_dashboard.spp_dashboard_data_view_list")
         result = self.env["spp.dashboard.data"].get_view(view.id, view_type="list")
         self.assertIn("arch", result)
 
     def test_search_view_loads(self):
         """Test search view can be loaded without error."""
-        view = self.env.ref("spp_dashboard.spp_dashboard_data_view_search")
+        view = self.env.ref("spp_statistics_dashboard.spp_dashboard_data_view_search")
         result = self.env["spp.dashboard.data"].get_view(view.id, view_type="search")
         self.assertIn("arch", result)
 
     def test_pivot_view_loads(self):
         """Test pivot view can be loaded without error."""
-        view = self.env.ref("spp_dashboard.spp_dashboard_data_view_pivot")
+        view = self.env.ref("spp_statistics_dashboard.spp_dashboard_data_view_pivot")
         result = self.env["spp.dashboard.data"].get_view(view.id, view_type="pivot")
         self.assertIn("arch", result)
 
     def test_graph_view_loads(self):
         """Test graph view can be loaded without error."""
-        view = self.env.ref("spp_dashboard.spp_dashboard_data_view_graph")
+        view = self.env.ref("spp_statistics_dashboard.spp_dashboard_data_view_graph")
         result = self.env["spp.dashboard.data"].get_view(view.id, view_type="graph")
         self.assertIn("arch", result)
 
     def test_action_window_exists(self):
         """Test action window record exists with correct settings."""
-        action = self.env.ref("spp_dashboard.action_dashboard_data")
+        action = self.env.ref("spp_statistics_dashboard.action_dashboard_data")
         self.assertEqual(action.res_model, "spp.dashboard.data")
         self.assertEqual(action.path, "statistics-dashboard")
         self.assertIn("search_default_system_wide", action.context)
 
     def test_server_action_exists(self):
         """Test server action for refresh exists."""
-        action = self.env.ref("spp_dashboard.action_refresh_dashboard_data")
+        action = self.env.ref("spp_statistics_dashboard.action_refresh_dashboard_data")
         self.assertEqual(action.state, "code")

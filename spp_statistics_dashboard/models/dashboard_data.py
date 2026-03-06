@@ -241,18 +241,18 @@ class DashboardData(models.Model):
     def _get_dashboard_areas(self):
         """Get areas to include in dashboard refresh.
 
-        Uses the system parameter 'spp_dashboard.area_levels' to filter
+        Uses the system parameter 'spp_statistics_dashboard.area_levels' to filter
         by admin level (comma-separated integers). If not set, includes
         all areas.
         """
-        param = self.env["ir.config_parameter"].sudo().get_param("spp_dashboard.area_levels", "")
+        param = self.env["ir.config_parameter"].sudo().get_param("spp_statistics_dashboard.area_levels", "")
         domain = []
         if param.strip():
             try:
                 levels = [int(level.strip()) for level in param.split(",")]
                 domain = [("area_level", "in", levels)]
             except ValueError:
-                _logger.warning("Invalid spp_dashboard.area_levels parameter: %s", param)
+                _logger.warning("Invalid spp_statistics_dashboard.area_levels parameter: %s", param)
         return self.env["spp.area"].search(domain)
 
     @api.model

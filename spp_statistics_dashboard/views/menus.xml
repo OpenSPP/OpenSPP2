@@ -5,7 +5,7 @@
         name="Statistics Dashboard"
         groups="group_dashboard_read"
         sequence="90"
-        web_icon="spp_dashboard,static/description/icon.png"
+        web_icon="spp_statistics_dashboard,static/description/icon.png"
     />
     <menuitem
         id="menu_dashboard_view"

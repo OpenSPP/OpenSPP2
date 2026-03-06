@@ -33,8 +33,8 @@ After installing:
 
 | Group                                    | Access                              |
 | ---------------------------------------- | ----------------------------------- |
-| `spp_dashboard.group_dashboard_read`     | Read only                           |
-| `spp_dashboard.group_dashboard_manage`   | Read/Write (for refresh upsert)     |
+| `spp_statistics_dashboard.group_dashboard_read`     | Read only                           |
+| `spp_statistics_dashboard.group_dashboard_manage`   | Read/Write (for refresh upsert)     |
 
 ### Extension Points
 

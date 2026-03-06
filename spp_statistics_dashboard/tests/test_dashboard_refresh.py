@@ -301,7 +301,7 @@ class TestDashboardRefresh(TransactionCase):
     def test_get_dashboard_areas_filtered(self):
         """Test _get_dashboard_areas filters by area_levels system parameter."""
         # Our test area is a root area (area_level=0)
-        self.env["ir.config_parameter"].sudo().set_param("spp_dashboard.area_levels", "0")
+        self.env["ir.config_parameter"].sudo().set_param("spp_statistics_dashboard.area_levels", "0")
 
         DashData = self.env["spp.dashboard.data"]
         areas = DashData._get_dashboard_areas()
@@ -312,7 +312,7 @@ class TestDashboardRefresh(TransactionCase):
         self.assertIn(self.area, areas)
 
         # Clean up
-        self.env["ir.config_parameter"].sudo().set_param("spp_dashboard.area_levels", "")
+        self.env["ir.config_parameter"].sudo().set_param("spp_statistics_dashboard.area_levels", "")
 
     def test_get_dashboard_programs(self):
         """Test _get_dashboard_programs returns active programs."""
