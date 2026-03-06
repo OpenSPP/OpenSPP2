@@ -233,12 +233,13 @@ class DashboardData(models.Model):
                         context="dashboard",
                     )
                     self._upsert_data(stat, area, program, result)
-                except Exception:
-                    _logger.exception(
-                        "Dashboard refresh failed for stat=%s area=%s program=%s",
+                except (ValueError, TypeError, KeyError, AttributeError) as e:
+                    _logger.warning(
+                        "Dashboard refresh failed for stat=%s area=%s program=%s: %s",
                         stat.name,
                         area.code if area else "all",
                         program.name if program else "all",
+                        e,
                     )
 
     @api.model
