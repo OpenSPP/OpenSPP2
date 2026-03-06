@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Add geofences to the program creation wizard (step 1) -->
+    <record id="create_program_wizard_form_view_geofence" model="ir.ui.view">
+        <field name="name">Create Program Wizard - Geofence</field>
+        <field name="model">spp.program.create.wizard</field>
+        <field name="priority">15</field>
+        <field name="inherit_id" ref="spp_programs.create_program_wizard_form_view" />
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='quick_options_section']" position="before">
+                <group name="geofence_section">
+                    <group colspan="2">
+                        <field
+                            name="geofence_ids"
+                            widget="many2many_tags"
+                            string="Geofences"
+                            placeholder="Select geofences..."
+                            options="{'no_create': True, 'no_create_edit': True}"
+                        />
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

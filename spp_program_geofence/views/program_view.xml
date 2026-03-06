@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <!-- Extend Program Form: add geofences to Overview tab -->
+    <!-- Extend Program Form: add geofences to Configuration tab -->
     <record id="view_program_form_geofence" model="ir.ui.view">
         <field name="name">spp.program.form.geofence</field>
         <field name="model">spp.program</field>
-        <field name="inherit_id" ref="spp_programs.view_program_list_form" />
-        <field name="priority">99</field>
+        <field name="inherit_id" ref="spp_programs.view_program_form_config_cards" />
+        <field name="priority">101</field>
         <field name="arch" type="xml">
             <!-- Add stat button for geofence count -->
             <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
@@ -20,30 +20,62 @@
                 </button>
             </xpath>
 
-            <!-- Add geofences to Overview tab -->
+            <!-- Add Geographic Scope card before the Eligibility section -->
             <xpath
-                expr="//group[@name='additional_overview_section']"
-                position="attributes"
+                expr="//page[@name='configuration']//div[hasclass('card')][1]"
+                position="before"
             >
-                <attribute name="invisible">0</attribute>
-            </xpath>
-            <xpath
-                expr="//group[@name='additional_overview_section']"
-                position="inside"
-            >
-                <separator string="Geographic Scope" colspan="2" />
-                <field
-                    name="geofence_ids"
-                    nolabel="1"
-                    colspan="2"
-                    readonly="state == 'ended'"
-                >
-                    <list delete="1" editable="bottom">
-                        <field name="name" readonly="1" />
-                        <field name="geofence_type" optional="hide" readonly="1" />
-                        <field name="area_sqkm" string="Area (sq km)" readonly="1" />
-                    </list>
-                </field>
+                <div class="card mb-3 shadow-sm">
+                    <div
+                        class="card-header d-flex justify-content-between align-items-center py-2 bg-info-subtle"
+                    >
+                        <div class="d-flex align-items-center">
+                            <i
+                                class="fa fa-map-marker fa-lg me-3 text-info"
+                                title="Geographic Scope"
+                            />
+                            <div>
+                                <h5 class="mb-0">Geographic Scope</h5>
+                                <small
+                                    class="text-muted"
+                                >Define where this program operates</small>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span
+                                class="badge rounded-pill bg-success"
+                                invisible="not geofence_ids"
+                            >
+                                <i class="fa fa-check me-1" />
+                                <field
+                                name="geofence_count"
+                                class="d-inline"
+                            /> geofence(s)
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body py-3">
+                        <field
+                            name="geofence_ids"
+                            nolabel="1"
+                            readonly="state == 'ended'"
+                        >
+                            <list editable="bottom">
+                                <field name="name" readonly="1" />
+                                <field
+                                    name="geofence_type"
+                                    optional="hide"
+                                    readonly="1"
+                                />
+                                <field
+                                    name="area_sqkm"
+                                    string="Area (sq km)"
+                                    readonly="1"
+                                />
+                            </list>
+                        </field>
+                    </div>
+                </div>
             </xpath>
         </field>
     </record>

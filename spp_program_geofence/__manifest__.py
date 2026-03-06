@@ -20,6 +20,7 @@
         "views/geofence_view.xml",
         "views/eligibility_manager_view.xml",
         "views/program_view.xml",
+        "wizard/create_program_wizard.xml",
     ],
     "application": False,
     "installable": True,
