@@ -99,7 +99,7 @@ class GeofenceMembershipManager(models.Model):
         """
         domain = []
         if membership is not None:
-            ids = membership.mapped("partner_id.id")
+            ids = membership.partner_id.ids
             domain += [("id", "in", ids)]
 
         # Exclude disabled registrants (disabled is a Datetime field)
@@ -159,39 +159,38 @@ class GeofenceMembershipManager(models.Model):
         return tier1
 
     def enroll_eligible_registrants(self, program_memberships):
-        for rec in self:
-            eligible = rec._find_eligible_registrants(program_memberships)
-            return self.env["spp.program.membership"].search(
-                [
-                    ("partner_id", "in", eligible.ids),
-                    ("program_id", "=", rec.program_id.id),
-                ]
-            )
+        self.ensure_one()
+        eligible = self._find_eligible_registrants(program_memberships)
+        return self.env["spp.program.membership"].search(
+            [
+                ("partner_id", "in", eligible.ids),
+                ("program_id", "=", self.program_id.id),
+            ]
+        )
 
     def verify_cycle_eligibility(self, cycle, membership):
-        for rec in self:
-            eligible = rec._find_eligible_registrants(membership)
-            return self.env["spp.cycle.membership"].search(
-                [
-                    ("partner_id", "in", eligible.ids),
-                    ("cycle_id", "=", cycle.id),
-                ]
-            )
+        self.ensure_one()
+        eligible = self._find_eligible_registrants(membership)
+        return self.env["spp.cycle.membership"].search(
+            [
+                ("partner_id", "in", eligible.ids),
+                ("cycle_id", "=", cycle.id),
+            ]
+        )
 
     def import_eligible_registrants(self, state="draft"):
-        ben_count = 0
-        for rec in self:
-            new_beneficiaries = rec._find_eligible_registrants()
+        self.ensure_one()
+        new_beneficiaries = self._find_eligible_registrants()
 
-            # Exclude already-enrolled beneficiaries
-            beneficiary_ids = rec.program_id.get_beneficiaries().mapped("partner_id")
-            new_beneficiaries = new_beneficiaries - beneficiary_ids
+        # Exclude already-enrolled beneficiaries
+        existing_partner_ids = set(self.program_id.program_membership_ids.partner_id.ids)
+        new_beneficiaries = new_beneficiaries.filtered(lambda r: r.id not in existing_partner_ids)
 
-            ben_count = len(new_beneficiaries)
-            if ben_count < 1000:
-                rec._import_registrants(new_beneficiaries, state=state, do_count=True)
-            else:
-                rec._import_registrants_async(new_beneficiaries, state=state)
+        ben_count = len(new_beneficiaries)
+        if ben_count < 1000:
+            self._import_registrants(new_beneficiaries, state=state, do_count=True)
+        else:
+            self._import_registrants_async(new_beneficiaries, state=state)
         return ben_count
 
     def _import_registrants_async(self, new_beneficiaries, state="draft"):
@@ -221,9 +220,7 @@ class GeofenceMembershipManager(models.Model):
 
     def _import_registrants(self, new_beneficiaries, state="draft", do_count=False):
         _logger.info("spp_program_geofence: Importing %s beneficiaries", len(new_beneficiaries))
-        beneficiaries_val = [
-            Command.create({"partner_id": b.id, "state": state}) for b in new_beneficiaries
-        ]
+        beneficiaries_val = [Command.create({"partner_id": b.id, "state": state}) for b in new_beneficiaries]
         self.program_id.update({"program_membership_ids": beneficiaries_val})
 
         if do_count:
@@ -236,9 +233,10 @@ class GeofenceMembershipManager(models.Model):
             eligible = self._find_eligible_registrants()
             self.preview_count = len(eligible)
             self.preview_error = False
-        except Exception as e:
+        except Exception:
+            _logger.exception("Geofence eligibility preview failed for manager %s", self.id)
             self.preview_count = 0
-            self.preview_error = str(e)
+            self.preview_error = "Preview failed. Check the server logs for details."
         return {
             "type": "ir.actions.client",
             "tag": "display_notification",

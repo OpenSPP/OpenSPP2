@@ -263,9 +263,12 @@ class Operator:
 
         Used for complex geometry types (MultiPolygon, GeometryCollection)
         that cannot be easily constructed from coordinates.
+
+        Returns a SQL object with the GeoJSON string as a bound parameter
+        to avoid SQL injection via string interpolation.
         """
-        geojson_str = json.dumps(geojson_dict).replace("'", "''")
-        return self.st_setsrid(f"ST_GeomFromGeoJSON('{geojson_str}')", srid)
+        geojson_str = json.dumps(geojson_dict)
+        return SQL("ST_SetSRID(ST_GeomFromGeoJSON(%s), %s)", geojson_str, srid)
 
     def validate_coordinates_for_point(self, coordinates):
         """
@@ -505,7 +508,8 @@ class Operator:
         if layer_type in ("multipolygon", "geometrycollection"):
             # Complex types use ST_GeomFromGeoJSON directly
             geom = self.create_from_geojson(geojson_val, self.field.srid)
-            return SQL(f"{self.POSTGIS_SPATIAL_RELATION[operation]}({geom}, {self.qualified_field_name})")
+            postgis_fn = self.POSTGIS_SPATIAL_RELATION[operation]
+            return SQL("%s(%s, %s)", SQL(postgis_fn), geom, SQL(self.qualified_field_name))
 
         coordinates = geojson_val["coordinates"]
         return SQL(self.get_postgis_query(operation, coordinates, distance=distance, layer_type=layer_type))

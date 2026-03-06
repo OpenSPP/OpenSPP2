@@ -91,7 +91,9 @@ export class GisRenderer extends Component {
         });
 
         onMounted(() => {
-            maptilersdk.config.apiKey = this.mapTilerKey;
+            if (this.mapTilerKey) {
+                maptilersdk.config.apiKey = this.mapTilerKey;
+            }
             this.setupSourceAndLayer();
 
             this.renderMap();
@@ -106,14 +108,11 @@ export class GisRenderer extends Component {
     async getMapTilerKey() {
         try {
             const response = await this.rpc("/get_maptiler_api_key");
-            this.mapTilerKey = response.mapTilerKey;
             if (response.mapTilerKey) {
                 this.mapTilerKey = response.mapTilerKey;
-            } else {
-                console.log("Error: Api Key not found.");
             }
         } catch (error) {
-            console.error("Error fetching environment variable:", error);
+            console.warn("Could not fetch MapTiler API key:", error);
         }
     }
 
@@ -459,11 +458,38 @@ export class GisRenderer extends Component {
 
         this.addMouseInteraction();
 
-        const gc = new maptilersdkMaptilerGeocoder.GeocodingControl({});
-        this.map.addControl(gc, "top-left");
+        if (this.mapTilerKey) {
+            const gc = new maptilersdkMaptilerGeocoder.GeocodingControl({});
+            this.map.addControl(gc, "top-left");
+        }
     }
 
     getMapStyle(layer) {
+        if (!this.mapTilerKey) {
+            // Fallback: OSM raster tiles (no API key required)
+            return {
+                version: 8,
+                sources: {
+                    osm: {
+                        type: "raster",
+                        tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+                        tileSize: 256,
+                        attribution:
+                            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                    },
+                },
+                layers: [
+                    {
+                        id: "osm-tiles",
+                        type: "raster",
+                        source: "osm",
+                        minzoom: 0,
+                        maxzoom: 19,
+                    },
+                ],
+            };
+        }
+
         let mapStyle = maptilersdk.MapStyle.STREETS;
 
         if (layer) {

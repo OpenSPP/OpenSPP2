@@ -212,7 +212,7 @@ class TestGeofenceEligibility(TransactionCase):
             {
                 "name": "Geofence Test Program",
                 "target_type": "individual",
-                "geofence_ids": [(6, 0, [cls.geofence.id])],
+                "geofence_ids": [Command.set([cls.geofence.id])],
             }
         )
 
@@ -319,22 +319,22 @@ class TestGeofenceEligibility(TransactionCase):
 
     def test_multiple_geofences(self):
         """Registrant in second geofence is eligible."""
-        self.program.geofence_ids = [(6, 0, [self.geofence.id, self.geofence2.id])]
+        self.program.geofence_ids = [Command.set([self.geofence.id, self.geofence2.id])]
         eligible = self.manager._find_eligible_registrants()
         self.assertIn(self.reg_in_geofence2, eligible)
         self.assertIn(self.reg_inside, eligible)
         # Restore
-        self.program.geofence_ids = [(6, 0, [self.geofence.id])]
+        self.program.geofence_ids = [Command.set([self.geofence.id])]
 
     # --- No geofences ---
 
     def test_no_geofences_empty_result(self):
         """Program with no geofences returns no eligible registrants."""
-        self.program.geofence_ids = [(5, 0, 0)]
+        self.program.geofence_ids = [Command.clear()]
         eligible = self.manager._find_eligible_registrants()
         self.assertEqual(len(eligible), 0)
         # Restore
-        self.program.geofence_ids = [(6, 0, [self.geofence.id])]
+        self.program.geofence_ids = [Command.set([self.geofence.id])]
 
     # --- Enrollment pipeline ---
 
@@ -365,7 +365,7 @@ class TestGeofenceEligibility(TransactionCase):
             {
                 "name": "Import Test Program",
                 "target_type": "individual",
-                "geofence_ids": [(6, 0, [self.geofence.id])],
+                "geofence_ids": [Command.set([self.geofence.id])],
             }
         )
         manager2 = self.env["spp.program.membership.manager.geofence"].create(
@@ -386,7 +386,7 @@ class TestGeofenceEligibility(TransactionCase):
             {
                 "name": "Dedup Test Program",
                 "target_type": "individual",
-                "geofence_ids": [(6, 0, [self.geofence.id])],
+                "geofence_ids": [Command.set([self.geofence.id])],
             }
         )
         manager3 = self.env["spp.program.membership.manager.geofence"].create(
@@ -431,7 +431,7 @@ class TestGeofenceEligibility(TransactionCase):
 
     def test_multipolygon_geofence(self):
         """Program with multiple non-overlapping geofences uses MultiPolygon via unary_union."""
-        self.program.geofence_ids = [(6, 0, [self.geofence.id, self.geofence2.id])]
+        self.program.geofence_ids = [Command.set([self.geofence.id, self.geofence2.id])]
         eligible = self.manager._find_eligible_registrants()
         # Both registrants from different geofences should be eligible
         self.assertIn(self.reg_inside, eligible)
@@ -439,17 +439,17 @@ class TestGeofenceEligibility(TransactionCase):
         # Outside registrant should not be
         self.assertNotIn(self.reg_outside, eligible)
         # Restore
-        self.program.geofence_ids = [(6, 0, [self.geofence.id])]
+        self.program.geofence_ids = [Command.set([self.geofence.id])]
 
     # --- Program geofence field ---
 
     def test_program_geofence_count(self):
         """geofence_count is computed correctly."""
         self.assertEqual(self.program.geofence_count, 1)
-        self.program.geofence_ids = [(6, 0, [self.geofence.id, self.geofence2.id])]
+        self.program.geofence_ids = [Command.set([self.geofence.id, self.geofence2.id])]
         self.assertEqual(self.program.geofence_count, 2)
         # Restore
-        self.program.geofence_ids = [(6, 0, [self.geofence.id])]
+        self.program.geofence_ids = [Command.set([self.geofence.id])]
 
 
 @tagged("post_install", "-at_install")
@@ -497,7 +497,7 @@ class TestGeofenceEligibilityOfficer(TransactionCase):
             {
                 "name": "Officer Test Program",
                 "target_type": "individual",
-                "geofence_ids": [(6, 0, [cls.geofence.id])],
+                "geofence_ids": [Command.set([cls.geofence.id])],
             }
         )
 

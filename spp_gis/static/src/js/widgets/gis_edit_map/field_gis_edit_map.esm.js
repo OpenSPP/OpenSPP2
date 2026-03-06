@@ -132,6 +132,10 @@ export class FieldGisEditMap extends Component {
             this.defaultZoom = 10;
         }
 
+        if (this.map) {
+            this.map.remove();
+        }
+
         this.map = new maptilersdk.Map({
             container: this.id,
             style: this._getMapStyle(),
@@ -227,7 +231,9 @@ export class FieldGisEditMap extends Component {
     }
 
     removeSourceAndLayer(source) {
-        this.map.removeLayer(source);
+        this.map.removeLayer(`${source}-polygon-layerid`);
+        this.map.removeLayer(`${source}-point-layerid`);
+        this.map.removeLayer(`${source}-linestring-layerid`);
         this.map.removeSource(source);
     }
 
@@ -241,11 +247,14 @@ export class FieldGisEditMap extends Component {
         const self = this;
 
         function updateArea(e) {
-            console.log(e);
             var data = self.draw.getAll();
             self.props.record.update({
                 [self.props.name]: JSON.stringify(data.features[0].geometry),
             });
+        }
+
+        if (this.draw) {
+            this.map.removeControl(this.draw);
         }
 
         this.draw = new MapboxDraw({
@@ -274,17 +283,6 @@ export class FieldGisEditMap extends Component {
 
         this.map.on("draw.create", updateArea);
         this.map.on("draw.update", updateArea);
-
-        const url = `/spp_gis/static/src/images/laos_farm.png`;
-
-        this.map.on("click", `${this.sourceId}-polygon-layerid`, (e) => {
-            new maptilersdk.Popup()
-                .setLngLat(e.lngLat)
-                .setHTML(
-                    `<img src="${url}" height="200" width="300" alt="Placeholder Image">`
-                )
-                .addTo(this.map);
-        });
     }
 
     addDrawInteractionStyle() {
@@ -398,7 +396,6 @@ export class FieldGisEditMap extends Component {
         const customMode = {};
         const self = this;
         customMode.onTrash = function (state) {
-            console.log(state);
             self.props.record.update({[self.props.name]: null});
         };
 
