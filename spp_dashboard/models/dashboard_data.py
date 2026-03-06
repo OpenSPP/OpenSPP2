@@ -147,13 +147,10 @@ class DashboardData(models.Model):
 
     # ─── Constraints ─────────────────────────────────────────────────────
 
-    _sql_constraints = [
-        (
-            "statistic_area_program_unique",
-            "UNIQUE(statistic_id, area_id, program_id)",
-            "Duplicate dashboard data row for this statistic/area/program combination.",
-        ),
-    ]
+    _statistic_area_program_unique = models.Constraint(
+        "UNIQUE(statistic_id, area_id, program_id)",
+        "Duplicate dashboard data row for this statistic/area/program combination.",
+    )
 
     # ─── Refresh Logic ───────────────────────────────────────────────────
 
