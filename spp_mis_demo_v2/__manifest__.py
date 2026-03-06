@@ -52,6 +52,9 @@
         "views/mis_demo_wizard_view.xml",
     ],
     "assets": {},
+    "oca_data_manual": [
+        "data/demo_api_client.xml",
+    ],
     "demo": [],
     "images": [],
     "application": False,
