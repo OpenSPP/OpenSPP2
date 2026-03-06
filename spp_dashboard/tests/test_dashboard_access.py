@@ -131,9 +131,8 @@ class TestDashboardAccess(TransactionCase):
             "value_display": "77",
             "label": "To Delete",
             "area_id": self.env["spp.area"].create({
-                "name": "Delete Test Area",
-                "code": "delete_test_area",
-                "area_level": 3,
+                "draft_name": "Delete Test Area",
+                "code": "delete_test_area_dash",
             }).id,
         })
         data_as_manager = data.with_user(self.manager_user)

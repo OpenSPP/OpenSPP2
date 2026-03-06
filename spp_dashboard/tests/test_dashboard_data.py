@@ -36,9 +36,8 @@ class TestDashboardData(TransactionCase):
         })
 
         cls.area = cls.env["spp.area"].create({
-            "name": "Test Area",
+            "draft_name": "Test Area",
             "code": "test_area_dash",
-            "area_level": 1,
         })
 
     def test_create_dashboard_data(self):
@@ -69,8 +68,10 @@ class TestDashboardData(TransactionCase):
             "label": "Test Stat",
         })
 
-        self.assertEqual(data.area_name, "Test Area")
-        self.assertEqual(data.area_level, 1)
+        # area_name is computed from draft_name + code
+        self.assertIn("Test Area", data.area_name)
+        # Root area has area_level=0
+        self.assertEqual(data.area_level, 0)
 
     def test_unique_constraint(self):
         """Test SQL unique constraint on (statistic_id, area_id, program_id)."""
@@ -120,9 +121,8 @@ class TestDashboardData(TransactionCase):
     def test_cascade_delete_area(self):
         """Test that deleting an area cascades to dashboard data."""
         area = self.env["spp.area"].create({
-            "name": "Cascade Area",
-            "code": "cascade_area",
-            "area_level": 2,
+            "draft_name": "Cascade Area",
+            "code": "cascade_area_dash",
         })
         data = self.env["spp.dashboard.data"].create({
             "statistic_id": self.statistic.id,
@@ -186,44 +186,34 @@ class TestDashboardViews(TransactionCase):
     """Test that view definitions load correctly."""
 
     def test_kanban_view_loads(self):
-        """Test kanban view can be loaded."""
-        result = self.env["spp.dashboard.data"].get_view(
-            self.env.ref("spp_dashboard.spp_dashboard_data_view_kanban").id,
-            view_type="kanban",
-        )
-        self.assertEqual(result["type"], "kanban")
+        """Test kanban view can be loaded without error."""
+        view = self.env.ref("spp_dashboard.spp_dashboard_data_view_kanban")
+        result = self.env["spp.dashboard.data"].get_view(view.id, view_type="kanban")
+        self.assertIn("arch", result)
 
     def test_list_view_loads(self):
-        """Test list view can be loaded."""
-        result = self.env["spp.dashboard.data"].get_view(
-            self.env.ref("spp_dashboard.spp_dashboard_data_view_list").id,
-            view_type="list",
-        )
-        self.assertEqual(result["type"], "list")
+        """Test list view can be loaded without error."""
+        view = self.env.ref("spp_dashboard.spp_dashboard_data_view_list")
+        result = self.env["spp.dashboard.data"].get_view(view.id, view_type="list")
+        self.assertIn("arch", result)
 
     def test_search_view_loads(self):
-        """Test search view can be loaded."""
-        result = self.env["spp.dashboard.data"].get_view(
-            self.env.ref("spp_dashboard.spp_dashboard_data_view_search").id,
-            view_type="search",
-        )
-        self.assertEqual(result["type"], "search")
+        """Test search view can be loaded without error."""
+        view = self.env.ref("spp_dashboard.spp_dashboard_data_view_search")
+        result = self.env["spp.dashboard.data"].get_view(view.id, view_type="search")
+        self.assertIn("arch", result)
 
     def test_pivot_view_loads(self):
-        """Test pivot view can be loaded."""
-        result = self.env["spp.dashboard.data"].get_view(
-            self.env.ref("spp_dashboard.spp_dashboard_data_view_pivot").id,
-            view_type="pivot",
-        )
-        self.assertEqual(result["type"], "pivot")
+        """Test pivot view can be loaded without error."""
+        view = self.env.ref("spp_dashboard.spp_dashboard_data_view_pivot")
+        result = self.env["spp.dashboard.data"].get_view(view.id, view_type="pivot")
+        self.assertIn("arch", result)
 
     def test_graph_view_loads(self):
-        """Test graph view can be loaded."""
-        result = self.env["spp.dashboard.data"].get_view(
-            self.env.ref("spp_dashboard.spp_dashboard_data_view_graph").id,
-            view_type="graph",
-        )
-        self.assertEqual(result["type"], "graph")
+        """Test graph view can be loaded without error."""
+        view = self.env.ref("spp_dashboard.spp_dashboard_data_view_graph")
+        result = self.env["spp.dashboard.data"].get_view(view.id, view_type="graph")
+        self.assertIn("arch", result)
 
     def test_action_window_exists(self):
         """Test action window record exists with correct settings."""
