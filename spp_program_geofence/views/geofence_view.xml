@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Geofence List View -->
+    <record id="view_geofence_list" model="ir.ui.view">
+        <field name="name">spp.gis.geofence.list</field>
+        <field name="model">spp.gis.geofence</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name" />
+                <field name="geofence_type" />
+                <field name="area_sqkm" string="Area (sq km)" />
+                <field name="tag_ids" widget="many2many_tags" />
+                <field name="created_from" optional="hide" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Geofence Form View -->
+    <record id="view_geofence_form" model="ir.ui.view">
+        <field name="name">spp.gis.geofence.form</field>
+        <field name="model">spp.gis.geofence</field>
+        <field name="arch" type="xml">
+            <form string="Geofence">
+                <sheet>
+                    <div class="oe_title mb24">
+                        <label for="name" string="Name:" />
+                        <h1>
+                            <field name="name" placeholder="Enter geofence name..." />
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="geofence_type" />
+                            <field name="created_from" readonly="1" />
+                        </group>
+                        <group>
+                            <field
+                                name="area_sqkm"
+                                string="Area (sq km)"
+                                readonly="1"
+                            />
+                            <field
+                                name="uuid"
+                                readonly="1"
+                                groups="base.group_no_one"
+                            />
+                        </group>
+                    </group>
+                    <group>
+                        <field name="tag_ids" widget="many2many_tags" colspan="2" />
+                        <field name="description" colspan="2" />
+                    </group>
+                    <notebook>
+                        <page name="geometry" string="Geometry">
+                            <field name="geometry" nolabel="1" />
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Geofence Search View -->
+    <record id="view_geofence_search" model="ir.ui.view">
+        <field name="name">spp.gis.geofence.search</field>
+        <field name="model">spp.gis.geofence</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="tag_ids" />
+                <filter
+                    name="archived"
+                    string="Archived"
+                    domain="[('active', '=', False)]"
+                />
+                <filter
+                    name="group_type"
+                    string="Type"
+                    context="{'group_by': 'geofence_type'}"
+                />
+                <filter
+                    name="group_created_from"
+                    string="Source"
+                    context="{'group_by': 'created_from'}"
+                />
+            </search>
+        </field>
+    </record>
+
+    <!-- Geofence Action -->
+    <record id="action_geofence_list" model="ir.actions.act_window">
+        <field name="name">Geofences</field>
+        <field name="res_model">spp.gis.geofence</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_geofence_search" />
+    </record>
+
+    <!-- Menu: under Area top-level -->
+    <menuitem
+        id="menu_geofence_list"
+        name="Geofences"
+        action="action_geofence_list"
+        parent="spp_area.area_main_top_menu"
+        sequence="20"
+    />
+</odoo>

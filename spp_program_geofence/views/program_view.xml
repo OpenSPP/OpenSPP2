@@ -16,11 +16,7 @@
                     name="action_open_geofences"
                     invisible="not geofence_ids"
                 >
-                    <field
-                        name="geofence_count"
-                        widget="statinfo"
-                        string="Geofences"
-                    />
+                    <field name="geofence_count" widget="statinfo" string="Geofences" />
                 </button>
             </xpath>
 
@@ -42,7 +38,7 @@
                     colspan="2"
                     readonly="state == 'ended'"
                 >
-                    <list create="0" delete="1" editable="bottom">
+                    <list delete="1" editable="bottom">
                         <field name="name" readonly="1" />
                         <field name="geofence_type" optional="hide" readonly="1" />
                         <field name="area_sqkm" string="Area (sq km)" readonly="1" />

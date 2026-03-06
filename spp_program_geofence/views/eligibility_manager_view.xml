@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
     <!-- Geofence Eligibility Manager Form -->
-    <record
-        id="view_eligibility_manager_geofence_form"
-        model="ir.ui.view"
-    >
+    <record id="view_eligibility_manager_geofence_form" model="ir.ui.view">
         <field name="name">spp.program.membership.manager.geofence.form</field>
         <field name="model">spp.program.membership.manager.geofence</field>
         <field name="arch" type="xml">
@@ -39,13 +36,15 @@
                             widget="boolean_toggle"
                             help="When enabled, registrants without GPS coordinates will be matched by their assigned administrative area if it overlaps the geofence. Disable to require precise GPS coordinates only."
                         />
+                        <field
+                            name="fallback_area_type_id"
+                            invisible="not include_area_fallback"
+                            options="{'no_create': True}"
+                            help="Restrict area fallback to a specific administrative level (e.g. District). Leave empty to match all area types."
+                        />
                     </group>
 
-                    <group
-                        string="Program Geofences"
-                        colspan="4"
-                        col="1"
-                    >
+                    <group string="Program Geofences" colspan="4" col="1">
                         <div class="alert alert-info small py-2" role="alert">
                             <i class="fa fa-info-circle me-2" />
                             This manager checks whether registrants fall within
@@ -79,11 +78,8 @@
                         >
                             <i class="fa fa-map-marker me-2" />
                             <strong>
-                                <field
-                                    name="preview_count"
-                                    class="oe_inline"
-                                />
-                            </strong>
+                            <field name="preview_count" class="oe_inline" />
+                        </strong>
                             registrants match the current geographic scope.
                         </div>
                         <div
@@ -92,11 +88,7 @@
                             invisible="not preview_error"
                         >
                             <i class="fa fa-exclamation-triangle me-2" />
-                            <field
-                                name="preview_error"
-                                nolabel="1"
-                                class="oe_inline"
-                            />
+                            <field name="preview_error" nolabel="1" class="oe_inline" />
                         </div>
                     </group>
                 </sheet>

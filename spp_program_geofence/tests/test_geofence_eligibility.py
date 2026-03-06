@@ -52,8 +52,11 @@ class TestGeofenceEligibility(TransactionCase):
             }
         )
 
-        # -- Area that overlaps the first geofence --
+        # -- Area types --
         cls.area_type = cls.env["spp.area.type"].create({"name": "Test District"})
+        cls.area_type_province = cls.env["spp.area.type"].create({"name": "Test Province"})
+
+        # -- Area that overlaps the first geofence --
         cls.area_inside = cls.env["spp.area"].create(
             {
                 "draft_name": "Area Inside",
@@ -99,6 +102,29 @@ class TestGeofenceEligibility(TransactionCase):
             }
         )
 
+        # -- Area (province type) that also overlaps the first geofence --
+        cls.area_province = cls.env["spp.area"].create(
+            {
+                "draft_name": "Province Overlap",
+                "code": "AREA_PROV",
+                "area_type_id": cls.area_type_province.id,
+                "geo_polygon": json.dumps(
+                    {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [99, -1],
+                                [102, -1],
+                                [102, 2],
+                                [99, 2],
+                                [99, -1],
+                            ]
+                        ],
+                    }
+                ),
+            }
+        )
+
         # -- Registrants --
         point_inside = json.dumps({"type": "Point", "coordinates": [100.5, 0.5]})
         point_outside = json.dumps({"type": "Point", "coordinates": [50, 50]})
@@ -134,6 +160,14 @@ class TestGeofenceEligibility(TransactionCase):
                 "is_registrant": True,
                 "is_group": False,
                 "area_id": cls.area_outside.id,
+            }
+        )
+        cls.reg_in_province = cls.env["res.partner"].create(
+            {
+                "name": "No Coords In Province",
+                "is_registrant": True,
+                "is_group": False,
+                "area_id": cls.area_province.id,
             }
         )
         cls.reg_in_geofence2 = cls.env["res.partner"].create(
@@ -237,6 +271,41 @@ class TestGeofenceEligibility(TransactionCase):
         self.assertNotIn(self.reg_no_coords_in_area, eligible)
         # Restore
         self.manager.include_area_fallback = True
+
+    # --- Tier 2: area type filter ---
+
+    def test_tier2_area_type_filter_includes_matching_type(self):
+        """When fallback_area_type_id is set, only areas of that type are matched."""
+        self.manager.fallback_area_type_id = self.area_type
+        eligible = self.manager._find_eligible_registrants()
+        # District area matches, so registrant in district area is eligible
+        self.assertIn(self.reg_no_coords_in_area, eligible)
+        # Province area does NOT match the filter, so registrant in province is excluded
+        self.assertNotIn(self.reg_in_province, eligible)
+        # Restore
+        self.manager.fallback_area_type_id = False
+
+    def test_tier2_area_type_filter_excludes_non_matching(self):
+        """When fallback_area_type_id is set to a type with no matching areas, Tier 2 is empty."""
+        # Set filter to province type; but our geofence is small enough that
+        # the province area also overlaps. The point is that district registrants
+        # should be excluded.
+        self.manager.fallback_area_type_id = self.area_type_province
+        eligible = self.manager._find_eligible_registrants()
+        # Province area overlaps, so province registrant IS eligible
+        self.assertIn(self.reg_in_province, eligible)
+        # District registrant is NOT eligible (wrong area type)
+        self.assertNotIn(self.reg_no_coords_in_area, eligible)
+        # Restore
+        self.manager.fallback_area_type_id = False
+
+    def test_tier2_no_area_type_filter_includes_all(self):
+        """When fallback_area_type_id is not set, all area types are matched."""
+        self.manager.fallback_area_type_id = False
+        eligible = self.manager._find_eligible_registrants()
+        # Both district and province registrants should be eligible
+        self.assertIn(self.reg_no_coords_in_area, eligible)
+        self.assertIn(self.reg_in_province, eligible)
 
     # --- Hybrid union ---
 

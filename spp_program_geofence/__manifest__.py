@@ -17,6 +17,7 @@
     ],
     "data": [
         "security/ir.model.access.csv",
+        "views/geofence_view.xml",
         "views/eligibility_manager_view.xml",
         "views/program_view.xml",
     ],

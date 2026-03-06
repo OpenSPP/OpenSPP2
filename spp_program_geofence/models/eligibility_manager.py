@@ -45,6 +45,13 @@ class GeofenceMembershipManager(models.Model):
         help="When enabled, registrants whose administrative area intersects the geofence "
         "are included even if their coordinates are not set.",
     )
+    fallback_area_type_id = fields.Many2one(
+        "spp.area.type",
+        string="Fallback Area Type",
+        help="When set, only areas of this type are considered for the area fallback. "
+        "Use this to restrict matching to a specific administrative level (e.g. District) "
+        "and avoid overly broad matches from large provinces or regions.",
+    )
     program_geofence_ids = fields.Many2many(
         "spp.gis.geofence",
         related="program_id.geofence_ids",
@@ -138,6 +145,8 @@ class GeofenceMembershipManager(models.Model):
         # Tier 2: registrants whose area intersects the geofence
         if self.include_area_fallback:
             area_domain = [("geo_polygon", "gis_intersects", combined_geojson)]
+            if self.fallback_area_type_id:
+                area_domain += [("area_type_id", "=", self.fallback_area_type_id.id)]
             matching_areas = self.env["spp.area"].search(area_domain)
             if matching_areas:
                 tier2_domain = base_domain + [
