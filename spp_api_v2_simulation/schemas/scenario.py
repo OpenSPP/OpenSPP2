@@ -60,6 +60,9 @@ class ScenarioUpdateRequest(BaseModel):
     category: str | None = Field(default=None, description="Scenario category")
     target_type: str | None = Field(default=None, description="Target type: 'group' or 'individual'")
     targeting_expression: str | None = Field(default=None, description="CEL expression for targeting beneficiaries")
+    targeting_expression_explanation: str | None = Field(
+        default=None, description="Plain language explanation of targeting expression"
+    )
     ideal_population_expression: str | None = Field(
         default=None, description="CEL expression for ideal population calculation"
     )

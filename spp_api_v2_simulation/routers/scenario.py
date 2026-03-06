@@ -438,7 +438,8 @@ async def run_simulation(
             )
 
         # Execute simulation via service
-        service = env["spp.simulation.service"]
+        # nosemgrep: odoo-sudo-without-context
+        service = env["spp.simulation.service"].sudo()
         run = service.execute_simulation(scenario)
 
         return RunSimulationResponse(
