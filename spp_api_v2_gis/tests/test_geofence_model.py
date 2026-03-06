@@ -61,9 +61,8 @@ class TestGeofenceExtensions(TransactionCase):
 
         self.assertEqual(geofence.geofence_type, "targeting_area")
 
-    def test_geojson_properties_include_incident(self):
-        """Test that incident fields appear in properties when spp_hazard adds them."""
-        # incident_id should be available since spp_hazard is a dependency
+    def test_geojson_properties_incident_none(self):
+        """Test that incident fields are None when no incident is linked."""
         geofence = self.env["spp.gis.geofence"].create(
             {
                 "name": "Incident Props Test",
@@ -72,15 +71,44 @@ class TestGeofenceExtensions(TransactionCase):
             }
         )
 
-        feature = geofence.to_geojson()
-        props = feature["properties"]
+        props = geofence.to_geojson()["properties"]
 
-        # spp_api_v2_gis extends _get_geojson_properties with incident fields
         self.assertIn("incident_id", props)
         self.assertIn("incident_name", props)
-        # No incident linked, so values should be None
         self.assertIsNone(props["incident_id"])
         self.assertIsNone(props["incident_name"])
+
+    def test_geojson_properties_with_linked_incident(self):
+        """Test that incident code and name appear in properties when linked."""
+        # Create a hazard incident
+        category = self.env["spp.hazard.category"].create(
+            {
+                "name": "Test Cat GIS",
+                "code": "TEST_CAT_GIS_API",
+            }
+        )
+        incident = self.env["spp.hazard.incident"].create(
+            {
+                "name": "API Test Incident",
+                "code": "API-INC-001",
+                "category_id": category.id,
+                "start_date": "2024-01-01",
+            }
+        )
+
+        geofence = self.env["spp.gis.geofence"].create(
+            {
+                "name": "Linked Incident Test",
+                "geometry": json.dumps(self.sample_polygon),
+                "geofence_type": "hazard_zone",
+                "incident_id": incident.id,
+            }
+        )
+
+        props = geofence.to_geojson()["properties"]
+
+        self.assertEqual(props["incident_id"], "API-INC-001")
+        self.assertEqual(props["incident_name"], "API Test Incident")
 
     def test_geofence_type_label_service_area(self):
         """Test that service_area type label is correct."""

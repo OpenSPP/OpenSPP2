@@ -502,3 +502,204 @@ class TestGeofenceModel(TransactionCase):
         self.assertIn("uuid", props)
         self.assertNotIn("id", props)
         self.assertEqual(props["uuid"], geofence.uuid)
+
+    def test_geofence_uuid_copy_generates_new(self):
+        """Test that copying a geofence generates a new UUID."""
+        geofence = self.env["spp.gis.geofence"].create(
+            {
+                "name": "UUID Copy Original",
+                "geometry": json.dumps(self.sample_polygon),
+                "geofence_type": "custom",
+            }
+        )
+
+        copied = geofence.copy({"name": "UUID Copy Clone"})
+
+        self.assertTrue(copied.uuid)
+        self.assertNotEqual(geofence.uuid, copied.uuid)
+        self.assertEqual(len(copied.uuid), 36)
+
+    def test_geofence_rename_to_duplicate_raises(self):
+        """Test that renaming a geofence to an existing active name raises error."""
+        self.env["spp.gis.geofence"].create(
+            {
+                "name": "Existing Name",
+                "geometry": json.dumps(self.sample_polygon),
+                "geofence_type": "custom",
+            }
+        )
+
+        geofence2 = self.env["spp.gis.geofence"].create(
+            {
+                "name": "Different Name",
+                "geometry": json.dumps(self.sample_polygon),
+                "geofence_type": "custom",
+            }
+        )
+
+        with self.assertRaises(ValidationError):
+            geofence2.write({"name": "Existing Name"})
+
+    def test_geofence_reactivate_duplicate_name_raises(self):
+        """Test that reactivating an archived geofence with a duplicate name raises error."""
+        self.env["spp.gis.geofence"].create(
+            {
+                "name": "Active Name",
+                "geometry": json.dumps(self.sample_polygon),
+                "geofence_type": "custom",
+            }
+        )
+
+        archived = self.env["spp.gis.geofence"].create(
+            {
+                "name": "Temp Name",
+                "geometry": json.dumps(self.sample_polygon),
+                "geofence_type": "custom",
+            }
+        )
+        archived.write({"active": False, "name": "Active Name"})
+
+        with self.assertRaises(ValidationError):
+            archived.write({"active": True})
+
+    def test_create_from_geojson_dict_input(self):
+        """Test creating geofence from dict input (not string)."""
+        geofence = self.env["spp.gis.geofence"].create_from_geojson(
+            geojson_str=self.sample_polygon,
+            name="Dict Input",
+            geofence_type="custom",
+        )
+
+        self.assertTrue(geofence)
+        self.assertEqual(geofence.name, "Dict Input")
+
+    def test_geofence_area_varies_by_geometry_size(self):
+        """Test that different sized geometries produce different areas."""
+        small_geofence = self.env["spp.gis.geofence"].create(
+            {
+                "name": "Small Area",
+                "geometry": json.dumps(self.sample_polygon),
+                "geofence_type": "custom",
+            }
+        )
+
+        # 2x2 degree polygon (roughly 4x the area of 1x1)
+        larger_polygon = {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [100.0, 0.0],
+                    [102.0, 0.0],
+                    [102.0, 2.0],
+                    [100.0, 2.0],
+                    [100.0, 0.0],
+                ]
+            ],
+        }
+        large_geofence = self.env["spp.gis.geofence"].create(
+            {
+                "name": "Large Area",
+                "geometry": json.dumps(larger_polygon),
+                "geofence_type": "custom",
+            }
+        )
+
+        self.assertGreater(small_geofence.area_sqkm, 0)
+        self.assertGreater(large_geofence.area_sqkm, small_geofence.area_sqkm)
+
+    def test_to_geojson_collection_empty_recordset(self):
+        """Test to_geojson_collection with empty recordset."""
+        empty = self.env["spp.gis.geofence"].browse([])
+        collection = empty.to_geojson_collection()
+
+        self.assertEqual(collection["type"], "FeatureCollection")
+        self.assertEqual(collection["features"], [])
+
+    def test_geojson_properties_values_correct(self):
+        """Test that GeoJSON property values are correct, not just present."""
+        geofence = self.env["spp.gis.geofence"].create(
+            {
+                "name": "Values Check",
+                "geometry": json.dumps(self.sample_polygon),
+                "geofence_type": "area_of_interest",
+                "created_from": "api",
+                "tag_ids": [(6, 0, [self.tag1.id])],
+            }
+        )
+
+        props = geofence.to_geojson()["properties"]
+
+        self.assertEqual(props["uuid"], geofence.uuid)
+        self.assertEqual(props["name"], "Values Check")
+        self.assertEqual(props["description"], "")
+        self.assertEqual(props["geofence_type"], "area_of_interest")
+        self.assertEqual(props["geofence_type_label"], "Area of Interest")
+        self.assertIsInstance(props["area_sqkm"], float)
+        self.assertEqual(props["tags"], ["Test Tag 1"])
+        self.assertEqual(props["created_from"], "api")
+        self.assertEqual(props["created_by"], self.env.user.name)
+        self.assertIsNotNone(props["create_date"])
+
+    def test_geofence_description_none_becomes_empty_string(self):
+        """Test that missing description becomes empty string in properties."""
+        geofence = self.env["spp.gis.geofence"].create(
+            {
+                "name": "No Description",
+                "geometry": json.dumps(self.sample_polygon),
+                "geofence_type": "custom",
+            }
+        )
+
+        props = geofence.to_geojson()["properties"]
+        self.assertEqual(props["description"], "")
+
+    def test_geofence_type_defaults_to_custom(self):
+        """Test that geofence_type defaults to custom when not specified."""
+        geofence = self.env["spp.gis.geofence"].create(
+            {
+                "name": "Default Type Test",
+                "geometry": json.dumps(self.sample_polygon),
+            }
+        )
+
+        self.assertEqual(geofence.geofence_type, "custom")
+
+    def test_geofence_area_positive_for_known_polygon(self):
+        """Test that area is strictly positive for the known ~12,300 sqkm test polygon."""
+        geofence = self.env["spp.gis.geofence"].create(
+            {
+                "name": "Positive Area Test",
+                "geometry": json.dumps(self.sample_polygon),
+                "geofence_type": "custom",
+            }
+        )
+
+        # 1 degree x 1 degree near equator is roughly 12,300 sq km
+        self.assertGreater(geofence.area_sqkm, 0)
+
+    def test_geofence_archive_excludes_from_search(self):
+        """Test that archived geofences are excluded from default search."""
+        geofence = self.env["spp.gis.geofence"].create(
+            {
+                "name": "Archive Search Test",
+                "geometry": json.dumps(self.sample_polygon),
+                "geofence_type": "custom",
+            }
+        )
+
+        # Should be found by default search
+        found = self.env["spp.gis.geofence"].search([("name", "=", "Archive Search Test")])
+        self.assertEqual(len(found), 1)
+
+        # Archive it
+        geofence.write({"active": False})
+
+        # Should no longer appear in default search
+        found = self.env["spp.gis.geofence"].search([("name", "=", "Archive Search Test")])
+        self.assertEqual(len(found), 0)
+
+        # Should appear when explicitly searching inactive
+        found = (
+            self.env["spp.gis.geofence"].with_context(active_test=False).search([("name", "=", "Archive Search Test")])
+        )
+        self.assertEqual(len(found), 1)
