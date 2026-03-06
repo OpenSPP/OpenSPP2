@@ -6,8 +6,8 @@
 
     <!-- List View -->
     <record id="spp_statistic_view_list" model="ir.ui.view">
-        <field name="name">spp.statistic.view.list</field>
-        <field name="model">spp.statistic</field>
+        <field name="name">spp.indicator.view.list</field>
+        <field name="model">spp.indicator</field>
         <field name="arch" type="xml">
             <list string="Statistics" default_order="category_id, sequence">
                 <field name="sequence" widget="handle" />
@@ -29,8 +29,8 @@
 
     <!-- Form View -->
     <record id="spp_statistic_view_form" model="ir.ui.view">
-        <field name="name">spp.statistic.view.form</field>
-        <field name="model">spp.statistic</field>
+        <field name="name">spp.indicator.view.form</field>
+        <field name="model">spp.indicator</field>
         <field name="arch" type="xml">
             <form string="Statistic">
                 <sheet>
@@ -129,8 +129,8 @@
 
     <!-- Search View -->
     <record id="spp_statistic_view_search" model="ir.ui.view">
-        <field name="name">spp.statistic.view.search</field>
-        <field name="model">spp.statistic</field>
+        <field name="name">spp.indicator.view.search</field>
+        <field name="model">spp.indicator</field>
         <field name="arch" type="xml">
             <search string="Statistics">
                 <field name="name" />
@@ -192,8 +192,8 @@
 
     <!-- Kanban View -->
     <record id="spp_statistic_view_kanban" model="ir.ui.view">
-        <field name="name">spp.statistic.view.kanban</field>
-        <field name="model">spp.statistic</field>
+        <field name="name">spp.indicator.view.kanban</field>
+        <field name="model">spp.indicator</field>
         <field name="arch" type="xml">
             <kanban default_group_by="category_id" class="o_kanban_small_column">
                 <field name="name" />
@@ -239,7 +239,7 @@
     <!-- Action -->
     <record id="spp_statistic_action" model="ir.actions.act_window">
         <field name="name">Statistics</field>
-        <field name="res_model">spp.statistic</field>
+        <field name="res_model">spp.indicator</field>
         <field name="view_mode">list,kanban,form</field>
         <field name="search_view_id" ref="spp_statistic_view_search" />
         <field name="context">{'search_default_group_category': 1}</field>

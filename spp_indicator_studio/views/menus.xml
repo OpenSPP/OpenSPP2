@@ -1,31 +1,31 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!--
-        Statistics Menus for Studio
+        Indicator Menus for Studio
         ===========================
-        Adds Statistics configuration under Studio > Settings
+        Adds Indicator configuration under Studio > Settings
     -->
 
-    <!-- Statistics - under Settings (seq 50, before Versioning) -->
+    <!-- Indicators - under Settings (seq 50, before Versioning) -->
     <menuitem
         id="menu_settings_statistics"
-        name="Statistics"
+        name="Indicators"
         parent="spp_studio.menu_studio_config"
         sequence="50"
         groups="spp_studio.group_studio_manager"
     />
 
-    <!-- All Statistics -->
+    <!-- All Indicators -->
     <menuitem
         id="menu_statistic_list"
-        name="All Statistics"
+        name="All Indicators"
         parent="menu_settings_statistics"
         action="spp_statistic_action"
         sequence="10"
         groups="spp_studio.group_studio_manager"
     />
 
-    <!-- Statistic Categories -->
+    <!-- Indicator Categories -->
     <menuitem
         id="menu_statistic_category_list"
         name="Categories"

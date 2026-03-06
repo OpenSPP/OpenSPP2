@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_indicator_studio_admin,spp.indicator studio admin,spp_indicator.model_spp_indicator,spp_studio.group_studio_manager,1,1,1,1
+access_spp_metric_category_studio_admin,spp.metric.category studio admin,spp_metric.model_spp_metric_category,spp_studio.group_studio_manager,1,1,1,1
+access_spp_indicator_context_studio_admin,spp.indicator.context studio admin,spp_indicator.model_spp_indicator_context,spp_studio.group_studio_manager,1,1,1,1
