@@ -1,0 +1,410 @@
+# Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+"""Dashboard Data - Materialized snapshot of published statistics."""
+
+import logging
+
+from odoo import _, api, fields, models
+
+_logger = logging.getLogger(__name__)
+
+
+class DashboardData(models.Model):
+    """Pre-computed dashboard statistic values.
+
+    Stores one row per (statistic, area, program) combination.
+    Refreshed via queue_job (manual trigger or daily cron).
+    """
+
+    _name = "spp.dashboard.data"
+    _description = "Dashboard Statistic Data"
+    _order = "category_id, statistic_name"
+
+    def init(self):
+        """Create database indexes for dashboard query performance."""
+        # Composite index for grouped list view (category + area filtering)
+        self.env.cr.execute("""
+            CREATE INDEX IF NOT EXISTS idx_dashboard_data_category_area
+            ON spp_dashboard_data(category_id, area_id)
+        """)
+
+        # Composite index for filtered queries (area + program)
+        self.env.cr.execute("""
+            CREATE INDEX IF NOT EXISTS idx_dashboard_data_area_program
+            ON spp_dashboard_data(area_id, program_id)
+        """)
+
+        # Index for area level filtering
+        self.env.cr.execute("""
+            CREATE INDEX IF NOT EXISTS idx_dashboard_data_area_level
+            ON spp_dashboard_data(area_level)
+        """)
+
+        _logger.info("Dashboard data performance indexes created/verified")
+
+    # ─── Relations ───────────────────────────────────────────────────────
+
+    statistic_id = fields.Many2one(
+        comodel_name="spp.statistic",
+        string="Statistic",
+        required=True,
+        ondelete="cascade",
+        index=True,
+    )
+    statistic_name = fields.Char(
+        string="Statistic Name",
+        related="statistic_id.name",
+        store=True,
+    )
+    label = fields.Char(
+        string="Label",
+        help="Display label from statistic context config for dashboard",
+    )
+
+    category_id = fields.Many2one(
+        comodel_name="spp.metric.category",
+        string="Category",
+        related="statistic_id.category_id",
+        store=True,
+        index=True,
+    )
+    category_code = fields.Char(
+        string="Category Code",
+        related="statistic_id.category_id.code",
+        store=True,
+    )
+
+    area_id = fields.Many2one(
+        comodel_name="spp.area",
+        string="Area",
+        ondelete="cascade",
+        index=True,
+        help="Area scope. Empty means system-wide.",
+    )
+    area_name = fields.Char(
+        string="Area Name",
+        related="area_id.name",
+        store=True,
+    )
+    area_level = fields.Integer(
+        string="Area Level",
+        related="area_id.area_level",
+        store=True,
+    )
+
+    program_id = fields.Many2one(
+        comodel_name="spp.program",
+        string="Program",
+        ondelete="cascade",
+        index=True,
+        help="Program scope. Empty means all programs.",
+    )
+    program_name = fields.Char(
+        string="Program Name",
+        related="program_id.name",
+        store=True,
+    )
+
+    # ─── Values ──────────────────────────────────────────────────────────
+
+    value = fields.Float(
+        string="Value",
+        digits=(16, 4),
+        help="Computed statistic value",
+    )
+    value_display = fields.Char(
+        string="Display Value",
+        help="Formatted display value (handles suppression: '<5', '*')",
+    )
+    is_suppressed = fields.Boolean(
+        string="Suppressed",
+        default=False,
+        help="Whether k-anonymity suppression was applied",
+    )
+    underlying_count = fields.Integer(
+        string="Underlying Count",
+        help="Count before aggregation (for suppression check)",
+    )
+
+    # ─── Presentation (from statistic) ───────────────────────────────────
+
+    format = fields.Selection(
+        string="Format",
+        related="statistic_id.format",
+        store=True,
+    )
+    unit = fields.Char(
+        string="Unit",
+        related="statistic_id.unit",
+        store=True,
+    )
+
+    # ─── Metadata ────────────────────────────────────────────────────────
+
+    refreshed_at = fields.Datetime(
+        string="Refreshed At",
+        help="When this value was last computed",
+    )
+
+    # ─── Constraints ─────────────────────────────────────────────────────
+
+    _sql_constraints = [
+        (
+            "statistic_area_program_unique",
+            "UNIQUE(statistic_id, area_id, program_id)",
+            "Duplicate dashboard data row for this statistic/area/program combination.",
+        ),
+    ]
+
+    # ─── Refresh Logic ───────────────────────────────────────────────────
+
+    @api.model
+    def action_refresh_all(self):
+        """Enqueue refresh jobs for all dashboard statistics.
+
+        Each statistic gets its own queue_job so failures are isolated.
+        Returns a notification action to inform the user.
+        """
+        stats = self.env["spp.statistic"].get_published_for_context("dashboard")
+
+        if not stats:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("Dashboard Refresh"),
+                    "message": _("No statistics are published for the dashboard."),
+                    "type": "warning",
+                    "sticky": False,
+                },
+            }
+
+        # Clean up stale data for un-published statistics
+        self._cleanup_stale_data(stats)
+
+        areas = self._get_dashboard_areas()
+        programs = self._get_dashboard_programs()
+
+        for stat in stats:
+            if hasattr(self, "with_delay"):
+                self.with_delay(
+                    priority=10,
+                    description=f"Dashboard refresh: {stat.label}",
+                )._refresh_statistic(stat.id, areas.ids, programs.ids)
+            else:
+                self._refresh_statistic(stat.id, areas.ids, programs.ids)
+
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "title": _("Dashboard Refresh"),
+                "message": _(
+                    "Statistics refresh has been queued. Data will update shortly."
+                ),
+                "type": "success",
+                "sticky": False,
+            },
+        }
+
+    def _refresh_statistic(self, stat_id, area_ids, program_ids):
+        """Refresh one statistic across all area/program combinations.
+
+        Called as a queue_job. Handles errors per-combination so one failure
+        does not abort the entire statistic refresh.
+        """
+        stat = self.env["spp.statistic"].browse(stat_id)
+        if not stat.exists():
+            _logger.warning("Statistic ID %s no longer exists, skipping refresh", stat_id)
+            return
+
+        areas = self.env["spp.area"].browse(area_ids)
+        programs = self.env["spp.program"].browse(program_ids)
+
+        # False = system-wide / all programs
+        area_list = [False] + list(areas)
+        program_list = [False] + list(programs)
+
+        for area in area_list:
+            for program in program_list:
+                try:
+                    scope = self._build_scope(area, program)
+                    result = self.env["spp.aggregation.service"].compute_aggregation(
+                        scope=scope,
+                        statistics=[stat.name],
+                        context="dashboard",
+                    )
+                    self._upsert_data(stat, area, program, result)
+                except Exception:
+                    _logger.exception(
+                        "Dashboard refresh failed for stat=%s area=%s program=%s",
+                        stat.name,
+                        area.code if area else "all",
+                        program.name if program else "all",
+                    )
+
+    @api.model
+    def _get_dashboard_areas(self):
+        """Get areas to include in dashboard refresh.
+
+        Uses the system parameter 'spp_dashboard.area_levels' to filter
+        by admin level (comma-separated integers). If not set, includes
+        all areas.
+        """
+        param = self.env["ir.config_parameter"].sudo().get_param(
+            "spp_dashboard.area_levels", ""
+        )
+        domain = []
+        if param.strip():
+            try:
+                levels = [int(level.strip()) for level in param.split(",")]
+                domain = [("area_level", "in", levels)]
+            except ValueError:
+                _logger.warning(
+                    "Invalid spp_dashboard.area_levels parameter: %s", param
+                )
+        return self.env["spp.area"].search(domain)
+
+    @api.model
+    def _get_dashboard_programs(self):
+        """Get active programs to include in dashboard refresh."""
+        return self.env["spp.program"].search([("state", "=", "active")])
+
+    @api.model
+    def _build_scope(self, area, program):
+        """Build aggregation scope dict for compute_aggregation.
+
+        Args:
+            area: spp.area record or False (system-wide)
+            program: spp.program record or False (all programs)
+
+        Returns:
+            dict: scope definition for spp.aggregation.service
+        """
+        if area:
+            scope = {
+                "scope_type": "area",
+                "area_id": area.id,
+                "include_child_areas": True,
+            }
+        else:
+            # System-wide scope
+            scope = {
+                "scope_type": "area",
+                "area_id": False,
+                "include_child_areas": True,
+            }
+
+        if program:
+            scope["program_id"] = program.id
+
+        return scope
+
+    def _upsert_data(self, stat, area, program, result):
+        """Insert or update a dashboard data row from aggregation result.
+
+        Args:
+            stat: spp.statistic record
+            area: spp.area record or False
+            program: spp.program record or False
+            result: dict from compute_aggregation()
+        """
+        stat_results = result.get("statistics", {})
+        stat_data = stat_results.get(stat.name, {})
+
+        raw_value = stat_data.get("value")
+        is_suppressed = stat_data.get("suppressed", False)
+        total_count = result.get("total_count", 0)
+
+        # Get context config for label
+        config = stat.get_context_config("dashboard")
+        label = config.get("label", stat.label) if config else stat.label
+
+        # Apply suppression for display value
+        if is_suppressed or raw_value is None:
+            display_value, _ = stat.apply_suppression(
+                raw_value if raw_value is not None else 0,
+                count=total_count,
+                context="dashboard",
+            )
+            value_display = str(display_value) if display_value is not None else ""
+            numeric_value = 0.0
+        else:
+            value_display = self._format_value(raw_value, stat)
+            numeric_value = float(raw_value) if raw_value is not None else 0.0
+
+        area_id = area.id if area else False
+        program_id = program.id if program else False
+        now = fields.Datetime.now()
+
+        # Try to find existing record
+        existing = self.search([
+            ("statistic_id", "=", stat.id),
+            ("area_id", "=", area_id),
+            ("program_id", "=", program_id),
+        ], limit=1)
+
+        vals = {
+            "value": numeric_value,
+            "value_display": value_display,
+            "is_suppressed": is_suppressed,
+            "underlying_count": total_count,
+            "label": label,
+            "refreshed_at": now,
+        }
+
+        if existing:
+            existing.write(vals)
+        else:
+            vals.update({
+                "statistic_id": stat.id,
+                "area_id": area_id,
+                "program_id": program_id,
+            })
+            self.create(vals)
+
+    @api.model
+    def _format_value(self, value, stat):
+        """Format a numeric value for display based on statistic format.
+
+        Args:
+            value: numeric value
+            stat: spp.statistic record
+
+        Returns:
+            str: formatted display string
+        """
+        if value is None:
+            return ""
+
+        fmt = stat.format
+        decimal_places = stat.decimal_places or 0
+
+        if fmt == "percent":
+            return f"{value:.{decimal_places}f}%"
+        elif fmt == "currency":
+            return f"{value:,.{decimal_places}f}"
+        elif fmt == "ratio":
+            return f"{value:.{decimal_places}f}"
+        elif fmt in ("count", "sum"):
+            if decimal_places == 0:
+                return f"{int(value):,}"
+            return f"{value:,.{decimal_places}f}"
+        else:
+            # avg or unknown
+            return f"{value:.{decimal_places}f}"
+
+    @api.model
+    def _cleanup_stale_data(self, published_stats):
+        """Delete dashboard data rows for statistics no longer published.
+
+        Args:
+            published_stats: recordset of currently published spp.statistic
+        """
+        stale = self.search([
+            ("statistic_id", "not in", published_stats.ids),
+        ])
+        if stale:
+            _logger.info(
+                "Cleaning up %d stale dashboard data rows", len(stale)
+            )
+            stale.unlink()

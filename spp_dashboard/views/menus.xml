@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <menuitem
+        id="menu_dashboard_root"
+        name="Statistics Dashboard"
+        action="action_dashboard_data"
+        groups="group_dashboard_read"
+        sequence="90"
+        web_icon="spp_dashboard,static/description/icon.png"
+    />
+</odoo>

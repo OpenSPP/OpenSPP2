@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- Kanban View (default - KPI cards grouped by category)          -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <record id="spp_dashboard_data_view_kanban" model="ir.ui.view">
+        <field name="name">spp.dashboard.data.kanban.main</field>
+        <field name="model">spp.dashboard.data</field>
+        <field name="arch" type="xml">
+            <kanban
+                class="o_kanban_mobile"
+                default_group_by="category_id"
+                create="false"
+                edit="false"
+                delete="false"
+                sample="1"
+            >
+                <field name="label" />
+                <field name="value_display" />
+                <field name="value" />
+                <field name="unit" />
+                <field name="area_name" />
+                <field name="program_name" />
+                <field name="is_suppressed" />
+                <field name="refreshed_at" />
+                <field name="category_id" />
+                <templates>
+                    <t t-name="card">
+                        <div class="border rounded p-2 h-100">
+                            <div class="d-flex align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold text-truncate" t-att-title="record.label.value">
+                                        <field name="label" />
+                                    </div>
+                                    <div class="fs-3 fw-bold mt-1">
+                                        <t t-if="record.is_suppressed.raw_value">
+                                            <i
+                                                class="fa fa-eye-slash text-muted me-1"
+                                                title="Value suppressed for privacy"
+                                            />
+                                        </t>
+                                        <field name="value_display" />
+                                        <span
+                                            t-if="record.unit.value"
+                                            class="fs-6 text-muted ms-1"
+                                        >
+                                            <field name="unit" />
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-2 d-flex justify-content-between text-muted small">
+                                <span t-if="record.area_name.value">
+                                    <i class="fa fa-map-marker me-1" />
+                                    <field name="area_name" />
+                                </span>
+                                <span t-if="record.program_name.value">
+                                    <i class="fa fa-list-alt me-1" />
+                                    <field name="program_name" />
+                                </span>
+                            </div>
+                            <div class="mt-1 text-muted small">
+                                <i class="fa fa-clock-o me-1" />
+                                <field name="refreshed_at" widget="timeago" />
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- List View (detail + export)                                    -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <record id="spp_dashboard_data_view_list" model="ir.ui.view">
+        <field name="name">spp.dashboard.data.list.main</field>
+        <field name="model">spp.dashboard.data</field>
+        <field name="arch" type="xml">
+            <list
+                default_group_by="category_id"
+                create="false"
+                edit="false"
+                delete="false"
+                decoration-muted="is_suppressed == True"
+                sample="1"
+            >
+                <field name="label" optional="show" />
+                <field name="value_display" string="Value" optional="show" />
+                <field name="area_name" optional="show" />
+                <field name="program_name" optional="hide" />
+                <field name="unit" optional="hide" />
+                <field name="format" optional="hide" />
+                <field name="underlying_count" optional="hide" />
+                <field name="is_suppressed" optional="hide" />
+                <field name="refreshed_at" widget="timeago" optional="show" />
+            </list>
+        </field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- Search View                                                    -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <record id="spp_dashboard_data_view_search" model="ir.ui.view">
+        <field name="name">spp.dashboard.data.search.main</field>
+        <field name="model">spp.dashboard.data</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="label" />
+                <field name="statistic_name" />
+                <field name="area_name" />
+                <field name="program_name" />
+                <field name="category_id" />
+
+                <!-- Scope filters -->
+                <filter
+                    name="system_wide"
+                    string="System-wide Totals"
+                    domain="[('area_id', '=', False), ('program_id', '=', False)]"
+                />
+                <separator />
+
+                <!-- Suppression filter -->
+                <filter
+                    name="suppressed"
+                    string="Suppressed Values"
+                    domain="[('is_suppressed', '=', True)]"
+                />
+                <separator />
+
+                <!-- Group-by options -->
+                <group name="group_by_options">
+                    <filter name="group_by_category" string="Category" context="{'group_by': 'category_id'}" />
+                    <filter name="group_by_area" string="Area" context="{'group_by': 'area_id'}" />
+                    <filter name="group_by_program" string="Program" context="{'group_by': 'program_id'}" />
+                    <filter name="group_by_format" string="Format" context="{'group_by': 'format'}" />
+                </group>
+
+                <!-- Search panel for quick category selection -->
+                <searchpanel>
+                    <field name="category_id" icon="fa-tags" enable_counters="1" />
+                </searchpanel>
+            </search>
+        </field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- Pivot View (cross-tab analysis)                                -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <record id="spp_dashboard_data_view_pivot" model="ir.ui.view">
+        <field name="name">spp.dashboard.data.pivot.main</field>
+        <field name="model">spp.dashboard.data</field>
+        <field name="arch" type="xml">
+            <pivot sample="1">
+                <field name="category_id" type="row" />
+                <field name="label" type="row" />
+                <field name="area_name" type="col" />
+                <field name="value" type="measure" />
+            </pivot>
+        </field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- Graph View (bar chart by category)                             -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <record id="spp_dashboard_data_view_graph" model="ir.ui.view">
+        <field name="name">spp.dashboard.data.graph.main</field>
+        <field name="model">spp.dashboard.data</field>
+        <field name="arch" type="xml">
+            <graph sample="1">
+                <field name="category_id" />
+                <field name="value" type="measure" />
+            </graph>
+        </field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- Server Action: Refresh Statistics (Background)                 -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <record id="action_refresh_dashboard_data" model="ir.actions.server">
+        <field name="name">Refresh Statistics (Background)</field>
+        <field name="model_id" ref="model_spp_dashboard_data" />
+        <field name="binding_model_id" ref="model_spp_dashboard_data" />
+        <field name="binding_view_types">list,kanban</field>
+        <field name="groups_id" eval="[Command.link(ref('group_dashboard_manage'))]" />
+        <field name="state">code</field>
+        <field name="code">action = model.action_refresh_all()</field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- Action Window                                                  -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <record id="action_dashboard_data" model="ir.actions.act_window">
+        <field name="name">Statistics Dashboard</field>
+        <field name="path">statistics-dashboard</field>
+        <field name="res_model">spp.dashboard.data</field>
+        <field name="view_mode">kanban,list,pivot,graph</field>
+        <field name="context">{'search_default_system_wide': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No statistics data yet</p>
+            <p>Click "Refresh Data" to compute statistics, or wait for the
+               scheduled daily refresh.</p>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="ir_cron_dashboard_refresh" model="ir.cron">
+        <field name="name">Dashboard: Refresh Statistics</field>
+        <field name="model_id" ref="model_spp_dashboard_data" />
+        <field name="state">code</field>
+        <field name="code">model.action_refresh_all()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="numbercall">-1</field>
+        <field name="active" eval="True" />
+    </record>
+</odoo>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Dashboard Domain Privilege -->
+
+    <record id="privilege_dashboard" model="res.groups.privilege">
+        <field name="name">Statistics Dashboard</field>
+        <field name="category_id" ref="spp_security.category_spp" />
+        <field name="description">Access to statistics dashboard views and data</field>
+    </record>
+</odoo>

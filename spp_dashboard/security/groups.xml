@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Dashboard Domain Groups -->
+    <!-- Following ADR-004 three-tier architecture -->
+
+    <!-- Tier 3: Technical base groups -->
+    <record id="group_dashboard_read" model="res.groups">
+        <field name="name">Dashboard: Read</field>
+        <field name="comment">Technical group for read access to dashboard data.</field>
+    </record>
+
+    <record id="group_dashboard_manage" model="res.groups">
+        <field name="name">Dashboard: Manage</field>
+        <field
+            name="comment"
+        >Technical group for dashboard management. Grants permission to trigger data refresh.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_dashboard_read'))]" />
+    </record>
+
+    <!-- Tier 2: User-facing groups -->
+    <!-- All groups share the same privilege for unified UI presentation -->
+    <record id="group_dashboard_viewer" model="res.groups">
+        <field name="name">Viewer</field>
+        <field name="privilege_id" ref="privilege_dashboard" />
+        <field
+            name="comment"
+        >Can view dashboard statistics and export data. Cannot trigger refresh.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_dashboard_read'))]" />
+    </record>
+
+    <record id="group_dashboard_manager" model="res.groups">
+        <field name="name">Manager</field>
+        <field name="privilege_id" ref="privilege_dashboard" />
+        <field
+            name="comment"
+        >Can view dashboard statistics, export data, and trigger data refresh.</field>
+        <field
+            name="implied_ids"
+            eval="[Command.link(ref('group_dashboard_viewer')), Command.link(ref('group_dashboard_manage'))]"
+        />
+    </record>
+
+    <!-- Link manager to admin -->
+    <record id="spp_security.group_spp_admin" model="res.groups">
+        <field
+            name="implied_ids"
+            eval="[Command.link(ref('group_dashboard_manager'))]"
+        />
+    </record>
+</odoo>
