@@ -266,6 +266,7 @@ class DashboardData(models.Model):
         by admin level (comma-separated integers). If not set, includes
         all areas.
         """
+        # nosemgrep: semgrep.odoo-sudo-without-context - standard pattern for reading system parameters
         param = self.env["ir.config_parameter"].sudo().get_param("spp_statistics_dashboard.area_levels", "")
         domain = []
         if param.strip():
@@ -311,6 +312,9 @@ class DashboardData(models.Model):
         # System-wide scope: query all registrant IDs directly and use
         # explicit scope. We can't use CEL scope because the scope resolver's
         # env.get() check on the AbstractModel executor returns falsy.
+        # sudo() is needed because this runs as a queue_job (cron user context).
+        # Only reads IDs, no sensitive data is exposed.
+        # nosemgrep: semgrep.odoo-sudo-on-sensitive-models, semgrep.odoo-sudo-without-context
         all_ids = self.env["res.partner"].sudo().search([("is_registrant", "=", True)]).ids
         return {
             "scope_type": "explicit",
