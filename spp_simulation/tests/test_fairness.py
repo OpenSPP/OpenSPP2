@@ -26,8 +26,8 @@ class TestFairness(SimulationTestCommon):
     def _get_service(self):
         """Get the fairness service.
 
-        NOTE: Updated to use spp.metric.fairness directly (Phase 6 cleanup).
-        The old spp.simulation.fairness.service has been removed.
+        Uses spp.metric.fairness directly to test the underlying computation
+        service independently of the analytics routing layer.
         """
         return self.env["spp.metric.fairness"]
 
@@ -76,9 +76,8 @@ class TestFairness(SimulationTestCommon):
     def test_demographic_groups_defined(self):
         """Test that demographic dimensions are configured.
 
-        NOTE: This test was updated for Phase 4a migration to spp_aggregation.
-        The old _get_demographic_groups() method is deprecated. Demographic
-        groups are now configured through spp.demographic.dimension records.
+        Demographic groups are configured through spp.demographic.dimension
+        records rather than hard-coded in the simulation module.
         """
         # Check that demographic dimensions exist
         dimension_model = self.env["spp.demographic.dimension"]

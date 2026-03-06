@@ -9,8 +9,8 @@ from .common import SimulationTestCommon
 class TestDistributionService(SimulationTestCommon):
     """Tests for distribution statistics computation.
 
-    NOTE: These tests now use spp.metric.distribution directly.
-    The old spp.simulation.distribution.service has been removed (Phase 6 cleanup).
+    Tests use spp.metric.distribution directly to verify the underlying
+    computation service independently of the analytics routing layer.
     """
 
     def _get_service(self):

@@ -65,20 +65,17 @@ class SimulationService(models.AbstractModel):
             amounts = self._apply_budget_strategy(scenario, amounts)
 
             # Step 4: Distribution stats
-            # Use spp.metric.distribution for computation
-            distribution_service = self.env["spp.metric.distribution"]
-            distribution_data = distribution_service.compute_distribution(amounts)
+            # Route through analytics service for consistent access control
+            analytics_service = self.env["spp.analytics.service"]
+            distribution_data = analytics_service.compute_distribution(amounts)
             gini = distribution_data.get("gini_coefficient", 0.0)
 
             # Step 5: Fairness analysis
-            # Use spp.metric.fairness for computation
-            fairness_service = self.env["spp.metric.fairness"]
-            # Get base domain for population
-            profile = "registry_groups" if scenario.target_type == "group" else "registry_individuals"
-            registry = self.env["spp.cel.registry"]
-            cfg = registry.load_profile(profile)
-            base_domain = cfg.get("base_domain", [])
-            fairness_data = fairness_service.compute_fairness(beneficiary_ids, base_domain)
+            # Route through analytics service with explicit scope
+            from odoo.addons.spp_analytics.services import build_explicit_scope
+
+            scope = build_explicit_scope(beneficiary_ids)
+            fairness_data = analytics_service.compute_fairness(scope)
             equity_score = fairness_data.get("equity_score", 100.0)
             has_disparity = fairness_data.get("has_disparity", False)
 
@@ -185,9 +182,9 @@ class SimulationService(models.AbstractModel):
     def _execute_targeting(self, scenario):
         """Execute the targeting expression and return all matching IDs.
 
-        NOTE: In Phase 6, this should use spp.analytics.scope for unified
-        targeting. For now, it continues using CEL directly for backward
-        compatibility.
+        Uses CEL directly rather than spp.analytics.scope, since simulation
+        targeting has its own CEL expression lifecycle and does not need
+        scope-level caching or access control.
         """
         # Load the CEL profile configuration
         profile = self._get_cel_profile(scenario)
