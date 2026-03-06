@@ -87,6 +87,41 @@
         </field>
     </record>
 
+    <!-- Geofence GIS View (required by GeoPolygonField edit widget) -->
+    <record id="view_geofence_gis" model="ir.ui.view">
+        <field name="name">spp.gis.geofence.gis</field>
+        <field eval="16" name="priority" />
+        <field name="model">spp.gis.geofence</field>
+        <field name="arch" type="xml">
+            <gis editable="1">
+                <field name="id" />
+                <field name="name" select="1" />
+                <field name="display_name" />
+                <field name="geometry" />
+            </gis>
+        </field>
+    </record>
+
+    <record id="gis_vector_layer_geofence" model="spp.gis.data.layer">
+        <field
+            name="geo_field_id"
+            ref="spp_gis.field_spp_gis_geofence__geometry"
+        />
+        <field name="name">Geofence Polygons</field>
+        <field eval="1" name="sequence" />
+        <field name="view_id" ref="view_geofence_gis" />
+        <field name="geo_repr">basic</field>
+        <field name="active_on_startup" eval="True" />
+        <field name="layer_opacity">0.8</field>
+        <field name="begin_color">#FF680A</field>
+    </record>
+
+    <record id="gis_raster_layer_geofence" model="spp.gis.raster.layer">
+        <field name="raster_type">osm</field>
+        <field name="name">Default</field>
+        <field name="view_id" ref="view_geofence_gis" />
+    </record>
+
     <!-- Geofence Action -->
     <record id="action_geofence_list" model="ir.actions.act_window">
         <field name="name">Geofences</field>
@@ -95,12 +130,12 @@
         <field name="search_view_id" ref="view_geofence_search" />
     </record>
 
-    <!-- Menu: under Area top-level -->
+    <!-- Menu: last item under Area top-level -->
     <menuitem
         id="menu_geofence_list"
         name="Geofences"
         action="action_geofence_list"
         parent="spp_area.area_main_top_menu"
-        sequence="20"
+        sequence="200"
     />
 </odoo>
