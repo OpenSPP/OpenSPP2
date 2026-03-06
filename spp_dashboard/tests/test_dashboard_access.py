@@ -112,11 +112,24 @@ class TestDashboardAccess(TransactionCase):
 
     def test_manager_can_create(self):
         """Test that manager can create dashboard data."""
+        # Create a separate statistic to avoid unique constraint with setUpClass data
+        cel_var = self.env["spp.cel.variable"].create({
+            "name": "access_create_var",
+            "cel_accessor": "access_create_var",
+            "source_type": "computed",
+            "cel_expression": "true",
+            "state": "active",
+        })
+        stat = self.env["spp.statistic"].create({
+            "name": "access_create_stat",
+            "label": "Access Create Stat",
+            "variable_id": cel_var.id,
+            "is_published_dashboard": True,
+        })
+
         DashData = self.env["spp.dashboard.data"].with_user(self.manager_user)
         data = DashData.create({
-            "statistic_id": self.statistic.id,
-            "area_id": False,
-            "program_id": False,
+            "statistic_id": stat.id,
             "value": 55.0,
             "value_display": "55",
             "label": "Manager Created",
@@ -157,10 +170,12 @@ class TestDashboardAccess(TransactionCase):
 
     def test_viewer_has_read_group(self):
         """Test that viewer user has the technical read group."""
-        read_group = self.env.ref("spp_dashboard.group_dashboard_read")
-        self.assertIn(read_group, self.viewer_user.group_ids)
+        self.assertTrue(
+            self.viewer_user.has_group("spp_dashboard.group_dashboard_read")
+        )
 
     def test_manager_has_manage_group(self):
         """Test that manager user has the technical manage group."""
-        manage_group = self.env.ref("spp_dashboard.group_dashboard_manage")
-        self.assertIn(manage_group, self.manager_user.group_ids)
+        self.assertTrue(
+            self.manager_user.has_group("spp_dashboard.group_dashboard_manage")
+        )
