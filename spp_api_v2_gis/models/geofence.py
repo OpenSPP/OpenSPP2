@@ -19,11 +19,8 @@ class GisGeofence(models.Model):
     )
 
     def _get_geojson_properties(self):
-        """Extend properties with incident info when spp_hazard is installed."""
+        """Extend properties with incident info from spp_hazard."""
         props = super()._get_geojson_properties()
-        if "incident_id" in self._fields:
-            props["incident_id"] = (
-                self.incident_id.uuid if self.incident_id and hasattr(self.incident_id, "uuid") else None
-            )
-            props["incident_name"] = self.incident_id.name if self.incident_id else None
+        props["incident_id"] = self.incident_id.uuid if self.incident_id and hasattr(self.incident_id, "uuid") else None
+        props["incident_name"] = self.incident_id.name if self.incident_id else None
         return props

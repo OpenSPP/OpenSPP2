@@ -6,6 +6,7 @@ import logging
 import uuid
 
 import psycopg2
+from psycopg2 import sql
 from shapely.geometry import mapping
 
 from odoo import _, api, fields, models
@@ -103,25 +104,28 @@ class GisGeofence(models.Model):
         Uses ST_Area with geography type for accurate area calculation
         in square meters, then converts to square kilometers.
         """
-        for rec in self:
-            if not rec.geometry or not rec.id:
-                rec.area_sqkm = 0.0
-                continue
+        records_with_geom = self.filtered(lambda r: r.geometry and r.id)
+        records_without = self - records_with_geom
 
-            try:
-                # Use PostGIS ST_Area with geography cast for accurate measurement
-                # Geography type automatically uses spheroid calculations
-                query = """
-                    SELECT ST_Area(ST_Transform(geometry::geometry, 4326)::geography) / 1000000.0 as area_sqkm
-                    FROM %s
-                    WHERE id = %%s
-                """
-                # Use self._table for the table name instead of hardcoding
-                self.env.cr.execute(query % self._table, (rec.id,))
-                result = self.env.cr.fetchone()
-                rec.area_sqkm = result[0] if result else 0.0
-            except psycopg2.Error as e:
-                _logger.warning("Failed to compute area for geofence %s: %s", rec.id, str(e))
+        for rec in records_without:
+            rec.area_sqkm = 0.0
+
+        if not records_with_geom:
+            return
+
+        try:
+            # Batch query: compute area for all records with geometry in one roundtrip
+            query = sql.SQL(
+                "SELECT id, ST_Area(ST_Transform(geometry::geometry, 4326)::geography) / 1000000.0 "
+                "FROM {} WHERE id IN %s"
+            ).format(sql.Identifier(self._table))
+            self.env.cr.execute(query, (tuple(records_with_geom.ids),))
+            results = dict(self.env.cr.fetchall())
+            for rec in records_with_geom:
+                rec.area_sqkm = results.get(rec.id, 0.0)
+        except psycopg2.Error as e:
+            _logger.warning("Failed to compute area for geofences %s: %s", records_with_geom.ids, str(e))
+            for rec in records_with_geom:
                 rec.area_sqkm = 0.0
 
     @api.constrains("name", "active")
@@ -170,7 +174,7 @@ class GisGeofence(models.Model):
         # Convert shapely geometry to GeoJSON
         try:
             geometry_dict = mapping(self.geometry)
-        except Exception as e:
+        except (ValueError, TypeError, AttributeError) as e:
             _logger.warning("Failed to convert geometry to GeoJSON for geofence %s: %s", self.id, str(e))
             geometry_dict = None
 
@@ -207,6 +211,9 @@ class GisGeofence(models.Model):
         Returns:
             dict: GeoJSON FeatureCollection with all features
         """
+        # Prefetch related fields to avoid N+1 queries on singletons
+        self.mapped("tag_ids.name")
+        self.mapped("create_uid.name")
         features = [rec.to_geojson() for rec in self]
         return {
             "type": "FeatureCollection",
