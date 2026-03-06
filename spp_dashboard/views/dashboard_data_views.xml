@@ -52,16 +52,16 @@
                             </div>
                             <div class="mt-2 d-flex justify-content-between text-muted small">
                                 <span t-if="record.area_name.value">
-                                    <i class="fa fa-map-marker me-1" />
+                                    <i class="fa fa-map-marker me-1" title="Area" />
                                     <field name="area_name" />
                                 </span>
                                 <span t-if="record.program_name.value">
-                                    <i class="fa fa-list-alt me-1" />
+                                    <i class="fa fa-list-alt me-1" title="Program" />
                                     <field name="program_name" />
                                 </span>
                             </div>
                             <div class="mt-1 text-muted small">
-                                <i class="fa fa-clock-o me-1" />
+                                <i class="fa fa-clock-o me-1" title="Last refreshed" />
                                 <field name="refreshed_at" widget="timeago" />
                             </div>
                         </div>
@@ -183,7 +183,6 @@
         <field name="model_id" ref="model_spp_dashboard_data" />
         <field name="binding_model_id" ref="model_spp_dashboard_data" />
         <field name="binding_view_types">list,kanban</field>
-        <field name="groups_id" eval="[Command.link(ref('group_dashboard_manage'))]" />
         <field name="state">code</field>
         <field name="code">action = model.action_refresh_all()</field>
     </record>
