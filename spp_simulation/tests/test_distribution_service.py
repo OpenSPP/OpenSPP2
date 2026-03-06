@@ -9,12 +9,12 @@ from .common import SimulationTestCommon
 class TestDistributionService(SimulationTestCommon):
     """Tests for distribution statistics computation.
 
-    NOTE: These tests now use spp.metrics.distribution directly.
+    NOTE: These tests now use spp.metric.distribution directly.
     The old spp.simulation.distribution.service has been removed (Phase 6 cleanup).
     """
 
     def _get_service(self):
-        return self.env["spp.metrics.distribution"]
+        return self.env["spp.metric.distribution"]
 
     def test_empty_distribution(self):
         """Test distribution with empty amounts list."""

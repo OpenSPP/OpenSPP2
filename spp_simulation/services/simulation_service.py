@@ -13,7 +13,7 @@ class SimulationService(models.AbstractModel):
     """Orchestration service for running targeting simulations.
 
     This service orchestrates the simulation workflow but delegates heavy
-    computation to spp.aggregation.service for statistics, distribution,
+    computation to spp.analytics.service for statistics, distribution,
     and fairness analysis.
     """
 
@@ -65,14 +65,14 @@ class SimulationService(models.AbstractModel):
             amounts = self._apply_budget_strategy(scenario, amounts)
 
             # Step 4: Distribution stats
-            # Use spp.metrics.distribution for computation
-            distribution_service = self.env["spp.metrics.distribution"]
+            # Use spp.metric.distribution for computation
+            distribution_service = self.env["spp.metric.distribution"]
             distribution_data = distribution_service.compute_distribution(amounts)
             gini = distribution_data.get("gini_coefficient", 0.0)
 
             # Step 5: Fairness analysis
-            # Use spp.metrics.fairness for computation
-            fairness_service = self.env["spp.metrics.fairness"]
+            # Use spp.metric.fairness for computation
+            fairness_service = self.env["spp.metric.fairness"]
             # Get base domain for population
             profile = "registry_groups" if scenario.target_type == "group" else "registry_individuals"
             registry = self.env["spp.cel.registry"]
@@ -185,7 +185,7 @@ class SimulationService(models.AbstractModel):
     def _execute_targeting(self, scenario):
         """Execute the targeting expression and return all matching IDs.
 
-        NOTE: In Phase 6, this should use spp.aggregation.scope for unified
+        NOTE: In Phase 6, this should use spp.analytics.scope for unified
         targeting. For now, it continues using CEL directly for backward
         compatibility.
         """

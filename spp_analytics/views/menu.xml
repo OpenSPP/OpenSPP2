@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Top-level menu under Settings -->
+    <menuitem
+        id="menu_aggregation_root"
+        name="Analytics"
+        parent="base.menu_custom"
+        sequence="90"
+        groups="group_aggregation_manager"
+    />
+
+    <!-- Configuration submenu -->
+    <menuitem
+        id="menu_aggregation_config"
+        name="Configuration"
+        parent="menu_aggregation_root"
+        sequence="10"
+    />
+
+    <!-- Scopes menu -->
+    <menuitem
+        id="menu_aggregation_scopes"
+        name="Scopes"
+        parent="menu_aggregation_config"
+        action="action_aggregation_scope"
+        sequence="10"
+    />
+
+    <!-- Dimensions menu -->
+    <menuitem
+        id="menu_demographic_dimensions"
+        name="Demographic Dimensions"
+        parent="menu_aggregation_config"
+        action="spp_metric_service.action_demographic_dimension"
+        sequence="20"
+    />
+
+    <!-- Access Rules menu -->
+    <menuitem
+        id="menu_aggregation_access_rules"
+        name="Access Rules"
+        parent="menu_aggregation_config"
+        action="action_aggregation_access_rule"
+        sequence="30"
+    />
+</odoo>

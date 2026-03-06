@@ -302,7 +302,7 @@ class TestSpatialQueryService(TransactionCase):
         Statistic = self.env["spp.statistic"]
 
         # User rule sets k=10
-        self.env["spp.aggregation.access.rule"].create(
+        self.env["spp.analytics.access.rule"].create(
             {
                 "name": "GIS Test Rule k10",
                 "access_level": "aggregate",

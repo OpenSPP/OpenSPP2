@@ -4,13 +4,13 @@
 import json
 import logging
 
-from odoo.addons.spp_aggregation.services import build_explicit_scope
+from odoo.addons.spp_analytics.services import build_explicit_scope
 
 _logger = logging.getLogger(__name__)
 
 
 class AggregationApiService:
-    """Thin adapter between API layer and spp.aggregation.service."""
+    """Thin adapter between API layer and spp.analytics.service."""
 
     def __init__(self, env):
         """Initialize aggregation API service.
@@ -36,7 +36,7 @@ class AggregationApiService:
         """
         engine_scope = self._build_engine_scope(scope_dict)
         # nosemgrep: odoo-sudo-without-context
-        aggregation_service = self.env["spp.aggregation.service"].sudo()
+        aggregation_service = self.env["spp.analytics.service"].sudo()
         result = aggregation_service.compute_aggregation(
             scope=engine_scope,
             statistics=statistics,

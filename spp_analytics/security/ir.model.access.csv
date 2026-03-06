@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_analytics_scope_read,spp.analytics.scope.read,model_spp_analytics_scope,group_aggregation_read,1,0,0,0
+access_spp_analytics_scope_write,spp.analytics.scope.write,model_spp_analytics_scope,group_aggregation_write,1,1,1,1
+access_spp_analytics_cache_entry_read,spp.analytics.cache.entry.read,model_spp_analytics_cache_entry,group_aggregation_read,1,0,0,0
+access_spp_analytics_cache_entry_write,spp.analytics.cache.entry.write,model_spp_analytics_cache_entry,group_aggregation_write,1,1,1,1
+access_spp_analytics_access_rule_read,spp.analytics.access.rule.read,model_spp_analytics_access_rule,group_aggregation_read,1,0,0,0
+access_spp_analytics_access_rule_write,spp.analytics.access.rule.write,model_spp_analytics_access_rule,group_aggregation_manager,1,1,1,1

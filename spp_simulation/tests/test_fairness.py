@@ -26,10 +26,10 @@ class TestFairness(SimulationTestCommon):
     def _get_service(self):
         """Get the fairness service.
 
-        NOTE: Updated to use spp.metrics.fairness directly (Phase 6 cleanup).
+        NOTE: Updated to use spp.metric.fairness directly (Phase 6 cleanup).
         The old spp.simulation.fairness.service has been removed.
         """
-        return self.env["spp.metrics.fairness"]
+        return self.env["spp.metric.fairness"]
 
     def test_fairness_empty_beneficiaries(self):
         """Test fairness with no beneficiaries."""

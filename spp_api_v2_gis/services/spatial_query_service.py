@@ -4,7 +4,7 @@
 import json
 import logging
 
-from odoo.addons.spp_aggregation.services import build_explicit_scope
+from odoo.addons.spp_analytics.services import build_explicit_scope
 
 _logger = logging.getLogger(__name__)
 
@@ -330,8 +330,8 @@ class SpatialQueryService:
                 "computed_at": None,
             }
 
-        if "spp.aggregation.service" not in self.env:
-            raise RuntimeError("spp.aggregation.service is required for GIS statistics queries.")
+        if "spp.analytics.service" not in self.env:
+            raise RuntimeError("spp.analytics.service is required for GIS statistics queries.")
 
         return self._compute_via_aggregation_service(registrant_ids, variables)
 
@@ -372,7 +372,7 @@ class SpatialQueryService:
             }
 
         # Call AggregationService (no sudo - let service determine access level from calling user)
-        aggregation_service = self.env["spp.aggregation.service"]
+        aggregation_service = self.env["spp.analytics.service"]
         result = aggregation_service.compute_aggregation(
             scope=scope,
             statistics=statistics_to_compute,
