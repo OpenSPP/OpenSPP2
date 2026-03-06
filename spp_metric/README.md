@@ -1,12 +1,12 @@
-# OpenSPP Metrics Core
+# OpenSPP Metric
 
-Shared foundation for all metrics (statistics, simulation metrics, etc.) in OpenSPP.
+Shared foundation for all metrics (indicators, simulation metrics, etc.) in OpenSPP.
 
 ## Overview
 
-`spp_metrics_core` provides the base model and categorization system that eliminates
+`spp_metric` provides the base model and categorization system that eliminates
 duplication of genuinely shared fields across different metric types. All domain modules
-(statistics, simulations, dashboards) inherit from the base model and add their own
+(indicators, simulations, dashboards) inherit from the base model and add their own
 computation-specific fields.
 
 ## Architecture
@@ -14,7 +14,7 @@ computation-specific fields.
 ```
 spp.metric.base (AbstractModel)
     │
-    ├── spp.statistic (extends with publication flags)
+    ├── spp.indicator (extends with publication flags)
     ├── spp.simulation.metric (extends with scenario-specific fields)
     └── [Your custom metric models]
 ```
@@ -76,7 +76,7 @@ Shared categorization for all metric types:
 Since `spp.metric.base` is an **AbstractModel**, it does not store data directly. Domain
 modules define concrete metrics by inheriting from the base:
 
-- `spp_statistic` - Defines published statistics
+- `spp_indicator` - Defines publishable indicators
 - `spp_simulation` - Defines simulation metrics
 - Custom modules - Define domain-specific metrics
 
@@ -116,7 +116,7 @@ Reference categories in your metrics:
 <record id="my_custom_metric" model="custom.metric">
   <field name="name">my_metric</field>
   <field name="label">My Custom Metric</field>
-  <field name="category_id" ref="spp_metrics_core.category_population" />
+  <field name="category_id" ref="spp_metric.category_population" />
 </record>
 ```
 
@@ -169,8 +169,8 @@ See [Migration Guide](../../docs/migration/statistics-refactoring.md) for detail
 
 ## Used By
 
-- `spp_metrics_services` - Aggregation and computation services
-- `spp_statistic` - Published statistics
+- `spp_metric_service` - Computation services
+- `spp_indicator` - Publishable indicators
 - `spp_simulation` - Simulation metrics
 - Domain modules with custom metrics
 

@@ -1,7 +1,7 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 {
-    "name": "OpenSPP Metrics Core",
-    "summary": "Unified metric foundation for statistics and simulations",
+    "name": "OpenSPP Metric",
+    "summary": "Unified metric foundation for indicators and simulations",
     "category": "OpenSPP",
     "version": "19.0.2.0.0",
     "sequence": 1,
