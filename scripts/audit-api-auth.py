@@ -80,6 +80,8 @@ ALLOWED_PUBLIC = {
     ("spp_encryption_rest_api", "well_known.py", "*"),
     # FastAPI demo router (development only)
     ("fastapi", "demo_router.py", "*"),
+    # OGC OPTIONS endpoint - CORS preflight, public by design
+    ("spp_api_v2_gis", "ogc_features.py", "options_collection_items"),
 }
 
 
