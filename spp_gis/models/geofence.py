@@ -15,6 +15,18 @@ from odoo.exceptions import ValidationError
 _logger = logging.getLogger(__name__)
 
 
+class GisGeofenceTag(models.Model):
+    """Tags for classifying geofences."""
+
+    _name = "spp.gis.geofence.tag"
+    _description = "Geofence Tag"
+    _order = "name"
+
+    name = fields.Char(required=True, translate=True)
+    color = fields.Integer(string="Color Index")
+    active = fields.Boolean(default=True)
+
+
 class GisGeofence(models.Model):
     """Saved Geographic Areas of Interest.
 
@@ -63,7 +75,7 @@ class GisGeofence(models.Model):
 
     # Tags for flexible classification
     tag_ids = fields.Many2many(
-        "spp.vocabulary",
+        "spp.gis.geofence.tag",
         "spp_gis_geofence_tag_rel",
         "geofence_id",
         "tag_id",
