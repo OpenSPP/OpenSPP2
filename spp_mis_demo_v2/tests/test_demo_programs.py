@@ -8,6 +8,7 @@ class TestDemoPrograms(TransactionCase):
 
     The demo programs use activated registry variables for CEL expressions:
     - Universal Child Grant: child_count variable
+    - Conditional Child Grant: members.exists() for first 1,000 days
     - Elderly Social Pension: age + retirement_age variables
     - Emergency Relief Fund: dependency_ratio, is_female_headed, elderly_count
     - Cash Transfer Program: hh_total_income, poverty_line, hh_size
@@ -16,16 +17,17 @@ class TestDemoPrograms(TransactionCase):
     """
 
     def test_get_all_demo_programs(self):
-        """Test that all 6 demo programs are returned."""
+        """Test that all 7 demo programs are returned."""
         from odoo.addons.spp_mis_demo_v2.models import demo_programs
 
         programs = demo_programs.get_all_demo_programs()
         self.assertIsInstance(programs, list)
-        self.assertEqual(len(programs), 6, "Expected exactly 6 demo programs")
+        self.assertEqual(len(programs), 7, "Expected exactly 7 demo programs")
 
         # Check expected programs exist (V3 names)
         program_names = [p["name"] for p in programs]
         self.assertIn("Universal Child Grant", program_names)
+        self.assertIn("Conditional Child Grant", program_names)
         self.assertIn("Elderly Social Pension", program_names)
         self.assertIn("Emergency Relief Fund", program_names)
         self.assertIn("Cash Transfer Program", program_names)
@@ -348,8 +350,10 @@ class TestDemoPrograms(TransactionCase):
         from odoo.addons.spp_mis_demo_v2.models import demo_programs
 
         programs = demo_programs.get_programs_by_pack("child_benefit")
-        self.assertEqual(len(programs), 1)
-        self.assertEqual(programs[0]["name"], "Universal Child Grant")
+        self.assertEqual(len(programs), 2)
+        program_names = [p["name"] for p in programs]
+        self.assertIn("Universal Child Grant", program_names)
+        self.assertIn("Conditional Child Grant", program_names)
 
         # Non-existent pack should return empty
         programs = demo_programs.get_programs_by_pack("nonexistent")
@@ -460,11 +464,20 @@ class TestDemoPrograms(TransactionCase):
                 )
 
     def test_all_programs_have_enrolled_stories(self):
-        """Test that every demo program has at least one enrolled story."""
+        """Test that demo programs have at least one enrolled story.
+
+        Conditional Child Grant is excluded: it demonstrates compliance
+        features and members.exists() CEL patterns without persona stories.
+        """
         from odoo.addons.spp_mis_demo_v2.models import demo_programs
+
+        # Programs that intentionally have no story personas
+        programs_without_stories = {"Conditional Child Grant"}
 
         for program in demo_programs.get_all_demo_programs():
             program_name = program["name"]
+            if program_name in programs_without_stories:
+                continue
             stories = program.get("stories", [])
             self.assertGreater(
                 len(stories),

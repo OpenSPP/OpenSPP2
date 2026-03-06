@@ -4,6 +4,8 @@
 import json
 from unittest.mock import MagicMock, patch
 
+from psycopg2 import IntegrityError
+
 from odoo.exceptions import ValidationError
 from odoo.tests import tagged
 
@@ -72,7 +74,9 @@ class TestDCITransaction(DCIServerCommon):
         )
 
         # Same transaction_id, same sender - should fail
-        with self.assertRaises(ValidationError):
+        # SQL UNIQUE constraint raises IntegrityError, use cr.savepoint()
+        # to avoid breaking the test transaction
+        with self.assertRaises(IntegrityError), self.cr.savepoint():
             self.Transaction.create(
                 {
                     "transaction_id": "unique-txn-001",
@@ -81,6 +85,7 @@ class TestDCITransaction(DCIServerCommon):
                     "sender_uri": self.test_sender_id,
                 }
             )
+            self.cr.flush()
 
     def test_transaction_same_id_different_sender_allowed(self):
         """Test that same transaction_id is allowed for different senders."""

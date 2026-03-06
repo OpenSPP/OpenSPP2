@@ -1,6 +1,7 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """OAuth 2.0 endpoints for API V2"""
 
+import base64
 import logging
 import os
 from datetime import datetime, timedelta
@@ -39,10 +40,62 @@ class TokenResponse(BaseModel):
     scope: str
 
 
+async def _parse_token_request(http_request: Request) -> TokenRequest:
+    """Parse token request from JSON, form-encoded body, or HTTP Basic Auth.
+
+    Supports three client authentication methods per RFC 6749:
+    1. HTTP Basic Auth header (Section 2.3.1) - used by QGIS native OAuth2
+    2. Form-encoded body with client_id/client_secret (Section 2.3.1)
+    3. JSON body (non-standard, for backwards compatibility)
+    """
+    # Extract client credentials from Authorization: Basic header if present
+    # (RFC 6749 Section 2.3.1 - preferred method for confidential clients)
+    basic_client_id = ""
+    basic_client_secret = ""
+    auth_header = http_request.headers.get("authorization", "")
+    if auth_header.startswith("Basic "):
+        try:
+            decoded = base64.b64decode(auth_header[6:]).decode("utf-8")
+            if ":" in decoded:
+                basic_client_id, basic_client_secret = decoded.split(":", 1)
+        except (ValueError, UnicodeDecodeError) as e:
+            _logger.debug("Failed to decode Basic Auth header: %s", e)
+
+    content_type = http_request.headers.get("content-type", "")
+    if "application/x-www-form-urlencoded" in content_type:
+        form = await http_request.form()
+        return TokenRequest(
+            grant_type=form.get("grant_type", ""),
+            client_id=form.get("client_id", "") or basic_client_id,
+            client_secret=form.get("client_secret", "") or basic_client_secret,
+        )
+
+    # Try JSON body
+    try:
+        body = await http_request.json()
+        return TokenRequest(**body)
+    except Exception as e:
+        _logger.debug("Could not parse token request from JSON body, falling back: %s", e)
+
+    # Fall back to Basic Auth only (grant_type defaults to client_credentials)
+    if basic_client_id:
+        return TokenRequest(
+            grant_type="client_credentials",
+            client_id=basic_client_id,
+            client_secret=basic_client_secret,
+        )
+
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Unable to parse token request. Send credentials via HTTP Basic Auth header, "
+        "form-encoded body, or JSON body.",
+    )
+
+
 @oauth_router.post("/oauth/token", response_model=TokenResponse)
 async def get_token(
     http_request: Request,
-    request: TokenRequest,
+    token_request: Annotated[TokenRequest, Depends(_parse_token_request)],
     env: Annotated[Environment, Depends(odoo_env)],
     _rate_limit: Annotated[None, Depends(check_auth_rate_limit)],
 ):
@@ -50,11 +103,12 @@ async def get_token(
     OAuth 2.0 Client Credentials flow.
 
     Authenticates API client and returns JWT access token.
+    Accepts both JSON and form-encoded request bodies (RFC 6749).
 
     SECURITY: Rate limited to 5 requests/minute per IP to prevent brute force.
     """
     # Validate grant type
-    if request.grant_type != "client_credentials":
+    if token_request.grant_type != "client_credentials":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Unsupported grant_type. Only 'client_credentials' is supported.",
@@ -62,18 +116,23 @@ async def get_token(
 
     # Authenticate client
     # nosemgrep: odoo-sudo-without-context
-    api_client = env["spp.api.client"].sudo().authenticate(request.client_id, request.client_secret)
+    api_client = env["spp.api.client"].sudo().authenticate(token_request.client_id, token_request.client_secret)
 
     if not api_client:
-        _logger.warning("Failed authentication attempt for client_id: %s", request.client_id)
+        _logger.warning("Failed authentication attempt for client_id: %s", token_request.client_id)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid client credentials",
         )
 
+    # Read configurable token lifetime (default: 24 hours for long-lived sessions)
+    # nosemgrep: odoo-sudo-without-context
+    token_lifetime_hours = int(env["ir.config_parameter"].sudo().get_param("spp_api_v2.token_lifetime_hours", "24"))
+    expires_in = token_lifetime_hours * 3600
+
     # Generate JWT token
     try:
-        token = _generate_jwt_token(env, api_client)
+        token = _generate_jwt_token(env, api_client, token_lifetime_hours)
     except Exception as e:
         _logger.exception("Error generating JWT token")
         raise HTTPException(
@@ -87,7 +146,7 @@ async def get_token(
     return TokenResponse(
         access_token=token,
         token_type="Bearer",
-        expires_in=3600,  # 1 hour
+        expires_in=expires_in,
         scope=scope_str,
     )
 
@@ -129,14 +188,14 @@ def _get_jwt_secret(env: Environment) -> str:
     return secret
 
 
-def _generate_jwt_token(env: Environment, api_client) -> str:
+def _generate_jwt_token(env: Environment, api_client, token_lifetime_hours: int) -> str:
     """
     Generate JWT access token for API client.
 
     Token contains:
     - client_id (external identifier, NOT database ID)
     - scopes
-    - expiration (1 hour)
+    - expiration time determined by token_lifetime_hours
 
     SECURITY: Never include database IDs in JWT.
     The auth middleware loads the full api_client record from DB using client_id.
@@ -160,7 +219,7 @@ def _generate_jwt_token(env: Environment, api_client) -> str:
         "iss": "openspp-api-v2",  # Issuer
         "sub": api_client.client_id,  # Subject (client_id)
         "aud": "openspp",  # Audience
-        "exp": now + timedelta(hours=1),  # Expiration
+        "exp": now + timedelta(hours=token_lifetime_hours),  # Expiration
         "iat": now,  # Issued at
         "client_id": api_client.client_id,
         "scopes": [f"{s.resource}:{s.action}" for s in api_client.scope_ids],
