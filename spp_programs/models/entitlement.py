@@ -720,7 +720,7 @@ class InKindEntitlement(models.Model):
     )
 
     # Product Fields
-    product_id = fields.Many2one("product.product", "Product", domain=[("type", "=", "product")])
+    product_id = fields.Many2one("product.product", "Product", domain=[("type", "=", "consu")])
     quantity = fields.Integer("Quantity", default=1)
     unit_price = fields.Monetary(string="Value/Unit", currency_field="currency_id")
     uom_id = fields.Many2one("uom.uom", "Unit of Measure")

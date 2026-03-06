@@ -29,7 +29,7 @@
             eval="
             [
                 Command.link(ref('base.group_user')),
-                Command.link(ref('spp_grm.group_grm_user')),
+                Command.link(ref('spp_grm.group_grm_officer')),
                 Command.link(ref('spp_registry.group_registry_officer')),
             ]"
         />
@@ -47,7 +47,7 @@
             eval="
             [
                 Command.link(ref('base.group_user')),
-                Command.link(ref('spp_grm.group_grm_user')),
+                Command.link(ref('spp_grm.group_grm_officer')),
                 Command.link(ref('spp_registry.group_registry_officer')),
             ]"
         />

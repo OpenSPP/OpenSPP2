@@ -3,7 +3,7 @@
     <!-- GRM Domain Privilege -->
     <!-- Single consolidated privilege for all GRM access levels -->
 
-    <record id="privilege_grm_user" model="res.groups.privilege">
+    <record id="privilege_grm" model="res.groups.privilege">
         <field name="name">Grievance Management</field>
         <field name="category_id" ref="spp_security.category_spp_grm" />
         <field name="description">Access to grievance and ticket management</field>

@@ -95,8 +95,21 @@ class Operator:
         "Polygon": "polygon",
     }
 
-    def __init__(self, field):
+    def __init__(self, field, table_alias=None):
         self.field = field
+        self.table_alias = table_alias
+
+    @property
+    def qualified_field_name(self):
+        """Return the field name qualified with table alias for use in SQL.
+
+        When a table_alias is provided (from Odoo's condition_to_sql),
+        the field name is qualified to avoid ambiguous column references
+        in queries that involve JOINs (e.g., from model inheritance).
+        """
+        if self.table_alias:
+            return f'"{self.table_alias}"."{self.field.name}"'
+        return self.field.name
 
     def st_makepoint(self, longitude, latitude):
         """
@@ -367,16 +380,16 @@ class Operator:
 
         if distance:
             left = geom
-            right = self.field.name
+            right = self.qualified_field_name
 
             # Need to transform srid to 3857 for distance calculation
             if self.field.srid == 4326:
                 left = self.st_transform(geom, 3857)
-                right = self.st_transform(self.field.name, 3857)
+                right = self.st_transform(self.qualified_field_name, 3857)
 
             return f"{self.POSTGIS_SPATIAL_RELATION[operation]}(ST_Buffer({left}, {distance}), {right})"
         else:
-            return f"{self.POSTGIS_SPATIAL_RELATION[operation]}({geom}, {self.field.name})"
+            return f"{self.POSTGIS_SPATIAL_RELATION[operation]}({geom}, {self.qualified_field_name})"
 
     def validate_and_extract_value(self, value):
         """

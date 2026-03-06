@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Main Menu -->
+    <menuitem
+        id="menu_session_tracking_root"
+        name="Session Tracking"
+        sequence="50"
+        web_icon="spp_session_tracking,static/description/OpenSPP-Session-Tracking-Menu-Icons.png"
+    />
+
+    <!-- Sessions Submenu -->
+    <menuitem
+        id="menu_sessions"
+        name="Sessions"
+        parent="menu_session_tracking_root"
+        sequence="10"
+    />
+
+    <menuitem
+        id="menu_all_sessions"
+        name="All Sessions"
+        parent="menu_sessions"
+        action="action_session_view"
+        sequence="10"
+    />
+
+    <menuitem
+        id="menu_my_sessions"
+        name="My Sessions"
+        parent="menu_sessions"
+        action="action_my_sessions"
+        sequence="20"
+    />
+
+    <!-- Configuration Submenu -->
+    <menuitem
+        id="menu_session_configuration"
+        name="Configuration"
+        parent="menu_session_tracking_root"
+        sequence="90"
+        groups="group_session_manager"
+    />
+
+    <menuitem
+        id="menu_session_types"
+        name="Session Types"
+        parent="menu_session_configuration"
+        action="action_session_type"
+        sequence="10"
+    />
+</odoo>

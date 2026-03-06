@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Main Menu -->
+    <menuitem
+        id="menu_graduation_root"
+        name="Graduation"
+        sequence="60"
+        groups="group_spp_graduation_user"
+    />
+
+    <!-- Assessments Menu -->
+    <menuitem
+        id="menu_graduation_assessments"
+        name="Assessments"
+        parent="menu_graduation_root"
+        sequence="10"
+    />
+
+    <menuitem
+        id="menu_graduation_assessment_all"
+        name="All Assessments"
+        parent="menu_graduation_assessments"
+        action="action_graduation_assessment"
+        sequence="10"
+    />
+
+    <menuitem
+        id="menu_graduation_assessment_my"
+        name="My Assessments"
+        parent="menu_graduation_assessments"
+        action="action_graduation_assessment_my"
+        sequence="20"
+    />
+
+    <!-- Configuration Menu -->
+    <menuitem
+        id="menu_graduation_configuration"
+        name="Configuration"
+        parent="menu_graduation_root"
+        sequence="90"
+        groups="group_spp_graduation_manager"
+    />
+
+    <menuitem
+        id="menu_graduation_pathway"
+        name="Pathways"
+        parent="menu_graduation_configuration"
+        action="action_graduation_pathway"
+        sequence="10"
+    />
+</odoo>

@@ -10,12 +10,61 @@
                         string="Assign to me"
                         name="assign_to_me"
                         type="object"
-                        invisible="user_id"
+                        invisible="user_id or is_closed"
+                    />
+                    <button
+                        string="Start Progress"
+                        name="action_start_progress"
+                        type="object"
+                        class="btn-primary"
+                        invisible="stage_type != 'new'"
+                    />
+                    <button
+                        string="Resolve"
+                        name="action_resolve"
+                        type="object"
+                        class="btn-primary"
+                        invisible="stage_type not in ('in_progress', 'waiting')"
+                    />
+                    <button
+                        string="Set Awaiting"
+                        name="action_set_awaiting"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="stage_type != 'in_progress'"
+                    />
+                    <button
+                        string="Resume"
+                        name="action_start_progress"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="stage_type != 'waiting'"
+                    />
+                    <button
+                        string="Cancel"
+                        name="action_cancel"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="stage_type not in ('in_progress', 'waiting')"
+                    />
+                    <button
+                        string="Reject"
+                        name="action_reject"
+                        type="object"
+                        class="btn-danger"
+                        invisible="stage_type not in ('in_progress', 'waiting')"
+                    />
+                    <button
+                        string="Reopen"
+                        name="action_reopen"
+                        type="object"
+                        class="btn-warning"
+                        invisible="not is_closed"
                     />
                     <field
                         name="stage_id"
                         widget="statusbar"
-                        options="{'clickable': '1', 'fold_field': 'fold'}"
+                        options="{'fold_field': 'fold'}"
                     />
                 </header>
                 <sheet>
@@ -27,17 +76,23 @@
                     />
                     <div class="oe_button_box" name="button_box" />
                     <div class="oe_title">
-                        <h1 class="oe_title">
+                        <h1 class="oe_title" invisible="number == '/'">
                             <field name="number" force_save="1" />
                         </h1>
                         <h2 class="o_row">
-                            <field name="name" placeholder="Ticket Title..." />
+                            <field
+                                name="name"
+                                placeholder="Ticket Title..."
+                                readonly="is_closed"
+                            />
                         </h2>
                     </div>
 
                     <!-- Hidden fields for conditional visibility -->
                     <group invisible="1">
                         <field name="active" />
+                        <field name="is_closed" />
+                        <field name="stage_type" />
                     </group>
 
                     <notebook name="ticket_tabs">
@@ -47,27 +102,42 @@
                             <separator string="Description" />
                             <field
                                 name="description"
-                                widget="html"
+                                widget="text"
                                 nolabel="1"
-                                class="oe_inline"
+                                readonly="is_closed"
+                                placeholder="Describe the complaint..."
                             />
 
                             <!-- Classification Section -->
                             <separator string="Classification" />
                             <group name="classification_section" col="2">
                                 <group>
-                                    <field name="category_id" />
-                                    <field name="subcategory_id" />
+                                    <field name="category_id" readonly="is_closed" />
+                                    <field
+                                        name="subcategory_id"
+                                        readonly="is_closed or not category_id"
+                                        domain="[('category_id', '=', category_id)]"
+                                        context="{'default_category_id': category_id}"
+                                    />
                                     <field
                                         name="tag_ids"
                                         widget="many2many_tags"
                                         options="{'no_create_edit': True, 'color_field': 'color'}"
+                                        readonly="is_closed"
                                     />
                                 </group>
                                 <group>
-                                    <field name="priority" widget="priority" />
-                                    <field name="severity" widget="priority" />
-                                    <field name="sensitivity" />
+                                    <field
+                                        name="priority"
+                                        widget="priority"
+                                        readonly="is_closed"
+                                    />
+                                    <field
+                                        name="severity"
+                                        widget="priority"
+                                        readonly="is_closed"
+                                    />
+                                    <field name="sensitivity" readonly="is_closed" />
                                 </group>
                             </group>
 
@@ -78,18 +148,21 @@
                                     <field
                                         name="user_id"
                                         options="{'always_reload': True,'no_open':True,'no_create_edit':True,'no_edit':True,'no_create':True}"
+                                        readonly="is_closed"
                                     />
-                                    <field name="team_id" />
+                                    <field name="team_id" readonly="is_closed" />
                                 </group>
                                 <group>
                                     <field
                                         name="channel_id"
                                         options="{'no_open':True,'no_create_edit':True,'no_edit':True,'no_create':True}"
+                                        readonly="is_closed"
                                     />
                                     <field
                                         name="company_id"
                                         options="{'no_create': True}"
                                         groups="base.group_multi_company"
+                                        readonly="is_closed"
                                     />
                                 </group>
                             </group>
@@ -109,7 +182,11 @@
                                 </group>
                                 <group>
                                     <field name="days_open" readonly="1" />
-                                    <field name="sequence" groups="base.group_no_one" />
+                                    <field
+                                        name="sequence"
+                                        groups="base.group_no_one"
+                                        readonly="is_closed"
+                                    />
                                 </group>
                             </group>
                         </page>
@@ -120,7 +197,10 @@
                             <separator string="Complainant Information" />
                             <group name="complainant_type_section" col="2">
                                 <group>
-                                    <field name="complainant_type" />
+                                    <field
+                                        name="complainant_type"
+                                        readonly="is_closed"
+                                    />
                                 </group>
                                 <group />
                             </group>
@@ -132,6 +212,7 @@
                                         name="partner_id"
                                         options="{'no_open':True,'no_create_edit':True,'no_edit':True,'no_create':True}"
                                         invisible="complainant_type == 'anonymous'"
+                                        readonly="is_closed"
                                     />
                                     <field
                                         name="partner_email"
@@ -142,14 +223,17 @@
                                     <field
                                         name="contact_name"
                                         invisible="complainant_type != 'anonymous'"
+                                        readonly="is_closed"
                                     />
                                     <field
                                         name="contact_phone"
                                         invisible="complainant_type != 'anonymous'"
+                                        readonly="is_closed"
                                     />
                                     <field
                                         name="contact_email"
                                         invisible="complainant_type != 'anonymous'"
+                                        readonly="is_closed"
                                     />
                                 </group>
                             </group>
@@ -166,16 +250,17 @@
                             <separator string="Decision &amp; Resolution" />
                             <group name="decision_section" col="2">
                                 <group>
-                                    <field name="decision" />
+                                    <field name="decision" readonly="is_closed" />
                                 </group>
                                 <group />
                             </group>
+                            <separator string="Resolution Summary" />
                             <group name="resolution_summary_section">
                                 <field
                                     name="resolution_summary"
-                                    widget="html"
                                     nolabel="1"
                                     colspan="2"
+                                    readonly="is_closed"
                                 />
                             </group>
 
@@ -183,10 +268,11 @@
                             <separator string="Escalation" />
                             <group name="escalation_section" col="2">
                                 <group>
-                                    <field name="is_escalated" />
+                                    <field name="is_escalated" readonly="is_closed" />
                                     <field
                                         name="escalated_to_id"
                                         invisible="not is_escalated"
+                                        readonly="is_closed"
                                     />
                                 </group>
                                 <group>
@@ -204,6 +290,7 @@
                                     nolabel="1"
                                     colspan="2"
                                     invisible="not is_escalated"
+                                    readonly="is_closed"
                                 />
                             </group>
 
@@ -211,10 +298,11 @@
                             <separator string="Appeal" />
                             <group name="appeal_section" col="2">
                                 <group>
-                                    <field name="is_appeal" />
+                                    <field name="is_appeal" readonly="is_closed" />
                                     <field
                                         name="original_ticket_id"
                                         invisible="not is_appeal"
+                                        readonly="is_closed"
                                     />
                                 </group>
                                 <group />
@@ -535,87 +623,22 @@
                 />
                 <templates>
                     <t t-name="card">
-                        <div
-                            t-attf-class="oe_kanban_color_#{kanban_getcolor(record.color.raw_value)} oe_kanban_content oe_kanban_global_click"
-                        >
-                            <div class="o_kanban_record_top">
-                                <div class="o_kanban_record_headings">
-                                    <field name="name" />
-                                    <field
-                                        name="tag_ids"
-                                        widget="many2many_tags"
-                                        options="{'color_field': 'color'}"
-                                    />
-                                    <field name="number" />
-                                    <small class="o_kanban_record_subtitle text-muted">
-                                        <field name="partner_id" />
-                                    </small>
-                                </div>
-                                <div
-                                    class="o_dropdown_kanban dropdown"
-                                    t-if="!selection_mode"
-                                    groups="base.group_user"
-                                >
-                                    <a
-                                        role="button"
-                                        class="dropdown-toggle o-no-caret btn"
-                                        data-bs-toggle="dropdown"
-                                        data-bs-display="static"
-                                        href="#"
-                                        aria-label="Dropdown menu"
-                                        title="Dropdown menu"
-                                    >
-                                        <span class="fa fa-ellipsis-v" />
-                                    </a>
-                                    <div class="dropdown-menu" role="menu">
-                                        <a
-                                            role="menuitem"
-                                            type="edit"
-                                            class="dropdown-item"
-                                        >Edit</a>
-                                        <a
-                                            role="menuitem"
-                                            type="delete"
-                                            class="dropdown-item"
-                                        >Delete</a>
-                                        <div
-                                            role="separator"
-                                            class="dropdown-divider"
-                                        />
-                                        <ul
-                                            class="oe_kanban_colorpicker"
-                                            data-field="color"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="o_kanban_record_body" />
-                            <div class="o_kanban_record_bottom">
-                                <div class="oe_kanban_bottom_left">
-                                    <field name="priority" widget="priority" />
-                                    <field
-                                        name="activity_ids"
-                                        widget="kanban_activity"
-                                        related="activity_state"
-                                    />
-                                </div>
-                                <div class="oe_kanban_bottom_right">
-                                    <field
-                                        name="kanban_state"
-                                        widget="state_selection"
-                                    />
-                                    <field name="activity_state" invisible="1" />
-                                    <img
-                                        t-att-src="kanban_image('res.users', 'image_128', record.user_id.raw_value)"
-                                        t-att-title="record.user_id.value"
-                                        width="24"
-                                        height="24"
-                                        class="oe_kanban_avatar o_image_24_cover float-end"
-                                        t-att-alt="record.user_id.value"
-                                    />
-                                </div>
-                            </div>
-                        </div>
+                        <field name="name" />
+                        <field
+                            name="tag_ids"
+                            widget="many2many_tags"
+                            options="{'color_field': 'color'}"
+                        />
+                        <field name="number" />
+                        <small class="text-muted">
+                            <field name="partner_id" />
+                        </small>
+                        <footer>
+                            <field name="priority" widget="priority" />
+                            <field name="activity_ids" widget="kanban_activity" />
+                            <field name="kanban_state" widget="state_selection" />
+                            <field name="user_id" widget="many2one_avatar_user" />
+                        </footer>
                     </t>
                 </templates>
             </kanban>

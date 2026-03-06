@@ -56,6 +56,7 @@ repos:
           - --branch=19.0
           - --org-name=OpenSPP
           - --repo-name=OpenSPP2
+          - --template-filename=tools/readme_template.rst.jinja
           - --if-source-changed
           - --keep-source-digest
           - --convert-fragments-to-markdown
@@ -303,4 +304,4 @@ repos:
         # Only scan OpenSPP spp_* modules (not scripts, endpoint handlers, etc.)
         files: ^spp_
         # Exclude test files, migrations, and demo-only modules
-        exclude: ^(tests/|scripts/tests/|.*/tests/.*|.*/migrations/.*|spp_4ps_demo/)
+        exclude: ^(tests/|scripts/tests/|.*/tests/.*|.*/migrations/.*|spp_4ps_demo/|spp_case_demo/|spp_grm_demo/)

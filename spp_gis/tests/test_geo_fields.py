@@ -154,3 +154,95 @@ class TestGeoFields(TransactionCase):
         invalid_geojson = json.dumps({"invalid": "data"})
         with self.assertRaises(ValidationError):
             field.convert_to_column(invalid_geojson, MockRecord(), validate=True)
+
+
+class TestOperatorTableAlias(TransactionCase):
+    """Test that the Operator generates table-qualified column names in SQL."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.env = cls.env(
+            context=dict(
+                cls.env.context,
+                test_queue_job_no_delay=True,
+            )
+        )
+
+    def _make_field(self, name="geo_polygon", srid=4326):
+        """Create a mock field for the Operator."""
+        from odoo.addons.spp_gis.fields import GeoPolygonField
+
+        field = GeoPolygonField()
+        field.name = name
+        field.srid = srid
+        return field
+
+    def test_operator_without_alias_uses_bare_field_name(self):
+        """Operator without table_alias uses bare field name (backward compat)."""
+        from odoo.addons.spp_gis.operators import Operator
+
+        field = self._make_field()
+        operator = Operator(field)
+        self.assertEqual(operator.qualified_field_name, "geo_polygon")
+
+    def test_operator_with_alias_qualifies_field_name(self):
+        """Operator with table_alias generates table-qualified column reference."""
+        from odoo.addons.spp_gis.operators import Operator
+
+        field = self._make_field()
+        operator = Operator(field, table_alias="spp_area")
+        self.assertEqual(operator.qualified_field_name, '"spp_area"."geo_polygon"')
+
+    def test_domain_query_with_alias_uses_qualified_name(self):
+        """domain_query generates SQL with table-qualified column names."""
+        from odoo.addons.spp_gis.operators import Operator
+
+        field = self._make_field()
+        operator = Operator(field, table_alias="spp_area")
+
+        geojson = {
+            "type": "Polygon",
+            "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
+        }
+
+        result = operator.domain_query("gis_intersects", geojson)
+        sql_string = str(result)
+
+        self.assertIn("ST_Intersects", sql_string)
+        self.assertIn('"spp_area"."geo_polygon"', sql_string)
+        self.assertNotRegex(sql_string, r'(?<!")\bgeo_polygon\b(?!")')
+
+    def test_domain_query_without_alias_uses_bare_name(self):
+        """domain_query without alias uses bare field name for backward compat."""
+        from odoo.addons.spp_gis.operators import Operator
+
+        field = self._make_field()
+        operator = Operator(field)
+
+        geojson = {
+            "type": "Polygon",
+            "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
+        }
+
+        result = operator.domain_query("gis_intersects", geojson)
+        sql_string = str(result)
+
+        self.assertIn("ST_Intersects", sql_string)
+        self.assertIn("geo_polygon", sql_string)
+
+    def test_get_postgis_query_with_alias_and_distance(self):
+        """get_postgis_query with distance also uses qualified field name."""
+        from odoo.addons.spp_gis.operators import Operator
+
+        field = self._make_field()
+        operator = Operator(field, table_alias="spp_area")
+
+        result = operator.get_postgis_query(
+            operation="intersects",
+            coordinates=[79.86, 6.93],
+            distance=1000,
+            layer_type="point",
+        )
+
+        self.assertIn('"spp_area"."geo_polygon"', result)

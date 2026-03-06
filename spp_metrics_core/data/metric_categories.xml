@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+    Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <!-- Default Metric Categories -->
+
+    <record id="category_population" model="spp.metric.category">
+        <field name="name">Population</field>
+        <field name="code">population</field>
+        <field name="description">Population counts and demographics</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="category_coverage" model="spp.metric.category">
+        <field name="name">Coverage</field>
+        <field name="code">coverage</field>
+        <field name="description">Program coverage and reach metrics</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="category_targeting" model="spp.metric.category">
+        <field name="name">Targeting</field>
+        <field name="code">targeting</field>
+        <field name="description">Targeting accuracy and fairness metrics</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <record id="category_distribution" model="spp.metric.category">
+        <field name="name">Distribution</field>
+        <field name="code">distribution</field>
+        <field name="description">Distribution and entitlement metrics</field>
+        <field name="sequence">40</field>
+    </record>
+</odoo>

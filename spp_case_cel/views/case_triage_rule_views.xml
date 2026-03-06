@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_case_triage_rule_tree" model="ir.ui.view">
+        <field name="name">spp.case.triage.rule.tree</field>
+        <field name="model">spp.case.triage.rule</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="set_intensity" />
+                <field name="set_priority" />
+                <field name="match_count" />
+                <field name="active" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_case_triage_rule_form" model="ir.ui.view">
+        <field name="name">spp.case.triage.rule.form</field>
+        <field name="model">spp.case.triage.rule</field>
+        <field name="arch" type="xml">
+            <form string="Triage Rule">
+                <sheet>
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="text-bg-danger"
+                        invisible="active"
+                    />
+                    <div class="oe_title">
+                        <label for="name" />
+                        <h1>
+                            <field name="name" placeholder="Rule Name" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="sequence" />
+                            <field name="active" invisible="1" />
+                            <field
+                                name="company_id"
+                                groups="base.group_multi_company"
+                            />
+                        </group>
+                        <group>
+                            <field name="match_count" readonly="1" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Condition" name="condition">
+                            <separator string="CEL Condition" />
+                            <field
+                                name="condition_cel"
+                                nolabel="1"
+                                widget="ace"
+                                options="{'mode': 'text'}"
+                                placeholder="Enter CEL expression (e.g., case.intake_source == 'grm' || case_type.name == 'Child Protection')"
+                            />
+                            <separator string="Available Variables" />
+                            <div>
+                                <ul>
+                                    <li><b
+                                    >case</b> - The full case record (spp.case). Example: <code
+                                    >case.opened_date > "2026-01-01"</code></li>
+                                    <li><b
+                                    >client</b> - The beneficiary/client (res.partner via case.partner_id). Example: <code
+                                    >client.name == "Maria Santos"</code></li>
+                                    <li><b
+                                    >case_type</b> - Case type record (spp.case.type via case.case_type_id). Example: <code
+                                    >case_type.code == "EMG"</code></li>
+                                    <li><b
+                                    >intake_source</b> - How the case was received (selection: "walk_in", "referral", "outreach", "grm", "program", "other"). Example: <code
+                                    >intake_source == "grm"</code></li>
+                                    <li><b
+                                    >client_type</b> - Type of client (selection: "individual", "household", "group"). Example: <code
+                                    >client_type == "household"</code></li>
+                                    <li><b
+                                    >presenting_issue</b> - The presenting issue text (case.presenting_issue). Example: <code
+                                    >presenting_issue.contains("fire")</code></li>
+                                    <li><b
+                                    >risk_factors</b> - Risk factors linked to the case (spp.case.risk.factor recordset). Example: <code
+                                    >risk_factors.exists(r, r.code == "DV")</code></li>
+                                    <li><b
+                                    >vulnerabilities</b> - Vulnerabilities linked to the case (spp.case.vulnerability recordset). Example: <code
+                                    >vulnerabilities.exists(v, v.code == "PWD")</code></li>
+                                </ul>
+                            </div>
+                            <separator string="Common Patterns" />
+                            <div>
+                                <ul>
+                                    <li>Match emergency GRM cases: <code
+                                    >intake_source == "grm" &amp;&amp; case.intensity_level == "3"</code></li>
+                                    <li>Match child protection referrals: <code
+                                    >case_type.code == "CHP" &amp;&amp; intake_source == "referral"</code></li>
+                                    <li>Match all household cases: <code
+                                    >client_type == "household"</code></li>
+                                </ul>
+                            </div>
+                        </page>
+                        <page string="Actions" name="actions">
+                            <group col="2">
+                                <group string="Categorization">
+                                    <field name="set_intensity" />
+                                    <field name="set_priority" />
+                                    <field name="set_case_type_id" />
+                                </group>
+                                <group string="Risk Assessment">
+                                    <field
+                                        name="add_risk_factor_ids"
+                                        widget="many2many_tags"
+                                    />
+                                    <field
+                                        name="add_vulnerability_ids"
+                                        widget="many2many_tags"
+                                    />
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_case_triage_rule" model="ir.actions.act_window">
+        <field name="name">Triage Rules</field>
+        <field name="res_model">spp.case.triage.rule</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first triage rule
+            </p>
+            <p>
+                Triage rules automatically categorize and prioritize new cases
+                based on CEL expressions.
+            </p>
+        </field>
+    </record>
+</odoo>

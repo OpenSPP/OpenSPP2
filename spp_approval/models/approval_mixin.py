@@ -332,6 +332,38 @@ class ApprovalMixin(models.AbstractModel):
             record._check_can_approve()
             record._do_approve(comment=comment)
 
+    def _action_approve_system(self, comment=None):
+        """System-initiated approval bypassing user permission checks.
+
+        Use this for automated approvals triggered by system events (e.g., DCI
+        verification match, scheduled jobs) where there is no human approver.
+
+        This method uses sudo() to bypass access controls and skips the
+        _check_can_approve() permission validation.
+
+        The underscore prefix is intentional — it prevents this method from being
+        callable via Odoo's RPC interface, since it must not be exposed to users.
+
+        Args:
+            comment: Optional approval comment for audit trail
+        """
+        for record in self:
+            if record.approval_state != "pending":
+                _logger.warning(
+                    "Skipping system approval for %s %s: state is %s, not pending",
+                    record._name,
+                    record.id,
+                    record.approval_state,
+                )
+                continue
+            record.sudo()._do_approve(comment=comment, auto=True)  # nosemgrep: odoo-sudo-without-context
+            _logger.info(
+                "System auto-approved %s %s: %s",
+                record._name,
+                record.id,
+                comment or "(no comment)",
+            )
+
     def _do_approve(self, comment=None, auto=False):
         """Internal method to perform approval."""
         self.ensure_one()

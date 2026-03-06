@@ -41,7 +41,7 @@ class TestHdxCodResource(common.TransactionCase):
 
     def test_required_fields(self):
         """Test that required fields are enforced."""
-        # source_id is required (NOT NULL constraint at DB level)
+        # source_id is required (DB NOT NULL constraint)
         with self.assertRaises(IntegrityError), mute_logger("odoo.sql_db"):
             self.env["spp.hdx.cod.resource"].create(
                 {

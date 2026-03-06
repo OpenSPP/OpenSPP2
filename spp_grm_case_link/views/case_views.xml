@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Extend Case Form View -->
+    <record id="view_case_form_grm_link" model="ir.ui.view">
+        <field name="name">spp.case.form.grm.link</field>
+        <field name="model">spp.case</field>
+        <field name="inherit_id" ref="spp_case_base.view_case_form" />
+        <field name="arch" type="xml">
+            <!-- Add smart button for GRM tickets -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button
+                    name="action_view_grm_tickets"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-ticket"
+                    invisible="grm_ticket_count == 0"
+                >
+                    <field name="grm_ticket_count" widget="statinfo" string="Tickets" />
+                </button>
+                <button
+                    name="action_create_grm_ticket"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-plus-square"
+                    string="Create Ticket"
+                />
+            </xpath>
+
+            <!-- Add source GRM ticket field in intake section -->
+            <xpath expr="//group[@name='intake_info']" position="inside">
+                <field
+                    name="source_grm_ticket_id"
+                    readonly="1"
+                    invisible="not source_grm_ticket_id"
+                    options="{'no_create': True}"
+                />
+            </xpath>
+
+            <!-- Add GRM Tickets tab -->
+            <xpath expr="//notebook" position="inside">
+                <page
+                    string="GRM Tickets"
+                    name="grm_tickets"
+                    invisible="grm_ticket_count == 0"
+                >
+                    <separator
+                        string="Source Ticket"
+                        invisible="not source_grm_ticket_id"
+                    />
+                    <field
+                        name="source_grm_ticket_id"
+                        readonly="1"
+                        invisible="not source_grm_ticket_id"
+                        options="{'no_create': True}"
+                    />
+                    <separator string="Related Tickets" />
+                    <field
+                        name="grm_ticket_ids"
+                        nolabel="1"
+                        readonly="1"
+                        options="{'no_create': True}"
+                    >
+                        <list>
+                            <field name="number" />
+                            <field name="name" />
+                            <field name="stage_id" />
+                            <field name="severity" widget="priority" />
+                            <field name="priority" widget="priority" />
+                            <field name="user_id" />
+                            <field name="create_date" />
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend Case Tree View -->
+    <record id="view_case_tree_grm_link" model="ir.ui.view">
+        <field name="name">spp.case.tree.grm.link</field>
+        <field name="model">spp.case</field>
+        <field name="inherit_id" ref="spp_case_base.view_case_tree" />
+        <field name="arch" type="xml">
+            <!-- Add source_grm_ticket_id to tree view -->
+            <xpath expr="//list/field[@name='case_worker_id']" position="after">
+                <field name="source_grm_ticket_id" optional="hide" />
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend Case Search View -->
+    <record id="view_case_search_grm_link" model="ir.ui.view">
+        <field name="name">spp.case.search.grm.link</field>
+        <field name="model">spp.case</field>
+        <field name="inherit_id" ref="spp_case_base.view_case_search" />
+        <field name="arch" type="xml">
+            <!-- Add field search -->
+            <xpath expr="//search/field[@name='partner_id']" position="after">
+                <field name="source_grm_ticket_id" />
+            </xpath>
+
+            <!-- Add filter for cases from GRM -->
+            <xpath expr="//search/filter[@name='my_cases']" position="after">
+                <separator />
+                <filter
+                    string="From GRM"
+                    name="from_grm"
+                    domain="[('intake_source', '=', 'grm')]"
+                />
+                <filter
+                    string="Has GRM Tickets"
+                    name="has_grm_tickets"
+                    domain="[('grm_ticket_count', '>', 0)]"
+                />
+            </xpath>
+
+            <!-- Add group by -->
+            <xpath expr="//search/group" position="inside">
+                <filter
+                    string="Source Ticket"
+                    name="group_by_source_ticket"
+                    context="{'group_by': 'source_grm_ticket_id'}"
+                />
+            </xpath>
+        </field>
+    </record>
+</odoo>

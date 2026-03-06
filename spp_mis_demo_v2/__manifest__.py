@@ -20,6 +20,14 @@
         "spp_demo",
         # GIS Reports for geographic visualization
         "spp_gis_report",
+        # Registrant GPS coordinates for QGIS plugin demo
+        "spp_registrant_gis",
+        # Statistics and aggregation for demo indicators
+        "spp_statistic",
+        "spp_aggregation",
+        "spp_studio",
+        # NOTE: spp_api_v2_gis (GIS API for QGIS plugin) is a soft dependency.
+        # Install it separately to activate the 'gis' scopes on the demo API client.
         # QR Credentials (Claim 169)
         "spp_claim_169",
         # Demo-specific extensions
@@ -38,9 +46,15 @@
         "data/change_request_types.xml",
         "data/demo_change_requests_ux.xml",
         "data/demo_gis_reports.xml",
+        "data/demo_statistics.xml",
+        # NOTE: demo_api_client.xml requires spp_api_v2_gis (adds 'gis' resource).
+        # It is loaded conditionally in the post_init_hook when the module is available.
         "views/mis_demo_wizard_view.xml",
     ],
     "assets": {},
+    "oca_data_manual": [
+        "data/demo_api_client.xml",
+    ],
     "demo": [],
     "images": [],
     "application": False,

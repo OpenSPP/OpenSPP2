@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <!-- Sequential Color Scales -->
+
+    <record id="color_scale_blues" model="spp.gis.color.scale">
+        <field name="name">Blues (Sequential)</field>
+        <field name="scale_type">sequential</field>
+        <field
+            name="colors_json"
+        >["#f7fbff", "#deebf7", "#c6dbef", "#9ecae1", "#6baed6", "#4292c6", "#2171b5", "#08519c", "#08306b"]</field>
+        <field
+            name="description"
+        >Sequential blue color scale from light to dark. Good for showing increasing values like population density or service coverage.</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="color_scale_greens" model="spp.gis.color.scale">
+        <field name="name">Greens (Sequential)</field>
+        <field name="scale_type">sequential</field>
+        <field
+            name="colors_json"
+        >["#f7fcf5", "#e5f5e0", "#c7e9c0", "#a1d99b", "#74c476", "#41ab5d", "#238b45", "#006d2c", "#00441b"]</field>
+        <field
+            name="description"
+        >Sequential green color scale from light to dark. Good for showing environmental or health indicators.</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="color_scale_reds" model="spp.gis.color.scale">
+        <field name="name">Reds (Sequential)</field>
+        <field name="scale_type">sequential</field>
+        <field
+            name="colors_json"
+        >["#fff5f0", "#fee0d2", "#fcbba1", "#fc9272", "#fb6a4a", "#ef3b2c", "#cb181d", "#a50f15", "#67000d"]</field>
+        <field
+            name="description"
+        >Sequential red color scale from light to dark. Good for showing risk, danger, or negative indicators.</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <record id="color_scale_oranges" model="spp.gis.color.scale">
+        <field name="name">Oranges (Sequential)</field>
+        <field name="scale_type">sequential</field>
+        <field
+            name="colors_json"
+        >["#fff5eb", "#fee6ce", "#fdd0a2", "#fdae6b", "#fd8d3c", "#f16913", "#d94801", "#a63603", "#7f2704"]</field>
+        <field
+            name="description"
+        >Sequential orange color scale from light to dark. Good for showing moderate risk or attention areas.</field>
+        <field name="sequence">40</field>
+    </record>
+
+    <record id="color_scale_purples" model="spp.gis.color.scale">
+        <field name="name">Purples (Sequential)</field>
+        <field name="scale_type">sequential</field>
+        <field
+            name="colors_json"
+        >["#fcfbfd", "#efedf5", "#dadaeb", "#bcbddc", "#9e9ac8", "#807dba", "#6a51a3", "#54278f", "#3f007d"]</field>
+        <field
+            name="description"
+        >Sequential purple color scale from light to dark. Good for showing education or program enrollment indicators.</field>
+        <field name="sequence">50</field>
+    </record>
+
+    <!-- Diverging Color Scales -->
+
+    <record id="color_scale_rdylgn" model="spp.gis.color.scale">
+        <field name="name">Red-Yellow-Green (Diverging)</field>
+        <field name="scale_type">diverging</field>
+        <field
+            name="colors_json"
+        >["#d73027", "#f46d43", "#fdae61", "#fee08b", "#ffffbf", "#d9ef8b", "#a6d96a", "#66bd63", "#1a9850"]</field>
+        <field
+            name="description"
+        >Diverging scale from red (negative) through yellow to green (positive). Good for showing progress against targets or deviations from a norm.</field>
+        <field name="sequence">60</field>
+    </record>
+
+    <record id="color_scale_rdbu" model="spp.gis.color.scale">
+        <field name="name">Red-Blue (Diverging)</field>
+        <field name="scale_type">diverging</field>
+        <field
+            name="colors_json"
+        >["#67001f", "#b2182b", "#d6604d", "#f4a582", "#fddbc7", "#d1e5f0", "#92c5de", "#4393c3", "#2166ac", "#053061"]</field>
+        <field
+            name="description"
+        >Diverging scale from red to blue. Good for showing opposing conditions or bidirectional change.</field>
+        <field name="sequence">70</field>
+    </record>
+
+    <record id="color_scale_spectral" model="spp.gis.color.scale">
+        <field name="name">Spectral (Diverging)</field>
+        <field name="scale_type">diverging</field>
+        <field
+            name="colors_json"
+        >["#9e0142", "#d53e4f", "#f46d43", "#fdae61", "#fee08b", "#e6f598", "#abdda4", "#66c2a5", "#3288bd", "#5e4fa2"]</field>
+        <field
+            name="description"
+        >Spectral diverging scale across the color spectrum. Good for showing complex diverging patterns.</field>
+        <field name="sequence">80</field>
+    </record>
+
+    <record id="color_scale_brbg" model="spp.gis.color.scale">
+        <field name="name">Brown-Green (Diverging)</field>
+        <field name="scale_type">diverging</field>
+        <field
+            name="colors_json"
+        >["#8c510a", "#bf812d", "#dfc27d", "#f6e8c3", "#f5f5f5", "#c7eae5", "#80cdc1", "#35978f", "#01665e"]</field>
+        <field
+            name="description"
+        >Diverging scale from brown to green. Good for environmental indicators or land use changes.</field>
+        <field name="sequence">90</field>
+    </record>
+
+    <!-- Categorical Color Scales -->
+
+    <record id="color_scale_set1" model="spp.gis.color.scale">
+        <field name="name">Set1 (Categorical)</field>
+        <field name="scale_type">categorical</field>
+        <field
+            name="colors_json"
+        >["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33", "#a65628", "#f781bf"]</field>
+        <field
+            name="description"
+        >Categorical color set with distinct colors. Good for showing different types or categories.</field>
+        <field name="sequence">100</field>
+    </record>
+
+    <record id="color_scale_paired" model="spp.gis.color.scale">
+        <field name="name">Paired (Categorical)</field>
+        <field name="scale_type">categorical</field>
+        <field
+            name="colors_json"
+        >["#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00"]</field>
+        <field
+            name="description"
+        >Paired categorical colors with light and dark variants. Good for comparing similar categories.</field>
+        <field name="sequence">110</field>
+    </record>
+</odoo>

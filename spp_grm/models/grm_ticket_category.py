@@ -1,4 +1,4 @@
-from odoo import api, fields, models
+from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
 
@@ -24,7 +24,6 @@ class SPPGRMCategory(models.Model):
         translate=True,
     )
     code = fields.Char(
-        string="Code",
         help="Unique identifier code for this category",
     )
     company_id = fields.Many2one(
@@ -66,7 +65,6 @@ class SPPGRMCategory(models.Model):
             ("high", "High"),
             ("critical", "Critical"),
         ],
-        string="Default Severity",
         help="Default severity level for tickets in this category",
     )
     default_sensitivity = fields.Selection(
@@ -75,7 +73,6 @@ class SPPGRMCategory(models.Model):
             ("sensitive", "Sensitive"),
             ("highly_sensitive", "Highly Sensitive"),
         ],
-        string="Default Sensitivity",
         help="Default data sensitivity for tickets in this category",
     )
     default_sla_hours = fields.Integer(
@@ -95,7 +92,6 @@ class SPPGRMCategory(models.Model):
         help="Automatically escalate tickets in this category based on SLA rules",
     )
     auto_create_case = fields.Boolean(
-        string="Auto Create Case",
         default=False,
         help="Automatically create a case management record for tickets in this category",
     )
@@ -115,15 +111,19 @@ class SPPGRMCategory(models.Model):
                 )
                 if duplicate:
                     raise ValidationError(
-                        f"Category code '{category.code}' already exists for company {category.company_id.name}. "
-                        "Category codes must be unique per company."
+                        _(
+                            "Category code '%(code)s' already exists for company %(company)s. "
+                            "Category codes must be unique per company.",
+                            code=category.code,
+                            company=category.company_id.name,
+                        )
                     )
 
     @api.constrains("parent_id")
     def _check_category_recursion(self):
         """Prevent circular references in category hierarchy."""
         if not self._check_recursion():
-            raise ValidationError("Error! You cannot create recursive categories.")
+            raise ValidationError(_("Error! You cannot create recursive categories."))
 
     def name_get(self):
         """Display full category path in name."""

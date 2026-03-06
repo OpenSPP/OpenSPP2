@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_hxl_attribute_tree" model="ir.ui.view">
+        <field name="name">spp.hxl.attribute.tree</field>
+        <field name="model">spp.hxl.attribute</field>
+        <field name="arch" type="xml">
+            <list string="HXL Attributes" editable="bottom">
+                <field name="code" />
+                <field name="name" />
+                <field name="category" optional="show" />
+                <field name="is_standard" optional="show" />
+                <field name="description" optional="hide" />
+                <field name="active" optional="show" widget="boolean_toggle" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_hxl_attribute_form" model="ir.ui.view">
+        <field name="name">spp.hxl.attribute.form</field>
+        <field name="model">spp.hxl.attribute</field>
+        <field name="arch" type="xml">
+            <form string="HXL Attribute">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <widget
+                            name="web_ribbon"
+                            title="Archived"
+                            bg_color="text-bg-danger"
+                            invisible="active"
+                        />
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code" placeholder="e.g., +f, +children" />
+                            <field name="name" />
+                            <field name="category" />
+                        </group>
+                        <group>
+                            <field name="is_standard" />
+                            <field name="active" widget="boolean_toggle" />
+                        </group>
+                    </group>
+                    <separator string="Description" />
+                    <field
+                        name="description"
+                        nolabel="1"
+                        placeholder="Detailed description of attribute usage..."
+                        class="oe_inline"
+                    />
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_hxl_attribute_search" model="ir.ui.view">
+        <field name="name">spp.hxl.attribute.search</field>
+        <field name="model">spp.hxl.attribute</field>
+        <field name="arch" type="xml">
+            <search string="Search HXL Attributes">
+                <field name="code" />
+                <field name="name" />
+                <field name="description" />
+                <filter
+                    string="Standard"
+                    name="filter_standard"
+                    domain="[('is_standard', '=', True)]"
+                />
+                <filter
+                    string="Custom"
+                    name="filter_custom"
+                    domain="[('is_standard', '=', False)]"
+                />
+                <separator />
+                <filter
+                    string="Active"
+                    name="filter_active"
+                    domain="[('active', '=', True)]"
+                />
+                <filter
+                    string="Archived"
+                    name="filter_archived"
+                    domain="[('active', '=', False)]"
+                />
+                <filter
+                    string="Category"
+                    name="group_by_category"
+                    context="{'group_by': 'category'}"
+                />
+                <filter
+                    string="Standard"
+                    name="group_by_standard"
+                    context="{'group_by': 'is_standard'}"
+                />
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_hxl_attribute" model="ir.actions.act_window">
+        <field name="name">HXL Attributes</field>
+        <field name="res_model">spp.hxl.attribute</field>
+        <field name="view_mode">list,form</field>
+        <field name="path">hxl-attributes</field>
+        <field
+            name="context"
+        >{'search_default_filter_active': 1, 'search_default_group_by_category': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new HXL attribute
+            </p>
+            <p>
+                HXL attributes provide additional disaggregation for hashtags.
+                Examples include +f (female), +children, +code, etc.
+            </p>
+        </field>
+    </record>
+</odoo>

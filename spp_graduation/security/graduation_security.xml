@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- User Group -->
+    <record id="group_spp_graduation_user" model="res.groups">
+        <field name="name">User</field>
+        <field name="privilege_id" ref="privilege_graduation_user" />
+        <field
+            name="comment"
+        >Can view graduation pathways and criteria. Can create and manage own graduation assessments.</field>
+        <field name="implied_ids" eval="[Command.link(ref('base.group_user'))]" />
+    </record>
+
+    <!-- Manager Group -->
+    <record id="group_spp_graduation_manager" model="res.groups">
+        <field name="name">Manager</field>
+        <field name="privilege_id" ref="privilege_graduation_manager" />
+        <field
+            name="comment"
+        >Full access to graduation management including pathways, criteria, and all assessments. Can manage graduation configurations.</field>
+        <field
+            name="implied_ids"
+            eval="[Command.link(ref('group_spp_graduation_user'))]"
+        />
+    </record>
+
+    <!-- Link manager to admin (IMPORTANT!) -->
+    <record id="spp_security.group_spp_admin" model="res.groups">
+        <field
+            name="implied_ids"
+            eval="[Command.link(ref('group_spp_graduation_manager'))]"
+        />
+    </record>
+</odoo>

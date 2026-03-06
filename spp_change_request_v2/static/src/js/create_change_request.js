@@ -84,5 +84,6 @@ patch(FormController.prototype, {
         if (this.props.resModel === "spp.change.request") {
             this.hideFormCreateButton = true;
         }
+        // Row click handling for CR create wizard is now in cr_search_results_field.js
     },
 });

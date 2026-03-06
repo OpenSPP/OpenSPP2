@@ -1,7 +1,9 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """Tests for OAuth endpoints"""
 
+import base64
 import json
+from urllib.parse import urlencode
 
 from ..middleware.rate_limit import get_rate_limiter
 from .common import ApiV2HttpTestCase
@@ -45,7 +47,7 @@ class TestOAuthEndpoint(ApiV2HttpTestCase):
         self.assertIn("token_type", data)
         self.assertEqual(data["token_type"], "Bearer")
         self.assertIn("expires_in", data)
-        self.assertEqual(data["expires_in"], 3600)  # 1 hour
+        self.assertEqual(data["expires_in"], 86400)  # 24 hours (default)
         self.assertIn("scope", data)
         self.assertIn("individual:read", data["scope"])
         self.assertIn("group:search", data["scope"])
@@ -217,6 +219,55 @@ class TestOAuthEndpoint(ApiV2HttpTestCase):
         # Refresh client record
         self.client.invalidate_recordset()
         self.assertTrue(self.client.last_used_date)
+
+    def test_token_generation_basic_auth(self):
+        """HTTP Basic Auth header returns access token"""
+        credentials = base64.b64encode(f"{self.client.client_id}:{self.client.client_secret}".encode()).decode("utf-8")
+
+        body = urlencode({"grant_type": "client_credentials"})
+
+        response = self.url_open(
+            self.url,
+            data=body,
+            headers={
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Authorization": f"Basic {credentials}",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        data = json.loads(response.content)
+        self.assertIn("access_token", data)
+        self.assertEqual(data["token_type"], "Bearer")
+        self.assertIn("expires_in", data)
+        self.assertIn("scope", data)
+
+    def test_token_generation_form_encoded(self):
+        """Form-encoded body (application/x-www-form-urlencoded) returns access token"""
+        body = urlencode(
+            {
+                "grant_type": "client_credentials",
+                "client_id": self.client.client_id,
+                "client_secret": self.client.client_secret,
+            }
+        )
+
+        response = self.url_open(
+            self.url,
+            data=body,
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        data = json.loads(response.content)
+        self.assertIn("access_token", data)
+        self.assertEqual(data["token_type"], "Bearer")
+        self.assertIn("expires_in", data)
+        self.assertIn("scope", data)
+        self.assertIn("individual:read", data["scope"])
+        self.assertIn("group:search", data["scope"])
 
     def test_token_no_scopes(self):
         """Client with no scopes still gets token but empty scope string"""

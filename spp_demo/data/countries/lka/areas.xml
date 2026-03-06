@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="0">
+    <!-- Sri Lanka Curated Demo Areas
+         Focused on Western Province and Southern Province
+         Based on Sri Lanka Administrative Divisions
+
+         Demo data: noupdate="0" means it will be recreated on module reinstall
+    -->
+
+    <!-- ========== PROVINCES ========== -->
+    <record id="area_lka_western" model="spp.area">
+        <field name="draft_name">Western Province</field>
+        <field name="code">LK-1</field>
+        <field name="area_type_id" ref="area_kind_lka_province" />
+    </record>
+
+    <record id="area_lka_southern" model="spp.area">
+        <field name="draft_name">Southern Province</field>
+        <field name="code">LK-3</field>
+        <field name="area_type_id" ref="area_kind_lka_province" />
+    </record>
+
+    <record id="area_lka_central" model="spp.area">
+        <field name="draft_name">Central Province</field>
+        <field name="code">LK-2</field>
+        <field name="area_type_id" ref="area_kind_lka_province" />
+    </record>
+
+    <!-- ========== DISTRICTS (Western Province) ========== -->
+    <record id="area_lka_colombo" model="spp.area">
+        <field name="draft_name">Colombo</field>
+        <field name="code">LK-11</field>
+        <field name="parent_id" ref="area_lka_western" />
+        <field name="area_type_id" ref="area_kind_lka_district" />
+    </record>
+
+    <record id="area_lka_gampaha" model="spp.area">
+        <field name="draft_name">Gampaha</field>
+        <field name="code">LK-12</field>
+        <field name="parent_id" ref="area_lka_western" />
+        <field name="area_type_id" ref="area_kind_lka_district" />
+    </record>
+
+    <record id="area_lka_kalutara" model="spp.area">
+        <field name="draft_name">Kalutara</field>
+        <field name="code">LK-13</field>
+        <field name="parent_id" ref="area_lka_western" />
+        <field name="area_type_id" ref="area_kind_lka_district" />
+    </record>
+
+    <!-- ========== DISTRICTS (Southern Province) ========== -->
+    <record id="area_lka_galle" model="spp.area">
+        <field name="draft_name">Galle</field>
+        <field name="code">LK-31</field>
+        <field name="parent_id" ref="area_lka_southern" />
+        <field name="area_type_id" ref="area_kind_lka_district" />
+    </record>
+
+    <record id="area_lka_matara" model="spp.area">
+        <field name="draft_name">Matara</field>
+        <field name="code">LK-32</field>
+        <field name="parent_id" ref="area_lka_southern" />
+        <field name="area_type_id" ref="area_kind_lka_district" />
+    </record>
+
+    <!-- ========== DISTRICTS (Central Province) ========== -->
+    <record id="area_lka_kandy" model="spp.area">
+        <field name="draft_name">Kandy</field>
+        <field name="code">LK-21</field>
+        <field name="parent_id" ref="area_lka_central" />
+        <field name="area_type_id" ref="area_kind_lka_district" />
+    </record>
+
+    <!-- ========== DS DIVISIONS (Colombo) ========== -->
+    <record id="area_lka_colombo_ds" model="spp.area">
+        <field name="draft_name">Colombo</field>
+        <field name="code">LK-1103</field>
+        <field name="parent_id" ref="area_lka_colombo" />
+        <field name="area_type_id" ref="area_kind_lka_ds_division" />
+    </record>
+
+    <record id="area_lka_dehiwala" model="spp.area">
+        <field name="draft_name">Dehiwala Mount Lavinia</field>
+        <field name="code">LK-1106</field>
+        <field name="parent_id" ref="area_lka_colombo" />
+        <field name="area_type_id" ref="area_kind_lka_ds_division" />
+    </record>
+
+    <record id="area_lka_moratuwa" model="spp.area">
+        <field name="draft_name">Moratuwa</field>
+        <field name="code">LK-1107</field>
+        <field name="parent_id" ref="area_lka_colombo" />
+        <field name="area_type_id" ref="area_kind_lka_ds_division" />
+    </record>
+
+    <record id="area_lka_kolonnawa" model="spp.area">
+        <field name="draft_name">Kolonnawa</field>
+        <field name="code">LK-1108</field>
+        <field name="parent_id" ref="area_lka_colombo" />
+        <field name="area_type_id" ref="area_kind_lka_ds_division" />
+    </record>
+
+    <!-- ========== DS DIVISIONS (Galle) ========== -->
+    <record id="area_lka_galle_ds" model="spp.area">
+        <field name="draft_name">Galle Four Gravets</field>
+        <field name="code">LK-3109</field>
+        <field name="parent_id" ref="area_lka_galle" />
+        <field name="area_type_id" ref="area_kind_lka_ds_division" />
+    </record>
+
+    <record id="area_lka_hikkaduwa" model="spp.area">
+        <field name="draft_name">Hikkaduwa</field>
+        <field name="code">LK-3110</field>
+        <field name="parent_id" ref="area_lka_galle" />
+        <field name="area_type_id" ref="area_kind_lka_ds_division" />
+    </record>
+
+    <!-- ========== DS DIVISIONS (Kandy) ========== -->
+    <record id="area_lka_kandy_ds" model="spp.area">
+        <field name="draft_name">Kandy Four Gravets</field>
+        <field name="code">LK-2105</field>
+        <field name="parent_id" ref="area_lka_kandy" />
+        <field name="area_type_id" ref="area_kind_lka_ds_division" />
+    </record>
+
+    <!-- ========== GN DIVISIONS (Colombo DS) ========== -->
+    <record id="area_lka_colombo_fort" model="spp.area">
+        <field name="draft_name">Fort</field>
+        <field name="code">LK-1103-001</field>
+        <field name="parent_id" ref="area_lka_colombo_ds" />
+        <field name="area_type_id" ref="area_kind_lka_gn_division" />
+    </record>
+
+    <record id="area_lka_colombo_pettah" model="spp.area">
+        <field name="draft_name">Pettah</field>
+        <field name="code">LK-1103-002</field>
+        <field name="parent_id" ref="area_lka_colombo_ds" />
+        <field name="area_type_id" ref="area_kind_lka_gn_division" />
+    </record>
+
+    <record id="area_lka_colombo_slave_island" model="spp.area">
+        <field name="draft_name">Slave Island</field>
+        <field name="code">LK-1103-003</field>
+        <field name="parent_id" ref="area_lka_colombo_ds" />
+        <field name="area_type_id" ref="area_kind_lka_gn_division" />
+    </record>
+
+    <!-- ========== GN DIVISIONS (Dehiwala DS) ========== -->
+    <record id="area_lka_dehiwala_gn" model="spp.area">
+        <field name="draft_name">Dehiwala East</field>
+        <field name="code">LK-1106-001</field>
+        <field name="parent_id" ref="area_lka_dehiwala" />
+        <field name="area_type_id" ref="area_kind_lka_gn_division" />
+    </record>
+
+    <record id="area_lka_mount_lavinia_gn" model="spp.area">
+        <field name="draft_name">Mount Lavinia</field>
+        <field name="code">LK-1106-002</field>
+        <field name="parent_id" ref="area_lka_dehiwala" />
+        <field name="area_type_id" ref="area_kind_lka_gn_division" />
+    </record>
+
+    <!-- ========== GN DIVISIONS (Galle DS) ========== -->
+    <record id="area_lka_galle_fort" model="spp.area">
+        <field name="draft_name">Galle Fort</field>
+        <field name="code">LK-3109-001</field>
+        <field name="parent_id" ref="area_lka_galle_ds" />
+        <field name="area_type_id" ref="area_kind_lka_gn_division" />
+    </record>
+</odoo>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <template id="report_simulation_run">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2>Simulation Report</h2>
+                        <h3 t-field="doc.scenario_id" />
+
+                        <div class="row mt-3">
+                            <div class="col-6">
+                                <strong>Executed:</strong>
+                                <span t-field="doc.executed_at" />
+                            </div>
+                            <div class="col-6">
+                                <strong>Duration:</strong>
+                                <span t-field="doc.execution_duration_seconds" />s
+                            </div>
+                        </div>
+
+                        <h4 class="mt-4">Executive Summary</h4>
+                        <div t-field="doc.summary_html" />
+
+                        <h4 class="mt-3">Key Metrics</h4>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Metric</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Beneficiaries</td>
+                                    <td>
+                                        <span t-field="doc.beneficiary_count" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Total Registry</td>
+                                    <td>
+                                        <span t-field="doc.total_registry_count" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Coverage Rate</td>
+                                    <td><span t-field="doc.coverage_rate" />%</td>
+                                </tr>
+                                <tr>
+                                    <td>Total Cost</td>
+                                    <td>
+                                        <span t-field="doc.total_cost" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Budget Utilization</td>
+                                    <td><span t-field="doc.budget_utilization" />%</td>
+                                </tr>
+                                <tr>
+                                    <td>Equity Score</td>
+                                    <td><span t-field="doc.equity_score" />/100</td>
+                                </tr>
+                                <tr>
+                                    <td>Gini Coefficient</td>
+                                    <td>
+                                        <span t-field="doc.gini_coefficient" />
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <t t-if="doc.leakage_rate or doc.undercoverage_rate">
+                            <h4 class="mt-3">Targeting Accuracy</h4>
+                            <table class="table table-bordered">
+                                <tbody>
+                                    <tr>
+                                        <td>Leakage</td>
+                                        <td><span t-field="doc.leakage_rate" />%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Undercoverage</td>
+                                        <td><span
+                                            t-field="doc.undercoverage_rate"
+                                        />%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </t>
+
+                        <h4 class="mt-3">Distribution</h4>
+                        <div t-field="doc.distribution_summary_html" />
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

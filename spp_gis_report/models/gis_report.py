@@ -467,8 +467,31 @@ class GISReport(models.Model):
             _logger.info("No areas at level %s found", self.base_area_level)
             return {}
 
-        # Add area filter to domain
-        domain.append((area_field, "in", base_areas.ids))
+        # Build mapping from descendant areas to their base-level ancestor.
+        # Registrants may be assigned to areas more granular than base_area_level
+        # (e.g., barangays when base level is municipality). We include all
+        # descendant areas in the query and aggregate results back to the
+        # base-level parent.
+        #
+        # Fetch all descendants of all base areas in a single query, then build
+        # the child_to_base mapping in memory to avoid an N+1 query pattern.
+        child_to_base = {base_area.id: base_area.id for base_area in base_areas}
+        all_descendants = self.env["spp.area"].search(
+            [
+                ("id", "child_of", base_areas.ids),
+                ("id", "not in", base_areas.ids),
+            ]
+        )
+        # For each descendant, walk up its parent chain to find the base-level ancestor
+        for desc in all_descendants:
+            ancestor = desc.parent_id
+            while ancestor and ancestor.id not in child_to_base:
+                ancestor = ancestor.parent_id
+            if ancestor:
+                child_to_base[desc.id] = child_to_base[ancestor.id]
+
+        # Add area filter to domain (base areas + all descendants)
+        domain.append((area_field, "in", list(child_to_base.keys())))
 
         # Initialize results for all base areas with 0
         # This ensures areas with no matching records get 0 instead of being missing
@@ -484,12 +507,11 @@ class GISReport(models.Model):
             for group in groups:
                 if group[area_field]:
                     area_id = group[area_field][0]
+                    base_id = child_to_base.get(area_id, area_id)
                     count = group[f"{area_field}_count"]
-                    results[area_id] = {
-                        "raw": count,
-                        "count": count,
-                        "weight": count,
-                    }
+                    results[base_id]["raw"] += count
+                    results[base_id]["count"] += count
+                    results[base_id]["weight"] += count
 
         elif self.aggregation_method in ("sum", "avg", "min", "max"):
             if not self.aggregation_field:
@@ -506,13 +528,37 @@ class GISReport(models.Model):
             for group in groups:
                 if group[area_field]:
                     area_id = group[area_field][0]
+                    base_id = child_to_base.get(area_id, area_id)
                     value = group.get(self.aggregation_field) or 0
                     count = group[f"{area_field}_count"]
-                    results[area_id] = {
-                        "raw": value,
-                        "count": count,
-                        "weight": count,
-                    }
+                    if agg_func == "avg":
+                        # Accumulate weighted sum so we can compute a proper
+                        # weighted average across subgroups when rolling up.
+                        results[base_id]["raw"] += value * count
+                    elif agg_func == "sum":
+                        # read_group already returns the sum for the subgroup;
+                        # multiplying by count would inflate the total.
+                        results[base_id]["raw"] += value
+                    elif agg_func == "min":
+                        # Keep the lowest value seen across subgroups.
+                        if results[base_id]["count"] == 0:
+                            results[base_id]["raw"] = value
+                        else:
+                            results[base_id]["raw"] = min(results[base_id]["raw"], value)
+                    elif agg_func == "max":
+                        # Keep the highest value seen across subgroups.
+                        if results[base_id]["count"] == 0:
+                            results[base_id]["raw"] = value
+                        else:
+                            results[base_id]["raw"] = max(results[base_id]["raw"], value)
+                    results[base_id]["count"] += count
+                    results[base_id]["weight"] += count
+
+            # For avg: convert accumulated weighted sum back to weighted average
+            if agg_func == "avg":
+                for data in results.values():
+                    if data["count"] > 0:
+                        data["raw"] = data["raw"] / data["count"]
 
         # Fill in None for areas with no data (distinguishes "no data" from "zero count")
         for area in base_areas:
@@ -1478,14 +1524,17 @@ class GISReport(models.Model):
 
             # Add geometry if requested
             if include_geometry and data.area_id.geo_polygon:
-                # TODO: Use PostGIS ST_AsGeoJSON for performance
-                # For now, use Odoo's geometry field (WKT format)
                 try:
-                    from shapely import wkt
+                    geo = data.area_id.geo_polygon
+                    # GeoPolygonField may return a Shapely geometry object
+                    # or a WKT/WKB string depending on the spp_gis version.
+                    if hasattr(geo, "__geo_interface__"):
+                        feature["geometry"] = geo.__geo_interface__
+                    else:
+                        from shapely import wkt
 
-                    shape = wkt.loads(data.area_id.geo_polygon)
-                    # __geo_interface__ returns a dict that's already JSON-serializable
-                    feature["geometry"] = shape.__geo_interface__
+                        shape = wkt.loads(geo)
+                        feature["geometry"] = shape.__geo_interface__
                 except ImportError:
                     _logger.warning(
                         "shapely not available, geometry export limited. Install shapely for full geometry support."

@@ -1,7 +1,7 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """Pydantic schemas for Change Request API."""
 
-from datetime import date, datetime
+from datetime import datetime
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field
@@ -103,10 +103,9 @@ class ChangeRequestResponse(BaseModel):
     request_type: ChangeRequestType = Field(..., alias="requestType")
 
     # Status
-    status: str = Field(
+    status: Literal["draft", "pending", "revision", "approved", "rejected", "applied"] = Field(
         ...,
         description="Current status",
-        json_schema_extra={"enum": ["draft", "pending", "revision", "approved", "rejected", "applied"]},
     )
 
     # Target registrant
@@ -161,19 +160,6 @@ class ChangeRequestUpdate(BaseModel):
         }
 
 
-class ChangeRequestAction(BaseModel):
-    """Schema for CR action requests (submit, approve, reject)."""
-
-    reason: str | None = Field(
-        None,
-        description="Reason for rejection or revision notes",
-    )
-    comment: str | None = Field(
-        None,
-        description="Optional comment for approval",
-    )
-
-
 class ApproveActionData(BaseModel):
     """Data for approve action."""
 
@@ -203,31 +189,41 @@ class RequestRevisionActionData(BaseModel):
     )
 
 
-class ChangeRequestSearchParams(BaseModel):
-    """Search parameters for change requests."""
+class FieldChoice(BaseModel):
+    """Value/label pair for selection choices, vocabulary codes, and documents."""
 
-    registrant: str | None = Field(
-        None,
-        description="Registrant identifier (system|value)",
+    value: str = Field(..., description="Machine-readable value or code")
+    label: str = Field(..., description="Human-readable display label")
+
+
+class ChangeRequestTypeInfo(BaseModel):
+    """Summary info for a CR type."""
+
+    code: str = Field(..., description="Type code (e.g., add_member)")
+    name: str = Field(..., description="Human-readable type name")
+    target_type: Literal["individual", "group", "both"] = Field(
+        ..., alias="targetType", description="Target registrant type"
     )
-    request_type: str | None = Field(
-        None,
-        alias="requestType",
-        description="Type code to filter by",
+    requires_applicant: bool = Field(False, alias="requiresApplicant", description="Whether an applicant is required")
+
+    class Config:
+        populate_by_name = True
+
+
+class ChangeRequestTypeSchema(BaseModel):
+    """Full schema for a CR type including JSON Schema for detail fields."""
+
+    type_info: ChangeRequestTypeInfo = Field(..., alias="typeInfo", description="Type summary")
+    detail_schema: dict[str, Any] = Field(
+        ...,
+        alias="detailSchema",
+        description="JSON Schema 2020-12 describing the detail payload",
     )
-    status: str | None = Field(
-        None,
-        description="Status to filter by",
+    available_documents: list[FieldChoice] = Field(
+        default_factory=list, alias="availableDocuments", description="Documents that can be attached"
     )
-    created_after: date | None = Field(
-        None,
-        alias="createdAfter",
-        description="Created on or after this date",
-    )
-    created_before: date | None = Field(
-        None,
-        alias="createdBefore",
-        description="Created on or before this date",
+    required_documents: list[FieldChoice] = Field(
+        default_factory=list, alias="requiredDocuments", description="Documents that must be attached"
     )
 
     class Config:

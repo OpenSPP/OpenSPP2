@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_statistic_user,spp.statistic.user,model_spp_statistic,base.group_user,1,0,0,0
+access_spp_statistic_admin,spp.statistic.admin,model_spp_statistic,spp_security.group_spp_admin,1,1,1,1
+access_spp_statistic_context_user,spp.statistic.context.user,model_spp_statistic_context,base.group_user,1,0,0,0
+access_spp_statistic_context_admin,spp.statistic.context.admin,model_spp_statistic_context,spp_security.group_spp_admin,1,1,1,1

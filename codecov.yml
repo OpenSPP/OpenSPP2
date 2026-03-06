@@ -1,0 +1,31 @@
+# Codecov configuration for OpenSPP
+# https://docs.codecov.io/docs/codecov-yaml
+
+coverage:
+  status:
+    project:
+      default:
+        # Only check coverage on files changed in this PR, not the entire project.
+        # CI only tests changed modules, so project-wide coverage would always drop
+        # on PRs that don't re-test every module.
+        only_pulls: true
+    patch:
+      default:
+        target: 70%
+
+# Each module uploads with its own flag (flags: ${{ matrix.module }} in CI).
+# Carry forward coverage from previous commits so modules not tested in this
+# PR still contribute to overall project coverage.
+flag_management:
+  default_rules:
+    carryforward: true
+
+comment:
+  layout: "reach,diff,flags,files"
+  behavior: default
+  require_changes: false
+
+ignore:
+  - "**/tests/**"
+  - "**/migrations/**"
+  - "scripts/**"

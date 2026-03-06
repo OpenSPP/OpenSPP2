@@ -131,26 +131,11 @@ class TestResConfigSettings(TransactionCase):
         config.execute()
 
         # Verify all parameters were set
-        self.assertEqual(
-            int(self.env["ir.config_parameter"].sudo().get_param("spp_demo.number_of_groups")),
-            100,
-        )
-        self.assertEqual(
-            int(self.env["ir.config_parameter"].sudo().get_param("spp_demo.members_range_from")),
-            2,
-        )
-        self.assertEqual(
-            int(self.env["ir.config_parameter"].sudo().get_param("spp_demo.members_range_to")),
-            12,
-        )
-        self.assertEqual(
-            int(self.env["ir.config_parameter"].sudo().get_param("spp_demo.batch_size")),
-            300,
-        )
-        self.assertEqual(
-            int(self.env["ir.config_parameter"].sudo().get_param("spp_demo.queue_job_minimum_size")),
-            2000,
-        )
+        self.assertEqual(int(self.env["ir.config_parameter"].sudo().get_param("spp_demo.number_of_groups")), 100)
+        self.assertEqual(int(self.env["ir.config_parameter"].sudo().get_param("spp_demo.members_range_from")), 2)
+        self.assertEqual(int(self.env["ir.config_parameter"].sudo().get_param("spp_demo.members_range_to")), 12)
+        self.assertEqual(int(self.env["ir.config_parameter"].sudo().get_param("spp_demo.batch_size")), 300)
+        self.assertEqual(int(self.env["ir.config_parameter"].sudo().get_param("spp_demo.queue_job_minimum_size")), 2000)
 
     def test_09_default_values(self):
         """Test default values when no config parameters are set"""

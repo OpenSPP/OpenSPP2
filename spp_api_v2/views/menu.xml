@@ -58,4 +58,14 @@
         sequence="50"
         groups="spp_api_v2.group_api_v2_viewer"
     />
+
+    <!-- Outgoing API Logs Menu -->
+    <menuitem
+        id="menu_api_outgoing_log"
+        name="Outgoing API Logs"
+        parent="menu_api_v2_root"
+        action="action_api_outgoing_log"
+        sequence="60"
+        groups="spp_api_v2.group_api_v2_viewer"
+    />
 </odoo>

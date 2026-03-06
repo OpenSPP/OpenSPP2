@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Inherit case form view to add entitlement information -->
+    <record id="view_case_form_entitlements" model="ir.ui.view">
+        <field name="name">spp.case.form.entitlements</field>
+        <field name="model">spp.case</field>
+        <field name="inherit_id" ref="spp_case_base.view_case_form" />
+        <field name="arch" type="xml">
+            <!-- Add smart button for entitlements -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button
+                    name="action_view_entitlements"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-gift"
+                    invisible="entitlement_count == 0"
+                >
+                    <field
+                        name="entitlement_count"
+                        widget="statinfo"
+                        string="Entitlements"
+                    />
+                </button>
+                <button
+                    name="action_view_approved_entitlements"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-check-circle"
+                    invisible="approved_entitlement_count == 0"
+                >
+                    <field
+                        name="approved_entitlement_count"
+                        widget="statinfo"
+                        string="Approved"
+                    />
+                </button>
+                <button
+                    name="action_view_pending_entitlements"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-clock-o"
+                    invisible="pending_entitlement_count == 0"
+                >
+                    <field
+                        name="pending_entitlement_count"
+                        widget="statinfo"
+                        string="Pending"
+                    />
+                </button>
+            </xpath>
+
+            <!-- Add Entitlements tab -->
+            <xpath expr="//notebook" position="inside">
+                <page name="entitlements" string="Entitlements">
+                    <group name="entitlement_summary">
+                        <group name="entitlement_summary_left">
+                            <field name="has_entitlements" />
+                            <field name="entitlement_count" />
+                            <field name="approved_entitlement_count" />
+                        </group>
+                        <group name="entitlement_summary_right">
+                            <field name="pending_entitlement_count" />
+                            <field name="currency_id" invisible="1" />
+                            <field name="total_entitlement_amount" widget="monetary" />
+                        </group>
+                    </group>
+
+                    <separator string="Entitlements" />
+                    <field name="entitlement_ids" nolabel="1">
+                        <list
+                            string="Entitlements"
+                            decoration-success="state == 'approved'"
+                            decoration-warning="state == 'pending_validation'"
+                            decoration-muted="state in ['expired', 'cancelled']"
+                            decoration-danger="state in ['rejected1', 'rejected2', 'rejected3']"
+                            decoration-info="state == 'draft'"
+                        >
+                            <field name="code" />
+                            <field name="program_id" />
+                            <field name="cycle_id" />
+                            <field name="is_cash_entitlement" />
+                            <field name="initial_amount" widget="monetary" />
+                            <field name="currency_id" column_invisible="1" />
+                            <field name="state" widget="badge" />
+                            <field name="valid_from" />
+                            <field name="valid_until" />
+                            <button
+                                name="open_entitlement_form"
+                                type="object"
+                                icon="fa-external-link"
+                                title="View Details"
+                            />
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add entitlement filters to case search view -->
+    <record id="view_case_search_entitlements" model="ir.ui.view">
+        <field name="name">spp.case.search.entitlements</field>
+        <field name="model">spp.case</field>
+        <field name="inherit_id" ref="spp_case_base.view_case_search" />
+        <field name="arch" type="xml">
+            <!-- Add entitlement-related filters -->
+            <xpath expr="//filter[@name='high_priority']" position="after">
+                <separator />
+                <filter
+                    name="has_entitlements"
+                    string="Has Entitlements"
+                    domain="[('has_entitlements', '=', True)]"
+                />
+                <filter
+                    name="no_entitlements"
+                    string="No Entitlements"
+                    domain="[('has_entitlements', '=', False)]"
+                />
+                <filter
+                    name="has_approved_entitlements"
+                    string="Has Approved Entitlements"
+                    domain="[('approved_entitlement_count', '>', 0)]"
+                />
+                <filter
+                    name="has_pending_entitlements"
+                    string="Has Pending Entitlements"
+                    domain="[('pending_entitlement_count', '>', 0)]"
+                />
+            </xpath>
+
+            <!-- Add entitlement grouping -->
+            <xpath expr="//filter[@name='group_stage']" position="after">
+                <filter
+                    name="group_has_entitlements"
+                    string="Has Entitlements"
+                    context="{'group_by': 'has_entitlements'}"
+                />
+            </xpath>
+
+            <!-- Add search by entitlement -->
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field
+                    name="entitlement_ids"
+                    string="Entitlement"
+                    filter_domain="[('entitlement_ids.code', 'ilike', self)]"
+                />
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add entitlement info to case list view -->
+    <record id="view_case_list_entitlements" model="ir.ui.view">
+        <field name="name">spp.case.list.entitlements</field>
+        <field name="model">spp.case</field>
+        <field name="inherit_id" ref="spp_case_base.view_case_tree" />
+        <field name="arch" type="xml">
+            <!-- Add entitlement count column -->
+            <xpath expr="//field[@name='priority']" position="after">
+                <field name="entitlement_count" string="Entitlements" />
+                <field
+                    name="approved_entitlement_count"
+                    string="Approved"
+                    optional="hide"
+                />
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add entitlement info to case kanban view -->
+    <record id="view_case_kanban_entitlements" model="ir.ui.view">
+        <field name="name">spp.case.kanban.entitlements</field>
+        <field name="model">spp.case</field>
+        <field name="inherit_id" ref="spp_case_base.view_case_kanban" />
+        <field name="arch" type="xml">
+            <!-- Add entitlement fields to kanban -->
+            <xpath expr="//field[@name='priority']" position="after">
+                <field name="has_entitlements" />
+                <field name="entitlement_count" />
+                <field name="approved_entitlement_count" />
+            </xpath>
+
+            <!-- Add entitlement info display in kanban card -->
+            <xpath expr="//div[hasclass('oe_kanban_bottom_left')]" position="inside">
+                <span invisible="entitlement_count == 0" title="Entitlements">
+                    <i class="fa fa-gift" />
+                    <field name="entitlement_count" />
+                </span>
+                <span
+                    invisible="approved_entitlement_count == 0"
+                    title="Approved Entitlements"
+                    class="text-success ms-2"
+                >
+                    <i class="fa fa-check-circle" />
+                    <field name="approved_entitlement_count" />
+                </span>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- CEL Rules Configuration Sub-menu -->
+    <menuitem
+        id="menu_case_config_cel"
+        name="CEL Rules"
+        parent="spp_case_base.menu_case_management_config"
+        sequence="50"
+        groups="spp_case_base.group_case_manager"
+    />
+
+    <menuitem
+        id="menu_case_triage_rules"
+        name="Triage Rules"
+        parent="menu_case_config_cel"
+        action="action_case_triage_rule"
+        sequence="10"
+    />
+
+    <menuitem
+        id="menu_case_assignment_rules"
+        name="Assignment Rules"
+        parent="menu_case_config_cel"
+        action="action_case_assignment_rule"
+        sequence="20"
+    />
+</odoo>

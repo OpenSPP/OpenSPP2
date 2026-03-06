@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Case Management Domain Groups -->
+    <!-- Following ADR-004 three-tier architecture with case-specific roles -->
+
+    <!-- Tier 3: Technical base groups -->
+    <record id="group_case_read" model="res.groups">
+        <field name="name">Case: Read</field>
+        <field name="comment">Technical group for read access to case models.</field>
+    </record>
+
+    <record id="group_case_write" model="res.groups">
+        <field name="name">Case: Write</field>
+        <field name="comment">Technical group for write access to case models.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_case_read'))]" />
+    </record>
+
+    <!-- Tier 2: User-facing groups -->
+    <record id="group_case_viewer" model="res.groups">
+        <field name="name">Viewer</field>
+        <field name="privilege_id" ref="privilege_case" />
+        <field name="comment">Case Management: View all cases (read-only access)</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_case_read'))]" />
+    </record>
+
+    <record id="group_case_officer" model="res.groups">
+        <field name="name">Officer</field>
+        <field name="privilege_id" ref="privilege_case" />
+        <field
+            name="comment"
+        >Case Management: Can view and edit case records. Cannot delete.</field>
+        <field
+            name="implied_ids"
+            eval="[Command.link(ref('group_case_viewer')), Command.link(ref('group_case_write'))]"
+        />
+    </record>
+
+    <!-- Special role: Worker (between viewer and officer) -->
+    <record id="group_case_worker" model="res.groups">
+        <field name="name">Worker</field>
+        <field name="privilege_id" ref="privilege_case" />
+        <field
+            name="comment"
+        >Case Management: Manage own cases and case activities. Positioned between Viewer and Officer in the permission hierarchy. Inherits viewer permissions.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_case_viewer'))]" />
+    </record>
+
+    <!-- Special role: Supervisor (between officer and manager) -->
+    <record id="group_case_supervisor" model="res.groups">
+        <field name="name">Supervisor</field>
+        <field name="privilege_id" ref="privilege_case" />
+        <field
+            name="comment"
+        >Case Management: Supervise team cases and approve plans. Positioned between Officer and Manager in the permission hierarchy. Inherits worker permissions.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_case_worker'))]" />
+    </record>
+
+    <record id="group_case_manager" model="res.groups">
+        <field name="name">Manager</field>
+        <field name="privilege_id" ref="privilege_case" />
+        <field
+            name="comment"
+        >Case Management: Full access including configuration and delete operations.</field>
+        <field
+            name="implied_ids"
+            eval="[Command.link(ref('group_case_officer')), Command.link(ref('group_case_supervisor'))]"
+        />
+    </record>
+
+    <!-- Link manager to admin (IMPORTANT!) -->
+    <record id="spp_security.group_spp_admin" model="res.groups">
+        <field name="implied_ids" eval="[Command.link(ref('group_case_manager'))]" />
+    </record>
+</odoo>

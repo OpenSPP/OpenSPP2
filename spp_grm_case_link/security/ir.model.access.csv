@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_escalate_wizard_grm_manager,Escalate Wizard GRM Manager,model_spp_grm_escalate_wizard,spp_grm.group_grm_manager,1,1,1,1
+access_escalate_wizard_grm_user,Escalate Wizard GRM User,model_spp_grm_escalate_wizard,spp_grm.group_grm_user,1,1,1,1
+access_escalate_wizard_case_manager,Escalate Wizard Case Manager,model_spp_grm_escalate_wizard,spp_case_base.group_case_manager,1,1,1,1
+access_escalate_wizard_case_worker,Escalate Wizard Case Worker,model_spp_grm_escalate_wizard,spp_case_base.group_case_worker,1,1,1,1

@@ -1,0 +1,56 @@
+Automates GRM ticket routing and escalation using CEL (Common Expression Language) expressions. Routing rules assign new tickets to teams and users based on ticket properties. Escalation rules trigger based on conditions and time thresholds, with support for notifications and case creation.
+
+### Key Capabilities
+
+- **Routing**: Automatically assign new tickets to teams and users based on CEL conditions evaluated on ticket properties (severity, priority, category, channel)
+- **Escalation**: Automatically escalate tickets when CEL conditions match, optionally after a time threshold (hours since creation)
+- **Notifications**: Send email notifications when escalation rules trigger using configurable mail templates
+- **Case Integration**: Automatically create case management records when escalating tickets (requires `spp_case_management`)
+- **Manual Trigger**: Button on ticket form to manually evaluate escalation rules
+
+### Key Models
+
+| Model                       | Description                                                                            |
+| --------------------------- | -------------------------------------------------------------------------------------- |
+| `spp.grm.routing.rule`      | Routing rule with CEL condition that assigns tickets to teams/users (first match wins) |
+| `spp.grm.escalation.rule`   | Escalation rule with CEL condition and time trigger that escalates tickets             |
+| `spp.grm.ticket` (extended) | Adds `routing_rule_id` and `escalation_rule_ids` fields to track applied rules         |
+
+### Configuration
+
+After installing:
+
+1. Navigate to **Helpdesk > Configuration > Routing Rules**
+2. Create routing rules specifying CEL conditions (e.g., `severity == 'critical'`) and target team/user
+3. Navigate to **Helpdesk > Configuration > Escalation Rules**
+4. Create escalation rules with CEL conditions (e.g., `sla_status == 'breached'`) and optional time triggers
+5. Configure email templates for escalation notifications under **Settings > Technical > Email Templates**
+6. Verify the scheduled action **GRM: Check Escalation Rules** is active under **Settings > Technical > Scheduled Actions** (runs hourly)
+
+### UI Location
+
+- **Routing Rules**: Helpdesk > Configuration > Routing Rules
+- **Escalation Rules**: Helpdesk > Configuration > Escalation Rules
+- **Manual Escalation**: Button in ticket form button box (labeled "Check Escalation")
+
+### Security
+
+| Group                       | Routing Rules       | Escalation Rules    |
+| --------------------------- | ------------------- | ------------------- |
+| `spp_grm.group_grm_viewer`  | Read                | Read                |
+| `spp_grm.group_grm_officer` | Read, write, create | Read, write, create |
+| `spp_grm.group_grm_manager` | Full CRUD           | Full CRUD           |
+| `base.group_user`           | Read                | Read                |
+| `base.group_portal`         | Read, write, create | Read, write, create |
+
+### CEL Context Variables
+
+Routing and escalation rules can reference these variables in CEL expressions:
+
+- `ticket`, `category`, `channel`, `stage`, `severity`, `priority`, `partner`, `team`, `user`
+- Escalation only: `sla_status`, `days_open`, `is_escalated`
+- Helper functions: `days_since(date)`, `hours_since(datetime)`, `is_business_day(date)`
+
+### Dependencies
+
+`spp_security`, `spp_grm`, `spp_cel_domain`, `spp_case_base`

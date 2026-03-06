@@ -4,6 +4,8 @@
 from . import common
 from . import test_api_audit_log
 from . import test_api_audit_service
+from . import test_api_outgoing_log
+from . import test_outgoing_api_log_service
 from . import test_api_auth_enforcement
 from . import test_api_client
 from . import test_api_consent_matching
@@ -33,4 +35,5 @@ from . import test_program_membership_api
 from . import test_program_membership_service
 from . import test_program_service
 from . import test_scope_enforcement
+from . import test_schema_builder
 from . import test_search_service

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <!-- Extend Local Registrar role to include GRM Manager access -->
+    <record id="spp_user_roles.local_role_registrar" model="res.users.role">
+        <field
+            name="implied_ids"
+            eval="[
+                Command.link(ref('spp_grm.group_grm_manager')),
+            ]"
+        />
+    </record>
+
+    <!-- Extend Local Support role to include GRM Manager and Program Viewer access -->
+    <record id="spp_user_roles.local_role_support" model="res.users.role">
+        <field
+            name="implied_ids"
+            eval="[
+                Command.link(ref('spp_grm.group_grm_manager')),
+                Command.link(ref('spp_programs.group_programs_viewer')),
+            ]"
+        />
+    </record>
+
+    <!-- Demo GRM Officer Role -->
+    <record id="demo_role_grm_officer" model="res.users.role">
+        <field name="name">Demo GRM Officer</field>
+        <field name="role_type">local</field>
+        <field
+            name="comment"
+        >Demo role for GRM officers. Can create and manage own/team tickets.</field>
+        <field
+            name="implied_ids"
+            eval="[
+                Command.link(ref('base.group_user')),
+                Command.link(ref('spp_grm.group_grm_officer')),
+            ]"
+        />
+    </record>
+
+    <!-- Demo GRM Manager User -->
+    <record
+        id="demo_user_grm_manager"
+        model="res.users"
+        context="{'no_reset_password': True}"
+    >
+        <field name="name">Demo GRM Manager</field>
+        <field name="login">demo_grm_manager</field>
+        <field name="email">demo_grm_manager@demo.spp</field>
+        <field name="password">demo</field>
+        <field
+            name="role_line_ids"
+            eval="[
+            (0, 0, {'role_id': ref('spp_user_roles.local_role_support')}),
+        ]"
+        />
+        <field name="company_id" ref="base.main_company" />
+        <field name="active" eval="True" />
+    </record>
+
+    <!-- Demo GRM Officer User -->
+    <record
+        id="demo_user_grm_officer"
+        model="res.users"
+        context="{'no_reset_password': True}"
+    >
+        <field name="name">Demo GRM Officer</field>
+        <field name="login">demo_grm_officer</field>
+        <field name="email">demo_grm_officer@demo.spp</field>
+        <field name="password">demo</field>
+        <field
+            name="role_line_ids"
+            eval="[
+            (0, 0, {'role_id': ref('demo_role_grm_officer')}),
+        ]"
+        />
+        <field name="company_id" ref="base.main_company" />
+        <field name="active" eval="True" />
+    </record>
+</odoo>

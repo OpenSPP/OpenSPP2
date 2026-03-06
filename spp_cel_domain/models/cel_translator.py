@@ -628,7 +628,7 @@ class CelTranslator(models.AbstractModel):
                     rec = self.env["spp.program"].search([("name", "=", name)], limit=1)
                     pid = rec.id or None
                 return LeafDomain(model, [("id", "!=", 0)]), f"PROGRAM({name})={pid}"
-        # Boolean field used as predicate (e.g., m._link.is_ended)
+        # Field used as bare predicate (e.g., m._link.is_ended, program_membership_ids)
         if isinstance(node, P.Attr | P.Ident):
             fld, mdl = self._resolve_field(model, node, cfg, ctx)
             target_model = mdl or model
@@ -637,7 +637,10 @@ class CelTranslator(models.AbstractModel):
                 ft = model_fields.get(fld)
                 if ft and getattr(ft, "type", None) == "boolean":
                     return LeafDomain(target_model, [(fld, "=", True)]), f"{fld} is True"
-                # Field exists but is not boolean — cannot use as bare predicate
+                # Relational fields as bare predicates: treat as "has records"
+                if ft and getattr(ft, "type", None) in ("one2many", "many2many"):
+                    return LeafDomain(target_model, [(fld, "!=", False)]), f"{fld} is not empty"
+                # Field exists but is not boolean or relational — cannot use as bare predicate
                 if ft:
                     raise NotImplementedError(
                         f"Field '{fld}' is of type '{getattr(ft, 'type', '?')}', not boolean. "

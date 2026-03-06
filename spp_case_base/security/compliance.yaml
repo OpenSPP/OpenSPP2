@@ -1,0 +1,510 @@
+# OpenSPP Access Management Compliance Specification
+# Module: spp_case_base
+# Version: 1.0
+#
+# This file declares the expected access control configuration for this module.
+# Run: python -m scripts.compliance.checker spp_case_base
+# Generate tests: python -m scripts.compliance.test_generator spp_case_base
+
+module: spp_case_base
+domain: case
+version: "1.0"
+
+# =============================================================================
+# GROUP DEFINITIONS
+# Following ADR-004 Three-Tier Architecture with case-specific roles
+# =============================================================================
+
+groups:
+  # --- Tier 3: Technical base groups ---
+  - id: group_case_read
+    tier: 3
+    comment: "Technical group for read access to case models."
+
+  - id: group_case_write
+    tier: 3
+    implied_ids: [group_case_read]
+    comment: "Technical group for write access to case models."
+
+  # --- Tier 2: User-facing groups ---
+  - id: group_case_viewer
+    tier: 2
+    privilege_id: privilege_case_viewer
+    implied_ids: [group_case_read]
+    comment: "Case Management: View all cases (read-only access)"
+
+  - id: group_case_officer
+    tier: 2
+    privilege_id: privilege_case_officer
+    implied_ids: [group_case_viewer, group_case_write]
+    comment: "Case Management: Can view and edit case records. Cannot delete."
+
+  # --- Special role groups ---
+  - id: group_case_worker
+    tier: 2
+    privilege_id: privilege_case_user
+    implied_ids: [group_case_viewer]
+    comment:
+      "SPECIALIZED ROLE: Manage own cases and case activities. Between Viewer and
+      Officer."
+
+  - id: group_case_supervisor
+    tier: 2
+    privilege_id: privilege_case_supervisor
+    implied_ids: [group_case_worker]
+    comment:
+      "SPECIALIZED ROLE: Supervise team cases and approve plans. Between Officer and
+      Manager."
+
+  - id: group_case_manager
+    tier: 2
+    privilege_id: privilege_case_manager
+    implied_ids: [group_case_officer, group_case_supervisor]
+    comment: "Full access including configuration and delete operations."
+
+# Admin linkage - manager group links to spp_security.group_spp_admin
+admin_link_group: group_case_manager
+
+# =============================================================================
+# MODEL ACCESS (ir.model.access.csv)
+# Case management uses custom roles: viewer/worker/supervisor/manager
+# =============================================================================
+
+model_access:
+  # Core case model
+  - model: spp.case
+    viewer: [read]
+    worker: [read, write, create, unlink]
+    supervisor: [read, write, create, unlink]
+    manager: [read, write, create, unlink]
+
+  # Case assessment
+  - model: spp.case.assessment
+    viewer: [read]
+    worker: [read, write, create, unlink]
+    supervisor: [read, write, create, unlink]
+    manager: [read, write, create, unlink]
+
+  # Configuration models - viewer/worker/supervisor read-only, manager full CRUD
+  - model: spp.case.stage
+    viewer: [read]
+    worker: [read]
+    supervisor: [read]
+    manager: [read, write, create, unlink]
+
+  - model: spp.case.type
+    viewer: [read]
+    worker: [read]
+    supervisor: [read]
+    manager: [read, write, create, unlink]
+
+  # Case intervention plan
+  - model: spp.case.intervention.plan
+    viewer: [read]
+    worker: [read, write, create, unlink]
+    supervisor: [read, write, create, unlink]
+    manager: [read, write, create, unlink]
+
+  # Case intervention
+  - model: spp.case.intervention
+    viewer: [read]
+    worker: [read, write, create, unlink]
+    supervisor: [read, write, create, unlink]
+    manager: [read, write, create, unlink]
+
+  # Case visit
+  - model: spp.case.visit
+    viewer: [read]
+    worker: [read, write, create, unlink]
+    supervisor: [read, write, create, unlink]
+    manager: [read, write, create, unlink]
+
+  # Case note
+  - model: spp.case.note
+    viewer: [read]
+    worker: [read, write, create, unlink]
+    supervisor: [read, write, create, unlink]
+    manager: [read, write, create, unlink]
+
+  # Case referral
+  - model: spp.case.referral
+    viewer: [read]
+    worker: [read, write, create, unlink]
+    supervisor: [read, write, create, unlink]
+    manager: [read, write, create, unlink]
+
+  # Configuration models - read-only for non-managers
+  - model: spp.case.risk.factor
+    viewer: [read]
+    worker: [read]
+    supervisor: [read]
+    manager: [read, write, create, unlink]
+
+  - model: spp.case.vulnerability
+    viewer: [read]
+    worker: [read]
+    supervisor: [read]
+    manager: [read, write, create, unlink]
+
+  - model: spp.case.closure.reason
+    viewer: [read]
+    worker: [read]
+    supervisor: [read]
+    manager: [read, write, create, unlink]
+
+  - model: spp.case.team
+    viewer: [read]
+    worker: [read]
+    supervisor: [read]
+    manager: [read, write, create, unlink]
+
+# =============================================================================
+# RECORD RULES (ir.rule)
+# Data visibility rules based on group membership
+# =============================================================================
+
+record_rules:
+  # Case access - worker sees own cases
+  - id: rule_spp_case_worker
+    model: spp.case
+    groups: [group_case_worker]
+    domain_description: "Worker can only see cases assigned to them"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: false
+    domain_pattern: assigned_to_me
+    domain: "[('case_worker_id', '=', user.id)]"
+    domain_field: case_worker_id
+
+  # Case access - supervisor sees team cases
+  - id: rule_spp_case_supervisor
+    model: spp.case
+    groups: [group_case_supervisor]
+    domain_description: "Supervisor can see cases they supervise or team cases"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: false
+    domain_pattern: team_records
+    domain:
+      "['|', ('supervisor_id', '=', user.id), ('team_id.supervisor_id', '=', user.id)]"
+    domain_field: supervisor_id
+
+  # Case access - manager sees all
+  - id: rule_spp_case_manager
+    model: spp.case
+    groups: [group_case_manager]
+    domain_description: "Manager can see all cases"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: true
+    domain_pattern: all_records
+    domain: "[(1, '=', 1)]"
+
+  # Intervention plan - worker
+  - id: rule_spp_case_intervention_plan_worker
+    model: spp.case.intervention.plan
+    groups: [group_case_worker]
+    domain_description: "Worker can only see plans for own cases"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: false
+
+  # Intervention plan - supervisor
+  - id: rule_spp_case_intervention_plan_supervisor
+    model: spp.case.intervention.plan
+    groups: [group_case_supervisor]
+    domain_description: "Supervisor can see plans for team cases"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: false
+
+  # Intervention plan - manager
+  - id: rule_spp_case_intervention_plan_manager
+    model: spp.case.intervention.plan
+    groups: [group_case_manager]
+    domain_description: "Manager can see all plans"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: true
+    domain_pattern: all_records
+    domain: "[(1, '=', 1)]"
+
+  # Intervention - worker
+  - id: rule_spp_case_intervention_worker
+    model: spp.case.intervention
+    groups: [group_case_worker]
+    domain_description: "Worker can only see interventions for own cases"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: false
+
+  # Intervention - supervisor
+  - id: rule_spp_case_intervention_supervisor
+    model: spp.case.intervention
+    groups: [group_case_supervisor]
+    domain_description: "Supervisor can see interventions for team cases"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: false
+
+  # Intervention - manager
+  - id: rule_spp_case_intervention_manager
+    model: spp.case.intervention
+    groups: [group_case_manager]
+    domain_description: "Manager can see all interventions"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: true
+
+  # Visit - worker
+  - id: rule_spp_case_visit_worker
+    model: spp.case.visit
+    groups: [group_case_worker]
+    domain_description: "Worker can only see visits for own cases"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: false
+
+  # Visit - supervisor
+  - id: rule_spp_case_visit_supervisor
+    model: spp.case.visit
+    groups: [group_case_supervisor]
+    domain_description: "Supervisor can see visits for team cases"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: false
+
+  # Visit - manager
+  - id: rule_spp_case_visit_manager
+    model: spp.case.visit
+    groups: [group_case_manager]
+    domain_description: "Manager can see all visits"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: true
+
+  # Note - worker
+  - id: rule_spp_case_note_worker
+    model: spp.case.note
+    groups: [group_case_worker]
+    domain_description: "Worker can only see notes for own cases"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: false
+
+  # Note - supervisor
+  - id: rule_spp_case_note_supervisor
+    model: spp.case.note
+    groups: [group_case_supervisor]
+    domain_description: "Supervisor can see notes for team cases"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: false
+
+  # Note - manager
+  - id: rule_spp_case_note_manager
+    model: spp.case.note
+    groups: [group_case_manager]
+    domain_description: "Manager can see all notes"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: true
+
+  # Referral - worker
+  - id: rule_spp_case_referral_worker
+    model: spp.case.referral
+    groups: [group_case_worker]
+    domain_description: "Worker can only see referrals for own cases"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: false
+
+  # Referral - supervisor
+  - id: rule_spp_case_referral_supervisor
+    model: spp.case.referral
+    groups: [group_case_supervisor]
+    domain_description: "Supervisor can see referrals for team cases"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: false
+
+  # Referral - manager
+  - id: rule_spp_case_referral_manager
+    model: spp.case.referral
+    groups: [group_case_manager]
+    domain_description: "Manager can see all referrals"
+    perm_read: true
+    perm_write: true
+    perm_create: true
+    perm_unlink: true
+
+# =============================================================================
+# MENU VISIBILITY
+# Which groups can see which menus
+# =============================================================================
+
+menus:
+  # Main case management menu
+  - id: menu_case_management_root
+    name: "Case Management"
+    groups: [] # No explicit restriction - visibility via child menus
+
+  # Cases submenu
+  - id: menu_case_management_cases
+    name: "Cases"
+    parent: menu_case_management_root
+    groups: []
+
+  - id: menu_case_my_cases
+    name: "My Cases"
+    parent: menu_case_management_cases
+    groups: []
+
+  - id: menu_case_unassigned
+    name: "Unassigned"
+    parent: menu_case_management_cases
+    groups: []
+
+  - id: menu_case_all
+    name: "All Cases"
+    parent: menu_case_management_cases
+    groups: []
+
+  # Activities submenu
+  - id: menu_case_management_activities
+    name: "Activities"
+    parent: menu_case_management_root
+    groups: []
+
+  - id: menu_case_visits
+    name: "Visits"
+    parent: menu_case_management_activities
+    groups: []
+
+  - id: menu_case_notes
+    name: "Notes"
+    parent: menu_case_management_activities
+    groups: []
+
+  - id: menu_case_referrals
+    name: "Referrals"
+    parent: menu_case_management_activities
+    groups: []
+
+  - id: menu_case_assessment
+    name: "Assessments"
+    parent: menu_case_management_activities
+    groups: []
+
+  # Planning submenu
+  - id: menu_case_management_planning
+    name: "Planning"
+    parent: menu_case_management_root
+    groups: []
+
+  - id: menu_case_intervention_plans
+    name: "Intervention Plans"
+    parent: menu_case_management_planning
+    groups: []
+
+  - id: menu_case_interventions
+    name: "Interventions"
+    parent: menu_case_management_planning
+    groups: []
+
+  # Configuration submenu - managers only
+  - id: menu_case_management_config
+    name: "Configuration"
+    parent: menu_case_management_root
+    groups: [group_case_manager]
+
+  - id: menu_case_config_case_setup
+    name: "Case Setup"
+    parent: menu_case_management_config
+    groups: []
+
+  - id: menu_case_types
+    name: "Case Types"
+    parent: menu_case_config_case_setup
+    groups: []
+
+  - id: menu_case_stages
+    name: "Stages"
+    parent: menu_case_config_case_setup
+    groups: []
+
+  - id: menu_case_teams
+    name: "Teams"
+    parent: menu_case_config_case_setup
+    groups: []
+
+  - id: menu_case_config_assessment
+    name: "Assessment"
+    parent: menu_case_management_config
+    groups: []
+
+  - id: menu_case_risk_factors
+    name: "Risk Factors"
+    parent: menu_case_config_assessment
+    groups: []
+
+  - id: menu_case_vulnerabilities
+    name: "Vulnerabilities"
+    parent: menu_case_config_assessment
+    groups: []
+
+  - id: menu_case_config_closure
+    name: "Closure"
+    parent: menu_case_management_config
+    groups: []
+
+  - id: menu_case_closure_reasons
+    name: "Closure Reasons"
+    parent: menu_case_config_closure
+    groups: []
+
+# =============================================================================
+# FIELD RESTRICTIONS
+# Fields with group-based visibility in views
+# =============================================================================
+
+field_restrictions: []
+
+# =============================================================================
+# ACTION RESTRICTIONS
+# Actions that are restricted to specific groups
+# =============================================================================
+
+actions: []
+# =============================================================================
+# NOTES
+# =============================================================================
+
+# Role Hierarchy:
+# - Viewer: Read-only access to cases (via UI, limited by record rules)
+# - Worker: Manage own assigned cases and activities
+# - Supervisor: Manage team cases and approve plans
+# - Officer: Edit all case records (standard role)
+# - Manager: Full access including configuration and delete
+#
+# Record Rules:
+# - Worker: Can only see cases where case_worker_id = user.id
+# - Supervisor: Can see cases where supervisor_id = user.id or team supervisor
+# - Manager: Can see all cases (domain: [(1, '=', 1)])

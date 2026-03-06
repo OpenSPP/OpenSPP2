@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- List View -->
+    <record id="view_hxl_aggregation_rule_tree" model="ir.ui.view">
+        <field name="name">spp.hxl.aggregation.rule.tree</field>
+        <field name="model">spp.hxl.aggregation.rule</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="profile_id" />
+                <field name="aggregation_type" />
+                <field name="source_column_tag" />
+                <field name="output_hxl_tag" />
+                <field name="variable_id" />
+                <field name="active" widget="boolean_toggle" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_hxl_aggregation_rule_form" model="ir.ui.view">
+        <field name="name">spp.hxl.aggregation.rule.form</field>
+        <field name="model">spp.hxl.aggregation.rule</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="profile_id" />
+                            <field name="name" />
+                            <field name="sequence" />
+                            <field name="active" />
+                        </group>
+                        <group>
+                            <field name="variable_id" />
+                            <field name="aggregation_type" />
+                            <field name="source_column_tag" />
+                            <field name="output_hxl_tag" />
+                        </group>
+                    </group>
+                    <group>
+                        <field
+                            name="filter_expression"
+                            placeholder="e.g., row.get('severity') == 'severe'"
+                        />
+                        <field
+                            name="disaggregate_by_tags"
+                            placeholder="e.g., +f,+m,+children"
+                        />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_hxl_aggregation_rule" model="ir.actions.act_window">
+        <field name="name">HXL Aggregation Rules</field>
+        <field name="res_model">spp.hxl.aggregation.rule</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

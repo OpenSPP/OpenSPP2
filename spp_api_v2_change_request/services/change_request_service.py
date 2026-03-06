@@ -7,11 +7,52 @@ from typing import Any
 from odoo.api import Environment
 from odoo.exceptions import UserError, ValidationError
 
+from odoo.addons.spp_api_v2.services.schema_builder import OdooModelSchemaBuilder
+
 from ..schemas.change_request import (
     ChangeRequestCreate,
 )
 
 _logger = logging.getLogger(__name__)
+
+# Fields to exclude from detail serialization and field schema generation.
+# Matches the exclusion lists in _serialize_detail and _compute_available_field_ids.
+DETAIL_SKIP_FIELDS = {
+    "id",
+    "create_uid",
+    "create_date",
+    "write_uid",
+    "write_date",
+    "__last_update",
+    "display_name",
+    "change_request_id",
+    # Convenience computed fields from spp.cr.detail.base
+    "registrant_id",
+    "approval_state",
+    "is_applied",
+    # Messaging/activity fields (from mail.thread, mail.activity.mixin)
+    "message_ids",
+    "message_follower_ids",
+    "message_partner_ids",
+    "message_attachment_count",
+    "website_message_ids",
+    "activity_ids",
+    "activity_state",
+    "activity_user_id",
+    "activity_type_id",
+    "activity_date_deadline",
+    "activity_summary",
+    "message_is_follower",
+    "message_needaction",
+    "message_needaction_counter",
+    "message_has_error",
+    "message_has_error_counter",
+    "message_unread",
+    "message_unread_counter",
+    "message_main_attachment_id",
+    "has_message",
+    "rating_ids",
+}
 
 
 class ChangeRequestService:
@@ -131,7 +172,7 @@ class ChangeRequestService:
             response["rejectedDate"] = cr.rejected_date.isoformat()
         if cr.rejection_reason:
             response["rejectionReason"] = cr.rejection_reason
-        if hasattr(cr, "revision_notes") and cr.revision_notes:
+        if cr.revision_notes:
             response["revisionNotes"] = cr.revision_notes
 
         # Description and notes
@@ -162,38 +203,8 @@ class ChangeRequestService:
         # Get fields from the model
         model_fields = detail._fields
 
-        # Skip internal, computed, and mail.thread fields
-        skip_fields = {
-            "id",
-            "create_uid",
-            "create_date",
-            "write_uid",
-            "write_date",
-            "__last_update",
-            "display_name",
-            "change_request_id",
-            # Convenience computed fields from base
-            "registrant_id",
-            "approval_state",
-            "is_applied",
-            # mail.thread fields
-            "message_ids",
-            "message_follower_ids",
-            "message_partner_ids",
-            "message_is_follower",
-            "has_message",
-            "message_needaction",
-            "message_needaction_counter",
-            "message_has_error",
-            "message_has_error_counter",
-            "message_attachment_count",
-            "message_has_sms_error",
-            "message_main_attachment_id",
-            "website_message_ids",
-        }
-
         for field_name, field in model_fields.items():
-            if field_name.startswith("_") or field_name in skip_fields:
+            if field_name.startswith("_") or field_name in DETAIL_SKIP_FIELDS:
                 continue
 
             value = getattr(detail, field_name)
@@ -314,6 +325,9 @@ class ChangeRequestService:
         if not detail:
             raise ValidationError("Change request has no detail record")
 
+        # Validate fields against the detail model
+        self._validate_detail_input(detail, detail_data)
+
         # Convert API data to Odoo vals
         vals = self._deserialize_detail(detail, detail_data)
         if vals:
@@ -324,17 +338,15 @@ class ChangeRequestService:
         Convert API detail data to Odoo vals.
 
         Handles Many2one lookups by namespace_uri/code.
+        Raises ValidationError if any lookups fail.
         """
         vals = {}
+        unresolved = []
         model_fields = detail._fields
 
         for field_name, value in data.items():
             if field_name not in model_fields:
-                _logger.warning(
-                    "Unknown field %s for detail model %s",
-                    field_name,
-                    detail._name,
-                )
+                # Unknown fields are caught by _validate_detail_input
                 continue
 
             field = model_fields[field_name]
@@ -352,6 +364,11 @@ class ChangeRequestService:
                     )
                     if code_rec:
                         vals[field_name] = code_rec.id
+                    else:
+                        unresolved.append(
+                            f"{field_name}: vocabulary code '{value['code']}' "
+                            f"not found in namespace '{value['system']}'"
+                        )
                 elif "system" in value and "value" in value:
                     # Partner identifier
                     partner = self.find_registrant_by_identifier(
@@ -360,6 +377,8 @@ class ChangeRequestService:
                     )
                     if partner:
                         vals[field_name] = partner.id
+                    else:
+                        unresolved.append(f"{field_name}: registrant '{value['system']}|{value['value']}' not found")
             elif field.type == "date" and isinstance(value, str):
                 from datetime import date as dt_date
 
@@ -371,7 +390,57 @@ class ChangeRequestService:
             else:
                 vals[field_name] = value
 
+        if unresolved:
+            raise ValidationError(
+                "Failed to resolve the following fields:\n" + "\n".join(f"- {msg}" for msg in unresolved)
+            )
+
         return vals
+
+    def _validate_detail_input(self, detail_model, data: dict[str, Any]):
+        """
+        Validate detail input data against the detail model's fields.
+
+        Rejects unknown fields and read-only fields so external consumers
+        get immediate feedback rather than silent data loss.
+
+        Args:
+            detail_model: The Odoo model instance for the detail
+            data: Dictionary of field values from API input
+        """
+        from odoo.addons.spp_api_v2.services.schema_builder import SKIP_FIELD_TYPES
+
+        errors = []
+        model_fields = detail_model._fields
+
+        # Determine valid and readonly fields by inspecting Odoo fields directly,
+        # avoiding an expensive build_schema call (which triggers DB queries for
+        # vocabulary codes that are unnecessary for input validation).
+        valid_fields: set[str] = set()
+        readonly_fields: set[str] = set()
+        for field_name, field in model_fields.items():
+            if field_name.startswith("_"):
+                continue
+            if field_name in DETAIL_SKIP_FIELDS:
+                continue
+            if not field.store:
+                continue
+            if field.type in SKIP_FIELD_TYPES:
+                continue
+            valid_fields.add(field_name)
+            if field.readonly or field.compute:
+                readonly_fields.add(field_name)
+
+        for field_name in data:
+            if field_name not in model_fields:
+                errors.append(f"Unknown field: '{field_name}'")
+            elif field_name not in valid_fields:
+                errors.append(f"Field '{field_name}' is not available for this CR type")
+            elif field_name in readonly_fields:
+                errors.append(f"Field '{field_name}' is read-only")
+
+        if errors:
+            raise ValidationError("Detail validation errors:\n" + "\n".join(f"- {e}" for e in errors))
 
     def search(self, params: dict[str, Any]) -> tuple[list, int]:
         """
@@ -445,6 +514,9 @@ class ChangeRequestService:
             raise UserError("Only pending change requests can be rejected")
         if not reason:
             raise ValidationError("Rejection reason is required")
+        # action_reject() opens a wizard, so we call the underlying
+        # implementation directly. Same pattern as conflict_wizard and
+        # batch_approval_wizard.
         cr._do_reject(reason)
 
     def request_revision(self, cr, notes: str):
@@ -453,6 +525,8 @@ class ChangeRequestService:
             raise UserError("Only pending change requests can have revision requested")
         if not notes:
             raise ValidationError("Revision notes are required")
+        # action_request_revision() opens a wizard, so we call the underlying
+        # implementation directly. Same pattern as batch_approval_wizard.
         cr._do_request_revision(notes)
 
     def apply(self, cr):
@@ -468,3 +542,76 @@ class ChangeRequestService:
         if cr.approval_state not in ("rejected", "revision"):
             raise UserError("Only rejected or revision-requested change requests can be reset to draft")
         cr.action_reset_to_draft()
+
+    # ══════════════════════════════════════════════════════════════════════════
+    # TYPE SCHEMA ENDPOINTS
+    # ══════════════════════════════════════════════════════════════════════════
+
+    def get_type_list(self) -> list[dict[str, Any]]:
+        """
+        Return a list of active CR types whose detail model exists.
+
+        Returns:
+            List of dicts matching ChangeRequestTypeInfo schema.
+        """
+        cr_types = self.env["spp.change.request.type"].search([])
+        result = []
+        for cr_type in cr_types:
+            if not cr_type.detail_model or cr_type.detail_model not in self.env:
+                continue
+            result.append(
+                {
+                    "code": cr_type.code,
+                    "name": cr_type.name,
+                    "targetType": cr_type.target_type or "both",
+                    "requiresApplicant": cr_type.is_requires_applicant,
+                }
+            )
+        return result
+
+    def get_type_schema(self, code: str) -> dict[str, Any] | None:
+        """
+        Return the full field schema for a CR type by code.
+
+        Args:
+            code: The CR type code (e.g. 'edit_individual').
+
+        Returns:
+            Dict matching ChangeRequestTypeSchema, or None if not found.
+        """
+        cr_type = self.env["spp.change.request.type"].search(
+            [("code", "=", code)],
+            limit=1,
+        )
+        if not cr_type:
+            return None
+        if not cr_type.detail_model or cr_type.detail_model not in self.env:
+            return None
+
+        detail_model = self.env[cr_type.detail_model]
+        builder = OdooModelSchemaBuilder(self.env)
+        detail_schema = builder.build_schema(
+            detail_model,
+            skip_fields=DETAIL_SKIP_FIELDS,
+            title=f"{cr_type.name} Detail",
+        )
+
+        # Documents
+        available_documents = [
+            {"value": doc.code, "label": doc.display or doc.code} for doc in cr_type.available_document_ids
+        ]
+        required_documents = [
+            {"value": doc.code, "label": doc.display or doc.code} for doc in cr_type.required_document_ids
+        ]
+
+        return {
+            "typeInfo": {
+                "code": cr_type.code,
+                "name": cr_type.name,
+                "targetType": cr_type.target_type or "both",
+                "requiresApplicant": cr_type.is_requires_applicant,
+            },
+            "detailSchema": detail_schema,
+            "availableDocuments": available_documents,
+            "requiredDocuments": required_documents,
+        }

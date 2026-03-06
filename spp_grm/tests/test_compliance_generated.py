@@ -117,8 +117,7 @@ class TestGroupHierarchy(TestComplianceBase):
         if not self.user_manager or not self.group_officer:
             self.skipTest("Required groups not found")
         self.assertTrue(
-            self.user_manager.has_group("spp_grm.group_grm_officer"),
-            "Manager should have officer privileges",
+            self.user_manager.has_group("spp_grm.group_grm_officer"), "Manager should have officer privileges"
         )
 
     def test_officer_implies_viewer(self):
@@ -126,8 +125,7 @@ class TestGroupHierarchy(TestComplianceBase):
         if not self.user_officer or not self.group_viewer:
             self.skipTest("Required groups not found")
         self.assertTrue(
-            self.user_officer.has_group("spp_grm.group_grm_viewer"),
-            "Officer should have viewer privileges",
+            self.user_officer.has_group("spp_grm.group_grm_viewer"), "Officer should have viewer privileges"
         )
 
     def test_group_grm_write_implies(self):
@@ -138,11 +136,7 @@ class TestGroupHierarchy(TestComplianceBase):
         implied_ids = group.implied_ids.mapped("id")
         implied_group = self.env.ref("spp_grm.group_grm_read", raise_if_not_found=False)
         if implied_group:
-            self.assertIn(
-                implied_group.id,
-                implied_ids,
-                "group_grm_write should imply group_grm_read",
-            )
+            self.assertIn(implied_group.id, implied_ids, "group_grm_write should imply group_grm_read")
 
     def test_group_grm_viewer_implies(self):
         """Test group_grm_viewer implies correct groups."""
@@ -152,11 +146,7 @@ class TestGroupHierarchy(TestComplianceBase):
         implied_ids = group.implied_ids.mapped("id")
         implied_group = self.env.ref("spp_grm.group_grm_read", raise_if_not_found=False)
         if implied_group:
-            self.assertIn(
-                implied_group.id,
-                implied_ids,
-                "group_grm_viewer should imply group_grm_read",
-            )
+            self.assertIn(implied_group.id, implied_ids, "group_grm_viewer should imply group_grm_read")
 
     def test_group_grm_officer_implies(self):
         """Test group_grm_officer implies correct groups."""
@@ -166,18 +156,10 @@ class TestGroupHierarchy(TestComplianceBase):
         implied_ids = group.implied_ids.mapped("id")
         implied_group = self.env.ref("spp_grm.group_grm_viewer", raise_if_not_found=False)
         if implied_group:
-            self.assertIn(
-                implied_group.id,
-                implied_ids,
-                "group_grm_officer should imply group_grm_viewer",
-            )
+            self.assertIn(implied_group.id, implied_ids, "group_grm_officer should imply group_grm_viewer")
         implied_group = self.env.ref("spp_grm.group_grm_write", raise_if_not_found=False)
         if implied_group:
-            self.assertIn(
-                implied_group.id,
-                implied_ids,
-                "group_grm_officer should imply group_grm_write",
-            )
+            self.assertIn(implied_group.id, implied_ids, "group_grm_officer should imply group_grm_write")
 
     def test_group_grm_manager_implies(self):
         """Test group_grm_manager implies correct groups."""
@@ -187,11 +169,7 @@ class TestGroupHierarchy(TestComplianceBase):
         implied_ids = group.implied_ids.mapped("id")
         implied_group = self.env.ref("spp_grm.group_grm_officer", raise_if_not_found=False)
         if implied_group:
-            self.assertIn(
-                implied_group.id,
-                implied_ids,
-                "group_grm_manager should imply group_grm_officer",
-            )
+            self.assertIn(implied_group.id, implied_ids, "group_grm_manager should imply group_grm_officer")
 
     def test_group_grm_supervisor_implies(self):
         """Test group_grm_supervisor implies correct groups."""
@@ -201,11 +179,7 @@ class TestGroupHierarchy(TestComplianceBase):
         implied_ids = group.implied_ids.mapped("id")
         implied_group = self.env.ref("spp_grm.group_grm_officer", raise_if_not_found=False)
         if implied_group:
-            self.assertIn(
-                implied_group.id,
-                implied_ids,
-                "group_grm_supervisor should imply group_grm_officer",
-            )
+            self.assertIn(implied_group.id, implied_ids, "group_grm_supervisor should imply group_grm_officer")
 
     def test_group_grm_user_implies(self):
         """Test group_grm_user implies correct groups."""
@@ -215,11 +189,7 @@ class TestGroupHierarchy(TestComplianceBase):
         implied_ids = group.implied_ids.mapped("id")
         implied_group = self.env.ref("spp_grm.group_grm_viewer", raise_if_not_found=False)
         if implied_group:
-            self.assertIn(
-                implied_group.id,
-                implied_ids,
-                "group_grm_user should imply group_grm_viewer",
-            )
+            self.assertIn(implied_group.id, implied_ids, "group_grm_user should imply group_grm_viewer")
 
 
 @tagged("post_install", "-at_install", "access_control", "compliance")
@@ -614,11 +584,7 @@ class TestRecordRules(TestComplianceBase):
             self.skipTest("Rule rule_spp_grm_ticket_viewer not found")
 
         # Verify rule model
-        self.assertEqual(
-            rule.model_id.model,
-            "spp.grm.ticket",
-            "Rule should be for model spp.grm.ticket",
-        )
+        self.assertEqual(rule.model_id.model, "spp.grm.ticket", "Rule should be for model spp.grm.ticket")
 
         # Verify permissions
         self.assertEqual(rule.perm_read, True)
@@ -640,11 +606,7 @@ class TestRecordRules(TestComplianceBase):
 
         expected_group = self.env.ref("spp_grm.group_grm_viewer", raise_if_not_found=False)
         if expected_group:
-            self.assertIn(
-                expected_group,
-                rule.groups,
-                "Rule should include group group_grm_viewer",
-            )
+            self.assertIn(expected_group, rule.groups, "Rule should include group group_grm_viewer")
 
     def test_rule_rule_spp_grm_ticket_officer_exists(self):
         """Test record rule rule_spp_grm_ticket_officer exists and is configured."""
@@ -653,11 +615,7 @@ class TestRecordRules(TestComplianceBase):
             self.skipTest("Rule rule_spp_grm_ticket_officer not found")
 
         # Verify rule model
-        self.assertEqual(
-            rule.model_id.model,
-            "spp.grm.ticket",
-            "Rule should be for model spp.grm.ticket",
-        )
+        self.assertEqual(rule.model_id.model, "spp.grm.ticket", "Rule should be for model spp.grm.ticket")
 
         # Verify permissions
         self.assertEqual(rule.perm_read, True)
@@ -679,11 +637,7 @@ class TestRecordRules(TestComplianceBase):
 
         expected_group = self.env.ref("spp_grm.group_grm_officer", raise_if_not_found=False)
         if expected_group:
-            self.assertIn(
-                expected_group,
-                rule.groups,
-                "Rule should include group group_grm_officer",
-            )
+            self.assertIn(expected_group, rule.groups, "Rule should include group group_grm_officer")
 
     def test_rule_rule_spp_grm_ticket_supervisor_exists(self):
         """Test record rule rule_spp_grm_ticket_supervisor exists and is configured."""
@@ -692,11 +646,7 @@ class TestRecordRules(TestComplianceBase):
             self.skipTest("Rule rule_spp_grm_ticket_supervisor not found")
 
         # Verify rule model
-        self.assertEqual(
-            rule.model_id.model,
-            "spp.grm.ticket",
-            "Rule should be for model spp.grm.ticket",
-        )
+        self.assertEqual(rule.model_id.model, "spp.grm.ticket", "Rule should be for model spp.grm.ticket")
 
         # Verify permissions
         self.assertEqual(rule.perm_read, True)
@@ -718,11 +668,7 @@ class TestRecordRules(TestComplianceBase):
 
         expected_group = self.env.ref("spp_grm.group_grm_supervisor", raise_if_not_found=False)
         if expected_group:
-            self.assertIn(
-                expected_group,
-                rule.groups,
-                "Rule should include group group_grm_supervisor",
-            )
+            self.assertIn(expected_group, rule.groups, "Rule should include group group_grm_supervisor")
 
     def test_rule_rule_spp_grm_ticket_manager_exists(self):
         """Test record rule rule_spp_grm_ticket_manager exists and is configured."""
@@ -731,11 +677,7 @@ class TestRecordRules(TestComplianceBase):
             self.skipTest("Rule rule_spp_grm_ticket_manager not found")
 
         # Verify rule model
-        self.assertEqual(
-            rule.model_id.model,
-            "spp.grm.ticket",
-            "Rule should be for model spp.grm.ticket",
-        )
+        self.assertEqual(rule.model_id.model, "spp.grm.ticket", "Rule should be for model spp.grm.ticket")
 
         # Verify permissions
         self.assertEqual(rule.perm_read, True)
@@ -757,11 +699,7 @@ class TestRecordRules(TestComplianceBase):
 
         expected_group = self.env.ref("spp_grm.group_grm_manager", raise_if_not_found=False)
         if expected_group:
-            self.assertIn(
-                expected_group,
-                rule.groups,
-                "Rule should include group group_grm_manager",
-            )
+            self.assertIn(expected_group, rule.groups, "Rule should include group group_grm_manager")
 
     def test_rule_rule_spp_grm_team_manager_exists(self):
         """Test record rule rule_spp_grm_team_manager exists and is configured."""
@@ -792,11 +730,7 @@ class TestRecordRules(TestComplianceBase):
 
         expected_group = self.env.ref("spp_grm.group_grm_manager", raise_if_not_found=False)
         if expected_group:
-            self.assertIn(
-                expected_group,
-                rule.groups,
-                "Rule should include group group_grm_manager",
-            )
+            self.assertIn(expected_group, rule.groups, "Rule should include group group_grm_manager")
 
     def test_rule_rule_spp_grm_ticket_category_manager_exists(self):
         """Test record rule rule_spp_grm_ticket_category_manager exists and is configured."""
@@ -806,9 +740,7 @@ class TestRecordRules(TestComplianceBase):
 
         # Verify rule model
         self.assertEqual(
-            rule.model_id.model,
-            "spp.grm.ticket.category",
-            "Rule should be for model spp.grm.ticket.category",
+            rule.model_id.model, "spp.grm.ticket.category", "Rule should be for model spp.grm.ticket.category"
         )
 
         # Verify permissions
@@ -831,11 +763,7 @@ class TestRecordRules(TestComplianceBase):
 
         expected_group = self.env.ref("spp_grm.group_grm_manager", raise_if_not_found=False)
         if expected_group:
-            self.assertIn(
-                expected_group,
-                rule.groups,
-                "Rule should include group group_grm_manager",
-            )
+            self.assertIn(expected_group, rule.groups, "Rule should include group group_grm_manager")
 
     def test_rule_rule_spp_grm_ticket_stage_manager_exists(self):
         """Test record rule rule_spp_grm_ticket_stage_manager exists and is configured."""
@@ -844,11 +772,7 @@ class TestRecordRules(TestComplianceBase):
             self.skipTest("Rule rule_spp_grm_ticket_stage_manager not found")
 
         # Verify rule model
-        self.assertEqual(
-            rule.model_id.model,
-            "spp.grm.ticket.stage",
-            "Rule should be for model spp.grm.ticket.stage",
-        )
+        self.assertEqual(rule.model_id.model, "spp.grm.ticket.stage", "Rule should be for model spp.grm.ticket.stage")
 
         # Verify permissions
         self.assertEqual(rule.perm_read, True)
@@ -870,11 +794,7 @@ class TestRecordRules(TestComplianceBase):
 
         expected_group = self.env.ref("spp_grm.group_grm_manager", raise_if_not_found=False)
         if expected_group:
-            self.assertIn(
-                expected_group,
-                rule.groups,
-                "Rule should include group group_grm_manager",
-            )
+            self.assertIn(expected_group, rule.groups, "Rule should include group group_grm_manager")
 
     def test_rule_rule_spp_grm_sla_rule_manager_exists(self):
         """Test record rule rule_spp_grm_sla_rule_manager exists and is configured."""
@@ -883,11 +803,7 @@ class TestRecordRules(TestComplianceBase):
             self.skipTest("Rule rule_spp_grm_sla_rule_manager not found")
 
         # Verify rule model
-        self.assertEqual(
-            rule.model_id.model,
-            "spp.grm.sla.rule",
-            "Rule should be for model spp.grm.sla.rule",
-        )
+        self.assertEqual(rule.model_id.model, "spp.grm.sla.rule", "Rule should be for model spp.grm.sla.rule")
 
         # Verify permissions
         self.assertEqual(rule.perm_read, True)
@@ -909,11 +825,7 @@ class TestRecordRules(TestComplianceBase):
 
         expected_group = self.env.ref("spp_grm.group_grm_manager", raise_if_not_found=False)
         if expected_group:
-            self.assertIn(
-                expected_group,
-                rule.groups,
-                "Rule should include group group_grm_manager",
-            )
+            self.assertIn(expected_group, rule.groups, "Rule should include group group_grm_manager")
 
 
 @tagged("post_install", "-at_install", "access_control", "compliance")
@@ -925,8 +837,7 @@ class TestAdminLinkage(TestComplianceBase):
         if not self.user_admin:
             self.skipTest("Admin user not created")
         self.assertTrue(
-            self.user_admin.has_group("spp_grm.group_grm_manager"),
-            "Admin should have group_grm_manager permissions",
+            self.user_admin.has_group("spp_grm.group_grm_manager"), "Admin should have group_grm_manager permissions"
         )
 
     def test_admin_group_implies_manager(self):
@@ -951,7 +862,5 @@ class TestAdminLinkage(TestComplianceBase):
 
         all_implied = get_all_implied(admin_group)
         self.assertIn(
-            manager_group.id,
-            all_implied,
-            "Admin group should imply group_grm_manager (directly or transitively)",
+            manager_group.id, all_implied, "Admin group should imply group_grm_manager (directly or transitively)"
         )

@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Run List View -->
+    <record id="view_simulation_run_list" model="ir.ui.view">
+        <field name="name">spp.simulation.run.list</field>
+        <field name="model">spp.simulation.run</field>
+        <field name="arch" type="xml">
+            <list create="false" delete="false" decoration-danger="state == 'failed'">
+                <field name="scenario_id" />
+                <field name="executed_at" />
+                <field name="beneficiary_count" />
+                <field name="total_cost" />
+                <field name="coverage_rate" string="Coverage %" />
+                <field name="equity_score" string="Parity Score" />
+                <field name="gini_coefficient" optional="hide" />
+                <field
+                    name="execution_duration_seconds"
+                    string="Duration (s)"
+                    optional="hide"
+                />
+                <field
+                    name="state"
+                    decoration-success="state == 'completed'"
+                    decoration-warning="state == 'running'"
+                    decoration-danger="state == 'failed'"
+                    widget="badge"
+                />
+            </list>
+        </field>
+    </record>
+
+    <!-- Run Form View -->
+    <record id="view_simulation_run_form" model="ir.ui.view">
+        <field name="name">spp.simulation.run.form</field>
+        <field name="model">spp.simulation.run</field>
+        <field name="arch" type="xml">
+            <form
+                string="Simulation Run Results"
+                create="false"
+                delete="false"
+                edit="false"
+            >
+                <header>
+                    <button
+                        name="action_open_comparison_wizard"
+                        type="object"
+                        string="Compare With..."
+                        class="btn-secondary"
+                        invisible="state != 'completed'"
+                    />
+                    <button
+                        name="action_compare_with_previous"
+                        type="object"
+                        string="Compare with Previous"
+                        class="btn-secondary"
+                        invisible="state != 'completed'"
+                    />
+                    <field name="state" widget="statusbar" />
+                </header>
+                <div
+                    class="alert alert-danger"
+                    role="alert"
+                    invisible="state != 'failed'"
+                >
+                    <strong>Simulation Failed: </strong>
+                    <field name="error_message" />
+                </div>
+                <div
+                    class="alert alert-warning"
+                    role="alert"
+                    invisible="state != 'running'"
+                >
+                    <i class="fa fa-spinner fa-spin me-2" />
+                    Simulation is running...
+                </div>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="scenario_id" readonly="1" /> - Run Results
+                        </h1>
+                        <div class="text-muted">
+                            Completed <field name="executed_at" readonly="1" /> |
+                            Duration: <field
+                            name="execution_duration_seconds"
+                            readonly="1"
+                        />s
+                        </div>
+                    </div>
+
+                    <!-- Executive Summary -->
+                    <div class="row mt-3 mb-3" invisible="state != 'completed'">
+                        <div class="col-4">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <h2>
+                                        <field name="beneficiary_count" readonly="1" />
+                                    </h2>
+                                    <div class="text-muted">Beneficiaries</div>
+                                    <small class="text-muted">
+                                        <field
+                                        name="coverage_rate"
+                                        readonly="1"
+                                    />% coverage
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <h2>
+                                        <field
+                                            name="total_cost"
+                                            readonly="1"
+                                            widget="monetary"
+                                        />
+                                    </h2>
+                                    <div class="text-muted">Total Cost</div>
+                                    <small class="text-muted">
+                                        <field
+                                        name="budget_utilization"
+                                        readonly="1"
+                                    />% of budget
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <h2>
+                                        <field name="equity_score" readonly="1" />
+                                    </h2>
+                                    <div class="text-muted">Parity Score</div>
+                                    <small class="text-muted">out of 100</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Natural Language Summary -->
+                    <div class="mb-3" invisible="state != 'completed'">
+                        <field name="summary_html" readonly="1" />
+                    </div>
+
+                    <notebook invisible="state != 'completed'">
+                        <!-- Parameters Used Tab -->
+                        <page name="parameters" string="Parameters Used">
+                            <group>
+                                <group string="Targeting">
+                                    <field
+                                        name="scenario_snapshot_target_type"
+                                        string="Target Type"
+                                        readonly="1"
+                                    />
+                                    <field
+                                        name="scenario_snapshot_targeting_expression"
+                                        string="Targeting Expression"
+                                        readonly="1"
+                                        widget="text"
+                                    />
+                                </group>
+                                <group string="Budget">
+                                    <field
+                                        name="scenario_snapshot_budget_amount"
+                                        string="Budget Amount"
+                                        readonly="1"
+                                    />
+                                    <field
+                                        name="scenario_snapshot_budget_strategy"
+                                        string="Budget Strategy"
+                                        readonly="1"
+                                    />
+                                </group>
+                            </group>
+                            <separator string="Entitlement Rules" />
+                            <field
+                                name="scenario_snapshot_entitlement_rules_html"
+                                readonly="1"
+                                nolabel="1"
+                            />
+                            <separator string="Advanced Options" />
+                            <group>
+                                <group>
+                                    <field
+                                        name="scenario_snapshot_ideal_population_expression"
+                                        string="Ideal Population Expression"
+                                        readonly="1"
+                                        widget="text"
+                                    />
+                                </group>
+                            </group>
+                        </page>
+
+                        <!-- Distribution Tab -->
+                        <page name="distribution" string="Distribution">
+                            <field name="distribution_summary_html" readonly="1" />
+                            <group>
+                                <group string="Key Statistics">
+                                    <field
+                                        name="gini_coefficient"
+                                        string="Benefit Inequality (Gini)"
+                                        readonly="1"
+                                    />
+                                </group>
+                                <group string="Budget">
+                                    <field name="total_cost" readonly="1" />
+                                    <field
+                                        name="budget_utilization"
+                                        string="Budget Used (%)"
+                                        readonly="1"
+                                    />
+                                    <field name="total_registry_count" readonly="1" />
+                                </group>
+                            </group>
+                            <separator string="Distribution Details" />
+                            <field
+                                name="distribution_details_html"
+                                readonly="1"
+                                nolabel="1"
+                            />
+                        </page>
+
+                        <!-- Coverage Parity Tab -->
+                        <page
+                            name="fairness"
+                            string="Coverage Parity"
+                            invisible="not fairness_json"
+                        >
+                            <div class="alert alert-info mb-2" role="alert">
+                                <strong
+                            >Note:</strong> This analysis compares each group's coverage rate
+                                to the overall coverage rate. Under-representation is expected for
+                                targeted programs (e.g., a women's program will under-represent men).
+                            </div>
+                            <div class="mb-2">
+                                <span
+                                    class="badge bg-success me-2"
+                                >Proportional (ratio ≥ 0.80)</span>
+                                <span
+                                    class="badge bg-warning me-2"
+                                >Low coverage (0.70 - 0.80)</span>
+                                <span
+                                    class="badge bg-danger"
+                                >Under-represented (ratio &lt; 0.70)</span>
+                            </div>
+                            <field name="has_disparity" invisible="1" />
+                            <div
+                                class="alert alert-warning"
+                                role="alert"
+                                invisible="not has_disparity"
+                            >
+                                <i
+                                class="fa fa-exclamation-triangle me-2"
+                                title="Warning"
+                            />
+                                Under-representation detected in one or more demographic groups.
+                                Review if this is intentional based on program design.
+                            </div>
+                            <field
+                                name="fairness_json"
+                                widget="simulation_fairness_table"
+                                readonly="1"
+                            />
+                        </page>
+
+                        <!-- Targeting Efficiency Tab -->
+                        <page
+                            name="targeting_efficiency"
+                            string="Targeting Efficiency"
+                            invisible="not targeting_efficiency_json"
+                        >
+                            <group>
+                                <group>
+                                    <field
+                                        name="leakage_rate"
+                                        string="Leakage (%)"
+                                        readonly="1"
+                                    />
+                                    <field
+                                        name="undercoverage_rate"
+                                        string="Undercoverage (%)"
+                                        readonly="1"
+                                    />
+                                </group>
+                            </group>
+                            <separator string="Details" />
+                            <field
+                                name="targeting_efficiency_html"
+                                readonly="1"
+                                nolabel="1"
+                            />
+                        </page>
+
+                        <!-- Geographic Tab -->
+                        <page
+                            name="geographic"
+                            string="Geographic"
+                            invisible="not geographic_json"
+                        >
+                            <field name="geographic_html" readonly="1" nolabel="1" />
+                        </page>
+
+                        <!-- Custom Metrics Tab -->
+                        <page
+                            name="custom_metrics"
+                            string="Custom Metrics"
+                            invisible="not metric_results_json"
+                        >
+                            <field
+                                name="metric_results_html"
+                                readonly="1"
+                                nolabel="1"
+                            />
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Run Search View -->
+    <record id="view_simulation_run_search" model="ir.ui.view">
+        <field name="name">spp.simulation.run.search</field>
+        <field name="model">spp.simulation.run</field>
+        <field name="arch" type="xml">
+            <search string="Search Simulation Runs">
+                <field name="scenario_id" />
+                <separator />
+                <filter
+                    string="Completed"
+                    name="completed"
+                    domain="[('state', '=', 'completed')]"
+                />
+                <filter
+                    string="Running"
+                    name="running"
+                    domain="[('state', '=', 'running')]"
+                />
+                <filter
+                    string="Failed"
+                    name="failed"
+                    domain="[('state', '=', 'failed')]"
+                />
+                <separator />
+                <filter
+                    string="Scenario"
+                    name="group_by_scenario"
+                    context="{'group_by': 'scenario_id'}"
+                />
+                <filter
+                    string="State"
+                    name="group_by_state"
+                    context="{'group_by': 'state'}"
+                />
+            </search>
+        </field>
+    </record>
+
+    <!-- Run Action -->
+    <record id="action_simulation_run" model="ir.actions.act_window">
+        <field name="name">Simulation Results</field>
+        <field name="res_model">spp.simulation.run</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_simulation_run_search" />
+        <field name="path">simulation-results</field>
+        <field name="context">{"search_default_completed": 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No simulation results yet
+            </p>
+            <p>
+                Run a simulation from a scenario to see results here.
+            </p>
+        </field>
+    </record>
+</odoo>

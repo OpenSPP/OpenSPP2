@@ -1,0 +1,30 @@
+# Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+{
+    "name": "OpenSPP Metrics Services",
+    "summary": "Shared services for fairness, distribution, breakdown, and privacy",
+    "category": "OpenSPP",
+    "version": "19.0.2.0.0",
+    "sequence": 1,
+    "author": "OpenSPP.org",
+    "website": "https://github.com/OpenSPP/OpenSPP2",
+    "license": "LGPL-3",
+    "development_status": "Alpha",
+    "maintainers": ["jeremi"],
+    "depends": [
+        "base",
+        "spp_cel_domain",
+        "spp_area",
+        "spp_registry",
+    ],
+    "data": [
+        "security/ir.model.access.csv",
+        "data/demographic_dimensions.xml",
+        "views/demographic_dimension_views.xml",
+    ],
+    "assets": {},
+    "demo": [],
+    "images": [],
+    "application": False,
+    "installable": True,
+    "auto_install": False,
+}

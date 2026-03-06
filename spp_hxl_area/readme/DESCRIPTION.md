@@ -1,0 +1,59 @@
+Import HXL-tagged field data and aggregate to area-level indicators for humanitarian coordination. Matches HXL data rows to geographical areas using P-codes, names, or GPS coordinates, then aggregates values according to configurable rules. Generated indicators sync automatically to `spp.data.value` for use in eligibility criteria and CEL expressions.
+
+### Key Capabilities
+
+- Import HXL-tagged CSV/Excel files with libhxl parsing
+- Match data rows to areas using P-code, name, GPS, or fuzzy name strategies
+- Aggregate numeric values using sum, count, average, min, max, or percentage operations
+- Apply filter expressions to subset data before aggregation
+- Disaggregate indicators by HXL attributes (e.g., +f, +m, +children)
+- Track imports as batches with state machine (draft → mapped → processing → done)
+- Auto-sync indicators to `spp.data.value` for CEL expression access
+- Link imports to hazard incidents for disaster response tracking
+- Process imports asynchronously via queue_job
+
+### Key Models
+
+| Model                        | Description                                         |
+| ---------------------------- | --------------------------------------------------- |
+| `spp.hxl.import.profile`     | Configuration defining area matching and rules      |
+| `spp.hxl.aggregation.rule`   | Rule specifying what to aggregate and how          |
+| `spp.hxl.import.batch`       | Track one execution of profile against HXL file     |
+| `spp.hxl.import.mapping`     | Auto-detected column mapping (adjustable pre-run)   |
+| `spp.hxl.area.indicator`     | Aggregated indicator value stored per area          |
+| `spp.hxl.area.import.wizard` | Wizard for uploading files and previewing matches   |
+
+### Configuration
+
+After installing:
+
+1. Navigate to **HXL > HXL Area > Configuration > Import Profiles**
+2. Create a profile specifying area matching strategy and admin level
+3. Add aggregation rules defining which columns to aggregate and how
+4. Optionally link to a hazard incident for disaster response tracking
+
+### UI Location
+
+- **Menu**: HXL > HXL Area > Import HXL Data
+- **Batches**: HXL > HXL Area > Import Batches
+- **Indicators**: HXL > HXL Area > Area Indicators
+- **Configuration**: HXL > HXL Area > Configuration > Import Profiles
+- **Profile Form Tabs**: "Area Matching", "Aggregation Rules"
+- **Batch Form Tabs**: "File", "Column Mapping", "Statistics", "Indicators", "Error Log"
+
+### Security
+
+| Group                          | Access                                      |
+| ------------------------------ | ------------------------------------------- |
+| `spp_security.group_spp_admin` | Full CRUD on profiles, rules, indicators    |
+| `base.group_user`              | Read profiles/rules; create/edit batches    |
+
+### Extension Points
+
+- Inherit `spp.hxl.import.profile` to add custom area matching strategies
+- Override `spp.hxl.area.indicator.sync_to_data_value()` to customize CEL variable mapping
+- Extend `spp.hxl.aggregation.rule` to add custom aggregation functions
+
+### Dependencies
+
+`spp_hxl`, `spp_area`, `spp_cel_domain`, `spp_hazard`, `spp_security`, `queue_job`

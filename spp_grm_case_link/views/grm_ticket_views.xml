@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Extend GRM Ticket Form View -->
+    <record id="view_grm_ticket_form_case_link" model="ir.ui.view">
+        <field name="name">spp.grm.ticket.form.case.link</field>
+        <field name="model">spp.grm.ticket</field>
+        <field name="inherit_id" ref="spp_grm.ticket_view_form" />
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <!-- Add smart button in button box -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button
+                    name="action_view_case"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-folder-open"
+                    invisible="not case_id"
+                >
+                    <field name="case_count" widget="statinfo" string="Case" />
+                </button>
+            </xpath>
+
+            <!-- Add Escalate to Case button in header -->
+            <xpath expr="//header/button[@name='assign_to_me']" position="after">
+                <button
+                    string="Escalate to Case"
+                    name="action_escalate_to_case"
+                    type="object"
+                    class="btn-warning"
+                    invisible="case_id"
+                />
+            </xpath>
+
+            <!-- Add case information into dedicated case section placeholder -->
+            <xpath expr="//div[@name='case_section']" position="replace">
+                <div name="case_section" invisible="not case_id">
+                    <group>
+                        <group>
+                            <field
+                                name="case_id"
+                                readonly="1"
+                                options="{'no_create': True}"
+                            />
+                        </group>
+                    </group>
+                    <group string="Case Details">
+                        <field
+                            name="case_id"
+                            readonly="1"
+                            nolabel="1"
+                            mode="form"
+                            options="{'no_create': True, 'no_open': False}"
+                        />
+                    </group>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend GRM Ticket Tree View -->
+    <record id="view_grm_ticket_tree_case_link" model="ir.ui.view">
+        <field name="name">spp.grm.ticket.tree.case.link</field>
+        <field name="model">spp.grm.ticket</field>
+        <field name="inherit_id" ref="spp_grm.ticket_view_tree" />
+        <field name="arch" type="xml">
+            <!-- Add case_id field to tree view -->
+            <xpath expr="//list/field[@name='user_id']" position="after">
+                <field name="case_id" optional="show" />
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend GRM Ticket Search View -->
+    <record id="view_grm_ticket_search_case_link" model="ir.ui.view">
+        <field name="name">spp.grm.ticket.search.case.link</field>
+        <field name="model">spp.grm.ticket</field>
+        <field name="inherit_id" ref="spp_grm.spp_grm_ticket_view_search" />
+        <field name="arch" type="xml">
+            <!-- Add filter for tickets with cases -->
+            <xpath expr="//search/filter[@name='mytickets']" position="after">
+                <separator />
+                <filter
+                    string="Has Case"
+                    name="has_case"
+                    domain="[('case_id', '!=', False)]"
+                />
+                <filter
+                    string="No Case"
+                    name="no_case"
+                    domain="[('case_id', '=', False)]"
+                />
+            </xpath>
+
+            <!-- Add group by case -->
+            <xpath expr="//search/group" position="inside">
+                <filter
+                    string="Case"
+                    name="group_by_case"
+                    context="{'group_by': 'case_id'}"
+                />
+            </xpath>
+        </field>
+    </record>
+</odoo>

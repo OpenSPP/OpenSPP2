@@ -58,8 +58,24 @@
         />
     </record>
 
-    <!-- Link manager to admin -->
+    <!-- Standalone auditor group (opt-in checkbox, not part of privilege radio) -->
+    <record id="group_api_v2_auditor" model="res.groups">
+        <field name="name">API V2: Auditor</field>
+        <field name="privilege_id" ref="privilege_api_v2_auditor" />
+        <field
+            name="comment"
+        >Can view sensitive payload data in API logs (request/response bodies, search parameters, IP addresses). Implies Viewer for menu access.</field>
+        <field name="implied_ids" eval="[Command.link(ref('group_api_v2_viewer'))]" />
+    </record>
+
+    <!-- Link manager and auditor to admin -->
     <record id="spp_security.group_spp_admin" model="res.groups">
-        <field name="implied_ids" eval="[Command.link(ref('group_api_v2_manager'))]" />
+        <field
+            name="implied_ids"
+            eval="[
+            Command.link(ref('group_api_v2_manager')),
+            Command.link(ref('group_api_v2_auditor')),
+        ]"
+        />
     </record>
 </odoo>

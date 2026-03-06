@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Extend Registrant Form View -->
+    <record id="view_individuals_form_grm" model="ir.ui.view">
+        <field name="name">res.partner.form.grm</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="spp_registry.view_individuals_form" />
+        <field name="arch" type="xml">
+            <!-- Add GRM Tickets smart button for individuals -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button
+                    name="action_view_grm_registrant_tickets"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-ticket"
+                    invisible="is_group or not is_registrant"
+                >
+                    <div class="o_stat_info">
+                        <field name="grm_registrant_ticket_count" widget="statinfo" />
+                        <span class="o_stat_text">GRM Tickets</span>
+                    </div>
+                </button>
+            </xpath>
+
+            <!-- Add GRM Tickets notebook page for individuals -->
+            <xpath expr="//notebook[@name='individual_detail']" position="inside">
+                <page
+                    string="GRM Tickets"
+                    name="grm_tickets"
+                    invisible="is_group or not is_registrant"
+                >
+                    <group>
+                        <group>
+                            <field name="grm_registrant_ticket_count" />
+                            <field name="grm_registrant_open_count" />
+                        </group>
+                    </group>
+                    <!-- Odoo 19: list/form replaces tree/form -->
+                    <field name="grm_registrant_ticket_ids" mode="list">
+                        <list create="0" delete="0">
+                            <field name="name" />
+                            <field name="category_id" />
+                            <field name="priority" widget="priority" />
+                            <field name="stage_id" widget="badge" />
+                            <field name="is_repeat" widget="boolean_toggle" />
+                            <field name="create_date" />
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend Group/Household Form View -->
+    <record id="view_groups_form_grm" model="ir.ui.view">
+        <field name="name">res.partner.group.form.grm</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="spp_registry.view_individuals_form" />
+        <field name="arch" type="xml">
+            <!-- Add GRM Tickets smart button for households -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button
+                    name="action_view_grm_household_tickets"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-ticket"
+                    invisible="not is_group or not is_registrant"
+                >
+                    <div class="o_stat_info">
+                        <field name="grm_household_ticket_count" widget="statinfo" />
+                        <span class="o_stat_text">GRM Tickets</span>
+                    </div>
+                </button>
+            </xpath>
+
+            <!-- Add GRM Tickets notebook page for households -->
+            <xpath expr="//notebook[@name='group_detail']" position="inside">
+                <page
+                    string="GRM Tickets"
+                    name="grm_household_tickets"
+                    invisible="not is_group or not is_registrant"
+                >
+                    <group>
+                        <field name="grm_household_ticket_count" />
+                    </group>
+                    <!-- Odoo 19: list/form replaces tree/form -->
+                    <field name="grm_household_ticket_ids" mode="list">
+                        <list create="0" delete="0">
+                            <field name="name" />
+                            <field name="registrant_id" />
+                            <field name="category_id" />
+                            <field name="priority" widget="priority" />
+                            <field name="stage_id" widget="badge" />
+                            <field name="create_date" />
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

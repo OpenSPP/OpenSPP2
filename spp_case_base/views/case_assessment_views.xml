@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Case Assessment Form View -->
+    <record id="view_case_assessment_form" model="ir.ui.view">
+        <field name="name">spp.case.assessment.form</field>
+        <field name="model">spp.case.assessment</field>
+        <field name="arch" type="xml">
+            <form string="Case Assessment">
+                <header>
+                    <button
+                        name="action_complete"
+                        string="Complete Assessment"
+                        type="object"
+                        class="oe_highlight"
+                        invisible="state != 'draft'"
+                    />
+                    <button
+                        name="action_review"
+                        string="Review Assessment"
+                        type="object"
+                        class="oe_highlight"
+                        invisible="state != 'completed'"
+                        groups="spp_case_base.group_case_supervisor"
+                    />
+                    <button
+                        name="action_reset_to_draft"
+                        string="Reset to Draft"
+                        type="object"
+                        invisible="state == 'draft' or state == 'reviewed'"
+                    />
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="draft,completed,reviewed"
+                    />
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="action_view_case"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-folder-open"
+                        >
+                            <field
+                                name="case_id"
+                                widget="statinfo"
+                                string="View Case"
+                            />
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only" />
+                        <h1>
+                            <field name="name" readonly="1" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group name="assessment_info">
+                            <field name="case_id" options="{'no_create': True}" />
+                            <field name="assessment_type" />
+                            <field name="assessment_date" />
+                            <field name="assessor_id" options="{'no_create': True}" />
+                        </group>
+                        <group name="case_info">
+                            <field name="case_name" />
+                            <field name="case_worker_id" />
+                            <field
+                                name="company_id"
+                                groups="base.group_multi_company"
+                            />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Assessment Details" name="details">
+                            <group col="2">
+                                <group name="risk_assessment">
+                                    <field name="risk_score" />
+                                    <field
+                                        name="risk_level"
+                                        widget="badge"
+                                        decoration-success="risk_level == 'low'"
+                                        decoration-info="risk_level == 'medium'"
+                                        decoration-warning="risk_level == 'high'"
+                                        decoration-danger="risk_level == 'critical'"
+                                    />
+                                </group>
+                                <group name="factors">
+                                    <field
+                                        name="vulnerability_ids"
+                                        widget="many2many_tags"
+                                        options="{'color_field': 'color'}"
+                                    />
+                                    <field
+                                        name="risk_factor_ids"
+                                        widget="many2many_tags"
+                                        options="{'color_field': 'color'}"
+                                    />
+                                </group>
+                            </group>
+                            <separator string="Findings" />
+                            <field
+                                name="findings"
+                                nolabel="1"
+                                placeholder="Key findings from the assessment..."
+                            />
+                            <separator string="Recommendations" />
+                            <field
+                                name="recommendations"
+                                nolabel="1"
+                                placeholder="Recommended actions based on assessment..."
+                            />
+                        </page>
+                        <page
+                            string="Review Information"
+                            name="review"
+                            invisible="state != 'reviewed'"
+                        >
+                            <group>
+                                <field name="reviewed_by_id" />
+                                <field name="reviewed_date" />
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <!-- Case Assessment List View -->
+    <record id="view_case_assessment_list" model="ir.ui.view">
+        <field name="name">spp.case.assessment.list</field>
+        <field name="model">spp.case.assessment</field>
+        <field name="arch" type="xml">
+            <list
+                string="Case Assessments"
+                decoration-info="state == 'draft'"
+                decoration-success="state == 'reviewed'"
+                decoration-muted="state == 'completed'"
+            >
+                <field name="case_name" string="Case" />
+                <field name="assessment_type" />
+                <field name="assessment_date" />
+                <field name="assessor_id" widget="many2one_avatar_user" />
+                <field name="risk_score" />
+                <field
+                    name="risk_level"
+                    decoration-success="risk_level == 'low'"
+                    decoration-info="risk_level == 'medium'"
+                    decoration-warning="risk_level == 'high'"
+                    decoration-danger="risk_level == 'critical'"
+                />
+                <field
+                    name="state"
+                    decoration-info="state == 'draft'"
+                    decoration-success="state == 'reviewed'"
+                    decoration-muted="state == 'completed'"
+                />
+                <field name="reviewed_by_id" optional="hide" />
+                <field name="reviewed_date" optional="hide" />
+                <field
+                    name="company_id"
+                    groups="base.group_multi_company"
+                    optional="show"
+                />
+            </list>
+        </field>
+    </record>
+
+    <!-- Case Assessment Search View -->
+    <record id="view_case_assessment_search" model="ir.ui.view">
+        <field name="name">spp.case.assessment.search</field>
+        <field name="model">spp.case.assessment</field>
+        <field name="arch" type="xml">
+            <search string="Case Assessments">
+                <field name="name" string="Assessment" />
+                <field name="case_id" />
+                <field name="assessment_type" />
+                <field name="assessor_id" />
+                <field name="risk_level" />
+                <filter
+                    string="My Assessments"
+                    name="my_assessments"
+                    domain="[('assessor_id', '=', uid)]"
+                />
+                <filter
+                    string="Draft"
+                    name="draft"
+                    domain="[('state', '=', 'draft')]"
+                />
+                <filter
+                    string="Completed"
+                    name="completed"
+                    domain="[('state', '=', 'completed')]"
+                />
+                <filter
+                    string="Reviewed"
+                    name="reviewed"
+                    domain="[('state', '=', 'reviewed')]"
+                />
+                <separator />
+                <filter
+                    string="High/Critical Risk"
+                    name="high_risk"
+                    domain="[('risk_level', 'in', ['high', 'critical'])]"
+                />
+                <separator />
+                <group name="group_by">
+                    <filter
+                        string="Case"
+                        name="group_case"
+                        context="{'group_by': 'case_id'}"
+                    />
+                    <filter
+                        string="Assessment Type"
+                        name="group_type"
+                        context="{'group_by': 'assessment_type'}"
+                    />
+                    <filter
+                        string="Assessor"
+                        name="group_assessor"
+                        context="{'group_by': 'assessor_id'}"
+                    />
+                    <filter
+                        string="Risk Level"
+                        name="group_risk"
+                        context="{'group_by': 'risk_level'}"
+                    />
+                    <filter
+                        string="State"
+                        name="group_state"
+                        context="{'group_by': 'state'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Case Assessment Action -->
+    <record id="action_case_assessment" model="ir.actions.act_window">
+        <field name="name">Case Assessments</field>
+        <field name="res_model">spp.case.assessment</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_my_assessments': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new case assessment
+            </p>
+            <p>
+                Assessments are used to evaluate cases at different stages,
+                track risk factors, and document findings and recommendations.
+            </p>
+        </field>
+    </record>
+</odoo>

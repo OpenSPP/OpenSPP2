@@ -25,3 +25,4 @@ from . import test_cel_variable_resolver
 from . import test_data_value
 from . import test_data_provider
 from . import test_multi_company
+from . import test_cel_relational_predicate

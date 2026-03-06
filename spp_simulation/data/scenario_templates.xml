@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <record id="template_elderly_pension" model="spp.simulation.scenario.template">
+        <field name="name">Elderly Pension (Age 60+)</field>
+        <field
+            name="description"
+        >Target elderly individuals aged 60 and above for pension benefits.</field>
+        <field name="category">age</field>
+        <field name="target_type">individual</field>
+        <field name="targeting_expression">age_years(r.birthdate) >= 60</field>
+        <field name="default_amount">1000</field>
+        <field name="default_amount_mode">fixed</field>
+        <field name="icon">fa-hourglass-half</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="template_children_under_5" model="spp.simulation.scenario.template">
+        <field name="name">Households with Children Under 5</field>
+        <field
+            name="description"
+        >Target households that have at least one child under 5 years of age.</field>
+        <field name="category">age</field>
+        <field name="target_type">group</field>
+        <field
+            name="targeting_expression"
+        >members.any(m, age_years(m.birthdate) &lt; 5)</field>
+        <field name="default_amount">500</field>
+        <field name="default_amount_mode">fixed</field>
+        <field name="icon">fa-child</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="template_female_headed" model="spp.simulation.scenario.template">
+        <field name="name">Female-Headed Households</field>
+        <field
+            name="description"
+        >Target households where the head of household is female.</field>
+        <field name="category">vulnerability</field>
+        <field name="target_type">group</field>
+        <field name="targeting_expression">is_female(head.gender_id)</field>
+        <field name="default_amount">750</field>
+        <field name="default_amount_mode">fixed</field>
+        <field name="icon">fa-female</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <record id="template_rural_households" model="spp.simulation.scenario.template">
+        <field name="name">Rural Households</field>
+        <field name="description">Target households located in rural areas.</field>
+        <field name="category">geographic</field>
+        <field name="target_type">group</field>
+        <field name="targeting_expression">has_area_tag('RURAL')</field>
+        <field name="default_amount">600</field>
+        <field name="default_amount_mode">fixed</field>
+        <field name="icon">fa-tree</field>
+        <field name="sequence">40</field>
+    </record>
+
+    <record id="template_disability_targeted" model="spp.simulation.scenario.template">
+        <field name="name">Disability-Targeted</field>
+        <field
+            name="description"
+        >Target households with at least one member with a disability.</field>
+        <field name="category">vulnerability</field>
+        <field name="target_type">group</field>
+        <field
+            name="targeting_expression"
+        >members.any(m, m.disability_id != false)</field>
+        <field name="default_amount">800</field>
+        <field name="default_amount_mode">fixed</field>
+        <field name="icon">fa-wheelchair</field>
+        <field name="sequence">50</field>
+    </record>
+
+    <record id="template_large_households" model="spp.simulation.scenario.template">
+        <field name="name">Large Households (5+ Members)</field>
+        <field
+            name="description"
+        >Target households with 5 or more members. Amount scales with household size.</field>
+        <field name="category">categorical</field>
+        <field name="target_type">group</field>
+        <field name="targeting_expression">size(members) >= 5</field>
+        <field name="default_amount">200</field>
+        <field name="default_amount_mode">multiplier</field>
+        <field name="icon">fa-users</field>
+        <field name="sequence">60</field>
+    </record>
+</odoo>

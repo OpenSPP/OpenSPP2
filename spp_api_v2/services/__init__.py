@@ -1,5 +1,6 @@
 from . import api_audit_service
 from . import auth_service
+from . import outgoing_api_log_service
 from . import bundle_service
 from . import consent_service
 from . import filter_service
@@ -7,4 +8,5 @@ from . import group_service
 from . import individual_service
 from . import program_membership_service
 from . import program_service
+from . import schema_builder
 from . import search_service

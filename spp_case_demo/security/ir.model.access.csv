@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_case_demo_generator,spp.case.demo.generator,model_spp_case_demo_generator,base.group_user,1,1,1,1
+access_case_demo_wizard,spp.case.demo.wizard,model_spp_case_demo_wizard,base.group_user,1,1,1,1

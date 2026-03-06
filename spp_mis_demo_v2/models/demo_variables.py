@@ -46,6 +46,7 @@ DEMO_CONSTANTS = {
     # Fixed program amounts
     "elderly_pension_amount": 100,
     "cash_transfer_amount": 150,
+    "first_1000_days_grant": 10,  # Monthly per-beneficiary
 }
 
 

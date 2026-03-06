@@ -32,31 +32,51 @@
                         </group>
                     </group>
 
-                    <!-- Registrant Selection (shown after type selected) -->
+                    <!-- Hidden fields -->
                     <field name="show_registrant" invisible="1" />
-                    <field name="registrant_domain" invisible="1" />
+                    <field name="registrant_id" invisible="1" />
+                    <field name="_selected_partner_id" invisible="1" />
+                    <field name="_search_page" invisible="1" />
 
-                    <group invisible="not show_registrant">
+                    <!-- Registrant Search (shown after type selected, hidden after selection) -->
+                    <group invisible="not show_registrant or registrant_id">
                         <group>
                             <field
-                                name="registrant_id"
-                                string="Registrant"
-                                domain="registrant_domain"
-                                context="{'show_registrant_id': True}"
-                                options="{'no_create': True}"
-                                placeholder="Search by name or ID..."
-                                required="show_registrant"
+                                name="search_text"
+                                string="Search Registrant"
+                                placeholder="Enter name or ID number..."
+                                widget="search_delay"
                             />
                         </group>
                     </group>
 
-                    <!-- Selected registrant info (compact) -->
+                    <!-- Search Results (clickable rows, handled by widget) -->
                     <div
-                        class="alert alert-light border py-2 mb-3"
+                        class="w-100"
+                        invisible="not search_results_html or registrant_id"
+                    >
+                        <field
+                            name="search_results_html"
+                            nolabel="1"
+                            readonly="1"
+                            widget="cr_search_results"
+                        />
+                    </div>
+
+                    <!-- Selected registrant info -->
+                    <div
+                        class="alert alert-success py-2 mb-3"
                         role="status"
                         invisible="not registrant_id"
                     >
                         <field name="registrant_info_html" nolabel="1" readonly="1" />
+                        <button
+                            name="action_clear_registrant"
+                            type="object"
+                            string="Change Registrant"
+                            class="btn btn-sm btn-outline-secondary mt-2"
+                            icon="fa-pencil"
+                        />
                     </div>
                 </sheet>
                 <footer>

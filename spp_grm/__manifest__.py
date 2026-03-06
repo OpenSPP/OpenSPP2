@@ -3,7 +3,7 @@
 {
     "name": "OpenSPP - Grievance Redress Mechanism",
     "summary": "Provides a centralized Grievance Redress Mechanism for receiving, tracking, and resolving beneficiary complaints and feedback. It supports multi-channel submission, manages resolution workflows through customizable stages, and links grievances directly to individual or group registrants.",
-    "version": "19.0.2.0.0",
+    "version": "19.0.1.3.1",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
@@ -11,7 +11,7 @@
     "development_status": "Production/Stable",
     "category": "OpenSPP/Monitoring",
     "external_dependencies": {"python": []},
-    "maintainers": ["jeremi", "gonzalesedwin1123"],
+    "maintainers": ["jeremi", "gonzalesedwin1123", "emjay0921"],
     "depends": [
         "base",
         "mail",
@@ -42,7 +42,6 @@
         "views/grm_sla_rule_views.xml",
         "views/grm_ticket_views.xml",
         "views/grm_portal_templates.xml",
-        "views/res_config_settings_views.xml",
     ],
     "assets": {},
     "demo": [],

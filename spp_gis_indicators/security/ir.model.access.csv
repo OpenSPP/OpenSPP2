@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_spp_gis_color_scale_read,spp.gis.color.scale read,model_spp_gis_color_scale,spp_registry.group_registry_read,1,0,0,0
+access_spp_gis_color_scale_admin,spp.gis.color.scale admin,model_spp_gis_color_scale,spp_security.group_spp_admin,1,1,1,1
+access_spp_gis_indicator_layer_read,spp.gis.indicator.layer read,model_spp_gis_indicator_layer,spp_registry.group_registry_read,1,0,0,0
+access_spp_gis_indicator_layer_admin,spp.gis.indicator.layer admin,model_spp_gis_indicator_layer,spp_security.group_spp_admin,1,1,1,1

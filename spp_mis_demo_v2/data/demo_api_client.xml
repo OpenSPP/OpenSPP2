@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+    Demo API Client for QGIS Plugin Testing
+
+    This creates a pre-configured API client with GIS scopes for testing
+    the QGIS plugin integration. The client_secret is displayed in the UI
+    after installation - use it to configure the QGIS plugin.
+
+    Scopes granted:
+    - gis:read - View layers, catalog, and query statistics
+    - gis:all - Full GIS access including geofence management
+
+    IMPORTANT: This is demo data for testing only. In production,
+    create API clients through the UI with proper access controls.
+-->
+<odoo noupdate="1">
+    <!-- Demo API Client for QGIS Plugin -->
+    <record id="demo_api_client_qgis" model="spp.api.client">
+        <field name="name">QGIS Demo Client</field>
+        <field
+            name="description"
+        >Demo API client for testing QGIS plugin integration. Grants read access to GIS layers, reports, and statistics queries.</field>
+        <field name="partner_id" ref="base.main_partner" />
+        <field name="organization_type_id" ref="spp_consent.org_type_government" />
+        <field name="active" eval="True" />
+    </record>
+
+    <!-- GIS Read Scope - View layers, catalog, statistics -->
+    <record id="demo_api_client_qgis_scope_gis_read" model="spp.api.client.scope">
+        <field name="client_id" ref="demo_api_client_qgis" />
+        <field name="resource">gis</field>
+        <field name="action">read</field>
+        <field
+            name="description"
+        >Read access to GIS layers, reports catalog, and spatial statistics queries.</field>
+    </record>
+
+    <!-- GIS All Scope - Full GIS access including geofences -->
+    <record id="demo_api_client_qgis_scope_gis_all" model="spp.api.client.scope">
+        <field name="client_id" ref="demo_api_client_qgis" />
+        <field name="resource">gis</field>
+        <field name="action">all</field>
+        <field
+            name="description"
+        >Full GIS access including creating and managing geofences.</field>
+    </record>
+</odoo>

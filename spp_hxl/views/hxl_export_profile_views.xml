@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Column Tree View (for use in form) -->
+    <record id="view_hxl_export_profile_column_tree" model="ir.ui.view">
+        <field name="name">spp.hxl.export.profile.column.tree</field>
+        <field name="model">spp.hxl.export.profile.column</field>
+        <field name="arch" type="xml">
+            <list string="Export Columns" editable="bottom">
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="field_path" />
+                <field name="hxl_tag" />
+                <field name="hxl_hashtag_id" />
+                <field name="hxl_attribute_ids" widget="many2many_tags" />
+                <field name="computed_hxl_tag" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Profile Tree View -->
+    <record id="view_hxl_export_profile_tree" model="ir.ui.view">
+        <field name="name">spp.hxl.export.profile.tree</field>
+        <field name="model">spp.hxl.export.profile</field>
+        <field name="arch" type="xml">
+            <list string="HXL Export Profiles">
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="code" />
+                <field name="model_id" />
+                <field name="active" widget="boolean_toggle" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Profile Form View -->
+    <record id="view_hxl_export_profile_form" model="ir.ui.view">
+        <field name="name">spp.hxl.export.profile.form</field>
+        <field name="model">spp.hxl.export.profile</field>
+        <field name="arch" type="xml">
+            <form string="HXL Export Profile">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <widget
+                            name="web_ribbon"
+                            title="Archived"
+                            bg_color="text-bg-danger"
+                            invisible="active"
+                        />
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name" />
+                            <field name="code" />
+                            <field name="model_id" />
+                        </group>
+                        <group>
+                            <field name="sequence" />
+                            <field name="include_hxl_row" />
+                            <field name="date_format" />
+                            <field name="active" widget="boolean_toggle" />
+                        </group>
+                    </group>
+                    <group colspan="2">
+                        <field
+                            name="description"
+                            placeholder="Description of this export profile..."
+                        />
+                    </group>
+                    <notebook>
+                        <page string="Columns" name="columns">
+                            <field name="column_ids" widget="one2many" mode="list">
+                                <form>
+                                    <group>
+                                        <group>
+                                            <field name="name" />
+                                            <field name="field_path" />
+                                            <field name="sequence" />
+                                        </group>
+                                        <group>
+                                            <field name="hxl_tag" />
+                                            <field name="hxl_hashtag_id" />
+                                            <field
+                                                name="hxl_attribute_ids"
+                                                widget="many2many_tags"
+                                            />
+                                            <field name="computed_hxl_tag" />
+                                        </group>
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_hxl_export_profile_search" model="ir.ui.view">
+        <field name="name">spp.hxl.export.profile.search</field>
+        <field name="model">spp.hxl.export.profile</field>
+        <field name="arch" type="xml">
+            <search string="Search Export Profiles">
+                <field name="name" />
+                <field name="code" />
+                <field name="model_id" />
+                <filter
+                    string="Active"
+                    name="filter_active"
+                    domain="[('active', '=', True)]"
+                />
+                <filter
+                    string="Archived"
+                    name="filter_archived"
+                    domain="[('active', '=', False)]"
+                />
+                <filter
+                    string="Model"
+                    name="group_by_model"
+                    context="{'group_by': 'model_id'}"
+                />
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_hxl_export_profile" model="ir.actions.act_window">
+        <field name="name">HXL Export Profiles</field>
+        <field name="res_model">spp.hxl.export.profile</field>
+        <field name="view_mode">list,form</field>
+        <field name="path">hxl-export-profiles</field>
+        <field name="context">{'search_default_filter_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new HXL export profile
+            </p>
+            <p>
+                Export profiles define pre-configured templates for exporting data with HXL tags.
+                Each profile specifies the model, columns, and their associated HXL hashtags and attributes.
+            </p>
+        </field>
+    </record>
+</odoo>

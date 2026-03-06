@@ -17,20 +17,20 @@ class Area(models.Model):
     # ===== Reference Data for Normalization =====
     population = fields.Integer(
         "Population",
-        help="Total population from census or estimate",
+        help="Total population from census or official estimate. Used for per-capita normalization in GIS reports.",
     )
     population_date = fields.Date(
         "Population Data Date",
-        help="Date of population data",
+        help="Date when the population data was collected or published.",
     )
     population_source = fields.Char(
         "Population Data Source",
-        help="Source of population data (e.g., 'National Census 2020')",
+        help="Source of the population data, e.g., 'National Census 2020' or 'UNFPA Estimate'.",
     )
 
     household_count = fields.Integer(
         "Household Count",
-        help="Number of households in this area",
+        help="Number of households in this area. Used for per-household normalization in GIS reports.",
     )
 
     # ===== Registry Counts (Updated via scheduled refresh) =====

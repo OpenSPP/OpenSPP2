@@ -19,9 +19,15 @@ data that simulates real-world grievance cases.
 
 ## Dependencies
 
-- `spp_demo_common` - Core demo data infrastructure Optional: `spp_demo_scenarios` -
-  Scenario library and loader (not required; falls back to built-in samples)
+- `spp_demo` - Consolidated demo module (creates registrants, programs)
 - `spp_grm` - Grievance Redress Mechanism module
+- `spp_grm_registry` - GRM registry integration (registrant/household linking, repeat
+  detection)
+- `spp_grm_programs` - GRM program integration (program/entitlement linking)
+- `spp_security` - Security roles and access control
+
+Optional: `spp_demo_scenarios` - Scenario library and loader (not required; falls back
+to built-in samples)
 
 ## Installation
 
@@ -117,6 +123,30 @@ consistent cross-module demos:
 | Maria Santos     | Graduation inquiry        | Cash Transfer Program    | Santos Family Support    |
 | Rosa Garcia      | Food delivery schedule    | Elderly Pension + Food   | Garcia Elder Care        |
 | Carlos Morales   | Adding new child to grant | Universal Child Grant    | Morales Household Crisis |
+
+### Repeat Ticket Detection
+
+The demo generator creates realistic repeat ticket patterns for the `spp_grm_registry`
+repeat detection feature:
+
+- **Repeat Pool**: ~10% of beneficiaries are selected as "repeat filers" who get
+  assigned to multiple tickets
+- **Biased Selection**: ~30% of volume tickets are assigned from the repeat pool,
+  ensuring some registrants have 2-5+ tickets within 6 months
+- **Registry Fields**: When `spp_grm_registry` is installed, tickets automatically get
+  `registrant_id`, `household_id`, and `area_id` populated
+- **Story Repeats**: Ahmed Said has 3 story tickets, demonstrating a repeat filer
+  pattern
+- **Previous Tickets Tab**: Repeat tickets show a "Previous Tickets" tab and stat button
+  on the ticket form
+
+This makes the following features visible in the demo:
+
+- Repeat ticket badge (warning alert on form)
+- Previous Tickets stat button with count
+- "Is Repeat" column in list view
+- "Repeat Tickets" search filter
+- "Repeat Status" group-by option
 
 ### GRM-to-Case Escalation
 

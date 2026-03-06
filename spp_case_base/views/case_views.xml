@@ -1,0 +1,705 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Case Form View -->
+    <record id="view_case_form" model="ir.ui.view">
+        <field name="name">spp.case.form</field>
+        <field name="model">spp.case</field>
+        <field name="arch" type="xml">
+            <form string="Case">
+                <header>
+                    <field
+                        name="stage_id"
+                        widget="statusbar"
+                        options="{'clickable': '1', 'fold_field': 'fold'}"
+                    />
+                    <button
+                        name="action_close_case"
+                        string="Close Case"
+                        type="object"
+                        class="btn-warning"
+                        invisible="not is_active"
+                    />
+                    <button
+                        name="action_reopen_case"
+                        string="Reopen Case"
+                        type="object"
+                        class="btn-primary"
+                        invisible="is_active"
+                    />
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="%(action_case_intervention_plan)d"
+                            type="action"
+                            class="oe_stat_button"
+                            icon="fa-list-ul"
+                            context="{'default_case_id': id}"
+                        >
+                            <field
+                                name="intervention_plan_count"
+                                widget="statinfo"
+                                string="Plans"
+                            />
+                        </button>
+                        <button
+                            name="%(action_case_visit)d"
+                            type="action"
+                            class="oe_stat_button"
+                            icon="fa-calendar-check-o"
+                            context="{'default_case_id': id}"
+                        >
+                            <field
+                                name="visit_count"
+                                widget="statinfo"
+                                string="Visits"
+                            />
+                        </button>
+                        <button
+                            name="%(action_case_note)d"
+                            type="action"
+                            class="oe_stat_button"
+                            icon="fa-sticky-note-o"
+                            context="{'default_case_id': id}"
+                        >
+                            <field name="note_count" widget="statinfo" string="Notes" />
+                        </button>
+                        <button
+                            name="%(action_case_referral)d"
+                            type="action"
+                            class="oe_stat_button"
+                            icon="fa-share"
+                            context="{'default_case_id': id}"
+                        >
+                            <field
+                                name="referral_count"
+                                widget="statinfo"
+                                string="Referrals"
+                            />
+                        </button>
+                    </div>
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="text-bg-danger"
+                        invisible="active"
+                    />
+                    <widget
+                        name="web_ribbon"
+                        title="Closed"
+                        bg_color="text-bg-secondary"
+                        invisible="is_active or not active"
+                    />
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1" />
+                        </h1>
+                        <h3>
+                            <field
+                                name="partner_id"
+                                placeholder="Client Name"
+                                required="1"
+                            />
+                        </h3>
+                    </div>
+                    <!-- Hidden fields -->
+                    <field name="is_active" invisible="1" />
+                    <field name="active" invisible="1" />
+                    <field name="has_active_plan" invisible="1" />
+
+                    <!-- Main Content - 4 Tab Structure -->
+                    <notebook name="case_tabs">
+                        <!-- ==================== DETAILS TAB ==================== -->
+                        <page name="details" string="Details">
+                            <!-- Basic Info Section - 2 columns -->
+                            <separator string="Case Information" />
+                            <group name="basic_info_section" col="2">
+                                <group name="basic_info">
+                                    <field name="case_type_id" required="1" />
+                                    <field name="client_type" />
+                                    <field
+                                        name="intensity_level"
+                                        widget="radio"
+                                        options="{'horizontal': true}"
+                                    />
+                                    <field name="priority" widget="priority" />
+                                </group>
+                                <group name="assignment">
+                                    <field name="case_worker_id" required="1" />
+                                    <field name="supervisor_id" />
+                                    <field name="team_id" />
+                                    <field
+                                        name="company_id"
+                                        groups="base.group_multi_company"
+                                    />
+                                </group>
+                            </group>
+
+                            <!-- Dates Section - 2 columns -->
+                            <separator string="Timeline" />
+                            <group name="dates_section" col="2">
+                                <group name="dates">
+                                    <field name="opened_date" required="1" />
+                                    <field name="target_closure_date" />
+                                    <field name="actual_closure_date" readonly="1" />
+                                    <field name="days_open" />
+                                </group>
+                                <group name="review">
+                                    <field name="next_review_date" />
+                                    <field name="last_review_date" />
+                                    <field
+                                        name="current_plan_id"
+                                        invisible="has_active_plan == False"
+                                    />
+                                </group>
+                            </group>
+
+                            <!-- Intake & Assessment Section -->
+                            <separator string="Intake &amp; Assessment" />
+                            <group name="intake_section" col="2">
+                                <group name="intake_info">
+                                    <field name="intake_source" />
+                                    <field
+                                        name="referral_source"
+                                        invisible="intake_source != 'referral'"
+                                    />
+                                </group>
+                                <group name="risk">
+                                    <field
+                                        name="risk_factor_ids"
+                                        widget="many2many_tags"
+                                        options="{'color_field': 'color', 'no_create': True}"
+                                    />
+                                    <field
+                                        name="vulnerability_ids"
+                                        widget="many2many_tags"
+                                        options="{'color_field': 'color', 'no_create': True}"
+                                    />
+                                </group>
+                            </group>
+                            <separator string="Presenting Issue" />
+                            <field name="presenting_issue" nolabel="1" />
+
+                            <!-- Closure Section (visible only when closed) -->
+                            <separator
+                                string="Closure Information"
+                                invisible="is_active"
+                            />
+                            <group name="closure_section" col="2" invisible="is_active">
+                                <group>
+                                    <field name="closure_reason_id" />
+                                    <field name="closure_outcome" />
+                                </group>
+                                <group>
+                                    <field name="actual_closure_date" />
+                                </group>
+                            </group>
+                            <separator string="Closure Summary" invisible="is_active" />
+                            <field
+                                name="closure_summary"
+                                nolabel="1"
+                                invisible="is_active"
+                            />
+
+                            <!-- Extension point for additional details -->
+                            <group name="additional_details_section" invisible="1">
+                                <!-- Additional detail fields injected by extending modules -->
+                            </group>
+                        </page>
+
+                        <!-- ==================== PARTICIPANTS TAB ==================== -->
+                        <page name="participants" string="Participants">
+                            <!-- Intervention Plans Section -->
+                            <separator string="Intervention Plans" />
+                            <field
+                                name="intervention_plan_ids"
+                                nolabel="1"
+                                context="{'default_case_id': id}"
+                            >
+                                <list
+                                    create="1"
+                                    delete="1"
+                                    decoration-muted="state in ['revised', 'completed']"
+                                    decoration-success="is_current == True"
+                                >
+                                    <field name="name" />
+                                    <field name="version" />
+                                    <field name="is_current" string="Current" />
+                                    <field
+                                        name="state"
+                                        widget="badge"
+                                        decoration-info="state == 'draft'"
+                                        decoration-warning="state == 'pending_approval'"
+                                        decoration-success="state in ['approved', 'active']"
+                                        decoration-muted="state in ['revised', 'completed']"
+                                    />
+                                    <field name="start_date" />
+                                    <field name="target_end_date" />
+                                    <field
+                                        name="progress_percentage"
+                                        widget="progressbar"
+                                    />
+                                    <field name="intervention_count" />
+                                </list>
+                            </field>
+
+                            <!-- Extension point for registrant integration -->
+                            <div name="registrant_section" invisible="1">
+                                <!-- Injected by spp_case_registry to show registrant details -->
+                            </div>
+
+                            <!-- Extension point for household members -->
+                            <div name="household_members_section" invisible="1">
+                                <!-- Injected by bridge modules to show household members -->
+                            </div>
+                        </page>
+
+                        <!-- ==================== PROGRAMS TAB ==================== -->
+                        <page name="programs" string="Programs">
+                            <!-- Extension point for program integration -->
+                            <div name="programs_section" invisible="1">
+                                <!-- Injected by spp_case_programs to show program enrollments -->
+                            </div>
+
+                            <!-- Extension point for entitlements -->
+                            <div name="entitlements_section" invisible="1">
+                                <!-- Injected by spp_case_entitlements to show benefits/entitlements -->
+                            </div>
+
+                            <!-- Placeholder message when no programs module installed -->
+                            <div
+                                name="no_programs_message"
+                                class="alert alert-info text-center"
+                                role="status"
+                            >
+                                <p>No program integration modules installed.</p>
+                                <p
+                                    class="text-muted"
+                                >Install spp_case_programs to link cases with social protection programs.</p>
+                            </div>
+                        </page>
+
+                        <!-- ==================== HISTORY TAB ==================== -->
+                        <page name="history" string="History">
+                            <!-- Activities Section -->
+                            <separator string="Case Activities" />
+
+                            <!-- Visits -->
+                            <separator string="Visits" />
+                            <field
+                                name="visit_ids"
+                                nolabel="1"
+                                context="{'default_case_id': id}"
+                            >
+                                <list create="1" delete="1">
+                                    <field name="visit_date" />
+                                    <field name="visit_type" />
+                                    <field
+                                        name="conducted_by_id"
+                                        widget="many2one_avatar_user"
+                                    />
+                                    <field
+                                        name="duration_minutes"
+                                        string="Duration (min)"
+                                    />
+                                    <field name="purpose" />
+                                </list>
+                            </field>
+
+                            <!-- Notes -->
+                            <separator string="Notes" />
+                            <field
+                                name="note_ids"
+                                nolabel="1"
+                                context="{'default_case_id': id}"
+                            >
+                                <list
+                                    create="1"
+                                    delete="1"
+                                    decoration-danger="is_confidential == True"
+                                >
+                                    <field name="note_date" />
+                                    <field name="note_type" />
+                                    <field
+                                        name="author_id"
+                                        widget="many2one_avatar_user"
+                                    />
+                                    <field
+                                        name="is_confidential"
+                                        string="Confidential"
+                                    />
+                                    <field
+                                        name="content"
+                                        widget="html"
+                                        optional="hide"
+                                    />
+                                </list>
+                            </field>
+
+                            <!-- Referrals -->
+                            <separator string="Referrals" />
+                            <field
+                                name="referral_ids"
+                                nolabel="1"
+                                context="{'default_case_id': id}"
+                            >
+                                <list
+                                    create="1"
+                                    delete="1"
+                                    decoration-warning="status == 'pending'"
+                                    decoration-success="status == 'completed'"
+                                    decoration-danger="is_overdue == True"
+                                >
+                                    <field name="referral_date" />
+                                    <field name="service_name" />
+                                    <field name="provider_name" />
+                                    <field
+                                        name="status"
+                                        widget="badge"
+                                        decoration-warning="status == 'pending'"
+                                        decoration-success="status == 'accepted'"
+                                        decoration-info="status == 'completed'"
+                                        decoration-danger="status == 'rejected'"
+                                    />
+                                    <field name="follow_up_date" />
+                                    <field
+                                        name="is_overdue"
+                                        string="Overdue"
+                                        invisible="1"
+                                    />
+                                </list>
+                            </field>
+
+                            <!-- Audit Information Section -->
+                            <separator string="Audit Information" />
+                            <group name="audit_section" col="2">
+                                <group name="create_info">
+                                    <field name="create_date" readonly="1" />
+                                    <field name="create_uid" readonly="1" />
+                                </group>
+                                <group name="write_info">
+                                    <field name="write_date" readonly="1" />
+                                    <field name="write_uid" readonly="1" />
+                                </group>
+                            </group>
+
+                            <!-- Extension point for audit log -->
+                            <div name="audit_log_section" invisible="1">
+                                <!-- Audit log entries injected by spp_audit -->
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <!-- Case List View -->
+    <record id="view_case_tree" model="ir.ui.view">
+        <field name="name">spp.case.list</field>
+        <field name="model">spp.case</field>
+        <field name="arch" type="xml">
+            <list string="Cases" decoration-muted="not is_active" sample="1">
+                <field name="name" />
+                <field name="partner_id" />
+                <field name="case_type_id" />
+                <field name="stage_id" widget="badge" decoration-primary="stage_id" />
+                <field name="case_worker_id" widget="many2one_avatar_user" />
+                <field
+                    name="intensity_level"
+                    widget="badge"
+                    decoration-info="intensity_level == '1'"
+                    decoration-warning="intensity_level == '2'"
+                    decoration-danger="intensity_level == '3'"
+                />
+                <field name="priority" widget="priority" />
+                <field name="opened_date" />
+                <field name="days_open" />
+                <field name="next_review_date" />
+                <field name="is_active" invisible="1" />
+                <field
+                    name="company_id"
+                    groups="base.group_multi_company"
+                    optional="hide"
+                />
+            </list>
+        </field>
+    </record>
+
+    <!-- Case Kanban View -->
+    <record id="view_case_kanban" model="ir.ui.view">
+        <field name="name">spp.case.kanban</field>
+        <field name="model">spp.case</field>
+        <field name="arch" type="xml">
+            <kanban
+                default_group_by="stage_id"
+                class="o_kanban_small_column"
+                sample="1"
+            >
+                <field name="name" />
+                <field name="partner_id" />
+                <field name="case_type_id" />
+                <field name="case_worker_id" />
+                <field name="priority" />
+                <field name="intensity_level" />
+                <field name="days_open" />
+                <field name="is_active" />
+                <field name="stage_id" />
+                <field name="color" />
+                <progressbar
+                    field="priority"
+                    colors='{"urgent": "danger", "high": "warning", "medium": "info", "low": "success"}'
+                />
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_content">
+                            <div class="o_kanban_record_top">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title">
+                                        <field name="name" />
+                                    </strong>
+                                    <div class="o_kanban_record_subtitle">
+                                        <field name="partner_id" />
+                                    </div>
+                                </div>
+                                <div class="o_dropdown_kanban dropdown">
+                                    <a
+                                        role="button"
+                                        class="dropdown-toggle o-no-caret btn"
+                                        data-bs-toggle="dropdown"
+                                        href="#"
+                                        aria-label="Dropdown menu"
+                                        data-bs-display="static"
+                                    >
+                                        <span class="fa fa-ellipsis-v" />
+                                    </a>
+                                    <div class="dropdown-menu" role="menu">
+                                        <a
+                                            role="menuitem"
+                                            type="edit"
+                                            class="dropdown-item"
+                                        >Edit</a>
+                                        <a
+                                            role="menuitem"
+                                            type="delete"
+                                            class="dropdown-item"
+                                        >Delete</a>
+                                        <ul
+                                            class="oe_kanban_colorpicker"
+                                            data-field="color"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="o_kanban_record_body">
+                                <field name="case_type_id" />
+                                <div>
+                                    <span
+                                        class="badge text-bg-info"
+                                        t-if="record.intensity_level.raw_value == '1'"
+                                    >Level 1</span>
+                                    <span
+                                        class="badge text-bg-warning"
+                                        t-if="record.intensity_level.raw_value == '2'"
+                                    >Level 2</span>
+                                    <span
+                                        class="badge text-bg-danger"
+                                        t-if="record.intensity_level.raw_value == '3'"
+                                    >Level 3</span>
+                                </div>
+                            </div>
+                            <div class="o_kanban_record_bottom">
+                                <div class="oe_kanban_bottom_left">
+                                    <field name="priority" widget="priority" />
+                                    <span class="text-muted ms-2">
+                                        <t t-esc="record.days_open.value" /> days open
+                                    </span>
+                                </div>
+                                <div class="oe_kanban_bottom_right">
+                                    <field
+                                        name="case_worker_id"
+                                        widget="many2one_avatar_user"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Case Search View -->
+    <record id="view_case_search" model="ir.ui.view">
+        <field name="name">spp.case.search</field>
+        <field name="model">spp.case</field>
+        <field name="arch" type="xml">
+            <search string="Search Cases">
+                <field name="name" string="Case Number" />
+                <field name="partner_id" string="Client" />
+                <field name="case_type_id" />
+                <field name="case_worker_id" />
+                <field name="team_id" />
+                <separator />
+                <filter
+                    string="My Cases"
+                    name="my_cases"
+                    domain="[('case_worker_id', '=', uid)]"
+                />
+                <filter
+                    string="My Team"
+                    name="my_team"
+                    domain="[('team_id.member_ids', 'in', uid)]"
+                />
+                <filter
+                    string="Unassigned"
+                    name="unassigned"
+                    domain="[('case_worker_id', '=', False)]"
+                />
+                <separator />
+                <filter
+                    string="Active Cases"
+                    name="active"
+                    domain="[('is_active', '=', True)]"
+                />
+                <filter
+                    string="Closed Cases"
+                    name="closed"
+                    domain="[('is_active', '=', False)]"
+                />
+                <separator />
+                <filter
+                    string="High Priority"
+                    name="high_priority"
+                    domain="[('priority', 'in', ['high', 'urgent'])]"
+                />
+                <filter
+                    string="Level 3 Intensity"
+                    name="high_intensity"
+                    domain="[('intensity_level', '=', '3')]"
+                />
+                <filter
+                    string="Review Due"
+                    name="review_due"
+                    domain="[('next_review_date', '&lt;=', context_today().strftime('%Y-%m-%d'))]"
+                />
+                <separator />
+                <filter
+                    string="Archived"
+                    name="archived"
+                    domain="[('active', '=', False)]"
+                />
+                <separator />
+                <group>
+                    <filter
+                        string="Stage"
+                        name="group_stage"
+                        context="{'group_by': 'stage_id'}"
+                    />
+                    <filter
+                        string="Case Type"
+                        name="group_type"
+                        context="{'group_by': 'case_type_id'}"
+                    />
+                    <filter
+                        string="Case Worker"
+                        name="group_worker"
+                        context="{'group_by': 'case_worker_id'}"
+                    />
+                    <filter
+                        string="Team"
+                        name="group_team"
+                        context="{'group_by': 'team_id'}"
+                    />
+                    <filter
+                        string="Intensity Level"
+                        name="group_intensity"
+                        context="{'group_by': 'intensity_level'}"
+                    />
+                    <filter
+                        string="Priority"
+                        name="group_priority"
+                        context="{'group_by': 'priority'}"
+                    />
+                    <filter
+                        string="Opened Date"
+                        name="group_opened"
+                        context="{'group_by': 'opened_date'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Case Action -->
+    <record id="action_case" model="ir.actions.act_window">
+        <field name="name">Cases</field>
+        <field name="path">cases</field>
+        <field name="res_model">spp.case</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new case
+            </p>
+            <p>
+                Cases represent individual clients or households receiving case management services.
+                Track their progress through stages, create intervention plans, and document all activities.
+            </p>
+        </field>
+    </record>
+
+    <!-- Explicit view mapping to avoid missing view type errors -->
+    <record id="action_case_list_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1" />
+        <field name="act_window_id" ref="action_case" />
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_case_tree" />
+    </record>
+    <record id="action_case_kanban_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="0" />
+        <field name="act_window_id" ref="action_case" />
+        <field name="view_mode">kanban</field>
+        <field name="view_id" ref="view_case_kanban" />
+    </record>
+
+    <!-- My Cases Action -->
+    <record id="action_my_cases" model="ir.actions.act_window">
+        <field name="name">My Cases</field>
+        <field name="path">my-cases</field>
+        <field name="res_model">spp.case</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field
+            name="context"
+        >{'search_default_my_cases': 1, 'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No cases assigned to you
+            </p>
+            <p>
+                You don't have any cases assigned yet.
+                Talk to your supervisor about case assignments.
+            </p>
+        </field>
+    </record>
+
+    <!-- Unassigned Cases Action -->
+    <record id="action_unassigned_cases" model="ir.actions.act_window">
+        <field name="name">Unassigned Cases</field>
+        <field name="path">unassigned-cases</field>
+        <field name="res_model">spp.case</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field
+            name="context"
+        >{'search_default_unassigned': 1, 'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No unassigned cases
+            </p>
+            <p>
+                All cases are currently assigned to case workers.
+            </p>
+        </field>
+    </record>
+</odoo>

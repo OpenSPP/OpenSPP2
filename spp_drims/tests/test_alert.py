@@ -288,7 +288,7 @@ class TestDrimsAlert(DrimsTestCommon):
                 "days_until": -5,  # Would be overdue if active
             }
         )
-        alert.action_resolve()
+        alert.action_resolve(notes="Resolved for testing")
         self.assertEqual(alert.urgency_state, "normal")
 
     def test_alert_type_color_low_stock(self):

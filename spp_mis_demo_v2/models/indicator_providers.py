@@ -41,6 +41,7 @@ STANDARD_VARIABLES = [
     # Household composition (aggregate)
     "spp_studio.var_hh_size",
     "spp_studio.var_child_count",
+    "spp_studio.var_children_under_5",
     "spp_studio.var_elderly_count",
     "spp_studio.var_working_age_count",
     # Household characteristics (computed)

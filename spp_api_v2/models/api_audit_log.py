@@ -46,11 +46,13 @@ class ApiAuditLog(models.Model):
 
     ip_address = fields.Char(
         string="IP Address",
+        groups="spp_api_v2.group_api_v2_auditor",
         help="Client IP address",
     )
 
     user_agent = fields.Char(
         string="User Agent",
+        groups="spp_api_v2.group_api_v2_auditor",
         help="Client user agent string",
     )
 
@@ -122,6 +124,7 @@ class ApiAuditLog(models.Model):
     # ==========================================
     # For search operations
     search_parameters = fields.Json(
+        groups="spp_api_v2.group_api_v2_auditor",
         help="Search parameters used (for search/export operations)",
     )
 
@@ -131,10 +134,12 @@ class ApiAuditLog(models.Model):
 
     # For read operations with field filtering
     fields_returned = fields.Json(
+        groups="spp_api_v2.group_api_v2_auditor",
         help="List of fields returned in response (for _elements filtering)",
     )
 
     extensions_returned = fields.Json(
+        groups="spp_api_v2.group_api_v2_auditor",
         help="List of extensions returned in response",
     )
 
@@ -172,6 +177,7 @@ class ApiAuditLog(models.Model):
     )
 
     error_detail = fields.Char(
+        groups="spp_api_v2.group_api_v2_auditor",
         help="Error message (no PII)",
     )
 
