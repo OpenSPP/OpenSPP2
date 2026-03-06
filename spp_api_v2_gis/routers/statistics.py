@@ -46,7 +46,7 @@ async def list_statistics(
 
     try:
         # nosemgrep: odoo-sudo-without-context
-        Statistic = env["spp.statistic"].sudo()
+        Statistic = env["spp.indicator"].sudo()
         stats_by_category = Statistic.get_published_by_category("gis")
 
         categories = []

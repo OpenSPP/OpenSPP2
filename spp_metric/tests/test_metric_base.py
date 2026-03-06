@@ -21,12 +21,12 @@ class TestMetricBase(TransactionCase):
 
     def test_metric_base_fields_exist(self):
         """Test that base model shared fields are defined."""
-        # Skip if spp_statistic is not installed
+        # Skip if spp_indicator is not installed
         if "spp.indicator" not in self.env:
-            self.skipTest("spp_statistic module not installed")
+            self.skipTest("spp_indicator module not installed")
 
         # Get a concrete model that inherits from metric.base
-        # We'll use spp.statistic which should inherit from it
+        # We'll use spp.indicator which should inherit from it
         fields = self.env["spp.indicator"]._fields
 
         # Identity fields (from base)
@@ -50,27 +50,27 @@ class TestMetricBase(TransactionCase):
         # Note: metric_type, cel_expression, aggregation, format are NOT in base
         # They are defined by concrete models with model-specific selections
 
-    def test_metric_base_inherited_by_statistic(self):
-        """Test that spp.statistic inherits from spp.metric.base."""
-        # Skip if spp_statistic is not installed
+    def test_metric_base_inherited_by_indicator(self):
+        """Test that spp.indicator inherits from spp.metric.base."""
+        # Skip if spp_indicator is not installed
         if "spp.indicator" not in self.env:
-            self.skipTest("spp_statistic module not installed")
+            self.skipTest("spp_indicator module not installed")
 
         # Check if spp.metric.base is in the inheritance chain
         stat_model = self.env["spp.indicator"]
         self.assertIn(
             "spp.metric.base",
             stat_model._inherit if isinstance(stat_model._inherit, list) else [stat_model._inherit],
-            "spp.statistic should inherit from spp.metric.base",
+            "spp.indicator should inherit from spp.metric.base",
         )
 
     def test_metric_base_default_values(self):
         """Test default field values from base model."""
-        # Skip if spp_statistic is not installed
+        # Skip if spp_indicator is not installed
         if "spp.indicator" not in self.env:
-            self.skipTest("spp_statistic module not installed")
+            self.skipTest("spp_indicator module not installed")
 
-        # Create a minimal statistic to test defaults
+        # Create a minimal indicator to test defaults
         # We need a CEL variable first
         variable = self.env["spp.cel.variable"].create(
             {
@@ -97,9 +97,9 @@ class TestMetricBase(TransactionCase):
 
     def test_metric_base_category_assignment(self):
         """Test that metrics can be assigned to categories."""
-        # Skip if spp_statistic is not installed
+        # Skip if spp_indicator is not installed
         if "spp.indicator" not in self.env:
-            self.skipTest("spp_statistic module not installed")
+            self.skipTest("spp_indicator module not installed")
 
         variable = self.env["spp.cel.variable"].create(
             {

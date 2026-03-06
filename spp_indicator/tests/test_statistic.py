@@ -8,7 +8,7 @@ from odoo.tests.common import TransactionCase
 class TestStatisticCategory(TransactionCase):
     """Test statistic category model integration.
 
-    Note: Category model tests are in spp_metrics_core/tests/test_metric_category.py
+    Note: Category model tests are in spp_metric/tests/test_metric_category.py
     This class tests the integration between statistics and categories.
     """
 

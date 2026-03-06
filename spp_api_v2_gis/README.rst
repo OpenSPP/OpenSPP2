@@ -107,7 +107,7 @@ individual registrant records.
   percentages). Each feature represents an *area*, not a person.
 - **Spatial query statistics** (``POST /gis/query/statistics``): Accepts
   a GeoJSON polygon and returns configured aggregate statistics computed
-  by ``spp.aggregation.service``. Individual registrant IDs are computed
+  by ``spp.analytics.service``. Individual registrant IDs are computed
   internally for aggregation but are **explicitly stripped** from the
   response before it is sent (see ``spatial_query.py``).
 - **Exports** (GeoPackage/GeoJSON): Contain the same area-level
@@ -123,7 +123,7 @@ individual registrant records.
   re-identification in small populations.
 - **CEL variable configuration**: Administrators control which
   statistics are published and their suppression thresholds via
-  ``spp.statistic`` records.
+  ``spp.indicator`` records.
 - **Scope separation**: ``gis:read`` and ``gis:geofence`` are separate
   scopes, allowing clients to be granted read-only access without write
   capability.

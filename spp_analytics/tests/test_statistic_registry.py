@@ -108,7 +108,7 @@ class TestStatisticRegistryIntegration(TransactionCase):
     def test_compute_from_statistic_model(self):
         """Test computing statistic from spp.indicator via variable."""
         if "spp.indicator" not in self.env:
-            self.skipTest("spp_statistic module not installed")
+            self.skipTest("spp_indicator module not installed")
         if "spp.cel.variable" not in self.env:
             self.skipTest("spp_cel module not installed")
 
@@ -144,7 +144,7 @@ class TestStatisticRegistryIntegration(TransactionCase):
     def test_list_available_includes_statistics(self):
         """Test that list_available includes spp.indicator records."""
         if "spp.indicator" not in self.env:
-            self.skipTest("spp_statistic module not installed")
+            self.skipTest("spp_indicator module not installed")
         if "spp.cel.variable" not in self.env:
             self.skipTest("spp_cel module not installed")
 

@@ -273,16 +273,15 @@ result = breakdown.compute_breakdown(dimension_ids, registrant_ids)  # Re-evalua
 
 ## Used By
 
-- `spp_aggregation` - Delegates to these services
-- `spp_statistic` - Statistics computation
+- `spp_analytics` - Delegates to these services
+- `spp_indicator` - Indicator computation
 - `spp_simulation` - Simulation metrics
 - `spp_api_v2_gis` - GIS statistics API
 - `spp_api_v2_simulation` - Simulation API
 
-## Migration from spp_aggregation
+## Migration from spp_analytics
 
-These services were extracted from `spp_aggregation` to enable reuse across modules.
-Model names remain unchanged for backward compatibility.
+These services were extracted from `spp_analytics` to enable reuse across modules.
 
 **No code changes required** - Existing code continues to work:
 

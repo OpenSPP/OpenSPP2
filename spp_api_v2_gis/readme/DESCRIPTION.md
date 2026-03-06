@@ -61,7 +61,7 @@ Follows thin client architecture where QGIS displays data and OpenSPP performs a
 **Privacy controls**
 
 - **K-anonymity suppression**: Statistics backed by CEL variables can apply k-anonymity thresholds. When a cell count falls below the configured minimum, the value is replaced with a suppression marker and flagged as `"suppressed": true` in the response. This prevents re-identification in small populations.
-- **CEL variable configuration**: Administrators control which statistics are published and their suppression thresholds via `spp.statistic` records.
+- **CEL variable configuration**: Administrators control which statistics are published and their suppression thresholds via `spp.indicator` records.
 - **Scope separation**: `gis:read` and `gis:geofence` are separate scopes, allowing clients to be granted read-only access without write capability.
 
 **Design rationale**

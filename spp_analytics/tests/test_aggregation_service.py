@@ -151,7 +151,7 @@ class TestAggregationService(AggregationTestCase):
     def test_statistic_suppression_uses_stricter_threshold(self):
         """Test top-level statistic suppression uses max(user_k, stat_k)."""
         if "spp.indicator" not in self.env:
-            self.skipTest("spp_statistic module not installed")
+            self.skipTest("spp_indicator module not installed")
 
         variable = self.env["spp.cel.variable"].create(
             {

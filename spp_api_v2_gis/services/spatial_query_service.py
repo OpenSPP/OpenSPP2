@@ -18,8 +18,8 @@ class SpatialQueryService:
     - area_fallback: Match via area_id when coordinates are not available
 
     Statistics computation:
-    - Delegates to AggregationService (spp_aggregation)
-    - AggregationService provides unified computation with k-anonymity protection
+    - Delegates to AnalyticsService (spp_analytics)
+    - AnalyticsService provides unified computation with k-anonymity protection
     """
 
     def __init__(self, env):
@@ -359,7 +359,7 @@ class SpatialQueryService:
         if not statistics_to_compute:
             # Use GIS-published statistics
             # nosemgrep: odoo-sudo-without-context
-            Statistic = self.env["spp.statistic"].sudo()
+            Statistic = self.env["spp.indicator"].sudo()
             gis_stats = Statistic.get_published_for_context("gis")
             statistics_to_compute = [stat.name for stat in gis_stats] if gis_stats else None
 
@@ -401,7 +401,7 @@ class SpatialQueryService:
         grouped_stats = {}
 
         # nosemgrep: odoo-sudo-without-context
-        Statistic = self.env["spp.statistic"].sudo()
+        Statistic = self.env["spp.indicator"].sudo()
         statistic_by_name = {stat.name: stat for stat in Statistic.search([("name", "in", list(statistics.keys()))])}
 
         for stat_name, stat_data in statistics.items():

@@ -146,8 +146,8 @@ class TestSpatialQueryService(TransactionCase):
         self.assertIsInstance(result["statistics"], dict)
 
     def test_statistic_model_exists(self):
-        """Test that spp.statistic model exists and has required fields."""
-        Statistic = self.env["spp.statistic"]
+        """Test that spp.indicator model exists and has required fields."""
+        Statistic = self.env["spp.indicator"]
 
         # Check that required fields exist
         self.assertIn("name", Statistic._fields)
@@ -159,7 +159,7 @@ class TestSpatialQueryService(TransactionCase):
 
     def test_create_gis_published_statistic(self):
         """Test creating a statistic published to GIS context."""
-        Statistic = self.env["spp.statistic"]
+        Statistic = self.env["spp.indicator"]
         CelVariable = self.env["spp.cel.variable"]
 
         # Create a CEL variable
@@ -195,7 +195,7 @@ class TestSpatialQueryService(TransactionCase):
 
     def test_get_published_for_gis_context(self):
         """Test querying statistics published to GIS context."""
-        Statistic = self.env["spp.statistic"]
+        Statistic = self.env["spp.indicator"]
         CelVariable = self.env["spp.cel.variable"]
 
         # Create a CEL variable
@@ -242,7 +242,7 @@ class TestSpatialQueryService(TransactionCase):
         from ..services.spatial_query_service import SpatialQueryService
 
         CelVariable = self.env["spp.cel.variable"]
-        Statistic = self.env["spp.statistic"]
+        Statistic = self.env["spp.indicator"]
 
         # Create a CEL variable for counting groups
         var = CelVariable.create(
@@ -299,7 +299,7 @@ class TestSpatialQueryService(TransactionCase):
         from ..services.spatial_query_service import SpatialQueryService
 
         CelVariable = self.env["spp.cel.variable"]
-        Statistic = self.env["spp.statistic"]
+        Statistic = self.env["spp.indicator"]
 
         # User rule sets k=10
         self.env["spp.analytics.access.rule"].create(
