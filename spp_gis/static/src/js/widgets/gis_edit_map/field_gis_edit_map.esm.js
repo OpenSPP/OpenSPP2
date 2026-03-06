@@ -133,6 +133,7 @@ export class FieldGisEditMap extends Component {
         }
 
         if (this.map) {
+            this.draw = null;
             this.map.remove();
         }
 
