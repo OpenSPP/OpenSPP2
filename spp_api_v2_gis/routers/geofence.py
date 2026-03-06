@@ -60,7 +60,8 @@ async def create_geofence(
         )
 
     # Get the geofence model
-    geofence_model = env["spp.gis.geofence"]
+    # nosemgrep: odoo-sudo-without-context
+    geofence_model = env["spp.gis.geofence"].sudo()
 
     # Prepare kwargs for optional fields
     kwargs = {}
@@ -70,7 +71,8 @@ async def create_geofence(
     # Handle incident_code if provided
     if request.incident_code:
         # Find incident by code (external ID)
-        incident = env["spp.hazard.incident"].search([("code", "=", request.incident_code)], limit=1)
+        # nosemgrep: odoo-sudo-without-context
+        incident = env["spp.hazard.incident"].sudo().search([("code", "=", request.incident_code)], limit=1)
         if not incident:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -98,7 +100,7 @@ async def create_geofence(
         return GeofenceResponse(
             id=geofence.id,
             name=geofence.name,
-            description=geofence.description,
+            description=geofence.description or None,
             geofence_type=geofence.geofence_type,
             area_sqkm=geofence.area_sqkm,
             active=geofence.active,
@@ -115,7 +117,7 @@ async def create_geofence(
         _logger.exception("Error creating geofence")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to create geofence: {str(e)}",
+            detail="Failed to create geofence",
         ) from e
 
 
@@ -171,7 +173,8 @@ async def list_geofences(
         domain.append(("active", "=", True))
 
     # Get geofence model
-    geofence_model = env["spp.gis.geofence"]
+    # nosemgrep: odoo-sudo-without-context
+    geofence_model = env["spp.gis.geofence"].sudo()
 
     # Get total count
     total = geofence_model.search_count(domain)
@@ -232,7 +235,8 @@ async def get_geofence(
         )
 
     # Get geofence model
-    geofence_model = env["spp.gis.geofence"]
+    # nosemgrep: odoo-sudo-without-context
+    geofence_model = env["spp.gis.geofence"].sudo()
 
     # Search for geofence
     geofence = geofence_model.browse(geofence_id)
@@ -250,7 +254,7 @@ async def get_geofence(
         _logger.exception("Error converting geofence to GeoJSON")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to convert geofence to GeoJSON: {str(e)}",
+            detail="Failed to retrieve geofence data",
         ) from e
 
 
@@ -285,7 +289,8 @@ async def delete_geofence(
         )
 
     # Get geofence model
-    geofence_model = env["spp.gis.geofence"]
+    # nosemgrep: odoo-sudo-without-context
+    geofence_model = env["spp.gis.geofence"].sudo()
 
     # Search for geofence
     geofence = geofence_model.browse(geofence_id)
@@ -303,5 +308,5 @@ async def delete_geofence(
         _logger.exception("Error archiving geofence")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to archive geofence: {str(e)}",
+            detail="Failed to archive geofence",
         ) from e

@@ -73,9 +73,9 @@ async def query_proximity(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),
         ) from None
-    except Exception as e:
+    except Exception:
         _logger.exception("Proximity query failed")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Proximity query failed: {str(e)}",
+            detail="Proximity query failed",
         ) from None

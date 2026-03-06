@@ -38,10 +38,10 @@ async def list_statistics(
     for spatial queries and map visualization.
     """
     # Check read scope
-    if not api_client.has_scope("gis", "read"):
+    if not (api_client.has_scope("gis", "read") or api_client.has_scope("statistics", "read")):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Client does not have gis:read scope",
+            detail="Client does not have gis:read or statistics:read scope",
         )
 
     try:
@@ -84,9 +84,9 @@ async def list_statistics(
             total_count=total_count,
         )
 
-    except Exception as e:
+    except Exception:
         _logger.exception("Failed to list statistics")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to list statistics: {str(e)}",
+            detail="Failed to list statistics",
         ) from None
