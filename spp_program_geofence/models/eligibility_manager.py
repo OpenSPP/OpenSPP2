@@ -80,9 +80,7 @@ class GeofenceMembershipManager(models.Model):
         """
         self.ensure_one()
         if unary_union is None:
-            _logger.warning(
-                "spp_program_geofence: shapely is not available; cannot compute combined geometry"
-            )
+            _logger.warning("spp_program_geofence: shapely is not available; cannot compute combined geometry")
             return None
 
         geofences = self.program_id.geofence_ids

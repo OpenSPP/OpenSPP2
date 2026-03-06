@@ -25,9 +25,7 @@ class TestGeofenceEligibility(TransactionCase):
         cls.geofence_geojson = json.dumps(
             {
                 "type": "Polygon",
-                "coordinates": [
-                    [[100, 0], [101, 0], [101, 1], [100, 1], [100, 0]]
-                ],
+                "coordinates": [[[100, 0], [101, 0], [101, 1], [100, 1], [100, 0]]],
             }
         )
         cls.geofence = cls.env["spp.gis.geofence"].create(
@@ -42,9 +40,7 @@ class TestGeofenceEligibility(TransactionCase):
         cls.geofence2_geojson = json.dumps(
             {
                 "type": "Polygon",
-                "coordinates": [
-                    [[110, 10], [111, 10], [111, 11], [110, 11], [110, 10]]
-                ],
+                "coordinates": [[[110, 10], [111, 10], [111, 11], [110, 11], [110, 10]]],
             }
         )
         cls.geofence2 = cls.env["spp.gis.geofence"].create(
@@ -103,15 +99,9 @@ class TestGeofenceEligibility(TransactionCase):
         )
 
         # -- Registrants --
-        point_inside = json.dumps(
-            {"type": "Point", "coordinates": [100.5, 0.5]}
-        )
-        point_outside = json.dumps(
-            {"type": "Point", "coordinates": [50, 50]}
-        )
-        point_in_geofence2 = json.dumps(
-            {"type": "Point", "coordinates": [110.5, 10.5]}
-        )
+        point_inside = json.dumps({"type": "Point", "coordinates": [100.5, 0.5]})
+        point_outside = json.dumps({"type": "Point", "coordinates": [50, 50]})
+        point_in_geofence2 = json.dumps({"type": "Point", "coordinates": [110.5, 10.5]})
 
         cls.reg_inside = cls.env["res.partner"].create(
             {
@@ -432,9 +422,7 @@ class TestGeofenceEligibilityOfficer(TransactionCase):
                 "geometry": json.dumps(
                     {
                         "type": "Polygon",
-                        "coordinates": [
-                            [[100, 0], [101, 0], [101, 1], [100, 1], [100, 0]]
-                        ],
+                        "coordinates": [[[100, 0], [101, 0], [101, 1], [100, 1], [100, 0]]],
                     }
                 ),
                 "geofence_type": "custom",

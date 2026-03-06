@@ -466,7 +466,8 @@ class Operator:
         """
         if geojson.get("type") not in self.ALLOWED_LAYER_TYPE:
             raise ValueError(
-                "Invalid geojson type. Allowed types are Point, LineString, Polygon, MultiPolygon, and GeometryCollection."
+                "Invalid geojson type. Allowed types are Point, LineString, "
+                "Polygon, MultiPolygon, and GeometryCollection."
             )
         try:
             shape(geojson)
