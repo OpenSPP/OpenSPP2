@@ -73,17 +73,6 @@ export class FieldGisEditMap extends Component {
         }
     }
 
-    onLoadMap() {
-        if (this.props.record.data[this.props.name]) {
-            this.map.on("load", async () => {
-                this.addSourceAndLayer(
-                    this.sourceId,
-                    this.props.record.data[this.props.name]
-                );
-            });
-        }
-    }
-
     _getMapStyle() {
         if (this.mapTilerKey) {
             return maptilersdk.MapStyle.STREETS;
@@ -169,73 +158,6 @@ export class FieldGisEditMap extends Component {
         return null;
     }
 
-    addSourceAndLayer(sourceId, jsonString) {
-        if (!this.map.getSource(sourceId)) {
-            this.addSource(sourceId, jsonString);
-            this.addLayer(sourceId);
-        }
-    }
-
-    addSource(sourceId, jsonString) {
-        const obj = JSON.parse(jsonString);
-        const centroid = turf.centroid(obj);
-
-        this.map.addSource(sourceId, {
-            type: "geojson",
-            data: obj,
-        });
-        this.map.setCenter(centroid.geometry.coordinates);
-
-        this.source = this.map.getSource(sourceId);
-    }
-
-    addLayer(sourceId) {
-        // Polygon
-        this.map.addLayer({
-            id: `${sourceId}-polygon-layerid`,
-            type: "fill",
-            source: sourceId,
-            filter: ["all", ["==", "$type", "Polygon"], ["!=", "mode", "static"]],
-            layout: {},
-            paint: {
-                "fill-color": "#98b",
-                "fill-opacity": 0.8,
-            },
-        });
-
-        // Point
-        this.map.addLayer({
-            id: `${sourceId}-point-layerid`,
-            type: "circle",
-            source: sourceId,
-            filter: ["all", ["==", "$type", "Point"], ["!=", "mode", "static"]],
-            layout: {},
-            paint: {
-                "circle-color": "#FF680A",
-            },
-        });
-
-        // Linestring
-        this.map.addLayer({
-            id: `${sourceId}-linestring-layerid`,
-            type: "line",
-            source: sourceId,
-            filter: ["all", ["==", "$type", "LineString"], ["!=", "mode", "static"]],
-            layout: {},
-            paint: {
-                "line-color": "#e11",
-                "line-width": 4,
-            },
-        });
-    }
-
-    removeSourceAndLayer(source) {
-        this.map.removeLayer(`${source}-polygon-layerid`);
-        this.map.removeLayer(`${source}-point-layerid`);
-        this.map.removeLayer(`${source}-linestring-layerid`);
-        this.map.removeSource(source);
-    }
-
     onUIChange() {
         this.addDrawInteraction();
     }
@@ -244,18 +166,26 @@ export class FieldGisEditMap extends Component {
         const self = this;
         const hasData = Boolean(this.props.record.data[this.props.name]);
 
-        function updateArea(e) {
-            var data = self.draw.getAll();
-            if (data.features.length > 0) {
-                self.props.record.update({
-                    [self.props.name]: JSON.stringify(data.features[0].geometry),
-                });
-            }
+        // Remove previous event listeners to prevent stacking on onUIChange() calls
+        if (this._drawHandlers) {
+            this.map.off("draw.create", this._drawHandlers.update);
+            this.map.off("draw.update", this._drawHandlers.update);
+            this.map.off("draw.delete", this._drawHandlers.delete);
         }
 
-        function deleteArea(e) {
-            self.props.record.update({[self.props.name]: null});
-        }
+        this._drawHandlers = {
+            update(e) {
+                var data = self.draw.getAll();
+                if (data.features.length > 0) {
+                    self.props.record.update({
+                        [self.props.name]: JSON.stringify(data.features[0].geometry),
+                    });
+                }
+            },
+            delete(e) {
+                self.props.record.update({[self.props.name]: null});
+            },
+        };
 
         if (this.draw) {
             this.map.removeControl(this.draw);
@@ -303,9 +233,9 @@ export class FieldGisEditMap extends Component {
             }
         }
 
-        this.map.on("draw.create", updateArea);
-        this.map.on("draw.update", updateArea);
-        this.map.on("draw.delete", deleteArea);
+        this.map.on("draw.create", this._drawHandlers.update);
+        this.map.on("draw.update", this._drawHandlers.update);
+        this.map.on("draw.delete", this._drawHandlers.delete);
     }
 
     addDrawInteractionStyle() {

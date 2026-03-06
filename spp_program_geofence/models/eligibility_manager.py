@@ -102,8 +102,8 @@ class GeofenceMembershipManager(models.Model):
             ids = membership.partner_id.ids
             domain += [("id", "in", ids)]
 
-        # Exclude disabled registrants (disabled is a Datetime field)
-        domain += [("disabled", "=", None)]
+        # Exclude disabled registrants
+        domain += [("disabled", "=", False)]
 
         if self.program_id.target_type == "group":
             domain += [("is_group", "=", True), ("is_registrant", "=", True)]
