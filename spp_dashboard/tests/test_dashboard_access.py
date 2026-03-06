@@ -158,9 +158,9 @@ class TestDashboardAccess(TransactionCase):
     def test_viewer_has_read_group(self):
         """Test that viewer user has the technical read group."""
         read_group = self.env.ref("spp_dashboard.group_dashboard_read")
-        self.assertIn(read_group, self.viewer_user.groups_id)
+        self.assertIn(read_group, self.viewer_user.group_ids)
 
     def test_manager_has_manage_group(self):
         """Test that manager user has the technical manage group."""
         manage_group = self.env.ref("spp_dashboard.group_dashboard_manage")
-        self.assertIn(manage_group, self.manager_user.groups_id)
+        self.assertIn(manage_group, self.manager_user.group_ids)

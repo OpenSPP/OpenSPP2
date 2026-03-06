@@ -21,6 +21,17 @@ class DashboardData(models.Model):
 
     def init(self):
         """Create database indexes for dashboard query performance."""
+        # Unique index using COALESCE to treat NULLs as 0 for uniqueness
+        # (PostgreSQL UNIQUE considers NULLs as distinct by default)
+        self.env.cr.execute("""
+            CREATE UNIQUE INDEX IF NOT EXISTS idx_dashboard_data_stat_area_prog
+            ON spp_dashboard_data(
+                statistic_id,
+                COALESCE(area_id, 0),
+                COALESCE(program_id, 0)
+            )
+        """)
+
         # Composite index for grouped list view (category + area filtering)
         self.env.cr.execute("""
             CREATE INDEX IF NOT EXISTS idx_dashboard_data_category_area
@@ -143,13 +154,6 @@ class DashboardData(models.Model):
     refreshed_at = fields.Datetime(
         string="Refreshed At",
         help="When this value was last computed",
-    )
-
-    # ─── Constraints ─────────────────────────────────────────────────────
-
-    _statistic_area_program_unique = models.Constraint(
-        "UNIQUE(statistic_id, area_id, program_id)",
-        "Duplicate dashboard data row for this statistic/area/program combination.",
     )
 
     # ─── Refresh Logic ───────────────────────────────────────────────────
