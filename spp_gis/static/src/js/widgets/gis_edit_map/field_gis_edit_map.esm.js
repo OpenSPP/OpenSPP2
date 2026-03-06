@@ -51,14 +51,12 @@ export class FieldGisEditMap extends Component {
             });
 
             this.renderMap();
-            this.onLoadMap();
             this.addDrawInteraction();
         });
 
         onPatched(() => {
             this.defaultZoom = this.map.getZoom();
             this.renderMap();
-            this.onLoadMap();
             this.addDrawInteraction();
         });
     }
@@ -239,19 +237,24 @@ export class FieldGisEditMap extends Component {
     }
 
     onUIChange() {
-        this.removeSourceAndLayer(this.sourceId);
-        this.onLoadMap();
         this.addDrawInteraction();
     }
 
     addDrawInteraction() {
         const self = this;
+        const hasData = Boolean(this.props.record.data[this.props.name]);
 
         function updateArea(e) {
             var data = self.draw.getAll();
-            self.props.record.update({
-                [self.props.name]: JSON.stringify(data.features[0].geometry),
-            });
+            if (data.features.length > 0) {
+                self.props.record.update({
+                    [self.props.name]: JSON.stringify(data.features[0].geometry),
+                });
+            }
+        }
+
+        function deleteArea(e) {
+            self.props.record.update({[self.props.name]: null});
         }
 
         if (this.draw) {
@@ -261,11 +264,11 @@ export class FieldGisEditMap extends Component {
         this.draw = new MapboxDraw({
             displayControlsDefault: false,
             controls: {
-                [this.drawControl]: !this.props.record.data[this.props.name],
-                trash: Boolean(this.props.record.data[this.props.name]),
+                [this.drawControl]: !hasData,
+                trash: hasData,
             },
             styles: this.addDrawInteractionStyle(),
-            defaultMode: "custom_mode",
+            defaultMode: hasData ? "simple_select" : "custom_mode",
             modes: Object.assign(
                 {
                     custom_mode: this.addDrawCustomModes(),
@@ -282,8 +285,27 @@ export class FieldGisEditMap extends Component {
             elem.classList.add("maplibregl-ctrl", "maplibregl-ctrl-group");
         });
 
+        // Load existing geometry into MapboxDraw so it's interactive
+        // (clickable, editable, deletable) instead of a static layer
+        if (hasData) {
+            const loadExisting = () => {
+                const geom = JSON.parse(this.props.record.data[this.props.name]);
+                this.draw.add({
+                    type: "Feature",
+                    geometry: geom,
+                    properties: {},
+                });
+            };
+            if (this.map.loaded()) {
+                loadExisting();
+            } else {
+                this.map.on("load", loadExisting);
+            }
+        }
+
         this.map.on("draw.create", updateArea);
         this.map.on("draw.update", updateArea);
+        this.map.on("draw.delete", deleteArea);
     }
 
     addDrawInteractionStyle() {
