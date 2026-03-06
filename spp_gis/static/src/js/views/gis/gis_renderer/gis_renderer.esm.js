@@ -415,7 +415,7 @@ export class GisRenderer extends Component {
 
         let defaultMapStyle = this.getMapStyle();
 
-        if (this.defaultRaster) {
+        if (this.mapTilerKey && this.defaultRaster) {
             if (this.defaultRaster.raster_style.includes("-")) {
                 const rasterStyleArray = this.defaultRaster.raster_style
                     .toUpperCase()
