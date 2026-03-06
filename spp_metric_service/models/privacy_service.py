@@ -351,4 +351,3 @@ class PrivacyEnforcerService(models.AbstractModel):
             return formatted, True
 
         return value, False
-
