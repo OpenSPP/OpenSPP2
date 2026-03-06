@@ -32,7 +32,9 @@ export class FieldGisEditMap extends Component {
         });
 
         onMounted(async () => {
-            maptilersdk.config.apiKey = this.mapTilerKey;
+            if (this.mapTilerKey) {
+                maptilersdk.config.apiKey = this.mapTilerKey;
+            }
             const editInfo = await this.orm.call(
                 this.props.record.resModel,
                 "get_edit_info_for_gis_column",
@@ -67,11 +69,9 @@ export class FieldGisEditMap extends Component {
             if (response.mapTilerKey) {
                 this.mapTilerKey = response.mapTilerKey;
                 this.webBaseUrl = response.webBaseUrl;
-            } else {
-                console.log("Error: Api Key not found.");
             }
         } catch (error) {
-            console.error("Error fetching environment variable:", error);
+            console.warn("Could not fetch MapTiler API key:", error);
         }
     }
 
@@ -84,6 +84,34 @@ export class FieldGisEditMap extends Component {
                 );
             });
         }
+    }
+
+    _getMapStyle() {
+        if (this.mapTilerKey) {
+            return maptilersdk.MapStyle.STREETS;
+        }
+        // Fallback: OSM raster tiles (no API key required)
+        return {
+            version: 8,
+            sources: {
+                osm: {
+                    type: "raster",
+                    tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+                    tileSize: 256,
+                    attribution:
+                        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                },
+            },
+            layers: [
+                {
+                    id: "osm-tiles",
+                    type: "raster",
+                    source: "osm",
+                    minzoom: 0,
+                    maxzoom: 19,
+                },
+            ],
+        };
     }
 
     renderMap() {
@@ -106,7 +134,7 @@ export class FieldGisEditMap extends Component {
 
         this.map = new maptilersdk.Map({
             container: this.id,
-            style: maptilersdk.MapStyle.STREETS,
+            style: this._getMapStyle(),
             center: this.defaultCenter,
             zoom: this.defaultZoom,
         });
