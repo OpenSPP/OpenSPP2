@@ -93,7 +93,7 @@
                 <field name="label" optional="show" />
                 <field name="value_display" string="Value" optional="show" />
                 <field name="area_name" optional="show" />
-                <field name="program_name" optional="hide" />
+                <field name="program_name" optional="show" />
                 <field name="unit" optional="hide" />
                 <field name="format" optional="hide" />
                 <field name="underlying_count" optional="hide" />
@@ -123,6 +123,34 @@
                     string="System-wide Totals"
                     domain="[('area_id', '=', False), ('program_id', '=', False)]"
                 />
+                <filter
+                    name="per_program"
+                    string="Per Program"
+                    domain="[('program_id', '!=', False)]"
+                />
+                <separator />
+
+                <!-- Area level filters -->
+                <filter
+                    name="area_level_0"
+                    string="Level 0"
+                    domain="[('area_level', '=', 0), ('area_id', '!=', False)]"
+                />
+                <filter
+                    name="area_level_1"
+                    string="Level 1"
+                    domain="[('area_level', '=', 1), ('area_id', '!=', False)]"
+                />
+                <filter
+                    name="area_level_2"
+                    string="Level 2"
+                    domain="[('area_level', '=', 2), ('area_id', '!=', False)]"
+                />
+                <filter
+                    name="area_level_3"
+                    string="Level 3"
+                    domain="[('area_level', '=', 3), ('area_id', '!=', False)]"
+                />
                 <separator />
 
                 <!-- Suppression filter -->
@@ -146,6 +174,11 @@
                         context="{'group_by': 'area_id'}"
                     />
                     <filter
+                        name="group_by_area_level"
+                        string="Area Level"
+                        context="{'group_by': 'area_level'}"
+                    />
+                    <filter
                         name="group_by_program"
                         string="Program"
                         context="{'group_by': 'program_id'}"
@@ -157,9 +190,15 @@
                     />
                 </group>
 
-                <!-- Search panel for quick category selection -->
+                <!-- Search panel sidebar -->
                 <searchpanel>
                     <field name="category_id" icon="fa-tags" enable_counters="1" />
+                    <field
+                        name="program_id"
+                        icon="fa-list-alt"
+                        enable_counters="1"
+                        select="multi"
+                    />
                 </searchpanel>
             </search>
         </field>
