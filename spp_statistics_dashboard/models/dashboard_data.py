@@ -205,9 +205,14 @@ class DashboardData(models.Model):
         }
 
     def _refresh_statistic(self, stat_id, area_ids):
-        """Refresh one statistic across all area combinations.
+        """Refresh one statistic across all scope combinations.
 
-        Called as a queue_job. Handles errors per-area so one failure
+        Computes values for:
+        - System-wide (no area, no program)
+        - Per area (each configured area)
+        - Per program (each active program with enrolled members)
+
+        Called as a queue_job. Handles errors per-scope so one failure
         does not abort the entire statistic refresh.
         """
         stat = self.env["spp.statistic"].browse(stat_id)
@@ -216,26 +221,42 @@ class DashboardData(models.Model):
             return
 
         areas = self.env["spp.area"].browse(area_ids)
+        programs = self._get_dashboard_programs()
 
-        # False = system-wide
-        area_list = [False] + list(areas)
+        # Area dimension: system-wide + per-area
+        for area in [False] + list(areas):
+            self._refresh_scope(stat, area, False)
 
-        for area in area_list:
-            try:
-                scope = self._build_scope(area, False)
-                result = self.env["spp.aggregation.service"].compute_aggregation(
-                    scope=scope,
-                    statistics=[stat.name],
-                    context="dashboard",
-                )
-                self._upsert_data(stat, area, False, result)
-            except (ValueError, TypeError, KeyError, AttributeError) as e:
-                _logger.warning(
-                    "Dashboard refresh failed for stat=%s area=%s: %s",
-                    stat.name,
-                    area.code if area else "all",
-                    e,
-                )
+        # Program dimension: per-program (system-wide area)
+        for program in programs:
+            self._refresh_scope(stat, False, program)
+
+    def _refresh_scope(self, stat, area, program):
+        """Refresh a single (stat, area, program) combination.
+
+        Args:
+            stat: spp.statistic record
+            area: spp.area record or False
+            program: spp.program record or False
+        """
+        try:
+            scope = self._build_scope(area, program)
+            result = self.env["spp.aggregation.service"].compute_aggregation(
+                scope=scope,
+                statistics=[stat.name],
+                context="dashboard",
+            )
+            self._upsert_data(stat, area, program, result)
+        except (ValueError, TypeError, KeyError, AttributeError) as e:
+            area_label = area.code if area else "all"
+            prog_label = program.name if program else "all"
+            _logger.warning(
+                "Dashboard refresh failed for stat=%s area=%s program=%s: %s",
+                stat.name,
+                area_label,
+                prog_label,
+                e,
+            )
 
     @api.model
     def _get_dashboard_areas(self):
@@ -266,11 +287,20 @@ class DashboardData(models.Model):
 
         Args:
             area: spp.area record or False (system-wide)
-            program: spp.program record or False (unused, kept for API compatibility)
+            program: spp.program record or False (all programs)
 
         Returns:
             dict: scope definition for spp.aggregation.service
         """
+        if program:
+            # Program scope: use enrolled members as explicit partner IDs
+            memberships = program.get_beneficiaries(state=["enrolled"])
+            partner_ids = memberships.mapped("partner_id").ids
+            return {
+                "scope_type": "explicit",
+                "explicit_partner_ids": partner_ids,
+            }
+
         if area:
             return {
                 "scope_type": "area",

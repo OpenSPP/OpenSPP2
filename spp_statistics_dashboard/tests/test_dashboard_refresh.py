@@ -338,6 +338,52 @@ class TestDashboardRefresh(TransactionCase):
         self.assertEqual(scope["area_id"], self.area.id)
         self.assertTrue(scope["include_child_areas"])
 
+    def test_build_scope_with_program(self):
+        """Test _build_scope with a program returns explicit scope from enrolled members."""
+        # Create a program with enrolled members
+        program = self.env["spp.program"].create({"name": "Scope Test Program", "target_type": "group"})
+        registrant = self.env["res.partner"].create(
+            {"name": "Scope Program Person", "is_registrant": True, "is_group": False}
+        )
+        self.env["spp.program.membership"].create(
+            {"partner_id": registrant.id, "program_id": program.id, "state": "enrolled"}
+        )
+
+        DashData = self.env["spp.dashboard.data"]
+        scope = DashData._build_scope(False, program)
+        self.assertEqual(scope["scope_type"], "explicit")
+        self.assertIn(registrant.id, scope["explicit_partner_ids"])
+
+    def test_refresh_statistic_with_programs(self):
+        """Test that refresh creates rows for each active program."""
+        DashData = self.env["spp.dashboard.data"]
+
+        program = self.env["spp.program"].create({"name": "Refresh Program Test", "target_type": "group"})
+        registrant = self.env["res.partner"].create(
+            {"name": "Program Refresh Person", "is_registrant": True, "is_group": False}
+        )
+        self.env["spp.program.membership"].create(
+            {"partner_id": registrant.id, "program_id": program.id, "state": "enrolled"}
+        )
+
+        mock_result = self._mock_aggregation_result(value=10, total_count=10)
+        with patch.object(
+            type(self.env["spp.aggregation.service"]),
+            "compute_aggregation",
+            return_value=mock_result,
+        ):
+            DashData._refresh_statistic(self.statistic.id, [])
+
+        # Should create at least 2 rows: system-wide + one per active program
+        program_data = DashData.search(
+            [
+                ("statistic_id", "=", self.statistic.id),
+                ("program_id", "=", program.id),
+            ]
+        )
+        self.assertEqual(len(program_data), 1, "Expected one row for the program")
+        self.assertEqual(program_data.value, 10.0)
+
     def test_label_from_context_config(self):
         """Test that label is taken from statistic context config."""
         # Create a context config with a dashboard label override

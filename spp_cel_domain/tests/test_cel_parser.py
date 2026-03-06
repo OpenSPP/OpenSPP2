@@ -431,8 +431,7 @@ class TestCELParserBreaking(TransactionCase):
         result = P.evaluate(ast, {"m": partner})
         self.assertTrue(
             result,
-            "m.disabled == null should be True when disabled is unset "
-            f"(ORM returns {partner.disabled!r})",
+            f"m.disabled == null should be True when disabled is unset (ORM returns {partner.disabled!r})",
         )
 
         # CEL: m.disabled != null should be False (field is unset)
@@ -440,15 +439,12 @@ class TestCELParserBreaking(TransactionCase):
         result = P.evaluate(ast, {"m": partner})
         self.assertFalse(
             result,
-            "m.disabled != null should be False when disabled is unset "
-            f"(ORM returns {partner.disabled!r})",
+            f"m.disabled != null should be False when disabled is unset (ORM returns {partner.disabled!r})",
         )
 
     def test_odoo_boolean_false_not_treated_as_null(self):
         """Boolean fields that are legitimately False should NOT be normalized to None."""
-        partner = self.env["res.partner"].create(
-            {"name": "CEL Bool Test", "is_registrant": False}
-        )
+        partner = self.env["res.partner"].create({"name": "CEL Bool Test", "is_registrant": False})
 
         # is_registrant is a Boolean field, False is a real value
         ast = P.parse("m.is_registrant == false")
