@@ -322,11 +322,13 @@ class TestDashboardRefresh(TransactionCase):
             self.assertEqual(prog.state, "active")
 
     def test_build_scope_system_wide(self):
-        """Test _build_scope with no area returns CEL scope for all registrants."""
+        """Test _build_scope with no area returns explicit scope with all registrants."""
         DashData = self.env["spp.dashboard.data"]
         scope = DashData._build_scope(False, False)
-        self.assertEqual(scope["scope_type"], "cel")
-        self.assertEqual(scope["cel_expression"], "true")
+        self.assertEqual(scope["scope_type"], "explicit")
+        self.assertIn("explicit_partner_ids", scope)
+        # Should contain at least one registrant (test data creates some)
+        self.assertIsInstance(scope["explicit_partner_ids"], list)
 
     def test_build_scope_with_area(self):
         """Test _build_scope with an area."""

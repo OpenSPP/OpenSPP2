@@ -278,11 +278,13 @@ class DashboardData(models.Model):
                 "include_child_areas": True,
             }
 
-        # System-wide scope: use CEL expression that matches all registrants
+        # System-wide scope: query all registrant IDs directly and use
+        # explicit scope. We can't use CEL scope because the scope resolver's
+        # env.get() check on the AbstractModel executor returns falsy.
+        all_ids = self.env["res.partner"].sudo().search([("is_registrant", "=", True)]).ids
         return {
-            "scope_type": "cel",
-            "cel_expression": "true",
-            "cel_profile": "registry_individuals",
+            "scope_type": "explicit",
+            "explicit_partner_ids": all_ids,
         }
 
     def _upsert_data(self, stat, area, program, result):

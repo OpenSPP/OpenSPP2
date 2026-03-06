@@ -3,3 +3,4 @@
 from . import test_dashboard_data
 from . import test_dashboard_refresh
 from . import test_dashboard_access
+from . import test_dashboard_integration
