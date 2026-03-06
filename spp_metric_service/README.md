@@ -198,8 +198,7 @@ Enforces k-anonymity privacy protection on aggregation results.
 
 ```python
 enforce(result, k_threshold=None, access_level="aggregate")
-validate_access_level(user=None)
-get_k_threshold(user=None, context=None)
+suppress_value(value, count, k_threshold=None, stat_config=None)
 ```
 
 **Features:**

@@ -10,14 +10,14 @@ from odoo.exceptions import ValidationError
 _logger = logging.getLogger(__name__)
 
 
-class Statistic(models.Model):
-    """A publishable statistic based on a CEL variable.
+class Indicator(models.Model):
+    """A publishable indicator based on a CEL variable.
 
-    Statistics separate concerns:
+    Indicators separate concerns:
     - CEL Variable: "What data and how to compute it"
-    - Statistic: "Where to publish and how to present it"
+    - Indicator: "Where to publish and how to present it"
 
-    A single CEL variable can be published as multiple statistics
+    A single CEL variable can be published as multiple indicators
     with different presentations for different contexts.
 
     Inherits from spp.metric.base for common metric fields
@@ -25,7 +25,7 @@ class Statistic(models.Model):
     """
 
     _name = "spp.indicator"
-    _description = "Publishable Statistic"
+    _description = "Publishable Indicator"
     _inherit = ["spp.metric.base"]
     _order = "category_id, sequence, name"
 

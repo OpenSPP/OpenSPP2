@@ -20,7 +20,7 @@ class AggregationService(models.AbstractModel):
     """
 
     _name = "spp.analytics.service"
-    _description = "Aggregation Service"
+    _description = "Analytics Service"
 
     MAX_GROUP_BY_DIMENSIONS = 3
 
@@ -62,16 +62,19 @@ class AggregationService(models.AbstractModel):
         # Resolve scope
         scope_record = self._resolve_scope(scope)
 
+        # Resolve user access context once (single DB lookup)
+        rule = self._get_effective_rule()
+
         # Validate group_by dimensions
         group_by = group_by or []
-        self._validate_group_by(group_by)
+        self._validate_group_by(group_by, rule)
 
-        # Determine access level from user permissions
-        access_level = self._determine_access_level()
-        k_threshold = self._get_k_threshold()
+        # Determine access level and k-threshold from the resolved rule
+        access_level = self._access_level_from_rule(rule)
+        k_threshold = self._k_threshold_from_rule(rule)
 
         # Check scope is allowed for user
-        self._check_scope_allowed(scope)
+        self._check_scope_allowed(scope, rule)
 
         # Check cache if enabled
         cache_service = self.env["spp.analytics.cache"]
@@ -136,11 +139,23 @@ class AggregationService(models.AbstractModel):
         # Assume it's already a record
         return scope
 
-    def _validate_group_by(self, group_by):
+    def _get_effective_rule(self, user=None):
+        """
+        Look up the effective access rule for a user (single DB query).
+
+        :param user: res.users record (defaults to current user)
+        :returns: access rule record or None
+        """
+        user = user or self.env.user
+        # Use sudo() to read access rules - this is an internal security check
+        return self.env["spp.analytics.access.rule"].sudo().get_effective_rule_for_user(user)  # nosemgrep: odoo-sudo-without-context  # noqa: E501  # fmt: skip
+
+    def _validate_group_by(self, group_by, rule=None):
         """
         Validate group_by dimensions.
 
         :param group_by: List of dimension names
+        :param rule: Pre-resolved access rule (or None)
         :raises: ValidationError if invalid
         """
         if len(group_by) > self.MAX_GROUP_BY_DIMENSIONS:
@@ -155,52 +170,42 @@ class AggregationService(models.AbstractModel):
                 raise ValidationError(_("Unknown dimension: %s") % dim_name)
 
         # Check access rule dimension restrictions
-        user = self.env.user
-        # Use sudo() to read access rules - this is an internal security check
-        rule = self.env["spp.analytics.access.rule"].sudo().get_effective_rule_for_user(user)  # nosemgrep: odoo-sudo-without-context  # noqa: E501  # fmt: skip
         if rule and group_by:
             rule.check_dimensions_allowed(group_by)
 
-    def _determine_access_level(self, user=None):
+    def _access_level_from_rule(self, rule):
         """
-        Determine access level from user permissions.
+        Extract access level from a pre-resolved rule.
 
-        :param user: res.users record (defaults to current user)
+        :param rule: access rule record or None
         :returns: "aggregate" or "individual"
         :rtype: str
         """
-        user = user or self.env.user
-        rule = self.env["spp.analytics.access.rule"].sudo().get_effective_rule_for_user(user)  # nosemgrep: odoo-sudo-without-context  # noqa: E501  # fmt: skip
         if rule:
             return rule.access_level
         # Default to aggregate-only for safety
         return "aggregate"
 
-    def _get_k_threshold(self, user=None):
+    def _k_threshold_from_rule(self, rule):
         """
-        Get k-anonymity threshold for user.
+        Extract k-anonymity threshold from a pre-resolved rule.
 
-        :param user: res.users record (defaults to current user)
+        :param rule: access rule record or None
         :returns: k threshold value
         :rtype: int
         """
-        user = user or self.env.user
-        rule = self.env["spp.analytics.access.rule"].sudo().get_effective_rule_for_user(user)  # nosemgrep: odoo-sudo-without-context  # noqa: E501  # fmt: skip
         if rule:
             return rule.minimum_k_anonymity
         return self.env["spp.metric.privacy"].DEFAULT_K_THRESHOLD
 
-    def _check_scope_allowed(self, scope):
+    def _check_scope_allowed(self, scope, rule=None):
         """
         Check if scope is allowed for current user.
 
         :param scope: Scope record or dict
+        :param rule: Pre-resolved access rule (or None)
         :raises: AccessError if not allowed
         """
-        user = self.env.user
-        # Use sudo() to read access rules - this is an internal security check
-        rule = self.env["spp.analytics.access.rule"].sudo().get_effective_rule_for_user(user)  # nosemgrep: odoo-sudo-without-context  # noqa: E501  # fmt: skip
-
         if not rule:
             # No explicit rule - allow with defaults
             return

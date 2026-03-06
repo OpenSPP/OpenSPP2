@@ -4,16 +4,16 @@
 from odoo import fields, models
 
 
-class StatisticContext(models.Model):
-    """Context-specific presentation configuration for a statistic.
+class IndicatorContext(models.Model):
+    """Context-specific presentation configuration for an indicator.
 
     Allows overriding default presentation settings for specific contexts
-    (GIS, dashboard, API, reports). For example, a statistic might use
+    (GIS, dashboard, API, reports). For example, an indicator might use
     a different label or grouping in the GIS context vs. dashboard.
     """
 
     _name = "spp.indicator.context"
-    _description = "Statistic Context Configuration"
+    _description = "Indicator Context Configuration"
     _order = "statistic_id, context"
 
     statistic_id = fields.Many2one(
