@@ -77,7 +77,14 @@ def _safe_getattr(obj: Any, name: str, default: Any = None) -> Any:
         raise AttributeError(f"Access to attribute '{name}' is not allowed")
 
     if hasattr(obj, name):
-        return getattr(obj, name)
+        value = getattr(obj, name)
+        # Odoo ORM returns False for unset non-boolean fields (Datetime,
+        # Date, Char, Many2one, etc.). Normalize to None so that CEL null
+        # comparisons work correctly (e.g., `m.disabled != null`).
+        if value is False and hasattr(obj, "_fields") and name in obj._fields:
+            if obj._fields[name].type != "boolean":
+                return None
+        return value
     if isinstance(obj, dict):
         return obj.get(name, default)
     return default

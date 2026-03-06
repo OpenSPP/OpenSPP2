@@ -409,3 +409,59 @@ class TestCELParserBreaking(TransactionCase):
         for tok in tokens:
             self.assertIsInstance(tok.pos, int)
             self.assertGreaterEqual(tok.pos, 0)
+
+    def test_odoo_null_field_equals_null(self):
+        """Odoo returns False for unset non-boolean fields; CEL null comparison should treat as None.
+
+        When an Odoo Datetime/Date/Char/etc. field is NULL in the DB, the ORM
+        returns False. CEL 'null' maps to Python None. Without normalization,
+        `m.disabled != null` becomes `False != None` which is True for every
+        record, even though the field IS null.
+        """
+        # Create a registrant with an unset disabled (Datetime) field
+        partner = self.env["res.partner"].create(
+            {"name": "CEL Null Test Person", "is_registrant": True, "is_group": False}
+        )
+
+        # Odoo ORM returns False for unset Datetime fields
+        self.assertIs(partner.disabled, False)
+
+        # CEL: m.disabled == null should be True (field is unset)
+        ast = P.parse("m.disabled == null")
+        result = P.evaluate(ast, {"m": partner})
+        self.assertTrue(
+            result,
+            "m.disabled == null should be True when disabled is unset "
+            f"(ORM returns {partner.disabled!r})",
+        )
+
+        # CEL: m.disabled != null should be False (field is unset)
+        ast = P.parse("m.disabled != null")
+        result = P.evaluate(ast, {"m": partner})
+        self.assertFalse(
+            result,
+            "m.disabled != null should be False when disabled is unset "
+            f"(ORM returns {partner.disabled!r})",
+        )
+
+    def test_odoo_boolean_false_not_treated_as_null(self):
+        """Boolean fields that are legitimately False should NOT be normalized to None."""
+        partner = self.env["res.partner"].create(
+            {"name": "CEL Bool Test", "is_registrant": False}
+        )
+
+        # is_registrant is a Boolean field, False is a real value
+        ast = P.parse("m.is_registrant == false")
+        result = P.evaluate(ast, {"m": partner})
+        self.assertTrue(
+            result,
+            "Boolean False should remain False, not become None",
+        )
+
+        # Boolean False should NOT equal null
+        ast = P.parse("m.is_registrant == null")
+        result = P.evaluate(ast, {"m": partner})
+        self.assertFalse(
+            result,
+            "Boolean False should not equal null",
+        )
