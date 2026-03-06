@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Extend Program Form: add geofences to Overview tab -->
+    <record id="view_program_form_geofence" model="ir.ui.view">
+        <field name="name">spp.program.form.geofence</field>
+        <field name="model">spp.program</field>
+        <field name="inherit_id" ref="spp_programs.view_program_list_form" />
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <!-- Add stat button for geofence count -->
+            <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+                <button
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-map-marker"
+                    name="action_open_geofences"
+                    invisible="not geofence_ids"
+                >
+                    <field
+                        name="geofence_count"
+                        widget="statinfo"
+                        string="Geofences"
+                    />
+                </button>
+            </xpath>
+
+            <!-- Add geofences to Overview tab -->
+            <xpath
+                expr="//group[@name='additional_overview_section']"
+                position="attributes"
+            >
+                <attribute name="invisible">0</attribute>
+            </xpath>
+            <xpath
+                expr="//group[@name='additional_overview_section']"
+                position="inside"
+            >
+                <separator string="Geographic Scope" colspan="2" />
+                <field
+                    name="geofence_ids"
+                    nolabel="1"
+                    colspan="2"
+                    readonly="state == 'ended'"
+                >
+                    <list create="0" delete="1" editable="bottom">
+                        <field name="name" readonly="1" />
+                        <field name="geofence_type" optional="hide" readonly="1" />
+                        <field name="area_sqkm" string="Area (sq km)" readonly="1" />
+                    </list>
+                </field>
+            </xpath>
+        </field>
+    </record>
+</odoo>
