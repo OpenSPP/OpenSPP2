@@ -11,7 +11,7 @@ class TestDimensionCache(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.cache_service = cls.env["spp.metrics.dimension.cache"]
+        cls.cache_service = cls.env["spp.metric.dimension.cache"]
         cls.dimension_model = cls.env["spp.demographic.dimension"]
         cls.partner_model = cls.env["res.partner"]
 
@@ -190,7 +190,7 @@ class TestDimensionCache(TransactionCase):
 
     def test_breakdown_service_uses_cache(self):
         """Test that breakdown service benefits from caching."""
-        breakdown_service = self.env["spp.metrics.breakdown"]
+        breakdown_service = self.env["spp.metric.breakdown"]
 
         # Clear cache first
         self.cache_service.clear_dimension_cache()

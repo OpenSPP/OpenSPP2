@@ -266,14 +266,14 @@ class DemographicDimension(models.Model):
     def write(self, vals):
         """Clear cache when dimension configuration changes."""
         result = super().write(vals)
-        cache_service = self.env["spp.metrics.dimension.cache"]
+        cache_service = self.env["spp.metric.dimension.cache"]
         for record in self:
             cache_service.clear_dimension_cache(record.id)
         return result
 
     def unlink(self):
         """Clear cache when dimension is deleted."""
-        cache_service = self.env["spp.metrics.dimension.cache"]
+        cache_service = self.env["spp.metric.dimension.cache"]
         for record in self:
             cache_service.clear_dimension_cache(record.id)
         return super().unlink()

@@ -20,7 +20,7 @@ class DimensionCacheService(models.AbstractModel):
     Invalidation: On dimension write/unlink
     """
 
-    _name = "spp.metrics.dimension.cache"
+    _name = "spp.metric.dimension.cache"
     _description = "Dimension Evaluation Cache"
 
     @api.model

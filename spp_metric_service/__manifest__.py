@@ -1,7 +1,7 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 {
-    "name": "OpenSPP Metrics Services",
-    "summary": "Shared services for fairness, distribution, breakdown, and privacy",
+    "name": "OpenSPP Metric Service",
+    "summary": "Computation services for fairness, distribution, breakdown, and privacy",
     "category": "OpenSPP",
     "version": "19.0.2.0.0",
     "sequence": 1,

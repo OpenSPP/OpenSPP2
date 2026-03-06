@@ -18,7 +18,7 @@ class FairnessService(models.AbstractModel):
     Uses configurable DemographicDimension records for analysis.
     """
 
-    _name = "spp.metrics.fairness"
+    _name = "spp.metric.fairness"
     _description = "Fairness Analysis Service"
 
     @api.model
@@ -443,7 +443,7 @@ class FairnessService(models.AbstractModel):
         categories = {}
 
         # Check if cache service available for batch evaluation
-        cache_service = self.env.get("spp.metrics.dimension.cache")
+        cache_service = self.env.get("spp.metric.dimension.cache")
         if cache_service:
             # Use batch evaluation with caching
             evaluations = cache_service.evaluate_dimension_batch(dimension, population.ids)

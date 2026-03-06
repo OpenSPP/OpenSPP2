@@ -1,28 +1,28 @@
-# OpenSPP Metrics Services
+# OpenSPP Metric Service
 
-Shared computation and caching services for metrics across OpenSPP modules.
+Computation services for metrics across OpenSPP modules.
 
 ## Overview
 
-`spp_metrics_services` provides the core computation engine for all metrics in OpenSPP,
+`spp_metric_service` provides the core computation engine for all metrics in OpenSPP,
 including population statistics, simulation outcomes, fairness analysis, and privacy
 protection. These services are used by GIS, dashboards, simulations, and APIs.
 
 ## Architecture
 
 ```
-spp.aggregation.service (Main Entry Point)
+spp.analytics.service (Main Entry Point)
     │
-    ├── spp.metrics.breakdown (Multi-dimensional grouping)
-    │   └── spp.metrics.dimension.cache (Performance optimization)
-    ├── spp.metrics.fairness (Equity analysis)
-    ├── spp.metrics.distribution (Statistical distributions)
-    └── spp.metrics.privacy (K-anonymity enforcement)
+    ├── spp.metric.breakdown (Multi-dimensional grouping)
+    │   └── spp.metric.dimension.cache (Performance optimization)
+    ├── spp.metric.fairness (Equity analysis)
+    ├── spp.metric.distribution (Statistical distributions)
+    └── spp.metric.privacy (K-anonymity enforcement)
 ```
 
 ## Services
 
-### spp.aggregation.service
+### spp.analytics.service
 
 **Main entry point** for all aggregation computations.
 
@@ -65,7 +65,7 @@ compute_aggregation(scope, statistics=None, group_by=None, context=None)
 **Example:**
 
 ```python
-service = env['spp.aggregation.service']
+service = env['spp.analytics.service']
 
 scope = {
     'scope_type': 'area',
@@ -80,7 +80,7 @@ result = service.compute_aggregation(
 )
 ```
 
-### spp.metrics.breakdown
+### spp.metric.breakdown
 
 Computes multi-dimensional breakdowns with caching.
 
@@ -93,13 +93,13 @@ compute_breakdown(registrant_ids, group_by, statistics=None, context=None)
 **Features:**
 
 - Supports up to 3 simultaneous dimensions
-- Automatic caching via `spp.metrics.dimension.cache`
+- Automatic caching via `spp.metric.dimension.cache`
 - Privacy enforcement on small groups
 
 **Example:**
 
 ```python
-breakdown_service = env['spp.metrics.breakdown']
+breakdown_service = env['spp.metric.breakdown']
 
 result = breakdown_service.compute_breakdown(
     registrant_ids=[1, 2, 3, 4, 5],
@@ -109,7 +109,7 @@ result = breakdown_service.compute_breakdown(
 )
 ```
 
-### spp.metrics.fairness
+### spp.metric.fairness
 
 Computes fairness/equity metrics across demographic groups.
 
@@ -134,7 +134,7 @@ compute_fairness(registrant_ids, base_domain=None, dimensions=None)
 **Example:**
 
 ```python
-fairness_service = env['spp.metrics.fairness']
+fairness_service = env['spp.metric.fairness']
 
 result = fairness_service.compute_fairness(
     registrant_ids=[1, 2, 3],
@@ -155,7 +155,7 @@ result = fairness_service.compute_fairness(
 # }
 ```
 
-### spp.metrics.distribution
+### spp.metric.distribution
 
 Computes distribution statistics for numerical values.
 
@@ -175,7 +175,7 @@ compute_distribution(amounts)
 **Example:**
 
 ```python
-distribution_service = env['spp.metrics.distribution']
+distribution_service = env['spp.metric.distribution']
 
 amounts = [100, 200, 150, 300, 250]
 stats = distribution_service.compute_distribution(amounts)
@@ -190,7 +190,7 @@ stats = distribution_service.compute_distribution(amounts)
 # }
 ```
 
-### spp.metrics.privacy
+### spp.metric.privacy
 
 Enforces k-anonymity privacy protection on aggregation results.
 
@@ -212,7 +212,7 @@ get_k_threshold(user=None, context=None)
 **Example:**
 
 ```python
-privacy_service = env['spp.metrics.privacy']
+privacy_service = env['spp.metric.privacy']
 
 result = {
     'total_count': 3,  # Below threshold
@@ -230,7 +230,7 @@ protected = privacy_service.enforce(result, k_threshold=10)
 # }
 ```
 
-### spp.metrics.dimension.cache
+### spp.metric.dimension.cache
 
 Performance cache for dimension evaluations.
 
@@ -266,7 +266,7 @@ result = breakdown.compute_breakdown(dimension_ids, registrant_ids)  # Re-evalua
 ## Dependencies
 
 - `base` - Odoo core
-- `spp_metrics_core` - Base metric models
+- `spp_metric` - Base metric models
 - `spp_cel_domain` - CEL expression support
 - `spp_area` - Administrative areas
 - `spp_registry` - Registrant/partner data
@@ -288,10 +288,10 @@ Model names remain unchanged for backward compatibility.
 
 ```python
 # Still works
-fairness = env['spp.metrics.fairness']
-distribution = env['spp.metrics.distribution']
-privacy = env['spp.metrics.privacy']
-breakdown = env['spp.metrics.breakdown']
+fairness = env['spp.metric.fairness']
+distribution = env['spp.metric.distribution']
+privacy = env['spp.metric.privacy']
+breakdown = env['spp.metric.breakdown']
 ```
 
 See [Migration Guide](../../docs/migration/statistics-refactoring.md) for details.
@@ -333,7 +333,7 @@ K-anonymity enforcement adds minimal overhead:
 Run tests:
 
 ```bash
-./scripts/test_single_module.sh spp_metrics_services
+./scripts/test_single_module.sh spp_metric_service
 ```
 
 Key test scenarios:

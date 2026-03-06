@@ -39,27 +39,27 @@ class TestMetricsServices(TransactionCase):
 
     def test_fairness_service_exists(self):
         """Test that fairness service is accessible."""
-        fairness_service = self.env.get("spp.metrics.fairness")
+        fairness_service = self.env.get("spp.metric.fairness")
         self.assertIsNotNone(fairness_service, "Fairness service should be accessible")
 
     def test_distribution_service_exists(self):
         """Test that distribution service is accessible."""
-        distribution_service = self.env.get("spp.metrics.distribution")
+        distribution_service = self.env.get("spp.metric.distribution")
         self.assertIsNotNone(distribution_service, "Distribution service should be accessible")
 
     def test_privacy_service_exists(self):
         """Test that privacy service is accessible."""
-        privacy_service = self.env.get("spp.metrics.privacy")
+        privacy_service = self.env.get("spp.metric.privacy")
         self.assertIsNotNone(privacy_service, "Privacy service should be accessible")
 
     def test_breakdown_service_exists(self):
         """Test that breakdown service is accessible."""
-        breakdown_service = self.env.get("spp.metrics.breakdown")
+        breakdown_service = self.env.get("spp.metric.breakdown")
         self.assertIsNotNone(breakdown_service, "Breakdown service should be accessible")
 
     def test_fairness_service_compute(self):
         """Test fairness computation works."""
-        fairness_service = self.env["spp.metrics.fairness"]
+        fairness_service = self.env["spp.metric.fairness"]
         result = fairness_service.compute_fairness(
             self.registrant_ids,
             base_domain=[("is_registrant", "=", True)],
@@ -72,7 +72,7 @@ class TestMetricsServices(TransactionCase):
 
     def test_distribution_service_compute(self):
         """Test distribution computation works."""
-        distribution_service = self.env["spp.metrics.distribution"]
+        distribution_service = self.env["spp.metric.distribution"]
         amounts = [100, 200, 300, 400, 500]
         result = distribution_service.compute_distribution(amounts)
 
@@ -85,7 +85,7 @@ class TestMetricsServices(TransactionCase):
 
     def test_privacy_service_enforce(self):
         """Test privacy enforcement works."""
-        privacy_service = self.env["spp.metrics.privacy"]
+        privacy_service = self.env["spp.metric.privacy"]
         test_result = {
             "total_count": 10,
             "breakdown": {
@@ -102,7 +102,7 @@ class TestMetricsServices(TransactionCase):
 
     def test_breakdown_service_compute(self):
         """Test breakdown computation works."""
-        breakdown_service = self.env["spp.metrics.breakdown"]
+        breakdown_service = self.env["spp.metric.breakdown"]
 
         # Create a simple dimension (if spp.demographic.dimension exists)
         dimension_model = self.env.get("spp.demographic.dimension")
@@ -113,9 +113,9 @@ class TestMetricsServices(TransactionCase):
 
     def test_empty_inputs(self):
         """Test services handle empty inputs gracefully."""
-        fairness_service = self.env["spp.metrics.fairness"]
-        distribution_service = self.env["spp.metrics.distribution"]
-        breakdown_service = self.env["spp.metrics.breakdown"]
+        fairness_service = self.env["spp.metric.fairness"]
+        distribution_service = self.env["spp.metric.distribution"]
+        breakdown_service = self.env["spp.metric.breakdown"]
 
         # Test fairness with empty registrants
         fairness_result = fairness_service.compute_fairness([])
@@ -138,7 +138,7 @@ class TestPrivacySuppressionUnified(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.privacy_service = cls.env["spp.metrics.privacy"]
+        cls.privacy_service = cls.env["spp.metric.privacy"]
 
     def test_suppress_value_no_suppression_default_threshold(self):
         """Test suppress_value with count above default threshold (5)."""

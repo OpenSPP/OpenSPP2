@@ -14,7 +14,7 @@ class BreakdownService(models.AbstractModel):
     counts and statistics per dimension combination.
     """
 
-    _name = "spp.metrics.breakdown"
+    _name = "spp.metric.breakdown"
     _description = "Breakdown Computation Service"
 
     @api.model
@@ -57,7 +57,7 @@ class BreakdownService(models.AbstractModel):
             return {}
 
         # Get cache service
-        cache_service = self.env["spp.metrics.dimension.cache"]
+        cache_service = self.env["spp.metric.dimension.cache"]
 
         # Get cached evaluations for all dimensions
         dimension_evaluations = {}

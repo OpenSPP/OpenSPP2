@@ -15,7 +15,7 @@ class DistributionService(models.AbstractModel):
     inequality metrics from a list of numerical values.
     """
 
-    _name = "spp.metrics.distribution"
+    _name = "spp.metric.distribution"
     _description = "Distribution Computation Service"
 
     @api.model

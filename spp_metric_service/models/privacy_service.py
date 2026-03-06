@@ -22,7 +22,7 @@ class PrivacyEnforcerService(models.AbstractModel):
     Also handles access level enforcement (aggregate vs individual).
     """
 
-    _name = "spp.metrics.privacy"
+    _name = "spp.metric.privacy"
     _description = "Privacy Enforcement Service"
 
     DEFAULT_K_THRESHOLD = 5
@@ -352,47 +352,3 @@ class PrivacyEnforcerService(models.AbstractModel):
 
         return value, False
 
-    @api.model
-    def validate_access_level(self, user=None):
-        """
-        Determine the access level for a user.
-
-        :param user: res.users record (defaults to current user)
-        :returns: "aggregate" or "individual"
-        :rtype: str
-        """
-        user = user or self.env.user
-
-        # Check for access rule (use sudo for internal security check)
-        # Use defensive lookup - model may not be installed
-        access_rule_model = self.env.get("spp.aggregation.access.rule")
-        if access_rule_model is not None:
-            rule = access_rule_model.sudo().get_effective_rule_for_user(user)  # nosemgrep: odoo-sudo-without-context
-            if rule:
-                return rule.access_level
-
-        # Default to aggregate-only for safety
-        return "aggregate"
-
-    @api.model
-    def get_k_threshold(self, user=None, context=None):
-        """
-        Get the k-anonymity threshold for a user/context.
-
-        :param user: res.users record (defaults to current user)
-        :param context: Optional context string (e.g., "api", "dashboard")
-        :returns: k threshold value
-        :rtype: int
-        """
-        user = user or self.env.user
-
-        # Check for access rule (use sudo for internal security check)
-        # Use defensive lookup - model may not be installed
-        access_rule_model = self.env.get("spp.aggregation.access.rule")
-        if access_rule_model is not None:
-            rule = access_rule_model.sudo().get_effective_rule_for_user(user)  # nosemgrep: odoo-sudo-without-context
-            if rule:
-                return rule.minimum_k_anonymity
-
-        # Default threshold
-        return self.DEFAULT_K_THRESHOLD
