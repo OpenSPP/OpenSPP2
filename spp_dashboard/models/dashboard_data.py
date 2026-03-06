@@ -199,9 +199,7 @@ class DashboardData(models.Model):
             "tag": "display_notification",
             "params": {
                 "title": _("Dashboard Refresh"),
-                "message": _(
-                    "Statistics refresh has been queued. Data will update shortly."
-                ),
+                "message": _("Statistics refresh has been queued. Data will update shortly."),
                 "type": "success",
                 "sticky": False,
             },
@@ -251,18 +249,14 @@ class DashboardData(models.Model):
         by admin level (comma-separated integers). If not set, includes
         all areas.
         """
-        param = self.env["ir.config_parameter"].sudo().get_param(
-            "spp_dashboard.area_levels", ""
-        )
+        param = self.env["ir.config_parameter"].sudo().get_param("spp_dashboard.area_levels", "")
         domain = []
         if param.strip():
             try:
                 levels = [int(level.strip()) for level in param.split(",")]
                 domain = [("area_level", "in", levels)]
             except ValueError:
-                _logger.warning(
-                    "Invalid spp_dashboard.area_levels parameter: %s", param
-                )
+                _logger.warning("Invalid spp_dashboard.area_levels parameter: %s", param)
         return self.env["spp.area"].search(domain)
 
     @api.model
@@ -338,11 +332,14 @@ class DashboardData(models.Model):
         now = fields.Datetime.now()
 
         # Try to find existing record
-        existing = self.search([
-            ("statistic_id", "=", stat.id),
-            ("area_id", "=", area_id),
-            ("program_id", "=", program_id),
-        ], limit=1)
+        existing = self.search(
+            [
+                ("statistic_id", "=", stat.id),
+                ("area_id", "=", area_id),
+                ("program_id", "=", program_id),
+            ],
+            limit=1,
+        )
 
         vals = {
             "value": numeric_value,
@@ -356,11 +353,13 @@ class DashboardData(models.Model):
         if existing:
             existing.write(vals)
         else:
-            vals.update({
-                "statistic_id": stat.id,
-                "area_id": area_id,
-                "program_id": program_id,
-            })
+            vals.update(
+                {
+                    "statistic_id": stat.id,
+                    "area_id": area_id,
+                    "program_id": program_id,
+                }
+            )
             self.create(vals)
 
     @api.model
@@ -401,11 +400,11 @@ class DashboardData(models.Model):
         Args:
             published_stats: recordset of currently published spp.statistic
         """
-        stale = self.search([
-            ("statistic_id", "not in", published_stats.ids),
-        ])
+        stale = self.search(
+            [
+                ("statistic_id", "not in", published_stats.ids),
+            ]
+        )
         if stale:
-            _logger.info(
-                "Cleaning up %d stale dashboard data rows", len(stale)
-            )
+            _logger.info("Cleaning up %d stale dashboard data rows", len(stale))
             stale.unlink()

@@ -13,35 +13,43 @@ class TestDashboardRefresh(TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.category = cls.env["spp.metric.category"].create({
-            "name": "Test Category",
-            "code": "test_refresh_cat",
-        })
+        cls.category = cls.env["spp.metric.category"].create(
+            {
+                "name": "Test Category",
+                "code": "test_refresh_cat",
+            }
+        )
 
-        cls.cel_variable = cls.env["spp.cel.variable"].create({
-            "name": "refresh_test_var",
-            "cel_accessor": "refresh_test_var",
-            "source_type": "computed",
-            "cel_expression": "true",
-            "state": "active",
-        })
+        cls.cel_variable = cls.env["spp.cel.variable"].create(
+            {
+                "name": "refresh_test_var",
+                "cel_accessor": "refresh_test_var",
+                "source_type": "computed",
+                "cel_expression": "true",
+                "state": "active",
+            }
+        )
 
-        cls.statistic = cls.env["spp.statistic"].create({
-            "name": "refresh_test_stat",
-            "label": "Refresh Test Stat",
-            "variable_id": cls.cel_variable.id,
-            "category_id": cls.category.id,
-            "format": "count",
-            "unit": "people",
-            "minimum_count": 5,
-            "suppression_display": "less_than",
-            "is_published_dashboard": True,
-        })
+        cls.statistic = cls.env["spp.statistic"].create(
+            {
+                "name": "refresh_test_stat",
+                "label": "Refresh Test Stat",
+                "variable_id": cls.cel_variable.id,
+                "category_id": cls.category.id,
+                "format": "count",
+                "unit": "people",
+                "minimum_count": 5,
+                "suppression_display": "less_than",
+                "is_published_dashboard": True,
+            }
+        )
 
-        cls.area = cls.env["spp.area"].create({
-            "draft_name": "Refresh Area",
-            "code": "refresh_area_dash",
-        })
+        cls.area = cls.env["spp.area"].create(
+            {
+                "draft_name": "Refresh Area",
+                "code": "refresh_area_dash",
+            }
+        )
 
     def _mock_aggregation_result(self, value=100, suppressed=False, total_count=50):
         """Build a mock aggregation result dict."""
@@ -71,11 +79,13 @@ class TestDashboardRefresh(TransactionCase):
             DashData._refresh_statistic(self.statistic.id, [], [])
 
         # Should create one row: system-wide, no program
-        data = DashData.search([
-            ("statistic_id", "=", self.statistic.id),
-            ("area_id", "=", False),
-            ("program_id", "=", False),
-        ])
+        data = DashData.search(
+            [
+                ("statistic_id", "=", self.statistic.id),
+                ("area_id", "=", False),
+                ("program_id", "=", False),
+            ]
+        )
         self.assertEqual(len(data), 1)
         self.assertEqual(data.value, 100.0)
         self.assertEqual(data.value_display, "100")
@@ -96,9 +106,11 @@ class TestDashboardRefresh(TransactionCase):
             DashData._refresh_statistic(self.statistic.id, [self.area.id], [])
 
         # Should create 2 rows: system-wide + one area
-        data = DashData.search([
-            ("statistic_id", "=", self.statistic.id),
-        ])
+        data = DashData.search(
+            [
+                ("statistic_id", "=", self.statistic.id),
+            ]
+        )
         self.assertEqual(len(data), 2)
 
         area_data = data.filtered(lambda d: d.area_id == self.area)
@@ -128,11 +140,13 @@ class TestDashboardRefresh(TransactionCase):
             DashData._refresh_statistic(self.statistic.id, [], [])
 
         # Should still be one row, with updated value
-        data = DashData.search([
-            ("statistic_id", "=", self.statistic.id),
-            ("area_id", "=", False),
-            ("program_id", "=", False),
-        ])
+        data = DashData.search(
+            [
+                ("statistic_id", "=", self.statistic.id),
+                ("area_id", "=", False),
+                ("program_id", "=", False),
+            ]
+        )
         self.assertEqual(len(data), 1)
         self.assertEqual(data.value, 200.0)
 
@@ -148,11 +162,13 @@ class TestDashboardRefresh(TransactionCase):
         ):
             DashData._refresh_statistic(self.statistic.id, [], [])
 
-        data = DashData.search([
-            ("statistic_id", "=", self.statistic.id),
-            ("area_id", "=", False),
-            ("program_id", "=", False),
-        ])
+        data = DashData.search(
+            [
+                ("statistic_id", "=", self.statistic.id),
+                ("area_id", "=", False),
+                ("program_id", "=", False),
+            ]
+        )
         self.assertEqual(len(data), 1)
         self.assertTrue(data.is_suppressed)
         # The display value should reflect suppression
@@ -178,19 +194,23 @@ class TestDashboardRefresh(TransactionCase):
             DashData._refresh_statistic(self.statistic.id, [self.area.id], [])
 
         # System-wide row should exist despite area failure
-        system_wide = DashData.search([
-            ("statistic_id", "=", self.statistic.id),
-            ("area_id", "=", False),
-            ("program_id", "=", False),
-        ])
+        system_wide = DashData.search(
+            [
+                ("statistic_id", "=", self.statistic.id),
+                ("area_id", "=", False),
+                ("program_id", "=", False),
+            ]
+        )
         self.assertEqual(len(system_wide), 1)
         self.assertEqual(system_wide.value, 50.0)
 
         # Area row should NOT exist due to error
-        area_data = DashData.search([
-            ("statistic_id", "=", self.statistic.id),
-            ("area_id", "=", self.area.id),
-        ])
+        area_data = DashData.search(
+            [
+                ("statistic_id", "=", self.statistic.id),
+                ("area_id", "=", self.area.id),
+            ]
+        )
         self.assertEqual(len(area_data), 0)
 
     def test_refresh_nonexistent_statistic(self):
@@ -205,26 +225,32 @@ class TestDashboardRefresh(TransactionCase):
         DashData = self.env["spp.dashboard.data"]
 
         # Create an un-published statistic with dashboard data
-        unpub_stat = self.env["spp.statistic"].create({
-            "name": "unpub_stat",
-            "label": "Unpublished Stat",
-            "variable_id": self.cel_variable.id,
-            "is_published_dashboard": False,
-        })
-        stale_data = DashData.create({
-            "statistic_id": unpub_stat.id,
-            "value": 99.0,
-            "value_display": "99",
-            "label": "Stale",
-        })
+        unpub_stat = self.env["spp.statistic"].create(
+            {
+                "name": "unpub_stat",
+                "label": "Unpublished Stat",
+                "variable_id": self.cel_variable.id,
+                "is_published_dashboard": False,
+            }
+        )
+        stale_data = DashData.create(
+            {
+                "statistic_id": unpub_stat.id,
+                "value": 99.0,
+                "value_display": "99",
+                "label": "Stale",
+            }
+        )
 
         # Also create data for the published statistic
-        fresh_data = DashData.create({
-            "statistic_id": self.statistic.id,
-            "value": 10.0,
-            "value_display": "10",
-            "label": "Fresh",
-        })
+        fresh_data = DashData.create(
+            {
+                "statistic_id": self.statistic.id,
+                "value": 10.0,
+                "value_display": "10",
+                "label": "Fresh",
+            }
+        )
 
         published_stats = self.env["spp.statistic"].get_published_for_context("dashboard")
         DashData._cleanup_stale_data(published_stats)
@@ -275,9 +301,7 @@ class TestDashboardRefresh(TransactionCase):
     def test_get_dashboard_areas_filtered(self):
         """Test _get_dashboard_areas filters by area_levels system parameter."""
         # Our test area is a root area (area_level=0)
-        self.env["ir.config_parameter"].sudo().set_param(
-            "spp_dashboard.area_levels", "0"
-        )
+        self.env["ir.config_parameter"].sudo().set_param("spp_dashboard.area_levels", "0")
 
         DashData = self.env["spp.dashboard.data"]
         areas = DashData._get_dashboard_areas()
@@ -288,9 +312,7 @@ class TestDashboardRefresh(TransactionCase):
         self.assertIn(self.area, areas)
 
         # Clean up
-        self.env["ir.config_parameter"].sudo().set_param(
-            "spp_dashboard.area_levels", ""
-        )
+        self.env["ir.config_parameter"].sudo().set_param("spp_dashboard.area_levels", "")
 
     def test_get_dashboard_programs(self):
         """Test _get_dashboard_programs returns active programs."""
@@ -327,11 +349,13 @@ class TestDashboardRefresh(TransactionCase):
     def test_label_from_context_config(self):
         """Test that label is taken from statistic context config."""
         # Create a context config with a dashboard label override
-        self.env["spp.statistic.context"].create({
-            "statistic_id": self.statistic.id,
-            "context": "dashboard",
-            "label": "Dashboard Custom Label",
-        })
+        self.env["spp.statistic.context"].create(
+            {
+                "statistic_id": self.statistic.id,
+                "context": "dashboard",
+                "label": "Dashboard Custom Label",
+            }
+        )
 
         DashData = self.env["spp.dashboard.data"]
         mock_result = self._mock_aggregation_result(value=42, total_count=42)
@@ -343,9 +367,11 @@ class TestDashboardRefresh(TransactionCase):
         ):
             DashData._refresh_statistic(self.statistic.id, [], [])
 
-        data = DashData.search([
-            ("statistic_id", "=", self.statistic.id),
-            ("area_id", "=", False),
-            ("program_id", "=", False),
-        ])
+        data = DashData.search(
+            [
+                ("statistic_id", "=", self.statistic.id),
+                ("area_id", "=", False),
+                ("program_id", "=", False),
+            ]
+        )
         self.assertEqual(data.label, "Dashboard Custom Label")

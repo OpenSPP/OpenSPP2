@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <!-- ═══════════════════════════════════════════════════════════════ -->
     <!-- Kanban View (default - KPI cards grouped by category)          -->
     <!-- ═══════════════════════════════════════════════════════════════ -->
@@ -30,7 +29,10 @@
                         <div class="border rounded p-2 h-100">
                             <div class="d-flex align-items-start">
                                 <div class="flex-grow-1">
-                                    <div class="fw-bold text-truncate" t-att-title="record.label.value">
+                                    <div
+                                        class="fw-bold text-truncate"
+                                        t-att-title="record.label.value"
+                                    >
                                         <field name="label" />
                                     </div>
                                     <div class="fs-3 fw-bold mt-1">
@@ -50,7 +52,9 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="mt-2 d-flex justify-content-between text-muted small">
+                            <div
+                                class="mt-2 d-flex justify-content-between text-muted small"
+                            >
                                 <span t-if="record.area_name.value">
                                     <i class="fa fa-map-marker me-1" title="Area" />
                                     <field name="area_name" />
@@ -131,10 +135,26 @@
 
                 <!-- Group-by options -->
                 <group name="group_by_options">
-                    <filter name="group_by_category" string="Category" context="{'group_by': 'category_id'}" />
-                    <filter name="group_by_area" string="Area" context="{'group_by': 'area_id'}" />
-                    <filter name="group_by_program" string="Program" context="{'group_by': 'program_id'}" />
-                    <filter name="group_by_format" string="Format" context="{'group_by': 'format'}" />
+                    <filter
+                        name="group_by_category"
+                        string="Category"
+                        context="{'group_by': 'category_id'}"
+                    />
+                    <filter
+                        name="group_by_area"
+                        string="Area"
+                        context="{'group_by': 'area_id'}"
+                    />
+                    <filter
+                        name="group_by_program"
+                        string="Program"
+                        context="{'group_by': 'program_id'}"
+                    />
+                    <filter
+                        name="group_by_format"
+                        string="Format"
+                        context="{'group_by': 'format'}"
+                    />
                 </group>
 
                 <!-- Search panel for quick category selection -->
@@ -202,5 +222,4 @@
                scheduled daily refresh.</p>
         </field>
     </record>
-
 </odoo>
