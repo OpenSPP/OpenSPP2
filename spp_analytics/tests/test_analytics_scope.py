@@ -1,10 +1,10 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 from odoo.exceptions import ValidationError
 
-from .common import AggregationTestCase
+from .common import AnalyticsTestCase
 
 
-class TestAggregationScope(AggregationTestCase):
+class TestAnalyticsScope(AnalyticsTestCase):
     """Tests for spp.analytics.scope model."""
 
     def test_create_cel_scope(self):

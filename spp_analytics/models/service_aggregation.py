@@ -8,7 +8,7 @@ from odoo.exceptions import AccessError, ValidationError
 _logger = logging.getLogger(__name__)
 
 
-class AggregationService(models.AbstractModel):
+class AnalyticsService(models.AbstractModel):
     """
     Main aggregation service for unified statistics computation.
 
@@ -36,7 +36,7 @@ class AggregationService(models.AbstractModel):
         """
         Compute aggregation for a scope with optional breakdown.
 
-        Access level is determined from user permissions (AggregationAccessRule),
+        Access level is determined from user permissions (AnalyticsAccessRule),
         NOT passed as a parameter. This prevents callers bypassing restrictions.
 
         :param scope: spp.analytics.scope record, ID, or inline dict definition

@@ -1,8 +1,8 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
-from .common import AggregationTestCase
+from .common import AnalyticsTestCase
 
 
-class TestScopeResolver(AggregationTestCase):
+class TestScopeResolver(AnalyticsTestCase):
     """Tests for spp.analytics.scope.resolver service."""
 
     def test_resolve_explicit_scope(self):
@@ -146,7 +146,7 @@ class TestScopeResolver(AggregationTestCase):
         self.assertGreater(len(ids), 0)
 
 
-class TestScopeResolverPublicUser(AggregationTestCase):
+class TestScopeResolverPublicUser(AnalyticsTestCase):
     """Tests for scope resolver running as public user (uid:3).
 
     The scope resolver must work for unprivileged callers because it uses

@@ -18,7 +18,7 @@ class IndicatorContext(models.Model):
 
     statistic_id = fields.Many2one(
         comodel_name="spp.indicator",
-        string="Statistic",
+        string="Indicator",
         required=True,
         ondelete="cascade",
     )

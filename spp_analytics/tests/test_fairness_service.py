@@ -1,8 +1,8 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
-from .common import AggregationTestCase
+from .common import AnalyticsTestCase
 
 
-class TestFairnessService(AggregationTestCase):
+class TestFairnessService(AnalyticsTestCase):
     """Tests for spp.metric.fairness service."""
 
     @classmethod

@@ -9,7 +9,7 @@ from odoo import api, fields, models
 _logger = logging.getLogger(__name__)
 
 
-class AggregationCacheService(models.AbstractModel):
+class AnalyticsCacheService(models.AbstractModel):
     """
     Cache service for aggregation results.
 
@@ -369,7 +369,7 @@ class AggregationCacheService(models.AbstractModel):
         return scope
 
 
-class AggregationCacheEntry(models.Model):
+class AnalyticsCacheEntry(models.Model):
     """
     Cache entry for aggregation results.
 

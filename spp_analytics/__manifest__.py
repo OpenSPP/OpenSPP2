@@ -25,8 +25,8 @@
         # Data
         "data/cron_cache_cleanup.xml",
         # Views
-        "views/aggregation_scope_views.xml",
-        "views/aggregation_access_views.xml",
+        "views/analytics_scope_views.xml",
+        "views/analytics_access_views.xml",
         "views/menu.xml",
     ],
     "assets": {},

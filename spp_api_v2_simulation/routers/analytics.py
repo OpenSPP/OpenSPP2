@@ -11,12 +11,12 @@ from odoo.addons.spp_api_v2.middleware.auth import get_authenticated_client
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
-from ..schemas.aggregation import (
-    AggregationResponse,
+from ..schemas.analytics import (
+    AnalyticsResponse,
     ComputeAggregationRequest,
     DimensionsListResponse,
 )
-from ..services.aggregation_api_service import AggregationApiService
+from ..services.analytics_api_service import AnalyticsApiService
 
 _logger = logging.getLogger(__name__)
 
@@ -25,7 +25,7 @@ aggregation_router = APIRouter(tags=["Aggregation"], prefix="/aggregation")
 
 @aggregation_router.post(
     "/compute",
-    response_model=AggregationResponse,
+    response_model=AnalyticsResponse,
     summary="Compute population aggregation",
     description="Compute population counts and statistics with optional demographic breakdowns.",
 )
@@ -40,7 +40,7 @@ async def compute_aggregation(
         aggregation:read scope
 
     Response:
-        AggregationResponse with total_count, statistics, and optional breakdown
+        AnalyticsResponse with total_count, statistics, and optional breakdown
     """
     if not api_client.has_scope("aggregation", "read"):
         raise HTTPException(
@@ -49,7 +49,7 @@ async def compute_aggregation(
         )
 
     try:
-        service = AggregationApiService(env)
+        service = AnalyticsApiService(env)
         result = service.compute_aggregation(
             scope_dict=request.scope.model_dump(),
             statistics=request.statistics,
@@ -100,7 +100,7 @@ async def list_dimensions(
         )
 
     try:
-        service = AggregationApiService(env)
+        service = AnalyticsApiService(env)
         dimensions = service.list_dimensions(applies_to=applies_to)
         return {"dimensions": dimensions}
 

@@ -7,10 +7,10 @@ from odoo.addons.spp_analytics.services import (
     build_explicit_scope,
 )
 
-from .common import AggregationTestCase
+from .common import AnalyticsTestCase
 
 
-class TestScopeBuilder(AggregationTestCase):
+class TestScopeBuilder(AnalyticsTestCase):
     """Tests for scope builder utility functions."""
 
     def test_build_explicit_scope_with_list(self):

@@ -7,7 +7,7 @@ from odoo.exceptions import ValidationError
 _logger = logging.getLogger(__name__)
 
 
-class AggregationAccessRule(models.Model):
+class AnalyticsAccessRule(models.Model):
     """
     Access control rules for aggregation queries.
 

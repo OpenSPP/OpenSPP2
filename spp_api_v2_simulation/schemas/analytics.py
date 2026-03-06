@@ -4,7 +4,7 @@
 from pydantic import BaseModel, Field
 
 
-class AggregationScopeRequest(BaseModel):
+class AnalyticsScopeRequest(BaseModel):
     """Inline scope definition for aggregation queries."""
 
     target_type: str = Field(
@@ -24,7 +24,7 @@ class AggregationScopeRequest(BaseModel):
 class ComputeAggregationRequest(BaseModel):
     """Request body for POST /aggregation/compute."""
 
-    scope: AggregationScopeRequest = Field(
+    scope: AnalyticsScopeRequest = Field(
         ...,
         description="Scope definition for the aggregation query",
     )
@@ -38,7 +38,7 @@ class ComputeAggregationRequest(BaseModel):
     )
 
 
-class AggregationResponse(BaseModel):
+class AnalyticsResponse(BaseModel):
     """Response from POST /aggregation/compute."""
 
     total_count: int = Field(..., description="Total registrants matching the scope")

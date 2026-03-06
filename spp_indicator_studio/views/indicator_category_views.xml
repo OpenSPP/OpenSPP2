@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- ═══════════════════════════════════════════════════════════════════════
-         METRIC CATEGORY VIEWS (Statistic Categories)
+         METRIC CATEGORY VIEWS (Indicator Categories)
          Note: Migrated from spp.indicator.category to spp.metric.category
          ═══════════════════════════════════════════════════════════════════════ -->
 

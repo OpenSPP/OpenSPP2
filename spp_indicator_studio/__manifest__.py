@@ -13,8 +13,8 @@
     ],
     "data": [
         "security/ir.model.access.csv",
-        "views/statistic_views.xml",
-        "views/statistic_category_views.xml",
+        "views/indicator_views.xml",
+        "views/indicator_category_views.xml",
         "views/menus.xml",
     ],
     "installable": True,

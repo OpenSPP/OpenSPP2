@@ -1,10 +1,10 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 from odoo.exceptions import AccessError, ValidationError
 
-from .common import AggregationTestCase
+from .common import AnalyticsTestCase
 
 
-class TestAggregationService(AggregationTestCase):
+class TestAnalyticsService(AnalyticsTestCase):
     """Tests for spp.analytics.service main entry point."""
 
     @classmethod
@@ -197,7 +197,7 @@ class TestAggregationService(AggregationTestCase):
         self.assertEqual(stat["value"], "<10")
 
 
-class TestAggregationServiceAccessControl(AggregationTestCase):
+class TestAnalyticsServiceAccessControl(AnalyticsTestCase):
     """Tests for access control in aggregation service."""
 
     @classmethod
@@ -298,7 +298,7 @@ class TestAggregationServiceAccessControl(AggregationTestCase):
                 )
 
 
-class TestAggregationServicePublicUser(AggregationTestCase):
+class TestAnalyticsServicePublicUser(AnalyticsTestCase):
     """Tests for aggregation service running as public user (uid:3).
 
     The GIS API runs as base.public_user which has no Odoo model permissions.

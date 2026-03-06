@@ -9,7 +9,7 @@ from odoo.addons.spp_analytics.services import build_explicit_scope
 _logger = logging.getLogger(__name__)
 
 
-class AggregationApiService:
+class AnalyticsApiService:
     """Thin adapter between API layer and spp.analytics.service."""
 
     def __init__(self, env):

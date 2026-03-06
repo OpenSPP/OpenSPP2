@@ -42,7 +42,7 @@ class TestStatisticRegistry(TransactionCase):
 
     def test_compute_unknown_statistic(self):
         """Test that unknown statistic returns None with warning."""
-        with self.assertLogs("odoo.addons.spp_analytics.models.statistic_registry", level="WARNING") as log:
+        with self.assertLogs("odoo.addons.spp_analytics.models.indicator_registry", level="WARNING") as log:
             result = self.stat_registry.compute("nonexistent_stat", self.registrants.ids)
             self.assertIsNone(result)
             self.assertTrue(any("Unknown statistic: nonexistent_stat" in msg for msg in log.output))

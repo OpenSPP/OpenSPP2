@@ -2,7 +2,7 @@
 from odoo.tests.common import TransactionCase
 
 
-class AggregationTestCase(TransactionCase):
+class AnalyticsTestCase(TransactionCase):
     """Base test case for aggregation module tests."""
 
     @classmethod

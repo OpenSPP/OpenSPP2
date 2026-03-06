@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- ═══════════════════════════════════════════════════════════════════════
-         STATISTIC VIEWS
+         INDICATOR VIEWS
          ═══════════════════════════════════════════════════════════════════════ -->
 
     <!-- List View -->
@@ -9,7 +9,7 @@
         <field name="name">spp.indicator.view.list</field>
         <field name="model">spp.indicator</field>
         <field name="arch" type="xml">
-            <list string="Statistics" default_order="category_id, sequence">
+            <list string="Indicators" default_order="category_id, sequence">
                 <field name="sequence" widget="handle" />
                 <field name="name" />
                 <field name="label" />
@@ -32,7 +32,7 @@
         <field name="name">spp.indicator.view.form</field>
         <field name="model">spp.indicator</field>
         <field name="arch" type="xml">
-            <form string="Statistic">
+            <form string="Indicator">
                 <sheet>
                     <widget
                         name="web_ribbon"
@@ -132,7 +132,7 @@
         <field name="name">spp.indicator.view.search</field>
         <field name="model">spp.indicator</field>
         <field name="arch" type="xml">
-            <search string="Statistics">
+            <search string="Indicators">
                 <field name="name" />
                 <field name="label" />
                 <field name="variable_id" />
@@ -238,18 +238,18 @@
 
     <!-- Action -->
     <record id="spp_statistic_action" model="ir.actions.act_window">
-        <field name="name">Statistics</field>
+        <field name="name">Indicators</field>
         <field name="res_model">spp.indicator</field>
         <field name="view_mode">list,kanban,form</field>
         <field name="search_view_id" ref="spp_statistic_view_search" />
         <field name="context">{'search_default_group_category': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                Create your first statistic
+                Create your first indicator
             </p>
             <p>
-                Statistics define what data to publish and where.
-                Each statistic is linked to a CEL variable that defines the computation.
+                Indicators define what data to publish and where.
+                Each indicator is linked to a CEL variable that defines the computation.
             </p>
         </field>
     </record>

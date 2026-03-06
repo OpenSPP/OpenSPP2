@@ -18,7 +18,7 @@
     ],
     "data": [
         "security/ir.model.access.csv",
-        "data/statistic_categories.xml",
+        "data/indicator_categories.xml",
     ],
     "assets": {},
     "demo": [],

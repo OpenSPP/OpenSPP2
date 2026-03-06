@@ -8,7 +8,7 @@ from odoo.exceptions import UserError, ValidationError
 _logger = logging.getLogger(__name__)
 
 
-class AggregationScope(models.Model):
+class AnalyticsScope(models.Model):
     """
     Unified targeting scope for aggregation queries.
 

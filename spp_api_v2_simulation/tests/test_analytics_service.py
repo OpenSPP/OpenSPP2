@@ -11,14 +11,14 @@ _logger = logging.getLogger(__name__)
 
 
 @tagged("post_install", "-at_install")
-class TestAggregationApiService(SimulationApiTestCommon):
-    """Test aggregation API service functionality."""
+class TestAnalyticsApiService(SimulationApiTestCommon):
+    """Test analytics API service functionality."""
 
     def _get_service(self):
         """Import and create the service."""
-        from ..services.aggregation_api_service import AggregationApiService
+        from ..services.analytics_api_service import AnalyticsApiService
 
-        return AggregationApiService(self.env)
+        return AnalyticsApiService(self.env)
 
     def test_compute_aggregation_basic(self):
         """Test basic aggregation compute with inline scope."""

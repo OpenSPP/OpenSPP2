@@ -5,10 +5,10 @@ from unittest.mock import patch
 
 from odoo import fields
 
-from .common import AggregationTestCase
+from .common import AnalyticsTestCase
 
 
-class TestCacheService(AggregationTestCase):
+class TestCacheService(AnalyticsTestCase):
     """Test cache service for aggregation results."""
 
     @classmethod

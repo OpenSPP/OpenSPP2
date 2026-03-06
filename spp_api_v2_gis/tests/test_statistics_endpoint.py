@@ -130,19 +130,19 @@ class TestStatisticsEndpoint(TransactionCase):
     def test_statistics_schema_validation(self):
         """Test that the Pydantic response schema works."""
         from ..schemas.statistics import (
-            StatisticCategoryInfo,
-            StatisticInfo,
-            StatisticsListResponse,
+            IndicatorCategoryInfo,
+            IndicatorInfo,
+            IndicatorsListResponse,
         )
 
-        response = StatisticsListResponse(
+        response = IndicatorsListResponse(
             categories=[
-                StatisticCategoryInfo(
+                IndicatorCategoryInfo(
                     code="demographics",
                     name="Demographics",
                     icon="fa-users",
                     statistics=[
-                        StatisticInfo(
+                        IndicatorInfo(
                             name="total_households",
                             label="Total Households",
                             description="Count of all households",
@@ -161,11 +161,11 @@ class TestStatisticsEndpoint(TransactionCase):
         self.assertEqual(response.total_count, 1)
 
     def test_statistic_info_schema(self):
-        """Test StatisticInfo schema with optional fields."""
-        from ..schemas.statistics import StatisticInfo
+        """Test IndicatorInfo schema with optional fields."""
+        from ..schemas.statistics import IndicatorInfo
 
         # Minimal
-        info = StatisticInfo(
+        info = IndicatorInfo(
             name="test",
             label="Test",
             format="count",
@@ -174,7 +174,7 @@ class TestStatisticsEndpoint(TransactionCase):
         self.assertIsNone(info.unit)
 
         # Full
-        info_full = StatisticInfo(
+        info_full = IndicatorInfo(
             name="test",
             label="Test",
             description="A test stat",

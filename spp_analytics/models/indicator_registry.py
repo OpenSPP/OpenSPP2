@@ -6,7 +6,7 @@ from odoo import api, models
 _logger = logging.getLogger(__name__)
 
 
-class StatisticRegistry(models.AbstractModel):
+class IndicatorRegistry(models.AbstractModel):
     """Registry that maps statistic names to computation strategies.
 
     Replaces the fallback chain in compute_single_statistic with
