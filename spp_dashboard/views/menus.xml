@@ -3,9 +3,23 @@
     <menuitem
         id="menu_dashboard_root"
         name="Statistics Dashboard"
-        action="action_dashboard_data"
         groups="group_dashboard_read"
         sequence="90"
         web_icon="spp_dashboard,static/description/icon.png"
+    />
+    <menuitem
+        id="menu_dashboard_view"
+        name="Dashboard"
+        parent="menu_dashboard_root"
+        action="action_dashboard_data"
+        sequence="10"
+    />
+    <menuitem
+        id="menu_dashboard_refresh"
+        name="Refresh Statistics"
+        parent="menu_dashboard_root"
+        action="action_refresh_dashboard_data"
+        groups="group_dashboard_manage"
+        sequence="20"
     />
 </odoo>

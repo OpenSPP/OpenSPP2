@@ -183,16 +183,15 @@ class DashboardData(models.Model):
         self._cleanup_stale_data(stats)
 
         areas = self._get_dashboard_areas()
-        programs = self._get_dashboard_programs()
 
         for stat in stats:
             if hasattr(self, "with_delay"):
                 self.with_delay(
                     priority=10,
                     description=f"Dashboard refresh: {stat.label}",
-                )._refresh_statistic(stat.id, areas.ids, programs.ids)
+                )._refresh_statistic(stat.id, areas.ids)
             else:
-                self._refresh_statistic(stat.id, areas.ids, programs.ids)
+                self._refresh_statistic(stat.id, areas.ids)
 
         return {
             "type": "ir.actions.client",
@@ -205,10 +204,10 @@ class DashboardData(models.Model):
             },
         }
 
-    def _refresh_statistic(self, stat_id, area_ids, program_ids):
-        """Refresh one statistic across all area/program combinations.
+    def _refresh_statistic(self, stat_id, area_ids):
+        """Refresh one statistic across all area combinations.
 
-        Called as a queue_job. Handles errors per-combination so one failure
+        Called as a queue_job. Handles errors per-area so one failure
         does not abort the entire statistic refresh.
         """
         stat = self.env["spp.statistic"].browse(stat_id)
@@ -217,30 +216,26 @@ class DashboardData(models.Model):
             return
 
         areas = self.env["spp.area"].browse(area_ids)
-        programs = self.env["spp.program"].browse(program_ids)
 
-        # False = system-wide / all programs
+        # False = system-wide
         area_list = [False] + list(areas)
-        program_list = [False] + list(programs)
 
         for area in area_list:
-            for program in program_list:
-                try:
-                    scope = self._build_scope(area, program)
-                    result = self.env["spp.aggregation.service"].compute_aggregation(
-                        scope=scope,
-                        statistics=[stat.name],
-                        context="dashboard",
-                    )
-                    self._upsert_data(stat, area, program, result)
-                except (ValueError, TypeError, KeyError, AttributeError) as e:
-                    _logger.warning(
-                        "Dashboard refresh failed for stat=%s area=%s program=%s: %s",
-                        stat.name,
-                        area.code if area else "all",
-                        program.name if program else "all",
-                        e,
-                    )
+            try:
+                scope = self._build_scope(area, False)
+                result = self.env["spp.aggregation.service"].compute_aggregation(
+                    scope=scope,
+                    statistics=[stat.name],
+                    context="dashboard",
+                )
+                self._upsert_data(stat, area, False, result)
+            except (ValueError, TypeError, KeyError, AttributeError) as e:
+                _logger.warning(
+                    "Dashboard refresh failed for stat=%s area=%s: %s",
+                    stat.name,
+                    area.code if area else "all",
+                    e,
+                )
 
     @api.model
     def _get_dashboard_areas(self):
@@ -271,29 +266,24 @@ class DashboardData(models.Model):
 
         Args:
             area: spp.area record or False (system-wide)
-            program: spp.program record or False (all programs)
+            program: spp.program record or False (unused, kept for API compatibility)
 
         Returns:
             dict: scope definition for spp.aggregation.service
         """
         if area:
-            scope = {
+            return {
                 "scope_type": "area",
                 "area_id": area.id,
                 "include_child_areas": True,
             }
-        else:
-            # System-wide scope
-            scope = {
-                "scope_type": "area",
-                "area_id": False,
-                "include_child_areas": True,
-            }
 
-        if program:
-            scope["program_id"] = program.id
-
-        return scope
+        # System-wide scope: use CEL expression that matches all registrants
+        return {
+            "scope_type": "cel",
+            "cel_expression": "true",
+            "cel_profile": "registry_individuals",
+        }
 
     def _upsert_data(self, stat, area, program, result):
         """Insert or update a dashboard data row from aggregation result.
@@ -315,14 +305,15 @@ class DashboardData(models.Model):
         config = stat.get_context_config("dashboard")
         label = config.get("label", stat.label) if config else stat.label
 
-        # Apply suppression for display value
-        if is_suppressed or raw_value is None:
-            display_value, _ = stat.apply_suppression(
-                raw_value if raw_value is not None else 0,
-                count=total_count,
-                context="dashboard",
-            )
-            value_display = str(display_value) if display_value is not None else ""
+        # The aggregation service already applies suppression.
+        # If suppressed, the value is the suppression marker (e.g., "<5").
+        # We store the raw numeric value for pivot/graph and a display string.
+        if is_suppressed:
+            # Value from service is the suppression display (string like "<5")
+            value_display = str(raw_value) if raw_value is not None else ""
+            numeric_value = 0.0
+        elif raw_value is None:
+            value_display = ""
             numeric_value = 0.0
         else:
             value_display = self._format_value(raw_value, stat)

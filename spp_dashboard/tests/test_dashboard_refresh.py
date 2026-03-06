@@ -76,7 +76,7 @@ class TestDashboardRefresh(TransactionCase):
             "compute_aggregation",
             return_value=mock_result,
         ):
-            DashData._refresh_statistic(self.statistic.id, [], [])
+            DashData._refresh_statistic(self.statistic.id, [])
 
         # Should create one row: system-wide, no program
         data = DashData.search(
@@ -103,7 +103,7 @@ class TestDashboardRefresh(TransactionCase):
             "compute_aggregation",
             return_value=mock_result,
         ):
-            DashData._refresh_statistic(self.statistic.id, [self.area.id], [])
+            DashData._refresh_statistic(self.statistic.id, [self.area.id])
 
         # Should create 2 rows: system-wide + one area
         data = DashData.search(
@@ -128,7 +128,7 @@ class TestDashboardRefresh(TransactionCase):
             "compute_aggregation",
             return_value=mock_result,
         ):
-            DashData._refresh_statistic(self.statistic.id, [], [])
+            DashData._refresh_statistic(self.statistic.id, [])
 
         # Second refresh with different value
         mock_result = self._mock_aggregation_result(value=200)
@@ -137,7 +137,7 @@ class TestDashboardRefresh(TransactionCase):
             "compute_aggregation",
             return_value=mock_result,
         ):
-            DashData._refresh_statistic(self.statistic.id, [], [])
+            DashData._refresh_statistic(self.statistic.id, [])
 
         # Should still be one row, with updated value
         data = DashData.search(
@@ -160,7 +160,7 @@ class TestDashboardRefresh(TransactionCase):
             "compute_aggregation",
             return_value=mock_result,
         ):
-            DashData._refresh_statistic(self.statistic.id, [], [])
+            DashData._refresh_statistic(self.statistic.id, [])
 
         data = DashData.search(
             [
@@ -191,7 +191,7 @@ class TestDashboardRefresh(TransactionCase):
             "compute_aggregation",
             mock_compute,
         ):
-            DashData._refresh_statistic(self.statistic.id, [self.area.id], [])
+            DashData._refresh_statistic(self.statistic.id, [self.area.id])
 
         # System-wide row should exist despite area failure
         system_wide = DashData.search(
@@ -217,7 +217,7 @@ class TestDashboardRefresh(TransactionCase):
         """Test refresh with a deleted statistic does not crash."""
         DashData = self.env["spp.dashboard.data"]
         # Use a non-existent ID
-        DashData._refresh_statistic(999999, [], [])
+        DashData._refresh_statistic(999999, [])
         # Should not raise, just log a warning
 
     def test_cleanup_stale_data(self):
@@ -322,12 +322,11 @@ class TestDashboardRefresh(TransactionCase):
             self.assertEqual(prog.state, "active")
 
     def test_build_scope_system_wide(self):
-        """Test _build_scope with no area or program."""
+        """Test _build_scope with no area returns CEL scope for all registrants."""
         DashData = self.env["spp.dashboard.data"]
         scope = DashData._build_scope(False, False)
-        self.assertEqual(scope["scope_type"], "area")
-        self.assertFalse(scope["area_id"])
-        self.assertNotIn("program_id", scope)
+        self.assertEqual(scope["scope_type"], "cel")
+        self.assertEqual(scope["cel_expression"], "true")
 
     def test_build_scope_with_area(self):
         """Test _build_scope with an area."""
@@ -336,15 +335,6 @@ class TestDashboardRefresh(TransactionCase):
         self.assertEqual(scope["scope_type"], "area")
         self.assertEqual(scope["area_id"], self.area.id)
         self.assertTrue(scope["include_child_areas"])
-
-    def test_build_scope_with_program(self):
-        """Test _build_scope with a program."""
-        DashData = self.env["spp.dashboard.data"]
-        program = self.env["spp.program"].search([], limit=1)
-        if not program:
-            self.skipTest("No programs available for testing")
-        scope = DashData._build_scope(False, program)
-        self.assertEqual(scope["program_id"], program.id)
 
     def test_label_from_context_config(self):
         """Test that label is taken from statistic context config."""
@@ -365,7 +355,7 @@ class TestDashboardRefresh(TransactionCase):
             "compute_aggregation",
             return_value=mock_result,
         ):
-            DashData._refresh_statistic(self.statistic.id, [], [])
+            DashData._refresh_statistic(self.statistic.id, [])
 
         data = DashData.search(
             [
