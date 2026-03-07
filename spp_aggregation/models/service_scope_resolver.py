@@ -328,9 +328,9 @@ class ScopeResolverService(models.AbstractModel):
     def _resolve_all_registrants_inline(self, scope_dict):
         """Resolve all registrants scope.
 
-        Returns IDs of all registrants in the system. This is more efficient
-        than passing all IDs via explicit scope, as the search happens
-        server-side without transferring the full ID list through the caller.
+        Returns IDs of all registrants in the system. Callers use this
+        instead of explicit scope so they don't need to enumerate IDs
+        up front; the search is done here in a single query.
         """
         return (
             self.env["res.partner"]  # nosemgrep: odoo-sudo-without-context, odoo-sudo-on-sensitive-models

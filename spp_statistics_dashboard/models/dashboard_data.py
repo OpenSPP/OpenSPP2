@@ -5,6 +5,11 @@ import logging
 
 from odoo import _, api, fields, models
 
+from odoo.addons.spp_aggregation.services.scope_builder import (
+    build_area_scope,
+    build_explicit_scope,
+)
+
 _logger = logging.getLogger(__name__)
 
 
@@ -183,15 +188,16 @@ class DashboardData(models.Model):
         self._cleanup_stale_data(stats)
 
         areas = self._get_dashboard_areas()
+        programs = self._get_dashboard_programs()
 
         for stat in stats:
             if hasattr(self, "with_delay"):
                 self.with_delay(
                     priority=10,
                     description=f"Dashboard refresh: {stat.label}",
-                )._refresh_statistic(stat.id, areas.ids)
+                )._refresh_statistic(stat.id, areas.ids, programs.ids)
             else:
-                self._refresh_statistic(stat.id, areas.ids)
+                self._refresh_statistic(stat.id, areas.ids, programs.ids)
 
         return {
             "type": "ir.actions.client",
@@ -204,7 +210,7 @@ class DashboardData(models.Model):
             },
         }
 
-    def _refresh_statistic(self, stat_id, area_ids):
+    def _refresh_statistic(self, stat_id, area_ids, program_ids=None):
         """Refresh one statistic across all scope combinations.
 
         Computes values for:
@@ -221,23 +227,36 @@ class DashboardData(models.Model):
             return
 
         areas = self.env["spp.area"].browse(area_ids)
-        programs = self._get_dashboard_programs()
+        if program_ids is not None:
+            programs = self.env["spp.program"].browse(program_ids)
+        else:
+            programs = self._get_dashboard_programs()
+
+        # Pre-compute label (same for all scopes of this statistic)
+        config = stat.get_context_config("dashboard")
+        label = config.get("label", stat.label) if config else stat.label
+
+        # Bulk-load existing rows to avoid N+1 searches in _upsert_data
+        existing_rows = self.search([("statistic_id", "=", stat.id)])
+        existing_map = {(r.area_id.id or 0, r.program_id.id or 0): r for r in existing_rows}
 
         # Area dimension: system-wide + per-area
         for area in [False] + list(areas):
-            self._refresh_scope(stat, area, False)
+            self._refresh_scope(stat, area, False, label, existing_map)
 
         # Program dimension: per-program (system-wide area)
         for program in programs:
-            self._refresh_scope(stat, False, program)
+            self._refresh_scope(stat, False, program, label, existing_map)
 
-    def _refresh_scope(self, stat, area, program):
+    def _refresh_scope(self, stat, area, program, label, existing_map):
         """Refresh a single (stat, area, program) combination.
 
         Args:
             stat: spp.statistic record
             area: spp.area record or False
             program: spp.program record or False
+            label: pre-computed display label for this statistic
+            existing_map: dict mapping (area_id, program_id) to existing records
         """
         try:
             scope = self._build_scope(area, program)
@@ -246,7 +265,7 @@ class DashboardData(models.Model):
                 statistics=[stat.name],
                 context="dashboard",
             )
-            self._upsert_data(stat, area, program, result)
+            self._upsert_data(stat, area, program, result, label, existing_map)
         except (ValueError, TypeError, KeyError, AttributeError) as e:
             area_label = area.code if area else "all"
             prog_label = program.name if program else "all"
@@ -297,24 +316,16 @@ class DashboardData(models.Model):
             # Program scope: use enrolled members as explicit partner IDs
             memberships = program.get_beneficiaries(state=["enrolled"])
             partner_ids = memberships.mapped("partner_id").ids
-            return {
-                "scope_type": "explicit",
-                "explicit_partner_ids": partner_ids,
-            }
+            return build_explicit_scope(partner_ids)
 
         if area:
-            return {
-                "scope_type": "area",
-                "area_id": area.id,
-                "include_child_areas": True,
-            }
+            return build_area_scope(area.id, include_children=True)
 
         # System-wide scope: delegate to the scope resolver's all_registrants
-        # type, which searches server-side without loading all IDs into the
-        # caller's memory.
+        # type so the caller doesn't need to enumerate all registrant IDs.
         return {"scope_type": "all_registrants"}
 
-    def _upsert_data(self, stat, area, program, result):
+    def _upsert_data(self, stat, area, program, result, label, existing_map):
         """Insert or update a dashboard data row from aggregation result.
 
         Args:
@@ -322,6 +333,8 @@ class DashboardData(models.Model):
             area: spp.area record or False
             program: spp.program record or False
             result: dict from compute_aggregation()
+            label: pre-computed display label
+            existing_map: dict mapping (area_id, program_id) to existing records
         """
         stat_results = result.get("statistics", {})
         stat_data = stat_results.get(stat.name, {})
@@ -329,10 +342,6 @@ class DashboardData(models.Model):
         raw_value = stat_data.get("value")
         is_suppressed = stat_data.get("suppressed", False)
         total_count = result.get("total_count", 0)
-
-        # Get context config for label
-        config = stat.get_context_config("dashboard")
-        label = config.get("label", stat.label) if config else stat.label
 
         # The aggregation service already applies suppression.
         # If suppressed, the value is the suppression marker (e.g., "<5").
@@ -346,21 +355,14 @@ class DashboardData(models.Model):
             numeric_value = 0.0
         else:
             value_display = self._format_value(raw_value, stat)
-            numeric_value = float(raw_value) if raw_value is not None else 0.0
+            numeric_value = float(raw_value)
 
         area_id = area.id if area else False
         program_id = program.id if program else False
         now = fields.Datetime.now()
 
-        # Try to find existing record
-        existing = self.search(
-            [
-                ("statistic_id", "=", stat.id),
-                ("area_id", "=", area_id),
-                ("program_id", "=", program_id),
-            ],
-            limit=1,
-        )
+        # Look up existing record from pre-loaded map
+        existing = existing_map.get((area_id or 0, program_id or 0))
 
         vals = {
             "value": numeric_value,
@@ -398,7 +400,7 @@ class DashboardData(models.Model):
             return ""
 
         fmt = stat.format
-        decimal_places = stat.decimal_places or 0
+        decimal_places = stat.decimal_places
 
         if fmt == "percent":
             return f"{value:.{decimal_places}f}%"
