@@ -1,18 +1,17 @@
-<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <record model="queue.job.channel" id="channel_root_program">
-        <field name="name">root_program</field>
-    </record>
-    <record model="queue.job.channel" id="channel_cycle">
+    <record id="limit_cycle" model="queue.limit">
         <field name="name">cycle</field>
-        <field name="parent_id" ref="channel_root_program" />
+        <field name="limit">1</field>
+        <field name="rate_limit">0</field>
     </record>
-    <record model="queue.job.channel" id="channel_eligibility_manager">
+    <record id="limit_eligibility_manager" model="queue.limit">
         <field name="name">eligibility_manager</field>
-        <field name="parent_id" ref="channel_root_program" />
+        <field name="limit">1</field>
+        <field name="rate_limit">0</field>
     </record>
-    <record model="queue.job.channel" id="channel_program_manager">
+    <record id="limit_program_manager" model="queue.limit">
         <field name="name">program_manager</field>
-        <field name="parent_id" ref="channel_root_program" />
+        <field name="limit">1</field>
+        <field name="rate_limit">0</field>
     </record>
 </odoo>

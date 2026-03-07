@@ -8,10 +8,7 @@ from dateutil.relativedelta import relativedelta
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
-try:
-    from odoo.addons.queue_job.delay import group
-except ImportError:
-    group = None
+from odoo.addons.job_worker.delay import group
 
 from .. import constants
 
@@ -521,12 +518,10 @@ class DefaultCycleManager(models.Model):
         jobs = []
         for i in range(0, beneficiaries_count, self.MAX_ROW_JOB_QUEUE):
             jobs.append(
-                self.delayable(channel="root_program.cycle")._check_eligibility(
-                    cycle, offset=i, limit=self.MAX_ROW_JOB_QUEUE
-                )
+                self.delayable(channel="cycle")._check_eligibility(cycle, offset=i, limit=self.MAX_ROW_JOB_QUEUE)
             )
         main_job = group(*jobs)
-        main_job.on_done(self.delayable(channel="root_program.cycle").mark_check_eligibility_as_done(cycle))
+        main_job.on_done(self.delayable(channel="cycle").mark_check_eligibility_as_done(cycle))
         main_job.delay()
 
     def _check_eligibility(self, cycle, beneficiaries=None, offset=0, limit=None, do_count=False):
@@ -592,14 +587,10 @@ class DefaultCycleManager(models.Model):
 
         jobs = []
         for i in range(0, beneficiaries_count, self.MAX_ROW_JOB_QUEUE):
-            jobs.append(
-                self.delayable(channel="root_program.cycle")._prepare_entitlements(cycle, i, self.MAX_ROW_JOB_QUEUE)
-            )
+            jobs.append(self.delayable(channel="cycle")._prepare_entitlements(cycle, i, self.MAX_ROW_JOB_QUEUE))
         main_job = group(*jobs)
         main_job.on_done(
-            self.delayable(channel="root_program.cycle").mark_prepare_entitlement_as_done(
-                cycle, _("Entitlement Ready.")
-            )
+            self.delayable(channel="cycle").mark_prepare_entitlement_as_done(cycle, _("Entitlement Ready."))
         )
         main_job.delay()
 
@@ -829,7 +820,7 @@ class DefaultCycleManager(models.Model):
         jobs = []
         for i in range(0, beneficiaries_count, self.MAX_ROW_JOB_QUEUE):
             jobs.append(
-                self.delayable(channel="root_program.cycle")._add_beneficiaries(
+                self.delayable(channel="cycle")._add_beneficiaries(
                     cycle,
                     beneficiaries[i : i + self.MAX_ROW_JOB_QUEUE],
                     state,
@@ -837,9 +828,7 @@ class DefaultCycleManager(models.Model):
             )
 
         main_job = group(*jobs)
-        main_job.on_done(
-            self.delayable(channel="root_program.cycle").mark_import_as_done(cycle, _("Beneficiary import finished."))
-        )
+        main_job.on_done(self.delayable(channel="cycle").mark_import_as_done(cycle, _("Beneficiary import finished.")))
         main_job.delay()
 
     def _add_beneficiaries(self, cycle, beneficiaries, state="draft", do_count=False):

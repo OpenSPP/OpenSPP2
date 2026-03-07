@@ -299,7 +299,7 @@ class TestDCITransaction(DCIServerCommon):
             def model_dump(self, mode="python", by_alias=False, exclude_none=False):
                 return {"result": "ok"}
 
-        # Mock with_delay at class level to avoid queue_job dependency in tests
+        # Mock with_delay at class level to avoid job_worker dependency in tests
         with patch.object(type(transaction), "with_delay") as mock_delay:
             mock_delay.return_value._retry_callback = MagicMock()
             transaction._send_callback(MockResponse())

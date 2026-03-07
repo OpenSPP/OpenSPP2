@@ -30,6 +30,7 @@
         # CEL core libraries for expression-based managers
         "spp_cel_domain",
         "spp_cel_widget",
+        "job_worker",
     ],
     "data": [
         # Security files (merged from both modules)
@@ -40,7 +41,7 @@
         "security/registrant_rule.xml",
         # Data files
         "data/sequences.xml",
-        # "data/queue_data.xml",  # Disabled: requires queue_job module
+        "data/queue_data.xml",
         "data/user_roles.xml",
         "data/approval_definitions.xml",
         "data/cel_examples.xml",
@@ -124,9 +125,6 @@
             "spp_programs/static/src/xml/field_domain.xml",
         ],
     },
-    "oca_data_manual": [
-        "data/queue_data.xml",
-    ],
     "demo": [],
     "images": [],
     "external_dependencies": {

@@ -461,7 +461,7 @@ class HdxCodImportWizard(models.TransientModel):
                     stats["errors"] += len(to_create)
 
             # Note: No manual commit here - let Odoo handle the transaction
-            # atomically. For very large imports, consider using queue_job
+            # atomically. For very large imports, consider using job_worker
             # to process in background with proper transaction management.
 
         return stats

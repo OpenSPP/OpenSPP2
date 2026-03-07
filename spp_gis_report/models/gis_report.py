@@ -1318,7 +1318,7 @@ class GISReport(models.Model):
     def action_refresh(self):
         """Refresh report data.
 
-        Uses queue_job for background processing if available,
+        Uses job_worker for background processing if available,
         otherwise runs synchronously.
 
         Returns:
@@ -1327,7 +1327,7 @@ class GISReport(models.Model):
         self.ensure_one()
         _logger.info("Scheduling refresh for report ID %s", self.id)
 
-        # Use queue_job if available, otherwise run synchronously
+        # Use job_worker if available, otherwise run synchronously
         if hasattr(self, "with_delay"):
             self.is_syncing = True
             self.with_delay(priority=10, description=f"Re-sync GIS Report: {self.name}")._refresh_data()

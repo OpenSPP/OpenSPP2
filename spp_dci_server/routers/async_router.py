@@ -1,5 +1,5 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
-"""DCI Async API endpoints with queue_job integration.
+"""DCI Async API endpoints with job_worker integration.
 
 Implements asynchronous DCI operations (mounted under /social/registry):
 - POST /search - Async search (202 Accepted, callback delivery)
@@ -127,7 +127,7 @@ async def async_search(
     """
     Async search - queue processing and return 202 Accepted.
 
-    The search is executed in the background via queue_job.
+    The search is executed in the background via job_worker.
     Results are delivered to the sender's callback_uri.
 
     **Response**: 202 Accepted with transaction tracking info
@@ -186,9 +186,10 @@ async def async_search(
             sender.id if sender else "unknown",
         )
 
-        # Queue the search job with queue_job
+        # Queue the search job with job_worker
         job = transaction.with_delay(
-            channel="root.dci",
+            channel="dci",
+            timeout=60,
             description=f"DCI Search {transaction.transaction_id}",
         ).process_async_search()
 
@@ -352,7 +353,8 @@ async def subscribe(
         # Queue the callback job
         if callback_uri:
             job = transaction.with_delay(
-                channel="root.dci",
+                channel="dci",
+                timeout=60,
                 description=f"DCI Subscribe Callback {transaction.transaction_id}",
             ).process_async_subscribe()
             transaction.job_uuid = job.uuid
@@ -473,7 +475,8 @@ async def unsubscribe(
         # Queue the callback job
         if callback_uri:
             job = transaction.with_delay(
-                channel="root.dci",
+                channel="dci",
+                timeout=60,
                 description=f"DCI Unsubscribe Callback {transaction.transaction_id}",
             ).process_async_unsubscribe()
             transaction.job_uuid = job.uuid

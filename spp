@@ -571,17 +571,17 @@ def cmd_start(args):
         is_fresh_start = True
 
     # Two-phase initialization for fresh starts with demo modules
-    # Phase 1: Install queue_job first, then restart so it can listen to job events
+    # Phase 1: Install job_worker first, then restart so it can listen to job events
     if is_fresh_start and demo_modules:
-        print("\n" + _color("1;34", "Phase 1: Installing queue_job..."))
+        print("\n" + _color("1;34", "Phase 1: Installing job_worker..."))
         phase1_env = env.copy()
-        phase1_env["ODOO_INIT_MODULES"] = "queue_job"
+        phase1_env["ODOO_INIT_MODULES"] = "job_worker"
         run(docker_compose("up", "-d", profile=profile), env=phase1_env)
 
         if not _wait_for_odoo_ready(profile):
             warn("Odoo did not become ready in time, continuing anyway...")
 
-        print("Restarting Odoo so queue_job can listen to events...")
+        print("Restarting Odoo so job_worker can listen to events...")
         service = "openspp-dev" if profile == "dev" else "openspp"
         run(docker_compose("restart", service, profile=profile))
 

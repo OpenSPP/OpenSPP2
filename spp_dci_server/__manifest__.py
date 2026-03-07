@@ -10,7 +10,7 @@
     "depends": [
         "base",
         "fastapi",
-        "queue_job",
+        "job_worker",
         "spp_dci",
         "spp_dci_client",
         "spp_api_v2",
@@ -18,7 +18,7 @@
     "data": [
         "security/ir.model.access.csv",
         "data/fastapi_endpoint_data.xml",
-        "data/queue_job_channel.xml",
+        "data/queue_limit_data.xml",
         "data/cron_data.xml",
         "data/server_key_default.xml",
         "views/sender_registry_views.xml",

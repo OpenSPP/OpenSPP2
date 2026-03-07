@@ -252,7 +252,7 @@ services:
           memory: ${ODOO_MEMORY_RESERVATION:-2G}
 
   # ==========================================================================
-  # Queue Worker - Background job processing (OCA/queue_job)
+  # Queue Worker - Background job processing (job_worker)
   # ==========================================================================
   queue-worker:
     image: ${OPENSPP_IMAGE:-ghcr.io/openspp/openspp:latest}
@@ -275,17 +275,10 @@ services:
       DB_SSLMODE: ${DB_SSLMODE:-prefer}
       ODOO_ADMIN_PASSWD: ${ODOO_ADMIN_PASSWD:?ODOO_ADMIN_PASSWD is required}
 
-      # Queue worker mode - no HTTP, just process jobs
-      ODOO_WORKERS: "0"
-      ODOO_CRON_THREADS: "0"
-
-      # Queue job channels (number of concurrent jobs)
-      QUEUE_JOB_CHANNELS: ${QUEUE_JOB_CHANNELS:-2}
-
       # Logging
       LOG_LEVEL: ${LOG_LEVEL:-info}
-    # Override command to run queue job worker
-    command: ["odoo", "gevent", "--limit-time-real=0"]
+    # Run job_worker standalone runner process
+    command: ["python", "-m", "odoo.addons.job_worker.cli"]
     volumes:
       - odoo_data:/var/lib/odoo
       - odoo_addons:/mnt/extra-addons

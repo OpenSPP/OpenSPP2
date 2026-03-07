@@ -18,7 +18,6 @@ from . import payment
 from . import spp_entitlement
 from . import stock
 
-# from . import queue_job_channel  # Disabled: requires queue_job module
 from . import res_user
 from . import program_config
 from . import program_manager_ui

@@ -355,7 +355,7 @@ rules:
                   ...
     message: |
       cr.commit() inside a loop can cause partial data states on failure.
-      Use queue_job for batch operations or handle transactions properly.
+      Use job_worker for batch operations or handle transactions properly.
     severity: WARNING
     languages: [python]
     metadata:

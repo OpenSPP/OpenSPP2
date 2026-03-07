@@ -190,15 +190,14 @@ docker compose -f docker/docker-compose.production.yml exec clamav clamscan --ve
 
 ### Performance
 
-| Variable                  | Default    | Description                           |
-| ------------------------- | ---------- | ------------------------------------- |
-| `ODOO_WORKERS`            | 2          | Number of worker processes            |
-| `ODOO_CRON_THREADS`       | 1          | Number of cron threads                |
-| `ODOO_MEMORY_SOFT`        | 2147483648 | Soft memory limit per worker (bytes)  |
-| `ODOO_MEMORY_HARD`        | 2684354560 | Hard memory limit per worker (bytes)  |
-| `ODOO_TIME_CPU`           | 600        | CPU time limit per request (seconds)  |
-| `ODOO_TIME_REAL`          | 1200       | Real time limit per request (seconds) |
-| `ODOO_QUEUE_JOB_CHANNELS` | root:2     | Concurrent background jobs            |
+| Variable            | Default    | Description                           |
+| ------------------- | ---------- | ------------------------------------- |
+| `ODOO_WORKERS`      | 2          | Number of worker processes            |
+| `ODOO_CRON_THREADS` | 1          | Number of cron threads                |
+| `ODOO_MEMORY_SOFT`  | 2147483648 | Soft memory limit per worker (bytes)  |
+| `ODOO_MEMORY_HARD`  | 2684354560 | Hard memory limit per worker (bytes)  |
+| `ODOO_TIME_CPU`     | 600        | CPU time limit per request (seconds)  |
+| `ODOO_TIME_REAL`    | 1200       | Real time limit per request (seconds) |
 
 ### Logging
 

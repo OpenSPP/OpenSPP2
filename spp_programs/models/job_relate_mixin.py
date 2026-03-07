@@ -24,7 +24,7 @@ class JobRelateMixin(models.AbstractModel):
                 return [("id", "in", [1, 2, 3])]
         """
         self.ensure_one()
-        action = self.env.ref("queue_job.action_queue_job").read()[0]
+        action = self.env.ref("job_worker.action_queue_job").read()[0]
         action["domain"] = self._get_related_job_domain()
 
         return action

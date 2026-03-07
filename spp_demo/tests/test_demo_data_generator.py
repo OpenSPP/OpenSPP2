@@ -19,7 +19,7 @@ class TestDemoDataGenerator(TransactionCase):
         cls.env = cls.env(
             context=dict(
                 cls.env.context,
-                test_queue_job_no_delay=True,
+                queue_job__no_delay=True,
             )
         )
 

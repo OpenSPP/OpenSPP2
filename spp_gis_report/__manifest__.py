@@ -13,7 +13,7 @@
         "spp_registry",
         "spp_vocabulary",
         "spp_cel_domain",
-        "queue_job",
+        "job_worker",
     ],
     "external_dependencies": {
         "python": ["numpy>=1.22.2", "shapely"],

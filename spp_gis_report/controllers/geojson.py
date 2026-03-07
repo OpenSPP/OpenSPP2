@@ -315,7 +315,7 @@ class GISReportController(http.Controller):
         try:
             report = self._get_report_by_code(report_code)
 
-            # Trigger refresh (uses queue_job in implementation)
+            # Trigger refresh (uses job_worker in implementation)
             report.action_refresh()
 
             return self._json_response(

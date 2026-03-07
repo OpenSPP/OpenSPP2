@@ -5,10 +5,7 @@ from datetime import datetime, timedelta
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
-try:
-    from odoo.addons.queue_job.delay import group
-except ImportError:
-    group = None
+from odoo.addons.job_worker.delay import group
 
 from ..programs import SPPProgram
 
@@ -190,12 +187,12 @@ class DefaultProgramManager(models.Model):
         jobs = []
         for i in range(0, members_count, self.MAX_ROW_JOB_QUEUE):
             jobs.append(
-                self.delayable(channel="root_program.program_manager")._enroll_eligible_registrants(
+                self.delayable(channel="program_manager")._enroll_eligible_registrants(
                     states, i, self.MAX_ROW_JOB_QUEUE
                 )
             )
         main_job = group(*jobs)
-        main_job.on_done(self.delayable(channel="root_program.program_manager").mark_enroll_eligible_as_done())
+        main_job.on_done(self.delayable(channel="program_manager").mark_enroll_eligible_as_done())
         main_job.delay()
 
     def _enroll_eligible_registrants(self, states, offset=0, limit=None, do_count=False):

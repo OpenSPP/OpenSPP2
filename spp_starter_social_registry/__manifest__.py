@@ -24,7 +24,7 @@
         "spp_consent",
         "spp_source_tracking",
         # Async Processing
-        "queue_job",
+        "job_worker",
         # Change Request System
         "spp_change_request_v2",
         "spp_cr_types_base",

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <!-- DCI Queue Job Channel -->
-    <record id="channel_dci" model="queue.job.channel">
+    <record id="limit_dci" model="queue.limit">
         <field name="name">dci</field>
-        <field name="parent_id" ref="queue_job.channel_root" />
+        <field name="limit">2</field>
+        <field name="rate_limit">10</field>
     </record>
 
     <!-- Cron job to check expired subscriptions -->

@@ -1,5 +1,5 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
-"""DCI Transaction model for async operation tracking with queue_job."""
+"""DCI Transaction model for async operation tracking with job_worker."""
 
 import json
 import logging
@@ -20,10 +20,10 @@ _logger = logging.getLogger(__name__)
 
 
 class DCITransaction(models.Model):
-    """Track async DCI transactions with queue_job integration.
+    """Track async DCI transactions with job_worker integration.
 
     This model stores async DCI requests (search, subscribe, etc.) and
-    manages background processing via queue_job. It tracks:
+    manages background processing via job_worker. It tracks:
     - Original request payload
     - Processing state transitions
     - Response/callback delivery status
@@ -154,16 +154,16 @@ class DCITransaction(models.Model):
         string="Max Retries",
     )
 
-    # queue_job Integration
+    # job_worker Integration
     job_uuid = fields.Char(
         string="Job UUID",
-        help="queue_job UUID for tracking",
+        help="job_worker UUID for tracking",
         index=True,
     )
     job_state = fields.Char(
         string="Job State",
         compute="_compute_job_state",
-        help="Current queue_job state",
+        help="Current job_worker state",
     )
 
     # Timing
@@ -194,7 +194,7 @@ class DCITransaction(models.Model):
             record.dci_status = state_to_dci.get(record.state, "pdng")
 
     def _compute_job_state(self):
-        """Get queue_job state if available."""
+        """Get job_worker state if available."""
         for record in self:
             if record.job_uuid and "queue.job" in self.env:
                 job = self.env["queue.job"].search([("uuid", "=", record.job_uuid)], limit=1)
@@ -203,9 +203,9 @@ class DCITransaction(models.Model):
                 record.job_state = "n/a"
 
     def process_async_search(self):
-        """Execute search and send callback. Called by queue_job.
+        """Execute search and send callback. Called by job_worker.
 
-        This method is decorated with @job when queue_job is available.
+        This method is decorated with @job when job_worker is available.
         """
         self.ensure_one()
         self.state = "processing"
@@ -318,8 +318,9 @@ class DCITransaction(models.Model):
                     self.max_retries,
                 )
                 self.with_delay(
-                    channel="root.dci",
+                    channel="dci",
                     eta=delay,
+                    timeout=60,
                     description=f"DCI Retry Callback {self.transaction_id}",
                 )._retry_callback()
             else:
@@ -331,7 +332,7 @@ class DCITransaction(models.Model):
                 )
 
     def _retry_callback(self):
-        """Retry sending callback. Called by queue_job.
+        """Retry sending callback. Called by job_worker.
 
         Rebuilds the full DCI envelope from stored response_payload
         to ensure consistent callback format on retries.
@@ -391,8 +392,9 @@ class DCITransaction(models.Model):
                 self.retry_count += 1
                 delay = 60 * (2 ** (self.retry_count - 1))
                 self.with_delay(
-                    channel="root.dci",
+                    channel="dci",
                     eta=delay,
+                    timeout=60,
                     description=f"DCI Retry Callback {self.transaction_id}",
                 )._retry_callback()
             else:
@@ -524,7 +526,7 @@ class DCITransaction(models.Model):
         }
 
     def process_async_subscribe(self):
-        """Process subscribe request and send callback. Called by queue_job.
+        """Process subscribe request and send callback. Called by job_worker.
 
         For subscribe operations, the subscription is already created during
         the initial request. This method builds the response and sends callback.
@@ -588,7 +590,7 @@ class DCITransaction(models.Model):
             _logger.exception("DCI async subscribe failed: %s", self.transaction_id)
 
     def process_async_unsubscribe(self):
-        """Process unsubscribe request and send callback. Called by queue_job.
+        """Process unsubscribe request and send callback. Called by job_worker.
 
         For unsubscribe operations, subscriptions are already cancelled during
         the initial request. This method builds the response and sends callback.
@@ -636,7 +638,7 @@ class DCITransaction(models.Model):
             _logger.exception("DCI async unsubscribe failed: %s", self.transaction_id)
 
     def process_async_txn_status(self):
-        """Process transaction status request and send callback. Called by queue_job.
+        """Process transaction status request and send callback. Called by job_worker.
 
         Looks up the status of the referenced transaction and sends callback.
         """
@@ -819,8 +821,9 @@ class DCITransaction(models.Model):
                     self.max_retries,
                 )
                 self.with_delay(
-                    channel="root.dci",
+                    channel="dci",
                     eta=delay,
+                    timeout=60,
                     description=f"DCI Retry Callback {self.transaction_id}",
                 )._retry_callback()
             else:
@@ -839,7 +842,7 @@ class DCITransaction(models.Model):
             self._retry_callback()
 
     def action_view_job(self):
-        """View the queue_job record."""
+        """View the job_worker record."""
         self.ensure_one()
         if not self.job_uuid:
             raise UserError(_("No job associated with this transaction"))
