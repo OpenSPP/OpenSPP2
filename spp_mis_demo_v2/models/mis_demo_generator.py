@@ -3955,9 +3955,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                 }
             )
 
-        _logger.info(
-            "[spp.mis.demo] Created PRISM API client (client_id=prism) with GIS scopes"
-        )
+        _logger.info("[spp.mis.demo] Created PRISM API client (client_id=prism) with GIS scopes")
         stats["prism_api_client"] = "created"
 
 
