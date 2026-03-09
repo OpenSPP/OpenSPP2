@@ -47,6 +47,7 @@
                     <!-- Context banner -->
                     <div
                         class="alert alert-light border d-flex align-items-center mb-4 py-2"
+                        role="alert"
                     >
                         <i class="fa fa-file-text fa-lg text-primary me-3" />
                         <field name="stage_banner_html" nolabel="1" readonly="1" />

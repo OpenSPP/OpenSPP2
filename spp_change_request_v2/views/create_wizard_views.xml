@@ -35,7 +35,7 @@
                     <!-- Target type info -->
                     <div
                         class="alert alert-secondary py-2"
-                        role="status"
+                        role="alert"
                         invisible="not target_type_message"
                     >
                         <div class="d-flex align-items-center">
@@ -78,7 +78,7 @@
                     <!-- Selected registrant info -->
                     <div
                         class="alert alert-success py-2 mb-3"
-                        role="status"
+                        role="alert"
                         invisible="not registrant_id"
                     >
                         <field name="registrant_info_html" nolabel="1" readonly="1" />

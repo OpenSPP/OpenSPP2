@@ -56,9 +56,11 @@
         # Data
         "data/dms_directories.xml",
         "data/sequences.xml",
-        "data/default_types.xml",
         "data/event_types.xml",
         "data/user_roles.xml",
+    ],
+    "oca_data_manual": [
+        "data/default_types.xml",
     ],
     "assets": {
         "web.assets_backend": [

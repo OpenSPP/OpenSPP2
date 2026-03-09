@@ -281,7 +281,7 @@
                     <!-- Target Type Information Banner -->
                     <div
                         class="alert alert-secondary py-2"
-                        role="status"
+                        role="alert"
                         invisible="not target_type_message"
                     >
                         <div class="d-flex align-items-center">
@@ -336,7 +336,7 @@
                     <!-- Revision Needed Banner -->
                     <div
                         class="alert alert-warning"
-                        role="status"
+                        role="alert"
                         invisible="approval_state != 'revision'"
                     >
                         <div class="d-flex align-items-center">
@@ -354,7 +354,7 @@
                     <!-- Ready to Finalize Banner -->
                     <div
                         class="alert alert-success"
-                        role="status"
+                        role="alert"
                         invisible="approval_state != 'approved' or is_applied"
                     >
                         <div class="d-flex align-items-center">
@@ -374,7 +374,7 @@
                     <!-- Multi-tier Approval Progress Banner -->
                     <div
                         class="alert alert-info"
-                        role="status"
+                        role="alert"
                         invisible="not multitier_approval_message"
                     >
                         <div class="d-flex align-items-center">

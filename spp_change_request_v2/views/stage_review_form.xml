@@ -147,6 +147,7 @@
                     <!-- Context banner -->
                     <div
                         class="alert alert-light border d-flex align-items-center mb-4 py-2"
+                        role="alert"
                     >
                         <i class="fa fa-search fa-lg text-primary me-3" />
                         <field name="stage_banner_html" nolabel="1" readonly="1" />
@@ -155,7 +156,7 @@
                     <!-- Revision feedback banner (for creator in revision state) -->
                     <div
                         class="alert alert-warning"
-                        role="status"
+                        role="alert"
                         invisible="approval_state != 'revision' or not revision_notes"
                     >
                         <div class="d-flex align-items-center">
@@ -174,7 +175,7 @@
                     <!-- Rejection reason banner -->
                     <div
                         class="alert alert-danger"
-                        role="status"
+                        role="alert"
                         invisible="approval_state != 'rejected' or not rejection_reason"
                     >
                         <div class="d-flex align-items-center">
@@ -193,7 +194,7 @@
                     <!-- Approval status banner -->
                     <div
                         class="alert alert-info"
-                        role="status"
+                        role="alert"
                         invisible="not multitier_approval_message"
                     >
                         <div class="d-flex align-items-center">
@@ -205,7 +206,11 @@
                     </div>
 
                     <!-- Review instruction -->
-                    <div class="alert alert-warning mb-3 py-2" invisible="is_applied">
+                    <div
+                        class="alert alert-warning mb-3 py-2"
+                        role="alert"
+                        invisible="is_applied"
+                    >
                         <i class="fa fa-exclamation-triangle me-2" />
                         Review the changes below.
                     </div>
@@ -223,7 +228,7 @@
                             </div>
                         </page>
                         <page string="Attached Documents" name="attached_documents">
-                            <div class="alert alert-warning mb-3 py-2">
+                            <div class="alert alert-warning mb-3 py-2" role="alert">
                                 <i class="fa fa-exclamation-triangle me-2" />
                                 Only images and PDF files can be previewed. Other file types must be downloaded to view.
                             </div>
