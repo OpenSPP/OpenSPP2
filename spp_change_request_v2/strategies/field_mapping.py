@@ -74,9 +74,8 @@ class SPPCRStrategyFieldMapping(models.AbstractModel):
     def _eval_expression(self, expr, value, detail, registrant):
         """Safely evaluate transform expression."""
         try:
-            # nosemgrep: odoo-unsafe-safe-eval
             # Admin-defined field mapping expressions with restricted context (no env)
-            return safe_eval(
+            return safe_eval(  # nosemgrep: odoo-unsafe-safe-eval
                 expr,
                 {
                     "value": value,
