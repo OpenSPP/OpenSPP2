@@ -4,6 +4,7 @@
 import json
 import logging
 
+from odoo import _
 from odoo.exceptions import UserError, ValidationError
 
 from odoo.addons.spp_dci.schemas.constants import RegistryType
@@ -115,7 +116,7 @@ class CRVSService:
 
         except Exception as e:
             _logger.error("Failed to verify birth record: %s", str(e), exc_info=True)
-            raise UserError(f"Failed to verify birth record: {str(e)}") from e
+            raise UserError(_("Failed to verify birth record: %s") % str(e)) from e
 
     def check_death(self, identifier_type: str, identifier_value: str) -> bool:
         """Check if person is deceased in CRVS system.
@@ -177,7 +178,7 @@ class CRVSService:
 
         except Exception as e:
             _logger.error("Failed to check death status: %s", str(e), exc_info=True)
-            raise UserError(f"Failed to check death status: {str(e)}") from e
+            raise UserError(_("Failed to check death status: %s") % str(e)) from e
 
     def subscribe_events(self, event_types: list | None = None) -> list[str]:
         """Subscribe to CRVS vital events.
@@ -241,7 +242,7 @@ class CRVSService:
                     )
 
             if not subscription_ids:
-                raise UserError("Failed to subscribe to any CRVS events")
+                raise UserError(_("Failed to subscribe to any CRVS events"))
 
             return subscription_ids
 
@@ -249,7 +250,7 @@ class CRVSService:
             raise
         except Exception as e:
             _logger.error("Failed to subscribe to CRVS events: %s", str(e), exc_info=True)
-            raise UserError(f"Failed to subscribe to CRVS events: {str(e)}") from e
+            raise UserError(_("Failed to subscribe to CRVS events: %s") % str(e)) from e
 
     def unsubscribe_events(self, subscription_codes: list[str]) -> dict:
         """Unsubscribe from CRVS vital events.
@@ -280,7 +281,7 @@ class CRVSService:
 
         except Exception as e:
             _logger.error("Failed to unsubscribe from CRVS events: %s", str(e), exc_info=True)
-            raise UserError(f"Failed to unsubscribe from CRVS events: {str(e)}") from e
+            raise UserError(_("Failed to unsubscribe from CRVS events: %s") % str(e)) from e
 
     def process_notification(self, notification_data: dict) -> int:
         """Process CRVS notification and create event record.
@@ -361,7 +362,7 @@ class CRVSService:
 
         except Exception as e:
             _logger.error("Failed to process CRVS notification: %s", str(e), exc_info=True)
-            raise ValidationError(f"Failed to process CRVS notification: {str(e)}") from e
+            raise ValidationError(_("Failed to process CRVS notification: %s") % str(e)) from e
 
     def _extract_birth_data(self, record_data: dict) -> dict:
         """Extract birth information from DCI record data.

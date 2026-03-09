@@ -5,9 +5,10 @@ coverage:
   status:
     project:
       default:
-        # Only check coverage on files changed in this PR, not the entire project.
-        # CI only tests changed modules, so project-wide coverage would always drop
-        # on PRs that don't re-test every module.
+        # Informational only - don't block PRs on project-wide coverage.
+        # CI only tests changed modules (max 15), so project coverage fluctuates
+        # depending on which modules are in the test matrix.
+        informational: true
         only_pulls: true
     patch:
       default:

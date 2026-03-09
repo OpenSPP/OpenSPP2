@@ -21,7 +21,7 @@ import base64
 import logging
 import os
 
-from odoo import models
+from odoo import _, models
 from odoo.exceptions import UserError
 from odoo.tools import config
 
@@ -90,7 +90,7 @@ class VaultKeyProvider(models.AbstractModel):
             raise UserError(f"Unknown Vault auth method: {auth_method}")
 
         if not client.is_authenticated():
-            raise UserError("Failed to authenticate with Vault")
+            raise UserError(_("Failed to authenticate with Vault"))
 
         return client
 
@@ -346,7 +346,7 @@ class VaultKeyProvider(models.AbstractModel):
             if "already exists" in str(e):
                 _logger.debug("Vault Transit key already exists: %s", key_id)
                 return {"key_id": key_id, "key_type": vault_key_type}
-            raise UserError(f"Failed to create Vault signing key: {e}") from e
+            raise UserError(_("Failed to create Vault signing key: %s") % str(e)) from e
 
     def sign_with_transit(self, key_id, data, algorithm="ed25519"):
         """Sign data using Vault Transit engine.

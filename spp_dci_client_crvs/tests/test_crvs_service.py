@@ -6,6 +6,8 @@ from unittest.mock import patch
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests import tagged
 
+from odoo.addons.spp_dci.schemas.constants import RegistryType
+
 from .common import CRVSClientCommon
 
 
@@ -25,7 +27,7 @@ class TestCRVSService(CRVSClientCommon):
                 "auth_type": "none",
                 "our_sender_id": "openspp.example.org",
                 "our_callback_uri": "https://openspp.example.org/callback",
-                "registry_type": "CRVS",
+                "registry_type": RegistryType.CRVS.value,
             }
         )
 

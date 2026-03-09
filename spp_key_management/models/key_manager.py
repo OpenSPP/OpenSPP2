@@ -29,6 +29,7 @@ from odoo.tools.cache import ormcache
 _logger = logging.getLogger(__name__)
 
 try:
+    from cryptography.exceptions import InvalidTag
     from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
     CRYPTOGRAPHY_AVAILABLE = True
@@ -288,7 +289,12 @@ class KeyManager(models.AbstractModel):
         aesgcm = AESGCM(key)
 
         # Decrypt
-        plaintext = aesgcm.decrypt(nonce, ciphertext, aad)
+        try:
+            plaintext = aesgcm.decrypt(nonce, ciphertext, aad)
+        except InvalidTag as e:
+            raise ValueError(
+                "Decryption failed: authentication tag verification failed (wrong key or corrupted data)"
+            ) from e
         return plaintext.decode("utf-8")
 
     @api.model

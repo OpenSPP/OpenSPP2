@@ -19,7 +19,7 @@ import base64
 import logging
 import os
 
-from odoo import models
+from odoo import _, models
 from odoo.exceptions import UserError
 from odoo.tools import config
 
@@ -295,7 +295,7 @@ class GCPKMSKeyProvider(models.AbstractModel):
             response = client.encrypt(name=key_path, plaintext=new_salt)
             encrypted_salt = response.ciphertext
         except gcp_exceptions.GoogleAPICallError as e:
-            raise UserError(f"Failed to encrypt salt with GCP KMS: {e}") from e
+            raise UserError(_("Failed to encrypt salt with GCP KMS: %s") % str(e)) from e
 
         EncryptionKey.create(
             {
@@ -476,7 +476,7 @@ class GCPKMSKeyProvider(models.AbstractModel):
             return crypto_key.primary.name
 
         except gcp_exceptions.GoogleAPICallError as e:
-            raise UserError(f"Failed to create GCP KMS signing key: {e}") from e
+            raise UserError(_("Failed to create GCP KMS signing key: %s") % str(e)) from e
 
     def sign_with_kms(self, key_id, data, algorithm="EC_SIGN_P256_SHA256"):
         """Sign data using GCP KMS.
@@ -596,4 +596,4 @@ class GCPKMSKeyProvider(models.AbstractModel):
             return response.pem.encode()
 
         except gcp_exceptions.GoogleAPICallError as e:
-            raise UserError(f"Failed to get public key from GCP KMS: {e}") from e
+            raise UserError(_("Failed to get public key from GCP KMS: %s") % str(e)) from e

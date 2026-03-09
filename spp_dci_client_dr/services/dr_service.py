@@ -4,7 +4,7 @@
 import json
 import logging
 
-from odoo import fields
+from odoo import _, fields
 from odoo.exceptions import UserError, ValidationError
 
 from odoo.addons.spp_dci_client.services import DCIClient
@@ -145,7 +145,7 @@ class DRService:
                 str(e),
                 exc_info=True,
             )
-            raise UserError(f"Failed to get disability status: {str(e)}") from e
+            raise UserError(_("Failed to get disability status: %s") % str(e)) from e
 
     def get_functional_assessment(self, identifier_type: str, identifier_value: str) -> dict | None:
         """Get functional assessment scores for a person.
@@ -230,7 +230,7 @@ class DRService:
                 str(e),
                 exc_info=True,
             )
-            raise UserError(f"Failed to get functional assessment: {str(e)}") from e
+            raise UserError(_("Failed to get functional assessment: %s") % str(e)) from e
 
     def is_pwd(self, partner) -> bool:
         """Quick check if person is registered as PWD (Person with Disability).
@@ -354,7 +354,7 @@ class DRService:
                 str(e),
                 exc_info=True,
             )
-            raise UserError(f"Failed to sync disability data: {str(e)}") from e
+            raise UserError(_("Failed to sync disability data: %s") % str(e)) from e
 
     def _get_partner_identifier(self, partner):
         """Get suitable identifier for querying DR.
