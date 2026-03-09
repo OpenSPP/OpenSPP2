@@ -16,6 +16,15 @@
 
                     <!-- Draft/Revision: Back, Submit, and Save as Draft buttons -->
                     <button
+                        name="action_goto_details"
+                        string="Update Information"
+                        type="object"
+                        class="btn-warning"
+                        icon="fa-pencil"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <button
                         name="action_goto_documents"
                         string="Back: Documents"
                         type="object"
@@ -91,7 +100,7 @@
                     <!-- Rejected: Start Over (create new CR) -->
                     <button
                         name="action_start_over"
-                        string="Start Over"
+                        string="Try Again"
                         type="object"
                         class="btn-secondary"
                         invisible="approval_state != 'rejected'"
@@ -196,7 +205,7 @@
                     </div>
 
                     <!-- Review instruction -->
-                    <div class="alert alert-warning mb-3 py-2">
+                    <div class="alert alert-warning mb-3 py-2" invisible="is_applied">
                         <i class="fa fa-exclamation-triangle me-2" />
                         Review the changes below.
                     </div>

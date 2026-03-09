@@ -37,13 +37,17 @@
                     </div>
 
                     <group>
-                        <field name="registrant_id" readonly="1" options="{'no_open': True}" />
+                        <field
+                            name="registrant_id"
+                            readonly="1"
+                            options="{'no_open': True}"
+                        />
                         <field name="change_request_id" invisible="1" />
                     </group>
 
                     <div class="alert alert-info" role="alert">
                         <field name="approval_state" invisible="1" />
-                        Update the fields you want to change.
+                        Current information is displayed below. Update the fields you want to change.
                     </div>
 
                     <group string="Basic Information">
