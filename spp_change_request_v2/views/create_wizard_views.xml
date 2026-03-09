@@ -32,6 +32,18 @@
                         </group>
                     </group>
 
+                    <!-- Target type info -->
+                    <div
+                        class="alert alert-secondary py-2"
+                        role="alert"
+                        invisible="not target_type_message"
+                    >
+                        <div class="d-flex align-items-center">
+                            <i class="fa fa-info-circle me-2" title="Info" />
+                            <field name="target_type_message" nolabel="1" />
+                        </div>
+                    </div>
+
                     <!-- Hidden fields -->
                     <field name="show_registrant" invisible="1" />
                     <field name="registrant_id" invisible="1" />
@@ -66,7 +78,7 @@
                     <!-- Selected registrant info -->
                     <div
                         class="alert alert-success py-2 mb-3"
-                        role="status"
+                        role="alert"
                         invisible="not registrant_id"
                     >
                         <field name="registrant_info_html" nolabel="1" readonly="1" />
@@ -85,7 +97,7 @@
                         name="action_create_draft"
                         type="object"
                         class="btn-primary"
-                        invisible="not request_type_id or not registrant_id"
+                        invisible="not request_type_id or (show_registrant and not registrant_id)"
                     />
                     <button string="Cancel" class="btn-secondary" special="cancel" />
                 </footer>

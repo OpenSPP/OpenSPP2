@@ -76,7 +76,7 @@
                         <field
                             name="comment"
                             placeholder="Optional comment (applies to all selected requests)..."
-                            invisible="action_type == 'approve'"
+                            invisible="action_type != 'approve'"
                         />
                         <field
                             name="comment"
@@ -95,11 +95,10 @@
                     <!-- Selected requests -->
                     <notebook>
                         <page string="Selected Requests" name="requests">
-                            <field name="line_ids" nolabel="1">
+                            <field name="line_ids" nolabel="1" readonly="1">
                                 <list
                                     decoration-muted="not can_process"
                                     decoration-danger="not can_process"
-                                    editable="bottom"
                                 >
                                     <field name="cr_name" string="Reference" />
                                     <field name="cr_type" string="Type" />
@@ -115,6 +114,12 @@
                                         icon="fa-check text-success"
                                         invisible="not can_process"
                                         title="Ready to process"
+                                    />
+                                    <button
+                                        name="action_remove_line"
+                                        type="object"
+                                        icon="fa-trash"
+                                        title="Remove from batch"
                                     />
                                 </list>
                             </field>

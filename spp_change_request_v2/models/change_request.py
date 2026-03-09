@@ -45,6 +45,29 @@ class SPPChangeRequest(models.Model):
         store=True,
         index=True,
     )
+    allow_document_download = fields.Boolean(
+        related="request_type_id.allow_document_download",
+    )
+
+    stage = fields.Selection(
+        [
+            ("details", "Edit Details"),
+            ("documents", "Upload Documents"),
+            ("review", "Review & Submit"),
+        ],
+        string="Stage",
+        default="details",
+        tracking=True,
+    )
+
+    is_cr_manager = fields.Boolean(
+        compute="_compute_is_cr_manager",
+    )
+
+    def _compute_is_cr_manager(self):
+        is_manager = self.env.user.has_group("spp_change_request_v2.group_cr_manager")
+        for rec in self:
+            rec.is_cr_manager = is_manager
 
     # ══════════════════════════════════════════════════════════════════════════
     # REGISTRANT & APPLICANT
@@ -53,7 +76,6 @@ class SPPChangeRequest(models.Model):
     registrant_id = fields.Many2one(
         "res.partner",
         string="Registrant",
-        required=True,
         index=True,
         tracking=True,
     )
@@ -112,6 +134,16 @@ class SPPChangeRequest(models.Model):
     apply_error = fields.Text(readonly=True)
 
     # ══════════════════════════════════════════════════════════════════════════
+    # LOG
+    # ══════════════════════════════════════════════════════════════════════════
+
+    log_ids = fields.One2many(
+        "spp.change.request.log",
+        "change_request_id",
+        string="Change Request Log",
+    )
+
+    # ══════════════════════════════════════════════════════════════════════════
     # DOCUMENTS & NOTES
     # ══════════════════════════════════════════════════════════════════════════
 
@@ -136,8 +168,8 @@ class SPPChangeRequest(models.Model):
             ("pending", "Under Review"),
             ("revision", "Needs Changes"),
             ("approved", "Approved"),
-            ("rejected", "Declined"),
-            ("applied", "Completed"),
+            ("rejected", "Rejected"),
+            ("applied", "Applied"),
         ],
         compute="_compute_display_state",
         store=True,
@@ -148,14 +180,29 @@ class SPPChangeRequest(models.Model):
         compute="_compute_preview_html",
         sanitize=False,
     )
+    review_comparison_html = fields.Html(
+        string="Review Comparison",
+        compute="_compute_review_comparison_html",
+        sanitize=False,
+    )
     preview_html_snapshot = fields.Html(
         string="Preview Snapshot",
         help="Stored snapshot of preview taken before applying changes",
         sanitize=False,
     )
+    review_comparison_html_snapshot = fields.Html(
+        string="Review Comparison Snapshot",
+        help="Stored snapshot of review comparison taken before applying changes",
+        sanitize=False,
+    )
     preview_json_snapshot = fields.Text(
         string="Preview JSON Snapshot",
         help="Stored JSON snapshot of preview taken before applying changes",
+    )
+    review_documents_html = fields.Html(
+        string="Review Documents",
+        compute="_compute_review_documents_html",
+        sanitize=False,
     )
     registrant_summary_html = fields.Html(
         string="Registrant Summary",
@@ -183,6 +230,26 @@ class SPPChangeRequest(models.Model):
         help="Message indicating what type of registrant this CR type applies to",
     )
 
+    missing_required_document_ids = fields.Many2many(
+        "spp.vocabulary.code",
+        compute="_compute_missing_required_documents",
+        string="Missing Required Documents",
+    )
+    documents_complete = fields.Boolean(
+        compute="_compute_missing_required_documents",
+        string="All Required Documents Uploaded",
+    )
+    stage_banner_html = fields.Html(
+        compute="_compute_stage_banner_html",
+        sanitize=False,
+        string="Stage Banner",
+    )
+    required_documents_html = fields.Html(
+        compute="_compute_required_documents_html",
+        sanitize=False,
+        string="Required Documents Status",
+    )
+
     def _compute_is_creator(self):
         """Check if current user is the creator of this CR."""
         for rec in self:
@@ -198,9 +265,11 @@ class SPPChangeRequest(models.Model):
                 continue
 
             try:
-                # Use the strategy's preview method to check for actual changes
-                strategy = rec.request_type_id.get_apply_strategy()
-                changes = strategy.preview(rec) or {}
+                # Use sudo to bypass record rules (e.g. global disabled-registrant
+                # rules on spp.group.membership) — this is read-only preview logic.
+                sudo_rec = rec.sudo()  # nosemgrep: odoo-sudo-without-context
+                strategy = sudo_rec.request_type_id.get_apply_strategy()
+                changes = strategy.preview(sudo_rec) or {}
 
                 # Remove metadata keys that don't represent actual changes
                 changes.pop("_action", None)
@@ -237,22 +306,31 @@ class SPPChangeRequest(models.Model):
                 tier_reviews = active_review.tier_review_ids
                 approved_tiers = tier_reviews.filtered(lambda t: t.status == "approved")
                 pending_tiers = tier_reviews.filtered(lambda t: t.status == "pending")
+                waiting_tiers = tier_reviews.filtered(lambda t: t.status == "waiting")
 
                 if pending_tiers:
-                    # Get the current approver group name from the tier
-                    pending_tier = pending_tiers.sorted("sequence")[:1]
-                    tier = pending_tier.tier_id
+                    current_tier = pending_tiers.sorted("sequence")[:1]
                     group_name = ""
-                    if tier and tier.approval_group_id:
-                        group_name = tier.approval_group_id.name
+                    if current_tier.tier_id and current_tier.tier_id.approval_group_id:
+                        group_name = current_tier.tier_id.approval_group_id.name
 
                     if group_name:
-                        if approved_tiers:
-                            rec.multitier_approval_message = (
-                                _("Approved at previous level. Awaiting approval from: %s") % group_name
-                            )
-                        else:
-                            rec.multitier_approval_message = _("Awaiting approval from: %s") % group_name
+                        total_tiers = len(tier_reviews)
+                        completed = len(approved_tiers)
+                        msg = _("Awaiting approval from: %s (Level %d of %d)") % (
+                            group_name,
+                            completed + 1,
+                            total_tiers,
+                        )
+
+                        # Show next approver group if there are waiting tiers
+                        if waiting_tiers:
+                            next_tier = waiting_tiers.sorted("sequence")[:1]
+                            if next_tier.tier_id and next_tier.tier_id.approval_group_id:
+                                next_group = next_tier.tier_id.approval_group_id.name
+                                msg += "\n" + _("Next: %s") % next_group
+
+                        rec.multitier_approval_message = msg
             else:
                 # Single-tier approval - get group from definition
                 definition = active_review.definition_id
@@ -275,6 +353,67 @@ class SPPChangeRequest(models.Model):
                 rec.target_type_message = _("This request type applies to groups/households only.")
             else:
                 rec.target_type_message = _("This request type applies to both individuals and groups/households.")
+
+    @api.depends("name", "request_type_id", "registrant_id")
+    def _compute_stage_banner_html(self):
+        for rec in self:
+            cr_ref = rec.name or ""
+            cr_type = rec.request_type_id.name if rec.request_type_id else ""
+            html = f'<span class="fw-bold">{cr_ref}</span><span class="text-muted mx-2">|</span><span>{cr_type}</span>'
+            if rec.registrant_id:
+                registrant = rec.registrant_id.name or ""
+                html += (
+                    f'<span class="text-muted mx-2">|</span>'
+                    f'<i class="fa fa-user me-1 text-muted"></i>'
+                    f"<span>{registrant}</span>"
+                )
+            rec.stage_banner_html = html
+
+    @api.depends("document_ids", "document_ids.document_type_id", "request_type_id.required_document_ids")
+    def _compute_missing_required_documents(self):
+        for rec in self:
+            required = rec.request_type_id.required_document_ids if rec.request_type_id else None
+            if not required:
+                rec.missing_required_document_ids = self.env["spp.vocabulary.code"]
+                rec.documents_complete = True
+                continue
+            uploaded = rec.document_ids.mapped("document_type_id").filtered(lambda c: c)
+            missing = required - uploaded
+            rec.missing_required_document_ids = missing
+            rec.documents_complete = not bool(missing)
+
+    @api.depends("document_ids", "document_ids.document_type_id", "request_type_id.required_document_ids")
+    def _compute_required_documents_html(self):
+        for rec in self:
+            required = rec.request_type_id.required_document_ids if rec.request_type_id else None
+            if not required:
+                rec.required_documents_html = (
+                    '<div class="alert alert-info mb-3 py-2">'
+                    '<i class="fa fa-info-circle me-2"></i>'
+                    "Documents are optional for this request type. "
+                    "You may upload supporting documents or proceed to the next step."
+                    "</div>"
+                )
+                continue
+
+            uploaded_types = rec.document_ids.mapped("document_type_id").filtered(lambda c: c)
+            items = []
+            for doc_type in required:
+                if doc_type in uploaded_types:
+                    items.append(
+                        f'<li class="text-success"><i class="fa fa-check-circle me-1"></i>{doc_type.display_name}</li>'
+                    )
+                else:
+                    items.append(
+                        f'<li class="text-danger"><i class="fa fa-times-circle me-1"></i>{doc_type.display_name}</li>'
+                    )
+
+            rec.required_documents_html = (
+                '<div class="mb-3">'
+                "<strong>Required Documents:</strong>"
+                f'<ul class="list-unstyled mt-1 mb-0">{"".join(items)}</ul>'
+                "</div>"
+            )
 
     @api.depends("approval_state", "is_applied")
     def _compute_display_state(self):
@@ -311,6 +450,57 @@ class SPPChangeRequest(models.Model):
             else:
                 # Generate fresh preview
                 rec.preview_html = rec._generate_preview_html()
+
+    def _compute_review_comparison_html(self):
+        """Compute side-by-side comparison HTML for the review stage.
+
+        For field-mapping CR types: shows a three-column table (Field | Current | Proposed).
+        For action CR types: shows a clean summary table of the action details.
+        Uses stored snapshot after apply (since current == proposed post-apply).
+        """
+        for rec in self:
+            if rec.is_applied and rec.review_comparison_html_snapshot:
+                rec.review_comparison_html = rec.review_comparison_html_snapshot
+            else:
+                rec.review_comparison_html = rec._generate_review_comparison_html()
+
+    @api.depends("document_ids")
+    def _compute_review_documents_html(self):
+        """Compute HTML table for documents matching the proposed changes table style."""
+        for rec in self:
+            if not rec.document_ids:
+                rec.review_documents_html = (
+                    '<div class="text-muted"><i class="fa fa-info-circle me-2"></i>No documents attached.</div>'
+                )
+                continue
+
+            html = ['<table class="table table-sm table-bordered mb-0" style="width:100%;table-layout:fixed">']
+            html.append(
+                "<thead><tr>"
+                '<th class="bg-light" style="width:45%">File</th>'
+                '<th class="bg-light" style="width:35%">Document Type</th>'
+                '<th class="bg-light" style="width:20%">Uploaded</th>'
+                "</tr></thead>"
+            )
+            html.append("<tbody>")
+
+            for doc in rec.document_ids:
+                doc_name = doc.name or ""
+                doc_type = doc.document_type_id.display_name if doc.document_type_id else ""
+                uploaded = doc.create_date.strftime("%Y-%m-%d") if doc.create_date else ""
+                html.append(
+                    f"<tr>"
+                    f'<td style="max-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'
+                    f'<a class="o_cr_doc_preview" data-doc-id="{doc.id}" '
+                    f'style="cursor:pointer" title="{doc_name}">'
+                    f'<i class="fa fa-eye text-primary me-2"></i></a>{doc_name}</td>'
+                    f"<td>{doc_type}</td>"
+                    f"<td>{uploaded}</td>"
+                    f"</tr>"
+                )
+
+            html.append("</tbody></table>")
+            rec.review_documents_html = "".join(html)
 
     def _compute_registrant_summary_html(self):
         """Compute HTML summary of the registrant for the review panel."""
@@ -404,6 +594,7 @@ class SPPChangeRequest(models.Model):
             # Auto-create detail record
             record._ensure_detail()
             record._create_audit_event("created", None, "draft")
+            record._create_log("created")
             # Run conflict detection after creation
             if hasattr(record, "_run_conflict_checks"):
                 record._run_conflict_checks()
@@ -537,6 +728,28 @@ class SPPChangeRequest(models.Model):
     # APPROVAL ACTIONS
     # ══════════════════════════════════════════════════════════════════════════
 
+    def action_approve(self, comment=None):
+        """Override to log intermediate tier approvals in multi-tier workflow.
+
+        The base _on_approve hook only fires after ALL tiers are approved.
+        This captures each intermediate tier approval in the CR log.
+        """
+        # Capture pre-approval state per record
+        pre_states = {}
+        for record in self:
+            if record.approval_state == "pending" and record.is_multitier_approval:
+                pre_states[record.id] = record.current_tier_name
+
+        result = super().action_approve(comment=comment)
+
+        # Log intermediate tier approvals
+        # (final approval is already logged by _on_approve)
+        for record in self:
+            if record.id in pre_states and record.approval_state == "pending":
+                record._create_log("approved")
+
+        return result
+
     def action_submit_for_approval(self):
         """Submit for approval with document and required field validation.
 
@@ -562,26 +775,35 @@ class SPPChangeRequest(models.Model):
             doc_validation_result = record._validate_documents()
 
             # Proceed with submission
-            result = super(SPPChangeRequest, record).action_submit_for_approval()
+            super(SPPChangeRequest, record).action_submit_for_approval()
 
-            # If warning mode and documents missing, show notification after submission
+            # Build success notification with redirect to CR list
+            list_action = {
+                "type": "ir.actions.client",
+                "tag": "navigate_cr_list",
+            }
+
+            type_name = record.request_type_id.name or ""
+            success_message = _("%s %s successfully submitted for approval.") % (
+                record.name,
+                type_name,
+            )
+
+            # If warning mode and documents missing, append doc warning to message
             if doc_validation_result and doc_validation_result.get("notification"):
                 notification = doc_validation_result["notification"]
+                success_message += "\n" + notification["message"]
 
-                return {
-                    "type": "ir.actions.client",
-                    "tag": "display_notification",
-                    "params": {
-                        "title": notification["title"],
-                        "message": notification["message"],
-                        "type": notification["type"],
-                        "sticky": notification.get("sticky", False),
-                        "next": result if isinstance(result, dict) else {"type": "ir.actions.act_window_close"},
-                    },
-                }
-
-            # Return normal result if no notification needed
-            return result
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "message": success_message,
+                    "type": "success",
+                    "sticky": False,
+                    "next": list_action,
+                },
+            }
 
         return super().action_submit_for_approval()
 
@@ -604,13 +826,18 @@ class SPPChangeRequest(models.Model):
 
     def _on_approve(self):
         super()._on_approve()
+        # Signal ORM that approval_state changed (set via raw SQL in _do_approve)
+        # so stored computed fields like display_state get recomputed
+        self.modified(["approval_state"])
         self._create_audit_event("approved", "pending", "approved")
+        self._create_log("approved")
         if self.request_type_id.auto_apply_on_approve:
             self.action_apply()
 
     def _on_reject(self, reason):
         super()._on_reject(reason)
         self._create_audit_event("rejected", "pending", "rejected")
+        self._create_log("rejected", notes=reason)
 
     def _check_can_submit(self):
         """Override to allow resubmission from revision state."""
@@ -629,15 +856,21 @@ class SPPChangeRequest(models.Model):
 
         super()._on_submit()
         old_state = "draft" if self.approval_state == "draft" else "revision"
+        action = "resubmitted" if old_state == "revision" else "submitted"
         self._create_audit_event("submitted", old_state, "pending")
+        self._create_log(action)
 
     def _on_request_revision(self, notes):
         super()._on_request_revision(notes)
         self._create_audit_event("revision_requested", "pending", "revision")
+        self._create_log("revision_requested", notes=notes)
+        self.stage = "review"
 
     def _on_reset_to_draft(self):
         super()._on_reset_to_draft()
         self._create_audit_event("reset_to_draft", self.approval_state, "draft")
+        self._create_log("reset_to_draft")
+        self.stage = "details"
 
     # ══════════════════════════════════════════════════════════════════════════
     # APPLY
@@ -651,8 +884,10 @@ class SPPChangeRequest(models.Model):
             return '<div class="text-muted"><i class="fa fa-info-circle me-2"></i>No changes to preview yet.</div>'
 
         try:
-            strategy = self.request_type_id.get_apply_strategy()
-            changes = strategy.preview(self) or {}
+            # Use sudo() so validators can preview memberships of disabled registrants
+            sudo_self = self.sudo()  # nosemgrep: odoo-sudo-without-context
+            strategy = sudo_self.request_type_id.get_apply_strategy()
+            changes = strategy.preview(sudo_self) or {}
         except Exception as e:
             _logger.warning("Error computing preview for CR ID %s: %s", self.id, e)
             return (
@@ -731,16 +966,135 @@ class SPPChangeRequest(models.Model):
         html_parts.append("</div>")
         return "".join(html_parts)
 
+    def _generate_review_comparison_html(self):
+        """Generate comparison HTML for the review stage.
+
+        For field-mapping types (old/new pairs): renders a three-column
+        comparison table showing Field | Current | Proposed.
+        For action types: renders a summary table of the action details.
+        """
+        self.ensure_one()
+
+        if not self.request_type_id or not self.detail_res_id:
+            return '<div class="text-muted"><i class="fa fa-info-circle me-2"></i>No changes to review yet.</div>'
+
+        try:
+            # Use sudo() so validators can preview memberships of disabled registrants
+            sudo_self = self.sudo()  # nosemgrep: odoo-sudo-without-context
+            strategy = sudo_self.request_type_id.get_apply_strategy()
+            changes = strategy.preview(sudo_self) or {}
+        except Exception as e:
+            _logger.warning("Error computing review comparison for CR ID %s: %s", self.id, e)
+            return (
+                '<div class="alert alert-warning">'
+                '<i class="fa fa-exclamation-triangle me-2"></i>'
+                "Could not load review data."
+                "</div>"
+            )
+
+        action = changes.pop("_action", None)
+
+        # Determine if this is a field-mapping type (has old/new dicts)
+        has_comparison = any(isinstance(v, dict) and "old" in v and "new" in v for v in changes.values())
+
+        if has_comparison:
+            return self._render_comparison_table(changes)
+        return self._render_action_summary(action, changes)
+
+    def _render_comparison_table(self, changes):
+        """Render a three-column comparison table for field-mapping CR types."""
+        html = ['<table class="table table-sm table-bordered mb-0" style="width:100%">']
+        html.append(
+            "<thead><tr>"
+            '<th class="bg-light"></th>'
+            '<th class="bg-light">Current</th>'
+            '<th class="bg-light">Proposed</th>'
+            "</tr></thead>"
+        )
+        html.append("<tbody>")
+
+        for key, value in changes.items():
+            if key.startswith("_"):
+                continue
+            display_key = key.replace("_", " ").title()
+
+            if isinstance(value, dict) and "old" in value:
+                old_val = value.get("old")
+                new_val = value.get("new")
+                old_display = self._format_review_value(old_val)
+                new_display = self._format_review_value(new_val)
+
+                # Highlight changed values
+                changed = old_val != new_val
+                new_class = ' class="text-success fw-bold"' if changed else ""
+                old_class = ' class="text-muted"' if changed else ""
+
+                html.append(
+                    f"<tr>"
+                    f'<td class="bg-light"><strong>{display_key}</strong></td>'
+                    f"<td{old_class}>{old_display}</td>"
+                    f"<td{new_class}>{new_display}</td>"
+                    f"</tr>"
+                )
+            else:
+                # Non-comparison field — span across both columns
+                display_value = self._format_review_value(value)
+                html.append(
+                    f"<tr>"
+                    f'<td class="bg-light"><strong>{display_key}</strong></td>'
+                    f'<td colspan="2">{display_value}</td>'
+                    f"</tr>"
+                )
+
+        html.append("</tbody></table>")
+        return "".join(html)
+
+    def _render_action_summary(self, action, changes):
+        """Render a summary table for action-based CR types."""
+        html = []
+
+        if not changes:
+            html.append('<p class="text-muted mb-0"><i class="fa fa-info-circle me-2"></i>No details to display.</p>')
+            return "".join(html)
+
+        html.append('<table class="table table-sm table-bordered mb-0" style="width:100%">')
+        html.append('<thead><tr><th class="bg-light"></th><th class="bg-light">Value</th></tr></thead>')
+        html.append("<tbody>")
+
+        for key, value in changes.items():
+            if key.startswith("_"):
+                continue
+            display_key = key.replace("_", " ").title()
+            display_value = self._format_review_value(value)
+            html.append(f'<tr><td class="bg-light"><strong>{display_key}</strong></td><td>{display_value}</td></tr>')
+
+        html.append("</tbody></table>")
+        return "".join(html)
+
+    def _format_review_value(self, value):
+        """Format a single value for display in review tables."""
+        if value is None or value is False or value == "":
+            return '<span class="text-muted">—</span>'
+        if isinstance(value, bool):
+            return '<span class="badge text-bg-success">Yes</span>'
+        if isinstance(value, list):
+            if value:
+                return "<br/>".join(str(v) for v in value)
+            return '<span class="text-muted">—</span>'
+        return str(value)
+
     def _capture_preview_snapshot(self):
         """Capture and store the preview HTML and JSON before applying changes."""
         self.ensure_one()
         import json
 
         self.preview_html_snapshot = self._generate_preview_html()
+        self.review_comparison_html_snapshot = self._generate_review_comparison_html()
 
-        # Also capture the JSON data
-        strategy = self.request_type_id.get_apply_strategy()
-        changes = strategy.preview(self) or {}
+        # Also capture the JSON data (use sudo for record-rule bypass)
+        sudo_self = self.sudo()  # nosemgrep: odoo-sudo-without-context
+        strategy = sudo_self.request_type_id.get_apply_strategy()
+        changes = strategy.preview(sudo_self) or {}
         self.preview_json_snapshot = json.dumps(changes, indent=2, default=str)
 
     def action_apply(self):
@@ -765,16 +1119,26 @@ class SPPChangeRequest(models.Model):
                     }
                 )
                 rec._create_audit_event("applied", "approved", "applied")
+                rec._create_log("applied")
             except Exception as e:
                 _logger.exception("Failed to apply change request %s", rec.name)
                 rec.write({"apply_error": str(e)})
                 raise
 
     def _do_apply(self):
-        """Execute the apply strategy."""
+        """Execute the apply strategy.
+
+        Uses sudo() because the apply operation is a system action that
+        executes already-approved changes. The approval workflow (single
+        or multi-tier) is the security gate — by the time we reach here,
+        approval_state == 'approved' has been verified. Strategies may
+        need to modify models the validator doesn't have direct access
+        to (e.g. spp.group.membership blocked by global record rules).
+        """
         self.ensure_one()
-        strategy = self.request_type_id.get_apply_strategy()
-        strategy.apply(self)
+        sudo_self = self.sudo()  # nosemgrep: odoo-sudo-without-context
+        strategy = sudo_self.request_type_id.get_apply_strategy()
+        strategy.apply(sudo_self)
 
     def action_preview_changes(self):
         """Preview what changes will be applied (returns data dict)."""
@@ -881,10 +1245,26 @@ class SPPChangeRequest(models.Model):
     # AUDIT (ADR-002)
     # ══════════════════════════════════════════════════════════════════════════
 
+    def _create_log(self, action, notes=False):
+        """Create a log entry for this change request."""
+        self.ensure_one()
+        self.env["spp.change.request.log"].sudo().create(  # nosemgrep: odoo-sudo-without-context
+            {
+                "change_request_id": self.id,
+                "action": action,
+                "user_id": self.env.user.id,
+                "notes": notes,
+            }
+        )
+
     def _create_audit_event(self, action, old_state, new_state):
         """Create event data record for audit trail."""
         self.ensure_one()
         if "spp.event.data" not in self.env:
+            return
+
+        # Skip audit event if no registrant (e.g., Create Group type)
+        if not self.registrant_id:
             return
 
         event_type = self.env.ref(
@@ -934,7 +1314,7 @@ class SPPChangeRequest(models.Model):
             "res_model": self.detail_res_model,
             "res_id": detail.id,
             "view_mode": "form",
-            "view_id": view_id,
+            "views": [[view_id, "form"]],
             "target": "current",
             "context": {
                 "create": False,
@@ -966,5 +1346,142 @@ class SPPChangeRequest(models.Model):
             "target": "new",
             "context": {
                 "default_change_request_id": self.id,
+            },
+        }
+
+    # ══════════════════════════════════════════════════════════════════════════
+    # STAGE NAVIGATION
+    # ══════════════════════════════════════════════════════════════════════════
+
+    def action_open_stage_form(self):
+        """Open the appropriate form view based on the current stage.
+
+        For draft/revision CRs: routes to the stage-specific form.
+        For other states: opens the main CR form (for validators/managers).
+        """
+        self.ensure_one()
+
+        if self.approval_state not in ("draft", "revision"):
+            return {
+                "type": "ir.actions.act_window",
+                "name": self.name,
+                "res_model": "spp.change.request",
+                "res_id": self.id,
+                "view_mode": "form",
+                "views": [[False, "form"]],
+                "target": "current",
+            }
+
+        if self.stage == "documents":
+            return self._action_open_documents_form()
+        if self.stage == "review":
+            return self._action_open_review_form()
+
+        # Default: details stage
+        return self.action_open_detail()
+
+    def action_goto_details(self):
+        """Navigate to the details stage (replaces breadcrumb via client action)."""
+        self.ensure_one()
+        self.stage = "details"
+        detail = self._ensure_detail()
+        return {
+            "type": "ir.actions.client",
+            "tag": "navigate_cr_stage",
+            "params": {
+                "name": _("Change Request Details"),
+                "res_model": self.detail_res_model,
+                "res_id": detail.id,
+                "context": {
+                    "create": False,
+                    "delete": False,
+                    "form_view_initial_mode": "edit",
+                },
+            },
+        }
+
+    def action_start_over(self):
+        """Create a new CR with the same type/registrant and open its detail form."""
+        self.ensure_one()
+        cr_vals = {
+            "request_type_id": self.request_type_id.id,
+            "source_type": "manual",
+        }
+        if self.registrant_id:
+            cr_vals["registrant_id"] = self.registrant_id.id
+        new_change_request = self.env["spp.change.request"].create(cr_vals)
+
+        detail = new_change_request.get_detail()
+        if detail:
+            view_id = self.request_type_id.get_detail_form_view_id()
+            return {
+                "type": "ir.actions.client",
+                "tag": "navigate_cr_stage",
+                "params": {
+                    "name": _("Change Request Details"),
+                    "res_model": new_change_request.detail_res_model,
+                    "res_id": detail.id,
+                    "view_id": view_id,
+                    "context": {
+                        "create": False,
+                        "delete": False,
+                        "form_view_initial_mode": "edit",
+                    },
+                },
+            }
+
+        return {
+            "type": "ir.actions.client",
+            "tag": "navigate_cr_stage",
+            "params": {
+                "name": _("Change Request"),
+                "res_model": "spp.change.request",
+                "res_id": new_change_request.id,
+                "context": {
+                    "form_view_initial_mode": "edit",
+                },
+            },
+        }
+
+    def action_save_and_go_to_list(self):
+        """Save current state and navigate back to the CR list."""
+        return {
+            "type": "ir.actions.client",
+            "tag": "navigate_cr_list",
+        }
+
+    def action_goto_documents(self):
+        """Navigate to the documents stage (replaces breadcrumb via client action)."""
+        self.ensure_one()
+        self.stage = "documents"
+        return {
+            "type": "ir.actions.client",
+            "tag": "navigate_cr_stage",
+            "params": {
+                "name": _("Documents - %s") % self.name,
+                "res_model": "spp.change.request",
+                "res_id": self.id,
+                "context": {
+                    "form_view_ref": "spp_change_request_v2.spp_change_request_documents_form",
+                    "form_view_initial_mode": "edit",
+                },
+            },
+        }
+
+    def action_goto_review(self):
+        """Navigate to the review stage (replaces breadcrumb via client action)."""
+        self.ensure_one()
+        self.stage = "review"
+        return {
+            "type": "ir.actions.client",
+            "tag": "navigate_cr_stage",
+            "params": {
+                "name": _("Review - %s") % self.name,
+                "res_model": "spp.change.request",
+                "res_id": self.id,
+                "context": {
+                    "form_view_ref": "spp_change_request_v2.spp_change_request_review_form",
+                    "form_view_initial_mode": "edit",
+                },
             },
         }

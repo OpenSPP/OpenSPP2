@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- ══════════════════════════════════════════════════════════════════════════
+         DOCUMENTS STAGE FORM - Shared across all CR types
+         ══════════════════════════════════════════════════════════════════════════ -->
+    <record id="spp_change_request_documents_form" model="ir.ui.view">
+        <field name="name">spp.change.request.documents.form</field>
+        <field name="model">spp.change.request</field>
+        <field name="priority">30</field>
+        <field name="arch" type="xml">
+            <form
+                create="0"
+                delete="0"
+                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+            >
+                <header>
+                    <field name="is_cr_manager" invisible="1" />
+                    <button
+                        name="action_goto_details"
+                        string="Back: Edit Details"
+                        type="object"
+                        class="btn-warning"
+                        icon="fa-arrow-left"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <button
+                        name="action_goto_review"
+                        string="Next: Review &amp; Submit"
+                        type="object"
+                        class="btn-primary"
+                        icon="fa-arrow-right"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <button
+                        name="action_save_and_go_to_list"
+                        string="Save as Draft"
+                        type="object"
+                        class="btn-outline-secondary"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <field
+                        name="stage"
+                        widget="statusbar"
+                        statusbar_visible="details,documents,review"
+                    />
+                </header>
+                <sheet>
+                    <!-- Context banner -->
+                    <div
+                        class="alert alert-light border d-flex align-items-center mb-4 py-2"
+                        role="alert"
+                    >
+                        <i class="fa fa-file-text fa-lg text-primary me-3" />
+                        <field name="stage_banner_html" nolabel="1" readonly="1" />
+                    </div>
+
+                    <h3 class="mb-3">
+                        <i class="fa fa-file-text me-2" />Upload Documents
+                    </h3>
+
+                    <!-- Required documents checklist -->
+                    <field name="required_documents_html" nolabel="1" readonly="1" />
+
+                    <!-- Upload button -->
+                    <div
+                        class="mb-4"
+                        invisible="approval_state not in ('draft', 'revision') or not is_cr_manager"
+                    >
+                        <button
+                            name="action_upload_document"
+                            string="Upload Document"
+                            type="object"
+                            class="btn-primary"
+                            icon="fa-upload"
+                        />
+                    </div>
+
+                    <!-- No documents message -->
+                    <div class="text-muted mb-3" invisible="document_ids">
+                        <i class="fa fa-info-circle me-1" />
+                        No documents uploaded yet.
+                    </div>
+
+                    <!-- Document list -->
+                    <field
+                        name="document_ids"
+                        invisible="not document_ids"
+                        readonly="1"
+                        nolabel="1"
+                    >
+                        <list no_open="1">
+                            <field name="is_previewable" column_invisible="1" />
+                            <field
+                                name="content"
+                                widget="preview_widget"
+                                invisible="not is_previewable"
+                            />
+                            <button
+                                name="action_download"
+                                type="object"
+                                icon="fa-download"
+                                title="Download"
+                                column_invisible="not parent.allow_document_download"
+                            />
+                            <field name="name" string="File" />
+                            <field name="document_type_id" string="Document Type" />
+                            <field name="human_size" string="Size" />
+                            <field name="create_date" string="Uploaded" />
+                            <button
+                                name="action_remove_from_cr"
+                                type="object"
+                                icon="fa-trash"
+                                title="Remove Document"
+                                column_invisible="parent.approval_state not in ('draft', 'revision')"
+                                groups="spp_change_request_v2.group_cr_manager"
+                                confirm="Remove this document?"
+                            />
+                        </list>
+                    </field>
+
+                    <!-- Hidden fields -->
+                    <field name="name" invisible="1" />
+                    <field name="request_type_id" invisible="1" />
+                    <field name="registrant_id" invisible="1" />
+                    <field name="approval_state" invisible="1" />
+                    <field name="has_proposed_changes" invisible="1" />
+                    <field name="dms_directory_id" invisible="1" />
+                    <field name="allow_document_download" invisible="1" />
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

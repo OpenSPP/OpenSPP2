@@ -48,9 +48,8 @@ class SPPCRDetailTransferMember(models.Model):
     new_role_id = fields.Many2one(
         "spp.vocabulary.code",
         string="Role in New Group",
-        domain=(
-            "[('vocabulary_id.namespace_uri', '=', 'urn:openspp:vocab:group-membership-type'), ('code', '!=', 'head')]"
-        ),
+        domain="[('vocabulary_id.namespace_uri', '=', 'urn:openspp:vocab:group-membership-type'),"
+        " ('code', '!=', 'head')]",
         tracking=True,
         help="The role/relationship in the new group",
     )

@@ -83,6 +83,14 @@ class SPPCRCreateWizard(models.TransientModel):
     )
 
     # ══════════════════════════════════════════════════════════════════════════
+    # TARGET TYPE INFO
+    # ══════════════════════════════════════════════════════════════════════════
+
+    target_type_message = fields.Char(
+        compute="_compute_target_type_message",
+    )
+
+    # ══════════════════════════════════════════════════════════════════════════
     # FREEZE PERIOD CHECK
     # ══════════════════════════════════════════════════════════════════════════
 
@@ -120,7 +128,21 @@ class SPPCRCreateWizard(models.TransientModel):
     @api.depends("request_type_id")
     def _compute_show_registrant(self):
         for rec in self:
-            rec.show_registrant = bool(rec.request_type_id)
+            rec.show_registrant = bool(rec.request_type_id and rec.request_type_id.is_requires_registrant)
+
+    @api.depends("request_type_id", "request_type_id.target_type")
+    def _compute_target_type_message(self):
+        for rec in self:
+            rec.target_type_message = ""
+            if not rec.request_type_id or not rec.request_type_id.target_type:
+                continue
+            target_type = rec.request_type_id.target_type
+            if target_type == "individual":
+                rec.target_type_message = _("This request type applies to individuals only.")
+            elif target_type == "group":
+                rec.target_type_message = _("This request type applies to groups/households only.")
+            else:
+                rec.target_type_message = _("This request type applies to both individuals and groups/households.")
 
     @api.depends("request_type_id")
     def _compute_registrant_domain(self):
@@ -310,43 +332,41 @@ class SPPCRCreateWizard(models.TransientModel):
 
         if not self.request_type_id:
             raise UserError(_("Please select a request type."))
-        if not self.registrant_id:
+        if self.request_type_id.is_requires_registrant and not self.registrant_id:
             raise UserError(_("Please select a registrant."))
 
-        # Validate registrant matches target type
-        target = self.request_type_id.target_type
-        is_group = self.registrant_id.is_group
-        if target == "individual" and is_group:
-            raise UserError(_("This request type requires an individual registrant, not a group."))
-        if target == "group" and not is_group:
-            raise UserError(_("This request type requires a group registrant, not an individual."))
-
-        # Resolve translated strings while the ORM environment is available.
-        # Calling _() inside a return dict can fail when the cursor context
-        # is no longer reachable from the call stack.
-        detail_form_name = _("Change Request Details")
-        cr_form_name = _("Change Request")
+        # Validate registrant matches target type (only when registrant is selected)
+        if self.registrant_id:
+            target = self.request_type_id.target_type
+            is_group = self.registrant_id.is_group
+            if target == "individual" and is_group:
+                raise UserError(_("This request type requires an individual registrant, not a group."))
+            if target == "group" and not is_group:
+                raise UserError(_("This request type requires a group registrant, not an individual."))
 
         # Create the draft CR (this auto-creates the detail record)
-        cr = self.env["spp.change.request"].create(
-            {
-                "request_type_id": self.request_type_id.id,
-                "registrant_id": self.registrant_id.id,
-                "source_type": "manual",
-            }
-        )
+        # Variable named "change_request" (not "cr") to avoid conflict with
+        # Odoo 19's _() which walks the stack looking for a variable named "cr"
+        # and mistakes it for a database cursor.
+        cr_vals = {
+            "request_type_id": self.request_type_id.id,
+            "source_type": "manual",
+        }
+        if self.registrant_id:
+            cr_vals["registrant_id"] = self.registrant_id.id
+        change_request = self.env["spp.change.request"].create(cr_vals)
 
         # Close wizard modal and open detail form using client action
         # The client action ensures the modal is fully closed before navigating
-        detail = cr.get_detail()
+        detail = change_request.get_detail()
         if detail:
             view_id = self.request_type_id.get_detail_form_view_id()
             return {
                 "type": "ir.actions.client",
                 "tag": "open_cr_close_modal",
                 "params": {
-                    "name": detail_form_name,
-                    "res_model": cr.detail_res_model,
+                    "name": _("Change Request Details"),
+                    "res_model": change_request.detail_res_model,
                     "res_id": detail.id,
                     "view_id": view_id,
                     "context": {
@@ -362,9 +382,9 @@ class SPPCRCreateWizard(models.TransientModel):
             "type": "ir.actions.client",
             "tag": "open_cr_close_modal",
             "params": {
-                "name": cr_form_name,
+                "name": _("Change Request"),
                 "res_model": "spp.change.request",
-                "res_id": cr.id,
+                "res_id": change_request.id,
                 "context": {
                     "form_view_initial_mode": "edit",
                 },

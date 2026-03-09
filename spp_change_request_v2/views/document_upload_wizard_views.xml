@@ -12,23 +12,6 @@
                     <field name="show_required_categories" invisible="1" />
 
                     <group>
-                        <field
-                            name="directory_id"
-                            readonly="1"
-                            string="Storage Location"
-                        />
-                    </group>
-
-                    <!-- Show available document types -->
-                    <field
-                        name="required_categories_text"
-                        nolabel="1"
-                        widget="html"
-                        invisible="required_categories_text == ''"
-                        readonly="1"
-                    />
-
-                    <group>
                         <group string="Document Information">
                             <field
                                 name="document_type_id"
@@ -36,10 +19,7 @@
                                 domain="document_type_domain"
                                 options="{'no_create': True, 'no_open': True}"
                             />
-                            <field
-                                name="filename"
-                                placeholder="e.g., birth_certificate.pdf"
-                            />
+                            <field name="filename" invisible="1" />
                         </group>
                         <group string="File Upload">
                             <field

@@ -77,6 +77,12 @@ class SPPChangeRequestType(models.Model):
         required=True,
     )
 
+    is_requires_registrant = fields.Boolean(
+        default=True,
+        help="Require selecting a registrant when creating this type of change request. "
+        "Disable for types like 'Create New Group' that don't apply to an existing registrant.",
+    )
+
     is_requires_applicant = fields.Boolean(
         default=False,
         help="Require an applicant (person submitting on behalf of registrant)",
@@ -146,6 +152,12 @@ class SPPChangeRequestType(models.Model):
         string="Required Documents (Deprecated)",
         help="Deprecated: Use required_document_ids instead",
     )
+    allow_document_download = fields.Boolean(
+        string="Allow Document Download",
+        default=False,
+        help="Allow users to download attached documents from the change request.",
+    )
+
     document_validation_mode = fields.Selection(
         [
             ("none", "No Validation"),

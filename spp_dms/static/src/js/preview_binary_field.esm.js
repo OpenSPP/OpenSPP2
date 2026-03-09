@@ -49,7 +49,6 @@ export class PreviewRecordWidget extends Component {
                 isViewable: true,
                 displayName: record.name,
                 defaultSource: fileUrl,
-                downloadUrl: fileUrl,
             };
 
             this.fileViewer.open(fileModel);

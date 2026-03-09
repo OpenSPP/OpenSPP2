@@ -311,6 +311,11 @@ class SPPCRBatchApprovalLine(models.TransientModel):
     )
     result_message = fields.Char()
 
+    def action_remove_line(self):
+        """Remove this line from the batch wizard."""
+        self.ensure_one()
+        self.unlink()
+
     @api.depends("change_request_id")
     def _compute_document_count(self):
         # Batch prefetch document_ids to avoid N+1 queries

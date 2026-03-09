@@ -74,9 +74,8 @@ class SPPCRStrategyFieldMapping(models.AbstractModel):
     def _eval_expression(self, expr, value, detail, registrant):
         """Safely evaluate transform expression."""
         try:
+            # Admin-defined field mapping expressions with restricted context (no env)
             return safe_eval(  # nosemgrep: odoo-unsafe-safe-eval
-                # Admin-defined field mapping expressions with restricted context (no env);
-                # reviewed as part of CR strategy engine.
                 expr,
                 {
                     "value": value,
@@ -155,25 +154,27 @@ class SPPCRStrategyFieldMapping(models.AbstractModel):
 
         changes = {}
         for mapping in cr_type.apply_mapping_ids:
-            source_value = getattr(detail, mapping.source_field, None)
-            current_value = getattr(registrant, mapping.target_field, None)
+            source_raw = getattr(detail, mapping.source_field, None)
+            current_raw = getattr(registrant, mapping.target_field, None)
 
-            # Skip empty values (same logic as apply)
-            # COMMENTED OUT: Users may want to intentionally clear fields
-            # if self._is_value_empty(source_value, registrant, mapping.target_field):
-            #     continue
+            # Get display-friendly values for relational fields
+            source_display = source_raw.display_name if hasattr(source_raw, "display_name") else source_raw
+            current_display = current_raw.display_name if hasattr(current_raw, "display_name") else current_raw
 
-            # Normalize for comparison
-            if hasattr(source_value, "id"):
-                source_value = source_value.id
-            if hasattr(current_value, "id"):
-                current_value = current_value.id
+            # Normalize for comparison (use IDs for recordsets)
+            source_cmp = source_raw.id if hasattr(source_raw, "id") else source_raw
+            current_cmp = current_raw.id if hasattr(current_raw, "id") else current_raw
 
             # Only show fields that actually changed
-            if source_value != current_value:
-                changes[mapping.target_field] = {
-                    "old": current_value,
-                    "new": source_value,
+            if source_cmp != current_cmp:
+                # Use field description as label if available
+                field_label = mapping.target_field
+                if mapping.target_field in registrant._fields:
+                    field_label = registrant._fields[mapping.target_field].string or field_label
+
+                changes[field_label] = {
+                    "old": current_display,
+                    "new": source_display,
                 }
 
         return changes

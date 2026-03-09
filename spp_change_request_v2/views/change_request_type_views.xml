@@ -61,6 +61,7 @@
                         </group>
                         <group string="Target">
                             <field name="target_type" />
+                            <field name="is_requires_registrant" />
                             <field name="is_requires_applicant" />
                         </group>
                     </group>
@@ -153,6 +154,7 @@
                         <page string="Documents" name="documents">
                             <group>
                                 <field name="document_validation_mode" />
+                                <field name="allow_document_download" />
                             </group>
                             <group string="Document Type Configuration">
                                 <field

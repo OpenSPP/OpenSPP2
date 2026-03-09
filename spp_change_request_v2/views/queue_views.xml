@@ -15,17 +15,8 @@
                 multi_edit="1"
                 sample="1"
             >
-                <!-- SLA indicator column -->
                 <field name="pending_since" column_invisible="1" />
                 <field name="display_state" column_invisible="1" />
-                <button
-                    name="action_approve"
-                    type="object"
-                    icon="fa-clock-o text-warning"
-                    title="SLA Warning - Due soon"
-                    invisible="display_state != 'pending'"
-                    class="text-warning"
-                />
 
                 <!-- Main info -->
                 <field name="name" decoration-bf="1" />
@@ -47,7 +38,7 @@
                 <field
                     name="document_ids"
                     widget="many2many_tags"
-                    optional="show"
+                    optional="hide"
                     string="Documents"
                 />
 
@@ -69,24 +60,6 @@
                 />
                 <field name="approved_date" optional="hide" />
                 <field name="applied_date" optional="hide" widget="datetime" />
-
-                <!-- Quick actions -->
-                <button
-                    name="action_approve"
-                    type="object"
-                    icon="fa-check"
-                    title="Approve"
-                    invisible="display_state != 'pending'"
-                    groups="spp_change_request_v2.group_cr_validator"
-                />
-                <button
-                    name="action_reject"
-                    type="object"
-                    icon="fa-times"
-                    title="Decline"
-                    invisible="display_state != 'pending'"
-                    groups="spp_change_request_v2.group_cr_validator"
-                />
             </list>
         </field>
     </record>

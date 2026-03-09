@@ -5,26 +5,41 @@
         <field name="name">spp.cr.detail.edit_group.form</field>
         <field name="model">spp.cr.detail.edit_group</field>
         <field name="arch" type="xml">
-            <form>
+            <form
+                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+            >
                 <header>
+                    <field name="is_cr_manager" invisible="1" />
                     <button
-                        name="action_proceed_to_cr"
-                        string="Proceed"
+                        name="action_next_documents"
+                        string="Next: Upload Documents"
                         type="object"
                         class="btn-primary"
-                        invisible="approval_state != 'draft'"
+                        icon="fa-arrow-right"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
                     />
                     <button
-                        name="action_proceed_to_cr"
-                        string="Proceed"
+                        name="action_skip_to_review"
+                        string="Review &amp; Submit"
                         type="object"
-                        class="btn-primary"
-                        invisible="approval_state != 'revision'"
+                        class="btn-success"
+                        icon="fa-check-circle"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <button
+                        name="action_save_and_go_to_list"
+                        string="Save as Draft"
+                        type="object"
+                        class="btn-outline-secondary"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
                     />
                     <field
-                        name="approval_state"
+                        name="stage"
                         widget="statusbar"
-                        statusbar_visible="draft,pending,approved,applied"
+                        statusbar_visible="details,documents,review"
                     />
                 </header>
                 <sheet>
@@ -32,36 +47,62 @@
                         <h1>Edit Group Information</h1>
                     </div>
 
-                    <group string="Group">
-                        <field name="registrant_id" readonly="1" />
+                    <group>
+                        <field
+                            name="registrant_id"
+                            readonly="1"
+                            options="{'no_open': True}"
+                        />
                         <field name="change_request_id" invisible="1" />
                     </group>
 
-                    <notebook>
-                        <page string="Group Information">
-                            <group>
-                                <group>
-                                    <field name="group_name" required="1" />
-                                </group>
-                                <group>
-                                    <field name="phone" />
-                                    <field name="email" />
-                                </group>
-                            </group>
-                        </page>
-                        <page string="Address">
-                            <group>
-                                <group>
-                                    <field name="address_line1" />
-                                    <field name="address_line2" />
-                                </group>
-                                <group>
-                                    <field name="city" />
-                                    <field name="postal_code" />
-                                </group>
-                            </group>
-                        </page>
-                    </notebook>
+                    <div class="alert alert-info" role="alert">
+                        <field name="approval_state" invisible="1" />
+                        Current information is displayed below. Update the fields you want to change.
+                    </div>
+
+                    <group string="Basic Information">
+                        <group>
+                            <field
+                                name="group_name"
+                                required="1"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
+                        </group>
+                        <group>
+                            <field
+                                name="phone"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
+                            <field
+                                name="email"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
+                        </group>
+                    </group>
+
+                    <group string="Address">
+                        <group>
+                            <field
+                                name="address_line1"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
+                            <field
+                                name="address_line2"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
+                        </group>
+                        <group>
+                            <field
+                                name="city"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
+                            <field
+                                name="postal_code"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
+                        </group>
+                    </group>
                 </sheet>
                 <chatter />
             </form>

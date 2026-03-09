@@ -28,6 +28,15 @@ class SPPCRDetailBase(models.AbstractModel):
         index=True,
     )
 
+    is_cr_manager = fields.Boolean(
+        compute="_compute_is_cr_manager",
+    )
+
+    def _compute_is_cr_manager(self):
+        is_manager = self.env.user.has_group("spp_change_request_v2.group_cr_manager")
+        for rec in self:
+            rec.is_cr_manager = is_manager
+
     # Convenience access to CR fields
     registrant_id = fields.Many2one(
         related="change_request_id.registrant_id",
@@ -40,6 +49,9 @@ class SPPCRDetailBase(models.AbstractModel):
     )
     is_applied = fields.Boolean(
         related="change_request_id.is_applied",
+    )
+    stage = fields.Selection(
+        related="change_request_id.stage",
     )
 
     def action_proceed_to_cr(self):
@@ -56,6 +68,37 @@ class SPPCRDetailBase(models.AbstractModel):
             "view_mode": "form",
             "target": "current",
         }
+
+    def action_save_and_go_to_list(self):
+        """Save current state and navigate back to the CR list."""
+        return self.change_request_id.action_save_and_go_to_list()
+
+    def action_next_documents(self):
+        """Save and navigate to the documents stage."""
+        self.ensure_one()
+        if not self.change_request_id.has_proposed_changes:
+            raise UserError(_("No proposed changes detected. Please make changes before proceeding."))
+        return self.change_request_id.action_goto_documents()
+
+    def action_skip_to_review(self):
+        """Skip documents stage and go directly to review if all required docs are uploaded."""
+        self.ensure_one()
+        change_req = self.change_request_id
+        if not change_req.has_proposed_changes:
+            raise UserError(_("No proposed changes detected. Please make changes before proceeding."))
+        if not change_req.documents_complete:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("Missing Documents"),
+                    "message": _("Some required documents are missing. Redirecting to Documents stage."),
+                    "type": "warning",
+                    "sticky": False,
+                    "next": change_req.action_goto_documents(),
+                },
+            }
+        return change_req.action_goto_review()
 
     def action_submit_for_approval(self):
         """Submit the parent CR for approval."""

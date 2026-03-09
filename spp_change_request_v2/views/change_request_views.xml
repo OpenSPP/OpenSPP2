@@ -202,11 +202,12 @@
                     <!-- Approved Actions -->
                     <button
                         name="action_apply"
-                        string="Finalize &amp; Record Changes"
+                        string="Apply"
                         type="object"
                         class="btn-primary"
                         invisible="approval_state != 'approved' or is_applied"
-                        confirm="This will record all approved changes to the beneficiary's profile. This action cannot be undone. Continue?"
+                        groups="spp_change_request_v2.group_cr_manager"
+                        confirm="This will apply all approved changes. This action cannot be undone. Continue?"
                     />
                     <!-- Revision Actions -->
                     <button
@@ -219,10 +220,11 @@
                     <!-- Reset to Draft (for rejected) -->
                     <button
                         name="action_reset_to_draft"
-                        string="Start Over"
+                        string="Try Again"
                         type="object"
                         class="btn-secondary"
                         invisible="approval_state != 'rejected'"
+                        groups="spp_change_request_v2.group_cr_manager"
                         confirm="This will clear all review history and return to editing mode. You will need to resubmit for approval when done. Continue?"
                     />
                     <field
@@ -279,7 +281,7 @@
                     <!-- Target Type Information Banner -->
                     <div
                         class="alert alert-secondary py-2"
-                        role="status"
+                        role="alert"
                         invisible="not target_type_message"
                     >
                         <div class="d-flex align-items-center">
@@ -334,7 +336,7 @@
                     <!-- Revision Needed Banner -->
                     <div
                         class="alert alert-warning"
-                        role="status"
+                        role="alert"
                         invisible="approval_state != 'revision'"
                     >
                         <div class="d-flex align-items-center">
@@ -352,7 +354,7 @@
                     <!-- Ready to Finalize Banner -->
                     <div
                         class="alert alert-success"
-                        role="status"
+                        role="alert"
                         invisible="approval_state != 'approved' or is_applied"
                     >
                         <div class="d-flex align-items-center">
@@ -372,7 +374,7 @@
                     <!-- Multi-tier Approval Progress Banner -->
                     <div
                         class="alert alert-info"
-                        role="status"
+                        role="alert"
                         invisible="not multitier_approval_message"
                     >
                         <div class="d-flex align-items-center">

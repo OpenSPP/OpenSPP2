@@ -5,47 +5,77 @@
         <field name="name">spp.cr.detail.create_group.form</field>
         <field name="model">spp.cr.detail.create_group</field>
         <field name="arch" type="xml">
-            <form string="Create New Group Details">
+            <form
+                string="Create New Group Details"
+                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+            >
                 <header>
+                    <field name="is_cr_manager" invisible="1" />
                     <button
-                        name="action_proceed_to_cr"
-                        string="Proceed"
+                        name="action_next_documents"
+                        string="Next: Upload Documents"
                         type="object"
                         class="btn-primary"
-                        invisible="approval_state != 'draft'"
+                        icon="fa-arrow-right"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
                     />
                     <button
-                        name="action_proceed_to_cr"
-                        string="Proceed"
+                        name="action_skip_to_review"
+                        string="Review &amp; Submit"
                         type="object"
-                        class="btn-primary"
-                        invisible="approval_state != 'revision'"
+                        class="btn-success"
+                        icon="fa-check-circle"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <button
+                        name="action_save_and_go_to_list"
+                        string="Save as Draft"
+                        type="object"
+                        class="btn-outline-secondary"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
                     />
                     <field
-                        name="approval_state"
+                        name="stage"
                         widget="statusbar"
-                        statusbar_visible="draft,pending,approved,applied"
+                        statusbar_visible="details,documents,review"
                     />
                 </header>
                 <sheet>
                     <group>
                         <group string="Group Information">
-                            <field name="group_name" required="1" />
+                            <field
+                                name="group_name"
+                                required="1"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
                             <field
                                 name="group_type_id"
                                 options="{'no_create': True, 'no_open': True}"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                             />
                         </group>
                         <group string="Contact">
-                            <field name="phone" />
-                            <field name="email" />
+                            <field
+                                name="phone"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
+                            <field
+                                name="email"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
                         </group>
                     </group>
 
                     <separator string="Head of Household" />
                     <group>
                         <group>
-                            <field name="create_new_head" />
+                            <field
+                                name="create_new_head"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
                         </group>
                     </group>
                     <group invisible="create_new_head">
@@ -53,39 +83,69 @@
                             <field
                                 name="head_individual_id"
                                 options="{'no_create': True}"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                             />
                         </group>
                     </group>
                     <group invisible="not create_new_head">
                         <group string="New Head Information">
-                            <field name="head_given_name" required="create_new_head" />
-                            <field name="head_family_name" required="create_new_head" />
+                            <field
+                                name="head_given_name"
+                                required="create_new_head"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
+                            <field
+                                name="head_family_name"
+                                required="create_new_head"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
                             <field name="head_name" readonly="1" force_save="1" />
-                            <field name="head_birthdate" />
+                            <field
+                                name="head_birthdate"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
                             <field
                                 name="head_gender_id"
                                 options="{'no_create': True, 'no_open': True}"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                             />
-                            <field name="head_phone" />
+                            <field
+                                name="head_phone"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
                         </group>
                     </group>
 
                     <separator string="Address" />
                     <group>
                         <group>
-                            <field name="address_line1" />
-                            <field name="address_line2" />
-                            <field name="city" />
+                            <field
+                                name="address_line1"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
+                            <field
+                                name="address_line2"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
+                            <field
+                                name="city"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
                         </group>
                         <group>
                             <field
                                 name="state_id"
                                 options="{'no_create': True, 'no_open': True}"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                             />
-                            <field name="postal_code" />
+                            <field
+                                name="postal_code"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
                             <field
                                 name="country_id"
                                 options="{'no_create': True, 'no_open': True}"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                             />
                         </group>
                     </group>

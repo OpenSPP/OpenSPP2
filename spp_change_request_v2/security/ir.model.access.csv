@@ -119,3 +119,7 @@ access_ir_model_fields_cr_user,ir.model.fields cr user,base.model_ir_model_field
 access_ir_model_fields_cr_validator,ir.model.fields cr validator,base.model_ir_model_fields,group_cr_validator,1,0,0,0
 access_ir_model_fields_cr_validator_hq,ir.model.fields cr validator hq,base.model_ir_model_fields,group_cr_validator_hq,1,0,0,0
 access_ir_model_fields_cr_manager,ir.model.fields cr manager,base.model_ir_model_fields,group_cr_manager,1,0,0,0
+access_spp_change_request_log_user,spp.change.request.log user,model_spp_change_request_log,group_cr_user,1,0,0,0
+access_spp_change_request_log_validator,spp.change.request.log validator,model_spp_change_request_log,group_cr_validator,1,0,0,0
+access_spp_change_request_log_validator_hq,spp.change.request.log validator hq,model_spp_change_request_log,group_cr_validator_hq,1,0,0,0
+access_spp_change_request_log_manager,spp.change.request.log manager,model_spp_change_request_log,group_cr_manager,1,1,1,1

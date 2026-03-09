@@ -2,7 +2,7 @@
 """Tests for Transfer Member strategy."""
 
 from odoo import fields
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tests import TransactionCase
 
 from .common import get_or_create_cr_type, get_or_create_membership_kind
@@ -152,7 +152,6 @@ class TestTransferMemberStrategy(TransactionCase):
 
     def test_transfer_to_same_group_fails(self):
         """Test cannot transfer to same group."""
-        from odoo.exceptions import ValidationError
 
         cr = self.cr_model.create(
             {

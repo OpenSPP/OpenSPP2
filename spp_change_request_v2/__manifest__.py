@@ -29,6 +29,8 @@
         "views/dms_file_views.xml",
         "views/change_request_type_views.xml",
         "views/change_request_views.xml",
+        "views/stage_documents_form.xml",
+        "views/stage_review_form.xml",
         "views/detail_add_member_views.xml",
         "views/detail_edit_individual_views.xml",
         "views/detail_edit_group_views.xml",
@@ -57,6 +59,9 @@
         "data/event_types.xml",
         "data/user_roles.xml",
     ],
+    "oca_data_manual": [
+        "data/default_types.xml",
+    ],
     "assets": {
         "web.assets_backend": [
             "spp_change_request_v2/static/src/components/**/*",
@@ -67,6 +72,8 @@
             "spp_change_request_v2/static/src/xml/create_change_request_template.xml",
             "spp_change_request_v2/static/src/xml/search_delay_field.xml",
             "spp_change_request_v2/static/src/xml/cr_search_results_field.xml",
+            "spp_change_request_v2/static/src/js/cr_review_documents.js",
+            "spp_change_request_v2/static/src/xml/cr_review_documents.xml",
         ],
     },
     "installable": True,

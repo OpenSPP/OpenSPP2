@@ -29,9 +29,8 @@ class SPPCRDetailAddMember(models.Model):
     relationship_id = fields.Many2one(
         "spp.vocabulary.code",
         string="Relationship to Head",
-        domain=(
-            "[('vocabulary_id.namespace_uri', '=', 'urn:openspp:vocab:group-membership-type'), ('code', '!=', 'head')]"
-        ),
+        domain="[('vocabulary_id.namespace_uri', '=', 'urn:openspp:vocab:group-membership-type'),"
+        " ('code', '!=', 'head')]",
         tracking=True,
     )
     id_number = fields.Char(string="ID Number", tracking=True)

@@ -96,8 +96,9 @@ class TestApplyStrategies(TransactionCase):
         strategy = self.env["spp.cr.strategy.field_mapping"]
         preview = strategy.preview(cr)
 
-        self.assertIn("given_name", preview)
-        self.assertEqual(preview["given_name"]["new"], "Preview")
+        # preview() returns field labels (not raw field names)
+        self.assertIn("Given Name", preview)
+        self.assertEqual(preview["Given Name"]["new"], "Preview")
 
     def test_manual_strategy_noop(self):
         """Test manual strategy does nothing but returns True."""

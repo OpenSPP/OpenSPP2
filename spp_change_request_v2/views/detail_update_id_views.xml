@@ -5,35 +5,58 @@
         <field name="name">spp.cr.detail.update_id.form</field>
         <field name="model">spp.cr.detail.update_id</field>
         <field name="arch" type="xml">
-            <form string="Update ID Document Details">
+            <form
+                string="Update ID Document Details"
+                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+            >
                 <header>
+                    <field name="is_cr_manager" invisible="1" />
                     <button
-                        name="action_proceed_to_cr"
-                        string="Proceed"
+                        name="action_next_documents"
+                        string="Next: Upload Documents"
                         type="object"
                         class="btn-primary"
-                        invisible="approval_state != 'draft'"
+                        icon="fa-arrow-right"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
                     />
                     <button
-                        name="action_proceed_to_cr"
-                        string="Proceed"
+                        name="action_skip_to_review"
+                        string="Review &amp; Submit"
                         type="object"
-                        class="btn-primary"
-                        invisible="approval_state != 'revision'"
+                        class="btn-success"
+                        icon="fa-check-circle"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <button
+                        name="action_save_and_go_to_list"
+                        string="Save as Draft"
+                        type="object"
+                        class="btn-outline-secondary"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
                     />
                     <field
-                        name="approval_state"
+                        name="stage"
                         widget="statusbar"
-                        statusbar_visible="draft,pending,approved,applied"
+                        statusbar_visible="details,documents,review"
                     />
                 </header>
                 <sheet>
                     <group>
                         <group string="Registrant">
-                            <field name="registrant_name" />
+                            <field
+                                name="registrant_name"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
                         </group>
                         <group string="Operation">
-                            <field name="operation" widget="radio" />
+                            <field
+                                name="operation"
+                                widget="radio"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
                         </group>
                     </group>
                     <group invisible="operation == 'add'">
@@ -42,10 +65,12 @@
                                 name="existing_id_record_id"
                                 options="{'no_create': True}"
                                 required="operation in ['update', 'remove']"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                             />
                             <field
                                 name="current_id_value"
                                 invisible="not existing_id_record_id"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                             />
                         </group>
                     </group>
@@ -54,23 +79,38 @@
                             <field
                                 name="id_type_id"
                                 options="{'no_create': True, 'no_open': True}"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                             />
-                            <field name="id_value" required="operation == 'add'" />
-                            <field name="expiry_date" />
+                            <field
+                                name="id_value"
+                                required="operation == 'add'"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
+                            <field
+                                name="expiry_date"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
                         </group>
                         <separator string="Description" />
-                        <field name="description" nolabel="1" class="oe_inline" />
+                        <field
+                            name="description"
+                            nolabel="1"
+                            class="oe_inline"
+                            readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                        />
                     </group>
                     <group string="Supporting Documents">
                         <field
                             name="document_attachment_ids"
                             widget="many2many_binary"
+                            readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                         />
                     </group>
                     <group string="Additional Information">
                         <field
                             name="remarks"
                             placeholder="Enter any additional notes..."
+                            readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                         />
                     </group>
                 </sheet>

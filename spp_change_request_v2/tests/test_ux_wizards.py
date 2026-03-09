@@ -88,7 +88,7 @@ class TestCreateWizard(TestChangeRequestBase):
 
         result = wizard.action_create_draft()
 
-        # Should return client action that closes modal then opens form
+        # Wizard returns a client action that closes the modal and opens the form
         self.assertEqual(result["type"], "ir.actions.client")
         self.assertEqual(result["tag"], "open_cr_close_modal")
         params = result["params"]
@@ -102,19 +102,19 @@ class TestCreateWizard(TestChangeRequestBase):
             detail = self.env[cr_type.detail_model].browse(params["res_id"])
             self.assertTrue(detail.exists())
             # Verify the CR was created and linked
-            cr = detail.change_request_id
-            self.assertTrue(cr.exists())
-            self.assertEqual(cr.request_type_id, cr_type)
-            self.assertEqual(cr.registrant_id, self.group)
-            self.assertEqual(cr.approval_state, "draft")
+            change_request = detail.change_request_id
+            self.assertTrue(change_request.exists())
+            self.assertEqual(change_request.request_type_id, cr_type)
+            self.assertEqual(change_request.registrant_id, self.group)
+            self.assertEqual(change_request.approval_state, "draft")
         else:
             # Opened CR form (fallback)
             self.assertEqual(params["res_model"], "spp.change.request")
-            cr = self.env["spp.change.request"].browse(params["res_id"])
-            self.assertTrue(cr.exists())
-            self.assertEqual(cr.request_type_id, cr_type)
-            self.assertEqual(cr.registrant_id, self.group)
-            self.assertEqual(cr.approval_state, "draft")
+            change_request = self.env["spp.change.request"].browse(params["res_id"])
+            self.assertTrue(change_request.exists())
+            self.assertEqual(change_request.request_type_id, cr_type)
+            self.assertEqual(change_request.registrant_id, self.group)
+            self.assertEqual(change_request.approval_state, "draft")
 
     def test_wizard_registrant_domain_filter_group(self):
         """Test registrant domain is computed correctly for group target type."""
@@ -369,7 +369,7 @@ class TestConflictComparisonWizard(TestChangeRequestBase):
         wizard.action_approve_latest_decline_others()
 
         # Check decisions were set
-        latest_line = wizard.line_ids.sorted(key=lambda line: line.change_request_id.create_date, reverse=True)[0]
+        latest_line = wizard.line_ids.sorted(key=lambda rec: rec.change_request_id.create_date, reverse=True)[0]
         self.assertEqual(latest_line.decision, "approve")
 
     def test_wizard_line_decision(self):

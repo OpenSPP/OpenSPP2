@@ -5,26 +5,42 @@
         <field name="name">spp.cr.detail.transfer_member.form</field>
         <field name="model">spp.cr.detail.transfer_member</field>
         <field name="arch" type="xml">
-            <form string="Transfer Member Details">
+            <form
+                string="Transfer Member Details"
+                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+            >
                 <header>
+                    <field name="is_cr_manager" invisible="1" />
                     <button
-                        name="action_proceed_to_cr"
-                        string="Proceed"
+                        name="action_next_documents"
+                        string="Next: Upload Documents"
                         type="object"
                         class="btn-primary"
-                        invisible="approval_state != 'draft'"
+                        icon="fa-arrow-right"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
                     />
                     <button
-                        name="action_proceed_to_cr"
-                        string="Proceed"
+                        name="action_skip_to_review"
+                        string="Review &amp; Submit"
                         type="object"
-                        class="btn-primary"
-                        invisible="approval_state != 'revision'"
+                        class="btn-success"
+                        icon="fa-check-circle"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <button
+                        name="action_save_and_go_to_list"
+                        string="Save as Draft"
+                        type="object"
+                        class="btn-outline-secondary"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
                     />
                     <field
-                        name="approval_state"
+                        name="stage"
                         widget="statusbar"
-                        statusbar_visible="draft,pending,approved,applied"
+                        statusbar_visible="details,documents,review"
                     />
                 </header>
                 <sheet>
@@ -33,6 +49,7 @@
                             <field
                                 name="source_group_id"
                                 options="{'no_create': True, 'no_open': True}"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                             />
                             <field name="available_individual_ids" invisible="1" />
                             <field
@@ -40,8 +57,12 @@
                                 options="{'no_create': True}"
                                 domain="[('id', 'in', available_individual_ids)]"
                                 required="1"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                             />
-                            <field name="member_name" />
+                            <field
+                                name="member_name"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
                             <field name="membership_id" invisible="1" force_save="1" />
                         </group>
                         <group string="Target">
@@ -49,23 +70,32 @@
                                 name="target_group_id"
                                 options="{'no_create': True}"
                                 required="1"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                             />
                             <field
                                 name="new_role_id"
                                 options="{'no_create': True, 'no_open': True}"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                             />
                         </group>
                     </group>
                     <group>
                         <group string="Transfer Details">
-                            <field name="transfer_reason" />
-                            <field name="transfer_date" />
+                            <field
+                                name="transfer_reason"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
+                            <field
+                                name="transfer_date"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
                         </group>
                     </group>
                     <group string="Additional Information">
                         <field
                             name="remarks"
                             placeholder="Enter any additional notes..."
+                            readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                         />
                     </group>
                 </sheet>

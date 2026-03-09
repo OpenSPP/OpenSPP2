@@ -49,7 +49,8 @@ const globalShortcutsService = {
                 );
 
                 if (cr.approval_state !== "pending") {
-                    return; // Not in pending state, ignore shortcut
+                    // Not in pending state, ignore shortcut
+                    return;
                 }
 
                 if (actionName === "approve" && !cr.can_approve) {
