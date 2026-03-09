@@ -267,7 +267,7 @@ class SPPChangeRequest(models.Model):
             try:
                 # Use sudo to bypass record rules (e.g. global disabled-registrant
                 # rules on spp.group.membership) — this is read-only preview logic.
-                sudo_rec = rec.sudo()
+                sudo_rec = rec.sudo()  # nosemgrep: odoo-sudo-without-context
                 strategy = sudo_rec.request_type_id.get_apply_strategy()
                 changes = strategy.preview(sudo_rec) or {}
 
@@ -715,7 +715,7 @@ class SPPChangeRequest(models.Model):
 
             # Use sudo() for creation - users don't need create permission
             # Detail records are always created by the system automatically
-            detail = detail_model.sudo().create({cr_field: self.id})
+            detail = detail_model.sudo().create({cr_field: self.id})  # nosemgrep: odoo-sudo-without-context
             self.detail_res_id = detail.id
 
             # Pre-fill detail from registrant if the detail model supports it
@@ -885,7 +885,7 @@ class SPPChangeRequest(models.Model):
 
         try:
             # Use sudo() so validators can preview memberships of disabled registrants
-            sudo_self = self.sudo()
+            sudo_self = self.sudo()  # nosemgrep: odoo-sudo-without-context
             strategy = sudo_self.request_type_id.get_apply_strategy()
             changes = strategy.preview(sudo_self) or {}
         except Exception as e:
@@ -980,7 +980,7 @@ class SPPChangeRequest(models.Model):
 
         try:
             # Use sudo() so validators can preview memberships of disabled registrants
-            sudo_self = self.sudo()
+            sudo_self = self.sudo()  # nosemgrep: odoo-sudo-without-context
             strategy = sudo_self.request_type_id.get_apply_strategy()
             changes = strategy.preview(sudo_self) or {}
         except Exception as e:
@@ -1092,7 +1092,7 @@ class SPPChangeRequest(models.Model):
         self.review_comparison_html_snapshot = self._generate_review_comparison_html()
 
         # Also capture the JSON data (use sudo for record-rule bypass)
-        sudo_self = self.sudo()
+        sudo_self = self.sudo()  # nosemgrep: odoo-sudo-without-context
         strategy = sudo_self.request_type_id.get_apply_strategy()
         changes = strategy.preview(sudo_self) or {}
         self.preview_json_snapshot = json.dumps(changes, indent=2, default=str)
@@ -1136,7 +1136,7 @@ class SPPChangeRequest(models.Model):
         to (e.g. spp.group.membership blocked by global record rules).
         """
         self.ensure_one()
-        sudo_self = self.sudo()
+        sudo_self = self.sudo()  # nosemgrep: odoo-sudo-without-context
         strategy = sudo_self.request_type_id.get_apply_strategy()
         strategy.apply(sudo_self)
 
@@ -1248,7 +1248,7 @@ class SPPChangeRequest(models.Model):
     def _create_log(self, action, notes=False):
         """Create a log entry for this change request."""
         self.ensure_one()
-        self.env["spp.change.request.log"].sudo().create(
+        self.env["spp.change.request.log"].sudo().create(  # nosemgrep: odoo-sudo-without-context
             {
                 "change_request_id": self.id,
                 "action": action,
@@ -1274,7 +1274,7 @@ class SPPChangeRequest(models.Model):
         if not event_type:
             return
 
-        self.env["spp.event.data"].sudo().create(
+        self.env["spp.event.data"].sudo().create(  # nosemgrep: odoo-sudo-without-context
             {
                 "event_type_id": event_type.id,
                 "partner_id": self.registrant_id.id,
