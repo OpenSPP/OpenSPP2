@@ -80,6 +80,26 @@ class SPPCRDetailBase(models.AbstractModel):
             raise UserError(_("No proposed changes detected. Please make changes before proceeding."))
         return self.change_request_id.action_goto_documents()
 
+    def action_skip_to_review(self):
+        """Skip documents stage and go directly to review if all required docs are uploaded."""
+        self.ensure_one()
+        change_req = self.change_request_id
+        if not change_req.has_proposed_changes:
+            raise UserError(_("No proposed changes detected. Please make changes before proceeding."))
+        if not change_req.documents_complete:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("Missing Documents"),
+                    "message": _("Some required documents are missing. Redirecting to Documents stage."),
+                    "type": "warning",
+                    "sticky": False,
+                    "next": change_req.action_goto_documents(),
+                },
+            }
+        return change_req.action_goto_review()
+
     def action_submit_for_approval(self):
         """Submit the parent CR for approval."""
         self.ensure_one()

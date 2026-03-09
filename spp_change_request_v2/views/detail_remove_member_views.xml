@@ -5,7 +5,10 @@
         <field name="name">spp.cr.detail.remove_member.form</field>
         <field name="model">spp.cr.detail.remove_member</field>
         <field name="arch" type="xml">
-            <form string="Remove Member Details" readonly="not is_cr_manager">
+            <form
+                string="Remove Member Details"
+                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+            >
                 <header>
                     <field name="is_cr_manager" invisible="1" />
                     <button
@@ -14,6 +17,15 @@
                         type="object"
                         class="btn-primary"
                         icon="fa-arrow-right"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <button
+                        name="action_skip_to_review"
+                        string="Review &amp; Submit"
+                        type="object"
+                        class="btn-success"
+                        icon="fa-check-circle"
                         invisible="approval_state not in ('draft', 'revision')"
                         groups="spp_change_request_v2.group_cr_manager"
                     />
@@ -40,19 +52,30 @@
                                 options="{'no_create': True}"
                                 domain="[('id', 'in', available_individual_ids)]"
                                 required="1"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                             />
-                            <field name="member_name" />
+                            <field
+                                name="member_name"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
                             <field name="membership_id" invisible="1" force_save="1" />
                         </group>
                         <group string="Removal Details">
-                            <field name="end_date" />
-                            <field name="end_reason" />
+                            <field
+                                name="end_date"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
+                            <field
+                                name="end_reason"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
                         </group>
                     </group>
                     <group string="Additional Information">
                         <field
                             name="remarks"
                             placeholder="Enter any additional notes..."
+                            readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                         />
                     </group>
                 </sheet>

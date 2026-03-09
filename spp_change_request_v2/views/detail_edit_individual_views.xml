@@ -5,7 +5,9 @@
         <field name="name">spp.cr.detail.edit_individual.form</field>
         <field name="model">spp.cr.detail.edit_individual</field>
         <field name="arch" type="xml">
-            <form readonly="not is_cr_manager">
+            <form
+                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+            >
                 <header>
                     <field name="is_cr_manager" invisible="1" />
                     <button
@@ -14,6 +16,15 @@
                         type="object"
                         class="btn-primary"
                         icon="fa-arrow-right"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <button
+                        name="action_skip_to_review"
+                        string="Review &amp; Submit"
+                        type="object"
+                        class="btn-success"
+                        icon="fa-check-circle"
                         invisible="approval_state not in ('draft', 'revision')"
                         groups="spp_change_request_v2.group_cr_manager"
                     />
@@ -52,28 +63,58 @@
 
                     <group string="Basic Information">
                         <group>
-                            <field name="given_name" required="1" />
-                            <field name="family_name" required="1" />
-                            <field name="birthdate" />
+                            <field
+                                name="given_name"
+                                required="1"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
+                            <field
+                                name="family_name"
+                                required="1"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
+                            <field
+                                name="birthdate"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
                             <field
                                 name="gender_id"
                                 options="{'no_create': True, 'no_open': True}"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                             />
                         </group>
                         <group>
-                            <field name="phone" />
-                            <field name="email" />
+                            <field
+                                name="phone"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
+                            <field
+                                name="email"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
                         </group>
                     </group>
 
                     <group string="Address">
                         <group>
-                            <field name="address_line1" />
-                            <field name="address_line2" />
+                            <field
+                                name="address_line1"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
+                            <field
+                                name="address_line2"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
                         </group>
                         <group>
-                            <field name="city" />
-                            <field name="postal_code" />
+                            <field
+                                name="city"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
+                            <field
+                                name="postal_code"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
                         </group>
                     </group>
                 </sheet>

@@ -5,7 +5,10 @@
         <field name="name">spp.cr.detail.split_household.form</field>
         <field name="model">spp.cr.detail.split_household</field>
         <field name="arch" type="xml">
-            <form string="Split Household Details" readonly="not is_cr_manager">
+            <form
+                string="Split Household Details"
+                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+            >
                 <header>
                     <field name="is_cr_manager" invisible="1" />
                     <button
@@ -14,6 +17,15 @@
                         type="object"
                         class="btn-primary"
                         icon="fa-arrow-right"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <button
+                        name="action_skip_to_review"
+                        string="Review &amp; Submit"
+                        type="object"
+                        class="btn-success"
+                        icon="fa-check-circle"
                         invisible="approval_state not in ('draft', 'revision')"
                         groups="spp_change_request_v2.group_cr_manager"
                     />
@@ -55,14 +67,21 @@
                                 name="source_group_id"
                                 required="1"
                                 options="{'no_create': True, 'no_open': True}"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                             />
                             <field name="source_group_name" invisible="1" />
                             <field name="available_member_ids" invisible="1" />
                             <field name="members_to_split_ids" invisible="1" />
                         </group>
                         <group string="Split Details">
-                            <field name="split_reason" />
-                            <field name="effective_date" />
+                            <field
+                                name="split_reason"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
+                            <field
+                                name="effective_date"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
                         </group>
                     </group>
 
@@ -79,6 +98,7 @@
                             required="1"
                             nolabel="1"
                             colspan="2"
+                            readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                         />
                     </group>
 
@@ -90,41 +110,76 @@
                                 domain="[('id', 'in', registrant_member_to_split_ids)]"
                                 options="{'no_create': True}"
                                 required="1"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                             />
                             <field name="new_head_membership_id" invisible="1" />
-                            <field name="new_group_name" required="1" />
+                            <field
+                                name="new_group_name"
+                                required="1"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
                             <field
                                 name="new_group_type_id"
                                 options="{'no_create': True, 'no_open': True}"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                             />
                         </group>
                         <group>
-                            <field name="copy_address" />
+                            <field
+                                name="copy_address"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
                         </group>
                     </group>
 
                     <group>
                         <group string="Address">
-                            <field name="address_line1" force_save="1" />
-                            <field name="address_line2" force_save="1" />
-                            <field name="city" force_save="1" />
+                            <field
+                                name="address_line1"
+                                force_save="1"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
+                            <field
+                                name="address_line2"
+                                force_save="1"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
+                            <field
+                                name="city"
+                                force_save="1"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
                         </group>
                         <group string="Location">
                             <field
                                 name="state_id"
                                 options="{'no_create': True, 'no_open': True}"
                                 force_save="1"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                             />
-                            <field name="postal_code" force_save="1" />
+                            <field
+                                name="postal_code"
+                                force_save="1"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
                             <field
                                 name="country_id"
                                 options="{'no_create': True, 'no_open': True}"
                                 force_save="1"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                             />
                         </group>
                         <group string="Contact">
-                            <field name="phone" force_save="1" />
-                            <field name="email" force_save="1" />
+                            <field
+                                name="phone"
+                                force_save="1"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
+                            <field
+                                name="email"
+                                force_save="1"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
                         </group>
                     </group>
 

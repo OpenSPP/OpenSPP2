@@ -5,7 +5,10 @@
         <field name="name">spp.cr.detail.exit_registrant.form</field>
         <field name="model">spp.cr.detail.exit_registrant</field>
         <field name="arch" type="xml">
-            <form string="Exit Registrant Details" readonly="not is_cr_manager">
+            <form
+                string="Exit Registrant Details"
+                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+            >
                 <header>
                     <field name="is_cr_manager" invisible="1" />
                     <button
@@ -14,6 +17,15 @@
                         type="object"
                         class="btn-primary"
                         icon="fa-arrow-right"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <button
+                        name="action_skip_to_review"
+                        string="Review &amp; Submit"
+                        type="object"
+                        class="btn-success"
+                        icon="fa-check-circle"
                         invisible="approval_state not in ('draft', 'revision')"
                         groups="spp_change_request_v2.group_cr_manager"
                     />
@@ -34,16 +46,26 @@
                 <sheet>
                     <group>
                         <group string="Registrant">
-                            <field name="registrant_name" />
+                            <field
+                                name="registrant_name"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
                             <field name="is_group" invisible="1" />
                             <field
                                 name="active_membership_count"
                                 invisible="is_group"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                             />
                         </group>
                         <group string="Exit Details">
-                            <field name="exit_reason" />
-                            <field name="exit_date" />
+                            <field
+                                name="exit_reason"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
+                            <field
+                                name="exit_date"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
                         </group>
                     </group>
                     <group>
@@ -55,21 +77,27 @@
                                 name="death_date"
                                 invisible="exit_reason != 'deceased'"
                                 required="exit_reason == 'deceased'"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                             />
                             <field
                                 name="destination_country_id"
                                 invisible="exit_reason != 'emigrated'"
                                 options="{'no_create': True, 'no_open': True}"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                             />
                         </group>
                         <group string="Options">
-                            <field name="is_end_active_memberships" />
+                            <field
+                                name="is_end_active_memberships"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
                         </group>
                     </group>
                     <group string="Additional Information">
                         <field
                             name="remarks"
                             placeholder="Enter any additional notes..."
+                            readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                         />
                     </group>
                 </sheet>

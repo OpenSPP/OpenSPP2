@@ -5,7 +5,10 @@
         <field name="name">spp.cr.detail.merge_registrants.form</field>
         <field name="model">spp.cr.detail.merge_registrants</field>
         <field name="arch" type="xml">
-            <form string="Merge Registrants Details" readonly="not is_cr_manager">
+            <form
+                string="Merge Registrants Details"
+                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+            >
                 <header>
                     <field name="is_cr_manager" invisible="1" />
                     <button
@@ -14,6 +17,15 @@
                         type="object"
                         class="btn-primary"
                         icon="fa-arrow-right"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <button
+                        name="action_skip_to_review"
+                        string="Review &amp; Submit"
+                        type="object"
+                        class="btn-success"
+                        icon="fa-check-circle"
                         invisible="approval_state not in ('draft', 'revision')"
                         groups="spp_change_request_v2.group_cr_manager"
                     />
@@ -48,14 +60,21 @@
                                 name="primary_registrant_id"
                                 required="1"
                                 options="{'no_create': True, 'no_open': True}"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                             />
                             <field name="primary_name" invisible="1" />
                             <field name="is_group_merge" invisible="1" />
                             <field name="available_duplicate_ids" invisible="1" />
                         </group>
                         <group string="Merge Details">
-                            <field name="reason" />
-                            <field name="merge_strategy" />
+                            <field
+                                name="reason"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
+                            <field
+                                name="merge_strategy"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
                         </group>
                     </group>
 
@@ -72,16 +91,26 @@
                         domain="[('id', 'in', available_duplicate_ids)]"
                         options="{'no_create': True}"
                         required="1"
+                        readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                     />
 
                     <separator string="Merge Options" />
                     <group>
                         <group>
-                            <field name="is_merge_memberships" />
-                            <field name="is_merge_ids" />
+                            <field
+                                name="is_merge_memberships"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
+                            <field
+                                name="is_merge_ids"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
                         </group>
                         <group>
-                            <field name="is_deactivate_duplicates" />
+                            <field
+                                name="is_deactivate_duplicates"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
                         </group>
                     </group>
 
@@ -89,6 +118,7 @@
                         <field
                             name="remarks"
                             placeholder="Enter any additional notes..."
+                            readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                         />
                     </group>
                 </sheet>
