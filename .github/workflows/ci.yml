@@ -108,7 +108,7 @@ jobs:
 
 
       - name: Build and cache image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: docker/Dockerfile
@@ -152,7 +152,7 @@ jobs:
 
 
       - name: Build test image (from cache)
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: docker/Dockerfile
