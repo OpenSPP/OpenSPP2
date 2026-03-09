@@ -78,7 +78,7 @@ jobs:
           echo "$changed_files"
 
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            modules=$(echo "$changed_files" | python scripts/detect_modules.py --include-critical --max-modules=15)
+            modules=$(echo "$changed_files" | python scripts/detect_modules.py --include-critical --max-modules=20)
           else
             modules=$(echo "$changed_files" | python scripts/detect_modules.py --max-modules=10)
           fi
