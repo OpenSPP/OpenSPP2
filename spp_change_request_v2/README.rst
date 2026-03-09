@@ -47,63 +47,63 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+----------------------------------+----------------------------------+
-| Model                            | Description                      |
-+==================================+==================================+
-| ``spp.change.request``           | Main change request record with  |
-|                                  | approval workflow                |
-+----------------------------------+----------------------------------+
-| ``spp.change.request.type``      | Configuration for CR types:      |
-|                                  | target, detail model, workflow   |
-+----------------------------------+----------------------------------+
-| ``s                              | Field mappings for automatic     |
-| pp.change.request.type.mapping`` | application                      |
-+----------------------------------+----------------------------------+
-| ``spp.cr.conflict.rule``         | Rules for detecting conflicting  |
-|                                  | change requests                  |
-+----------------------------------+----------------------------------+
-| ``spp.cr.duplicate.config``      | Configuration for duplicate      |
-|                                  | detection thresholds             |
-+----------------------------------+----------------------------------+
-| ``spp.cr.conflict.mixin``        | Mixin providing conflict and     |
-|                                  | duplicate detection              |
-+----------------------------------+----------------------------------+
-| ``spp.cr.detail.base``           | Base model for all change        |
-|                                  | request detail types             |
-+----------------------------------+----------------------------------+
-| ``spp.cr.detail.add_member``     | Detail model for adding members  |
-|                                  | to groups                        |
-+----------------------------------+----------------------------------+
-| `                                | Detail model for editing         |
-| `spp.cr.detail.edit_individual`` | individual registrant data       |
-+----------------------------------+----------------------------------+
-| ``spp.cr.detail.edit_group``     | Detail model for editing         |
-|                                  | group/household data             |
-+----------------------------------+----------------------------------+
-| ``spp.cr.detail.remove_member``  | Detail model for removing        |
-|                                  | members from groups              |
-+----------------------------------+----------------------------------+
-| ``spp.cr.detail.change_hoh``     | Detail model for changing head   |
-|                                  | of household                     |
-+----------------------------------+----------------------------------+
-| `                                | Detail model for marking         |
-| `spp.cr.detail.exit_registrant`` | registrants as exited            |
-+----------------------------------+----------------------------------+
-| `                                | Detail model for transferring    |
-| `spp.cr.detail.transfer_member`` | members between groups           |
-+----------------------------------+----------------------------------+
-| ``spp.cr.detail.update_id``      | Detail model for updating        |
-|                                  | registrant ID numbers            |
-+----------------------------------+----------------------------------+
-| ``spp.cr.detail.create_group``   | Detail model for creating new    |
-|                                  | groups/households                |
-+----------------------------------+----------------------------------+
-| ``s                              | Detail model for merging         |
-| pp.cr.detail.merge_registrants`` | duplicate registrant records     |
-+----------------------------------+----------------------------------+
-| `                                | Detail model for splitting       |
-| `spp.cr.detail.split_household`` | households into separate groups  |
-+----------------------------------+----------------------------------+
++-------------------------------------+----------------------------------+
+| Model                               | Description                      |
++=====================================+==================================+
+| ``spp.change.request``              | Main change request record with  |
+|                                     | approval workflow                |
++-------------------------------------+----------------------------------+
+| ``spp.change.request.type``         | Configuration for CR types:      |
+|                                     | target, detail model, workflow   |
++-------------------------------------+----------------------------------+
+| ``spp.change.request.type.mapping`` | Field mappings for automatic     |
+|                                     | application                      |
++-------------------------------------+----------------------------------+
+| ``spp.cr.conflict.rule``            | Rules for detecting conflicting  |
+|                                     | change requests                  |
++-------------------------------------+----------------------------------+
+| ``spp.cr.duplicate.config``         | Configuration for duplicate      |
+|                                     | detection thresholds             |
++-------------------------------------+----------------------------------+
+| ``spp.cr.conflict.mixin``           | Mixin providing conflict and     |
+|                                     | duplicate detection              |
++-------------------------------------+----------------------------------+
+| ``spp.cr.detail.base``              | Base model for all change        |
+|                                     | request detail types             |
++-------------------------------------+----------------------------------+
+| ``spp.cr.detail.add_member``        | Detail model for adding members  |
+|                                     | to groups                        |
++-------------------------------------+----------------------------------+
+| ``spp.cr.detail.edit_individual``   | Detail model for editing         |
+|                                     | individual registrant data       |
++-------------------------------------+----------------------------------+
+| ``spp.cr.detail.edit_group``        | Detail model for editing         |
+|                                     | group/household data             |
++-------------------------------------+----------------------------------+
+| ``spp.cr.detail.remove_member``     | Detail model for removing        |
+|                                     | members from groups              |
++-------------------------------------+----------------------------------+
+| ``spp.cr.detail.change_hoh``        | Detail model for changing head   |
+|                                     | of household                     |
++-------------------------------------+----------------------------------+
+| ``spp.cr.detail.exit_registrant``   | Detail model for marking         |
+|                                     | registrants as exited            |
++-------------------------------------+----------------------------------+
+| ``spp.cr.detail.transfer_member``   | Detail model for transferring    |
+|                                     | members between groups           |
++-------------------------------------+----------------------------------+
+| ``spp.cr.detail.update_id``         | Detail model for updating        |
+|                                     | registrant ID numbers            |
++-------------------------------------+----------------------------------+
+| ``spp.cr.detail.create_group``      | Detail model for creating new    |
+|                                     | groups/households                |
++-------------------------------------+----------------------------------+
+| ``spp.cr.detail.merge_registrants`` | Detail model for merging         |
+|                                     | duplicate registrant records     |
++-------------------------------------+----------------------------------+
+| ``spp.cr.detail.split_household``   | Detail model for splitting       |
+|                                     | households into separate groups  |
++-------------------------------------+----------------------------------+
 
 Form Tabs
 ~~~~~~~~~
@@ -158,25 +158,25 @@ UI Location
 Security
 ~~~~~~~~
 
-+----------------------------------+----------------------------------+
-| Group                            | Access                           |
-+==================================+==================================+
-| ``spp_c                          | Create and submit change         |
-| hange_request_v2.group_cr_user`` | requests (read/write/create)     |
-+----------------------------------+----------------------------------+
-| ``spp_change                     | Approve/reject, field-level      |
-| _request_v2.group_cr_validator`` | validation (read/write/create)   |
-+----------------------------------+----------------------------------+
-| ``spp_change_re                  | HQ-level approval with registry  |
-| quest_v2.group_cr_validator_hq`` | write (read/write/create)        |
-+----------------------------------+----------------------------------+
-| ``spp_chan                       | Full CRUD including              |
-| ge_request_v2.group_cr_manager`` | configuration                    |
-+----------------------------------+----------------------------------+
-| ``spp_change_request             | Override blocking conflict       |
-| _v2.group_cr_conflict_approver`` | detections                       |
-|                                  | (specialized/functional)         |
-+----------------------------------+----------------------------------+
++------------------------------------------------------+----------------------------------+
+| Group                                                | Access                           |
++======================================================+==================================+
+| ``spp_change_request_v2.group_cr_user``              | Create and submit change         |
+|                                                      | requests (read/write/create)     |
++------------------------------------------------------+----------------------------------+
+| ``spp_change_request_v2.group_cr_validator``         | Approve/reject, field-level      |
+|                                                      | validation (read/write/create)   |
++------------------------------------------------------+----------------------------------+
+| ``spp_change_request_v2.group_cr_validator_hq``      | HQ-level approval with registry  |
+|                                                      | write (read/write/create)        |
++------------------------------------------------------+----------------------------------+
+| ``spp_change_request_v2.group_cr_manager``           | Full CRUD including              |
+|                                                      | configuration                    |
++------------------------------------------------------+----------------------------------+
+| ``spp_change_request_v2.group_cr_conflict_approver`` | Override blocking conflict       |
+|                                                      | detections                       |
+|                                                      | (specialized/functional)         |
++------------------------------------------------------+----------------------------------+
 
 Extension Points
 ~~~~~~~~~~~~~~~~
