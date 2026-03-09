@@ -16,7 +16,10 @@ async function openCRCloseModal(env, action) {
     const actionService = env.services.action;
     const params = action.params || {};
 
-    await actionService.doAction({type: "ir.actions.act_window_close"}, {clearBreadcrumbs: true});
+    await actionService.doAction(
+        {type: "ir.actions.act_window_close"},
+        {clearBreadcrumbs: true}
+    );
 
     if (params.res_id) {
         await actionService.doAction({
@@ -64,7 +67,7 @@ registry.category("actions").add("navigate_cr_stage", navigateCRStage);
 /**
  * Client action to navigate back to the CR list view, clearing all breadcrumbs.
  */
-async function navigateCRList(env, action) {
+async function navigateCRList(env) {
     const actionService = env.services.action;
 
     await actionService.doAction("spp_change_request_v2.action_change_request", {
@@ -83,7 +86,9 @@ patch(ListController.prototype, {
                 return;
             }
             const is_admin = await user.hasGroup("spp_security.group_spp_admin");
-            const is_cr_manager = await user.hasGroup("spp_change_request_v2.group_cr_manager");
+            const is_cr_manager = await user.hasGroup(
+                "spp_change_request_v2.group_cr_manager"
+            );
             if (is_admin || is_cr_manager) {
                 this.customListCreateButton = {
                     label: "New Request",
@@ -113,7 +118,9 @@ patch(ListController.prototype, {
             );
 
             if (crData) {
-                const isDraftOrRevision = crData.approval_state === "draft" || crData.approval_state === "revision";
+                const isDraftOrRevision =
+                    crData.approval_state === "draft" ||
+                    crData.approval_state === "revision";
 
                 if (isDraftOrRevision && crData.stage === "documents") {
                     await this.actionService.doAction({
@@ -125,7 +132,8 @@ patch(ListController.prototype, {
                         views: [[false, "form"]],
                         target: "current",
                         context: {
-                            form_view_ref: "spp_change_request_v2.spp_change_request_documents_form",
+                            form_view_ref:
+                                "spp_change_request_v2.spp_change_request_documents_form",
                             form_view_initial_mode: "edit",
                         },
                     });
@@ -141,14 +149,19 @@ patch(ListController.prototype, {
                         views: [[false, "form"]],
                         target: "current",
                         context: {
-                            form_view_ref: "spp_change_request_v2.spp_change_request_review_form",
+                            form_view_ref:
+                                "spp_change_request_v2.spp_change_request_review_form",
                             form_view_initial_mode: "edit",
                         },
                     });
                     return;
                 }
                 // Default: details stage — open the detail model form
-                if (isDraftOrRevision && crData.detail_res_model && crData.detail_res_id) {
+                if (
+                    isDraftOrRevision &&
+                    crData.detail_res_model &&
+                    crData.detail_res_id
+                ) {
                     await this.actionService.doAction({
                         type: "ir.actions.act_window",
                         name: "Change Request Details",
@@ -175,11 +188,14 @@ patch(ListController.prototype, {
      */
     async onCustomListCreate() {
         if (this.model.root.resModel === "spp.change.request") {
-            await this.actionService.doAction("spp_change_request_v2.action_cr_create_wizard", {
-                onClose: async () => {
-                    await this.model.root.load();
-                },
-            });
+            await this.actionService.doAction(
+                "spp_change_request_v2.action_cr_create_wizard",
+                {
+                    onClose: async () => {
+                        await this.model.root.load();
+                    },
+                }
+            );
             return;
         }
         return super.onCustomListCreate(...arguments);

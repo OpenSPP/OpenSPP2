@@ -38,7 +38,11 @@
 
                     <!-- Target Group -->
                     <group string="Target Group">
-                        <field name="registrant_id" readonly="1" options="{'no_open': True}" />
+                        <field
+                            name="registrant_id"
+                            readonly="1"
+                            options="{'no_open': True}"
+                        />
                         <field name="change_request_id" invisible="1" />
                     </group>
 

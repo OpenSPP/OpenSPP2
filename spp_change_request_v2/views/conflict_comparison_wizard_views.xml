@@ -19,55 +19,96 @@
                     <!-- Registrant info -->
                     <group>
                         <group>
-                            <field name="registrant_id" readonly="1" options="{'no_open': True}"/>
-                            <field name="conflict_field" readonly="1" invisible="not conflict_field"/>
-                            <field name="current_value" readonly="1" invisible="not current_value"/>
+                            <field
+                                name="registrant_id"
+                                readonly="1"
+                                options="{'no_open': True}"
+                            />
+                            <field
+                                name="conflict_field"
+                                readonly="1"
+                                invisible="not conflict_field"
+                            />
+                            <field
+                                name="current_value"
+                                readonly="1"
+                                invisible="not current_value"
+                            />
                         </group>
                     </group>
 
                     <!-- Comparison table -->
                     <group string="Comparison">
-                        <field name="comparison_html" nolabel="1" readonly="1" colspan="2"/>
+                        <field
+                            name="comparison_html"
+                            nolabel="1"
+                            readonly="1"
+                            colspan="2"
+                        />
                     </group>
 
                     <!-- Decision inputs -->
                     <group string="Decisions">
                         <field name="line_ids" nolabel="1">
                             <list editable="bottom">
-                                <field name="cr_name" string="Reference" readonly="1"/>
-                                <field name="cr_type" string="Type" readonly="1"/>
-                                <field name="submitted_date" string="Submitted" readonly="1"/>
-                                <field name="submitted_by" string="By" readonly="1"/>
-                                <field name="document_count" string="Docs" readonly="1"/>
-                                <field name="is_primary" column_invisible="1"/>
-                                <field name="decision" widget="radio"
-                                       options="{'horizontal': true}"/>
+                                <field name="cr_name" string="Reference" readonly="1" />
+                                <field name="cr_type" string="Type" readonly="1" />
+                                <field
+                                    name="submitted_date"
+                                    string="Submitted"
+                                    readonly="1"
+                                />
+                                <field name="submitted_by" string="By" readonly="1" />
+                                <field
+                                    name="document_count"
+                                    string="Docs"
+                                    readonly="1"
+                                />
+                                <field name="is_primary" column_invisible="1" />
+                                <field
+                                    name="decision"
+                                    widget="radio"
+                                    options="{'horizontal': true}"
+                                />
                             </list>
                         </field>
                     </group>
 
                     <!-- Quick actions hint -->
                     <div class="alert alert-info" role="alert">
-                        <i class="fa fa-lightbulb-o me-2" title="Tip"/>
+                        <i class="fa fa-lightbulb-o me-2" title="Tip" />
                         <strong>Quick Actions:</strong>
                         Use the buttons below to quickly resolve all conflicts at once.
                     </div>
 
                     <!-- Hidden fields -->
-                    <field name="primary_cr_id" invisible="1"/>
+                    <field name="primary_cr_id" invisible="1" />
                 </sheet>
                 <footer>
-                    <button string="Approve Latest, Decline Others"
-                            name="action_approve_latest_decline_others"
-                            type="object" class="btn-primary"/>
-                    <button string="Approve Oldest, Decline Others"
-                            name="action_approve_oldest_decline_others"
-                            type="object" class="btn-secondary"/>
-                    <button string="Apply Selected Decisions"
-                            name="action_apply_decisions"
-                            type="object" class="btn-secondary"/>
-                    <button string="Cancel" name="action_cancel" type="object"
-                            class="btn-secondary"/>
+                    <button
+                        string="Approve Latest, Decline Others"
+                        name="action_approve_latest_decline_others"
+                        type="object"
+                        class="btn-primary"
+                    />
+                    <button
+                        string="Approve Oldest, Decline Others"
+                        name="action_approve_oldest_decline_others"
+                        type="object"
+                        class="btn-secondary"
+                    />
+                    <button
+                        string="Apply Selected Decisions"
+                        name="action_apply_decisions"
+                        type="object"
+                        class="btn-secondary"
+                    />
+                    <button
+                        string="Cancel"
+                        name="action_cancel"
+                        type="object"
+                        class="btn-secondary"
+                    />
                 </footer>
             </form>
         </field>
@@ -80,10 +121,9 @@
         <field name="name">Compare Conflicts</field>
         <field name="res_model">spp.cr.conflict.comparison.wizard</field>
         <field name="view_mode">form</field>
-        <field name="view_id" ref="view_conflict_comparison_wizard_form"/>
+        <field name="view_id" ref="view_conflict_comparison_wizard_form" />
         <field name="target">new</field>
-        <field name="binding_model_id" ref="model_spp_change_request"/>
+        <field name="binding_model_id" ref="model_spp_change_request" />
         <field name="binding_view_types">form</field>
     </record>
-
 </odoo>

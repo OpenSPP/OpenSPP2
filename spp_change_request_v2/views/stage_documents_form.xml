@@ -45,7 +45,9 @@
                 </header>
                 <sheet>
                     <!-- Context banner -->
-                    <div class="alert alert-light border d-flex align-items-center mb-4 py-2">
+                    <div
+                        class="alert alert-light border d-flex align-items-center mb-4 py-2"
+                    >
                         <i class="fa fa-file-text fa-lg text-primary me-3" />
                         <field name="stage_banner_html" nolabel="1" readonly="1" />
                     </div>
@@ -58,8 +60,10 @@
                     <field name="required_documents_html" nolabel="1" readonly="1" />
 
                     <!-- Upload button -->
-                    <div class="mb-4"
-                         invisible="approval_state not in ('draft', 'revision') or not is_cr_manager">
+                    <div
+                        class="mb-4"
+                        invisible="approval_state not in ('draft', 'revision') or not is_cr_manager"
+                    >
                         <button
                             name="action_upload_document"
                             string="Upload Document"
@@ -76,29 +80,39 @@
                     </div>
 
                     <!-- Document list -->
-                    <field name="document_ids" invisible="not document_ids"
-                           readonly="1"
-                           nolabel="1">
+                    <field
+                        name="document_ids"
+                        invisible="not document_ids"
+                        readonly="1"
+                        nolabel="1"
+                    >
                         <list no_open="1">
                             <field name="is_previewable" column_invisible="1" />
-                            <field name="content" widget="preview_widget"
-                                   invisible="not is_previewable" />
-                            <button name="action_download"
-                                    type="object"
-                                    icon="fa-download"
-                                    title="Download"
-                                    column_invisible="not parent.allow_document_download" />
+                            <field
+                                name="content"
+                                widget="preview_widget"
+                                invisible="not is_previewable"
+                            />
+                            <button
+                                name="action_download"
+                                type="object"
+                                icon="fa-download"
+                                title="Download"
+                                column_invisible="not parent.allow_document_download"
+                            />
                             <field name="name" string="File" />
                             <field name="document_type_id" string="Document Type" />
                             <field name="human_size" string="Size" />
                             <field name="create_date" string="Uploaded" />
-                            <button name="action_remove_from_cr"
-                                    type="object"
-                                    icon="fa-trash"
-                                    title="Remove Document"
-                                    column_invisible="parent.approval_state not in ('draft', 'revision')"
-                                    groups="spp_change_request_v2.group_cr_manager"
-                                    confirm="Remove this document?"/>
+                            <button
+                                name="action_remove_from_cr"
+                                type="object"
+                                icon="fa-trash"
+                                title="Remove Document"
+                                column_invisible="parent.approval_state not in ('draft', 'revision')"
+                                groups="spp_change_request_v2.group_cr_manager"
+                                confirm="Remove this document?"
+                            />
                         </list>
                     </field>
 

@@ -174,7 +174,7 @@ class SPPCRConflictRule(models.Model):
             )
         elif self.action == "warn":
             return (
-                _("Warning: potential conflict with existing change request(s): %s. " "Review before proceeding.")
+                _("Warning: potential conflict with existing change request(s): %s. Review before proceeding.")
                 % cr_refs
             )
         else:  # log

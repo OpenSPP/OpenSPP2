@@ -55,7 +55,10 @@
                     </group>
                     <group invisible="operation == 'remove'">
                         <group string="ID Information">
-                            <field name="id_type_id" options="{'no_create': True, 'no_open': True}" />
+                            <field
+                                name="id_type_id"
+                                options="{'no_create': True, 'no_open': True}"
+                            />
                             <field name="id_value" required="operation == 'add'" />
                             <field name="expiry_date" />
                         </group>

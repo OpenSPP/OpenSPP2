@@ -359,11 +359,7 @@ class SPPChangeRequest(models.Model):
         for rec in self:
             cr_ref = rec.name or ""
             cr_type = rec.request_type_id.name if rec.request_type_id else ""
-            html = (
-                f'<span class="fw-bold">{cr_ref}</span>'
-                f'<span class="text-muted mx-2">|</span>'
-                f"<span>{cr_type}</span>"
-            )
+            html = f'<span class="fw-bold">{cr_ref}</span><span class="text-muted mx-2">|</span><span>{cr_type}</span>'
             if rec.registrant_id:
                 registrant = rec.registrant_id.name or ""
                 html += (
@@ -405,20 +401,16 @@ class SPPChangeRequest(models.Model):
             for doc_type in required:
                 if doc_type in uploaded_types:
                     items.append(
-                        f'<li class="text-success">'
-                        f'<i class="fa fa-check-circle me-1"></i>'
-                        f"{doc_type.display_name}</li>"
+                        f'<li class="text-success"><i class="fa fa-check-circle me-1"></i>{doc_type.display_name}</li>'
                     )
                 else:
                     items.append(
-                        f'<li class="text-danger">'
-                        f'<i class="fa fa-times-circle me-1"></i>'
-                        f"{doc_type.display_name}</li>"
+                        f'<li class="text-danger"><i class="fa fa-times-circle me-1"></i>{doc_type.display_name}</li>'
                     )
 
             rec.required_documents_html = (
                 '<div class="mb-3">'
-                '<strong>Required Documents:</strong>'
+                "<strong>Required Documents:</strong>"
                 f'<ul class="list-unstyled mt-1 mb-0">{"".join(items)}</ul>'
                 "</div>"
             )
@@ -478,10 +470,7 @@ class SPPChangeRequest(models.Model):
         for rec in self:
             if not rec.document_ids:
                 rec.review_documents_html = (
-                    '<div class="text-muted">'
-                    '<i class="fa fa-info-circle me-2"></i>'
-                    "No documents attached."
-                    "</div>"
+                    '<div class="text-muted"><i class="fa fa-info-circle me-2"></i>No documents attached.</div>'
                 )
                 continue
 
@@ -534,9 +523,7 @@ class SPPChangeRequest(models.Model):
 
             # ID badge
             if hasattr(reg, "spp_id") and reg.spp_id:
-                html_parts.append(
-                    f'<div class="mb-2">' f'<span class="badge bg-secondary">ID: {reg.spp_id}</span>' f"</div>"
-                )
+                html_parts.append(f'<div class="mb-2"><span class="badge bg-secondary">ID: {reg.spp_id}</span></div>')
 
             # Address
             address_parts = []
@@ -548,7 +535,7 @@ class SPPChangeRequest(models.Model):
                 html_parts.append(
                     f'<div class="text-muted small mb-2">'
                     f'<i class="fa fa-map-marker me-1"></i>'
-                    f'{", ".join(address_parts)}'
+                    f"{', '.join(address_parts)}"
                     f"</div>"
                 )
 
@@ -556,10 +543,7 @@ class SPPChangeRequest(models.Model):
             if reg.is_group and hasattr(reg, "group_membership_ids"):
                 member_count = len(reg.group_membership_ids or [])
                 html_parts.append(
-                    f'<div class="badge bg-info">'
-                    f'<i class="fa fa-users me-1"></i>'
-                    f"{member_count} member(s)"
-                    f"</div>"
+                    f'<div class="badge bg-info"><i class="fa fa-users me-1"></i>{member_count} member(s)</div>'
                 )
 
             html_parts.append("</div>")
@@ -652,7 +636,7 @@ class SPPChangeRequest(models.Model):
         )
         if not parent_dir:
             _logger.warning(
-                "Parent 'Change Request' directory not found. " "Please ensure data/dms_directories.xml is loaded."
+                "Parent 'Change Request' directory not found. Please ensure data/dms_directories.xml is loaded."
             )
         return parent_dir
 
@@ -897,12 +881,7 @@ class SPPChangeRequest(models.Model):
         self.ensure_one()
 
         if not self.request_type_id or not self.detail_res_id:
-            return (
-                '<div class="text-muted">'
-                '<i class="fa fa-info-circle me-2"></i>'
-                "No changes to preview yet."
-                "</div>"
-            )
+            return '<div class="text-muted"><i class="fa fa-info-circle me-2"></i>No changes to preview yet.</div>'
 
         try:
             # Use sudo() so validators can preview memberships of disabled registrants
@@ -976,15 +955,12 @@ class SPPChangeRequest(models.Model):
                 else:
                     display_value = str(value)
 
-                html_parts.append(f"<tr><td><strong>{display_key}</strong></td>" f"<td>{display_value}</td></tr>")
+                html_parts.append(f"<tr><td><strong>{display_key}</strong></td><td>{display_value}</td></tr>")
 
             html_parts.append("</tbody></table>")
         else:
             html_parts.append(
-                '<p class="text-muted mb-0">'
-                '<i class="fa fa-info-circle me-2"></i>'
-                "No field changes detected."
-                "</p>"
+                '<p class="text-muted mb-0"><i class="fa fa-info-circle me-2"></i>No field changes detected.</p>'
             )
 
         html_parts.append("</div>")
@@ -1000,9 +976,7 @@ class SPPChangeRequest(models.Model):
         self.ensure_one()
 
         if not self.request_type_id or not self.detail_res_id:
-            return (
-                '<div class="text-muted">' '<i class="fa fa-info-circle me-2"></i>' "No changes to review yet." "</div>"
-            )
+            return '<div class="text-muted"><i class="fa fa-info-circle me-2"></i>No changes to review yet.</div>'
 
         try:
             # Use sudo() so validators can preview memberships of disabled registrants
@@ -1080,13 +1054,11 @@ class SPPChangeRequest(models.Model):
         html = []
 
         if not changes:
-            html.append(
-                '<p class="text-muted mb-0">' '<i class="fa fa-info-circle me-2"></i>' "No details to display." "</p>"
-            )
+            html.append('<p class="text-muted mb-0"><i class="fa fa-info-circle me-2"></i>No details to display.</p>')
             return "".join(html)
 
         html.append('<table class="table table-sm table-bordered mb-0" style="width:100%">')
-        html.append("<thead><tr>" '<th class="bg-light"></th>' '<th class="bg-light">Value</th>' "</tr></thead>")
+        html.append('<thead><tr><th class="bg-light"></th><th class="bg-light">Value</th></tr></thead>')
         html.append("<tbody>")
 
         for key, value in changes.items():
@@ -1234,8 +1206,7 @@ class SPPChangeRequest(models.Model):
             # Fall back to legacy field if available
             if cr_type.required_document_type_ids:
                 _logger.warning(
-                    "CR Type %s using deprecated required_document_type_ids. "
-                    "Please migrate to required_document_ids",
+                    "CR Type %s using deprecated required_document_type_ids. Please migrate to required_document_ids",
                     cr_type.name,
                 )
             return None

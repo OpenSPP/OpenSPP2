@@ -2,7 +2,7 @@
 """Tests for Transfer Member strategy."""
 
 from odoo import fields
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tests import TransactionCase
 
 from .common import get_or_create_cr_type, get_or_create_membership_kind
@@ -162,7 +162,7 @@ class TestTransferMemberStrategy(TransactionCase):
 
         detail = cr.get_detail()
 
-        with self.assertRaises(Exception):  # ValidationError
+        with self.assertRaises(ValidationError):
             detail.write(
                 {
                     "membership_id": self.membership.id,

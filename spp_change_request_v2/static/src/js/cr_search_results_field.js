@@ -33,7 +33,7 @@ export class CrSearchResultsField extends Component {
             row.onclick = (ev) => {
                 ev.preventDefault();
                 ev.stopPropagation();
-                const partnerId = parseInt(row.dataset.partnerId);
+                const partnerId = parseInt(row.dataset.partnerId, 10);
                 if (partnerId) {
                     this.props.record.update({_selected_partner_id: partnerId});
                 }

@@ -5,7 +5,10 @@
         <field name="name">spp.cr.detail.change_hoh.form</field>
         <field name="model">spp.cr.detail.change_hoh</field>
         <field name="arch" type="xml">
-            <form string="Change Head of Household Details" readonly="not is_cr_manager">
+            <form
+                string="Change Head of Household Details"
+                readonly="not is_cr_manager"
+            >
                 <header>
                     <field name="is_cr_manager" invisible="1" />
                     <button

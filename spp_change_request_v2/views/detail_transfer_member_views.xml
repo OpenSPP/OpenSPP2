@@ -54,7 +54,10 @@
                                 options="{'no_create': True}"
                                 required="1"
                             />
-                            <field name="new_role_id" options="{'no_create': True, 'no_open': True}" />
+                            <field
+                                name="new_role_id"
+                                options="{'no_create': True, 'no_open': True}"
+                            />
                         </group>
                     </group>
                     <group>

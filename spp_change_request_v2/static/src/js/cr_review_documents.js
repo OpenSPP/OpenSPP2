@@ -34,14 +34,18 @@ export class CRReviewDocuments extends Component {
             el.addEventListener("click", (ev) => {
                 ev.preventDefault();
                 ev.stopPropagation();
-                const docId = parseInt(el.dataset.docId);
+                const docId = parseInt(el.dataset.docId, 10);
                 if (docId) this._openPreview(docId);
             });
         }
     }
 
     async _openPreview(docId) {
-        const [record] = await this.orm.read("spp.dms.file", [docId], ["content", "name", "mimetype"]);
+        const [record] = await this.orm.read(
+            "spp.dms.file",
+            [docId],
+            ["content", "name", "mimetype"]
+        );
         if (!record || !record.content) return;
 
         const binaryData = atob(record.content);
@@ -62,7 +66,6 @@ export class CRReviewDocuments extends Component {
                 isViewable: true,
                 displayName: record.name,
                 defaultSource: fileUrl,
-                downloadUrl: fileUrl,
             });
         }
     }

@@ -168,11 +168,11 @@ class SPPCRCreateWizard(models.TransientModel):
                 if reg.is_group:
                     member_count = len(reg.group_membership_ids) if hasattr(reg, "group_membership_ids") else 0
                     type_badge = Markup(
-                        "<span class='text-muted ms-2'>" "<i class='fa fa-users me-1'></i>{} members</span>"
+                        "<span class='text-muted ms-2'><i class='fa fa-users me-1'></i>{} members</span>"
                     ).format(member_count)
                 else:
                     type_badge = Markup(
-                        "<span class='text-muted ms-2'>" "<i class='fa fa-user me-1'></i>Individual</span>"
+                        "<span class='text-muted ms-2'><i class='fa fa-user me-1'></i>Individual</span>"
                     )
                 lines.append(Markup("<div><strong>{}</strong>{}</div>").format(name, type_badge))
 

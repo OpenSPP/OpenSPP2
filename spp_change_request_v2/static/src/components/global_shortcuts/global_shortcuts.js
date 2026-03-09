@@ -49,20 +49,30 @@ const globalShortcutsService = {
                 );
 
                 if (cr.approval_state !== "pending") {
-                    return; // Not in pending state, ignore shortcut
-                }
-
-                if (actionName === "approve" && !cr.can_approve) {
-                    notification.add("You don't have permission to approve this request", {
-                        type: "warning",
-                    });
+                    // Not in pending state, ignore shortcut
                     return;
                 }
 
-                if ((actionName === "reject" || actionName === "revision") && !cr.can_reject) {
-                    notification.add("You don't have permission to reject this request", {
-                        type: "warning",
-                    });
+                if (actionName === "approve" && !cr.can_approve) {
+                    notification.add(
+                        "You don't have permission to approve this request",
+                        {
+                            type: "warning",
+                        }
+                    );
+                    return;
+                }
+
+                if (
+                    (actionName === "reject" || actionName === "revision") &&
+                    !cr.can_reject
+                ) {
+                    notification.add(
+                        "You don't have permission to reject this request",
+                        {
+                            type: "warning",
+                        }
+                    );
                     return;
                 }
 

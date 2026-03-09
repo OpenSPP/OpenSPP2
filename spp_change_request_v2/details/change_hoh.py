@@ -41,7 +41,8 @@ class SPPCRDetailChangeHOH(models.Model):
     previous_head_new_role_id = fields.Many2one(
         "spp.vocabulary.code",
         string="Previous Head's New Role",
-        domain="[('vocabulary_id.namespace_uri', '=', 'urn:openspp:vocab:group-membership-type'), ('code', '!=', 'head')]",
+        domain="[('vocabulary_id.namespace_uri', '=', 'urn:openspp:vocab:group-membership-type'),"
+        " ('code', '!=', 'head')]",
         tracking=True,
         help="The new role for the previous head (e.g., Spouse, Other Adult)",
     )

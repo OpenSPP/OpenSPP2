@@ -19,7 +19,11 @@ export class PreviewRecordWidget extends Component {
         const resId = this.props.record.resId;
         const resModel = this.props.record.resModel;
 
-        const [record] = await this.orm.read(resModel, [resId], ["content", "name", "mimetype"]);
+        const [record] = await this.orm.read(
+            resModel,
+            [resId],
+            ["content", "name", "mimetype"]
+        );
 
         if (!record || !record.content) {
             console.error("No file found!");

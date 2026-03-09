@@ -1,6 +1,6 @@
 /** @odoo-module **/
 
-import {Component, useEffect, useRef, onWillUnmount} from "@odoo/owl";
+import {Component, useEffect, useRef} from "@odoo/owl";
 import {_t} from "@web/core/l10n/translation";
 import {useDebounced} from "@web/core/utils/timing";
 import {registry} from "@web/core/registry";

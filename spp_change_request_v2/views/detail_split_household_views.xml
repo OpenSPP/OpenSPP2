@@ -110,9 +110,17 @@
                             <field name="city" force_save="1" />
                         </group>
                         <group string="Location">
-                            <field name="state_id" options="{'no_create': True, 'no_open': True}" force_save="1" />
+                            <field
+                                name="state_id"
+                                options="{'no_create': True, 'no_open': True}"
+                                force_save="1"
+                            />
                             <field name="postal_code" force_save="1" />
-                            <field name="country_id" options="{'no_create': True, 'no_open': True}" force_save="1" />
+                            <field
+                                name="country_id"
+                                options="{'no_create': True, 'no_open': True}"
+                                force_save="1"
+                            />
                         </group>
                         <group string="Contact">
                             <field name="phone" force_save="1" />

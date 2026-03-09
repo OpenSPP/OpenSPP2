@@ -8,32 +8,40 @@
             <form string="Preview Changes">
                 <group>
                     <group>
-                        <field name="change_request_id" invisible="1"/>
-                        <field name="registrant_name" string="Beneficiary"/>
-                        <field name="request_type" string="Type of Change"/>
+                        <field name="change_request_id" invisible="1" />
+                        <field name="registrant_name" string="Beneficiary" />
+                        <field name="request_type" string="Type of Change" />
                     </group>
                 </group>
                 <notebook>
                     <page string="What Will Change" name="preview">
                         <div class="text-muted mb-3">
-                            <i class="fa fa-info-circle me-1"/>
+                            <i class="fa fa-info-circle me-1" />
                             This preview shows the changes that will be made when this request is finalized.
                         </div>
-                        <field name="preview_html" nolabel="1"/>
+                        <field name="preview_html" nolabel="1" />
                     </page>
                     <!-- Technical JSON view - managers only -->
-                    <page string="Technical Data (JSON)" name="json"
-                          groups="spp_change_request_v2.group_cr_manager">
+                    <page
+                        string="Technical Data (JSON)"
+                        name="json"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    >
                         <div class="text-muted mb-3">
-                            <i class="fa fa-code me-1"/>
+                            <i class="fa fa-code me-1" />
                             Raw data format for technical review and debugging.
                         </div>
-                        <field name="preview_json" nolabel="1" readonly="1"
-                               widget="ace" options="{'mode': 'javascript'}"/>
+                        <field
+                            name="preview_json"
+                            nolabel="1"
+                            readonly="1"
+                            widget="ace"
+                            options="{'mode': 'javascript'}"
+                        />
                     </page>
                 </notebook>
                 <footer>
-                    <button string="Close" class="btn-primary" special="cancel"/>
+                    <button string="Close" class="btn-primary" special="cancel" />
                 </footer>
             </form>
         </field>

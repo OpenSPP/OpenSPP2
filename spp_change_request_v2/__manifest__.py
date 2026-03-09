@@ -56,6 +56,7 @@
         # Data
         "data/dms_directories.xml",
         "data/sequences.xml",
+        "data/default_types.xml",
         "data/event_types.xml",
         "data/user_roles.xml",
     ],

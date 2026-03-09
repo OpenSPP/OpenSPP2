@@ -243,7 +243,7 @@ class SPPCRDetailSplitHousehold(models.Model):
                 )
                 if len(rec.members_to_split_ids) >= total:
                     raise ValidationError(
-                        "Cannot move all members. At least one member must remain " "in the source household."
+                        "Cannot move all members. At least one member must remain in the source household."
                     )
 
     @api.onchange("copy_address")
