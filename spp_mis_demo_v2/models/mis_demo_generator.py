@@ -27,19 +27,6 @@ class SPPMISDemoGenerator(models.TransientModel):
 
     name = fields.Char(string="Name", default="MIS Demo Data V2", required=True)
 
-    # Country selection for locale and currency
-    country_id = fields.Selection(
-        [
-            ("ph", "Philippines"),
-            ("lk", "Sri Lanka"),
-            ("tg", "Togo"),
-        ],
-        string="Country",
-        default="ph",
-        required=True,
-        help="Determines locale for names and company currency",
-    )
-
     # Demo mode selection (simplified UI always uses "complete")
     demo_mode = fields.Selection(
         [
@@ -179,7 +166,8 @@ class SPPMISDemoGenerator(models.TransientModel):
         ],
         string="Country",
         default="phl",
-        help="Country for geographic data (areas and GIS shapes)",
+        required=True,
+        help="Determines locale, currency, and geographic data",
     )
 
     # Locale settings
@@ -311,16 +299,16 @@ class SPPMISDemoGenerator(models.TransientModel):
         for field_name, value in defaults.items():
             setattr(self, field_name, value)
 
-    # Country configuration mapping
+    # Country configuration mapping (keyed by country_code 3-letter ISO)
     COUNTRY_CONFIG = {
-        "ph": {"xmlid": "base.ph", "locale": "fil_PH", "currency_xmlid": "base.PHP"},
-        "lk": {"xmlid": "base.lk", "locale": "si_LK", "currency_xmlid": "base.LKR"},
-        "tg": {"xmlid": "base.tg", "locale": "fr_TG", "currency_xmlid": "base.XOF"},
+        "phl": {"xmlid": "base.ph", "locale": "fil_PH", "currency_xmlid": "base.PHP"},
+        "lka": {"xmlid": "base.lk", "locale": "si_LK", "currency_xmlid": "base.LKR"},
+        "tgo": {"xmlid": "base.tg", "locale": "fr_TG", "currency_xmlid": "base.XOF"},
     }
 
     def _get_country_config(self):
-        """Get country, locale, and currency based on selected country_id."""
-        config = self.COUNTRY_CONFIG.get(self.country_id, self.COUNTRY_CONFIG["ph"])
+        """Get country, locale, and currency based on selected country_code."""
+        config = self.COUNTRY_CONFIG.get(self.country_code, self.COUNTRY_CONFIG["phl"])
         country = self.env.ref(config["xmlid"], raise_if_not_found=False)
         currency = self.env.ref(config["currency_xmlid"], raise_if_not_found=False)
         # Ensure currency is active
@@ -425,149 +413,7 @@ class SPPMISDemoGenerator(models.TransientModel):
         }
 
         try:
-            # Resolve country configuration (locale, currency)
-            country_cfg = self._get_country_config()
-            demo_locale = country_cfg["locale"]
-            # Store locale in context for use by story methods (locale-aware names)
-            self = self.with_context(demo_locale=demo_locale)
-
-            # Set company country and currency
-            if country_cfg["country"]:
-                self.env.company.write({"country_id": country_cfg["country"].id})
-            if country_cfg["currency"]:
-                self.env.company.write({"currency_id": country_cfg["currency"].id})
-
-            _logger.info(
-                "Country: %s, Locale: %s, Currency: %s",
-                self.country_id,
-                demo_locale,
-                country_cfg["currency"].name if country_cfg["currency"] else "N/A",
-            )
-
-            created_data = {
-                "programs": [],
-                "enrollments": [],
-                "cycles": [],
-                "payments": [],
-                "events": [],
-                "change_requests": [],
-            }
-
-            # Step 0: Ensure security groups are assigned FIRST (ALWAYS)
-            self._ensure_demo_user_groups()
-
-            # Step 0.25: Install Logic Packs (if enabled)
-            if self.install_logic_packs:
-                _logger.info("Installing Logic Packs for demo programs...")
-                installed_packs = self._install_logic_packs()
-                stats["logic_packs_installed"] = len(installed_packs)
-
-            # Step 0.35: Create test personas (if enabled)
-            if self.include_test_personas:
-                _logger.info("Creating test personas for Logic Studio...")
-                self._create_test_personas()
-                stats["test_personas_created"] = True
-
-            # Step 0.4: Load geographic data (if enabled)
-            if self.load_geographic_data:
-                _logger.info(f"Loading geographic data for {self.country_code}...")
-                geo_result = self._load_geographic_data(stats)
-                if geo_result:
-                    stats["areas_loaded"] = geo_result.get("shapes_loaded", 0)
-
-            # Step 0.5: Ensure demo stories exist (auto-generate if needed)
-            stories_created = self._ensure_demo_stories_exist(stats)
-            if stories_created:
-                _logger.info("Auto-generated %d demo story registrants", stories_created)
-
-            # Step 0.75: Generate deterministic households from blueprints
-            volume_households = []
-            if self.generate_volume:
-                from .household_blueprints import HOUSEHOLD_BLUEPRINTS
-                from .seeded_volume_generator import SeededVolumeGenerator
-
-                _logger.info("Generating deterministic households from %d blueprints...", len(HOUSEHOLD_BLUEPRINTS))
-                generator = SeededVolumeGenerator(self.env, demo_locale, seed=42)
-                volume_households = generator.generate_all_households(HOUSEHOLD_BLUEPRINTS)
-                stats["random_groups_created"] = len(volume_households)
-                stats["random_individuals_created"] = sum(len(hh["members"]) for hh in volume_households)
-
-            # Step 1: Create demo programs
-            if self.create_demo_programs:
-                _logger.info("Creating demo programs...")
-                programs_result = self._create_demo_programs(stats)
-                created_data["programs"] = programs_result
-
-            # Step 2: Enroll demo story personas
-            if self.enroll_demo_stories:
-                _logger.info("Enrolling demo story personas...")
-                story_result = self._enroll_demo_stories(stats)
-                created_data["enrollments"] = story_result.get("enrollments", [])
-                created_data["payments"] = story_result.get("payments", [])
-                created_data["batches"] = story_result.get("batches", [])
-
-            # Step 3: Enroll blueprint households in programs
-            if self.generate_volume and volume_households and created_data["programs"]:
-                _logger.info("Enrolling blueprint households in programs...")
-                program_map = {}
-                for prog in created_data["programs"]:
-                    for prog_def in demo_programs.get_all_demo_programs():
-                        if prog_def["name"] == prog.name:
-                            program_map[prog_def["id"]] = prog
-                            break
-                generator.enroll_in_programs(volume_households, program_map)
-
-            # Step 4: Create cycles
-            if self.create_cycles:
-                _logger.info("Creating program cycles...")
-                created_data["cycles"] = self._create_program_cycles(stats)
-
-            # Step 5: Create event data
-            if self.create_event_data:
-                _logger.info("Creating event data for demo stories...")
-                created_data["events"] = self._create_story_events(stats)
-
-            # Step 6: Create change requests
-            if self.create_change_requests:
-                _logger.info("Creating change requests for demo stories...")
-                created_data["change_requests"] = self._create_story_change_requests(stats)
-
-            # Step 7: Create fairness analysis demo data
-            if self.create_fairness_analysis:
-                _logger.info("Creating fairness analysis demo data...")
-                self._create_fairness_analysis_demo(stats)
-
-            # Step 8: Generate GRM demo data (if module installed)
-            if self.generate_grm_demo:
-                _logger.info("Generating GRM demo data...")
-                grm_result = self._generate_grm_demo(stats)
-                if grm_result:
-                    stats["grm_tickets_created"] = grm_result.get("tickets", 0)
-
-            # Step 9: Generate Case demo data (if module installed)
-            if self.generate_case_demo:
-                _logger.info("Generating Case demo data...")
-                case_result = self._generate_case_demo(stats)
-                if case_result:
-                    stats["cases_created"] = case_result.get("cases", 0)
-
-            # Step 10: Generate Claim 169 demo data (signing key, issuer, credentials)
-            if self.generate_claim169_demo:
-                _logger.info("Generating Claim 169 demo data...")
-                self._generate_claim169_demo(stats)
-
-            # Step 11: Assign areas and generate GPS coordinates (if geographic data loaded)
-            if self.load_geographic_data:
-                _logger.info("Assigning areas to registrants...")
-                self._assign_registrant_areas(stats)
-                _logger.info("Generating GPS coordinates for registrants...")
-                self._generate_coordinates(stats)
-
-            # Step 12: Refresh GIS reports so map data is available immediately
-            self._refresh_gis_reports(stats)
-
-            # Step 13: Create PRISM API client with known credentials
-            self._create_prism_api_client(stats)
+            demo_locale, created_data = self._run_generation_steps(stats)
 
             self.state = "completed"
 
@@ -581,6 +427,154 @@ class SPPMISDemoGenerator(models.TransientModel):
             _logger.error("Error generating MIS demo data: %s", e, exc_info=True)
             self.state = "draft"
             raise UserError(_("Error generating demo data: %s") % e) from e
+
+    def _run_generation_steps(self, stats):
+        """Execute all generation steps. Returns (demo_locale, created_data)."""
+        # Resolve country configuration (locale, currency)
+        country_cfg = self._get_country_config()
+        demo_locale = country_cfg["locale"]
+        # Store locale in context for use by story methods (locale-aware names)
+        self = self.with_context(demo_locale=demo_locale)
+
+        # Set company country and currency
+        if country_cfg["country"]:
+            self.env.company.write({"country_id": country_cfg["country"].id})
+        if country_cfg["currency"]:
+            self.env.company.write({"currency_id": country_cfg["currency"].id})
+
+        _logger.info(
+            "Country: %s, Locale: %s, Currency: %s",
+            self.country_code,
+            demo_locale,
+            country_cfg["currency"].name if country_cfg["currency"] else "N/A",
+        )
+
+        created_data = {
+            "programs": [],
+            "enrollments": [],
+            "cycles": [],
+            "payments": [],
+            "events": [],
+            "change_requests": [],
+        }
+
+        # Step 0: Ensure security groups are assigned FIRST (ALWAYS)
+        self._ensure_demo_user_groups()
+
+        # Step 0.25: Install Logic Packs (if enabled)
+        if self.install_logic_packs:
+            _logger.info("Installing Logic Packs for demo programs...")
+            installed_packs = self._install_logic_packs()
+            stats["logic_packs_installed"] = len(installed_packs)
+
+        # Step 0.35: Create test personas (if enabled)
+        if self.include_test_personas:
+            _logger.info("Creating test personas for Logic Studio...")
+            self._create_test_personas()
+            stats["test_personas_created"] = True
+
+        # Step 0.4: Load geographic data (if enabled)
+        if self.load_geographic_data:
+            _logger.info("Loading geographic data for %s...", self.country_code)
+            geo_result = self._load_geographic_data(stats)
+            if geo_result:
+                stats["areas_loaded"] = geo_result.get("shapes_loaded", 0)
+
+        # Step 0.5: Ensure demo stories exist (auto-generate if needed)
+        stories_created = self._ensure_demo_stories_exist(stats)
+        if stories_created:
+            _logger.info("Auto-generated %d demo story registrants", stories_created)
+
+        # Step 0.75: Generate deterministic households from blueprints
+        volume_households = []
+        if self.generate_volume:
+            from .household_blueprints import HOUSEHOLD_BLUEPRINTS
+            from .seeded_volume_generator import SeededVolumeGenerator
+
+            _logger.info("Generating deterministic households from %d blueprints...", len(HOUSEHOLD_BLUEPRINTS))
+            generator = SeededVolumeGenerator(self.env, demo_locale, seed=42)
+            volume_households = generator.generate_all_households(HOUSEHOLD_BLUEPRINTS)
+            stats["random_groups_created"] = len(volume_households)
+            stats["random_individuals_created"] = sum(len(hh["members"]) for hh in volume_households)
+
+        # Step 1: Create demo programs
+        if self.create_demo_programs:
+            _logger.info("Creating demo programs...")
+            programs_result = self._create_demo_programs(stats)
+            created_data["programs"] = programs_result
+
+        # Step 2: Enroll demo story personas
+        if self.enroll_demo_stories:
+            _logger.info("Enrolling demo story personas...")
+            story_result = self._enroll_demo_stories(stats)
+            created_data["enrollments"] = story_result.get("enrollments", [])
+            created_data["payments"] = story_result.get("payments", [])
+            created_data["batches"] = story_result.get("batches", [])
+
+        # Step 3: Enroll blueprint households in programs
+        if self.generate_volume and volume_households and created_data["programs"]:
+            _logger.info("Enrolling blueprint households in programs...")
+            program_map = {}
+            for prog in created_data["programs"]:
+                for prog_def in demo_programs.get_all_demo_programs():
+                    if prog_def["name"] == prog.name:
+                        program_map[prog_def["id"]] = prog
+                        break
+            generator.enroll_in_programs(volume_households, program_map)
+
+        # Step 4: Create cycles
+        if self.create_cycles:
+            _logger.info("Creating program cycles...")
+            created_data["cycles"] = self._create_program_cycles(stats)
+
+        # Step 5: Create event data
+        if self.create_event_data:
+            _logger.info("Creating event data for demo stories...")
+            created_data["events"] = self._create_story_events(stats)
+
+        # Step 6: Create change requests
+        if self.create_change_requests:
+            _logger.info("Creating change requests for demo stories...")
+            created_data["change_requests"] = self._create_story_change_requests(stats)
+
+        # Step 7: Create fairness analysis demo data
+        if self.create_fairness_analysis:
+            _logger.info("Creating fairness analysis demo data...")
+            self._create_fairness_analysis_demo(stats)
+
+        # Step 8: Generate GRM demo data (if module installed)
+        if self.generate_grm_demo:
+            _logger.info("Generating GRM demo data...")
+            grm_result = self._generate_grm_demo(stats)
+            if grm_result:
+                stats["grm_tickets_created"] = grm_result.get("tickets", 0)
+
+        # Step 9: Generate Case demo data (if module installed)
+        if self.generate_case_demo:
+            _logger.info("Generating Case demo data...")
+            case_result = self._generate_case_demo(stats)
+            if case_result:
+                stats["cases_created"] = case_result.get("cases", 0)
+
+        # Step 10: Generate Claim 169 demo data (signing key, issuer, credentials)
+        if self.generate_claim169_demo:
+            _logger.info("Generating Claim 169 demo data...")
+            self._generate_claim169_demo(stats)
+
+        # Step 11: Assign areas and generate GPS coordinates (if geographic data loaded)
+        if self.load_geographic_data:
+            _logger.info("Assigning areas to registrants...")
+            self._assign_registrant_areas(stats)
+            _logger.info("Generating GPS coordinates for registrants...")
+            self._generate_coordinates(stats)
+
+        # Step 12: Refresh GIS reports so map data is available immediately
+        self._refresh_gis_reports(stats)
+
+        # Step 13: Create PRISM API client with known credentials
+        self._create_prism_api_client(stats)
+
+        return demo_locale, created_data
 
     def _ensure_demo_stories_exist(self, stats):
         """Check if demo story registrants exist and create them if not."""
@@ -1778,10 +1772,11 @@ class SPPMISDemoGenerator(models.TransientModel):
                     ]
                 )
                 existing_cycle_partner_ids = set(cycle.cycle_membership_ids.mapped("partner_id.id"))
-                new_members = enrolled_members.filtered(lambda m: m.partner_id.id not in existing_cycle_partner_ids)
+                _existing = existing_cycle_partner_ids  # bind for lambda
+                new_members = enrolled_members.filtered(lambda m, ex=_existing: m.partner_id.id not in ex)
 
                 if not new_members:
-                    _logger.info("Program '%s': all %d members already in cycle", program.name, len(enrolled_members))
+                    _logger.info("Program ID=%s: all %d members already in cycle", program.id, len(enrolled_members))
                     cycles.append(cycle)
                     continue
 
@@ -1851,7 +1846,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                 )
 
             except Exception as e:
-                _logger.warning("Could not create cycle for program '%s': %s", program.name, e)
+                _logger.warning("Could not create cycle for program ID=%s: %s", program.id, e)
 
         return cycles
 
@@ -1875,7 +1870,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                 program.name,
             )
         except Exception as e:
-            _logger.warning("Could not create fund for program '%s': %s", program.name, e)
+            _logger.warning("Could not create fund for program ID=%s: %s", program.id, e)
 
     def _get_entitlement_amount(self, program):
         """Get the entitlement amount from program's entitlement manager config."""
@@ -2659,9 +2654,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                 # Use with_user() only for demo data generation to simulate
                 # different request owners; demo_user is a controlled user
                 # provided by the test/demo setup.
-                cr_model = cr_model.with_user(  # nosemgrep: odoo-with-user-unvalidated - Demo-only generator, demo_user is not user input.
-                    demo_user
-                )
+                cr_model = cr_model.with_user(demo_user)  # nosemgrep: odoo-with-user-unvalidated
             cr = cr_model.create(cr_vals)
 
             # Backdate the creation
@@ -2675,7 +2668,7 @@ class SPPMISDemoGenerator(models.TransientModel):
                 detail.write(detail_vals)
                 # Backdate detail creation for timeline consistency
                 self.env.cr.execute(
-                    f"UPDATE {detail._table} SET create_date = %s WHERE id = %s",
+                    f"UPDATE {detail._table} SET create_date = %s WHERE id = %s",  # nosec B608
                     (request_date, detail.id),
                 )
 
@@ -3247,9 +3240,9 @@ class SPPMISDemoGenerator(models.TransientModel):
                     }
                 )
                 result["issuer_created"] = True
-                _logger.info("[spp.mis.demo] Created issuer config: %s", issuer.name)
+                _logger.info("[spp.mis.demo] Created issuer config ID=%s", issuer.id)
             else:
-                _logger.info("[spp.mis.demo] Using existing issuer config: %s", issuer.name)
+                _logger.info("[spp.mis.demo] Using existing issuer config ID=%s", issuer.id)
 
             # Step 4: Generate credentials for demo story personas
             if self.generate_credentials_for_stories:
@@ -3309,8 +3302,8 @@ class SPPMISDemoGenerator(models.TransientModel):
                 )
                 if existing:
                     _logger.debug(
-                        "[spp.mis.demo] Credential already exists for %s",
-                        partner.name,
+                        "[spp.mis.demo] Credential already exists for partner ID=%s",
+                        partner.id,
                     )
                     continue
 
@@ -3332,8 +3325,8 @@ class SPPMISDemoGenerator(models.TransientModel):
                 credential.generate_credential()
                 credentials_created += 1
                 _logger.debug(
-                    "[spp.mis.demo] Generated credential for %s: %s",
-                    partner.name,
+                    "[spp.mis.demo] Generated credential for partner ID=%s: %s",
+                    partner.id,
                     credential.name,
                 )
 

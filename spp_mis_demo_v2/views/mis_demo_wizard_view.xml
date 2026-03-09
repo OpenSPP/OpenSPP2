@@ -21,9 +21,6 @@
                             Loading it again may create duplicate records.
                         </p>
                     </div>
-                    <group invisible="mis_demo_loaded">
-                        <field name="country_id" widget="radio" />
-                    </group>
                     <div
                         class="alert alert-info"
                         role="alert"
@@ -52,7 +49,7 @@
                             >Names are locale-aware and 100% reproducible per country selection.</em>
                         </p>
                     </div>
-                    <group string="Geographic Data">
+                    <group string="Geographic Data" invisible="mis_demo_loaded">
                         <field name="load_geographic_data" />
                         <field
                             name="country_code"
