@@ -26,10 +26,10 @@
                     />
                     <button
                         name="action_goto_documents"
-                        string="Back: Documents"
+                        string="Update Documents"
                         type="object"
                         class="btn-warning"
-                        icon="fa-arrow-left"
+                        icon="fa-upload"
                         invisible="approval_state not in ('draft', 'revision')"
                         groups="spp_change_request_v2.group_cr_manager"
                     />
