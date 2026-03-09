@@ -86,6 +86,7 @@ class Base(models.AbstractModel):
         return super().load(fields, data)
 
     def write(self, vals):
+        # nosemgrep: odoo-sudo-without-context - reading model metadata requires sudo
         model = self.env["ir.model"].sudo().search([("model", "=", self._name)])
         new_vals = vals.copy()
         for rec in vals:

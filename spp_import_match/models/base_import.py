@@ -194,7 +194,7 @@ class SPPBaseImport(models.TransientModel):
             priority += 1
 
     def _import_one_chunk(self, model_name, attachment, options, context):
-        model_obj = self.env[model_name].with_context(context)
+        model_obj = self.env[model_name].with_context(**context)
         fields, data = self._read_csv_attachment(attachment, options)
         result = model_obj.load(fields, data)
         error_message = [message["message"] for message in result["messages"] if message["type"] == "error"]

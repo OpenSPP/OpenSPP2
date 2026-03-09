@@ -20,7 +20,7 @@ import base64
 import logging
 import os
 
-from odoo import models
+from odoo import _, models
 from odoo.exceptions import UserError
 from odoo.tools import config
 
@@ -241,7 +241,7 @@ class AWSKMSKeyProvider(models.AbstractModel):
             )
             encrypted_salt = response["CiphertextBlob"]
         except ClientError as e:
-            raise UserError(f"Failed to encrypt salt with AWS KMS: {e}") from e
+            raise UserError(_("Failed to encrypt salt with AWS KMS: %s") % str(e)) from e
 
         EncryptionKey.create(
             {
@@ -269,7 +269,7 @@ class AWSKMSKeyProvider(models.AbstractModel):
             response = client.decrypt(CiphertextBlob=encrypted_key)
             return response["Plaintext"]
         except ClientError as e:
-            raise UserError(f"Failed to decrypt key with AWS KMS: {e}") from e
+            raise UserError(_("Failed to decrypt key with AWS KMS: %s") % str(e)) from e
 
     def rotate_key(self, key_id):
         """Request key rotation in AWS KMS.
@@ -424,7 +424,7 @@ class AWSKMSKeyProvider(models.AbstractModel):
             return key_arn
 
         except ClientError as e:
-            raise UserError(f"Failed to create AWS KMS signing key: {e}") from e
+            raise UserError(_("Failed to create AWS KMS signing key: %s") % str(e)) from e
 
     def _get_signing_key_id(self, key_id):
         """Get the AWS KMS key ID or alias for a signing key.
@@ -573,4 +573,4 @@ class AWSKMSKeyProvider(models.AbstractModel):
             response = client.get_public_key(KeyId=kms_key_id)
             return response["PublicKey"]
         except ClientError as e:
-            raise UserError(f"Failed to get public key from AWS KMS: {e}") from e
+            raise UserError(_("Failed to get public key from AWS KMS: %s") % str(e)) from e

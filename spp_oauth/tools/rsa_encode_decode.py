@@ -1,4 +1,4 @@
-import jwt  # pylint: disable=missing-manifest-dependency
+import jwt
 
 from .oauth_exception import OpenSPPOAuthJWTException
 
@@ -13,6 +13,7 @@ def get_private_key(env):
     :return: The private key as a string.
     :raises OpenSPPOAuthJWTException: If the private key is not configured.
     """
+    # nosemgrep: odoo-sudo-without-context - system parameter access requires sudo
     priv_key = env["ir.config_parameter"].sudo().get_param("spp_oauth.oauth_priv_key")
     if not priv_key:
         raise OpenSPPOAuthJWTException("OAuth private key not configured in settings.")
@@ -27,6 +28,7 @@ def get_public_key(env):
     :return: The public key as a string.
     :raises OpenSPPOAuthJWTException: If the public key is not configured.
     """
+    # nosemgrep: odoo-sudo-without-context - system parameter access requires sudo
     pub_key = env["ir.config_parameter"].sudo().get_param("spp_oauth.oauth_pub_key")
     if not pub_key:
         raise OpenSPPOAuthJWTException("OAuth public key not configured in settings.")

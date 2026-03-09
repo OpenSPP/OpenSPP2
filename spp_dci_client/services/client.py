@@ -920,7 +920,7 @@ class DCIClient:
 
             except Exception as e:
                 _logger.error("Failed to sign DCI message: %s", str(e))
-                raise UserError(f"Failed to sign DCI message: {str(e)}") from e
+                raise UserError(_("Failed to sign DCI message: %s") % str(e)) from e
         else:
             _logger.debug(
                 "No signing key configured for data source '%s' - sending unsigned request",

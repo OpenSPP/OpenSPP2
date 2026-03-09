@@ -4,6 +4,7 @@
 import logging
 from typing import Any
 
+from odoo import _
 from odoo.api import Environment
 from odoo.exceptions import UserError, ValidationError
 
@@ -392,7 +393,7 @@ class ChangeRequestService:
 
         if unresolved:
             raise ValidationError(
-                "Failed to resolve the following fields:\n" + "\n".join(f"- {msg}" for msg in unresolved)
+                _("Failed to resolve the following fields:\n") + "\n".join(f"- {msg}" for msg in unresolved)
             )
 
         return vals
