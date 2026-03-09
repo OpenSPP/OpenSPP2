@@ -2,6 +2,7 @@ from . import vocabulary
 from . import vocabulary_code
 from . import vocabulary_mapping
 from . import concept_group
+from . import ir_fields_converter
 
 # Temporarily disabled to break circular dependency with spp_registry
 # from . import relationship
