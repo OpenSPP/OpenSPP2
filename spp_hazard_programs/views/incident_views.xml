@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Extend Hazard Incident Form View -->
+    <record id="view_hazard_incident_form_programs" model="ir.ui.view">
+        <field name="name">view.hazard.incident.form.programs</field>
+        <field name="model">spp.hazard.incident</field>
+        <field name="inherit_id" ref="spp_hazard.view_hazard_incident_form" />
+        <field name="priority">50</field>
+        <field name="arch" type="xml">
+            <!-- Add Programs button box -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button
+                    name="action_view_programs"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-list"
+                    invisible="program_count == 0"
+                >
+                    <field name="program_count" widget="statinfo" string="Programs" />
+                </button>
+            </xpath>
+            <!-- Add Programs tab -->
+            <xpath expr="//notebook" position="inside">
+                <page
+                    string="Response Programs"
+                    name="programs"
+                    invisible="program_count == 0"
+                >
+                    <field name="program_ids" nolabel="1" readonly="1">
+                        <list>
+                            <field name="name" />
+                            <field name="state" widget="badge" />
+                            <field name="qualifying_damage_levels" />
+                            <field name="is_emergency_mode" />
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend Hazard Incident List View -->
+    <record id="view_hazard_incident_list_programs" model="ir.ui.view">
+        <field name="name">view.hazard.incident.list.programs</field>
+        <field name="model">spp.hazard.incident</field>
+        <field name="inherit_id" ref="spp_hazard.view_hazard_incident_list" />
+        <field name="priority">50</field>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="inside">
+                <field name="program_count" string="Programs" optional="show" />
+            </xpath>
+        </field>
+    </record>
+</odoo>
