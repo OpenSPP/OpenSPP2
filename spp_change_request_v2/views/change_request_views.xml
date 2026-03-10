@@ -333,6 +333,15 @@
                         </group>
                     </group>
 
+                    <!-- Dynamic Approval: Field Change Info -->
+                    <group invisible="not selected_field_name" string="Field Change">
+                        <group>
+                            <field name="selected_field_name" readonly="1" />
+                            <field name="selected_field_old_value" readonly="1" />
+                            <field name="selected_field_new_value" readonly="1" />
+                        </group>
+                    </group>
+
                     <!-- Revision Needed Banner -->
                     <div
                         class="alert alert-warning"
