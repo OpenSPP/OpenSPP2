@@ -53,6 +53,44 @@ class SPPCRDetailBase(models.AbstractModel):
     stage = fields.Selection(
         related="change_request_id.stage",
     )
+    use_dynamic_approval = fields.Boolean(
+        related="change_request_id.request_type_id.use_dynamic_approval",
+    )
+    field_to_modify = fields.Selection(
+        selection="_get_field_to_modify_selection",
+        string="Field to Modify",
+        help="Select which field to update in this change request",
+    )
+
+    @api.model
+    def _get_field_to_modify_selection(self):
+        """Return available field options for field-level change requests.
+
+        Override in concrete detail models to provide the list of modifiable fields.
+        Returns a list of (value, label) tuples, e.g.:
+            [("poverty_status_id", "Poverty Status"), ("set_group_id", "Set Group")]
+        """
+        return []
+
+    def write(self, vals):
+        result = super().write(vals)
+        if "field_to_modify" in vals:
+            for rec in self:
+                if rec.change_request_id:
+                    rec._sync_field_to_modify()
+        else:
+            for rec in self:
+                if rec.field_to_modify and rec.field_to_modify in vals and rec.change_request_id:
+                    rec._sync_field_to_modify()
+        return result
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        for rec in records:
+            if rec.field_to_modify and rec.change_request_id:
+                rec._sync_field_to_modify()
+        return records
 
     def action_proceed_to_cr(self):
         """Navigate to the parent Change Request form if there are proposed changes."""
@@ -119,6 +157,52 @@ class SPPCRDetailBase(models.AbstractModel):
         """Request revision on the parent CR."""
         self.ensure_one()
         return self.change_request_id.action_request_revision()
+
+    # ══════════════════════════════════════════════════════════════════════════
+    # DYNAMIC APPROVAL SYNC
+    # ══════════════════════════════════════════════════════════════════════════
+
+    def _sync_field_to_modify(self):
+        """Sync field_to_modify and its old/new values to the parent CR."""
+        self.ensure_one()
+        cr = self.change_request_id
+        if not cr:
+            return
+        # Only sync for dynamic-approval CR types
+        if not cr.request_type_id.use_dynamic_approval:
+            return
+
+        field_name = self.field_to_modify
+        cr_vals = {
+            "selected_field_name": field_name,
+            "selected_field_old_value": False,
+            "selected_field_new_value": False,
+        }
+
+        if field_name:
+            mapping = cr.request_type_id.apply_mapping_ids.filtered(lambda m: m.source_field == field_name)[:1]
+
+            if mapping:
+                registrant = cr.registrant_id
+                old_raw = getattr(registrant, mapping.target_field, None)
+                cr_vals["selected_field_old_value"] = self._format_value_for_display(old_raw)
+
+            new_raw = getattr(self, field_name, None)
+            cr_vals["selected_field_new_value"] = self._format_value_for_display(new_raw)
+
+        cr.write(cr_vals)
+
+    def _format_value_for_display(self, value):
+        """Format a field value as a human-readable string for audit display."""
+        # Boolean check MUST come before the falsy check,
+        # otherwise False displays as "" instead of "No"
+        if isinstance(value, bool):
+            return _("Yes") if value else _("No")
+        if value is None or value is False:
+            return ""
+        if hasattr(value, "display_name"):
+            return value.display_name or ""
+        return str(value)
 
     # ══════════════════════════════════════════════════════════════════════════
     # PREFILL FROM REGISTRANT

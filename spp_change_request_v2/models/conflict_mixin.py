@@ -292,7 +292,12 @@ class SPPCRConflictMixin(models.AbstractModel):
         return list(set(member_ids))
 
     def _filter_by_field_conflicts(self, candidates, rule):
-        """Filter candidate CRs by checking if they modify the same fields."""
+        """Filter candidate CRs by checking if they modify the same fields.
+
+        For dynamic-approval CRs (where selected_field_name is set), only the
+        selected field is treated as a proposed change. Prefilled fields from
+        the registrant are ignored for conflict purposes.
+        """
         self.ensure_one()
 
         conflict_fields = rule.get_conflict_fields_list()
@@ -303,6 +308,15 @@ class SPPCRConflictMixin(models.AbstractModel):
         if not my_detail:
             return self.env["spp.change.request"]
 
+        # Dynamic approval: only the selected field is a proposed change
+        my_selected = self.selected_field_name
+        if my_selected:
+            if my_selected not in conflict_fields:
+                return self.env["spp.change.request"]
+            my_effective_fields = [my_selected]
+        else:
+            my_effective_fields = conflict_fields
+
         matching = self.env["spp.change.request"]
 
         for candidate in candidates:
@@ -310,8 +324,20 @@ class SPPCRConflictMixin(models.AbstractModel):
             if not candidate_detail:
                 continue
 
-            # Check if any conflict field has a value in both CRs
-            for field_name in conflict_fields:
+            # Determine candidate's effective fields
+            candidate_selected = candidate.selected_field_name
+            if candidate_selected:
+                # Both use dynamic approval: conflict only if same field
+                if my_selected and candidate_selected != my_selected:
+                    continue
+                candidate_effective = [candidate_selected]
+            else:
+                candidate_effective = conflict_fields
+
+            # Check overlapping effective fields
+            fields_to_check = set(my_effective_fields) & set(candidate_effective)
+
+            for field_name in fields_to_check:
                 if field_name not in my_detail._fields:
                     continue
                 if field_name not in candidate_detail._fields:
@@ -413,6 +439,10 @@ class SPPCRConflictMixin(models.AbstractModel):
     def _calculate_similarity(self, other_cr, config):
         """Calculate similarity percentage between this CR and another.
 
+        For dynamic-approval CRs (where selected_field_name is set), only the
+        selected field is compared. Prefilled fields are ignored to prevent
+        inflated similarity scores.
+
         Args:
             other_cr: Another spp.change.request record
             config: spp.cr.duplicate.config record
@@ -428,6 +458,24 @@ class SPPCRConflictMixin(models.AbstractModel):
         if not my_detail or not other_detail:
             return 0.0
 
+        # Dynamic approval: compare only the selected field
+        my_selected = self.selected_field_name
+        other_selected = other_cr.selected_field_name
+        if my_selected and other_selected:
+            # Different fields selected = not duplicates
+            if my_selected != other_selected:
+                return 0.0
+            # Same field: compare that field's value only
+            if my_selected in my_detail._fields and my_selected in other_detail._fields:
+                my_value = self._normalize_field_value(getattr(my_detail, my_selected, None))
+                other_value = self._normalize_field_value(getattr(other_detail, my_selected, None))
+                if my_value == other_value:
+                    return 100.0
+                elif self._are_similar(my_value, other_value):
+                    return 80.0
+            return 0.0
+
+        # Static CRs (or mixed): original logic
         check_fields = config.get_check_fields_list()
 
         # If no specific fields configured, compare all stored fields

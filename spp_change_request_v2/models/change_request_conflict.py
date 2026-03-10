@@ -26,10 +26,14 @@ class SPPChangeRequestConflict(models.Model):
         records = super().create(vals_list)
 
         for record in records:
-            # Run conflict checks if enabled for this CR type
+            # Run conflict checks if enabled for this CR type.
+            # Skip for dynamic approval — field_to_modify isn't set yet.
+            # Checks run when selected_field_name is set (see write() trigger).
             if record.request_type_id and (
                 record.request_type_id.enable_conflict_detection or record.request_type_id.enable_duplicate_detection
             ):
+                if record.request_type_id.use_dynamic_approval:
+                    continue
                 try:
                     record._run_conflict_checks()
                 except Exception as e:
@@ -47,8 +51,9 @@ class SPPChangeRequestConflict(models.Model):
         """Re-run conflict detection if relevant fields change."""
         result = super().write(vals)
 
-        # Re-check conflicts if registrant or type changed
-        if "registrant_id" in vals or "request_type_id" in vals:
+        # Re-check conflicts if registrant, type, or selected field changed
+        trigger_fields = {"registrant_id", "request_type_id", "selected_field_name"}
+        if trigger_fields & set(vals):
             for record in self:
                 if (
                     record.request_type_id

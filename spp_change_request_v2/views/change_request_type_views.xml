@@ -150,6 +150,48 @@
                                 <field name="approval_definition_id" />
                                 <field name="auto_approve_from_event" />
                             </group>
+                            <separator string="Dynamic Approval" />
+                            <field name="use_dynamic_approval" />
+                            <group invisible="not use_dynamic_approval">
+                                <group colspan="2">
+                                    <field
+                                        name="candidate_definition_ids"
+                                        widget="many2many_tags"
+                                    />
+                                </group>
+                                <div class="alert alert-info" role="status" colspan="2">
+                                    <p>
+                                        <strong>How it works:</strong>
+                                    </p>
+                                    <p>
+                                        When dynamic approval is enabled, the user selects a
+                                        single field to modify on the detail form. Each
+                                        candidate definition should have a CEL condition.
+                                    </p>
+                                    <p>
+                                        <strong>Available CEL variables:</strong>
+                                    </p>
+                                    <ul>
+                                        <li>
+                                            <code>record.selected_field_name</code>
+                                            — the selected field name
+                                        </li>
+                                        <li>
+                                            <code>old_value</code>
+                                            — typed old value from registrant
+                                        </li>
+                                        <li>
+                                            <code>new_value</code>
+                                            — typed new value from detail record
+                                        </li>
+                                    </ul>
+                                    <p>
+                                        Definitions are evaluated in sequence order. First
+                                        match wins. If none match, the default Approval
+                                        Workflow above is used.
+                                    </p>
+                                </div>
+                            </group>
                         </page>
                         <page string="Documents" name="documents">
                             <group>

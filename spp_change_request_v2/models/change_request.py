@@ -134,6 +134,27 @@ class SPPChangeRequest(models.Model):
     apply_error = fields.Text(readonly=True)
 
     # ══════════════════════════════════════════════════════════════════════════
+    # DYNAMIC APPROVAL
+    # ══════════════════════════════════════════════════════════════════════════
+
+    selected_field_name = fields.Char(
+        string="Field Being Modified",
+        readonly=True,
+        help="The detail field selected for modification (set when detail is saved). "
+        "Used by CEL conditions to determine the approval workflow.",
+    )
+    selected_field_old_value = fields.Char(
+        string="Old Value",
+        readonly=True,
+        help="Human-readable old value of the selected field (from registrant). Stored for audit trail.",
+    )
+    selected_field_new_value = fields.Char(
+        string="New Value",
+        readonly=True,
+        help="Human-readable new value of the selected field (from detail). Stored for audit trail.",
+    )
+
+    # ══════════════════════════════════════════════════════════════════════════
     # LOG
     # ══════════════════════════════════════════════════════════════════════════
 
@@ -596,7 +617,11 @@ class SPPChangeRequest(models.Model):
             record._create_audit_event("created", None, "draft")
             record._create_log("created")
             # Run conflict detection after creation
-            if hasattr(record, "_run_conflict_checks"):
+            # Skip for dynamic approval — field_to_modify isn't set yet at create time.
+            # Checks run when selected_field_name is written (see conflict model's write()).
+            if hasattr(record, "_run_conflict_checks") and not (
+                record.request_type_id and record.request_type_id.use_dynamic_approval
+            ):
                 record._run_conflict_checks()
         return records
 
@@ -813,16 +838,136 @@ class SPPChangeRequest(models.Model):
 
     def _get_approval_definition(self):
         self.ensure_one()
-        definition = self.request_type_id.approval_definition_id
+        cr_type = self.request_type_id
+
+        # Dynamic approval: evaluate candidates using selected field + values
+        if cr_type.use_dynamic_approval and cr_type.candidate_definition_ids:
+            definition = self._resolve_dynamic_approval()
+            if definition:
+                return definition
+
+        # Fallback to static definition (existing behavior)
+        definition = cr_type.approval_definition_id
         if not definition:
             raise UserError(
                 _(
                     "No approval workflow configured for request type '%s'. "
-                    "Please configure an approval definition in Change Request > Configuration > CR Types."
+                    "Please configure an approval definition in Change Request > "
+                    "Configuration > CR Types."
                 )
-                % self.request_type_id.name
+                % cr_type.name
             )
         return definition
+
+    def _resolve_dynamic_approval(self):
+        """Evaluate candidate definitions against selected field and values.
+
+        Iterates candidates in sequence order; first match wins.
+        Returns spp.approval.definition record, or None if no candidate matches.
+        """
+        self.ensure_one()
+
+        if not self.selected_field_name:
+            return None
+
+        extra_context = self._compute_field_values_for_cel()
+        evaluator = self.env["spp.cel.evaluator"]
+
+        for candidate in self.request_type_id.candidate_definition_ids.sorted("sequence"):
+            if not candidate.use_cel_condition or not candidate.cel_condition:
+                # No condition = catch-all (matches everything)
+                return candidate
+            try:
+                result = evaluator.evaluate(candidate.cel_condition, self, extra_context)
+                if result:
+                    return candidate
+            except Exception:
+                _logger.warning(
+                    "CEL evaluation failed for candidate definition '%s' on CR %s, skipping",
+                    candidate.name,
+                    self.name,
+                    exc_info=True,
+                )
+                continue
+
+        return None
+
+    def _compute_field_values_for_cel(self):
+        """Compute typed old and new values for CEL evaluation.
+
+        Returns a dict with old_value and new_value typed according to field type.
+        """
+        self.ensure_one()
+        field_name = self.selected_field_name
+        cr_type = self.request_type_id
+
+        if not field_name:
+            return {"old_value": None, "new_value": None}
+
+        mapping = cr_type.apply_mapping_ids.filtered(lambda m: m.source_field == field_name)[:1]
+
+        detail = self.get_detail()
+        registrant = self.registrant_id
+
+        old_raw = None
+        new_raw = None
+
+        if mapping and registrant:
+            old_raw = getattr(registrant, mapping.target_field, None)
+        if detail:
+            new_raw = getattr(detail, field_name, None)
+
+        return {
+            "old_value": self._normalize_value_for_cel(old_raw, registrant, mapping.target_field if mapping else None),
+            "new_value": self._normalize_value_for_cel(new_raw, detail, field_name),
+        }
+
+    def _normalize_value_for_cel(self, value, record, field_name):
+        """Normalize an Odoo field value for use in CEL expressions."""
+        if value is None or value is False:
+            if record and field_name and field_name in record._fields:
+                field = record._fields[field_name]
+                if field.type == "boolean":
+                    return False
+                if field.type in ("integer", "float", "monetary"):
+                    return 0
+            return None
+
+        if record and field_name and field_name in record._fields:
+            field = record._fields[field_name]
+            if field.type in ("char", "text", "selection", "html"):
+                return value or ""
+            if field.type in ("integer", "float", "monetary"):
+                return value or 0
+            if field.type == "boolean":
+                return bool(value)
+            if field.type in ("date", "datetime"):
+                return value
+            if field.type == "many2one":
+                # IDs are exposed for internal CEL evaluation only, not for external APIs.
+                result = {
+                    "id": value.id if value else 0,
+                    "name": value.display_name if value else "",
+                }
+                # Vocabulary models: expose machine-readable code for stable CEL matching
+                if value and "code" in value._fields:
+                    result["code"] = value.code or ""
+                # Hierarchical vocabularies: expose parent category
+                if value and "parent_id" in value._fields and value.parent_id:
+                    parent = value.parent_id
+                    result["parent"] = {
+                        "id": parent.id,
+                        "name": parent.display_name,
+                        "code": parent.code if "code" in parent._fields else "",
+                    }
+                return result
+            if field.type in ("one2many", "many2many"):
+                return {
+                    "ids": value.ids if value else [],
+                    "count": len(value) if value else 0,
+                }
+
+        return value
 
     def _on_approve(self):
         super()._on_approve()
@@ -840,10 +985,19 @@ class SPPChangeRequest(models.Model):
         self._create_log("rejected", notes=reason)
 
     def _check_can_submit(self):
-        """Override to allow resubmission from revision state."""
+        """Override to allow resubmission and validate dynamic approval field selection."""
         self.ensure_one()
         if self.approval_state not in ("draft", "revision"):
             raise UserError(_("Only draft or revision-requested records can be submitted for approval."))
+        cr_type = self.request_type_id
+        if cr_type.use_dynamic_approval and not self.selected_field_name:
+            raise ValidationError(
+                _(
+                    "Please select a field to modify on the detail form before "
+                    "submitting for approval. This CR type requires a single "
+                    "field selection for dynamic approval routing."
+                )
+            )
 
     def _on_submit(self):
         # Run conflict checks before submission

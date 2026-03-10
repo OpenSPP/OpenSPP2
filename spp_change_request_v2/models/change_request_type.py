@@ -201,6 +201,21 @@ class SPPChangeRequestType(models.Model):
         string="Approval Workflow",
     )
     auto_approve_from_event = fields.Boolean(default=False)
+    use_dynamic_approval = fields.Boolean(
+        string="Dynamic Approval",
+        default=False,
+        help="When enabled, user selects a single field to modify per CR. "
+        "The selected field determines which approval workflow applies.",
+    )
+    candidate_definition_ids = fields.Many2many(
+        "spp.approval.definition",
+        "cr_type_candidate_definition_rel",
+        "type_id",
+        "definition_id",
+        string="Candidate Approval Definitions",
+        help="Evaluated in sequence order; first matching CEL condition wins. "
+        "If none match, the default Approval Workflow is used.",
+    )
 
     # ══════════════════════════════════════════════════════════════════════════
     # CONFLICT DETECTION
