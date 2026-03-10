@@ -922,3 +922,138 @@ class TestDynamicApproval(TransactionCase):
 
         # Restore registrant
         self.registrant.write({"gender_id": False})
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # TEST 17 – _normalize_value_for_cel covers all field types
+    # ──────────────────────────────────────────────────────────────────────────
+
+    def test_normalize_value_char_field(self):
+        """_normalize_value_for_cel returns string for char/text/selection fields."""
+        cr = self._create_cr()
+        detail = cr.get_detail()
+        # given_name is a Char field on the detail model
+        result = cr._normalize_value_for_cel("hello", detail, "given_name")
+        self.assertEqual(result, "hello")
+
+    def test_normalize_value_date_field(self):
+        """_normalize_value_for_cel passes through date values."""
+        cr = self._create_cr()
+        detail = cr.get_detail()
+        # birthdate is a Date field on the detail model
+        from datetime import date
+
+        test_date = date(2000, 1, 15)
+        result = cr._normalize_value_for_cel(test_date, detail, "birthdate")
+        self.assertEqual(result, test_date)
+
+    def test_normalize_value_falsy_boolean_returns_false(self):
+        """_normalize_value_for_cel returns False (not None) for falsy boolean fields."""
+        cr = self._create_cr()
+        # Use a known boolean field from the detail base model
+        detail = cr.get_detail()
+        result = cr._normalize_value_for_cel(False, detail, "is_applied")
+        self.assertIs(result, False, "Falsy boolean must return False, not None.")
+
+    def test_normalize_value_falsy_integer_returns_zero(self):
+        """_normalize_value_for_cel returns 0 for falsy integer/float/monetary fields."""
+        cr = self._create_cr()
+        registrant = cr.registrant_id
+        # res.partner has 'color' as an Integer field
+        result = cr._normalize_value_for_cel(False, registrant, "color")
+        self.assertEqual(result, 0, "Falsy integer must return 0, not None.")
+
+    def test_normalize_value_truthy_boolean(self):
+        """_normalize_value_for_cel returns bool for boolean fields."""
+        cr = self._create_cr()
+        detail = cr.get_detail()
+        result = cr._normalize_value_for_cel(True, detail, "is_applied")
+        self.assertIs(result, True)
+
+    def test_normalize_value_truthy_integer(self):
+        """_normalize_value_for_cel returns numeric value for integer fields."""
+        cr = self._create_cr()
+        registrant = cr.registrant_id
+        result = cr._normalize_value_for_cel(42, registrant, "color")
+        self.assertEqual(result, 42)
+
+    def test_normalize_value_many2many_field(self):
+        """_normalize_value_for_cel returns dict with ids and count for x2many fields."""
+        cr = self._create_cr()
+        registrant = cr.registrant_id
+        # category_id is a Many2many field on res.partner
+        result = cr._normalize_value_for_cel(registrant.category_id, registrant, "category_id")
+        self.assertIsInstance(result, dict)
+        self.assertIn("ids", result)
+        self.assertIn("count", result)
+        self.assertIsInstance(result["ids"], list)
+
+    def test_normalize_value_none_without_record(self):
+        """_normalize_value_for_cel returns None when record is None."""
+        cr = self._create_cr()
+        result = cr._normalize_value_for_cel(None, None, None)
+        self.assertIsNone(result)
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # TEST 18 – _compute_field_values_for_cel with no field selected
+    # ──────────────────────────────────────────────────────────────────────────
+
+    def test_compute_field_values_no_field_selected(self):
+        """_compute_field_values_for_cel returns None values when no field is selected."""
+        cr = self._create_cr()
+        # Don't set field_to_modify — selected_field_name stays empty
+        result = cr._compute_field_values_for_cel()
+        self.assertIsNone(result["old_value"])
+        self.assertIsNone(result["new_value"])
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # TEST 19 – _resolve_dynamic_approval with no selected field
+    # ──────────────────────────────────────────────────────────────────────────
+
+    def test_resolve_dynamic_approval_no_field_returns_none(self):
+        """_resolve_dynamic_approval returns None when selected_field_name is not set."""
+        cr = self._create_cr()
+        result = cr._resolve_dynamic_approval()
+        self.assertIsNone(result, "Must return None when no field is selected.")
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # TEST 20 – _check_can_submit validates dynamic field selection
+    # ──────────────────────────────────────────────────────────────────────────
+
+    def test_check_can_submit_rejects_without_field_selection(self):
+        """_check_can_submit raises ValidationError for dynamic CR without field selection."""
+        cr = self._create_cr()
+        # CR is dynamic but no field_to_modify set
+        with self.assertRaises(ValidationError):
+            cr._check_can_submit()
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # TEST 21 – Many2one normalization with hierarchical parent
+    # ──────────────────────────────────────────────────────────────────────────
+
+    def test_normalize_many2one_with_parent(self):
+        """_normalize_value_for_cel includes parent dict for hierarchical records."""
+        # Find a vocabulary code with a parent, or create one
+        VocabCode = self.env["spp.vocabulary.code"]
+        parent = VocabCode.search([("parent_id", "!=", False)], limit=1)
+        if not parent:
+            # Try to find any vocab code and check if the model supports parent
+            any_code = VocabCode.search([], limit=1)
+            if not any_code or "parent_id" not in any_code._fields:
+                self.skipTest("Need hierarchical vocabulary codes with parent_id.")
+            # Create parent-child pair
+            vocab = any_code.vocabulary_id
+            parent_rec = VocabCode.create({"name": "Test Parent", "code": "TEST_PARENT", "vocabulary_id": vocab.id})
+            child_rec = VocabCode.create(
+                {"name": "Test Child", "code": "TEST_CHILD", "vocabulary_id": vocab.id, "parent_id": parent_rec.id}
+            )
+            parent = child_rec
+
+        cr = self._create_cr()
+        detail = cr.get_detail()
+        normalized = cr._normalize_value_for_cel(parent, detail, "gender_id")
+
+        self.assertIsInstance(normalized, dict)
+        self.assertIn("parent", normalized, "Hierarchical vocab must include parent dict.")
+        self.assertIn("id", normalized["parent"])
+        self.assertIn("name", normalized["parent"])
+        self.assertIn("code", normalized["parent"])
