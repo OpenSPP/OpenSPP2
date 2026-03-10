@@ -10,7 +10,7 @@
                 <app
                     string="SPP OAuth Settings"
                     name="spp_oauth_config_settings"
-                    logo="/spp_attendance/static/description/icon.png"
+                    logo="/spp_oauth/static/description/icon.png"
                 >
                     <block title="OAuth Settings (4096 bits RSA keys)">
                         <setting string="Private Key">

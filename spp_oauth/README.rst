@@ -10,9 +10,9 @@ OpenSPP API: Oauth
    !! source digest: sha256:25a909cff59dac7bf6fb0a36671aac5a2b03bbd13eda1b5085bde0c2f467c93f
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/maturity-Alpha-red.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Beta-yellow.png
     :target: https://odoo-community.org/page/development-status
-    :alt: Alpha
+    :alt: Beta
 .. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
@@ -43,28 +43,28 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+-------------------------+--------------------------------------------+
-| Model                   | Description                                |
-+=========================+============================================+
-| ``res.config.settings`` | Extended to add OAuth private and public   |
-|                         | key fields                                 |
-+-------------------------+--------------------------------------------+
++-------------------------+-------------------------------------------+
+| Model                   | Description                               |
++=========================+===========================================+
+| ``res.config.settings`` | Extended to add OAuth private and public  |
+|                         | key fields                                |
++-------------------------+-------------------------------------------+
 
 Utility Functions
 ~~~~~~~~~~~~~~~~~
 
-+-----------------------------------+----------------------------------+
-| Function                          | Purpose                          |
-+===================================+==================================+
-| ``calculate_signature()``         | Encodes JWT with header and      |
-|                                   | payload using RS256              |
-+-----------------------------------+----------------------------------+
-| ``verify_and_decode_signature()`` | Decodes and verifies JWT token,  |
-|                                   | returns payload                  |
-+-----------------------------------+----------------------------------+
-| ``OpenSPPOAuthJWTException``      | Custom exception for OAuth JWT   |
-|                                   | errors with logging              |
-+-----------------------------------+----------------------------------+
++----------------------------------+----------------------------------+
+| Function                         | Purpose                          |
++==================================+==================================+
+| ``calculate_signature()``        | Encodes JWT with header and      |
+|                                  | payload using RS256              |
++----------------------------------+----------------------------------+
+| `                                | Decodes and verifies JWT token,  |
+| `verify_and_decode_signature()`` | returns payload                  |
++----------------------------------+----------------------------------+
+| ``OpenSPPOAuthJWTException``     | Custom exception for OAuth JWT   |
+|                                  | errors with logging              |
++----------------------------------+----------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -117,10 +117,6 @@ Dependencies
 ``spp_security``, ``base``
 
 **External Python**: ``pyjwt>=2.4.0``
-
-.. IMPORTANT::
-   This is an alpha version, the data model and design can change at any time without warning.
-   Only for development or testing purpose, do not use in production.
 
 **Table of contents**
 

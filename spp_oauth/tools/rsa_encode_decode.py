@@ -61,5 +61,5 @@ def verify_and_decode_signature(env, access_token):
     pubkey = get_public_key(env)
     try:
         return jwt.decode(access_token, key=pubkey, algorithms=[JWT_ALGORITHM])
-    except Exception as e:
+    except jwt.exceptions.PyJWTError as e:
         raise OpenSPPOAuthJWTException(str(e)) from e

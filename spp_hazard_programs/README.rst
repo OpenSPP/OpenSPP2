@@ -10,9 +10,9 @@ OpenSPP Hazard Programs Integration
    !! source digest: sha256:e4ca3f5b5e8c998b833ccd6526f575c07f53a38ac49875511c31201f13122916
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/maturity-Alpha-red.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Beta-yellow.png
     :target: https://odoo-community.org/page/development-status
-    :alt: Alpha
+    :alt: Beta
 .. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
@@ -44,15 +44,15 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+----------------------------------+-----------------------------------+
-| Model                            | Description                       |
-+==================================+===================================+
-| ``spp.program`` (extend)         | Adds target incidents, emergency  |
-|                                  | mode, damage filter               |
-+----------------------------------+-----------------------------------+
-| ``spp.hazard.incident`` (extend) | Adds reverse relation to response |
-|                                  | programs                          |
-+----------------------------------+-----------------------------------+
++----------------------------------+----------------------------------+
+| Model                            | Description                      |
++==================================+==================================+
+| ``spp.program`` (extend)         | Adds target incidents, emergency |
+|                                  | mode, damage filter              |
++----------------------------------+----------------------------------+
+| ``spp.hazard.incident`` (extend) | Adds reverse relation to         |
+|                                  | response programs                |
++----------------------------------+----------------------------------+
 
 UI Location
 ~~~~~~~~~~~
@@ -88,10 +88,6 @@ Dependencies
 ~~~~~~~~~~~~
 
 ``spp_hazard``, ``spp_programs``
-
-.. IMPORTANT::
-   This is an alpha version, the data model and design can change at any time without warning.
-   Only for development or testing purpose, do not use in production.
 
 **Table of contents**
 

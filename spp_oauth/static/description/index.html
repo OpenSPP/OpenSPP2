@@ -369,7 +369,7 @@ ul.auto-toc {
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! source digest: sha256:25a909cff59dac7bf6fb0a36671aac5a2b03bbd13eda1b5085bde0c2f467c93f
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Alpha" src="https://img.shields.io/badge/maturity-Alpha-red.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_oauth"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Beta" src="https://img.shields.io/badge/maturity-Beta-yellow.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_oauth"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
 <p>OAuth 2.0 authentication framework for securing OpenSPP API
 communications using JWT tokens signed with RSA keys. Provides utility
 functions to generate and verify JWT signatures using the RS256
@@ -392,8 +392,8 @@ fields</li>
 <h1>Key Models</h1>
 <table border="1" class="docutils">
 <colgroup>
-<col width="36%" />
-<col width="64%" />
+<col width="37%" />
+<col width="63%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Model</th>
@@ -412,8 +412,8 @@ key fields</td>
 <h1>Utility Functions</h1>
 <table border="1" class="docutils">
 <colgroup>
-<col width="51%" />
-<col width="49%" />
+<col width="50%" />
+<col width="50%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Function</th>
@@ -425,7 +425,8 @@ key fields</td>
 <td>Encodes JWT with header and
 payload using RS256</td>
 </tr>
-<tr><td><tt class="docutils literal">verify_and_decode_signature()</tt></td>
+<tr><td>`
+<cite>verify_and_decode_signature()`</cite></td>
 <td>Decodes and verifies JWT token,
 returns payload</td>
 </tr>
@@ -496,11 +497,6 @@ in API controllers</li>
 <h1>Dependencies</h1>
 <p><tt class="docutils literal">spp_security</tt>, <tt class="docutils literal">base</tt></p>
 <p><strong>External Python</strong>: <tt class="docutils literal"><span class="pre">pyjwt&gt;=2.4.0</span></tt></p>
-<div class="admonition important">
-<p class="first admonition-title">Important</p>
-<p class="last">This is an alpha version, the data model and design can change at any time without warning.
-Only for development or testing purpose, do not use in production.</p>
-</div>
 <p><strong>Table of contents</strong></p>
 <div class="contents local topic" id="contents">
 <ul class="simple">
