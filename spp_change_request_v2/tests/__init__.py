@@ -21,3 +21,5 @@ from . import test_approval_per_cr_type
 from . import test_ux_wizards
 from . import test_stage_navigation
 from . import test_approval_hooks_and_audit
+from . import test_dynamic_approval
+from . import test_conflict_dynamic_approval
