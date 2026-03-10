@@ -382,6 +382,9 @@ group/household registrant data, with validation and audit trails.</p>
 detail models</li>
 <li>Multi-tier approval workflows with automatic routing based on approval
 definitions</li>
+<li>Dynamic approval: route CRs to different approval workflows based on
+which field is being modified, with CEL condition evaluation for
+field-specific escalation</li>
 <li>Detect conflicting change requests (same registrant, same group, or
 same field)</li>
 <li>Prevent duplicate submissions with configurable similarity thresholds</li>
@@ -591,16 +594,748 @@ patterns for side effects during application</li>
 <p><strong>Table of contents</strong></p>
 <div class="contents local topic" id="contents">
 <ul class="simple">
-<li><a class="reference internal" href="#bug-tracker" id="toc-entry-1">Bug Tracker</a></li>
-<li><a class="reference internal" href="#credits" id="toc-entry-2">Credits</a><ul>
-<li><a class="reference internal" href="#authors" id="toc-entry-3">Authors</a></li>
-<li><a class="reference internal" href="#maintainers" id="toc-entry-4">Maintainers</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#usage" id="toc-entry-1">Usage</a></li>
 </ul>
 </div>
+<div class="section" id="usage">
+<h2><a class="toc-backref" href="#toc-entry-1">Usage</a></h2>
+</div>
+</div>
+<div class="section" id="developer-guide-creating-custom-cr-types">
+<h1>Developer Guide: Creating Custom CR Types</h1>
+<p>This guide walks through creating a new change request type, from a
+minimal single-field example to advanced dynamic approval with
+multi-tier workflows.</p>
+<p><strong>Architecture overview</strong></p>
+<p>A CR type consists of four parts:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="32%" />
+<col width="68%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Part</th>
+<th class="head">What it does</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><strong>Detail model</strong></td>
+<td>Python model holding the proposed changes
+(inherits <tt class="docutils literal">spp.cr.detail.base</tt>)</td>
+</tr>
+<tr><td><strong>Detail form view</strong></td>
+<td>XML view rendered inside the CR form</td>
+</tr>
+<tr><td><strong>CR type record</strong></td>
+<td>XML data linking the detail model, view,
+approval workflow, and field mappings</td>
+</tr>
+<tr><td><strong>Field mappings</strong></td>
+<td>XML records defining how detail fields map to
+registrant fields at apply time</td>
+</tr>
+</tbody>
+</table>
+<p>When a user creates a change request, the system:</p>
+<ol class="arabic simple">
+<li>Creates a <tt class="docutils literal">spp.change.request</tt> record</li>
+<li>Auto-creates the linked detail record via <tt class="docutils literal">_ensure_detail()</tt></li>
+<li>Pre-fills detail fields from the registrant via
+<tt class="docutils literal">prefill_from_registrant()</tt></li>
+<li>On submission, selects the approval workflow (static or dynamic)</li>
+<li>After approval, applies changes to the registrant via field mappings
+or custom logic</li>
+</ol>
+</div>
+<div class="section" id="example-1-basic-cr-type-static-approval">
+<h1>Example 1: Basic CR Type (Static Approval)</h1>
+<p>A CR type that lets users update a single field with one-tier approval.</p>
+<p><strong>Detail model</strong></p>
+<pre class="code python literal-block">
+<span class="c1"># models/cr_detail_update_widget.py</span><span class="w">
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">odoo</span><span class="w"> </span><span class="kn">import</span> <span class="n">fields</span><span class="p">,</span> <span class="n">models</span><span class="w">
+
+
+</span><span class="k">class</span><span class="w"> </span><span class="nc">SPPCRDetailUpdateWidget</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span><span class="w">
+</span>    <span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;spp.cr.detail.update_widget&quot;</span><span class="w">
+</span>    <span class="n">_description</span> <span class="o">=</span> <span class="s2">&quot;CR Detail: Update Widget&quot;</span><span class="w">
+</span>    <span class="n">_inherit</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;spp.cr.detail.base&quot;</span><span class="p">,</span> <span class="s2">&quot;mail.thread&quot;</span><span class="p">]</span><span class="w">
+
+</span>    <span class="n">widget_id</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">Many2one</span><span class="p">(</span><span class="w">
+</span>        <span class="s2">&quot;spp.vocabulary.code&quot;</span><span class="p">,</span><span class="w">
+</span>        <span class="n">string</span><span class="o">=</span><span class="s2">&quot;Widget&quot;</span><span class="p">,</span><span class="w">
+</span>        <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;[('namespace_uri', '=', 'urn:example:widget')]&quot;</span><span class="p">,</span><span class="w">
+</span>        <span class="n">tracking</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="w">
+</span>    <span class="p">)</span><span class="w">
+
+</span>    <span class="k">def</span><span class="w"> </span><span class="nf">_get_prefill_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span><span class="w">
+</span>        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;widget_id&quot;</span><span class="p">:</span> <span class="s2">&quot;widget_id&quot;</span><span class="p">}</span>
+</pre>
+<p>Key points:</p>
+<ul class="simple">
+<li>Always inherit <tt class="docutils literal">spp.cr.detail.base</tt> (required) and <tt class="docutils literal">mail.thread</tt>
+(for tracking)</li>
+<li>Never use <tt class="docutils literal">required=True</tt> on detail fields — the detail record is
+created empty by <tt class="docutils literal">_ensure_detail()</tt> and populated later</li>
+<li><tt class="docutils literal">_get_prefill_mapping()</tt> returns
+<tt class="docutils literal">{detail_field: registrant_field}</tt> — the base class copies current
+registrant values into the detail on creation</li>
+</ul>
+<p><strong>Detail form view</strong></p>
+<pre class="code xml literal-block">
+<span class="cm">&lt;!-- views/detail_update_widget_views.xml --&gt;</span><span class="w">
+</span><span class="nt">&lt;record</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;spp_cr_detail_update_widget_form&quot;</span><span class="w"> </span><span class="na">model=</span><span class="s">&quot;ir.ui.view&quot;</span><span class="nt">&gt;</span><span class="w">
+    </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;name&quot;</span><span class="nt">&gt;</span>spp.cr.detail.update_widget.form<span class="nt">&lt;/field&gt;</span><span class="w">
+    </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;model&quot;</span><span class="nt">&gt;</span>spp.cr.detail.update_widget<span class="nt">&lt;/field&gt;</span><span class="w">
+    </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;arch&quot;</span><span class="w"> </span><span class="na">type=</span><span class="s">&quot;xml&quot;</span><span class="nt">&gt;</span><span class="w">
+        </span><span class="nt">&lt;form</span><span class="w"> </span><span class="na">string=</span><span class="s">&quot;Update Widget&quot;</span><span class="nt">&gt;</span><span class="w">
+            </span><span class="nt">&lt;header&gt;</span><span class="w">
+                </span><span class="nt">&lt;button</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;action_proceed_to_cr&quot;</span><span class="w"> </span><span class="na">string=</span><span class="s">&quot;Proceed&quot;</span><span class="w">
+                    </span><span class="na">type=</span><span class="s">&quot;object&quot;</span><span class="w"> </span><span class="na">class=</span><span class="s">&quot;btn-primary&quot;</span><span class="w">
+                    </span><span class="na">invisible=</span><span class="s">&quot;approval_state != 'draft'&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+                </span><span class="nt">&lt;button</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;action_proceed_to_cr&quot;</span><span class="w"> </span><span class="na">string=</span><span class="s">&quot;Proceed&quot;</span><span class="w">
+                    </span><span class="na">type=</span><span class="s">&quot;object&quot;</span><span class="w"> </span><span class="na">class=</span><span class="s">&quot;btn-primary&quot;</span><span class="w">
+                    </span><span class="na">invisible=</span><span class="s">&quot;approval_state != 'revision'&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+                </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;approval_state&quot;</span><span class="w"> </span><span class="na">widget=</span><span class="s">&quot;statusbar&quot;</span><span class="w">
+                    </span><span class="na">statusbar_visible=</span><span class="s">&quot;draft,pending,approved,applied&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+            </span><span class="nt">&lt;/header&gt;</span><span class="w">
+            </span><span class="nt">&lt;sheet&gt;</span><span class="w">
+                </span><span class="nt">&lt;group&gt;</span><span class="w">
+                    </span><span class="nt">&lt;group&gt;</span><span class="w">
+                        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;widget_id&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+                    </span><span class="nt">&lt;/group&gt;</span><span class="w">
+                </span><span class="nt">&lt;/group&gt;</span><span class="w">
+            </span><span class="nt">&lt;/sheet&gt;</span><span class="w">
+        </span><span class="nt">&lt;/form&gt;</span><span class="w">
+    </span><span class="nt">&lt;/field&gt;</span><span class="w">
+</span><span class="nt">&lt;/record&gt;</span>
+</pre>
+<p>The <tt class="docutils literal">action_proceed_to_cr</tt> button navigates back to the parent CR
+form. <tt class="docutils literal">approval_state</tt> is a related field from <tt class="docutils literal">spp.cr.detail.base</tt>.</p>
+<p><strong>Approval definition and CR type data</strong></p>
+<pre class="code xml literal-block">
+<span class="cm">&lt;!-- data/cr_type_update_widget.xml --&gt;</span><span class="w">
+</span><span class="nt">&lt;odoo</span><span class="w"> </span><span class="na">noupdate=</span><span class="s">&quot;1&quot;</span><span class="nt">&gt;</span><span class="w">
+    </span><span class="cm">&lt;!-- Approval definition: single-tier group approval --&gt;</span><span class="w">
+    </span><span class="nt">&lt;record</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;approval_def_update_widget&quot;</span><span class="w"> </span><span class="na">model=</span><span class="s">&quot;spp.approval.definition&quot;</span><span class="nt">&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;name&quot;</span><span class="nt">&gt;</span>Update<span class="w"> </span>Widget<span class="w"> </span>Approval<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;model_id&quot;</span><span class="w"> </span><span class="na">ref=</span><span class="s">&quot;spp_change_request_v2.model_spp_change_request&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;approval_type&quot;</span><span class="nt">&gt;</span>group<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;approval_group_id&quot;</span><span class="w"> </span><span class="na">ref=</span><span class="s">&quot;my_module.group_validator&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;is_require_comment&quot;</span><span class="nt">&gt;</span>True<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;sla_days&quot;</span><span class="nt">&gt;</span>5<span class="nt">&lt;/field&gt;</span><span class="w">
+    </span><span class="nt">&lt;/record&gt;</span><span class="w">
+
+    </span><span class="cm">&lt;!-- CR type --&gt;</span><span class="w">
+    </span><span class="nt">&lt;record</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;cr_type_update_widget&quot;</span><span class="w"> </span><span class="na">model=</span><span class="s">&quot;spp.change.request.type&quot;</span><span class="nt">&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;name&quot;</span><span class="nt">&gt;</span>Update<span class="w"> </span>Widget<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;code&quot;</span><span class="nt">&gt;</span>update_widget<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;description&quot;</span><span class="nt">&gt;</span>Update<span class="w"> </span>widget<span class="w"> </span>assignment<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;target_type&quot;</span><span class="nt">&gt;</span>individual<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;detail_model&quot;</span><span class="nt">&gt;</span>spp.cr.detail.update_widget<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;detail_form_view_id&quot;</span><span class="w"> </span><span class="na">ref=</span><span class="s">&quot;spp_cr_detail_update_widget_form&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;apply_strategy&quot;</span><span class="nt">&gt;</span>field_mapping<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;auto_apply_on_approve&quot;</span><span class="nt">&gt;</span>True<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;approval_definition_id&quot;</span><span class="w"> </span><span class="na">ref=</span><span class="s">&quot;approval_def_update_widget&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;icon&quot;</span><span class="nt">&gt;</span>fa-cog<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;sequence&quot;</span><span class="nt">&gt;</span>50<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;is_system_type&quot;</span><span class="nt">&gt;</span>True<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;source_module&quot;</span><span class="nt">&gt;</span>my_module<span class="nt">&lt;/field&gt;</span><span class="w">
+    </span><span class="nt">&lt;/record&gt;</span><span class="w">
+
+    </span><span class="cm">&lt;!-- Field mapping: detail.widget_id → registrant.widget_id --&gt;</span><span class="w">
+    </span><span class="nt">&lt;record</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;cr_type_update_widget_mapping&quot;</span><span class="w"> </span><span class="na">model=</span><span class="s">&quot;spp.change.request.type.mapping&quot;</span><span class="nt">&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;type_id&quot;</span><span class="w"> </span><span class="na">ref=</span><span class="s">&quot;cr_type_update_widget&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;source_field&quot;</span><span class="nt">&gt;</span>widget_id<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;target_field&quot;</span><span class="nt">&gt;</span>widget_id<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;sequence&quot;</span><span class="nt">&gt;</span>10<span class="nt">&lt;/field&gt;</span><span class="w">
+    </span><span class="nt">&lt;/record&gt;</span><span class="w">
+</span><span class="nt">&lt;/odoo&gt;</span>
+</pre>
+<p><strong>Access control</strong></p>
+<p>Add rows to <tt class="docutils literal">security/ir.model.access.csv</tt>:</p>
+<pre class="literal-block">
+access_spp_cr_detail_update_widget_user,...,group_cr_user,1,1,1,0
+access_spp_cr_detail_update_widget_validator,...,group_cr_validator,1,1,1,0
+access_spp_cr_detail_update_widget_validator_hq,...,group_cr_validator_hq,1,1,1,0
+access_spp_cr_detail_update_widget_manager,...,group_cr_manager,1,1,1,1
+</pre>
+<p><strong>Manifest</strong></p>
+<pre class="code python literal-block">
+<span class="p">{</span><span class="w">
+</span>    <span class="s2">&quot;depends&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;spp_change_request_v2&quot;</span><span class="p">],</span><span class="w">
+</span>    <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span><span class="w">
+</span>        <span class="s2">&quot;security/ir.model.access.csv&quot;</span><span class="p">,</span><span class="w">
+</span>        <span class="s2">&quot;views/detail_update_widget_views.xml&quot;</span><span class="p">,</span>   <span class="c1"># views BEFORE data</span><span class="w">
+</span>        <span class="s2">&quot;data/cr_type_update_widget.xml&quot;</span><span class="p">,</span><span class="w">
+</span>    <span class="p">],</span><span class="w">
+</span><span class="p">}</span>
+</pre>
+<p>Views must load before data that references them via
+<tt class="docutils literal">detail_form_view_id</tt>.</p>
+</div>
+<div class="section" id="example-2-multi-field-cr-type-with-multi-tier-approval">
+<h1>Example 2: Multi-Field CR Type with Multi-Tier Approval</h1>
+<p>A CR type with several fields and a two-tier approval chain (Tier 1 then
+Tier 2).</p>
+<p><strong>Detail model with boolean prefill override</strong></p>
+<pre class="code python literal-block">
+<span class="kn">from</span><span class="w"> </span><span class="nn">odoo</span><span class="w"> </span><span class="kn">import</span> <span class="n">fields</span><span class="p">,</span> <span class="n">models</span><span class="w">
+
+
+</span><span class="k">class</span><span class="w"> </span><span class="nc">SPPCRDetailUpdateProfile</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span><span class="w">
+</span>    <span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;spp.cr.detail.update_profile&quot;</span><span class="w">
+</span>    <span class="n">_description</span> <span class="o">=</span> <span class="s2">&quot;CR Detail: Update Profile&quot;</span><span class="w">
+</span>    <span class="n">_inherit</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;spp.cr.detail.base&quot;</span><span class="p">,</span> <span class="s2">&quot;mail.thread&quot;</span><span class="p">]</span><span class="w">
+
+</span>    <span class="n">status_id</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">Many2one</span><span class="p">(</span><span class="w">
+</span>        <span class="s2">&quot;spp.vocabulary.code&quot;</span><span class="p">,</span><span class="w">
+</span>        <span class="n">string</span><span class="o">=</span><span class="s2">&quot;Status&quot;</span><span class="p">,</span><span class="w">
+</span>        <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;[('namespace_uri', '=', 'urn:example:status')]&quot;</span><span class="p">,</span><span class="w">
+</span>        <span class="n">tracking</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="w">
+</span>    <span class="p">)</span><span class="w">
+</span>    <span class="n">is_active</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">Boolean</span><span class="p">(</span><span class="n">string</span><span class="o">=</span><span class="s2">&quot;Active&quot;</span><span class="p">,</span> <span class="n">tracking</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
+</span>    <span class="n">notes</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span><span class="n">string</span><span class="o">=</span><span class="s2">&quot;Notes&quot;</span><span class="p">)</span><span class="w">
+
+</span>    <span class="k">def</span><span class="w"> </span><span class="nf">_get_prefill_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span><span class="w">
+</span>        <span class="k">return</span> <span class="p">{</span><span class="w">
+</span>            <span class="s2">&quot;status_id&quot;</span><span class="p">:</span> <span class="s2">&quot;status_id&quot;</span><span class="p">,</span><span class="w">
+</span>            <span class="s2">&quot;is_active&quot;</span><span class="p">:</span> <span class="s2">&quot;is_active&quot;</span><span class="p">,</span><span class="w">
+</span>        <span class="p">}</span><span class="w">
+
+</span>    <span class="k">def</span><span class="w"> </span><span class="nf">prefill_from_registrant</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span><span class="w">
+        </span><span class="sd">&quot;&quot;&quot;Override: base class skips False booleans; use 'is not None' instead.&quot;&quot;&quot;</span><span class="w">
+</span>        <span class="bp">self</span><span class="o">.</span><span class="n">ensure_one</span><span class="p">()</span><span class="w">
+</span>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">registrant_id</span><span class="p">:</span><span class="w">
+</span>            <span class="k">return</span><span class="w">
+
+</span>        <span class="n">mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_prefill_mapping</span><span class="p">()</span><span class="w">
+</span>        <span class="n">values</span> <span class="o">=</span> <span class="p">{}</span><span class="w">
+</span>        <span class="k">for</span> <span class="n">detail_field</span><span class="p">,</span> <span class="n">registrant_field</span> <span class="ow">in</span> <span class="n">mapping</span><span class="o">.</span><span class="n">items</span><span class="p">():</span><span class="w">
+</span>            <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">registrant_id</span><span class="p">,</span> <span class="n">registrant_field</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span><span class="w">
+</span>            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span><span class="w">
+</span>                <span class="n">values</span><span class="p">[</span><span class="n">detail_field</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="w">
+
+</span>        <span class="k">if</span> <span class="n">values</span><span class="p">:</span><span class="w">
+</span>            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+</pre>
+<p><strong>Multi-tier approval definition (XML)</strong></p>
+<p>Multi-tier definitions require a three-step pattern — Odoo enforces a
+constraint that tiers must exist before <tt class="docutils literal">use_multitier</tt> can be
+enabled:</p>
+<pre class="code xml literal-block">
+<span class="nt">&lt;odoo</span><span class="w"> </span><span class="na">noupdate=</span><span class="s">&quot;1&quot;</span><span class="nt">&gt;</span><span class="w">
+    </span><span class="cm">&lt;!-- Step 1: Create definition WITHOUT use_multitier --&gt;</span><span class="w">
+    </span><span class="nt">&lt;record</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;approval_def_update_profile&quot;</span><span class="w"> </span><span class="na">model=</span><span class="s">&quot;spp.approval.definition&quot;</span><span class="nt">&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;name&quot;</span><span class="nt">&gt;</span>Update<span class="w"> </span>Profile<span class="w"> </span>-<span class="w"> </span>Two-Tier<span class="w"> </span>Approval<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;model_id&quot;</span><span class="w"> </span><span class="na">ref=</span><span class="s">&quot;spp_change_request_v2.model_spp_change_request&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;approval_type&quot;</span><span class="nt">&gt;</span>group<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;approval_group_id&quot;</span><span class="w"> </span><span class="na">ref=</span><span class="s">&quot;my_module.group_tier1&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;is_require_comment&quot;</span><span class="nt">&gt;</span>True<span class="nt">&lt;/field&gt;</span><span class="w">
+    </span><span class="nt">&lt;/record&gt;</span><span class="w">
+
+    </span><span class="cm">&lt;!-- Step 2: Create tier records --&gt;</span><span class="w">
+    </span><span class="nt">&lt;record</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;tier_update_profile_1&quot;</span><span class="w"> </span><span class="na">model=</span><span class="s">&quot;spp.approval.tier&quot;</span><span class="nt">&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;definition_id&quot;</span><span class="w"> </span><span class="na">ref=</span><span class="s">&quot;approval_def_update_profile&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;name&quot;</span><span class="nt">&gt;</span>Tier<span class="w"> </span>1<span class="w"> </span>-<span class="w"> </span>Field<span class="w"> </span>Review<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;sequence&quot;</span><span class="nt">&gt;</span>10<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;approval_type&quot;</span><span class="nt">&gt;</span>group<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;approval_group_id&quot;</span><span class="w"> </span><span class="na">ref=</span><span class="s">&quot;my_module.group_tier1&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+    </span><span class="nt">&lt;/record&gt;</span><span class="w">
+
+    </span><span class="nt">&lt;record</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;tier_update_profile_2&quot;</span><span class="w"> </span><span class="na">model=</span><span class="s">&quot;spp.approval.tier&quot;</span><span class="nt">&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;definition_id&quot;</span><span class="w"> </span><span class="na">ref=</span><span class="s">&quot;approval_def_update_profile&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;name&quot;</span><span class="nt">&gt;</span>Tier<span class="w"> </span>2<span class="w"> </span>-<span class="w"> </span>HQ<span class="w"> </span>Review<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;sequence&quot;</span><span class="nt">&gt;</span>20<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;approval_type&quot;</span><span class="nt">&gt;</span>group<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;approval_group_id&quot;</span><span class="w"> </span><span class="na">ref=</span><span class="s">&quot;my_module.group_tier2&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+    </span><span class="nt">&lt;/record&gt;</span><span class="w">
+
+    </span><span class="cm">&lt;!-- Step 3: Enable multi-tier AFTER tiers exist --&gt;</span><span class="w">
+    </span><span class="nt">&lt;record</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;approval_def_update_profile&quot;</span><span class="w"> </span><span class="na">model=</span><span class="s">&quot;spp.approval.definition&quot;</span><span class="nt">&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;use_multitier&quot;</span><span class="nt">&gt;</span>True<span class="nt">&lt;/field&gt;</span><span class="w">
+    </span><span class="nt">&lt;/record&gt;</span><span class="w">
+</span><span class="nt">&lt;/odoo&gt;</span>
+</pre>
+</div>
+<div class="section" id="example-3-dynamic-approval">
+<h1>Example 3: Dynamic Approval</h1>
+<p>Dynamic approval lets the user select a single field to modify per
+change request. The selected field determines which approval workflow
+applies, using CEL-based conditions to route sensitive changes to
+stricter workflows.</p>
+<p>Three things are needed:</p>
+<ol class="arabic simple">
+<li>Override <tt class="docutils literal">_get_field_to_modify_selection()</tt> on the detail model</li>
+<li>Create candidate approval definitions with CEL conditions</li>
+<li>Set <tt class="docutils literal">use_dynamic_approval=True</tt> on the CR type and link the
+candidates</li>
+</ol>
+<p><strong>Detail model with field selector</strong></p>
+<pre class="code python literal-block">
+<span class="kn">from</span><span class="w"> </span><span class="nn">odoo</span><span class="w"> </span><span class="kn">import</span> <span class="n">api</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">models</span><span class="w">
+
+
+</span><span class="k">class</span><span class="w"> </span><span class="nc">SPPCRDetailUpdateInfo</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span><span class="w">
+</span>    <span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;spp.cr.detail.update_info&quot;</span><span class="w">
+</span>    <span class="n">_description</span> <span class="o">=</span> <span class="s2">&quot;CR Detail: Update Info&quot;</span><span class="w">
+</span>    <span class="n">_inherit</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;spp.cr.detail.base&quot;</span><span class="p">,</span> <span class="s2">&quot;mail.thread&quot;</span><span class="p">]</span><span class="w">
+
+</span>    <span class="n">status_id</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">Many2one</span><span class="p">(</span><span class="s2">&quot;spp.vocabulary.code&quot;</span><span class="p">,</span> <span class="n">string</span><span class="o">=</span><span class="s2">&quot;Status&quot;</span><span class="p">)</span><span class="w">
+</span>    <span class="n">category_id</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">Many2one</span><span class="p">(</span><span class="s2">&quot;spp.vocabulary.code&quot;</span><span class="p">,</span> <span class="n">string</span><span class="o">=</span><span class="s2">&quot;Category&quot;</span><span class="p">)</span><span class="w">
+</span>    <span class="n">is_priority</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">Boolean</span><span class="p">(</span><span class="n">string</span><span class="o">=</span><span class="s2">&quot;Priority&quot;</span><span class="p">)</span><span class="w">
+
+</span>    <span class="nd">&#64;api</span><span class="o">.</span><span class="n">model</span><span class="w">
+</span>    <span class="k">def</span><span class="w"> </span><span class="nf">_get_field_to_modify_selection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span><span class="w">
+        </span><span class="sd">&quot;&quot;&quot;Define which fields appear in the 'Field to Modify' dropdown.&quot;&quot;&quot;</span><span class="w">
+</span>        <span class="k">return</span> <span class="p">[</span><span class="w">
+</span>            <span class="p">(</span><span class="s2">&quot;status_id&quot;</span><span class="p">,</span> <span class="s2">&quot;Status&quot;</span><span class="p">),</span><span class="w">
+</span>            <span class="p">(</span><span class="s2">&quot;category_id&quot;</span><span class="p">,</span> <span class="s2">&quot;Category&quot;</span><span class="p">),</span><span class="w">
+</span>            <span class="p">(</span><span class="s2">&quot;is_priority&quot;</span><span class="p">,</span> <span class="s2">&quot;Priority Flag&quot;</span><span class="p">),</span><span class="w">
+</span>        <span class="p">]</span><span class="w">
+
+</span>    <span class="k">def</span><span class="w"> </span><span class="nf">_get_prefill_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span><span class="w">
+</span>        <span class="k">return</span> <span class="p">{</span><span class="w">
+</span>            <span class="s2">&quot;status_id&quot;</span><span class="p">:</span> <span class="s2">&quot;status_id&quot;</span><span class="p">,</span><span class="w">
+</span>            <span class="s2">&quot;category_id&quot;</span><span class="p">:</span> <span class="s2">&quot;category_id&quot;</span><span class="p">,</span><span class="w">
+</span>            <span class="s2">&quot;is_priority&quot;</span><span class="p">:</span> <span class="s2">&quot;is_priority&quot;</span><span class="p">,</span><span class="w">
+</span>        <span class="p">}</span>
+</pre>
+<p><strong>Detail form view with field visibility</strong></p>
+<p>When dynamic approval is on, only the selected field is shown. Use the
+<tt class="docutils literal">use_dynamic_approval</tt> related field (available on
+<tt class="docutils literal">spp.cr.detail.base</tt>) instead of traversing
+<tt class="docutils literal">change_request_id.request_type_id.use_dynamic_approval</tt>:</p>
+<pre class="code xml literal-block">
+<span class="nt">&lt;form</span><span class="w"> </span><span class="na">string=</span><span class="s">&quot;Update Info&quot;</span><span class="nt">&gt;</span><span class="w">
+    </span><span class="nt">&lt;header&gt;</span><span class="w">
+        </span><span class="nt">&lt;button</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;action_proceed_to_cr&quot;</span><span class="w"> </span><span class="na">string=</span><span class="s">&quot;Proceed&quot;</span><span class="w">
+            </span><span class="na">type=</span><span class="s">&quot;object&quot;</span><span class="w"> </span><span class="na">class=</span><span class="s">&quot;btn-primary&quot;</span><span class="w">
+            </span><span class="na">invisible=</span><span class="s">&quot;approval_state != 'draft'&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;approval_state&quot;</span><span class="w"> </span><span class="na">widget=</span><span class="s">&quot;statusbar&quot;</span><span class="w">
+            </span><span class="na">statusbar_visible=</span><span class="s">&quot;draft,pending,approved,applied&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+    </span><span class="nt">&lt;/header&gt;</span><span class="w">
+    </span><span class="nt">&lt;sheet&gt;</span><span class="w">
+        </span><span class="cm">&lt;!-- Field selector: visible only when dynamic approval is on --&gt;</span><span class="w">
+        </span><span class="nt">&lt;group</span><span class="w"> </span><span class="na">invisible=</span><span class="s">&quot;not use_dynamic_approval&quot;</span><span class="nt">&gt;</span><span class="w">
+            </span><span class="nt">&lt;group&gt;</span><span class="w">
+                </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;field_to_modify&quot;</span><span class="w">
+                    </span><span class="na">required=</span><span class="s">&quot;use_dynamic_approval&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+            </span><span class="nt">&lt;/group&gt;</span><span class="w">
+        </span><span class="nt">&lt;/group&gt;</span><span class="w">
+
+        </span><span class="cm">&lt;!-- Each field hidden when dynamic approval is on and not selected --&gt;</span><span class="w">
+        </span><span class="nt">&lt;group&gt;</span><span class="w">
+            </span><span class="nt">&lt;group&gt;</span><span class="w">
+                </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;status_id&quot;</span><span class="w">
+                    </span><span class="na">invisible=</span><span class="s">&quot;use_dynamic_approval
+                               and field_to_modify != 'status_id'&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+                </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;category_id&quot;</span><span class="w">
+                    </span><span class="na">invisible=</span><span class="s">&quot;use_dynamic_approval
+                               and field_to_modify != 'category_id'&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+                </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;is_priority&quot;</span><span class="w">
+                    </span><span class="na">invisible=</span><span class="s">&quot;use_dynamic_approval
+                               and field_to_modify != 'is_priority'&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+            </span><span class="nt">&lt;/group&gt;</span><span class="w">
+        </span><span class="nt">&lt;/group&gt;</span><span class="w">
+    </span><span class="nt">&lt;/sheet&gt;</span><span class="w">
+</span><span class="nt">&lt;/form&gt;</span>
+</pre>
+<p><strong>Candidate approval definitions with CEL conditions</strong></p>
+<p>Candidates are evaluated in <tt class="docutils literal">sequence</tt> order. The first matching CEL
+condition wins. A definition without a CEL condition acts as a catch-all
+fallback.</p>
+<pre class="code xml literal-block">
+<span class="nt">&lt;odoo</span><span class="w"> </span><span class="na">noupdate=</span><span class="s">&quot;1&quot;</span><span class="nt">&gt;</span><span class="w">
+    </span><span class="cm">&lt;!-- Catch-all fallback (sequence=100, no CEL) — evaluated LAST --&gt;</span><span class="w">
+    </span><span class="nt">&lt;record</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;approval_def_update_info_default&quot;</span><span class="w"> </span><span class="na">model=</span><span class="s">&quot;spp.approval.definition&quot;</span><span class="nt">&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;name&quot;</span><span class="nt">&gt;</span>Update<span class="w"> </span>Info<span class="w"> </span>-<span class="w"> </span>Default<span class="w"> </span>Approval<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;model_id&quot;</span><span class="w"> </span><span class="na">ref=</span><span class="s">&quot;spp_change_request_v2.model_spp_change_request&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;approval_type&quot;</span><span class="nt">&gt;</span>group<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;approval_group_id&quot;</span><span class="w"> </span><span class="na">ref=</span><span class="s">&quot;my_module.group_basic_approver&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;sequence&quot;</span><span class="nt">&gt;</span>100<span class="nt">&lt;/field&gt;</span><span class="w">
+    </span><span class="nt">&lt;/record&gt;</span><span class="w">
+
+    </span><span class="cm">&lt;!-- Status changes require stricter approval (sequence=10) --&gt;</span><span class="w">
+    </span><span class="nt">&lt;record</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;approval_def_update_info_status&quot;</span><span class="w"> </span><span class="na">model=</span><span class="s">&quot;spp.approval.definition&quot;</span><span class="nt">&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;name&quot;</span><span class="nt">&gt;</span>Update<span class="w"> </span>Info<span class="w"> </span>-<span class="w"> </span>Status<span class="w"> </span>Change<span class="w"> </span>(Escalated)<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;model_id&quot;</span><span class="w"> </span><span class="na">ref=</span><span class="s">&quot;spp_change_request_v2.model_spp_change_request&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;approval_type&quot;</span><span class="nt">&gt;</span>group<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;approval_group_id&quot;</span><span class="w"> </span><span class="na">ref=</span><span class="s">&quot;my_module.group_senior_approver&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;sequence&quot;</span><span class="nt">&gt;</span>10<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;use_cel_condition&quot;</span><span class="nt">&gt;</span>True<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;cel_condition&quot;</span><span class="nt">&gt;</span>record.selected_field_name<span class="w"> </span>==<span class="w"> </span>&quot;status_id&quot;<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;is_require_comment&quot;</span><span class="nt">&gt;</span>True<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;sla_days&quot;</span><span class="nt">&gt;</span>10<span class="nt">&lt;/field&gt;</span><span class="w">
+    </span><span class="nt">&lt;/record&gt;</span><span class="w">
+
+    </span><span class="cm">&lt;!-- CR type with dynamic approval enabled --&gt;</span><span class="w">
+    </span><span class="nt">&lt;record</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;cr_type_update_info&quot;</span><span class="w"> </span><span class="na">model=</span><span class="s">&quot;spp.change.request.type&quot;</span><span class="nt">&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;name&quot;</span><span class="nt">&gt;</span>Update<span class="w"> </span>Info<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;code&quot;</span><span class="nt">&gt;</span>update_info<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;target_type&quot;</span><span class="nt">&gt;</span>individual<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;detail_model&quot;</span><span class="nt">&gt;</span>spp.cr.detail.update_info<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;detail_form_view_id&quot;</span><span class="w"> </span><span class="na">ref=</span><span class="s">&quot;spp_cr_detail_update_info_form&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;apply_strategy&quot;</span><span class="nt">&gt;</span>field_mapping<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;auto_apply_on_approve&quot;</span><span class="nt">&gt;</span>True<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="cm">&lt;!-- Static fallback --&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;approval_definition_id&quot;</span><span class="w"> </span><span class="na">ref=</span><span class="s">&quot;approval_def_update_info_default&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+        </span><span class="cm">&lt;!-- Dynamic approval --&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;use_dynamic_approval&quot;</span><span class="nt">&gt;</span>True<span class="nt">&lt;/field&gt;</span><span class="w">
+        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;candidate_definition_ids&quot;</span><span class="w"> </span><span class="na">eval=</span><span class="s">&quot;[
+            Command.link(ref('approval_def_update_info_status')),
+            Command.link(ref('approval_def_update_info_default')),
+        ]&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+    </span><span class="nt">&lt;/record&gt;</span><span class="w">
+</span><span class="nt">&lt;/odoo&gt;</span>
+</pre>
+<p><strong>CEL condition reference</strong></p>
+<p>CEL conditions have access to these variables:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="46%" />
+<col width="11%" />
+<col width="43%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Variable</th>
+<th class="head">Type</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><tt class="docutils literal">record.selected_field_name</tt></td>
+<td>string</td>
+<td>Technical field name the
+user selected</td>
+</tr>
+<tr><td><tt class="docutils literal">old_value</tt></td>
+<td>typed</td>
+<td>Current value on the
+registrant</td>
+</tr>
+<tr><td><tt class="docutils literal">new_value</tt></td>
+<td>typed</td>
+<td>Proposed value from the
+detail record</td>
+</tr>
+<tr><td><tt class="docutils literal">record</tt></td>
+<td>dict</td>
+<td>All fields on the
+<tt class="docutils literal">spp.change.request</tt>
+record</td>
+</tr>
+<tr><td><tt class="docutils literal">user</tt></td>
+<td>dict</td>
+<td>Current user</td>
+</tr>
+<tr><td><tt class="docutils literal">company</tt></td>
+<td>dict</td>
+<td>Current company</td>
+</tr>
+</tbody>
+</table>
+<p>Many2one values are dicts with <tt class="docutils literal">id</tt> and <tt class="docutils literal">name</tt> (display_name) keys.
+Vocabulary models (<tt class="docutils literal">spp.vocabulary.code</tt>) additionally include
+<tt class="docutils literal">code</tt> (string) and, if hierarchical, a <tt class="docutils literal">parent</tt> dict with <tt class="docutils literal">id</tt>,
+<tt class="docutils literal">name</tt>, and <tt class="docutils literal">code</tt> keys.</p>
+<p>Example CEL conditions:</p>
+<pre class="code python literal-block">
+<span class="c1"># Match by field name</span><span class="w">
+</span><span class="n">record</span><span class="o">.</span><span class="n">selected_field_name</span> <span class="o">==</span> <span class="s2">&quot;status_id&quot;</span><span class="w">
+
+</span><span class="c1"># Match multiple fields</span><span class="w">
+</span><span class="n">record</span><span class="o">.</span><span class="n">selected_field_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;status_id&quot;</span><span class="p">,</span> <span class="s2">&quot;category_id&quot;</span><span class="p">]</span><span class="w">
+
+</span><span class="c1"># Match by new value (vocabulary code)</span><span class="w">
+</span><span class="n">record</span><span class="o">.</span><span class="n">selected_field_name</span> <span class="o">==</span> <span class="s2">&quot;status_id&quot;</span> <span class="ow">and</span> <span class="n">new_value</span><span class="o">.</span><span class="n">code</span> <span class="o">==</span> <span class="s2">&quot;3&quot;</span><span class="w">
+
+</span><span class="c1"># Match by value transition</span><span class="w">
+</span><span class="n">old_value</span><span class="o">.</span><span class="n">code</span> <span class="o">==</span> <span class="s2">&quot;1&quot;</span> <span class="ow">and</span> <span class="n">new_value</span><span class="o">.</span><span class="n">code</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;32&quot;</span><span class="p">,</span> <span class="s2">&quot;33&quot;</span><span class="p">]</span><span class="w">
+
+</span><span class="c1"># Match by parent category (hierarchical vocabulary)</span><span class="w">
+</span><span class="n">new_value</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">code</span> <span class="o">==</span> <span class="s2">&quot;active&quot;</span><span class="w">
+
+</span><span class="c1"># Combine field and value conditions</span><span class="w">
+</span><span class="n">record</span><span class="o">.</span><span class="n">selected_field_name</span> <span class="o">==</span> <span class="s2">&quot;status_id&quot;</span> <span class="ow">and</span> <span class="p">(</span><span class="w">
+</span>    <span class="n">new_value</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">code</span> <span class="o">==</span> <span class="s2">&quot;active&quot;</span> <span class="ow">or</span><span class="w">
+</span>    <span class="n">old_value</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">code</span> <span class="o">==</span> <span class="s2">&quot;graduated&quot;</span><span class="w">
+</span><span class="p">)</span>
+</pre>
+<p><strong>Combining dynamic approval with multi-tier</strong></p>
+<p>A candidate definition can itself be multi-tier. For example, status
+changes that require three-tier approval:</p>
+<pre class="code xml literal-block">
+<span class="cm">&lt;!-- Definition with CEL condition --&gt;</span><span class="w">
+</span><span class="nt">&lt;record</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;approval_def_update_info_escalated&quot;</span><span class="w"> </span><span class="na">model=</span><span class="s">&quot;spp.approval.definition&quot;</span><span class="nt">&gt;</span><span class="w">
+    </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;name&quot;</span><span class="nt">&gt;</span>Update<span class="w"> </span>Info<span class="w"> </span>-<span class="w"> </span>Escalated<span class="w"> </span>(3-Tier)<span class="nt">&lt;/field&gt;</span><span class="w">
+    </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;model_id&quot;</span><span class="w"> </span><span class="na">ref=</span><span class="s">&quot;spp_change_request_v2.model_spp_change_request&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+    </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;approval_type&quot;</span><span class="nt">&gt;</span>group<span class="nt">&lt;/field&gt;</span><span class="w">
+    </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;approval_group_id&quot;</span><span class="w"> </span><span class="na">ref=</span><span class="s">&quot;my_module.group_tier1&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+    </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;sequence&quot;</span><span class="nt">&gt;</span>5<span class="nt">&lt;/field&gt;</span><span class="w">
+    </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;use_cel_condition&quot;</span><span class="nt">&gt;</span>True<span class="nt">&lt;/field&gt;</span><span class="w">
+    </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;cel_condition&quot;</span><span class="nt">&gt;</span>record.selected_field_name<span class="w"> </span>==<span class="w"> </span>&quot;status_id&quot;<span class="w">
+        </span>and<span class="w"> </span>old_value.code<span class="w"> </span>==<span class="w"> </span>&quot;1&quot;<span class="w"> </span>and<span class="w"> </span>new_value.code<span class="w"> </span>in<span class="w"> </span>[&quot;32&quot;,<span class="w"> </span>&quot;33&quot;]<span class="nt">&lt;/field&gt;</span><span class="w">
+</span><span class="nt">&lt;/record&gt;</span><span class="w">
+
+</span><span class="cm">&lt;!-- Three tiers --&gt;</span><span class="w">
+</span><span class="nt">&lt;record</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;tier_escalated_1&quot;</span><span class="w"> </span><span class="na">model=</span><span class="s">&quot;spp.approval.tier&quot;</span><span class="nt">&gt;</span><span class="w">
+    </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;definition_id&quot;</span><span class="w"> </span><span class="na">ref=</span><span class="s">&quot;approval_def_update_info_escalated&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+    </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;name&quot;</span><span class="nt">&gt;</span>Tier<span class="w"> </span>1<span class="w"> </span>-<span class="w"> </span>Field<span class="w"> </span>Office<span class="nt">&lt;/field&gt;</span><span class="w">
+    </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;sequence&quot;</span><span class="nt">&gt;</span>10<span class="nt">&lt;/field&gt;</span><span class="w">
+    </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;approval_type&quot;</span><span class="nt">&gt;</span>group<span class="nt">&lt;/field&gt;</span><span class="w">
+    </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;approval_group_id&quot;</span><span class="w"> </span><span class="na">ref=</span><span class="s">&quot;my_module.group_tier1&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+</span><span class="nt">&lt;/record&gt;</span><span class="w">
+
+</span><span class="nt">&lt;record</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;tier_escalated_2&quot;</span><span class="w"> </span><span class="na">model=</span><span class="s">&quot;spp.approval.tier&quot;</span><span class="nt">&gt;</span><span class="w">
+    </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;definition_id&quot;</span><span class="w"> </span><span class="na">ref=</span><span class="s">&quot;approval_def_update_info_escalated&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+    </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;name&quot;</span><span class="nt">&gt;</span>Tier<span class="w"> </span>2<span class="w"> </span>-<span class="w"> </span>Regional<span class="nt">&lt;/field&gt;</span><span class="w">
+    </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;sequence&quot;</span><span class="nt">&gt;</span>20<span class="nt">&lt;/field&gt;</span><span class="w">
+    </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;approval_type&quot;</span><span class="nt">&gt;</span>group<span class="nt">&lt;/field&gt;</span><span class="w">
+    </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;approval_group_id&quot;</span><span class="w"> </span><span class="na">ref=</span><span class="s">&quot;my_module.group_tier2&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+</span><span class="nt">&lt;/record&gt;</span><span class="w">
+
+</span><span class="nt">&lt;record</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;tier_escalated_3&quot;</span><span class="w"> </span><span class="na">model=</span><span class="s">&quot;spp.approval.tier&quot;</span><span class="nt">&gt;</span><span class="w">
+    </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;definition_id&quot;</span><span class="w"> </span><span class="na">ref=</span><span class="s">&quot;approval_def_update_info_escalated&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+    </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;name&quot;</span><span class="nt">&gt;</span>Tier<span class="w"> </span>3<span class="w"> </span>-<span class="w"> </span>National<span class="nt">&lt;/field&gt;</span><span class="w">
+    </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;sequence&quot;</span><span class="nt">&gt;</span>30<span class="nt">&lt;/field&gt;</span><span class="w">
+    </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;approval_type&quot;</span><span class="nt">&gt;</span>group<span class="nt">&lt;/field&gt;</span><span class="w">
+    </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;approval_group_id&quot;</span><span class="w"> </span><span class="na">ref=</span><span class="s">&quot;my_module.group_tier3&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="w">
+</span><span class="nt">&lt;/record&gt;</span><span class="w">
+
+</span><span class="cm">&lt;!-- Enable multi-tier AFTER tiers exist --&gt;</span><span class="w">
+</span><span class="nt">&lt;record</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;approval_def_update_info_escalated&quot;</span><span class="w"> </span><span class="na">model=</span><span class="s">&quot;spp.approval.definition&quot;</span><span class="nt">&gt;</span><span class="w">
+    </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;use_multitier&quot;</span><span class="nt">&gt;</span>True<span class="nt">&lt;/field&gt;</span><span class="w">
+</span><span class="nt">&lt;/record&gt;</span>
+</pre>
+</div>
+<div class="section" id="methods-reference">
+<h1>Methods Reference</h1>
+<p>Methods available for override on detail models (all inherited from
+<tt class="docutils literal">spp.cr.detail.base</tt>):</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="35%" />
+<col width="15%" />
+<col width="35%" />
+<col width="16%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Method</th>
+<th class="head">Decorator</th>
+<th class="head">Returns</th>
+<th class="head">When to
+override</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><tt class="docutils literal">_get_field_to_modify_selection()</tt></td>
+<td><tt class="docutils literal">&#64;api.model</tt></td>
+<td><tt class="docutils literal">[(field, label), <span class="pre">...]</span></tt></td>
+<td>Dynamic
+approval:
+define
+selectable
+fields</td>
+</tr>
+<tr><td><tt class="docutils literal">_get_prefill_mapping()</tt></td>
+<td>instance</td>
+<td><tt class="docutils literal">{detail_field: registrant_field}</tt></td>
+<td>Pre-fill detail
+from registrant
+on creation</td>
+</tr>
+<tr><td><tt class="docutils literal">prefill_from_registrant()</tt></td>
+<td>instance</td>
+<td>None</td>
+<td>Detail has
+boolean fields
+that need
+<tt class="docutils literal">False</tt>
+pre-filled</td>
+</tr>
+</tbody>
+</table>
+<p>Related fields available on all detail models (from
+<tt class="docutils literal">spp.cr.detail.base</tt>):</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="28%" />
+<col width="11%" />
+<col width="61%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Field</th>
+<th class="head">Type</th>
+<th class="head">Source</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><tt class="docutils literal">change_request_id</tt></td>
+<td>Many2one</td>
+<td>Direct link to parent CR</td>
+</tr>
+<tr><td><tt class="docutils literal">registrant_id</tt></td>
+<td>Many2one</td>
+<td><tt class="docutils literal">change_request_id.registrant_id</tt></td>
+</tr>
+<tr><td><tt class="docutils literal">approval_state</tt></td>
+<td>Selection</td>
+<td><tt class="docutils literal">change_request_id.approval_state</tt></td>
+</tr>
+<tr><td><tt class="docutils literal">is_applied</tt></td>
+<td>Boolean</td>
+<td><tt class="docutils literal">change_request_id.is_applied</tt></td>
+</tr>
+<tr><td><tt class="docutils literal">use_dynamic_approval</tt></td>
+<td>Boolean</td>
+<td><tt class="docutils literal">change_request_id.request_type_id.use_dynamic_approval</tt></td>
+</tr>
+<tr><td><tt class="docutils literal">field_to_modify</tt></td>
+<td>Selection</td>
+<td>Dynamic field selector (populated by
+<tt class="docutils literal">_get_field_to_modify_selection</tt>)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="cr-type-fields-reference">
+<h1>CR Type Fields Reference</h1>
+<table border="1" class="docutils">
+<colgroup>
+<col width="36%" />
+<col width="13%" />
+<col width="25%" />
+<col width="26%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Field</th>
+<th class="head">Type</th>
+<th class="head">Default</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><tt class="docutils literal">name</tt></td>
+<td>Char</td>
+<td>required</td>
+<td>Display name</td>
+</tr>
+<tr><td><tt class="docutils literal">code</tt></td>
+<td>Char</td>
+<td>required</td>
+<td>Unique identifier
+(lowercase,
+underscores)</td>
+</tr>
+<tr><td><tt class="docutils literal">target_type</tt></td>
+<td>Selection</td>
+<td><tt class="docutils literal">&quot;both&quot;</tt></td>
+<td><tt class="docutils literal">&quot;individual&quot;</tt>,
+<tt class="docutils literal">&quot;group&quot;</tt>, or
+<tt class="docutils literal">&quot;both&quot;</tt></td>
+</tr>
+<tr><td><tt class="docutils literal">detail_model</tt></td>
+<td>Char</td>
+<td>required</td>
+<td>Technical name of
+the detail model</td>
+</tr>
+<tr><td><tt class="docutils literal">detail_form_view_id</tt></td>
+<td>Many2one</td>
+<td>required</td>
+<td>Reference to the
+detail form view</td>
+</tr>
+<tr><td><tt class="docutils literal">apply_strategy</tt></td>
+<td>Selection</td>
+<td><tt class="docutils literal">&quot;field_mapping&quot;</tt></td>
+<td><tt class="docutils literal">&quot;field_mapping&quot;</tt>,
+<tt class="docutils literal">&quot;custom&quot;</tt>, or
+<tt class="docutils literal">&quot;manual&quot;</tt></td>
+</tr>
+<tr><td><tt class="docutils literal">auto_apply_on_approve</tt></td>
+<td>Boolean</td>
+<td><tt class="docutils literal">True</tt></td>
+<td>Apply changes
+automatically after
+final approval</td>
+</tr>
+<tr><td><tt class="docutils literal">approval_definition_id</tt></td>
+<td>Many2one</td>
+<td>required</td>
+<td>Static/fallback
+approval workflow</td>
+</tr>
+<tr><td><tt class="docutils literal">use_dynamic_approval</tt></td>
+<td>Boolean</td>
+<td><tt class="docutils literal">False</tt></td>
+<td>Enable field-level
+approval routing</td>
+</tr>
+<tr><td><tt class="docutils literal">candidate_definition_ids</tt></td>
+<td>Many2many</td>
+<td>empty</td>
+<td>Candidate
+definitions for
+dynamic routing</td>
+</tr>
+<tr><td><tt class="docutils literal">icon</tt></td>
+<td>Char</td>
+<td>optional</td>
+<td>FontAwesome icon
+class (e.g.,
+<tt class="docutils literal"><span class="pre">&quot;fa-cog&quot;</span></tt>)</td>
+</tr>
+<tr><td><tt class="docutils literal">sequence</tt></td>
+<td>Integer</td>
+<td><tt class="docutils literal">10</tt></td>
+<td>Display order in
+type lists</td>
+</tr>
+<tr><td><tt class="docutils literal">is_system_type</tt></td>
+<td>Boolean</td>
+<td><tt class="docutils literal">False</tt></td>
+<td>Installed by a
+module (not
+user-created)</td>
+</tr>
+<tr><td><tt class="docutils literal">source_module</tt></td>
+<td>Char</td>
+<td>optional</td>
+<td>Module that
+installed this type</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="checklist">
+<h1>Checklist</h1>
+<p>Before declaring a new CR type complete:</p>
+<ul class="simple">
+<li>Detail model inherits <tt class="docutils literal">spp.cr.detail.base</tt> and <tt class="docutils literal">mail.thread</tt></li>
+<li>No <tt class="docutils literal">required=True</tt> on detail fields (validate at submission, not
+creation)</li>
+<li><tt class="docutils literal">_get_prefill_mapping()</tt> defined if fields should pre-fill from
+registrant</li>
+<li><tt class="docutils literal">prefill_from_registrant()</tt> overridden if detail has boolean fields</li>
+<li>Form view uses <tt class="docutils literal">approval_state</tt> (not raw state field) for visibility</li>
+<li>Form view uses <tt class="docutils literal">use_dynamic_approval</tt> (not the 3-level chain) for
+dynamic visibility</li>
+<li>Views listed before data in <tt class="docutils literal">__manifest__.py</tt> (data references
+<tt class="docutils literal">detail_form_view_id</tt>)</li>
+<li><tt class="docutils literal">ir.model.access.csv</tt> has 4 rows (user, validator, validator_hq,
+manager)</li>
+<li>Field mappings exist for every field that should be applied to the
+registrant</li>
+<li>Approval definition has <tt class="docutils literal">model_id</tt> pointing to
+<tt class="docutils literal">spp_change_request_v2.model_spp_change_request</tt></li>
+<li>If multi-tier: tiers created before <tt class="docutils literal">use_multitier=True</tt> is set</li>
+<li>If dynamic: fallback definition has <tt class="docutils literal">sequence=100</tt> (evaluated last)</li>
+<li>Tests cover CR creation, approval routing, and field application</li>
+</ul>
 <div class="section" id="bug-tracker">
-<h2><a class="toc-backref" href="#toc-entry-1">Bug Tracker</a></h2>
+<h2>Bug Tracker</h2>
 <p>Bugs are tracked on <a class="reference external" href="https://github.com/OpenSPP/OpenSPP2/issues">GitHub Issues</a>.
 In case of trouble, please check there if your issue has already been reported.
 If you spotted it first, help us to smash it by providing a detailed and welcomed
@@ -608,15 +1343,15 @@ If you spotted it first, help us to smash it by providing a detailed and welcome
 <p>Do not contact contributors directly about support or help with technical issues.</p>
 </div>
 <div class="section" id="credits">
-<h2><a class="toc-backref" href="#toc-entry-2">Credits</a></h2>
+<h2>Credits</h2>
 <div class="section" id="authors">
-<h3><a class="toc-backref" href="#toc-entry-3">Authors</a></h3>
+<h3>Authors</h3>
 <ul class="simple">
 <li>OpenSPP.org</li>
 </ul>
 </div>
 <div class="section" id="maintainers">
-<h3><a class="toc-backref" href="#toc-entry-4">Maintainers</a></h3>
+<h3>Maintainers</h3>
 <p>This module is part of the <a class="reference external" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_change_request_v2">OpenSPP/OpenSPP2</a> project on GitHub.</p>
 <p>You are welcome to contribute.</p>
 </div>
