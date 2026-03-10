@@ -4,6 +4,7 @@ Configuration-driven change request system for managing registrant data updates.
 
 - Create change requests using configurable request types with custom detail models
 - Multi-tier approval workflows with automatic routing based on approval definitions
+- Dynamic approval: route CRs to different approval workflows based on which field is being modified, with CEL condition evaluation for field-specific escalation
 - Detect conflicting change requests (same registrant, same group, or same field)
 - Prevent duplicate submissions with configurable similarity thresholds
 - Validate required fields and documents before submission
