@@ -354,6 +354,17 @@ class VocabularyCode(models.Model):
         return [(rec.id, f"{rec.display} ({rec.code})") for rec in self]
 
     @api.model
+    def name_search(self, name="", domain=None, operator="ilike", limit=None):
+        """Override name_search to add additional domain conditions.
+        Specifically, if display happens to be the same for different
+        namespaces, the namespace should be used to disambiguate.
+        """
+        extra = self.env.context.get("_import_name_search_domain", [])
+        if extra:
+            domain = list(domain or []) + extra
+        return super().name_search(name=name, domain=domain, operator=operator, limit=limit)
+
+    @api.model
     @tools.ormcache("namespace_uri", "code")
     def _get_code_id(self, namespace_uri, code):
         """Cached lookup by namespace + code.

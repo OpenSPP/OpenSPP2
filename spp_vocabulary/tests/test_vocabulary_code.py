@@ -1,3 +1,6 @@
+from types import SimpleNamespace
+from unittest.mock import MagicMock
+
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
@@ -786,3 +789,85 @@ class TestVocabularyCode(TransactionCase):
         # URI should be recomputed
         self.assertEqual(code.uri, "urn:test:user#CHANGED")
         self.assertNotEqual(code.uri, original_uri)
+
+    # Import name_search scoping tests
+    def _create_shared_display_codes(self, display="Active"):
+        """Helper: create a code with the same display in two different vocabularies."""
+        code_user = self.VocabularyCode.create(
+            {"vocabulary_id": self.vocab_user.id, "code": "NS_ACT1", "display": display}
+        )
+        code_system = self.VocabularyCode.with_context(_test_bypass_system_protection=True).create(
+            {"vocabulary_id": self.vocab_system.id, "code": "NS_ACT2", "display": display}
+        )
+        return code_user, code_system
+
+    def test_name_search_without_context_returns_all_matches(self):
+        """Without context domain, name_search returns codes from all vocabularies."""
+        code_user, code_system = self._create_shared_display_codes("SharedDisplay")
+        results = self.VocabularyCode.name_search("SharedDisplay", operator="=")
+        result_ids = [r[0] for r in results]
+        self.assertIn(code_user.id, result_ids)
+        self.assertIn(code_system.id, result_ids)
+
+    def test_name_search_with_context_domain_scopes_to_vocabulary(self):
+        """With _import_name_search_domain in context, name_search is restricted to that vocabulary."""
+        code_user, code_system = self._create_shared_display_codes("ScopedDisplay")
+        domain = [("vocabulary_id", "=", self.vocab_user.id)]
+        results = self.VocabularyCode.with_context(_import_name_search_domain=domain).name_search(
+            "ScopedDisplay", operator="="
+        )
+        result_ids = [r[0] for r in results]
+        self.assertIn(code_user.id, result_ids)
+        self.assertNotIn(code_system.id, result_ids)
+
+    def test_name_search_context_domain_does_not_affect_other_vocabulary(self):
+        """Context domain scoped to system vocab excludes user vocab codes."""
+        code_user, code_system = self._create_shared_display_codes("OtherScopeDisplay")
+        domain = [("vocabulary_id", "=", self.vocab_system.id)]
+        results = self.VocabularyCode.with_context(_import_name_search_domain=domain).name_search(
+            "OtherScopeDisplay", operator="="
+        )
+        result_ids = [r[0] for r in results]
+        self.assertIn(code_system.id, result_ids)
+        self.assertNotIn(code_user.id, result_ids)
+
+    def test_db_id_for_list_domain_scopes_name_search(self):
+        """db_id_for passes a list field domain to name_search, avoiding cross-vocab matches."""
+        code_user, code_system = self._create_shared_display_codes("DbIdDisplay")
+        field = SimpleNamespace(
+            domain=[("vocabulary_id", "=", self.vocab_user.id)],
+            comodel_name="spp.vocabulary.code",
+        )
+        savepoint = MagicMock()
+        converter = self.env["ir.fields.converter"]
+        result_id, warnings = converter.db_id_for(None, field, None, "DbIdDisplay", savepoint)
+        self.assertEqual(result_id, code_user.id)
+        self.assertEqual(warnings, [])
+
+    def test_db_id_for_string_domain_scopes_name_search(self):
+        """db_id_for evaluates a static string domain and applies it to name_search."""
+        code_user, code_system = self._create_shared_display_codes("StrDomainDisplay")
+        domain_str = f"[('vocabulary_id', '=', {self.vocab_user.id})]"
+        field = SimpleNamespace(
+            domain=domain_str,
+            comodel_name="spp.vocabulary.code",
+        )
+        savepoint = MagicMock()
+        converter = self.env["ir.fields.converter"]
+        result_id, warnings = converter.db_id_for(None, field, None, "StrDomainDisplay", savepoint)
+        self.assertEqual(result_id, code_user.id)
+        self.assertEqual(warnings, [])
+
+    def test_db_id_for_no_domain_returns_multiple_match_warning(self):
+        """db_id_for with no field domain falls back to unscoped search, producing a multiple-match warning."""
+        code_user, code_system = self._create_shared_display_codes("NoDomainDisplay")
+        field = SimpleNamespace(
+            domain=[],
+            comodel_name="spp.vocabulary.code",
+        )
+        savepoint = MagicMock()
+        converter = self.env["ir.fields.converter"]
+        result_id, warnings = converter.db_id_for(None, field, None, "NoDomainDisplay", savepoint)
+        # Still resolves (picks first), but warns about multiple matches
+        self.assertIsNotNone(result_id)
+        self.assertTrue(len(warnings) > 0)
