@@ -32,7 +32,6 @@
         "data/vocabulary_occupation.xml",
         "data/vocabulary_education_level.xml",
         "data/vocabulary_ethnocultural.xml",
-        "data/vocabulary_disability.xml",
         "data/vocabulary_housing.xml",
         "data/vocabulary_economic_activity.xml",
         "data/vocabulary_language.xml",

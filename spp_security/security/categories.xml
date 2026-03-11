@@ -194,6 +194,14 @@
         <field name="sequence">150</field>
     </record>
 
+    <!-- Disability Registry Domain Category -->
+    <record id="category_spp_disability" model="ir.module.category">
+        <field name="name">Disability Registry</field>
+        <field name="description">Disability assessment and registry management</field>
+        <field name="parent_id" ref="category_spp" />
+        <field name="sequence">76</field>
+    </record>
+
     <!-- Session Tracking Domain Category -->
     <record id="category_spp_sessions" model="ir.module.category">
         <field name="name">Sessions</field>
