@@ -369,7 +369,7 @@ ul.auto-toc {
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! source digest: sha256:b57dea1315fd1f9af8f15720c5332b182c0a01fddd827a3daa73a8e950d41faa
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Beta" src="https://img.shields.io/badge/maturity-Beta-yellow.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_import_match"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Alpha" src="https://img.shields.io/badge/maturity-Alpha-red.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_import_match"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
 <p>Extends Odoo’s base import functionality to match incoming records
 against existing data during bulk imports. Prevents duplicate creation
 by comparing imported rows to database records using configurable field
@@ -396,8 +396,8 @@ duplicate entries</li>
 <h1>Key Models</h1>
 <table border="1" class="docutils">
 <colgroup>
-<col width="43%" />
-<col width="57%" />
+<col width="42%" />
+<col width="58%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Model</th>
@@ -475,6 +475,11 @@ imports</li>
 <h1>Dependencies</h1>
 <p><tt class="docutils literal">base</tt>, <tt class="docutils literal">spp_base_common</tt>, <tt class="docutils literal">base_import</tt>, <tt class="docutils literal">queue_job</tt>,
 <tt class="docutils literal">spp_security</tt></p>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">This is an alpha version, the data model and design can change at any time without warning.
+Only for development or testing purpose, do not use in production.</p>
+</div>
 <p><strong>Table of contents</strong></p>
 <div class="contents local topic" id="contents">
 <ul class="simple">

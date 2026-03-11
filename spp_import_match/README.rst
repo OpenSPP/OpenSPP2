@@ -10,9 +10,9 @@ OpenSPP Import Match
    !! source digest: sha256:b57dea1315fd1f9af8f15720c5332b182c0a01fddd827a3daa73a8e950d41faa
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/maturity-Beta-yellow.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Alpha-red.png
     :target: https://odoo-community.org/page/development-status
-    :alt: Beta
+    :alt: Alpha
 .. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
@@ -47,15 +47,15 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+-----------------------------+---------------------------------------+
-| Model                       | Description                           |
-+=============================+=======================================+
-| ``spp.import.match``        | Matching rule configuration for a     |
-|                             | specific model                        |
-+-----------------------------+---------------------------------------+
-| ``spp.import.match.fields`` | Individual fields used in a rule,     |
-|                             | supports sub-fields                   |
-+-----------------------------+---------------------------------------+
++-----------------------------+----------------------------------------+
+| Model                       | Description                            |
++=============================+========================================+
+| ``spp.import.match``        | Matching rule configuration for a      |
+|                             | specific model                         |
++-----------------------------+----------------------------------------+
+| ``spp.import.match.fields`` | Individual fields used in a rule,      |
+|                             | supports sub-fields                    |
++-----------------------------+----------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -105,6 +105,10 @@ Dependencies
 
 ``base``, ``spp_base_common``, ``base_import``, ``queue_job``,
 ``spp_security``
+
+.. IMPORTANT::
+   This is an alpha version, the data model and design can change at any time without warning.
+   Only for development or testing purpose, do not use in production.
 
 **Table of contents**
 
