@@ -394,35 +394,16 @@ writes and include variable values in responses</li>
 </div>
 <div class="section" id="key-models">
 <h1>Key Models</h1>
-<table border="1" class="docutils">
-<colgroup>
-<col width="52%" />
-<col width="48%" />
-</colgroup>
-<thead valign="bottom">
-<tr><th class="head">Model</th>
-<th class="head">Description</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr><td><tt class="docutils literal">spp.studio.api.individual.mixin</tt></td>
-<td>Service methods for Individual
-API extension and variable data</td>
-</tr>
-<tr><td><tt class="docutils literal">spp.studio.api.group.mixin</tt></td>
-<td>Service methods for Group API
-extension and variable data</td>
-</tr>
-<tr><td><tt class="docutils literal">spp.studio.field</tt> (extended)</td>
-<td>Adds <tt class="docutils literal">api_exposed</tt> flag and
-auto-registration hooks</td>
-</tr>
-<tr><td><tt class="docutils literal">fastapi.endpoint</tt> (extended)</td>
-<td>Mounts Studio router on API v2
-endpoint</td>
-</tr>
-</tbody>
-</table>
+<ul class="simple">
+<li><tt class="docutils literal">spp.studio.api.individual.mixin</tt> — Service methods for Individual
+API extension and variable data</li>
+<li><tt class="docutils literal">spp.studio.api.group.mixin</tt> — Service methods for Group API
+extension and variable data</li>
+<li><tt class="docutils literal">spp.studio.field</tt> (extended) — Adds <tt class="docutils literal">api_exposed</tt> flag and
+auto-registration hooks</li>
+<li><tt class="docutils literal">fastapi.endpoint</tt> (extended) — Mounts Studio router on API v2
+endpoint</li>
+</ul>
 </div>
 <div class="section" id="api-endpoints">
 <h1>API Endpoints</h1>
@@ -456,29 +437,12 @@ fields are activated.</p>
 </div>
 <div class="section" id="security">
 <h1>Security</h1>
-<table border="1" class="docutils">
-<colgroup>
-<col width="51%" />
-<col width="49%" />
-</colgroup>
-<thead valign="bottom">
-<tr><th class="head">Group</th>
-<th class="head">Access</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr><td><tt class="docutils literal">spp_api_v2.group_api_v2_read</tt></td>
-<td>Read on service mixins</td>
-</tr>
-<tr><td><tt class="docutils literal">spp_api_v2.group_api_v2_write</tt></td>
-<td>Read/Write on service mixins</td>
-</tr>
-<tr><td><tt class="docutils literal">spp_api_v2.group_api_v2_create</tt></td>
-<td>Read/Write/Create on service
-mixins (no delete)</td>
-</tr>
-</tbody>
-</table>
+<ul class="simple">
+<li><tt class="docutils literal">spp_api_v2.group_api_v2_read</tt> — Read on service mixins</li>
+<li><tt class="docutils literal">spp_api_v2.group_api_v2_write</tt> — Read/Write on service mixins</li>
+<li><tt class="docutils literal">spp_api_v2.group_api_v2_create</tt> — Read/Write/Create on service
+mixins (no delete)</li>
+</ul>
 <p>API authorization uses scope-based authentication (<tt class="docutils literal">studio:read</tt>
 scope), not Odoo group checks.</p>
 </div>

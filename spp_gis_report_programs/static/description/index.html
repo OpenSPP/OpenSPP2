@@ -387,27 +387,12 @@ program</li>
 </div>
 <div class="section" id="key-models">
 <h1>Key Models</h1>
-<table border="1" class="docutils">
-<colgroup>
-<col width="39%" />
-<col width="61%" />
-</colgroup>
-<thead valign="bottom">
-<tr><th class="head">Model</th>
-<th class="head">Extension</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr><td><tt class="docutils literal">spp.gis.report</tt></td>
-<td>Adds <tt class="docutils literal">program_id</tt> field and filters
-domain by program members</td>
-</tr>
-<tr><td><tt class="docutils literal">spp.gis.report.wizard</tt></td>
-<td>Adds <tt class="docutils literal">program_id</tt> selection with
-validation and code suffix</td>
-</tr>
-</tbody>
-</table>
+<ul class="simple">
+<li><tt class="docutils literal">spp.gis.report</tt> — Adds <tt class="docutils literal">program_id</tt> field and filters domain by
+program members</li>
+<li><tt class="docutils literal">spp.gis.report.wizard</tt> — Adds <tt class="docutils literal">program_id</tt> selection with
+validation and code suffix</li>
+</ul>
 </div>
 <div class="section" id="configuration">
 <h1>Configuration</h1>
@@ -425,31 +410,14 @@ generating reports from templates</li>
 </div>
 <div class="section" id="security">
 <h1>Security</h1>
-<table border="1" class="docutils">
-<colgroup>
-<col width="55%" />
-<col width="45%" />
-</colgroup>
-<thead valign="bottom">
-<tr><th class="head">Group</th>
-<th class="head">Access</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr><td><tt class="docutils literal">spp_programs.group_programs_officer</tt></td>
-<td>Read GIS reports, data,
-templates, etc.</td>
-</tr>
-<tr><td><tt class="docutils literal">spp_programs.group_programs_manager</tt></td>
-<td>Read/Write (no create/unlink)
-all models</td>
-</tr>
-<tr><td><tt class="docutils literal">spp_gis_report.group_gis_report_user</tt></td>
-<td>Implied for program managers via
-XML</td>
-</tr>
-</tbody>
-</table>
+<ul class="simple">
+<li><tt class="docutils literal">spp_programs.group_programs_officer</tt> — Read GIS reports, data,
+templates, etc.</li>
+<li><tt class="docutils literal">spp_programs.group_programs_manager</tt> — Read/Write (no
+create/unlink) all models</li>
+<li><tt class="docutils literal">spp_gis_report.group_gis_report_user</tt> — Implied for program
+managers via XML</li>
+</ul>
 <p>Models with access: <tt class="docutils literal">spp.gis.report</tt>, <tt class="docutils literal">spp.gis.report.data</tt>,
 <tt class="docutils literal">spp.gis.report.threshold</tt>, <tt class="docutils literal">spp.gis.report.template</tt>,
 <tt class="docutils literal">spp.gis.report.category</tt></p>

@@ -397,12 +397,12 @@ async def list_variables(
     for var in variables:
         # Skip variables with missing required fields to avoid validation errors
         # All required fields must be non-empty strings
-        cel_accessor = var.cel_accessor
-        value_type = var.value_type
-        source_type = var.source_type
-        applies_to = var.applies_to
+        var_cel_accessor = var.cel_accessor
+        var_value_type = var.value_type
+        var_source_type = var.source_type
+        var_applies_to = var.applies_to
 
-        if not cel_accessor or not value_type or not source_type or not applies_to:
+        if not var_cel_accessor or not var_value_type or not var_source_type or not var_applies_to:
             _logger.warning("Skipping variable ID %s with missing required fields", var.id)
             continue
 
@@ -410,14 +410,14 @@ async def list_variables(
         try:
             items.append(
                 VariableInfo(
-                    name=str(cel_accessor),
-                    label=str(getattr(var, "label", None) or var.name or cel_accessor),
+                    name=str(var_cel_accessor),
+                    label=str(getattr(var, "label", None) or var.name or var_cel_accessor),
                     description=str(getattr(var, "description", None) or "")
                     if getattr(var, "description", None)
                     else None,
-                    valueType=str(value_type),
-                    sourceType=str(source_type),
-                    appliesTo=str(applies_to),
+                    valueType=str(var_value_type),
+                    sourceType=str(var_source_type),
+                    appliesTo=str(var_applies_to),
                     periodGranularity=str(var.period_granularity) if var.period_granularity else "current",
                     supportsHistorical=bool(var.supports_historical),
                     unit=str(getattr(var, "unit", None)) if getattr(var, "unit", None) else None,

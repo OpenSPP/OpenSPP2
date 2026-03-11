@@ -16,6 +16,7 @@
         "views/gis_report_views.xml",
         "views/gis_report_wizard_views.xml",
     ],
+    "development_status": "Beta",
     "installable": True,
     "application": False,
     "auto_install": True,

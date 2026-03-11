@@ -11,12 +11,10 @@ Bridge module that exposes Studio custom fields and CEL variables through API v2
 
 ### Key Models
 
-| Model                                 | Description                                                    |
-| ------------------------------------- | -------------------------------------------------------------- |
-| `spp.studio.api.individual.mixin`     | Service methods for Individual API extension and variable data |
-| `spp.studio.api.group.mixin`          | Service methods for Group API extension and variable data      |
-| `spp.studio.field` (extended)         | Adds `api_exposed` flag and auto-registration hooks            |
-| `fastapi.endpoint` (extended)         | Mounts Studio router on API v2 endpoint                        |
+- `spp.studio.api.individual.mixin` — Service methods for Individual API extension and variable data
+- `spp.studio.api.group.mixin` — Service methods for Group API extension and variable data
+- `spp.studio.field` (extended) — Adds `api_exposed` flag and auto-registration hooks
+- `fastapi.endpoint` (extended) — Mounts Studio router on API v2 endpoint
 
 ### API Endpoints
 
@@ -41,11 +39,9 @@ No dedicated UI. Field registration happens automatically when Studio fields are
 
 ### Security
 
-| Group                                | Access                                                   |
-| ------------------------------------ | -------------------------------------------------------- |
-| `spp_api_v2.group_api_v2_read`       | Read on service mixins                                   |
-| `spp_api_v2.group_api_v2_write`      | Read/Write on service mixins                             |
-| `spp_api_v2.group_api_v2_create`     | Read/Write/Create on service mixins (no delete)          |
+- `spp_api_v2.group_api_v2_read` — Read on service mixins
+- `spp_api_v2.group_api_v2_write` — Read/Write on service mixins
+- `spp_api_v2.group_api_v2_create` — Read/Write/Create on service mixins (no delete)
 
 API authorization uses scope-based authentication (`studio:read` scope), not Odoo group checks.
 
