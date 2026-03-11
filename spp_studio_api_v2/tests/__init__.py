@@ -4,3 +4,4 @@ from . import test_variable_value_service
 from . import test_studio_field_registration
 from . import test_studio_router
 from . import test_extension_api_integration
+from . import test_coverage_gaps
