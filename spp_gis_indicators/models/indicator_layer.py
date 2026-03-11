@@ -387,6 +387,8 @@ class GisIndicatorLayer(models.Model):
         num_colors = len(colors)
 
         for ind in indicators:
+            if not ind.value and ind.value != 0:
+                continue
             # Determine which class this value falls into
             class_idx = 0
             for i, break_val in enumerate(breaks):

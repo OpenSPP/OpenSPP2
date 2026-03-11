@@ -89,9 +89,9 @@ class CelVocabularyFunctions(models.AbstractModel):
             # Register with CEL function registry
             if registry.register(name, marked):
                 count += 1
-                _logger.debug(f"[CEL Vocabulary] Registered function '{name}'")
+                _logger.debug("[CEL Vocabulary] Registered function '%s'", name)
 
-        _logger.info(f"[CEL Vocabulary] Registered {count} vocabulary function(s)")
+        _logger.info("[CEL Vocabulary] Registered %d vocabulary function(s)", count)
 
         return count
 
@@ -110,9 +110,9 @@ class CelVocabularyFunctions(models.AbstractModel):
         for name in vocab_funcs.VOCABULARY_FUNCTIONS.keys():
             if registry.unregister(name):
                 count += 1
-                _logger.debug(f"[CEL Vocabulary] Unregistered function '{name}'")
+                _logger.debug("[CEL Vocabulary] Unregistered function '%s'", name)
 
-        _logger.info(f"[CEL Vocabulary] Unregistered {count} vocabulary function(s)")
+        _logger.info("[CEL Vocabulary] Unregistered %d vocabulary function(s)", count)
 
         return count
 

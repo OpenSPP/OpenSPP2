@@ -2,6 +2,7 @@
 
 import json
 
+from odoo.exceptions import ValidationError
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
@@ -51,7 +52,7 @@ class TestDataLayerIndicators(TransactionCase):
             }
         )
 
-        # Find or create a geo field for testing
+        # Find a geo field for testing
         geo_field = cls.env["ir.model.fields"].search(
             [
                 ("model", "=", "spp.area"),
@@ -60,11 +61,20 @@ class TestDataLayerIndicators(TransactionCase):
             limit=1,
         )
 
-        if not geo_field:
-            # Create a mock data layer without geo_field
-            cls.geo_field_id = False
-        else:
-            cls.geo_field_id = geo_field.id
+        cls.geo_field_id = geo_field.id if geo_field else False
+
+        # Find a GIS view for testing
+        cls.gis_view = cls.env["ir.ui.view"].search(
+            [("type", "=", "spp_gis")],
+            limit=1,
+        )
+
+    def _skip_if_no_gis_prereqs(self):
+        """Skip test if GIS prerequisites are missing."""
+        if not self.gis_view:
+            self.skipTest("No GIS view available for testing")
+        if not self.geo_field_id:
+            self.skipTest("No geo_polygon field available for testing")
 
     def test_geo_repr_choropleth_option(self):
         """Test that choropleth is available as geo_repr option."""
@@ -78,22 +88,14 @@ class TestDataLayerIndicators(TransactionCase):
 
     def test_create_data_layer_with_choropleth(self):
         """Test creating a data layer with choropleth representation."""
-        # Get any available GIS view
-        gis_view = self.env["ir.ui.view"].search(
-            [
-                ("type", "=", "spp_gis"),
-            ],
-            limit=1,
-        )
-
-        if not gis_view:
-            self.skipTest("No GIS view available for testing")
+        self._skip_if_no_gis_prereqs()
 
         # Try to create data layer
         layer = self.DataLayer.create(
             {
                 "name": "Test Choropleth Layer",
-                "view_id": gis_view.id,
+                "view_id": self.gis_view.id,
+                "geo_field_id": self.geo_field_id,
                 "geo_repr": "choropleth",
                 "indicator_layer_id": self.indicator_layer.id,
             }
@@ -111,21 +113,14 @@ class TestDataLayerIndicators(TransactionCase):
 
     def test_data_layer_without_indicator(self):
         """Test that data layer can be created without indicator."""
-        gis_view = self.env["ir.ui.view"].search(
-            [
-                ("type", "=", "spp_gis"),
-            ],
-            limit=1,
-        )
-
-        if not gis_view:
-            self.skipTest("No GIS view available for testing")
+        self._skip_if_no_gis_prereqs()
 
         # Create without indicator_layer_id
         layer = self.DataLayer.create(
             {
                 "name": "Non-Choropleth Layer",
-                "view_id": gis_view.id,
+                "view_id": self.gis_view.id,
+                "geo_field_id": self.geo_field_id,
                 "geo_repr": "basic",
             }
         )
@@ -135,20 +130,13 @@ class TestDataLayerIndicators(TransactionCase):
 
     def test_change_geo_repr_to_choropleth(self):
         """Test changing geo_repr to choropleth after creation."""
-        gis_view = self.env["ir.ui.view"].search(
-            [
-                ("type", "=", "spp_gis"),
-            ],
-            limit=1,
-        )
-
-        if not gis_view:
-            self.skipTest("No GIS view available for testing")
+        self._skip_if_no_gis_prereqs()
 
         layer = self.DataLayer.create(
             {
                 "name": "Changeable Layer",
-                "view_id": gis_view.id,
+                "view_id": self.gis_view.id,
+                "geo_field_id": self.geo_field_id,
             }
         )
 
@@ -162,3 +150,53 @@ class TestDataLayerIndicators(TransactionCase):
 
         self.assertEqual(layer.geo_repr, "choropleth")
         self.assertEqual(layer.indicator_layer_id, self.indicator_layer)
+
+    def test_choropleth_requires_config(self):
+        """Test that choropleth without any config raises ValidationError."""
+        self._skip_if_no_gis_prereqs()
+
+        with self.assertRaises(ValidationError):
+            self.DataLayer.create(
+                {
+                    "name": "Invalid Choropleth",
+                    "view_id": self.gis_view.id,
+                    "geo_field_id": self.geo_field_id,
+                    "geo_repr": "choropleth",
+                }
+            )
+
+    def test_get_choropleth_config_indicator(self):
+        """Test _get_choropleth_config returns indicator config."""
+        self._skip_if_no_gis_prereqs()
+
+        layer = self.DataLayer.create(
+            {
+                "name": "Indicator Choropleth",
+                "view_id": self.gis_view.id,
+                "geo_field_id": self.geo_field_id,
+                "geo_repr": "choropleth",
+                "indicator_layer_id": self.indicator_layer.id,
+            }
+        )
+
+        config = layer._get_choropleth_config()
+        self.assertIsNotNone(config)
+        self.assertEqual(config["type"], "indicator")
+        self.assertEqual(config["classification"], "quantile")
+        self.assertEqual(config["class_count"], 5)
+
+    def test_get_choropleth_config_basic(self):
+        """Test _get_choropleth_config returns None for basic layers."""
+        self._skip_if_no_gis_prereqs()
+
+        layer = self.DataLayer.create(
+            {
+                "name": "Basic Layer",
+                "view_id": self.gis_view.id,
+                "geo_field_id": self.geo_field_id,
+                "geo_repr": "basic",
+            }
+        )
+
+        config = layer._get_choropleth_config()
+        self.assertIsNone(config)

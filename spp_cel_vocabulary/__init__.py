@@ -29,7 +29,7 @@ def _ensure_concept_groups(env):
     standard_groups = [
         {
             "name": "feminine_gender",
-            "display_name": "Feminine Gender",
+            "label": "Feminine Gender",
             "cel_function": "is_female",
             "target_field": "gender_id",
             "description": (
@@ -40,7 +40,7 @@ def _ensure_concept_groups(env):
         },
         {
             "name": "masculine_gender",
-            "display_name": "Masculine Gender",
+            "label": "Masculine Gender",
             "cel_function": "is_male",
             "target_field": "gender_id",
             "description": (
@@ -51,7 +51,7 @@ def _ensure_concept_groups(env):
         },
         {
             "name": "head_of_household",
-            "display_name": "Head of Household",
+            "label": "Head of Household",
             "cel_function": "is_head",
             "description": (
                 "Relationship types indicating head of household role. "
@@ -61,7 +61,7 @@ def _ensure_concept_groups(env):
         },
         {
             "name": "pregnant_eligible",
-            "display_name": "Pregnant/Eligible",
+            "label": "Pregnant/Eligible",
             "cel_function": "is_pregnant",
             "target_field": "pregnancy_status_id",
             "description": (
@@ -72,7 +72,7 @@ def _ensure_concept_groups(env):
         },
         {
             "name": "climate_hazards",
-            "display_name": "Climate-related Hazards",
+            "label": "Climate-related Hazards",
             "cel_function": None,
             "description": (
                 "Hazard types related to climate and weather events "
@@ -82,7 +82,7 @@ def _ensure_concept_groups(env):
         },
         {
             "name": "geophysical_hazards",
-            "display_name": "Geophysical Hazards",
+            "label": "Geophysical Hazards",
             "cel_function": None,
             "description": (
                 "Hazard types related to earth processes "
@@ -92,7 +92,7 @@ def _ensure_concept_groups(env):
         },
         {
             "name": "children",
-            "display_name": "Children",
+            "label": "Children",
             "cel_function": None,
             "description": (
                 "Age group codes representing children (typically under 18 years). "
@@ -101,7 +101,7 @@ def _ensure_concept_groups(env):
         },
         {
             "name": "adults",
-            "display_name": "Adults",
+            "label": "Adults",
             "cel_function": None,
             "description": (
                 "Age group codes representing adults. Add codes from your age group vocabulary if applicable."
@@ -109,7 +109,7 @@ def _ensure_concept_groups(env):
         },
         {
             "name": "elderly",
-            "display_name": "Elderly/Senior Citizens",
+            "label": "Elderly/Senior Citizens",
             "cel_function": None,
             "description": (
                 "Age group codes representing elderly or senior citizens. "
@@ -118,7 +118,7 @@ def _ensure_concept_groups(env):
         },
         {
             "name": "persons_with_disability",
-            "display_name": "Persons with Disability",
+            "label": "Persons with Disability",
             "cel_function": None,
             "description": (
                 "Disability type codes. "
