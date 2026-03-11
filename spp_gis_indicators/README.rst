@@ -105,7 +105,7 @@ Extension Points
 Dependencies
 ~~~~~~~~~~~~
 
-``spp_gis``, ``spp_hxl_area``
+``spp_gis``, ``spp_hxl_area``, ``spp_registry``, ``spp_security``
 
 **Table of contents**
 
