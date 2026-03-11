@@ -5,9 +5,9 @@
     "category": "OpenSPP",
     "version": "19.0.1.3.1",
     "author": "OpenSPP.org",
-    "development_status": "Alpha",
+    "development_status": "Beta",
     "maintainers": ["jeremi", "gonzalesedwin1123", "reichie020212"],
-    "external_dependencies": {"python": ["pyjwt>=2.4.0"]},
+    "external_dependencies": {"python": ["pyjwt>=2.4.0", "cryptography"]},
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
     "depends": [

@@ -63,7 +63,6 @@
                             <field name="category_id" />
                             <field name="status" widget="badge" />
                             <field name="severity" widget="badge" />
-                            <field name="affected_registrant_count" />
                         </list>
                     </field>
                 </page>

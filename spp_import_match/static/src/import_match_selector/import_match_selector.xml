@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+    <t t-name="ImportAction" t-inherit="ImportAction" t-inherit-mode="extension">
+        <xpath expr="//ImportDataSidepanel" position="attributes">
+            <attribute
+                name="importMatchRecords"
+            >state.importMatchRecords or []</attribute>
+            <attribute
+                name="selectedImportMatchId"
+            >state.selectedImportMatchId</attribute>
+            <attribute name="onImportMatchChanged.bind">onImportMatchChanged</attribute>
+            <attribute name="overwriteMatch">state.overwriteMatch</attribute>
+            <attribute
+                name="onOverwriteMatchChanged.bind"
+            >onOverwriteMatchChanged</attribute>
+        </xpath>
+    </t>
+
+    <t
+        t-name="ImportDataSidepanel"
+        t-inherit="ImportDataSidepanel"
+        t-inherit-mode="extension"
+    >
+        <xpath expr="//div[hasclass('o_import_formatting')]" position="before">
+            <div
+                t-if="props.importMatchRecords and props.importMatchRecords.length"
+                class="pt-3 pb-4 border-top"
+            >
+                <h4>Import Matching</h4>
+                <select
+                    class="o_select form-select w-100 mb-3"
+                    t-on-change="onImportMatchChange"
+                    t-att-value="props.selectedImportMatchId or ''"
+                >
+                    <option value="">-- No Matching --</option>
+                    <t
+                        t-foreach="props.importMatchRecords"
+                        t-as="match"
+                        t-key="match.id"
+                    >
+                        <option
+                            t-att-value="match.id"
+                            t-att-selected="match.id === props.selectedImportMatchId"
+                        >
+                            <t t-esc="match.name" />
+                        </option>
+                    </t>
+                </select>
+                <div t-if="props.selectedImportMatchId" class="form-check mt-2">
+                    <input
+                        type="checkbox"
+                        class="form-check-input"
+                        id="oe_import_overwrite_match"
+                        t-att-checked="props.overwriteMatch"
+                        t-on-change="onOverwriteMatchChange"
+                    />
+                    <label
+                        class="form-check-label"
+                        for="oe_import_overwrite_match"
+                    >Overwrite Match</label>
+                    <div class="form-text text-muted small mt-1">
+                        <t
+                            t-if="props.overwriteMatch"
+                        >Matched records will be overwritten with imported data.</t>
+                        <t t-else="">Matched records will be skipped.</t>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </t>
+
+</templates>

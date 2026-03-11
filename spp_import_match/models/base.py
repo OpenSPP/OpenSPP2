@@ -1,9 +1,13 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 import logging
+import threading
 
 from odoo import api, models
 
 _logger = logging.getLogger(__name__)
+
+# Thread-local storage to pass import match counts from load() to execute_import()
+_import_match_local = threading.local()
 
 
 class Base(models.AbstractModel):
@@ -16,14 +20,20 @@ class Base(models.AbstractModel):
             fields,
             option_config_ids=self.env.context.get("import_match_ids", []),
         )
-        model_id = self.env["ir.model"].search([("model", "=", self._name)])
-        overwrite_match = True
-        import_match = self.env["spp.import.match"].search([("model_id", "=", model_id.id)])
-        if import_match:
-            overwrite_match = import_match.overwrite_match
+        # If overwrite_match is explicitly set via UI (context), use that.
+        # Otherwise fall back to config records' overwrite_match setting.
+        if "overwrite_match" in self.env.context:
+            overwrite_match = self.env.context["overwrite_match"]
+        elif usable:
+            overwrite_match = any(self.env["spp.import.match"].browse(usable).mapped("overwrite_match"))
+        else:
+            overwrite_match = False
 
         if usable:
             newdata = list()
+            match_created = 0
+            match_skipped = 0
+            match_overwritten = 0
             if ".id" in fields:
                 column = fields.index(".id")
                 fields[column] = "id"
@@ -70,6 +80,7 @@ class Base(models.AbstractModel):
                 row["id"] = ext_id[match.id] if match else row.get("id", "")
                 if match:
                     if overwrite_match:
+                        match_overwritten += 1
                         flat_fields_to_remove = [item for sublist in field_to_match for item in sublist]
                         for fields_pop in flat_fields_to_remove:
                             # Set one2many and many2many fields to False if matched
@@ -80,19 +91,25 @@ class Base(models.AbstractModel):
                             ]:
                                 row[fields_pop] = False
                         newdata.append(tuple(row[f] for f in clean_fields))
+                    else:
+                        match_skipped += 1
                 else:
+                    match_created += 1
                     newdata.append(tuple(row[f] for f in fields))
             data = newdata
+            if self.env.context.get("import_match_ids"):
+                _import_match_local.counts = {
+                    "created": match_created,
+                    "skipped": match_skipped,
+                    "overwritten": match_overwritten,
+                }
         return super().load(fields, data)
 
     def write(self, vals):
-        # nosemgrep: odoo-sudo-without-context - reading model metadata requires sudo
-        model = self.env["ir.model"].sudo().search([("model", "=", self._name)])
         new_vals = vals.copy()
-        for rec in vals:
-            field_name = rec
-            if not vals[field_name]:
-                field = self.env["ir.model.fields"].search([("model_id", "=", model.id), ("name", "=", field_name)])
-                if field and field.ttype in ("one2many", "many2many"):
-                    new_vals.pop(rec)
+        for field_name, value in vals.items():
+            if not value and field_name in self._fields:
+                field_meta = self._fields[field_name]
+                if field_meta.type in ("one2many", "many2many"):
+                    new_vals.pop(field_name)
         return super().write(new_vals)
