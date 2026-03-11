@@ -916,3 +916,169 @@ class TestCheckColorsJsonEdgeCases(TransactionCase):
                 }
             )
         self.assertIn("Invalid hex color format", str(ctx.exception))
+
+
+@tagged("post_install", "-at_install")
+class TestDataLayerMethodsDirect(TransactionCase):
+    """Test data_layer.py methods using new() to avoid GIS prereq dependencies."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        cls.DataLayer = cls.env["spp.gis.data.layer"]
+        cls.ColorScale = cls.env["spp.gis.color.scale"]
+        cls.IndicatorLayer = cls.env["spp.gis.indicator.layer"]
+
+        cls.color_scale = cls.ColorScale.create(
+            {
+                "name": "Direct Test Blues",
+                "scale_type": "sequential",
+                "colors_json": json.dumps(["#f7fbff", "#c6dbef", "#6baed6", "#2171b5", "#08306b"]),
+            }
+        )
+
+        cls.variable = cls.env["spp.cel.variable"].create(
+            {
+                "name": "test_direct_dl",
+                "cel_accessor": "test_direct_dl",
+                "label": "Test Direct DL",
+                "value_type": "number",
+                "source_type": "constant",
+            }
+        )
+
+        cls.indicator_layer = cls.IndicatorLayer.create(
+            {
+                "name": "Direct Test Indicator",
+                "variable_id": cls.variable.id,
+                "color_scale_id": cls.color_scale.id,
+                "classification_method": "quantile",
+                "num_classes": 5,
+            }
+        )
+
+    def test_get_choropleth_config_non_choropleth_new(self):
+        """Test _get_choropleth_config returns None for non-choropleth using new()."""
+        rec = self.DataLayer.new({"geo_repr": "basic"})
+        config = rec._get_choropleth_config()
+        self.assertIsNone(config)
+
+    def test_get_choropleth_config_indicator_new(self):
+        """Test _get_choropleth_config with indicator_layer_id using new()."""
+        rec = self.DataLayer.new(
+            {
+                "geo_repr": "choropleth",
+                "indicator_layer_id": self.indicator_layer.id,
+            }
+        )
+        config = rec._get_choropleth_config()
+        self.assertIsNotNone(config)
+        self.assertEqual(config["type"], "indicator")
+        self.assertEqual(config["classification"], "quantile")
+        self.assertEqual(config["class_count"], 5)
+        self.assertTrue(config["show_legend"])
+        self.assertEqual(config["legend_title"], "Direct Test Indicator")
+        self.assertIsInstance(config["color_ramp"], list)
+        self.assertIsInstance(config["break_values"], list)
+        self.assertIn("legend_html", config)
+
+    def test_get_choropleth_config_super_fallback_new(self):
+        """Test _get_choropleth_config falls back to super() when no indicator."""
+        rec = self.DataLayer.new({"geo_repr": "choropleth"})
+        # No indicator_layer_id → falls through to super()._get_choropleth_config()
+        # super() returns None since no choropleth_field_id either
+        config = rec._get_choropleth_config()
+        self.assertIsNone(config)
+
+    def test_check_choropleth_config_valid_indicator(self):
+        """Test _check_choropleth_config passes with indicator_layer_id."""
+        rec = self.DataLayer.new(
+            {
+                "geo_repr": "choropleth",
+                "indicator_layer_id": self.indicator_layer.id,
+            }
+        )
+        # Should not raise
+        rec._check_choropleth_config()
+
+    def test_check_choropleth_config_valid_basic(self):
+        """Test _check_choropleth_config passes for non-choropleth."""
+        rec = self.DataLayer.new({"geo_repr": "basic"})
+        # Should not raise
+        rec._check_choropleth_config()
+
+    def test_check_choropleth_config_invalid(self):
+        """Test _check_choropleth_config raises for choropleth without config."""
+        rec = self.DataLayer.new({"geo_repr": "choropleth"})
+        with self.assertRaises(ValidationError):
+            rec._check_choropleth_config()
+
+
+@tagged("post_install", "-at_install")
+class TestGetFeatureColorsNoneValue(TransactionCase):
+    """Test get_feature_colors with None/False indicator values."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        cls.color_scale = cls.env["spp.gis.color.scale"].create(
+            {
+                "name": "Test None Val",
+                "scale_type": "sequential",
+                "colors_json": json.dumps(["#f7fbff", "#6baed6", "#08306b"]),
+            }
+        )
+
+        cls.variable = cls.env["spp.cel.variable"].create(
+            {
+                "name": "test_none_val",
+                "cel_accessor": "test_none_val",
+                "label": "Test None Val",
+                "value_type": "number",
+                "source_type": "constant",
+            }
+        )
+
+        cls.area1 = cls.env["spp.area"].create({"draft_name": "None Val Area 1", "code": "NVA1"})
+        cls.area2 = cls.env["spp.area"].create({"draft_name": "None Val Area 2", "code": "NVA2"})
+        cls.area3 = cls.env["spp.area"].create({"draft_name": "None Val Area 3", "code": "NVA3"})
+
+    def test_get_feature_colors_with_zero_and_positive(self):
+        """Test get_feature_colors includes both zero and positive values."""
+        self.env["spp.hxl.area.indicator"].create(
+            {
+                "area_id": self.area1.id,
+                "variable_id": self.variable.id,
+                "period_key": "2024-none",
+                "value": 50.0,
+            }
+        )
+        self.env["spp.hxl.area.indicator"].create(
+            {
+                "area_id": self.area2.id,
+                "variable_id": self.variable.id,
+                "period_key": "2024-none",
+                "value": 0.0,
+            }
+        )
+
+        layer = self.env["spp.gis.indicator.layer"].create(
+            {
+                "name": "Zero Pos Test Layer",
+                "variable_id": self.variable.id,
+                "period_key": "2024-none",
+                "color_scale_id": self.color_scale.id,
+                "classification_method": "manual",
+                "manual_breaks": "25",
+            }
+        )
+
+        area_ids = [self.area1.id, self.area2.id, self.area3.id]
+        result = layer.get_feature_colors(area_ids)
+        # area1 (50.0) and area2 (0.0) should have colors
+        self.assertIn(self.area1.id, result)
+        self.assertIn(self.area2.id, result)
+        # area3 has no indicator data
+        self.assertNotIn(self.area3.id, result)

@@ -659,3 +659,248 @@ class TestCreateEnvMarker(TransactionCase):
 
         self.assertTrue(getattr(marked, "_cel_needs_env", False))
         self.assertIs(marked, dummy_func)  # Should return same function object
+
+
+@tagged("post_install", "-at_install")
+class TestTranslatorChangedLines(TransactionCase, CELTestDataMixin):
+    """Test translator changed lines for codecov patch coverage.
+
+    Targets the specific _logger.warning/debug lines that were changed
+    from f-strings to lazy % formatting.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls._test_id = cls._get_unique_test_id()
+
+        cls.gender_vocab = cls._create_test_vocabulary(
+            name=f"Gender TL {cls._test_id}",
+            namespace_uri=f"urn:test:vocab:gender-tl:{cls._test_id}",
+        )
+
+        cls.code_female = cls._create_test_vocabulary_code(
+            vocabulary=cls.gender_vocab,
+            code=f"F_TL_{cls._test_id}",
+            display="Female",
+        )
+
+        # Create concept group with codes for successful paths
+        ConceptGroup = cls.env["spp.vocabulary.concept.group"]
+        cls.test_group = ConceptGroup.search([("name", "=", "feminine_gender")], limit=1)
+        if cls.test_group:
+            cls.test_group.write({"code_ids": [(4, cls.code_female.id)]})
+        else:
+            cls.test_group = cls._create_test_concept_group(
+                name="feminine_gender",
+                display_name="Feminine Gender",
+                codes=[cls.code_female],
+            )
+
+        cls.translator = cls.env["spp.cel.translator"]
+
+    def test_successful_semantic_helper_debug_log(self):
+        """Test successful is_female() call covers debug log line in _to_plan."""
+        # This exercises line 61: _logger.debug("...%s...%s", func_name, model)
+        expr = "is_female(r.gender_id)"
+        cfg = {"symbols": {"r": {"model": "res.partner"}}}
+
+        plan, explain = self.translator.translate("res.partner", expr, cfg)
+        # Should succeed (covers the debug log line in _to_plan)
+        self.assertIn("feminine_gender", explain.lower())
+
+    def test_in_group_field_resolution_error(self):
+        """Test in_group() field resolution error via patch."""
+        from odoo.addons.spp_cel_domain.services import cel_parser as P
+
+        func_ident = P.Ident("in_group")
+        field_arg = P.Attr(P.Ident("r"), "gender_id")
+        group_arg = P.Literal("feminine_gender")
+        call_node = P.Call(func_ident, [field_arg, group_arg])
+        cfg = {"symbols": {"r": {"model": "res.partner"}}}
+
+        with patch.object(
+            type(self.translator),
+            "_resolve_field",
+            side_effect=ValueError("test field error"),
+        ):
+            plan, explain = self.translator._handle_in_group("res.partner", call_node, cfg, {})
+        self.assertIn("FIELD RESOLUTION ERROR", explain)
+
+    def test_in_group_group_name_eval_error(self):
+        """Test in_group() group name eval error via patch."""
+        from odoo.addons.spp_cel_domain.services import cel_parser as P
+
+        func_ident = P.Ident("in_group")
+        field_arg = P.Attr(P.Ident("r"), "gender_id")
+        group_arg = P.Literal("feminine_gender")
+        call_node = P.Call(func_ident, [field_arg, group_arg])
+        cfg = {"symbols": {"r": {"model": "res.partner"}}}
+
+        with patch.object(
+            type(self.translator),
+            "_eval_literal",
+            side_effect=ValueError("test eval error"),
+        ):
+            plan, explain = self.translator._handle_in_group("res.partner", call_node, cfg, {})
+        self.assertIn("EVAL ERROR", explain)
+
+    def test_in_group_group_not_found(self):
+        """Test in_group() with nonexistent group covers warning log."""
+        expr = 'in_group(r.gender_id, "nonexistent_group_xyz_99")'
+        cfg = {"symbols": {"r": {"model": "res.partner"}}}
+
+        plan, explain = self.translator.translate("res.partner", expr, cfg)
+        self.assertIn("GROUP NOT FOUND", explain)
+
+    def test_semantic_helper_field_resolution_error(self):
+        """Test is_female() field resolution error via patch."""
+        from odoo.addons.spp_cel_domain.services import cel_parser as P
+
+        func_ident = P.Ident("is_female")
+        field_arg = P.Attr(P.Ident("r"), "gender_id")
+        call_node = P.Call(func_ident, [field_arg])
+        cfg = {"symbols": {"r": {"model": "res.partner"}}}
+
+        with patch.object(
+            type(self.translator),
+            "_resolve_field",
+            side_effect=ValueError("test field error"),
+        ):
+            plan, explain = self.translator._handle_semantic_helper("res.partner", call_node, cfg, {}, "is_female")
+        self.assertIn("FIELD RESOLUTION ERROR", explain)
+
+    def test_semantic_helper_empty_group(self):
+        """Test semantic helper when concept group has no codes covers warning log."""
+        from odoo.addons.spp_cel_domain.services import cel_parser as P
+
+        # Create empty concept group
+        ConceptGroup = self.env["spp.vocabulary.concept.group"]
+        empty_group = ConceptGroup.create(
+            {
+                "name": f"empty_sem_{self._test_id}",
+                "label": "Empty Semantic",
+            }
+        )
+
+        func_ident = P.Ident("is_female")
+        field_arg = P.Attr(P.Ident("r"), "gender_id")
+        call_node = P.Call(func_ident, [field_arg])
+        cfg = {"symbols": {"r": {"model": "res.partner"}}}
+
+        # Temporarily change SEMANTIC_HELPERS to point to our empty group
+        original = self.translator.SEMANTIC_HELPERS.copy()
+        try:
+            self.translator.SEMANTIC_HELPERS["is_female"] = empty_group.name
+            plan, explain = self.translator._handle_semantic_helper("res.partner", call_node, cfg, {}, "is_female")
+            self.assertIn("GROUP EMPTY", explain)
+        finally:
+            self.translator.SEMANTIC_HELPERS.update(original)
+
+        empty_group.unlink()
+
+    def test_code_eq_field_resolution_error(self):
+        """Test code_eq() field resolution error via patch."""
+        from odoo.addons.spp_cel_domain.services import cel_parser as P
+
+        func_ident = P.Ident("code_eq")
+        field_arg = P.Attr(P.Ident("r"), "gender_id")
+        identifier = P.Literal("some_code")
+        call_node = P.Call(func_ident, [field_arg, identifier])
+        cfg = {"symbols": {"r": {"model": "res.partner"}}}
+
+        with patch.object(
+            type(self.translator),
+            "_resolve_field",
+            side_effect=ValueError("test field error"),
+        ):
+            plan, explain = self.translator._handle_code_eq("res.partner", call_node, cfg, {})
+        self.assertIn("FIELD RESOLUTION ERROR", explain)
+
+    def test_code_eq_identifier_eval_error(self):
+        """Test code_eq() identifier eval error via patch."""
+        from odoo.addons.spp_cel_domain.services import cel_parser as P
+
+        func_ident = P.Ident("code_eq")
+        field_arg = P.Attr(P.Ident("r"), "gender_id")
+        identifier = P.Literal("some_code")
+        call_node = P.Call(func_ident, [field_arg, identifier])
+        cfg = {"symbols": {"r": {"model": "res.partner"}}}
+
+        # _handle_code_eq calls _eval_literal for the identifier (args[1]).
+        # Patch it to always raise - field resolution uses _resolve_field, not _eval_literal.
+        with patch.object(
+            type(self.translator),
+            "_eval_literal",
+            side_effect=ValueError("test eval error"),
+        ):
+            plan, explain = self.translator._handle_code_eq("res.partner", call_node, cfg, {})
+        self.assertIn("EVAL ERROR", explain)
+
+    def test_code_comparison_field_resolution_error(self):
+        """Test code() comparison field resolution error via patch."""
+        from odoo.addons.spp_cel_domain.services import cel_parser as P
+
+        field_arg = P.Attr(P.Ident("r"), "gender_id")
+        code_call = P.Call(P.Ident("code"), [P.Literal("female")])
+        compare_node = P.Compare("EQ", field_arg, code_call)
+        cfg = {"symbols": {"r": {"model": "res.partner"}}}
+
+        with patch.object(
+            type(self.translator),
+            "_resolve_field",
+            side_effect=ValueError("test field error"),
+        ):
+            plan, explain = self.translator._handle_code_comparison(
+                "res.partner", compare_node, cfg, {}, left_is_code=False
+            )
+        self.assertIn("FIELD RESOLUTION ERROR", explain)
+
+    def test_code_comparison_eval_error(self):
+        """Test code() comparison eval error via patch."""
+        from odoo.addons.spp_cel_domain.services import cel_parser as P
+
+        field_arg = P.Attr(P.Ident("r"), "gender_id")
+        code_call = P.Call(P.Ident("code"), [P.Literal("female")])
+        compare_node = P.Compare("EQ", field_arg, code_call)
+        cfg = {"symbols": {"r": {"model": "res.partner"}}}
+
+        with patch.object(
+            type(self.translator),
+            "_eval_literal",
+            side_effect=ValueError("test eval error"),
+        ):
+            plan, explain = self.translator._handle_code_comparison(
+                "res.partner", compare_node, cfg, {}, left_is_code=False
+            )
+        # identifier becomes None after eval error, triggering empty check
+        self.assertIn("code(EMPTY)", explain)
+
+    def test_code_comparison_code_not_found(self):
+        """Test code() comparison with nonexistent code covers warning log."""
+        from odoo.addons.spp_cel_domain.services import cel_parser as P
+
+        field_arg = P.Attr(P.Ident("r"), "gender_id")
+        code_call = P.Call(P.Ident("code"), [P.Literal("nonexistent_xyz_99")])
+        compare_node = P.Compare("EQ", field_arg, code_call)
+        cfg = {"symbols": {"r": {"model": "res.partner"}}}
+
+        plan, explain = self.translator._handle_code_comparison(
+            "res.partner", compare_node, cfg, {}, left_is_code=False
+        )
+        self.assertIn("NOT FOUND", explain)
+
+    def test_code_comparison_empty_identifier(self):
+        """Test code() comparison with empty args covers warning log."""
+        from odoo.addons.spp_cel_domain.services import cel_parser as P
+
+        field_arg = P.Attr(P.Ident("r"), "gender_id")
+        # code() with NO arguments
+        code_call = P.Call(P.Ident("code"), [])
+        compare_node = P.Compare("EQ", field_arg, code_call)
+        cfg = {"symbols": {"r": {"model": "res.partner"}}}
+
+        plan, explain = self.translator._handle_code_comparison(
+            "res.partner", compare_node, cfg, {}, left_is_code=False
+        )
+        self.assertIn("code(EMPTY)", explain)
