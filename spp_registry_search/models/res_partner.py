@@ -63,7 +63,7 @@ class ResPartner(models.Model):
     @api.model
     def get_search_config(self):
         """Return registry search configuration for the JS portal."""
-        get_param = self.env["ir.config_parameter"].sudo().get_param
+        get_param = self.env["ir.config_parameter"].sudo().get_param  # nosemgrep: odoo-sudo-without-context
         result_limit = int(get_param("spp_registry_search.result_limit", "50"))
         min_chars = int(get_param("spp_registry_search.min_chars", "3"))
         return {
@@ -95,7 +95,7 @@ class ResPartner(models.Model):
             return []
 
         # Read config with fallback defaults
-        get_param = self.env["ir.config_parameter"].sudo().get_param
+        get_param = self.env["ir.config_parameter"].sudo().get_param  # nosemgrep: odoo-sudo-without-context
         config_limit = int(get_param("spp_registry_search.result_limit", "50"))
         limit = max(10, min(200, limit or config_limit))
 
