@@ -12,11 +12,9 @@ Choropleth visualization for area-level indicators on GIS maps. Maps indicator v
 
 ### Key Models
 
-| Model                      | Description                                                                     |
-| -------------------------- | ------------------------------------------------------------------------------- |
-| `spp.gis.indicator.layer`  | Configuration linking a CEL variable to color scale and classification settings |
-| `spp.gis.color.scale`      | Color scheme definition with JSON array of hex colors                          |
-| `spp.gis.data.layer`       | Extended with `choropleth` geo representation option                            |
+- **spp.gis.indicator.layer** -- Configuration linking a CEL variable to color scale and classification settings
+- **spp.gis.color.scale** -- Color scheme definition with JSON array of hex colors
+- **spp.gis.data.layer** -- Extended with choropleth geo representation option
 
 ### Configuration
 
@@ -35,11 +33,9 @@ After installing:
 
 ### Security
 
-| Group                            | Access                        |
-| -------------------------------- | ----------------------------- |
-| `spp_security.group_spp_user`    | Read                          |
-| `spp_security.group_spp_manager` | Read/write/create (no delete) |
-| `spp_security.group_spp_admin`   | Full CRUD                     |
+- **spp_security.group_spp_user** -- Read
+- **spp_security.group_spp_manager** -- Read/write/create (no delete)
+- **spp_security.group_spp_admin** -- Full CRUD
 
 ### Extension Points
 
