@@ -10,9 +10,9 @@ OpenSPP GIS Indicators
    !! source digest: sha256:3e0d3c935187c1430aaa36bc854f98fde0d3ffa19bf8bafb7b342ebb706da310
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/maturity-Alpha-red.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Beta-yellow.png
     :target: https://odoo-community.org/page/development-status
-    :alt: Alpha
+    :alt: Beta
 .. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
@@ -46,19 +46,12 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+-----------------------------+----------------------------------------+
-| Model                       | Description                            |
-+=============================+========================================+
-| ``spp.gis.indicator.layer`` | Configuration linking a CEL variable   |
-|                             | to color scale and classification      |
-|                             | settings                               |
-+-----------------------------+----------------------------------------+
-| ``spp.gis.color.scale``     | Color scheme definition with JSON      |
-|                             | array of hex colors                    |
-+-----------------------------+----------------------------------------+
-| ``spp.gis.data.layer``      | Extended with ``choropleth`` geo       |
-|                             | representation option                  |
-+-----------------------------+----------------------------------------+
+- **spp.gis.indicator.layer** -- Configuration linking a CEL variable to
+  color scale and classification settings
+- **spp.gis.color.scale** -- Color scheme definition with JSON array of
+  hex colors
+- **spp.gis.data.layer** -- Extended with choropleth geo representation
+  option
 
 Configuration
 ~~~~~~~~~~~~~
@@ -83,13 +76,9 @@ UI Location
 Security
 ~~~~~~~~
 
-================================== =============================
-Group                              Access
-================================== =============================
-``spp_security.group_spp_user``    Read
-``spp_security.group_spp_manager`` Read/write/create (no delete)
-``spp_security.group_spp_admin``   Full CRUD
-================================== =============================
+- **spp_security.group_spp_user** -- Read
+- **spp_security.group_spp_manager** -- Read/write/create (no delete)
+- **spp_security.group_spp_admin** -- Full CRUD
 
 Extension Points
 ~~~~~~~~~~~~~~~~
@@ -105,11 +94,7 @@ Extension Points
 Dependencies
 ~~~~~~~~~~~~
 
-``spp_gis``, ``spp_hxl_area``
-
-.. IMPORTANT::
-   This is an alpha version, the data model and design can change at any time without warning.
-   Only for development or testing purpose, do not use in production.
+``spp_gis``, ``spp_hxl_area``, ``spp_registry``, ``spp_security``
 
 **Table of contents**
 

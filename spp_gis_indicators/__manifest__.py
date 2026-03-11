@@ -8,11 +8,12 @@
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",
     "license": "LGPL-3",
-    "development_status": "Alpha",
+    "development_status": "Beta",
     "depends": [
         "spp_gis",
         "spp_hxl_area",
         "spp_registry",
+        "spp_security",
     ],
     "data": [
         "security/ir.model.access.csv",

@@ -33,9 +33,6 @@ class CelVocabularyTranslator(models.AbstractModel):
         "is_male": "masculine_gender",
         "is_head": "head_of_household",
         "is_pregnant": "pregnant_eligible",
-        "is_caregiver": "caregiver",
-        "is_mother": "mother",
-        "is_father": "father",
     }
 
     def _to_plan(self, model: str, node: Any, cfg: dict[str, Any], ctx: dict[str, Any]):  # noqa: C901
@@ -61,7 +58,7 @@ class CelVocabularyTranslator(models.AbstractModel):
 
             # Handle semantic helpers: is_female(field), is_male(field), etc.
             if func_name in self.SEMANTIC_HELPERS and len(node.args) >= 1:
-                _logger.debug(f"[CEL Vocabulary] Handling semantic helper {func_name} for model {model}")
+                _logger.debug("[CEL Vocabulary] Handling semantic helper %s for model %s", func_name, model)
                 return self._handle_semantic_helper(model, node, cfg, ctx, func_name)
 
         # Handle comparisons with code() calls
@@ -105,7 +102,7 @@ class CelVocabularyTranslator(models.AbstractModel):
             field_name, field_model = self._resolve_field(model, field_node, cfg, ctx)
             field_name = self._normalize_field_name(field_model or model, field_name)
         except Exception as e:
-            _logger.warning(f"[CEL Vocabulary] Failed to resolve field in in_group(): {e}")
+            _logger.warning("[CEL Vocabulary] Failed to resolve field in in_group(): %s", e)
             return (
                 LeafDomain(model, [("id", "=", 0)]),
                 "in_group() [FIELD RESOLUTION ERROR]",
@@ -115,7 +112,7 @@ class CelVocabularyTranslator(models.AbstractModel):
         try:
             group_name = self._eval_literal(node.args[1], ctx)
         except Exception as e:
-            _logger.warning(f"[CEL Vocabulary] Failed to evaluate group name in in_group(): {e}")
+            _logger.warning("[CEL Vocabulary] Failed to evaluate group name in in_group(): %s", e)
             return (
                 LeafDomain(field_model or model, [("id", "=", 0)]),
                 f"in_group({field_name}, ?) [EVAL ERROR]",
@@ -132,7 +129,7 @@ class CelVocabularyTranslator(models.AbstractModel):
         group = self.env["spp.vocabulary.concept.group"].search([("name", "=", group_name)], limit=1)
 
         if not group:
-            _logger.warning(f"[CEL Vocabulary] Concept group '{group_name}' not found, returning empty domain")
+            _logger.warning("[CEL Vocabulary] Concept group '%s' not found, returning empty domain", group_name)
             # Return domain that matches nothing
             return (
                 LeafDomain(field_model or model, [("id", "=", 0)]),
@@ -143,7 +140,7 @@ class CelVocabularyTranslator(models.AbstractModel):
         uri_list = group.get_code_uris()
 
         if not uri_list:
-            _logger.warning(f"[CEL Vocabulary] Concept group '{group_name}' has no codes")
+            _logger.warning("[CEL Vocabulary] Concept group '%s' has no codes", group_name)
             return (
                 LeafDomain(field_model or model, [("id", "=", 0)]),
                 f"in_group({field_name}, '{group_name}') [EMPTY GROUP]",
@@ -188,7 +185,7 @@ class CelVocabularyTranslator(models.AbstractModel):
         """
         group_name = self.SEMANTIC_HELPERS.get(func_name)
         if not group_name:
-            _logger.warning(f"[CEL Vocabulary] Unknown semantic helper: {func_name}")
+            _logger.warning("[CEL Vocabulary] Unknown semantic helper: %s", func_name)
             return (
                 LeafDomain(model, [("id", "=", 0)]),
                 f"{func_name}() [UNKNOWN HELPER]",
@@ -200,7 +197,7 @@ class CelVocabularyTranslator(models.AbstractModel):
             field_name, field_model = self._resolve_field(model, field_node, cfg, ctx)
             field_name = self._normalize_field_name(field_model or model, field_name)
         except Exception as e:
-            _logger.warning(f"[CEL Vocabulary] Failed to resolve field in {func_name}(): {e}")
+            _logger.warning("[CEL Vocabulary] Failed to resolve field in %s(): %s", func_name, e)
             return (
                 LeafDomain(model, [("id", "=", 0)]),
                 f"{func_name}() [FIELD RESOLUTION ERROR]",
@@ -211,7 +208,9 @@ class CelVocabularyTranslator(models.AbstractModel):
 
         if not group:
             _logger.warning(
-                f"[CEL Vocabulary] Concept group '{group_name}' not found for {func_name}(), returning empty domain"
+                "[CEL Vocabulary] Concept group '%s' not found for %s(), returning empty domain",
+                group_name,
+                func_name,
             )
             return (
                 LeafDomain(field_model or model, [("id", "=", 0)]),
@@ -222,7 +221,7 @@ class CelVocabularyTranslator(models.AbstractModel):
         uri_list = group.get_code_uris()
 
         if not uri_list:
-            _logger.warning(f"[CEL Vocabulary] Concept group '{group_name}' has no codes for {func_name}()")
+            _logger.warning("[CEL Vocabulary] Concept group '%s' has no codes for %s()", group_name, func_name)
             return (
                 LeafDomain(field_model or model, [("id", "=", 0)]),
                 f"{func_name}({field_name}) [GROUP EMPTY]",
@@ -264,7 +263,7 @@ class CelVocabularyTranslator(models.AbstractModel):
             field_name, field_model = self._resolve_field(model, field_node, cfg, ctx)
             field_name = self._normalize_field_name(field_model or model, field_name)
         except Exception as e:
-            _logger.warning(f"[CEL Vocabulary] Failed to resolve field in code_eq(): {e}")
+            _logger.warning("[CEL Vocabulary] Failed to resolve field in code_eq(): %s", e)
             return (
                 LeafDomain(model, [("id", "=", 0)]),
                 "code_eq() [FIELD RESOLUTION ERROR]",
@@ -274,7 +273,7 @@ class CelVocabularyTranslator(models.AbstractModel):
         try:
             identifier = self._eval_literal(node.args[1], ctx)
         except Exception as e:
-            _logger.warning(f"[CEL Vocabulary] Failed to evaluate identifier in code_eq(): {e}")
+            _logger.warning("[CEL Vocabulary] Failed to evaluate identifier in code_eq(): %s", e)
             return (
                 LeafDomain(field_model or model, [("id", "=", 0)]),
                 f"code_eq({field_name}, ?) [EVAL ERROR]",
@@ -290,7 +289,8 @@ class CelVocabularyTranslator(models.AbstractModel):
 
         if not target_code:
             _logger.warning(
-                f"[CEL Vocabulary] Could not resolve code identifier '{identifier}', returning empty domain"
+                "[CEL Vocabulary] Could not resolve code identifier '%s', returning empty domain",
+                identifier,
             )
             return (
                 LeafDomain(field_model or model, [("id", "=", 0)]),
@@ -351,7 +351,7 @@ class CelVocabularyTranslator(models.AbstractModel):
 
         # Only support equality/inequality for code comparisons
         if op not in ("=", "!="):
-            _logger.warning(f"[CEL Vocabulary] code() comparisons only support == and !=, got {node.op}")
+            _logger.warning("[CEL Vocabulary] code() comparisons only support == and !=, got %s", node.op)
             return super()._to_plan(model, node, cfg, ctx)
 
         # Resolve the field
@@ -359,7 +359,7 @@ class CelVocabularyTranslator(models.AbstractModel):
             field_name, field_model = self._resolve_field(model, field_node, cfg, ctx)
             field_name = self._normalize_field_name(field_model or model, field_name)
         except Exception as e:
-            _logger.warning(f"[CEL Vocabulary] Failed to resolve field in code comparison: {e}")
+            _logger.warning("[CEL Vocabulary] Failed to resolve field in code comparison: %s", e)
             return (
                 LeafDomain(model, [("id", "=", 0)]),
                 "code() comparison [FIELD RESOLUTION ERROR]",
@@ -369,7 +369,7 @@ class CelVocabularyTranslator(models.AbstractModel):
         try:
             identifier = self._eval_literal(code_node.args[0], ctx) if code_node.args else None
         except Exception as e:
-            _logger.warning(f"[CEL Vocabulary] Failed to evaluate code identifier: {e}")
+            _logger.warning("[CEL Vocabulary] Failed to evaluate code identifier: %s", e)
             identifier = None
 
         if not identifier:
@@ -386,7 +386,7 @@ class CelVocabularyTranslator(models.AbstractModel):
             target_code = self.env["spp.vocabulary.code"].resolve_alias(identifier)
 
         if not target_code:
-            _logger.warning(f"[CEL Vocabulary] Could not resolve code '{identifier}'")
+            _logger.warning("[CEL Vocabulary] Could not resolve code '%s'", identifier)
             return (
                 LeafDomain(field_model or model, [("id", "=", 0)]),
                 f"{field_name} {op} code('{identifier}') [NOT FOUND]",

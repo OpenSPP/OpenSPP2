@@ -369,7 +369,7 @@ ul.auto-toc {
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! source digest: sha256:3e0d3c935187c1430aaa36bc854f98fde0d3ffa19bf8bafb7b342ebb706da310
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Alpha" src="https://img.shields.io/badge/maturity-Alpha-red.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_gis_indicators"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Beta" src="https://img.shields.io/badge/maturity-Beta-yellow.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_gis_indicators"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
 <p>Choropleth visualization for area-level indicators on GIS maps. Maps
 indicator values from CEL variables to colors using configurable
 classification methods and ColorBrewer-based color scales. Supports
@@ -393,32 +393,14 @@ layers</li>
 </div>
 <div class="section" id="key-models">
 <h1>Key Models</h1>
-<table border="1" class="docutils">
-<colgroup>
-<col width="42%" />
-<col width="58%" />
-</colgroup>
-<thead valign="bottom">
-<tr><th class="head">Model</th>
-<th class="head">Description</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr><td><tt class="docutils literal">spp.gis.indicator.layer</tt></td>
-<td>Configuration linking a CEL variable
-to color scale and classification
-settings</td>
-</tr>
-<tr><td><tt class="docutils literal">spp.gis.color.scale</tt></td>
-<td>Color scheme definition with JSON
-array of hex colors</td>
-</tr>
-<tr><td><tt class="docutils literal">spp.gis.data.layer</tt></td>
-<td>Extended with <tt class="docutils literal">choropleth</tt> geo
-representation option</td>
-</tr>
-</tbody>
-</table>
+<ul class="simple">
+<li><strong>spp.gis.indicator.layer</strong> – Configuration linking a CEL variable to
+color scale and classification settings</li>
+<li><strong>spp.gis.color.scale</strong> – Color scheme definition with JSON array of
+hex colors</li>
+<li><strong>spp.gis.data.layer</strong> – Extended with choropleth geo representation
+option</li>
+</ul>
 </div>
 <div class="section" id="configuration">
 <h1>Configuration</h1>
@@ -443,28 +425,11 @@ select the indicator layer to visualize</li>
 </div>
 <div class="section" id="security">
 <h1>Security</h1>
-<table border="1" class="docutils">
-<colgroup>
-<col width="54%" />
-<col width="46%" />
-</colgroup>
-<thead valign="bottom">
-<tr><th class="head">Group</th>
-<th class="head">Access</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr><td><tt class="docutils literal">spp_security.group_spp_user</tt></td>
-<td>Read</td>
-</tr>
-<tr><td><tt class="docutils literal">spp_security.group_spp_manager</tt></td>
-<td>Read/write/create (no delete)</td>
-</tr>
-<tr><td><tt class="docutils literal">spp_security.group_spp_admin</tt></td>
-<td>Full CRUD</td>
-</tr>
-</tbody>
-</table>
+<ul class="simple">
+<li><strong>spp_security.group_spp_user</strong> – Read</li>
+<li><strong>spp_security.group_spp_manager</strong> – Read/write/create (no delete)</li>
+<li><strong>spp_security.group_spp_admin</strong> – Full CRUD</li>
+</ul>
 </div>
 <div class="section" id="extension-points">
 <h1>Extension Points</h1>
@@ -480,12 +445,7 @@ additional data sources beyond <tt class="docutils literal">spp.hxl.area.indicat
 </div>
 <div class="section" id="dependencies">
 <h1>Dependencies</h1>
-<p><tt class="docutils literal">spp_gis</tt>, <tt class="docutils literal">spp_hxl_area</tt></p>
-<div class="admonition important">
-<p class="first admonition-title">Important</p>
-<p class="last">This is an alpha version, the data model and design can change at any time without warning.
-Only for development or testing purpose, do not use in production.</p>
-</div>
+<p><tt class="docutils literal">spp_gis</tt>, <tt class="docutils literal">spp_hxl_area</tt>, <tt class="docutils literal">spp_registry</tt>, <tt class="docutils literal">spp_security</tt></p>
 <p><strong>Table of contents</strong></p>
 <div class="contents local topic" id="contents">
 <ul class="simple">

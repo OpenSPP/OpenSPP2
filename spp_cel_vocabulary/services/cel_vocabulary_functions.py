@@ -79,7 +79,7 @@ def in_group(env, code_value, group_name):
     uri_set = ConceptGroup._get_group_uris_cached(group_name)
 
     if uri_set is None:
-        _logger.warning(f"[CEL Vocabulary] Concept group '{group_name}' not found")
+        _logger.warning("[CEL Vocabulary] Concept group '%s' not found", group_name)
         return False
 
     if not uri_set:
