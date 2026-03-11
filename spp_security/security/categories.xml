@@ -102,6 +102,14 @@
         <field name="sequence">75</field>
     </record>
 
+    <!-- Disability Registry Domain Category -->
+    <record id="category_spp_disability" model="ir.module.category">
+        <field name="name">Disability Registry</field>
+        <field name="description">Disability assessment and registry management</field>
+        <field name="parent_id" ref="category_spp" />
+        <field name="sequence">76</field>
+    </record>
+
     <!-- Health Monitoring Domain Category -->
     <record id="category_spp_health_monitoring" model="ir.module.category">
         <field name="name">Health Monitoring</field>
