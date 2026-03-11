@@ -37,4 +37,39 @@
             </xpath>
         </field>
     </record>
+
+    <!-- GIS view for res.partner (registrants) -->
+    <record id="view_res_partner_gis" model="ir.ui.view">
+        <field name="name">Registrant GIS View</field>
+        <field eval="16" name="priority" />
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <gis editable="1">
+                <field name="id" />
+                <field name="name" select="1" />
+                <field name="display_name" />
+                <field name="coordinates" />
+            </gis>
+        </field>
+    </record>
+
+    <record id="gis_vector_layer_registrant_coordinates" model="spp.gis.data.layer">
+        <field
+            name="geo_field_id"
+            ref="spp_registrant_gis.field_res_partner__coordinates"
+        />
+        <field name="name">Registrant Coordinates</field>
+        <field eval="1" name="sequence" />
+        <field name="view_id" ref="view_res_partner_gis" />
+        <field name="geo_repr">basic</field>
+        <field name="active_on_startup" eval="True" />
+        <field name="layer_opacity">0.8</field>
+        <field name="begin_color">#FF680A</field>
+    </record>
+
+    <record id="gis_raster_layer_registrant_osm" model="spp.gis.raster.layer">
+        <field name="raster_type">osm</field>
+        <field name="name">Default</field>
+        <field name="view_id" ref="view_res_partner_gis" />
+    </record>
 </odoo>

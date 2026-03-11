@@ -10,9 +10,9 @@ OpenSPP Registrant GIS
    !! source digest: sha256:3f603a69c4731312b90dc10708243432cd74193750065d7fe86c2364732c1e9a
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/maturity-Alpha-red.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Beta-yellow.png
     :target: https://odoo-community.org/page/development-status
-    :alt: Alpha
+    :alt: Beta
 .. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
@@ -74,10 +74,6 @@ Dependencies
 ~~~~~~~~~~~~
 
 ``spp_gis``, ``spp_registry``
-
-.. IMPORTANT::
-   This is an alpha version, the data model and design can change at any time without warning.
-   Only for development or testing purpose, do not use in production.
 
 **Table of contents**
 
