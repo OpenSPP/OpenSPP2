@@ -67,22 +67,11 @@ class SPPBaseImport(models.TransientModel):
         overwrite_match = options.get("overwrite_match", False)
         _import_match_local.counts = None
 
-        if dryrun:
-            _logger.info("Doing dry-run import")
+        if dryrun or len(input_file_data) <= 100:
+            _logger.info("Doing %s import", "dry-run" if dryrun else "normal")
             if import_match_ids:
                 self = self.with_context(import_match_ids=import_match_ids, overwrite_match=overwrite_match)
-            result = super().execute_import(fields, columns, options, dryrun=True)
-            counts = getattr(_import_match_local, "counts", None)
-            if counts:
-                result["import_match_counts"] = counts
-                _import_match_local.counts = None
-            return result
-
-        if len(input_file_data) <= 100:
-            _logger.info("Doing normal import")
-            if import_match_ids:
-                self = self.with_context(import_match_ids=import_match_ids, overwrite_match=overwrite_match)
-            result = super().execute_import(fields, columns, options, dryrun=False)
+            result = super().execute_import(fields, columns, options, dryrun=dryrun)
             counts = getattr(_import_match_local, "counts", None)
             if counts:
                 result["import_match_counts"] = counts
