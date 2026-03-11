@@ -20,7 +20,14 @@ class Base(models.AbstractModel):
             fields,
             option_config_ids=self.env.context.get("import_match_ids", []),
         )
-        overwrite_match = self.env.context.get("overwrite_match", False)
+        # If overwrite_match is explicitly set via UI (context), use that.
+        # Otherwise fall back to config records' overwrite_match setting.
+        if "overwrite_match" in self.env.context:
+            overwrite_match = self.env.context["overwrite_match"]
+        elif usable:
+            overwrite_match = any(self.env["spp.import.match"].browse(usable).mapped("overwrite_match"))
+        else:
+            overwrite_match = False
 
         if usable:
             newdata = list()
