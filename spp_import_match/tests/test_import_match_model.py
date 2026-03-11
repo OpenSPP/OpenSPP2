@@ -162,3 +162,68 @@ class TestImportMatchModel(TransactionCase):
                 ]
             )
             self.assertEqual(match.field_ids[0].name, "child_ids/name")
+
+    def test_onchange_field_id_skips_relational(self):
+        """_onchange_field_id skips duplicate check for relational fields."""
+        parent_id_field = self.env["ir.model.fields"].search(
+            [("name", "=", "parent_id"), ("model_id", "=", self.res_partner_model.id)],
+            limit=1,
+        )
+        match = self._create_match_rule(
+            [
+                {"field_id": parent_id_field.id},
+                {"field_id": parent_id_field.id},
+            ]
+        )
+        # Should NOT raise ValidationError because parent_id is many2one
+        for field_rec in match.field_ids:
+            field_rec._onchange_field_id()
+        self.assertEqual(len(match.field_ids), 2)
+
+    def test_match_find_sub_field(self):
+        """_match_find handles sub_field matching for relational fields."""
+        child = self.env["res.partner"].create({"name": "SubFieldChild_Uniq99xyz"})
+        parent = self.env["res.partner"].create(
+            {
+                "name": "SubFieldParent_Uniq99xyz",
+                "child_ids": [(4, child.id)],
+            }
+        )
+        child_ids_field = self.env["ir.model.fields"].search(
+            [
+                ("name", "=", "child_ids"),
+                ("model_id", "=", self.res_partner_model.id),
+            ],
+            limit=1,
+        )
+        match = self._create_match_rule(
+            [
+                {
+                    "field_id": child_ids_field.id,
+                    "sub_field_id": self.name_field.id,
+                }
+            ]
+        )
+        result = match._match_find(
+            self.env["res.partner"],
+            {"child_ids": [(0, 0, {"name": "SubFieldChild_Uniq99xyz"})]},
+            {"child_ids/name": "SubFieldChild_Uniq99xyz", "id": None},
+        )
+        self.assertEqual(result, parent)
+
+    def test_match_find_multiple_combinations(self):
+        """_match_find iterates rules; first matching single result wins."""
+        partner = self.env["res.partner"].create({"name": "MultiCombo99xyz", "email": "multicombo@test.com"})
+        # First rule by email (lower sequence -> tried first)
+        match1 = self._create_match_rule([{"field_id": self.email_field.id}])
+        match1.sequence = 1
+        # Second rule by name
+        match2 = self._create_match_rule([{"field_id": self.name_field.id}])
+        match2.sequence = 2
+        # Email won't match, but name will
+        result = self.env["spp.import.match"]._match_find(
+            self.env["res.partner"],
+            {"name": "MultiCombo99xyz", "email": "nomatch@test.com"},
+            {"name": "MultiCombo99xyz", "email": "nomatch@test.com", "id": None},
+        )
+        self.assertEqual(result, partner)
