@@ -7,8 +7,8 @@ both positive exits (graduation) and negative exits (program removal).
 
 - Define graduation pathways with configurable criteria, exit type (`is_positive_exit`), and monitoring duration
 - Create weighted criteria with four assessment methods: self-report, verification, computed, observation
-- Conduct beneficiary assessments with per-criterion scores, met/not-met flags, and notes
-- Calculate weighted readiness scores (0–1) and enforce required criteria via `_compute_scores()`
+- Conduct beneficiary assessments with per-criterion scores, a manual met/not-met judgment, and notes
+- Calculate weighted readiness scores (0–1) from `score` fields and enforce required criteria via `is_met` flags through `_compute_scores()`. The `score` (numeric, 0–1) and `is_met` (boolean) fields serve different purposes: `score` drives the weighted readiness score, while `is_met` is a qualitative assessor judgment used to check whether required criteria are satisfied. They are intentionally independent because some assessment methods (e.g., field observation) may not map cleanly to a numeric score.
 - Approve assessments through a draft → submitted → approved/rejected workflow; approval auto-sets `graduation_date` when recommendation is "graduate"
 - Compute `monitoring_end_date` from `graduation_date` + pathway's `post_graduation_monitoring_months`
 - Ships with three pre-configured pathways: Standard Graduation (12 months monitoring), Early Graduation (18 months), and Administrative Exit (negative, 0 months)
