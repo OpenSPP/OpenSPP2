@@ -80,7 +80,7 @@ class TestCELVariableEventAggregation(TransactionCase):
                 "event_agg_type_id": self.event_type.id,
             }
         )
-        self.assertEqual(variable.cel_expression, "events_exists('payment')")
+        self.assertEqual(variable.cel_expression, "has_event('payment')")
 
     def test_event_sum_cel_expression(self):
         """Test CEL expression generation for event sum."""

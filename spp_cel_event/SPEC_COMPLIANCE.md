@@ -142,21 +142,21 @@ HAVING [agg_expr] [op] %s
 
 ### Temporal Filters
 
-| Filter        | Spec            | Implementation                 | Status |
-| ------------- | --------------- | ------------------------------ | ------ |
-| after         | Date >=         | ✓ SQL & Python                 | ✓      |
-| before        | Date <=         | ✓ SQL & Python                 | ✓      |
-| within_days   | Relative days   | ✓ INTERVAL '%s days'           | ✓      |
-| within_months | Relative months | ✓ INTERVAL '%s months'         | ✓      |
-| period        | Named periods   | ✓ Parse YYYY, YYYY-QN, YYYY-MM | ✓      |
+| Filter        | Spec            | Implementation                                    | Status |
+| ------------- | --------------- | ------------------------------------------------- | ------ |
+| after         | Date >=         | ✓ SQL & Python                                    | ✓      |
+| before        | Date <=         | ✓ SQL & Python                                    | ✓      |
+| within_days   | Relative days   | ✓ INTERVAL '%s days'                              | ✓      |
+| within_months | Relative months | ✓ INTERVAL '%s months'                            | ✓      |
+| period        | Named periods   | ✓ Parse YYYY, YYYY-QN, YYYY-HN, YYYY-MM, YYYY-WNN | ✓      |
 
 **Period Formats Implemented:**
 
 - ✓ YYYY (full year)
 - ✓ YYYY-QN (quarter)
+- ✓ YYYY-HN (half year)
 - ✓ YYYY-MM (month)
-- ✗ YYYY-HN (half year) - TODO
-- ✗ YYYY-WNN (ISO week) - TODO
+- ✓ YYYY-WNN (ISO week)
 
 ### State Filtering
 
@@ -249,17 +249,12 @@ Implementation assumes they exist.
    - Impact: EventsAggregate with where_predicate uses Python fallback
    - Plan: Future enhancement to parse simple predicates to SQL
 
-2. **Half-year and ISO week periods**
-   - Status: ✗ Not implemented
-   - Impact: These period formats not recognized
-   - Plan: Add to \_parse_period() in future update
-
-3. **Default value handling in SQL**
+2. **Default value handling in SQL**
    - Status: ✗ Not implemented
    - Impact: EventValueCompare with default uses Python fallback
    - Plan: Could use COALESCE in future, complex due to type handling
 
-4. **Event type auto-resolution caching**
+3. **Event type auto-resolution caching**
    - Status: ✗ No caching
    - Impact: Repeated lookups of is_one_active_per_registrant
    - Plan: Add request-level cache in future
@@ -271,22 +266,17 @@ Implementation assumes they exist.
 | Query Plan Nodes | 3     | 3         | 0       | 0               |
 | Selection Modes  | 6     | 6         | 0       | 0               |
 | Temporal Filters | 5     | 5         | 0       | 0               |
-| Period Formats   | 5     | 3         | 0       | 2               |
+| Period Formats   | 5     | 5         | 0       | 0               |
 | Field Types      | 4     | 4         | 0       | 0               |
 | Aggregations     | 5     | 5         | 0       | 0               |
 | Error Handling   | 5     | 5         | 0       | 0               |
 | Performance      | 5     | 4         | 1       | 0               |
 
-**Overall Compliance:** 93% (35/37 items fully implemented)
+**Overall Compliance:** 97% (37/38 items fully implemented)
 
 **Partial Items:**
 
 - EventsAggregate with where_predicate (SQL path deferred)
-
-**Not Implemented (Planned):**
-
-- YYYY-HN period format
-- YYYY-WNN period format
 
 ## Recommendation
 

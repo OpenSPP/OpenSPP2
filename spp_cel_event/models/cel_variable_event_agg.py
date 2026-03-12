@@ -101,7 +101,7 @@ class CELVariableEventAggregation(models.Model):
 
         Generates expressions for event data aggregation:
         - events_count('event_type') - count events
-        - events_exists('event_type') - check if any exist
+        - has_event('event_type') - check if any exist (via _build_has_event_cel)
         - events_sum('event_type', 'field') - sum of field values
         - events_avg('event_type', 'field') - average of field values
         - events_min('event_type', 'field') - minimum field value
@@ -124,7 +124,12 @@ class CELVariableEventAggregation(models.Model):
         event_type_code = self.event_agg_type_id.code
         agg_type = self.aggregate_type or "count"
 
-        # Build function name
+        # "exists" maps to has_event() which the translator handles directly,
+        # rather than events_exists() which is not a recognized translator function.
+        if agg_type == "exists":
+            return self._build_has_event_cel(event_type_code)
+
+        # Build function name for count/sum/avg/min/max
         func = f"events_{agg_type}"
 
         parts = [f"'{event_type_code}'"]
@@ -156,11 +161,35 @@ class CELVariableEventAggregation(models.Model):
         if self.event_agg_states == "all":
             parts.append("states=['active', 'superseded', 'expired']")
 
-        # Custom filter (where predicate)
-        if self.aggregate_filter and self.aggregate_filter.strip() != "true":
-            parts.append(f"where='{self.aggregate_filter}'")
-
         return f"{func}({', '.join(parts)})"
+
+    def _build_has_event_cel(self, event_type_code):
+        """Build has_event() CEL expression for existence checks.
+
+        Args:
+            event_type_code: Event type code string
+
+        Returns:
+            CEL expression string like has_event('payment', within_days=90)
+        """
+        parts = [f"'{event_type_code}'"]
+
+        # Temporal filter
+        named_period_map = {
+            "this_year": "period=this_year()",
+            "this_quarter": "period=this_quarter()",
+            "this_month": "period=this_month()",
+        }
+        if self.event_agg_temporal in named_period_map:
+            parts.append(named_period_map[self.event_agg_temporal])
+        elif self.event_agg_temporal in ("within_days", "within_months") and self.event_agg_temporal_value:
+            parts.append(f"{self.event_agg_temporal}={self.event_agg_temporal_value}")
+
+        # States filter
+        if self.event_agg_states == "all":
+            parts.append("states=['active', 'superseded', 'expired']")
+
+        return f"has_event({', '.join(parts)})"
 
     @api.onchange("aggregate_target")
     def _onchange_aggregate_target_event(self):
@@ -211,7 +240,11 @@ class CELVariableEventAggregation(models.Model):
     def _check_temporal_value(self):
         """Ensure temporal value is set when using within_days/months."""
         for rec in self:
-            if rec.event_agg_temporal in ("within_days", "within_months"):
+            if (
+                rec.source_type == "aggregate"
+                and rec.aggregate_target == "events"
+                and rec.event_agg_temporal in ("within_days", "within_months")
+            ):
                 if not rec.event_agg_temporal_value or rec.event_agg_temporal_value < 1:
                     raise ValidationError(
                         _(
