@@ -57,18 +57,18 @@ Key Models
 Utility Functions
 ~~~~~~~~~~~~~~~~~
 
-+----------------------------------+----------------------------------+
-| Function                         | Purpose                          |
-+==================================+==================================+
-| ``calculate_signature()``        | Encodes JWT with header and      |
-|                                  | payload using RS256              |
-+----------------------------------+----------------------------------+
-| `                                | Decodes and verifies JWT token,  |
-| `verify_and_decode_signature()`` | returns payload                  |
-+----------------------------------+----------------------------------+
-| ``OpenSPPOAuthJWTException``     | Custom exception for OAuth JWT   |
-|                                  | errors with logging              |
-+----------------------------------+----------------------------------+
++-----------------------------------+----------------------------------+
+| Function                          | Purpose                          |
++===================================+==================================+
+| ``calculate_signature()``         | Encodes JWT with header and      |
+|                                   | payload using RS256              |
++-----------------------------------+----------------------------------+
+| ``verify_and_decode_signature()`` | Decodes and verifies JWT token,  |
+|                                   | returns payload                  |
++-----------------------------------+----------------------------------+
+| ``OpenSPPOAuthJWTException``      | Custom exception for OAuth JWT   |
+|                                   | errors with logging              |
++-----------------------------------+----------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
