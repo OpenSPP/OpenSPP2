@@ -44,26 +44,26 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+----------------------------------+----------------------------------+
-| Model                            | Description                      |
-+==================================+==================================+
-| ``spp.aggregation.scope``        | Defines what to aggregate (CEL,  |
-|                                  | area, polygon, explicit IDs)     |
-+----------------------------------+----------------------------------+
-| ``spp.aggregation.access.rule``  | Per-user/group access level,     |
-|                                  | scope restrictions, k-threshold  |
-+----------------------------------+----------------------------------+
-| ``spp.aggregation.cache.entry``  | Cached aggregation results       |
-+----------------------------------+----------------------------------+
-| ``spp.aggregation.service``      | Abstract service: main           |
-|                                  | aggregation entry point          |
-+----------------------------------+----------------------------------+
-| ``                               | Abstract service: resolves       |
-| spp.aggregation.scope.resolver`` | scopes to registrant IDs         |
-+----------------------------------+----------------------------------+
-| ``spp.                           | Abstract service: dispatches     |
-| aggregation.statistic.registry`` | statistic computation            |
-+----------------------------------+----------------------------------+
++----------------------------------------+----------------------------------+
+| Model                                  | Description                      |
++========================================+==================================+
+| ``spp.aggregation.scope``              | Defines what to aggregate (CEL,  |
+|                                        | area, polygon, explicit IDs)     |
++----------------------------------------+----------------------------------+
+| ``spp.aggregation.access.rule``        | Per-user/group access level,     |
+|                                        | scope restrictions, k-threshold  |
++----------------------------------------+----------------------------------+
+| ``spp.aggregation.cache.entry``        | Cached aggregation results       |
++----------------------------------------+----------------------------------+
+| ``spp.aggregation.service``            | Abstract service: main           |
+|                                        | aggregation entry point          |
++----------------------------------------+----------------------------------+
+| ``spp.aggregation.scope.resolver``     | Abstract service: resolves       |
+|                                        | scopes to registrant IDs         |
++----------------------------------------+----------------------------------+
+| ``spp.aggregation.statistic.registry`` | Abstract service: dispatches     |
+|                                        | statistic computation            |
++----------------------------------------+----------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~

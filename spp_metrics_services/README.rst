@@ -45,27 +45,27 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+---------------------------------+-----------------------------------+
-| Model                           | Description                       |
-+=================================+===================================+
-| ``spp.demographic.dimension``   | Configurable dimension for        |
-|                                 | breakdowns (field or CEL)         |
-+---------------------------------+-----------------------------------+
-| ``spp.metrics.fairness``        | Abstract service: equity/parity   |
-|                                 | analysis                          |
-+---------------------------------+-----------------------------------+
-| ``spp.metrics.distribution``    | Abstract service: distribution    |
-|                                 | statistics                        |
-+---------------------------------+-----------------------------------+
-| ``spp.metrics.breakdown``       | Abstract service:                 |
-|                                 | multi-dimensional grouping        |
-+---------------------------------+-----------------------------------+
-| ``spp.metrics.privacy``         | Abstract service: k-anonymity     |
-|                                 | enforcement                       |
-+---------------------------------+-----------------------------------+
-| ``spp.metrics.dimension.cache`` | Abstract service: dimension       |
-|                                 | evaluation cache                  |
-+---------------------------------+-----------------------------------+
++---------------------------------+------------------------------------+
+| Model                           | Description                        |
++=================================+====================================+
+| ``spp.demographic.dimension``   | Configurable dimension for         |
+|                                 | breakdowns (field or CEL)          |
++---------------------------------+------------------------------------+
+| ``spp.metrics.fairness``        | Abstract service: equity/parity    |
+|                                 | analysis                           |
++---------------------------------+------------------------------------+
+| ``spp.metrics.distribution``    | Abstract service: distribution     |
+|                                 | statistics                         |
++---------------------------------+------------------------------------+
+| ``spp.metrics.breakdown``       | Abstract service:                  |
+|                                 | multi-dimensional grouping         |
++---------------------------------+------------------------------------+
+| ``spp.metrics.privacy``         | Abstract service: k-anonymity      |
+|                                 | enforcement                        |
++---------------------------------+------------------------------------+
+| ``spp.metrics.dimension.cache`` | Abstract service: dimension        |
+|                                 | evaluation cache                   |
++---------------------------------+------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~

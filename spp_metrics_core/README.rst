@@ -40,15 +40,15 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+-------------------------+-------------------------------------------+
-| Model                   | Description                               |
-+=========================+===========================================+
-| ``spp.metric.base``     | Abstract model inherited by all concrete  |
-|                         | metric types                              |
-+-------------------------+-------------------------------------------+
-| ``spp.metric.category`` | Hierarchical categorization for           |
-|                         | organizing metrics                        |
-+-------------------------+-------------------------------------------+
++-------------------------+--------------------------------------------+
+| Model                   | Description                                |
++=========================+============================================+
+| ``spp.metric.base``     | Abstract model inherited by all concrete   |
+|                         | metric types                               |
++-------------------------+--------------------------------------------+
+| ``spp.metric.category`` | Hierarchical categorization for organizing |
+|                         | metrics                                    |
++-------------------------+--------------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
