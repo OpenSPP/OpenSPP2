@@ -561,7 +561,10 @@ class SPPMISDemoGenerator(models.TransientModel):
                 _logger.info("Generating GPS coordinates for registrants...")
                 self._generate_coordinates(stats)
 
-            # Step 12: Refresh GIS reports so map data is available immediately
+            # Step 12: Ensure debug GIS layers are present (idempotent)
+            self._ensure_debug_gis_layers(stats)
+
+            # Step 13: Refresh GIS reports so map data is available immediately
             self._refresh_gis_reports(stats)
 
             # Step 13: Create PRISM API client with known credentials
@@ -576,6 +579,18 @@ class SPPMISDemoGenerator(models.TransientModel):
             _logger.error("Error generating MIS demo data: %s", e, exc_info=True)
             self.state = "draft"
             raise UserError(_("Error generating demo data: %s") % e) from e
+
+    def _ensure_debug_gis_layers(self, stats):
+        """Ensure optional debug GIS layers exist after demo generation."""
+        try:
+            from .indicator_providers import _ensure_household_points_debug_layer
+
+            layer = _ensure_household_points_debug_layer(self.env)
+            stats["debug_hh_points_layer_ready"] = bool(layer)
+        except Exception as e:
+            # Debug layer should never block demo generation.
+            _logger.warning("Could not ensure debug GIS layers: %s", e)
+            stats["debug_hh_points_layer_ready"] = False
 
     def _ensure_demo_stories_exist(self, stats):
         """Check if demo story registrants exist and create them if not."""
