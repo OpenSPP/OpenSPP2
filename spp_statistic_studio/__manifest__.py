@@ -17,6 +17,7 @@
         "views/statistic_category_views.xml",
         "views/menus.xml",
     ],
+    "development_status": "Beta",
     "installable": True,
     # Bridge module: auto-install when both spp_statistic and spp_studio are present
     "auto_install": True,

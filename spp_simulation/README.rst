@@ -10,9 +10,9 @@ OpenSPP Targeting Simulation
    !! source digest: sha256:fd3e34b59c516e27a1d09522eca711429d907a328efb7a60b408f4edb71d552f
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.. |badge1| image:: https://img.shields.io/badge/maturity-Alpha-red.png
+.. |badge1| image:: https://img.shields.io/badge/maturity-Beta-yellow.png
     :target: https://odoo-community.org/page/development-status
-    :alt: Alpha
+    :alt: Beta
 .. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
@@ -56,23 +56,24 @@ individual beneficiary records are persisted in simulation results.
 Models
 ------
 
-+--------------------------------------+----------------------------------+
-| Model                                | Description                      |
-+======================================+==================================+
-| ``spp.simulation.scenario.template`` | Pre-built targeting scenario     |
-|                                      | templates                        |
-+--------------------------------------+----------------------------------+
-| ``spp.simulation.scenario``          | Targeting scenario definitions   |
-+--------------------------------------+----------------------------------+
-| ``spp.simulation.entitlement.rule``  | Amount calculation rules         |
-+--------------------------------------+----------------------------------+
-| ``spp.simulation.run``               | Aggregated simulation results    |
-|                                      | (non-deletable)                  |
-+--------------------------------------+----------------------------------+
-| ``spp.simulation.comparison``        | Side-by-side run comparisons     |
-+--------------------------------------+----------------------------------+
-| ``spp.simulation.metric``            | Custom evaluation metrics        |
-+--------------------------------------+----------------------------------+
++----------------------------------+----------------------------------+
+| Model                            | Description                      |
++==================================+==================================+
+| ``sp                             | Pre-built targeting scenario     |
+| p.simulation.scenario.template`` | templates                        |
++----------------------------------+----------------------------------+
+| ``spp.simulation.scenario``      | Targeting scenario definitions   |
++----------------------------------+----------------------------------+
+| ``s                              | Amount calculation rules         |
+| pp.simulation.entitlement.rule`` |                                  |
++----------------------------------+----------------------------------+
+| ``spp.simulation.run``           | Aggregated simulation results    |
+|                                  | (non-deletable)                  |
++----------------------------------+----------------------------------+
+| ``spp.simulation.comparison``    | Side-by-side run comparisons     |
++----------------------------------+----------------------------------+
+| ``spp.simulation.metric``        | Custom evaluation metrics        |
++----------------------------------+----------------------------------+
 
 Security Groups
 ---------------
@@ -92,10 +93,6 @@ Social Protection > Simulation > Scenarios / Results / Comparisons
 
 Configuration: Social Protection > Simulation > Configuration >
 Templates / Custom Metrics
-
-.. IMPORTANT::
-   This is an alpha version, the data model and design can change at any time without warning.
-   Only for development or testing purpose, do not use in production.
 
 **Table of contents**
 
