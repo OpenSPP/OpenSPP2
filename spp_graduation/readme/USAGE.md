@@ -19,7 +19,7 @@ After installation, three default pathways exist: Standard Graduation, Early Gra
 
 **Menu**: Graduation > Configuration > Pathways
 
-#### 1.1 Verify pre-installed pathways
+**1.1 Verify pre-installed pathways**
 
 1. Open **Graduation > Configuration > Pathways**
 2. Verify three pathways exist in the list:
@@ -30,14 +30,14 @@ After installation, three default pathways exist: Standard Graduation, Early Gra
 4. Verify optional columns can be toggled: Code, Is Assessment Required, Is Approval Required, Post Graduation
    Monitoring Months
 
-#### 1.2 Search and filter pathways
+**1.2 Search and filter pathways**
 
 1. Use the search bar to search by name (e.g., "Standard")
 2. Apply the **Positive Exit** filter — only Standard and Early should appear
 3. Apply the **Negative Exit** filter — only Administrative Exit should appear
 4. Apply the **Archived** filter — should show no results (none are archived)
 
-#### 1.3 Create a new pathway
+**1.3 Create a new pathway**
 
 1. Click **New**
 2. Fill in:
@@ -55,7 +55,7 @@ After installation, three default pathways exist: Standard Graduation, Early Gra
 5. Save
 6. Verify the **Criteria** count in the list view shows 2
 
-#### 1.4 Verify weight constraint
+**1.4 Verify weight constraint**
 
 1. Open the Test Graduation Pathway
 2. In the Criteria tab, try to add a criterion with **Weight: 0**
@@ -63,14 +63,14 @@ After installation, three default pathways exist: Standard Graduation, Early Gra
 4. Try **Weight: -1**
 5. **Expected**: Same validation error
 
-#### 1.5 Archive and unarchive
+**1.5 Archive and unarchive**
 
 1. Open any pathway, click **Action > Archive**
 2. Verify the red "Archived" ribbon appears
 3. Go back to the list, apply the **Archived** filter, verify the pathway appears
 4. Open it and click **Action > Unarchive**
 
-#### 1.6 Drag to reorder
+**1.6 Drag to reorder**
 
 1. In the list view, drag the handle (≡) on a pathway row to reorder
 2. Verify the sequence updates
@@ -81,7 +81,7 @@ After installation, three default pathways exist: Standard Graduation, Early Gra
 
 **Menu**: Graduation > Assessments > All Assessments
 
-#### 2.1 List view
+**2.1 List view**
 
 1. Open **Graduation > Assessments > All Assessments**
 2. Verify the list is empty (or shows existing assessments)
@@ -89,7 +89,7 @@ After installation, three default pathways exist: Standard Graduation, Early Gra
    Criteria Met, Recommendation, State (badge)
 4. Verify optional columns can be toggled via the column selector icon
 
-#### 2.2 Create an assessment
+**2.2 Create an assessment**
 
 1. Click **New**
 2. Verify the form opens with:
@@ -98,7 +98,7 @@ After installation, three default pathways exist: Standard Graduation, Early Gra
    - No Approve/Reject/Reset to Draft buttons (user is not a manager)
    - Title shows "New Assessment"
 3. On the **Overview** tab, fill in:
-   - Beneficiary: select a partner record
+   - Beneficiary: select a registrant record
    - Pathway: select "Test Graduation Pathway" (created in Test 1.3)
    - Assessment Date: today (should be pre-filled)
    - Assessor: current user (should be pre-filled)
@@ -110,7 +110,7 @@ After installation, three default pathways exist: Standard Graduation, Early Gra
    - Monitoring End Date: empty
 6. Save the record
 
-#### 2.3 Add criteria responses
+**2.3 Add criteria responses**
 
 **Important — understanding `score` vs `is_met`**: These two fields serve different purposes and are set
 independently by the assessor:
@@ -141,7 +141,7 @@ on qualitative judgment, or vice versa.
    - Readiness Score is computed (should be around 73% based on weights 2.0 and 1.0)
    - Required Criteria Met: ON (because Income Criterion is required and is_met = True)
 
-#### 2.3a Verify score and is_met independence
+**2.3a Verify score and is_met independence**
 
 1. Change the Income Criterion response to Score: 0.3, Is Met: ON
 2. Save and verify:
@@ -153,7 +153,7 @@ on qualitative judgment, or vice versa.
    - Required Criteria Met changes to OFF (because is_met is toggled off on a required criterion)
 5. Restore to Score: 0.8, Is Met: ON for subsequent tests
 
-#### 2.4 Evidence attachments
+**2.4 Evidence attachments**
 
 1. Go to the **Criteria Responses** tab
 2. On the Income Criterion response row, click the attachment icon in the Evidence Attachments column
@@ -163,7 +163,7 @@ on qualitative judgment, or vice versa.
 6. Verify the popup shows: Criteria (readonly), Score, Is Met, Value, Notes, and an Evidence section with the
    uploaded file
 
-#### 2.5 Score constraint
+**2.5 Score constraint**
 
 1. In the Criteria Responses tab, try to change a score to **1.5**
 2. **Expected**: Validation error "Score must be between 0 and 1"
@@ -171,7 +171,7 @@ on qualitative judgment, or vice versa.
 4. **Expected**: Same validation error
 5. Try **0** and **1** — both should be accepted
 
-#### 2.6 Recommendation tab
+**2.6 Recommendation tab**
 
 1. Open the **Recommendation** tab
 2. Select a recommendation: "Ready to Graduate"
@@ -182,7 +182,7 @@ on qualitative judgment, or vice versa.
 
 ### Test 3: Approval Workflow
 
-#### 3.1 Submit (as QA User)
+**3.1 Submit (as QA User)**
 
 1. Open the assessment created in Test 2
 2. Click the **Submit** button
@@ -193,13 +193,13 @@ on qualitative judgment, or vice versa.
    - Overview fields (Beneficiary, Pathway, Date, Assessor) are still editable
    - No Approve/Reject buttons visible (user is not a manager)
 
-#### 3.2 Verify double-submit is blocked (as QA User)
+**3.2 Verify double-submit is blocked (as QA User)**
 
 1. The assessment is already in Submitted state
 2. There should be no Submit button visible
 3. (Programmatic check: calling `action_submit()` on a submitted record raises an error)
 
-#### 3.3 Approve (as QA Manager)
+**3.3 Approve (as QA Manager)**
 
 1. Log in as QA Manager
 2. Open **Graduation > Assessments > All Assessments**
@@ -218,7 +218,7 @@ on qualitative judgment, or vice versa.
    - Criteria Responses tab becomes readonly
    - Recommendation tab becomes readonly
 
-#### 3.4 Verify reset from approved is blocked
+**3.4 Verify reset from approved is blocked**
 
 1. On the approved assessment, verify there is no **Reset to Draft** button
 
@@ -226,15 +226,15 @@ on qualitative judgment, or vice versa.
 
 ### Test 4: Rejection and Reset Flow
 
-#### 4.1 Create and submit another assessment (as QA User)
+**4.1 Create and submit another assessment (as QA User)**
 
 1. Create a new assessment with:
-   - Beneficiary: any partner
+   - Beneficiary: any registrant
    - Pathway: "Standard Graduation"
    - Recommendation: "Extend Participation"
 2. Submit it
 
-#### 4.2 Reject (as QA Manager)
+**4.2 Reject (as QA Manager)**
 
 1. Open the submitted assessment
 2. Click **Reject**
@@ -245,7 +245,7 @@ on qualitative judgment, or vice versa.
    - **Reset to Draft** button is visible
    - Overview and Criteria Responses fields are readonly
 
-#### 4.3 Reset to draft (as QA Manager)
+**4.3 Reset to draft (as QA Manager)**
 
 1. Click **Reset to Draft**
 2. Verify:
@@ -255,7 +255,7 @@ on qualitative judgment, or vice versa.
    - Fields become editable again
 3. Make changes and re-submit
 
-#### 4.4 Approve non-graduate recommendation
+**4.4 Approve non-graduate recommendation**
 
 1. Approve the re-submitted assessment (recommendation is "Extend Participation")
 2. Verify:
@@ -280,13 +280,13 @@ on qualitative judgment, or vice versa.
 
 ### Test 6: Graph and Pivot Views
 
-#### 6.1 Graph view
+**6.1 Graph view**
 
 1. Switch to **Graph** view (bar chart icon)
 2. Verify a bar chart appears grouped by Pathway and State
 3. Toggle between bar, line, and pie chart options
 
-#### 6.2 Pivot view
+**6.2 Pivot view**
 
 1. Switch to **Pivot** view (grid icon)
 2. Verify a pivot table appears with:
@@ -324,17 +324,17 @@ on qualitative judgment, or vice versa.
 
 ### Test 9: Security / Access Control
 
-#### 9.1 User cannot access configuration
+**9.1 User cannot access configuration**
 
 1. Log in as **QA User**
 2. Verify the **Graduation > Configuration** menu is NOT visible
 
-#### 9.2 User cannot modify pathways
+**9.2 User cannot modify pathways**
 
 1. Navigate to a pathway via URL (e.g., `/odoo/spp-graduation-pathway/{id}`)
 2. Verify the form is readonly — no edit capability
 
-#### 9.3 User cannot see other users' assessments
+**9.3 User cannot see other users' assessments**
 
 1. Log in as QA User
 2. Navigate to **Graduation > Assessments > All Assessments**
@@ -342,7 +342,7 @@ on qualitative judgment, or vice versa.
 4. Log in as QA Manager
 5. Verify all assessments from all users appear
 
-#### 9.4 User cannot delete assessments
+**9.4 User cannot delete assessments**
 
 1. Log in as QA User
 2. Open an assessment, try to delete it (Action > Delete)
@@ -352,21 +352,21 @@ on qualitative judgment, or vice versa.
 
 ### Test 10: Edge Cases
 
-#### 10.1 Assessment with no responses
+**10.1 Assessment with no responses**
 
 1. Create a new assessment, do NOT add any criteria responses
 2. Verify: Readiness Score = 0%, Required Criteria Met = OFF
 3. Submit and approve it
 4. Verify: No graduation date (no recommendation set)
 
-#### 10.2 Pathway with zero monitoring months
+**10.2 Pathway with zero monitoring months**
 
 1. Create an assessment using "Administrative Exit" pathway (0 months monitoring)
 2. Set recommendation to "Ready to Graduate"
 3. Submit and approve
 4. Verify: Graduation Date = today, Monitoring End Date = empty (0 months means no monitoring)
 
-#### 10.3 Multiple assessments for same beneficiary
+**10.3 Multiple assessments for same beneficiary**
 
 1. Create two assessments for the same beneficiary with different pathways
 2. Verify both can exist independently and have separate scores/states
