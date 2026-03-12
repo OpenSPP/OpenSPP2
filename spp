@@ -150,10 +150,13 @@ def run(cmd: str | list, check: bool = True, capture: bool = False, **kwargs) ->
     return subprocess.run(cmd, check=check, **kwargs)
 
 
-def docker_compose(*args, profile: str = None) -> list:
+def docker_compose(*args, profile: str = None, profiles: list = None) -> list:
     """Build docker compose command."""
     cmd = ["docker", "compose"]
-    if profile:
+    if profiles:
+        for p in profiles:
+            cmd.extend(["--profile", p])
+    elif profile:
         cmd.extend(["--profile", profile])
     cmd.extend(args)
     return cmd
@@ -551,6 +554,14 @@ def cmd_start(args):
     # Determine profile: dev (dynamic port) vs ui (fixed 8069)
     profile = args.profile
 
+    # --prism requires the ui profile (fixed port 8069) so PRISM can reach Odoo
+    extra_profiles = []
+    if getattr(args, "prism", False):
+        if profile == "dev":
+            info("--prism requires fixed port, switching to ui profile")
+            profile = "ui"
+        extra_profiles.append("prism")
+
     # Check if Docker image needs rebuilding (unless --no-build)
     if not getattr(args, "no_build", False):
         _check_image_freshness(profile, auto_rebuild=args.yes)
@@ -576,7 +587,7 @@ def cmd_start(args):
         print("\n" + _color("1;34", "Phase 1: Installing job_worker..."))
         phase1_env = env.copy()
         phase1_env["ODOO_INIT_MODULES"] = "job_worker"
-        run(docker_compose("up", "-d", profile=profile), env=phase1_env)
+        run(docker_compose("up", "-d", profiles=[profile] + extra_profiles), env=phase1_env)
 
         if not _wait_for_odoo_ready(profile):
             warn("Odoo did not become ready in time, continuing anyway...")
@@ -590,7 +601,7 @@ def cmd_start(args):
 
         print("\n" + _color("1;34", f"Phase 2: Installing {demo_modules}..."))
         env["ODOO_INIT_MODULES"] = demo_modules
-        run(docker_compose("up", "-d", profile=profile), env=env)
+        run(docker_compose("up", "-d", profiles=[profile] + extra_profiles), env=env)
 
         # Wait for Odoo to be ready first
         if not _wait_for_odoo_ready(profile, timeout=120):
@@ -620,7 +631,7 @@ def cmd_start(args):
 
         # Start services
         print(f"Starting Odoo ({profile} profile)...")
-        run(docker_compose("up", "-d", profile=profile), env=env)
+        run(docker_compose("up", "-d", profiles=[profile] + extra_profiles), env=env)
 
         # Warn if --generate used without --wipe
         if args.generate:
@@ -633,6 +644,9 @@ def cmd_start(args):
     else:
         print("\nOdoo available at: http://localhost:8069")
         print("Credentials: admin / admin")
+
+    if extra_profiles and "prism" in extra_profiles:
+        print("\nPRISM frontend: http://localhost:3000")
 
 
 def cmd_stop(args):
@@ -649,7 +663,7 @@ def cmd_stop(args):
 
     print("Stopping all containers...")
     # Stop all profiles
-    for profile in ["dev", "ui", "e2e"]:
+    for profile in ["dev", "ui", "e2e", "prism"]:
         run(docker_compose("down", profile=profile), check=False)
 
     # Also stop standalone db if running
@@ -1313,6 +1327,11 @@ def build_parser():
         "--generate",
         action="store_true",
         help="Run demo data generator after installation (requires --wipe and --demo)",
+    )
+    p.add_argument(
+        "--prism",
+        action="store_true",
+        help="Also start PRISM frontend on port 3000 (requires prism-app repo)",
     )
 
     # stop
