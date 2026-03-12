@@ -128,3 +128,69 @@ class TestGraduationPathway(TransactionCase):
         self.assertTrue(pathway.is_positive_exit)
         self.assertTrue(pathway.is_assessment_required)
         self.assertTrue(pathway.is_approval_required)
+
+    def test_criteria_assessment_method_values(self):
+        """Test all assessment method selection values are accepted."""
+        pathway = self.Pathway.create({"name": "Method Test Pathway"})
+        methods = ["self_report", "verification", "computed", "observation"]
+        for method in methods:
+            criteria = self.Criteria.create(
+                {
+                    "pathway_id": pathway.id,
+                    "name": f"Criterion {method}",
+                    "weight": 1.0,
+                    "assessment_method": method,
+                }
+            )
+            self.assertEqual(criteria.assessment_method, method)
+
+    def test_criteria_assessment_method_default(self):
+        """Test assessment method defaults to verification."""
+        pathway = self.Pathway.create({"name": "Default Method Pathway"})
+        criteria = self.Criteria.create(
+            {
+                "pathway_id": pathway.id,
+                "name": "Default Method",
+                "weight": 1.0,
+            }
+        )
+        self.assertEqual(criteria.assessment_method, "verification")
+
+    def test_criteria_active_field(self):
+        """Test criteria active field defaults to True and can be archived."""
+        pathway = self.Pathway.create({"name": "Active Test Pathway"})
+        criteria = self.Criteria.create(
+            {
+                "pathway_id": pathway.id,
+                "name": "Active Criterion",
+                "weight": 1.0,
+            }
+        )
+        self.assertTrue(criteria.active)
+        criteria.active = False
+        self.assertFalse(criteria.active)
+
+    def test_pathway_description(self):
+        """Test pathway description field is stored correctly."""
+        pathway = self.Pathway.create(
+            {
+                "name": "Described Pathway",
+                "description": "A pathway for testing description storage.",
+            }
+        )
+        self.assertEqual(pathway.description, "A pathway for testing description storage.")
+
+    def test_criteria_code_and_description(self):
+        """Test criteria code and description fields are stored correctly."""
+        pathway = self.Pathway.create({"name": "Code Test Pathway"})
+        criteria = self.Criteria.create(
+            {
+                "pathway_id": pathway.id,
+                "name": "Coded Criterion",
+                "code": "ECON_01",
+                "weight": 1.0,
+                "description": "Measures economic stability.",
+            }
+        )
+        self.assertEqual(criteria.code, "ECON_01")
+        self.assertEqual(criteria.description, "Measures economic stability.")

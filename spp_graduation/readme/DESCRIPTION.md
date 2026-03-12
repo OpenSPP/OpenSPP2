@@ -57,8 +57,6 @@ Record rules restrict users to assessments where `assessor_id = current user` an
 - Override `_compute_monitoring_end()` to change how monitoring end dates are derived
 - Inherit `spp.graduation.pathway` to add domain-specific pathway fields
 - Inherit assessment workflow actions (`action_submit`, `action_approve`, `action_reject`, `action_reset_draft`)
-- Add `domain=[('is_registrant', '=', True)]` on `partner_id` in modules that depend on `spp_registry`
-
 ### Dependencies
 
-`base`, `spp_security`, `mail`
+`base`, `spp_registry`, `spp_security`, `mail`

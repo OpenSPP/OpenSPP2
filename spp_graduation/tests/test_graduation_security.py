@@ -36,6 +36,7 @@ class TestGraduationSecurity(TransactionCase):
         cls.beneficiary = cls.env["res.partner"].create(
             {
                 "name": "Test Beneficiary",
+                "is_registrant": True,
             }
         )
 

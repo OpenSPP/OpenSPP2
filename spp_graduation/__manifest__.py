@@ -11,6 +11,7 @@
     "maintainers": ["jeremi", "gonzalesedwin1123", "emjay0921"],
     "depends": [
         "base",
+        "spp_registry",
         "spp_security",
         "mail",
     ],

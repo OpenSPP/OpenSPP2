@@ -24,6 +24,7 @@ class TestGraduationAssessment(TransactionCase):
         cls.beneficiary = cls.Partner.create(
             {
                 "name": "Test Beneficiary",
+                "is_registrant": True,
             }
         )
 
@@ -423,3 +424,55 @@ class TestGraduationAssessment(TransactionCase):
             }
         )
         self.assertFalse(assessment.monitoring_end_date)
+
+    # --- Name computation edge case ---
+
+    def test_assessment_name_without_pathway(self):
+        """Test assessment name defaults when pathway is missing."""
+        assessment = self.Assessment.create(
+            {
+                "partner_id": self.beneficiary.id,
+                "pathway_id": self.pathway.id,
+            }
+        )
+        # Remove pathway to trigger else branch
+        assessment.pathway_id = False
+        self.assertEqual(assessment.name, "New Assessment")
+
+    # --- Response field tests ---
+
+    def test_response_value_and_notes(self):
+        """Test response value and notes fields are stored correctly."""
+        assessment = self.Assessment.create(
+            {
+                "partner_id": self.beneficiary.id,
+                "pathway_id": self.pathway.id,
+            }
+        )
+        response = self.Response.create(
+            {
+                "assessment_id": assessment.id,
+                "criteria_id": self.criteria1.id,
+                "score": 0.7,
+                "is_met": True,
+                "value": "Above threshold",
+                "notes": "Verified via documentation",
+            }
+        )
+        self.assertEqual(response.value, "Above threshold")
+        self.assertEqual(response.notes, "Verified via documentation")
+
+    def test_recommendation_notes(self):
+        """Test recommendation notes field is stored correctly."""
+        assessment = self.Assessment.create(
+            {
+                "partner_id": self.beneficiary.id,
+                "pathway_id": self.pathway.id,
+                "recommendation": "graduate",
+                "recommendation_notes": "Beneficiary meets all criteria for graduation.",
+            }
+        )
+        self.assertEqual(
+            assessment.recommendation_notes,
+            "Beneficiary meets all criteria for graduation.",
+        )

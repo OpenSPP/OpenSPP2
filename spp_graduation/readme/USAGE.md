@@ -9,7 +9,7 @@ executed in order since later tests depend on data created in earlier ones.
 - Two test users configured:
   - **QA User**: assigned to Graduation > User privilege
   - **QA Manager**: assigned to Graduation > Manager privilege
-- At least one `res.partner` record to use as a beneficiary
+- At least one registrant (`res.partner` with `is_registrant = True`) to use as a beneficiary
 
 After installation, three default pathways exist: Standard Graduation, Early Graduation, and Administrative Exit.
 

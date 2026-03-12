@@ -21,6 +21,7 @@ class GraduationAssessment(models.Model):
         string="Beneficiary",
         required=True,
         tracking=True,
+        domain=[("is_registrant", "=", True)],
     )
     pathway_id = fields.Many2one(
         "spp.graduation.pathway",
