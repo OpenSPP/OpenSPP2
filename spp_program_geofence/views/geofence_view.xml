@@ -137,5 +137,6 @@
         action="action_geofence_list"
         parent="spp_area.area_main_top_menu"
         sequence="200"
+        groups="spp_security.group_spp_admin,spp_registry.group_registry_read,spp_programs.group_programs_viewer,spp_programs.group_programs_validator"
     />
 </odoo>

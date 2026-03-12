@@ -509,7 +509,14 @@ class Operator:
             # Complex types use ST_GeomFromGeoJSON directly
             geom = self.create_from_geojson(geojson_val, self.field.srid)
             postgis_fn = self.POSTGIS_SPATIAL_RELATION[operation]
-            return SQL("%s(%s, %s)", SQL(postgis_fn), geom, SQL(self.qualified_field_name))
+            right = SQL(self.qualified_field_name)
+            if distance:
+                left = geom
+                if self.field.srid == 4326:
+                    left = SQL("ST_Transform(%s, %s)", geom, 3857)
+                    right = SQL("ST_Transform(%s, %s)", right, 3857)
+                return SQL("%s(ST_Buffer(%s, %s), %s)", SQL(postgis_fn), left, distance, right)
+            return SQL("%s(%s, %s)", SQL(postgis_fn), geom, right)
 
         coordinates = geojson_val["coordinates"]
         return SQL(self.get_postgis_query(operation, coordinates, distance=distance, layer_type=layer_type))

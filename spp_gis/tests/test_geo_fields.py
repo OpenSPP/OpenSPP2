@@ -362,6 +362,51 @@ class TestOperatorMultiPolygon(TransactionCase):
         self.assertIn("ST_GeomFromGeoJSON", sql_string)
         self.assertIn("GeometryCollection", sql_string)
 
+    def test_multipolygon_distance_uses_buffer(self):
+        """Distance operand on MultiPolygon uses ST_Buffer path."""
+        from odoo.addons.spp_gis.operators import Operator
+
+        field = self._make_field()
+        operator = Operator(field)
+
+        geojson = {
+            "type": "MultiPolygon",
+            "coordinates": [
+                [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
+            ],
+        }
+
+        result = operator.domain_query("gis_intersects", (geojson, 1000))
+        sql_string = str(result)
+
+        self.assertIn("ST_Intersects", sql_string)
+        self.assertIn("ST_Buffer", sql_string)
+        self.assertIn("ST_Transform", sql_string)
+
+    def test_geometrycollection_distance_uses_buffer(self):
+        """Distance operand on GeometryCollection uses ST_Buffer path."""
+        from odoo.addons.spp_gis.operators import Operator
+
+        field = self._make_field()
+        operator = Operator(field)
+
+        geojson = {
+            "type": "GeometryCollection",
+            "geometries": [
+                {
+                    "type": "Polygon",
+                    "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
+                }
+            ],
+        }
+
+        result = operator.domain_query("gis_intersects", (geojson, 500))
+        sql_string = str(result)
+
+        self.assertIn("ST_Intersects", sql_string)
+        self.assertIn("ST_Buffer", sql_string)
+        self.assertIn("ST_Transform", sql_string)
+
     def test_multipolygon_from_shapely(self):
         """domain_query accepts a shapely MultiPolygon object."""
         from shapely.geometry import MultiPolygon, Polygon
