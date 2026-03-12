@@ -77,9 +77,7 @@ class TestCelEventTranslator(TransactionCase):
     def test_handle_event_call_basic(self):
         """Test basic event('type') call produces EventFieldRef."""
         node = P.Call(func=P.Ident("event"), args=[P.Literal("survey")])
-        result, explain = self.translator._handle_event_call(
-            self.model, node, self.cfg, self.ctx
-        )
+        result, explain = self.translator._handle_event_call(self.model, node, self.cfg, self.ctx)
 
         self.assertIsInstance(result, EventFieldRef)
         self.assertEqual(result.event_type, "survey")
@@ -92,9 +90,7 @@ class TestCelEventTranslator(TransactionCase):
             func=P.Ident("event"),
             args=[P.Literal("survey"), P.Literal("income")],
         )
-        result, explain = self.translator._handle_event_call(
-            self.model, node, self.cfg, self.ctx
-        )
+        result, explain = self.translator._handle_event_call(self.model, node, self.cfg, self.ctx)
 
         self.assertIsInstance(result, EventFieldRef)
         self.assertEqual(result.event_type, "survey")
@@ -110,9 +106,7 @@ class TestCelEventTranslator(TransactionCase):
                 "within_days": P.Literal(90),
             },
         )
-        result, explain = self.translator._handle_event_call(
-            self.model, node, self.cfg, self.ctx
-        )
+        result, explain = self.translator._handle_event_call(self.model, node, self.cfg, self.ctx)
 
         self.assertEqual(result.select, "latest")
         self.assertEqual(result.within_days, 90)
@@ -121,17 +115,13 @@ class TestCelEventTranslator(TransactionCase):
         """Test event() with no arguments raises ValueError."""
         node = P.Call(func=P.Ident("event"), args=[])
         with self.assertRaises(ValueError):
-            self.translator._handle_event_call(
-                self.model, node, self.cfg, self.ctx
-            )
+            self.translator._handle_event_call(self.model, node, self.cfg, self.ctx)
 
     def test_handle_event_call_non_string_type_raises(self):
         """Test event(123) with non-string type raises TypeError."""
         node = P.Call(func=P.Ident("event"), args=[P.Literal(123)])
         with self.assertRaises(TypeError):
-            self.translator._handle_event_call(
-                self.model, node, self.cfg, self.ctx
-            )
+            self.translator._handle_event_call(self.model, node, self.cfg, self.ctx)
 
     # ══════════════════════════════════════════════════════════════════════════
     # _handle_has_event tests
@@ -140,9 +130,7 @@ class TestCelEventTranslator(TransactionCase):
     def test_handle_has_event_basic(self):
         """Test has_event('type') produces EventExists."""
         node = P.Call(func=P.Ident("has_event"), args=[P.Literal("survey")])
-        result, explain = self.translator._handle_has_event(
-            self.model, node, self.cfg, self.ctx
-        )
+        result, explain = self.translator._handle_has_event(self.model, node, self.cfg, self.ctx)
 
         self.assertIsInstance(result, EventExists)
         self.assertEqual(result.event_type, "survey")
@@ -155,9 +143,7 @@ class TestCelEventTranslator(TransactionCase):
             args=[P.Literal("assessment")],
             kwargs={"within_days": P.Literal(365)},
         )
-        result, explain = self.translator._handle_has_event(
-            self.model, node, self.cfg, self.ctx
-        )
+        result, explain = self.translator._handle_has_event(self.model, node, self.cfg, self.ctx)
 
         self.assertEqual(result.within_days, 365)
 
@@ -165,17 +151,13 @@ class TestCelEventTranslator(TransactionCase):
         """Test has_event() with no arguments raises ValueError."""
         node = P.Call(func=P.Ident("has_event"), args=[])
         with self.assertRaises(ValueError):
-            self.translator._handle_has_event(
-                self.model, node, self.cfg, self.ctx
-            )
+            self.translator._handle_has_event(self.model, node, self.cfg, self.ctx)
 
     def test_handle_has_event_non_string_type_raises(self):
         """Test has_event(123) raises TypeError."""
         node = P.Call(func=P.Ident("has_event"), args=[P.Literal(123)])
         with self.assertRaises(TypeError):
-            self.translator._handle_has_event(
-                self.model, node, self.cfg, self.ctx
-            )
+            self.translator._handle_has_event(self.model, node, self.cfg, self.ctx)
 
     # ══════════════════════════════════════════════════════════════════════════
     # _handle_events_aggregate tests
@@ -183,12 +165,8 @@ class TestCelEventTranslator(TransactionCase):
 
     def test_handle_events_count(self):
         """Test events_count('type') produces EventsAggregate with agg='count'."""
-        node = P.Call(
-            func=P.Ident("events_count"), args=[P.Literal("attendance")]
-        )
-        result, explain = self.translator._handle_events_aggregate(
-            self.model, node, self.cfg, self.ctx
-        )
+        node = P.Call(func=P.Ident("events_count"), args=[P.Literal("attendance")])
+        result, explain = self.translator._handle_events_aggregate(self.model, node, self.cfg, self.ctx)
 
         self.assertIsInstance(result, EventsAggregate)
         self.assertEqual(result.event_type, "attendance")
@@ -204,9 +182,7 @@ class TestCelEventTranslator(TransactionCase):
             func=P.Ident("events_sum"),
             args=[P.Literal("survey"), P.Literal("income")],
         )
-        result, explain = self.translator._handle_events_aggregate(
-            self.model, node, self.cfg, self.ctx
-        )
+        result, explain = self.translator._handle_events_aggregate(self.model, node, self.cfg, self.ctx)
 
         self.assertEqual(result.agg, "sum")
         self.assertEqual(result.field_name, "income")
@@ -217,9 +193,7 @@ class TestCelEventTranslator(TransactionCase):
             func=P.Ident("events_avg"),
             args=[P.Literal("survey"), P.Literal("score")],
         )
-        result, explain = self.translator._handle_events_aggregate(
-            self.model, node, self.cfg, self.ctx
-        )
+        result, explain = self.translator._handle_events_aggregate(self.model, node, self.cfg, self.ctx)
 
         self.assertEqual(result.agg, "avg")
         self.assertEqual(result.field_name, "score")
@@ -230,9 +204,7 @@ class TestCelEventTranslator(TransactionCase):
             func=P.Ident("events_min"),
             args=[P.Literal("survey"), P.Literal("score")],
         )
-        result, explain = self.translator._handle_events_aggregate(
-            self.model, node, self.cfg, self.ctx
-        )
+        result, explain = self.translator._handle_events_aggregate(self.model, node, self.cfg, self.ctx)
 
         self.assertEqual(result.agg, "min")
 
@@ -242,9 +214,7 @@ class TestCelEventTranslator(TransactionCase):
             func=P.Ident("events_max"),
             args=[P.Literal("survey"), P.Literal("score")],
         )
-        result, explain = self.translator._handle_events_aggregate(
-            self.model, node, self.cfg, self.ctx
-        )
+        result, explain = self.translator._handle_events_aggregate(self.model, node, self.cfg, self.ctx)
 
         self.assertEqual(result.agg, "max")
 
@@ -258,30 +228,22 @@ class TestCelEventTranslator(TransactionCase):
                 "states": P.Literal(["active", "superseded"]),
             },
         )
-        result, explain = self.translator._handle_events_aggregate(
-            self.model, node, self.cfg, self.ctx
-        )
+        result, explain = self.translator._handle_events_aggregate(self.model, node, self.cfg, self.ctx)
 
         self.assertEqual(result.period, "2024")
         self.assertEqual(result.states, ["active", "superseded"])
 
     def test_handle_events_sum_no_field_raises(self):
         """Test events_sum() without field argument raises ValueError."""
-        node = P.Call(
-            func=P.Ident("events_sum"), args=[P.Literal("survey")]
-        )
+        node = P.Call(func=P.Ident("events_sum"), args=[P.Literal("survey")])
         with self.assertRaises(ValueError):
-            self.translator._handle_events_aggregate(
-                self.model, node, self.cfg, self.ctx
-            )
+            self.translator._handle_events_aggregate(self.model, node, self.cfg, self.ctx)
 
     def test_handle_events_count_no_args_raises(self):
         """Test events_count() with no arguments raises ValueError."""
         node = P.Call(func=P.Ident("events_count"), args=[])
         with self.assertRaises(ValueError):
-            self.translator._handle_events_aggregate(
-                self.model, node, self.cfg, self.ctx
-            )
+            self.translator._handle_events_aggregate(self.model, node, self.cfg, self.ctx)
 
     # ══════════════════════════════════════════════════════════════════════════
     # _handle_aggregate_compare tests
@@ -291,14 +253,10 @@ class TestCelEventTranslator(TransactionCase):
         """Test events_count('type') >= 10 sets op and rhs."""
         cmp = P.Compare(
             op="GE",
-            left=P.Call(
-                func=P.Ident("events_count"), args=[P.Literal("visit")]
-            ),
+            left=P.Call(func=P.Ident("events_count"), args=[P.Literal("visit")]),
             right=P.Literal(10),
         )
-        result, explain = self.translator._handle_aggregate_compare(
-            self.model, cmp, self.cfg, self.ctx
-        )
+        result, explain = self.translator._handle_aggregate_compare(self.model, cmp, self.cfg, self.ctx)
 
         self.assertIsInstance(result, EventsAggregate)
         self.assertEqual(result.op, ">=")
@@ -308,14 +266,10 @@ class TestCelEventTranslator(TransactionCase):
         """Test events_count('type') == 5."""
         cmp = P.Compare(
             op="EQ",
-            left=P.Call(
-                func=P.Ident("events_count"), args=[P.Literal("visit")]
-            ),
+            left=P.Call(func=P.Ident("events_count"), args=[P.Literal("visit")]),
             right=P.Literal(5),
         )
-        result, explain = self.translator._handle_aggregate_compare(
-            self.model, cmp, self.cfg, self.ctx
-        )
+        result, explain = self.translator._handle_aggregate_compare(self.model, cmp, self.cfg, self.ctx)
 
         self.assertEqual(result.op, "==")
         self.assertEqual(result.rhs, 5)
@@ -330,9 +284,7 @@ class TestCelEventTranslator(TransactionCase):
             ),
             right=P.Literal(1000),
         )
-        result, explain = self.translator._handle_aggregate_compare(
-            self.model, cmp, self.cfg, self.ctx
-        )
+        result, explain = self.translator._handle_aggregate_compare(self.model, cmp, self.cfg, self.ctx)
 
         self.assertEqual(result.op, "<")
         self.assertEqual(result.rhs, 1000)
@@ -345,9 +297,7 @@ class TestCelEventTranslator(TransactionCase):
     def test_extract_event_parameters_empty(self):
         """Test extracting parameters from node with no kwargs."""
         node = P.Call(func=P.Ident("event"), args=[P.Literal("survey")])
-        params = self.translator._extract_event_parameters(
-            node, self.ctx, start_index=1
-        )
+        params = self.translator._extract_event_parameters(node, self.ctx, start_index=1)
         self.assertEqual(params, {})
 
     def test_extract_event_parameters_with_kwargs(self):
@@ -361,9 +311,7 @@ class TestCelEventTranslator(TransactionCase):
                 "default": P.Literal(0),
             },
         )
-        params = self.translator._extract_event_parameters(
-            node, self.ctx, start_index=1
-        )
+        params = self.translator._extract_event_parameters(node, self.ctx, start_index=1)
 
         self.assertEqual(params["select"], "latest")
         self.assertEqual(params["within_days"], 90)
@@ -403,9 +351,7 @@ class TestCelEventTranslator(TransactionCase):
         from datetime import date
 
         node = P.Call(func=P.Ident("this_year"), args=[])
-        result, explain = self.translator._handle_period_function(
-            self.model, node, self.cfg, self.ctx
-        )
+        result, explain = self.translator._handle_period_function(self.model, node, self.cfg, self.ctx)
 
         expected_year = str(date.today().year)
         self.assertIn(expected_year, explain)
@@ -415,9 +361,7 @@ class TestCelEventTranslator(TransactionCase):
         from datetime import date
 
         node = P.Call(func=P.Ident("last_year"), args=[])
-        result, explain = self.translator._handle_period_function(
-            self.model, node, self.cfg, self.ctx
-        )
+        result, explain = self.translator._handle_period_function(self.model, node, self.cfg, self.ctx)
 
         expected_year = str(date.today().year - 1)
         self.assertIn(expected_year, explain)
@@ -425,9 +369,7 @@ class TestCelEventTranslator(TransactionCase):
     def test_handle_period_this_quarter(self):
         """Test this_quarter() returns current quarter string."""
         node = P.Call(func=P.Ident("this_quarter"), args=[])
-        result, explain = self.translator._handle_period_function(
-            self.model, node, self.cfg, self.ctx
-        )
+        result, explain = self.translator._handle_period_function(self.model, node, self.cfg, self.ctx)
 
         # Should contain a quarter like '2026-Q1'
         self.assertRegex(explain, r"\d{4}-Q[1-4]")
@@ -435,9 +377,7 @@ class TestCelEventTranslator(TransactionCase):
     def test_handle_period_this_month(self):
         """Test this_month() returns current month string."""
         node = P.Call(func=P.Ident("this_month"), args=[])
-        result, explain = self.translator._handle_period_function(
-            self.model, node, self.cfg, self.ctx
-        )
+        result, explain = self.translator._handle_period_function(self.model, node, self.cfg, self.ctx)
 
         # Should contain a month like '2026-03'
         self.assertRegex(explain, r"\d{4}-\d{2}")
@@ -445,18 +385,14 @@ class TestCelEventTranslator(TransactionCase):
     def test_handle_period_quarters_ago(self):
         """Test quarters_ago(n) returns correct quarter string."""
         node = P.Call(func=P.Ident("quarters_ago"), args=[P.Literal(1)])
-        result, explain = self.translator._handle_period_function(
-            self.model, node, self.cfg, self.ctx
-        )
+        result, explain = self.translator._handle_period_function(self.model, node, self.cfg, self.ctx)
 
         self.assertRegex(explain, r"\d{4}-Q[1-4]")
 
     def test_handle_period_months_ago(self):
         """Test months_ago(n) returns correct month string."""
         node = P.Call(func=P.Ident("months_ago"), args=[P.Literal(2)])
-        result, explain = self.translator._handle_period_function(
-            self.model, node, self.cfg, self.ctx
-        )
+        result, explain = self.translator._handle_period_function(self.model, node, self.cfg, self.ctx)
 
         self.assertRegex(explain, r"\d{4}-\d{2}")
 
@@ -470,17 +406,13 @@ class TestCelEventTranslator(TransactionCase):
         node = P.Compare(
             op="GT",
             left=P.Attr(
-                obj=P.Call(
-                    func=P.Ident("event"), args=[P.Literal("survey")]
-                ),
+                obj=P.Call(func=P.Ident("event"), args=[P.Literal("survey")]),
                 name="income",
             ),
             right=P.Literal(500),
         )
 
-        result, explain = self.translator._to_plan(
-            self.model, node, self.cfg, self.ctx
-        )
+        result, explain = self.translator._to_plan(self.model, node, self.cfg, self.ctx)
 
         self.assertIsInstance(result, EventValueCompare)
         self.assertEqual(result.event_type, "survey")
@@ -492,9 +424,7 @@ class TestCelEventTranslator(TransactionCase):
         """Test full _to_plan for has_event('type')."""
         node = P.Call(func=P.Ident("has_event"), args=[P.Literal("survey")])
 
-        result, explain = self.translator._to_plan(
-            self.model, node, self.cfg, self.ctx
-        )
+        result, explain = self.translator._to_plan(self.model, node, self.cfg, self.ctx)
 
         self.assertIsInstance(result, EventExists)
         self.assertEqual(result.event_type, "survey")
@@ -510,9 +440,7 @@ class TestCelEventTranslator(TransactionCase):
             right=P.Literal(10),
         )
 
-        result, explain = self.translator._to_plan(
-            self.model, node, self.cfg, self.ctx
-        )
+        result, explain = self.translator._to_plan(self.model, node, self.cfg, self.ctx)
 
         self.assertIsInstance(result, EventsAggregate)
         self.assertEqual(result.op, ">=")

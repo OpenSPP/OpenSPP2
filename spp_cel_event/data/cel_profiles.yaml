@@ -174,7 +174,7 @@ presets:
             type: list[str]
             required: false
             description: "Event states to include (default: ['active'])"
-      # TODO: 'where' parameter planned but not yet implemented
+        # TODO: 'where' parameter planned but not yet implemented
         examples:
           - expression: "events_count('attendance') >= 180"
             description: "Count all active attendance events"
@@ -226,7 +226,7 @@ presets:
             type: list[str]
             required: false
             description: "Event states to include (default: ['active'])"
-      # TODO: 'where' parameter planned but not yet implemented
+        # TODO: 'where' parameter planned but not yet implemented
         examples:
           - expression: "events_sum('attendance', 'days_present', period='2024') >= 180"
             description: "Sum attendance days in 2024"
@@ -272,7 +272,7 @@ presets:
             type: list[str]
             required: false
             description: "Event states to include (default: ['active'])"
-      # TODO: 'where' parameter planned but not yet implemented
+        # TODO: 'where' parameter planned but not yet implemented
         examples:
           - expression: "events_avg('survey', 'income', within_days=365) < 500"
             description: "Average income from surveys in last year"
@@ -318,7 +318,7 @@ presets:
             type: list[str]
             required: false
             description: "Event states to include (default: ['active'])"
-      # TODO: 'where' parameter planned but not yet implemented
+        # TODO: 'where' parameter planned but not yet implemented
         examples:
           - expression: "events_min('assessment', 'score', period='2024') >= 60"
             description: "Minimum assessment score in 2024"
@@ -364,7 +364,7 @@ presets:
             type: list[str]
             required: false
             description: "Event states to include (default: ['active'])"
-      # TODO: 'where' parameter planned but not yet implemented
+        # TODO: 'where' parameter planned but not yet implemented
         examples:
           - expression: "events_max('assessment', 'score', period='2024') >= 70"
             description: "Maximum assessment score in 2024"

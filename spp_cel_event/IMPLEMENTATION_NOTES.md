@@ -134,7 +134,8 @@ JSON field extraction handles multiple data types:
 The Python path is used when:
 
 - Default value specified (requires post-processing)
-- Complex where predicates in aggregations (NOTE: `where_predicate` is not yet implemented — registrants with this parameter are silently skipped with a warning log)
+- Complex where predicates in aggregations (NOTE: `where_predicate` is not yet
+  implemented — registrants with this parameter are silently skipped with a warning log)
 - SQL execution fails
 - Non-standard comparison operators
 
@@ -259,4 +260,3 @@ All period formats are supported via `cel_event_functions.parse_period()`:
 - `odoo.tools.sql.SQL`: SQL query builder
 - `spp_cel_domain`: Base CEL executor
 - `spp_event_data`: Event data model
-

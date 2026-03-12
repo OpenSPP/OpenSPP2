@@ -185,8 +185,7 @@ class CELVariableEventAggregation(models.Model):
                 if not rec.event_agg_type_id:
                     raise ValidationError(
                         _(
-                            "Variable '%(name)s' is configured for event aggregation "
-                            "but no event type is selected.",
+                            "Variable '%(name)s' is configured for event aggregation but no event type is selected.",
                             name=rec.name,
                         )
                     )
