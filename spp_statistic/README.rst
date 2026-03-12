@@ -75,12 +75,12 @@ No standalone menu; configuration UI is provided by
 Security
 ~~~~~~~~
 
-=================================== =========
-Group                               Access
-=================================== =========
-``base.group_user``                 Read
-``spp_security.group_spp_admin``    Full CRUD
-=================================== =========
+================================ =========
+Group                            Access
+================================ =========
+``base.group_user``              Read
+``spp_security.group_spp_admin`` Full CRUD
+================================ =========
 
 Extension Points
 ~~~~~~~~~~~~~~~~
