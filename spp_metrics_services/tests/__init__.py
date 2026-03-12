@@ -2,3 +2,4 @@
 
 from . import test_services
 from . import test_dimension_cache
+from . import test_coverage

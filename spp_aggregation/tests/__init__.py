@@ -12,3 +12,4 @@ from . import test_privacy_enforcement
 from . import test_scope_builder
 from . import test_scope_resolver
 from . import test_statistic_registry
+from . import test_coverage
