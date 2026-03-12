@@ -120,9 +120,9 @@
         <field name="sequence">77</field>
     </record>
 
-    <!-- Hazard & Emergency Domain Category -->
+    <!-- Hazard and Emergency Domain Category -->
     <record id="category_spp_hazard" model="ir.module.category">
-        <field name="name">Hazard &amp; Emergency</field>
+        <field name="name">Hazard and Emergency</field>
         <field
             name="description"
         >Hazard classification, incident tracking, and impact assessment</field>

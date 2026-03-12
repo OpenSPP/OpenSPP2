@@ -104,7 +104,7 @@ record_rules: []
 menus:
   # Main Hazard menu - accessible to all hazard groups
   - id: hazard_main_menu_root
-    name: "Hazard & Emergency"
+    name: "Hazard and Emergency"
     groups:
       [
         spp_security.group_spp_admin,

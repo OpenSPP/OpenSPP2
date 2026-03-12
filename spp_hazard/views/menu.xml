@@ -3,7 +3,7 @@
     <!-- Main Hazard Menu (Top-level application) -->
     <menuitem
         id="hazard_main_menu_root"
-        name="Hazard &amp; Emergency"
+        name="Hazard and Emergency"
         web_icon="spp_hazard,static/description/OpenSPP-Web-Menu_Hazard__Emergency_Icon.png"
         sequence="45"
     />
