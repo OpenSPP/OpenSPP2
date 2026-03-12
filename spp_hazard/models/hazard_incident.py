@@ -150,14 +150,33 @@ class HazardIncident(models.Model):
     @api.depends("impact_ids")
     def _compute_impact_count(self):
         """Compute the number of impact records."""
+        data = self.env["spp.hazard.impact"].read_group(
+            [("incident_id", "in", self.ids)],
+            ["incident_id"],
+            ["incident_id"],
+        )
+        mapped = {d["incident_id"][0]: d["incident_id_count"] for d in data}
         for rec in self:
-            rec.impact_count = len(rec.impact_ids)
+            rec.impact_count = mapped.get(rec.id, 0)
 
     @api.depends("impact_ids.registrant_id")
     def _compute_affected_registrant_count(self):
         """Compute the number of unique affected registrants."""
+        if not self.ids:
+            self.affected_registrant_count = 0
+            return
+        self.env.cr.execute(
+            """
+            SELECT incident_id, COUNT(DISTINCT registrant_id)
+            FROM spp_hazard_impact
+            WHERE incident_id IN %s
+            GROUP BY incident_id
+            """,
+            [tuple(self.ids)],
+        )
+        mapped = dict(self.env.cr.fetchall())
         for rec in self:
-            rec.affected_registrant_count = len(rec.impact_ids.mapped("registrant_id"))
+            rec.affected_registrant_count = mapped.get(rec.id, 0)
 
     def action_set_active(self):
         """Set incident status to active."""
@@ -169,11 +188,17 @@ class HazardIncident(models.Model):
 
     def action_close(self):
         """Close the incident."""
-        self.write(
-            {
-                "status": "closed",
-                "end_date": self.end_date or fields.Date.today(),
-            }
+        for rec in self:
+            rec.write(
+                {
+                    "status": "closed",
+                    "end_date": rec.end_date or fields.Date.today(),
+                }
+            )
+        _logger.info(
+            "Closed %d incident(s): %s",
+            len(self),
+            ", ".join(self.mapped("name")),
         )
 
     def action_view_impacts(self):
@@ -230,6 +255,7 @@ class HazardIncidentArea(models.Model):
     _name = "spp.hazard.incident.area"
     _description = "Hazard Incident Area"
     _order = "incident_id, area_id"
+    _rec_name = "display_name"
 
     incident_id = fields.Many2one(
         "spp.hazard.incident",
@@ -267,13 +293,7 @@ class HazardIncidentArea(models.Model):
         "This area is already linked to this incident!",
     )
 
-    def name_get(self):
-        """Return a descriptive name for the record."""
-        # Prefetch related records to avoid N+1 queries
-        self.mapped("incident_id")
-        self.mapped("area_id")
-        result = []
+    @api.depends("incident_id.name", "area_id.name")
+    def _compute_display_name(self):
         for rec in self:
-            name = f"{rec.incident_id.name} - {rec.area_id.name}"
-            result.append((rec.id, name))
-        return result
+            rec.display_name = f"{rec.incident_id.name} - {rec.area_id.name}"

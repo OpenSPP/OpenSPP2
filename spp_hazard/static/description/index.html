@@ -370,10 +370,12 @@ ul.auto-toc {
 !! source digest: sha256:6c799a070608a2c41e92173cb6e13783cda3e3e01c784f1d94decc3c6391a182
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
 <p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Beta" src="https://img.shields.io/badge/maturity-Beta-yellow.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_hazard"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
-<p>Records disaster events and tracks their impact on individual
-registrants. Supports hierarchical hazard classification, geographic
-scope tracking, severity levels, and verification workflows to enable
-targeted emergency response and humanitarian assistance.</p>
+<p>Records disaster events and tracks their impact on registrants. Provides
+hierarchical hazard classification, geographic scope tracking via areas
+and GIS geofences, severity levels, and verification workflows to enable
+targeted emergency response and humanitarian assistance. Incident and
+impact records include full chatter integration for audit trails and
+activity scheduling.</p>
 <div class="section" id="key-capabilities">
 <h1>Key Capabilities</h1>
 <ul class="simple">
@@ -383,6 +385,8 @@ Typhoon)</li>
 status (alert, active, recovery, closed)</li>
 <li>Link incidents to geographic areas with area-specific severity
 overrides</li>
+<li>Define hazard zone geofences linked to specific incidents via
+<tt class="docutils literal">spp.gis.geofence</tt> extension</li>
 <li>Track registrant-level impacts by type (physical, economic, health,
 social) and damage level</li>
 <li>Verify impact records with workflow states (reported, verified,
@@ -396,8 +400,8 @@ disputed, closed)</li>
 <h1>Key Models</h1>
 <table border="1" class="docutils">
 <colgroup>
-<col width="43%" />
-<col width="57%" />
+<col width="48%" />
+<col width="52%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Model</th>
@@ -406,28 +410,33 @@ disputed, closed)</li>
 </thead>
 <tbody valign="top">
 <tr><td><tt class="docutils literal">spp.hazard.category</tt></td>
-<td>Hierarchical classification of hazard
-types</td>
+<td>Hierarchical classification of
+hazard types</td>
 </tr>
 <tr><td><tt class="docutils literal">spp.hazard.incident</tt></td>
-<td>Specific disaster event with dates,
-severity, and affected areas</td>
+<td>Specific disaster event with
+dates, severity, and affected
+areas</td>
 </tr>
 <tr><td><tt class="docutils literal">spp.hazard.incident.area</tt></td>
 <td>Links incident to area with
-area-specific details</td>
+area-specific severity override</td>
 </tr>
 <tr><td><tt class="docutils literal">spp.hazard.impact</tt></td>
-<td>Records impact on a registrant (type,
-damage level, verification)</td>
+<td>Records impact on a registrant
+(type, damage level, verification)</td>
 </tr>
 <tr><td><tt class="docutils literal">spp.hazard.impact.type</tt></td>
 <td>Classification of impact types by
 category</td>
 </tr>
 <tr><td><tt class="docutils literal">res.partner</tt> (extended)</td>
-<td>Adds hazard impact tracking fields to
-registrants</td>
+<td>Adds hazard impact tracking fields
+to registrants</td>
+</tr>
+<tr><td><tt class="docutils literal">spp.gis.geofence</tt> (extended)</td>
+<td>Adds <tt class="docutils literal">hazard_zone</tt> geofence type
+and incident linking</td>
 </tr>
 </tbody>
 </table>
@@ -436,11 +445,11 @@ registrants</td>
 <h1>Configuration</h1>
 <p>After installing:</p>
 <ol class="arabic simple">
-<li>Navigate to <strong>Hazard &amp; Emergency &gt; Configuration &gt; Hazard
+<li>Navigate to <strong>Hazard and Emergency &gt; Configuration &gt; Hazard
 Categories</strong></li>
 <li>Create or review hierarchical hazard categories (e.g., Natural
 Disasters, Man-made Disasters)</li>
-<li>Navigate to <strong>Hazard &amp; Emergency &gt; Configuration &gt; Impact Types</strong></li>
+<li>Navigate to <strong>Hazard and Emergency &gt; Configuration &gt; Impact Types</strong></li>
 <li>Review pre-configured impact types (Displacement, Property Damage,
 Injury, etc.) or create custom types</li>
 </ol>
@@ -448,10 +457,10 @@ Injury, etc.) or create custom types</li>
 <div class="section" id="ui-location">
 <h1>UI Location</h1>
 <ul class="simple">
-<li><strong>Menu</strong>: Hazard &amp; Emergency (top-level application menu)</li>
-<li><strong>Incidents</strong>: Hazard &amp; Emergency &gt; Incidents &gt; All Incidents</li>
-<li><strong>Impacts</strong>: Hazard &amp; Emergency &gt; Incidents &gt; Impact Records</li>
-<li><strong>Configuration</strong>: Hazard &amp; Emergency &gt; Configuration (accessible to
+<li><strong>Menu</strong>: Hazard and Emergency (top-level application menu)</li>
+<li><strong>Incidents</strong>: Hazard and Emergency &gt; Incidents &gt; All Incidents</li>
+<li><strong>Impacts</strong>: Hazard and Emergency &gt; Incidents &gt; Impact Records</li>
+<li><strong>Configuration</strong>: Hazard and Emergency &gt; Configuration (accessible to
 managers only)</li>
 <li><strong>Registrant Form</strong>: Stat button shows impact count; “Emergency
 Response” tab displays impact records list</li>
@@ -475,12 +484,12 @@ Response” tab displays impact records list</li>
 records</td>
 </tr>
 <tr><td><tt class="docutils literal">group_hazard_officer</tt></td>
-<td>Create and manage incidents and
+<td>Read/write/create incidents and
 impacts (no delete)</td>
 </tr>
 <tr><td><tt class="docutils literal">group_hazard_manager</tt></td>
 <td>Full CRUD access including
-configuration</td>
+configuration models</td>
 </tr>
 <tr><td><tt class="docutils literal">spp_security.group_spp_admin</tt></td>
 <td>Inherits manager access</td>
@@ -498,24 +507,1956 @@ logic</li>
 (e.g., crop damage for farmer registries)</li>
 <li>Override <tt class="docutils literal">bulk_create_impacts()</tt> to customize mass impact record
 creation</li>
+<li>Extend <tt class="docutils literal">spp.gis.geofence</tt> to add behavior for <tt class="docutils literal">hazard_zone</tt>
+geofence type</li>
 </ul>
 </div>
 <div class="section" id="dependencies">
 <h1>Dependencies</h1>
-<p><tt class="docutils literal">base</tt>, <tt class="docutils literal">spp_security</tt>, <tt class="docutils literal">spp_registry</tt>, <tt class="docutils literal">spp_area</tt></p>
+<p><tt class="docutils literal">base</tt>, <tt class="docutils literal">spp_security</tt>, <tt class="docutils literal">spp_registry</tt>, <tt class="docutils literal">spp_area</tt>, <tt class="docutils literal">spp_gis</tt></p>
 <p><strong>Table of contents</strong></p>
 <div class="contents local topic" id="contents">
 <ul class="simple">
-<li><a class="reference internal" href="#bug-tracker" id="toc-entry-1">Bug Tracker</a></li>
-<li><a class="reference internal" href="#credits" id="toc-entry-2">Credits</a><ul>
-<li><a class="reference internal" href="#authors" id="toc-entry-3">Authors</a></li>
-<li><a class="reference internal" href="#maintainers" id="toc-entry-4">Maintainers</a></li>
+<li><a class="reference internal" href="#usage" id="toc-entry-1">Usage</a></li>
+<li><a class="reference internal" href="#bug-tracker" id="toc-entry-2">Bug Tracker</a></li>
+<li><a class="reference internal" href="#credits" id="toc-entry-3">Credits</a><ul>
+<li><a class="reference internal" href="#authors" id="toc-entry-4">Authors</a></li>
+<li><a class="reference internal" href="#maintainers" id="toc-entry-5">Maintainers</a></li>
 </ul>
 </li>
 </ul>
 </div>
+<div class="section" id="usage">
+<h2><a class="toc-backref" href="#toc-entry-1">Usage</a></h2>
+<p>Testing guide for QA validation of the OpenSPP Hazard and Emergency
+Management module.</p>
+<p><strong>Prerequisites</strong></p>
+<ol class="arabic simple">
+<li>OpenSPP instance running with <tt class="docutils literal">spp_hazard</tt> installed (and demo data
+loaded)</li>
+<li>Three test users configured with different security groups:<ul>
+<li><strong>Admin user</strong> — system administrator (has all access)</li>
+<li><strong>Manager user</strong> — assigned to Hazard: Manager group</li>
+<li><strong>Officer user</strong> — assigned to Hazard: Officer group</li>
+<li><strong>Viewer user</strong> — assigned to Hazard: Viewer group</li>
+</ul>
+</li>
+<li>At least one area record in <tt class="docutils literal">spp.area</tt> (created via Registry &gt;
+Areas)</li>
+<li>At least one registrant (individual) with an area assigned</li>
+</ol>
+<p>To assign hazard groups: <strong>Settings &gt; Users &amp; Companies &gt; Users &gt;
+(select user) &gt; Access Rights tab &gt; Hazard section</strong> — choose Viewer,
+Officer, or Manager.</p>
+<hr class="docutils" />
+<p><strong>1. Module Installation</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="9%" />
+<col width="46%" />
+<col width="46%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>1.1</td>
+<td>Navigate to <strong>Apps</strong>, search
+for “Hazard”</td>
+<td>“OpenSPP Hazard &amp; Emergency
+Management” appears</td>
+</tr>
+<tr><td>1.2</td>
+<td>Install the module</td>
+<td>Installation completes
+without errors</td>
+</tr>
+<tr><td>1.3</td>
+<td>Refresh the browser</td>
+<td>“Hazard and Emergency”
+appears in the top
+application menu bar</td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<p><strong>2. Menu Structure</strong></p>
+<p>Log in as <strong>Admin</strong> or <strong>Manager</strong>.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="9%" />
+<col width="46%" />
+<col width="46%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>2.1</td>
+<td>Click <strong>Hazard and
+Emergency</strong> in the top menu</td>
+<td>Submenu appears with
+“Incidents” and
+“Configuration” sections</td>
+</tr>
+<tr><td>2.2</td>
+<td>Click <strong>Incidents &gt; All
+Incidents</strong></td>
+<td>Incident list view loads (URL
+ends with
+<tt class="docutils literal"><span class="pre">/hazard-incidents</span></tt>)</td>
+</tr>
+<tr><td>2.3</td>
+<td>Click <strong>Incidents &gt; Impact
+Records</strong></td>
+<td>Impact list view loads (URL
+ends with
+<tt class="docutils literal"><span class="pre">/hazard-impacts</span></tt>)</td>
+</tr>
+<tr><td>2.4</td>
+<td>Click <strong>Configuration &gt;
+Hazard Categories</strong></td>
+<td>Category list loads with
+pre-seeded Active filter
+(URL: <tt class="docutils literal"><span class="pre">/hazard-categories</span></tt>)</td>
+</tr>
+<tr><td>2.5</td>
+<td>Click <strong>Configuration &gt;
+Impact Types</strong></td>
+<td>Impact type list loads with
+Active filter (URL:
+<tt class="docutils literal"><span class="pre">/hazard-impact-types</span></tt>)</td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<p><strong>3. Hazard Categories (Configuration)</strong></p>
+<p><strong>3.1 Pre-installed Data (Demo)</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>3.1.1</td>
+<td>Open <strong>Configuration &gt;
+Hazard Categories</strong></td>
+<td>List shows categories. If
+demo data loaded: “Natural
+Disaster”, “Storm”,
+“Typhoon”, “Geological”,
+“Earthquake”, “Volcanic
+Eruption”, “Hydrological”,
+“Flood”, “Climate”,
+“Drought”, “Health
+Emergency”, “Pandemic”,
+“Disease Outbreak”,
+“Conflict”, “Armed
+Conflict”, “Economic Shock”,
+“Food Crisis”</td>
+</tr>
+<tr><td>3.1.2</td>
+<td>Check the “Complete Name”
+column</td>
+<td>Hierarchical names shown,
+e.g., “Natural Disaster &gt;
+Storm &gt; Typhoon”</td>
+</tr>
+<tr><td>3.1.3</td>
+<td>Check the “Incidents” column</td>
+<td>Shows integer count for each
+category</td>
+</tr>
+</tbody>
+</table>
+<p><strong>3.2 Create a Category</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>3.2.1</td>
+<td>Click <strong>New</strong></td>
+<td>Form opens with Name field
+focused</td>
+</tr>
+<tr><td>3.2.2</td>
+<td>Enter Name:
+<tt class="docutils literal">Test Wildfire</tt>, Code:
+<tt class="docutils literal">TEST_WILDFIRE</tt></td>
+<td>Fields accept input</td>
+</tr>
+<tr><td>3.2.3</td>
+<td>Set Parent Category to
+“Natural Disaster”</td>
+<td>Dropdown shows only active
+categories</td>
+</tr>
+<tr><td>3.2.4</td>
+<td>Save</td>
+<td>Record saves. Complete Name
+shows “Natural Disaster &gt;
+Test Wildfire”</td>
+</tr>
+<tr><td>3.2.5</td>
+<td>Navigate to the parent
+“Natural Disaster” record</td>
+<td>“Subcategories” section is
+visible below the form and
+lists “Test Wildfire”</td>
+</tr>
+</tbody>
+</table>
+<p><strong>3.3 Category Incident Count</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>3.3.1</td>
+<td>Open a category that has
+linked incidents (e.g.,
+“Typhoon” if demo data
+loaded)</td>
+<td>“Number of Incidents” field
+shows the count in the right
+column</td>
+</tr>
+<tr><td>3.3.2</td>
+<td>Verify the count matches the
+actual number of incidents</td>
+<td>Count should be accurate</td>
+</tr>
+</tbody>
+</table>
+<p><strong>3.4 Category Code Uniqueness</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>3.4.1</td>
+<td>Create a new category with
+Code = <tt class="docutils literal">TEST_WILDFIRE</tt>
+(same as 3.2)</td>
+<td>Error: “A hazard category
+with this code already
+exists!”</td>
+</tr>
+</tbody>
+</table>
+<p><strong>3.5 Deactivation</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>3.5.1</td>
+<td>Open a category, uncheck
+“Active”, save</td>
+<td>Red “Inactive” ribbon
+appears at top-right of form</td>
+</tr>
+<tr><td>3.5.2</td>
+<td>Return to the list (Active
+filter is on by default)</td>
+<td>Inactive category is hidden
+from the list</td>
+</tr>
+<tr><td>3.5.3</td>
+<td>In search bar, click
+“Active” filter to remove
+it, add “Inactive” filter</td>
+<td>Inactive category now
+visible</td>
+</tr>
+</tbody>
+</table>
+<p><strong>3.6 Search and Grouping</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>3.6.1</td>
+<td>Type in search bar, select
+“Name” search</td>
+<td>Filters by name</td>
+</tr>
+<tr><td>3.6.2</td>
+<td>Type in search bar, select
+“Code” search</td>
+<td>Filters by code</td>
+</tr>
+<tr><td>3.6.3</td>
+<td>Use Filters &gt; Active /
+Inactive</td>
+<td>Filters correctly</td>
+</tr>
+<tr><td>3.6.4</td>
+<td>Use Group By &gt; Parent</td>
+<td>Categories grouped by parent</td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<p><strong>4. Impact Types (Configuration)</strong></p>
+<p><strong>4.1 Pre-installed Data</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>4.1.1</td>
+<td>Open <strong>Configuration &gt;
+Impact Types</strong></td>
+<td>List shows 14 pre-configured
+types with drag handles for
+reordering</td>
+</tr>
+<tr><td>4.1.2</td>
+<td>Verify Physical types</td>
+<td>Displacement, Property
+Damage, Injury,
+Death/Fatality</td>
+</tr>
+<tr><td>4.1.3</td>
+<td>Verify Economic types</td>
+<td>Livelihood Loss, Asset
+Destruction, Crop Loss,
+Livestock Loss</td>
+</tr>
+<tr><td>4.1.4</td>
+<td>Verify Health types</td>
+<td>Illness, Disability,
+Psychological Impact</td>
+</tr>
+<tr><td>4.1.5</td>
+<td>Verify Social types</td>
+<td>Family Separation, Community
+Disruption, Education
+Disruption</td>
+</tr>
+<tr><td>4.1.6</td>
+<td>Check “Category” column</td>
+<td>Shows as badge widgets
+(Physical, Economic, Health,
+Social)</td>
+</tr>
+<tr><td>4.1.7</td>
+<td>Check “Usage” column</td>
+<td>Shows 0 for types not yet
+linked to any impact record</td>
+</tr>
+</tbody>
+</table>
+<p><strong>4.2 Create an Impact Type</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>4.2.1</td>
+<td>Click <strong>New</strong></td>
+<td>Form opens</td>
+</tr>
+<tr><td>4.2.2</td>
+<td>Enter Name:
+<tt class="docutils literal">Water Contamination</tt>,
+Code: <tt class="docutils literal">WATER_CONTAM</tt>,
+Category: Health</td>
+<td>Fields accept input</td>
+</tr>
+<tr><td>4.2.3</td>
+<td>Save</td>
+<td>Record saves successfully</td>
+</tr>
+</tbody>
+</table>
+<p><strong>4.3 Reorder via Drag</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>4.3.1</td>
+<td>In the list view, grab the
+drag handle (hamburger icon)
+on a type</td>
+<td>Row becomes draggable</td>
+</tr>
+<tr><td>4.3.2</td>
+<td>Drop it at a different
+position</td>
+<td>Sequence updates; reload
+confirms new order</td>
+</tr>
+</tbody>
+</table>
+<p><strong>4.4 Code Uniqueness</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>4.4.1</td>
+<td>Create another type with
+Code = <tt class="docutils literal">WATER_CONTAM</tt></td>
+<td>Error: “An impact type with
+this code already exists!”</td>
+</tr>
+</tbody>
+</table>
+<p><strong>4.5 Search Filters</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>4.5.1</td>
+<td>Use Filters &gt; Physical /
+Economic / Health / Social</td>
+<td>Filters by category
+correctly</td>
+</tr>
+<tr><td>4.5.2</td>
+<td>Use Group By &gt; Category</td>
+<td>Types grouped into 4
+category sections</td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<p><strong>5. Hazard Incidents</strong></p>
+<p><strong>5.1 Demo Data</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>5.1.1</td>
+<td>Open <strong>Incidents &gt; All
+Incidents</strong></td>
+<td>If demo loaded: 3 incidents
+visible</td>
+</tr>
+<tr><td>5.1.2</td>
+<td>“Demo Typhoon Alpha”</td>
+<td>Status: Recovery (yellow
+badge), Severity: Level 4</td>
+</tr>
+<tr><td>5.1.3</td>
+<td>“Demo Flooding Event”</td>
+<td>Status: Closed (grey badge),
+has End Date</td>
+</tr>
+<tr><td>5.1.4</td>
+<td>“Demo Drought 2024”</td>
+<td>Status: Active (green
+badge), no End Date</td>
+</tr>
+</tbody>
+</table>
+<p><strong>5.2 Create an Incident</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>5.2.1</td>
+<td>Click <strong>New</strong></td>
+<td>Form opens. Status defaults
+to “Active”. Statusbar
+shows: Alert / Active /
+Recovery / Closed</td>
+</tr>
+<tr><td>5.2.2</td>
+<td>Enter Name:
+<tt class="docutils literal">Test Earthquake</tt>, Code:
+<tt class="docutils literal"><span class="pre">TEST-EQ-001</span></tt></td>
+<td>Fields accept input</td>
+</tr>
+<tr><td>5.2.3</td>
+<td>Select Category: search for
+“Earthquake”</td>
+<td>Dropdown shows only active
+categories, filtered by
+search text</td>
+</tr>
+<tr><td>5.2.4</td>
+<td>Set Start Date: today’s date</td>
+<td>Date picker works</td>
+</tr>
+<tr><td>5.2.5</td>
+<td>Leave End Date empty</td>
+<td>Allowed (ongoing incident)</td>
+</tr>
+<tr><td>5.2.6</td>
+<td>Set Severity: “Level 3 -
+Significant”</td>
+<td>Selection dropdown works</td>
+</tr>
+<tr><td>5.2.7</td>
+<td>Save</td>
+<td>Record saves. “Ongoing”
+ribbon appears (yellow,
+top-right corner)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>5.3 Incident Form Layout</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>5.3.1</td>
+<td>Check the header</td>
+<td>“Start Recovery” button
+visible (since status is
+Active). “Close Incident”
+button visible. Status bar
+shows current step</td>
+</tr>
+<tr><td>5.3.2</td>
+<td>Check the button box
+(top-right)</td>
+<td>“Affected” stat button
+(fa-users icon) always
+visible. “Areas” stat button
+visible only if areas &gt; 0</td>
+</tr>
+<tr><td>5.3.3</td>
+<td>Check left column</td>
+<td>Code, Category, Severity
+fields</td>
+</tr>
+<tr><td>5.3.4</td>
+<td>Check right column</td>
+<td>Start Date, End Date fields</td>
+</tr>
+<tr><td>5.3.5</td>
+<td>Check notebook tabs</td>
+<td>Three tabs: “Description”,
+“Affected Areas”, “Impacts”</td>
+</tr>
+<tr><td>5.3.6</td>
+<td>Click “Description” tab</td>
+<td>HTML editor for incident
+description</td>
+</tr>
+<tr><td>5.3.7</td>
+<td>Click “Affected Areas” tab</td>
+<td>Instruction text visible.
+Inline-editable list with:
+Area, Severity Override,
+Affected Population
+Estimate, Notes</td>
+</tr>
+<tr><td>5.3.8</td>
+<td>Click “Impacts” tab</td>
+<td>List showing Registrant,
+Impact Type, Damage Level,
+Impact Date, Verification
+Status</td>
+</tr>
+<tr><td>5.3.9</td>
+<td>Scroll to bottom of form</td>
+<td>Chatter (message log +
+activity scheduling) visible
+below the form</td>
+</tr>
+</tbody>
+</table>
+<p><strong>5.4 Code Uniqueness</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>5.4.1</td>
+<td>Create another incident with
+Code = <tt class="docutils literal"><span class="pre">TEST-EQ-001</span></tt></td>
+<td>Error: “An incident with
+this code already exists!”</td>
+</tr>
+</tbody>
+</table>
+<p><strong>5.5 Date Validation</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>5.5.1</td>
+<td>Edit the incident, set End
+Date before Start Date</td>
+<td>Error: “End date must be
+after start date.”</td>
+</tr>
+<tr><td>5.5.2</td>
+<td>Set End Date after Start
+Date, save</td>
+<td>Saves successfully.
+“Ongoing” ribbon disappears
+(end date is now set)</td>
+</tr>
+<tr><td>5.5.3</td>
+<td>Clear End Date, save</td>
+<td>“Ongoing” ribbon reappears</td>
+</tr>
+</tbody>
+</table>
+<p><strong>5.6 Status Workflow (Lifecycle)</strong></p>
+<p>Use the incident created in 5.2 (starts as “Active”).</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>5.6.1</td>
+<td>Click <strong>Start Recovery</strong></td>
+<td>Status changes to
+“Recovery”. Button changes
+to “Set Active”. “Close
+Incident” still visible</td>
+</tr>
+<tr><td>5.6.2</td>
+<td>Click <strong>Set Active</strong></td>
+<td>Status returns to “Active”.
+“Start Recovery” button
+returns</td>
+</tr>
+<tr><td>5.6.3</td>
+<td>Click <strong>Start Recovery</strong>
+again</td>
+<td>Status = Recovery</td>
+</tr>
+<tr><td>5.6.4</td>
+<td>Click <strong>Close Incident</strong></td>
+<td>Status = Closed. End Date
+auto-filled with today if it
+was empty. All fields become
+readonly</td>
+</tr>
+<tr><td>5.6.5</td>
+<td>Check the form in Closed
+state</td>
+<td>No action buttons visible
+(Set Active, Start Recovery,
+Close are all hidden). All
+fields are readonly.
+Description, areas, and
+impacts are readonly</td>
+</tr>
+</tbody>
+</table>
+<p><strong>5.7 Add Affected Areas</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>5.7.1</td>
+<td>Open a non-closed incident,
+go to “Affected Areas” tab</td>
+<td>Instruction text: “Add areas
+affected by this
+incident…”</td>
+</tr>
+<tr><td>5.7.2</td>
+<td>Click “Add a line”</td>
+<td>New row appears. Area field
+is a dropdown (no create
+option)</td>
+</tr>
+<tr><td>5.7.3</td>
+<td>Select an Area</td>
+<td>Area appears in the row</td>
+</tr>
+<tr><td>5.7.4</td>
+<td>Set Severity Override:
+“Level 5 - Catastrophic”</td>
+<td>Selection dropdown works</td>
+</tr>
+<tr><td>5.7.5</td>
+<td>Enter Affected Population
+Estimate: 5000</td>
+<td>Integer field accepts value</td>
+</tr>
+<tr><td>5.7.6</td>
+<td>Save</td>
+<td>Area link saved. “Areas”
+stat button now visible with
+count = 1</td>
+</tr>
+<tr><td>5.7.7</td>
+<td>Try adding the same area
+again</td>
+<td>Error: “This area is already
+linked to this incident!”</td>
+</tr>
+</tbody>
+</table>
+<p><strong>5.8 Stat Buttons</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>5.8.1</td>
+<td>Click “Affected” stat button</td>
+<td>Opens Impact Records list
+filtered to this incident</td>
+</tr>
+<tr><td>5.8.2</td>
+<td>Click browser back</td>
+<td>Returns to incident form</td>
+</tr>
+<tr><td>5.8.3</td>
+<td>Click “Areas” stat button</td>
+<td>Opens Area list filtered to
+linked areas</td>
+</tr>
+</tbody>
+</table>
+<p><strong>5.9 Search and Filters (Incident List)</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="44%" />
+<col width="44%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>5.9.1</td>
+<td>Use search: type a name</td>
+<td>Filters by incident name</td>
+</tr>
+<tr><td>5.9.2</td>
+<td>Use search: select Code
+field</td>
+<td>Filters by code</td>
+</tr>
+<tr><td>5.9.3</td>
+<td>Use search: select Category</td>
+<td>Filters by category</td>
+</tr>
+<tr><td>5.9.4</td>
+<td>Filters &gt; Alert</td>
+<td>Shows only alert-status
+incidents (blue-tinted rows)</td>
+</tr>
+<tr><td>5.9.5</td>
+<td>Filters &gt; Active</td>
+<td>Shows only active-status
+incidents</td>
+</tr>
+<tr><td>5.9.6</td>
+<td>Filters &gt; Recovery</td>
+<td>Shows only recovery-status
+incidents (yellow-tinted
+rows)</td>
+</tr>
+<tr><td>5.9.7</td>
+<td>Filters &gt; Closed</td>
+<td>Shows only closed incidents
+(grey/muted rows)</td>
+</tr>
+<tr><td>5.9.8</td>
+<td>Filters &gt; Ongoing</td>
+<td>Shows incidents with
+<tt class="docutils literal">is_ongoing = True</tt></td>
+</tr>
+<tr><td>5.9.9</td>
+<td>Group By &gt; Status</td>
+<td>Groups into status sections</td>
+</tr>
+<tr><td>5.9.10</td>
+<td>Group By &gt; Category</td>
+<td>Groups by hazard category</td>
+</tr>
+<tr><td>5.9.11</td>
+<td>Group By &gt; Severity</td>
+<td>Groups by severity level</td>
+</tr>
+<tr><td>5.9.12</td>
+<td>Group By &gt; Start Date</td>
+<td>Groups by month</td>
+</tr>
+</tbody>
+</table>
+<p><strong>5.10 List View Decorations</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="44%" />
+<col width="44%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>5.10.1</td>
+<td>Check row coloring</td>
+<td>Alert rows: blue tint.
+Recovery rows: yellow tint.
+Closed rows: grey/muted.
+Active rows: default (no
+special coloring)</td>
+</tr>
+<tr><td>5.10.2</td>
+<td>Check Status column badges</td>
+<td>Alert: blue badge. Active:
+green badge. Recovery:
+yellow badge. Closed: grey
+badge</td>
+</tr>
+<tr><td>5.10.3</td>
+<td>Check columns visible</td>
+<td>Name, Code, Category, Start
+Date, End Date (optional),
+Status, Severity, Areas,
+Affected</td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<p><strong>6. Impact Records</strong></p>
+<p><strong>6.1 Create an Impact Record</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>6.1.1</td>
+<td>Navigate to <strong>Incidents &gt;
+Impact Records</strong>, click
+<strong>New</strong></td>
+<td>Form opens. Verification
+Status defaults to
+“Reported”</td>
+</tr>
+<tr><td>6.1.2</td>
+<td>Select Registrant (h1 title
+area)</td>
+<td>Dropdown shows registrants
+only
+(<tt class="docutils literal">is_registrant = True</tt>).
+“Create” option not
+available</td>
+</tr>
+<tr><td>6.1.3</td>
+<td>Select Incident (h2 below
+registrant)</td>
+<td>Dropdown shows incidents.
+“Create” option not
+available</td>
+</tr>
+<tr><td>6.1.4</td>
+<td>Set Impact Type:
+“Displacement”</td>
+<td>Only active impact types
+shown. “Create” option not
+available</td>
+</tr>
+<tr><td>6.1.5</td>
+<td>Set Damage Level: “Severe”</td>
+<td>Selection works (Minimal,
+Moderate, Severe, Critical,
+Partially Damaged, Totally
+Damaged)</td>
+</tr>
+<tr><td>6.1.6</td>
+<td>Set Impact Date: same as or
+after incident start date</td>
+<td>Date accepted</td>
+</tr>
+<tr><td>6.1.7</td>
+<td>Save</td>
+<td>Record saves. Statusbar
+shows: Reported / Verified /
+Disputed / Closed</td>
+</tr>
+</tbody>
+</table>
+<p><strong>6.2 Impact Date Validation</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>6.2.1</td>
+<td>Edit the impact, set Impact
+Date before the incident’s
+Start Date</td>
+<td>Error: “Impact date cannot
+be before the incident start
+date.”</td>
+</tr>
+</tbody>
+</table>
+<p><strong>6.3 Duplicate Impact Constraint</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>6.3.1</td>
+<td>Create another impact with
+the same Incident +
+Registrant + Impact Type</td>
+<td>Error: “This registrant
+already has an impact of
+this type for this
+incident!”</td>
+</tr>
+<tr><td>6.3.2</td>
+<td>Same Incident + Registrant
+but different Impact Type
+(e.g., “Property Damage”)</td>
+<td>Creates successfully —
+different types allowed for
+same registrant</td>
+</tr>
+</tbody>
+</table>
+<p><strong>6.4 Verification Workflow</strong></p>
+<p>Using the impact created in 6.1 (starts as “Reported”):</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>6.4.1</td>
+<td>Check header buttons</td>
+<td>“Verify” (primary), “Mark
+Disputed” (secondary),
+“Close” (secondary) visible.
+“Reset to Reported” hidden</td>
+</tr>
+<tr><td>6.4.2</td>
+<td>Check “Verification
+Information” section</td>
+<td>Hidden (only shows when not
+in “Reported” status)</td>
+</tr>
+<tr><td>6.4.3</td>
+<td>Click <strong>Verify</strong></td>
+<td>Status → Verified.
+“Verification Information”
+section appears showing
+“Verified By” (current user)
+and “Verification Date”
+(now). “Verify” button
+disappears. “Mark Disputed”
+and “Close” remain</td>
+</tr>
+<tr><td>6.4.4</td>
+<td>Click <strong>Mark Disputed</strong></td>
+<td>Status → Disputed. “Reset to
+Reported” button appears.
+“Verify” hidden. “Close”
+visible</td>
+</tr>
+<tr><td>6.4.5</td>
+<td>Click <strong>Reset to Reported</strong></td>
+<td>Status → Reported. Verified
+By and Verification Date
+cleared. Back to initial
+button state</td>
+</tr>
+<tr><td>6.4.6</td>
+<td>Click <strong>Close</strong></td>
+<td>Status → Closed. All fields
+become readonly. Only “Reset
+to Reported” visible</td>
+</tr>
+<tr><td>6.4.7</td>
+<td>Click <strong>Reset to Reported</strong></td>
+<td>Status → Reported again.
+Fields editable again</td>
+</tr>
+</tbody>
+</table>
+<p><strong>6.5 Impact Form Layout</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>6.5.1</td>
+<td>Check title area</td>
+<td>Registrant name displayed as
+h1, Incident name as h2</td>
+</tr>
+<tr><td>6.5.2</td>
+<td>Check left group
+(“incident_info”)</td>
+<td>Shows Incident Name
+(readonly) and Impact
+Category (readonly) for
+quick context</td>
+</tr>
+<tr><td>6.5.3</td>
+<td>Check right group
+(“impact_details”)</td>
+<td>Impact Type, Damage Level,
+Impact Date fields</td>
+</tr>
+<tr><td>6.5.4</td>
+<td>Check “Notes” section</td>
+<td>Notes field displayed below
+verification info with
+full-width layout</td>
+</tr>
+<tr><td>6.5.5</td>
+<td>Check bottom of form</td>
+<td>Chatter visible (message log
+and activities)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>6.6 Search and Filters (Impact List)</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="44%" />
+<col width="44%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>6.6.1</td>
+<td>Search by Incident</td>
+<td>Filters to selected incident</td>
+</tr>
+<tr><td>6.6.2</td>
+<td>Search by Registrant</td>
+<td>Filters to selected
+registrant</td>
+</tr>
+<tr><td>6.6.3</td>
+<td>Search by Impact Type</td>
+<td>Filters to selected type</td>
+</tr>
+<tr><td>6.6.4</td>
+<td>Filters &gt; Reported /
+Verified / Disputed / Closed</td>
+<td>Each shows correct subset</td>
+</tr>
+<tr><td>6.6.5</td>
+<td>Filters &gt; Critical</td>
+<td>Shows only <tt class="docutils literal">critical</tt> and
+<tt class="docutils literal">totally_damaged</tt> damage
+levels</td>
+</tr>
+<tr><td>6.6.6</td>
+<td>Filters &gt; Severe or Critical</td>
+<td>Shows <tt class="docutils literal">severe</tt>,
+<tt class="docutils literal">critical</tt>, and
+<tt class="docutils literal">totally_damaged</tt></td>
+</tr>
+<tr><td>6.6.7</td>
+<td>Group By &gt; Incident</td>
+<td>Groups by incident</td>
+</tr>
+<tr><td>6.6.8</td>
+<td>Group By &gt; Impact Type</td>
+<td>Groups by type</td>
+</tr>
+<tr><td>6.6.9</td>
+<td>Group By &gt; Damage Level</td>
+<td>Groups by severity</td>
+</tr>
+<tr><td>6.6.10</td>
+<td>Group By &gt; Verification
+Status</td>
+<td>Groups by status</td>
+</tr>
+<tr><td>6.6.11</td>
+<td>Group By &gt; Impact Date</td>
+<td>Groups by month</td>
+</tr>
+</tbody>
+</table>
+<p><strong>6.7 Impact List Decorations</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>6.7.1</td>
+<td>Check row coloring</td>
+<td>Reported: blue. Verified:
+green. Disputed: yellow.
+Closed: grey/muted</td>
+</tr>
+<tr><td>6.7.2</td>
+<td>Verification Status badges</td>
+<td>Same color coding as rows</td>
+</tr>
+<tr><td>6.7.3</td>
+<td>Damage Level column</td>
+<td>Shows as badge widget
+(neutral color)</td>
+</tr>
+<tr><td>6.7.4</td>
+<td>Optional columns</td>
+<td>“Verified By” and “Verified
+Date” available under column
+options (hidden by default)</td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<p><strong>7. Registrant Integration</strong></p>
+<p><strong>7.1 Stat Button</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>7.1.1</td>
+<td>Open a registrant that has
+NO impact records</td>
+<td>No “Impacts” stat button
+visible in button box</td>
+</tr>
+<tr><td>7.1.2</td>
+<td>Open a registrant that HAS
+impact records</td>
+<td>“Impacts” stat button with
+bolt icon visible, showing
+count</td>
+</tr>
+<tr><td>7.1.3</td>
+<td>Click the stat button</td>
+<td>Opens Impact Records list
+filtered to this registrant</td>
+</tr>
+</tbody>
+</table>
+<p><strong>7.2 Emergency Response Tab</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>7.2.1</td>
+<td>Open a registrant with NO
+impacts</td>
+<td>“Emergency Response” tab
+visible. Tab content shows:
+“No emergency response
+records yet. Impact records
+will appear here when this
+registrant is affected by a
+hazard incident.”</td>
+</tr>
+<tr><td>7.2.2</td>
+<td>Open a registrant with
+impacts from a CLOSED
+incident</td>
+<td>“Emergency Response” tab
+shows the “Incident Impacts”
+section with a readonly list
+of impacts. No yellow alert
+banner</td>
+</tr>
+<tr><td>7.2.3</td>
+<td>Open a registrant with
+impacts from an ACTIVE or
+ALERT incident</td>
+<td>Yellow alert banner with
+warning icon: “Active
+incident impacts recorded.
+This registrant is affected
+by one or more ongoing
+hazard incidents.” Impact
+list shows below</td>
+</tr>
+<tr><td>7.2.4</td>
+<td>Check the impact list
+columns</td>
+<td>Incident, Impact Type,
+Damage Level (badge), Impact
+Date, Verification Status
+(badge with colors)</td>
+</tr>
+<tr><td>7.2.5</td>
+<td>Verify the list is readonly</td>
+<td>Cannot edit, add, or delete
+impact records from this
+view</td>
+</tr>
+</tbody>
+</table>
+<p><strong>7.3 Registrant List Extensions</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>7.3.1</td>
+<td>Open the registrants list
+view</td>
+<td>“Impacts” and “Active
+Impact” columns available in
+column options (hidden by
+default)</td>
+</tr>
+<tr><td>7.3.2</td>
+<td>Enable both columns via
+column selector</td>
+<td>Columns show correct counts
+and boolean values</td>
+</tr>
+</tbody>
+</table>
+<p><strong>7.4 Registrant Search Extensions</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>7.4.1</td>
+<td>In registrant search, check
+Filters</td>
+<td>“Has Active Impact” and “Has
+Any Impact” filters
+available</td>
+</tr>
+<tr><td>7.4.2</td>
+<td>Apply “Has Active Impact”</td>
+<td>Shows only registrants with
+impacts from
+active/alert/recovery
+incidents</td>
+</tr>
+<tr><td>7.4.3</td>
+<td>Apply “Has Any Impact”</td>
+<td>Shows all registrants with
+any impact count &gt; 0</td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<p><strong>8. Security and Access Control</strong></p>
+<p><strong>8.1 Viewer Access</strong></p>
+<p>Log in as the <strong>Viewer</strong> user.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>8.1.1</td>
+<td>Navigate to Hazard and
+Emergency</td>
+<td>Menu visible. “Incidents”
+submenu visible</td>
+</tr>
+<tr><td>8.1.2</td>
+<td>Check for “Configuration”
+submenu</td>
+<td>NOT visible (restricted to
+managers)</td>
+</tr>
+<tr><td>8.1.3</td>
+<td>Open Incidents &gt; All
+Incidents</td>
+<td>Can view the list and open
+records</td>
+</tr>
+<tr><td>8.1.4</td>
+<td>Try to create a new incident
+(click New)</td>
+<td>Access denied or “New”
+button not available</td>
+</tr>
+<tr><td>8.1.5</td>
+<td>Try to edit an existing
+incident</td>
+<td>Cannot save changes (write
+access denied)</td>
+</tr>
+<tr><td>8.1.6</td>
+<td>Open Incidents &gt; Impact
+Records</td>
+<td>Can view but not create or
+edit</td>
+</tr>
+</tbody>
+</table>
+<p><strong>8.2 Officer Access</strong></p>
+<p>Log in as the <strong>Officer</strong> user.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>8.2.1</td>
+<td>Check for “Configuration”
+submenu</td>
+<td>NOT visible (restricted to
+managers)</td>
+</tr>
+<tr><td>8.2.2</td>
+<td>Create a new incident</td>
+<td>Succeeds</td>
+</tr>
+<tr><td>8.2.3</td>
+<td>Edit an existing incident</td>
+<td>Succeeds</td>
+</tr>
+<tr><td>8.2.4</td>
+<td>Try to delete an incident</td>
+<td>Access denied (officer has
+no delete permission)</td>
+</tr>
+<tr><td>8.2.5</td>
+<td>Create a new impact record</td>
+<td>Succeeds</td>
+</tr>
+<tr><td>8.2.6</td>
+<td>Edit an existing impact
+record</td>
+<td>Succeeds</td>
+</tr>
+<tr><td>8.2.7</td>
+<td>Try to delete an impact
+record</td>
+<td>Access denied</td>
+</tr>
+<tr><td>8.2.8</td>
+<td>Open a registrant’s
+Emergency Response tab</td>
+<td>Can view impact records
+(read access)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>8.3 Manager Access</strong></p>
+<p>Log in as the <strong>Manager</strong> user.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>8.3.1</td>
+<td>Check for “Configuration”
+submenu</td>
+<td>Visible with “Hazard
+Categories” and “Impact
+Types”</td>
+</tr>
+<tr><td>8.3.2</td>
+<td>Create a hazard category</td>
+<td>Succeeds</td>
+</tr>
+<tr><td>8.3.3</td>
+<td>Edit a hazard category</td>
+<td>Succeeds</td>
+</tr>
+<tr><td>8.3.4</td>
+<td>Delete a hazard category
+(with no linked incidents)</td>
+<td>Succeeds</td>
+</tr>
+<tr><td>8.3.5</td>
+<td>Try to delete a category
+linked to an incident</td>
+<td>Blocked by
+<tt class="docutils literal"><span class="pre">ondelete=&quot;restrict&quot;</span></tt> —
+error shown</td>
+</tr>
+<tr><td>8.3.6</td>
+<td>Create, edit, delete impact
+types</td>
+<td>All succeed</td>
+</tr>
+<tr><td>8.3.7</td>
+<td>Create, edit, delete
+incidents</td>
+<td>All succeed</td>
+</tr>
+<tr><td>8.3.8</td>
+<td>Create, edit, delete impact
+records</td>
+<td>All succeed</td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<p><strong>9. URL Paths (Pretty URLs)</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="6%" />
+<col width="41%" />
+<col width="53%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>9.1</td>
+<td>Navigate to All Incidents</td>
+<td>URL contains <tt class="docutils literal"><span class="pre">/hazard-incidents</span></tt></td>
+</tr>
+<tr><td>9.2</td>
+<td>Navigate to Impact Records</td>
+<td>URL contains <tt class="docutils literal"><span class="pre">/hazard-impacts</span></tt></td>
+</tr>
+<tr><td>9.3</td>
+<td>Navigate to Hazard Categories</td>
+<td>URL contains <tt class="docutils literal"><span class="pre">/hazard-categories</span></tt></td>
+</tr>
+<tr><td>9.4</td>
+<td>Navigate to Impact Types</td>
+<td>URL contains <tt class="docutils literal"><span class="pre">/hazard-impact-types</span></tt></td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<p><strong>10. Empty States</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="9%" />
+<col width="46%" />
+<col width="46%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>10.1</td>
+<td>Open Incidents list with no
+records (new database, no
+demo)</td>
+<td>Smiling face icon with text:
+“Record your first hazard
+incident” and helper text
+about tracking events</td>
+</tr>
+<tr><td>10.2</td>
+<td>Open Impact Records list with
+no records</td>
+<td>Smiling face icon with text:
+“Record impacts on
+registrants”</td>
+</tr>
+<tr><td>10.3</td>
+<td>Open Categories list with no
+records</td>
+<td>Smiling face icon with text:
+“Create your first hazard
+category”</td>
+</tr>
+<tr><td>10.4</td>
+<td>Open Impact Types list with
+no records</td>
+<td>Smiling face icon with text:
+“Define impact types”</td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<p><strong>11. Chatter and Tracking</strong></p>
+<p><strong>11.1 Incident Tracking</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="44%" />
+<col width="44%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>11.1.1</td>
+<td>Create an incident, then
+change its status</td>
+<td>Chatter log shows “Status:
+Active → Recovery” (or
+whichever transition)</td>
+</tr>
+<tr><td>11.1.2</td>
+<td>Change the severity</td>
+<td>Chatter log shows “Severity:
+Level 2 → Level 4”</td>
+</tr>
+<tr><td>11.1.3</td>
+<td>Change the category</td>
+<td>Chatter log shows category
+change</td>
+</tr>
+<tr><td>11.1.4</td>
+<td>Post a message in the
+chatter</td>
+<td>Message appears in log</td>
+</tr>
+<tr><td>11.1.5</td>
+<td>Schedule an activity</td>
+<td>Activity appears in the
+scheduled activities section</td>
+</tr>
+</tbody>
+</table>
+<p><strong>11.2 Impact Tracking</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="44%" />
+<col width="44%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>11.2.1</td>
+<td>Create an impact, then
+verify it</td>
+<td>Chatter shows “Verification
+Status: Reported →
+Verified”, “Verified By”
+set, “Verification Date” set</td>
+</tr>
+<tr><td>11.2.2</td>
+<td>Change the damage level</td>
+<td>Chatter log shows change</td>
+</tr>
+<tr><td>11.2.3</td>
+<td>Post a message</td>
+<td>Message appears</td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<p><strong>12. Edge Cases</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="9%" />
+<col width="46%" />
+<col width="46%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>12.1</td>
+<td>Create an incident with
+status “Alert” (create, then
+note: default is Active — the
+“alert” status must be set by
+creating with status alert or
+changing the initial state)</td>
+<td>“Set Active” button visible.
+“Close Incident” visible.
+“Start Recovery” NOT visible
+(only visible for Active)</td>
+</tr>
+<tr><td>12.2</td>
+<td>Create an incident, add
+areas, then close it</td>
+<td>All tabs (Description,
+Affected Areas, Impacts)
+become readonly. Cannot add
+or remove areas</td>
+</tr>
+<tr><td>12.3</td>
+<td>Close an incident that has no
+end date</td>
+<td>End Date is auto-populated
+with today’s date</td>
+</tr>
+<tr><td>12.4</td>
+<td>Close an incident that
+already has an end date</td>
+<td>End Date preserved (not
+overwritten)</td>
+</tr>
+<tr><td>12.5</td>
+<td>Create an impact, set the
+date to exactly the incident
+start date</td>
+<td>Accepted (boundary case:
+equal dates are valid)</td>
+</tr>
+<tr><td>12.6</td>
+<td>Delete an incident that has
+geofences linked to it</td>
+<td>Incident deletes. Geofence’s
+“Related Incident” field
+becomes empty (set null)</td>
+</tr>
+<tr><td>12.7</td>
+<td>Try to delete an area that is
+linked to an incident via
+incident_area_ids</td>
+<td>Blocked by
+<tt class="docutils literal"><span class="pre">ondelete=&quot;restrict&quot;</span></tt></td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<p><strong>13. Cross-Module: Groups/Households</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="9%" />
+<col width="46%" />
+<col width="46%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Step</th>
+<th class="head">Action</th>
+<th class="head">Expected Result</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>13.1</td>
+<td>Open a group (household)
+registrant form</td>
+<td>“Emergency Response” tab
+visible (groups reuse the
+individual form view)</td>
+</tr>
+<tr><td>13.2</td>
+<td>Create an impact record for a
+group registrant</td>
+<td>Impact record creation
+succeeds; registrant domain
+allows groups
+(<tt class="docutils literal">is_registrant=True</tt>
+includes both)</td>
+</tr>
+<tr><td>13.3</td>
+<td>View the group’s Emergency
+Response tab</td>
+<td>Impact records appear
+correctly</td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<p><strong>Defect Reference</strong></p>
+<p>All previously known issues from the fix plan
+(<tt class="docutils literal">docs/plans/SPP_HAZARD_FIXES_PLAN.md</tt>) have been resolved. If you
+encounter unexpected behavior, please report it as a new issue.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="7%" />
+<col width="46%" />
+<col width="46%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">ID</th>
+<th class="head">Known Limitation</th>
+<th class="head">Notes</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>N/A</td>
+<td>Badge decorations (severity,
+damage level) rely on color
+only</td>
+<td>Odoo’s badge widget does not
+support embedded icons.
+Screen reader users rely on
+the text label</td>
+</tr>
+</tbody>
+</table>
+</div>
 <div class="section" id="bug-tracker">
-<h2><a class="toc-backref" href="#toc-entry-1">Bug Tracker</a></h2>
+<h2><a class="toc-backref" href="#toc-entry-2">Bug Tracker</a></h2>
 <p>Bugs are tracked on <a class="reference external" href="https://github.com/OpenSPP/OpenSPP2/issues">GitHub Issues</a>.
 In case of trouble, please check there if your issue has already been reported.
 If you spotted it first, help us to smash it by providing a detailed and welcomed
@@ -523,15 +2464,15 @@ If you spotted it first, help us to smash it by providing a detailed and welcome
 <p>Do not contact contributors directly about support or help with technical issues.</p>
 </div>
 <div class="section" id="credits">
-<h2><a class="toc-backref" href="#toc-entry-2">Credits</a></h2>
+<h2><a class="toc-backref" href="#toc-entry-3">Credits</a></h2>
 <div class="section" id="authors">
-<h3><a class="toc-backref" href="#toc-entry-3">Authors</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-4">Authors</a></h3>
 <ul class="simple">
 <li>OpenSPP.org</li>
 </ul>
 </div>
 <div class="section" id="maintainers">
-<h3><a class="toc-backref" href="#toc-entry-4">Maintainers</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-5">Maintainers</a></h3>
 <p>Current maintainers:</p>
 <p><a class="reference external image-reference" href="https://github.com/jeremi"><img alt="jeremi" src="https://github.com/jeremi.png?size=40px" /></a> <a class="reference external image-reference" href="https://github.com/gonzalesedwin1123"><img alt="gonzalesedwin1123" src="https://github.com/gonzalesedwin1123.png?size=40px" /></a> <a class="reference external image-reference" href="https://github.com/reichie020212"><img alt="reichie020212" src="https://github.com/reichie020212.png?size=40px" /></a> <a class="reference external image-reference" href="https://github.com/emjay0921"><img alt="emjay0921" src="https://github.com/emjay0921.png?size=40px" /></a></p>
 <p>This module is part of the <a class="reference external" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_hazard">OpenSPP/OpenSPP2</a> project on GitHub.</p>

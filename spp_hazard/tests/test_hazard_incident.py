@@ -1,15 +1,12 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 
-import logging
-
 from psycopg2 import IntegrityError
 
+from odoo import Command
 from odoo.exceptions import ValidationError
 from odoo.tests import mute_logger
 
 from .common import HazardTestCase
-
-_logger = logging.getLogger(__name__)
 
 
 class TestHazardIncident(HazardTestCase):
@@ -99,7 +96,7 @@ class TestHazardIncident(HazardTestCase):
         # Link area
         self.incident.write(
             {
-                "area_ids": [(4, self.area.id)],
+                "area_ids": [Command.link(self.area.id)],
             }
         )
         self.assertEqual(self.incident.area_count, 1)
@@ -124,7 +121,7 @@ class TestHazardIncident(HazardTestCase):
         # Link area to incident
         self.incident.write(
             {
-                "area_ids": [(4, self.area.id)],
+                "area_ids": [Command.link(self.area.id)],
             }
         )
 
@@ -156,3 +153,58 @@ class TestHazardIncident(HazardTestCase):
         self.assertEqual(action["type"], "ir.actions.act_window")
         self.assertEqual(action["res_model"], "spp.hazard.impact")
         self.assertEqual(action["domain"], [("incident_id", "=", self.incident.id)])
+
+    def test_11_action_view_areas(self):
+        """Test the action to view areas."""
+        self.incident.write({"area_ids": [Command.link(self.area.id)]})
+        action = self.incident.action_view_areas()
+        self.assertEqual(action["type"], "ir.actions.act_window")
+        self.assertEqual(action["res_model"], "spp.area")
+        self.assertEqual(action["domain"], [("id", "in", self.incident.area_ids.ids)])
+
+    def test_12_incident_area_display_name(self):
+        """Test _compute_display_name on HazardIncidentArea."""
+        incident_area = self.env["spp.hazard.incident.area"].create(
+            {
+                "incident_id": self.incident.id,
+                "area_id": self.area.id,
+            }
+        )
+        expected = f"{self.incident.name} - {self.area.name}"
+        self.assertEqual(incident_area.display_name, expected)
+
+    def test_13_incident_area_unique_constraint(self):
+        """Test duplicate (incident, area) raises IntegrityError."""
+        self.env["spp.hazard.incident.area"].create(
+            {
+                "incident_id": self.incident.id,
+                "area_id": self.area.id,
+            }
+        )
+        with self.assertRaises(IntegrityError), mute_logger("odoo.sql_db"):
+            self.env["spp.hazard.incident.area"].create(
+                {
+                    "incident_id": self.incident.id,
+                    "area_id": self.area.id,
+                }
+            )
+
+    def test_14_identify_no_areas(self):
+        """Test identify returns empty when no areas linked."""
+        affected = self.incident.identify_potentially_affected_registrants()
+        self.assertFalse(affected)
+
+    def test_15_close_sets_end_date(self):
+        """Test closing without end_date auto-sets today."""
+        incident = self.env["spp.hazard.incident"].create(
+            {
+                "name": "Close Date Test",
+                "code": "CLOSE-DATE-TEST",
+                "category_id": self.category_typhoon.id,
+                "start_date": "2024-01-01",
+            }
+        )
+        self.assertFalse(incident.end_date)
+        incident.action_close()
+        self.assertTrue(incident.end_date)
+        self.assertEqual(incident.status, "closed")

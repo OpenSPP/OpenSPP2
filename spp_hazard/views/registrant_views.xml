@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Extend Individual Form View to show hazard impacts -->
+    <!-- This inherits view_individuals_form which is also used by the groups action
+         (see spp_registry.action_groups_list_form_view), so groups get these extensions too. -->
     <record id="view_individual_form_hazard" model="ir.ui.view">
         <field name="name">view.individual.form.hazard</field>
         <field name="model">res.partner</field>
@@ -35,7 +37,13 @@
                         role="alert"
                         invisible="not has_active_impact"
                     >
-                        <span class="fw-bold">Active incident impacts recorded</span>
+                        <i
+                            class="fa fa-exclamation-triangle me-2"
+                            title="Active hazard impact"
+                        />
+                        <span class="fw-bold">Active incident impacts recorded.</span>
+                        <span
+                        >This registrant is affected by one or more ongoing hazard incidents.</span>
                     </div>
                     <p class="text-muted" invisible="hazard_impact_count != 0">
                         No emergency response records yet. Impact records will appear here when this registrant is affected by a hazard incident.
@@ -54,7 +62,13 @@
                             <list>
                                 <field name="incident_id" />
                                 <field name="impact_type_id" />
-                                <field name="damage_level" widget="badge" />
+                                <field
+                                    name="damage_level"
+                                    widget="badge"
+                                    decoration-muted="damage_level in ('minimal', 'moderate')"
+                                    decoration-warning="damage_level in ('severe', 'partially_damaged')"
+                                    decoration-danger="damage_level in ('critical', 'totally_damaged')"
+                                />
                                 <field name="impact_date" />
                                 <field
                                     name="verification_status"

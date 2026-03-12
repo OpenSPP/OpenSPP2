@@ -1,10 +1,6 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 
-import logging
-
 from odoo import api, fields, models
-
-_logger = logging.getLogger(__name__)
 
 
 class HazardImpactType(models.Model):
@@ -68,5 +64,11 @@ class HazardImpactType(models.Model):
     @api.depends("impact_ids")
     def _compute_impact_count(self):
         """Compute the number of impact records using this type."""
+        data = self.env["spp.hazard.impact"].read_group(
+            [("impact_type_id", "in", self.ids)],
+            ["impact_type_id"],
+            ["impact_type_id"],
+        )
+        mapped = {d["impact_type_id"][0]: d["impact_type_id_count"] for d in data}
         for rec in self:
-            rec.impact_count = len(rec.impact_ids)
+            rec.impact_count = mapped.get(rec.id, 0)

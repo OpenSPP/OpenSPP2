@@ -7,6 +7,8 @@ from odoo.exceptions import ValidationError
 
 _logger = logging.getLogger(__name__)
 
+BATCH_SIZE = 500
+
 
 class HazardImpact(models.Model):
     """
@@ -125,8 +127,6 @@ class HazardImpact(models.Model):
     @api.constrains("impact_date", "incident_id")
     def _check_impact_date(self):
         """Validate that impact_date is not before the incident start_date."""
-        # Prefetch incidents to avoid N+1 queries
-        self.mapped("incident_id")
         for rec in self:
             if rec.impact_date and rec.incident_id.start_date:
                 if rec.impact_date < rec.incident_id.start_date:
@@ -222,5 +222,15 @@ class HazardImpact(models.Model):
                 )
 
         if vals_list:
-            return self.create(vals_list)
+            created = self.browse()
+            for i in range(0, len(vals_list), BATCH_SIZE):
+                batch = vals_list[i : i + BATCH_SIZE]
+                created |= self.create(batch)
+            _logger.info(
+                "Created %d impact records for incident '%s' in area '%s'",
+                len(created),
+                incident.name,
+                area.name,
+            )
+            return created
         return self.browse()

@@ -7,6 +7,7 @@
         <field name="arch" type="xml">
             <list
                 decoration-info="status == 'alert'"
+                decoration-success="status == 'active'"
                 decoration-warning="status == 'recovery'"
                 decoration-muted="status == 'closed'"
             >
@@ -23,7 +24,13 @@
                     decoration-warning="status == 'recovery'"
                     decoration-muted="status == 'closed'"
                 />
-                <field name="severity" />
+                <field
+                    name="severity"
+                    widget="badge"
+                    decoration-muted="severity in ('1', '2')"
+                    decoration-warning="severity in ('3', '4')"
+                    decoration-danger="severity == '5'"
+                />
                 <field name="area_count" string="Areas" />
                 <field name="affected_registrant_count" string="Affected" />
             </list>
@@ -65,6 +72,7 @@
                     />
                 </header>
                 <sheet>
+                    <field name="is_ongoing" invisible="1" />
                     <div class="oe_button_box" name="button_box">
                         <button
                             name="action_view_impacts"
@@ -104,6 +112,27 @@
                             />
                         </h1>
                     </div>
+                    <div
+                        class="alert alert-info mb-3"
+                        invisible="status != 'alert'"
+                        role="status"
+                    >
+                        <i class="fa fa-info-circle me-2" title="Alert Phase" />
+                        <strong
+                    >Alert Phase</strong> - This incident is in alert status. Activate when response begins.
+                    </div>
+                    <div
+                        class="alert alert-warning mb-3"
+                        invisible="status != 'recovery'"
+                        role="status"
+                    >
+                        <i
+                        class="fa fa-exclamation-triangle me-2"
+                        title="Recovery Phase"
+                    />
+                        <strong
+                    >Recovery Phase</strong> - This incident is in recovery. Close when recovery is complete.
+                    </div>
                     <group>
                         <group name="main_info">
                             <field
@@ -121,9 +150,9 @@
                         <group name="dates">
                             <field name="start_date" readonly="status == 'closed'" />
                             <field name="end_date" readonly="status == 'closed'" />
-                            <field name="is_ongoing" invisible="1" />
                         </group>
                     </group>
+                    <group name="extension_section" invisible="1" />
                     <notebook>
                         <page string="Description" name="description">
                             <field
@@ -157,7 +186,13 @@
                                 <list>
                                     <field name="registrant_id" />
                                     <field name="impact_type_id" />
-                                    <field name="damage_level" />
+                                    <field
+                                        name="damage_level"
+                                        widget="badge"
+                                        decoration-muted="damage_level in ('minimal', 'moderate')"
+                                        decoration-warning="damage_level in ('severe', 'partially_damaged')"
+                                        decoration-danger="damage_level in ('critical', 'totally_damaged')"
+                                    />
                                     <field name="impact_date" />
                                     <field
                                         name="verification_status"
@@ -186,6 +221,7 @@
                 <field name="name" />
                 <field name="code" />
                 <field name="category_id" />
+                <separator />
                 <filter
                     name="alert"
                     string="Alert"
@@ -213,7 +249,7 @@
                     domain="[('is_ongoing', '=', True)]"
                 />
                 <separator />
-                <group>
+                <group name="groupby">
                     <filter
                         name="grp_status"
                         string="Status"
@@ -244,9 +280,11 @@
         <field name="name">Hazard Incidents</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">spp.hazard.incident</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">list,kanban,form</field>
         <field name="path">hazard-incidents</field>
-        <field name="context">{}</field>
+        <field
+            name="context"
+        >{'search_default_alert': 1, 'search_default_active': 1, 'search_default_recovery': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Record your first hazard incident

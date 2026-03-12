@@ -195,4 +195,145 @@
             <p>Below-normal rainfall for 6+ months.</p>
         ]]></field>
     </record>
+
+    <!-- Demo Areas (spp_area provides no demo data, so minimal records are created here) -->
+    <record id="demo_area_northern_province" model="spp.area">
+        <field name="draft_name">Northern Province</field>
+        <field name="code">DEMO-AREA-NORTH</field>
+    </record>
+
+    <record id="demo_area_coastal_district" model="spp.area">
+        <field name="draft_name">Coastal District</field>
+        <field name="code">DEMO-AREA-COAST</field>
+    </record>
+
+    <record id="demo_area_inland_valley" model="spp.area">
+        <field name="draft_name">Inland Valley</field>
+        <field name="code">DEMO-AREA-INLAND</field>
+    </record>
+
+    <!-- Demo Incident Area Links (Task 6.1) -->
+    <record id="incident_area_typhoon_northern" model="spp.hazard.incident.area">
+        <field name="incident_id" ref="incident_typhoon_demo" />
+        <field name="area_id" ref="demo_area_northern_province" />
+        <field name="severity_override">5</field>
+        <field name="affected_population_estimate">12500</field>
+        <field
+            name="notes"
+        >Direct hit from typhoon eye; severe structural damage reported.</field>
+    </record>
+
+    <record id="incident_area_typhoon_coastal" model="spp.hazard.incident.area">
+        <field name="incident_id" ref="incident_typhoon_demo" />
+        <field name="area_id" ref="demo_area_coastal_district" />
+        <field name="severity_override">4</field>
+        <field name="affected_population_estimate">8200</field>
+        <field
+            name="notes"
+        >Storm surge and coastal flooding; fishing communities heavily impacted.</field>
+    </record>
+
+    <record id="incident_area_flood_coastal" model="spp.hazard.incident.area">
+        <field name="incident_id" ref="incident_flood_demo" />
+        <field name="area_id" ref="demo_area_coastal_district" />
+        <field name="severity_override">3</field>
+        <field name="affected_population_estimate">3400</field>
+        <field
+            name="notes"
+        >Riverine flooding submerged low-lying settlements for 14 days.</field>
+    </record>
+
+    <record id="incident_area_drought_inland" model="spp.hazard.incident.area">
+        <field name="incident_id" ref="incident_drought_demo" />
+        <field name="area_id" ref="demo_area_inland_valley" />
+        <field name="severity_override">3</field>
+        <field name="affected_population_estimate">6700</field>
+        <field
+            name="notes"
+        >Agricultural zone with total crop failure reported in two consecutive seasons.</field>
+    </record>
+
+    <!-- Demo Registrants (spp_registry provides no demo data, so minimal records are created here) -->
+    <record id="demo_registrant_santos" model="res.partner">
+        <field name="name">SANTOS, MARIA</field>
+        <field name="is_registrant">True</field>
+        <field name="is_group">False</field>
+        <field name="area_id" ref="demo_area_northern_province" />
+    </record>
+
+    <record id="demo_registrant_reyes" model="res.partner">
+        <field name="name">REYES, JOSE</field>
+        <field name="is_registrant">True</field>
+        <field name="is_group">False</field>
+        <field name="area_id" ref="demo_area_coastal_district" />
+    </record>
+
+    <record id="demo_registrant_cruz" model="res.partner">
+        <field name="name">CRUZ, ANA</field>
+        <field name="is_registrant">True</field>
+        <field name="is_group">False</field>
+        <field name="area_id" ref="demo_area_inland_valley" />
+    </record>
+
+    <!-- Demo Impact Records (Task 6.2) -->
+    <!-- Typhoon impacts - mix of verification statuses and damage levels -->
+    <record id="impact_typhoon_santos_displacement" model="spp.hazard.impact">
+        <field name="incident_id" ref="incident_typhoon_demo" />
+        <field name="registrant_id" ref="demo_registrant_santos" />
+        <field name="impact_type_id" ref="spp_hazard.impact_type_displacement" />
+        <field name="damage_level">severe</field>
+        <field name="impact_date">2024-11-15</field>
+        <field name="verification_status">verified</field>
+        <field
+            name="notes"
+        >Family evacuated to barangay hall; home partially submerged.</field>
+    </record>
+
+    <record id="impact_typhoon_santos_property" model="spp.hazard.impact">
+        <field name="incident_id" ref="incident_typhoon_demo" />
+        <field name="registrant_id" ref="demo_registrant_santos" />
+        <field name="impact_type_id" ref="spp_hazard.impact_type_property_damage" />
+        <field name="damage_level">totally_damaged</field>
+        <field name="impact_date">2024-11-16</field>
+        <field name="verification_status">verified</field>
+        <field name="notes">Roof collapsed; walls structurally compromised.</field>
+    </record>
+
+    <record id="impact_typhoon_reyes_livelihood" model="spp.hazard.impact">
+        <field name="incident_id" ref="incident_typhoon_demo" />
+        <field name="registrant_id" ref="demo_registrant_reyes" />
+        <field name="impact_type_id" ref="spp_hazard.impact_type_livelihood_loss" />
+        <field name="damage_level">moderate</field>
+        <field name="impact_date">2024-11-18</field>
+        <field name="verification_status">reported</field>
+        <field
+            name="notes"
+        >Fishing boat damaged; unable to work for several weeks.</field>
+    </record>
+
+    <!-- Flood impact -->
+    <record id="impact_flood_reyes_property" model="spp.hazard.impact">
+        <field name="incident_id" ref="incident_flood_demo" />
+        <field name="registrant_id" ref="demo_registrant_reyes" />
+        <field name="impact_type_id" ref="spp_hazard.impact_type_property_damage" />
+        <field name="damage_level">partially_damaged</field>
+        <field name="impact_date">2024-10-03</field>
+        <field name="verification_status">closed</field>
+        <field
+            name="notes"
+        >Ground floor flooded; damage assessed and assistance provided.</field>
+    </record>
+
+    <!-- Drought impacts -->
+    <record id="impact_drought_cruz_crop_loss" model="spp.hazard.impact">
+        <field name="incident_id" ref="incident_drought_demo" />
+        <field name="registrant_id" ref="demo_registrant_cruz" />
+        <field name="impact_type_id" ref="spp_hazard.impact_type_crop_loss" />
+        <field name="damage_level">critical</field>
+        <field name="impact_date">2024-05-01</field>
+        <field name="verification_status">verified</field>
+        <field
+            name="notes"
+        >Total loss of rice crop due to lack of irrigation water.</field>
+    </record>
 </odoo>
