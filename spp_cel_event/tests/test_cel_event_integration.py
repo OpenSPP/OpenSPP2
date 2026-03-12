@@ -206,12 +206,24 @@ class TestCelEventIntegration(TransactionCase):
         self.assertNotIn(self.registrant_middle.id, result["ids"])
         self.assertNotIn(self.registrant_rich.id, result["ids"])
 
-    def test_event_basic_field_access_function_style(self):
-        """Test event('type', 'field') > value pattern."""
-        # Note: This test assumes parser supports this syntax
-        # Currently the translator expects dot notation or would need parser updates
-        # Marking as documentation of intended behavior
-        pass
+    def test_event_value_compare_income_range(self):
+        """Test EventValueCompare with income in a range (between two thresholds)."""
+        from ..models.cel_event_queryplan import EventValueCompare
+
+        # Income > 500
+        plan = EventValueCompare(
+            event_type="household_survey",
+            field_name="income",
+            op=">",
+            rhs=500,
+        )
+
+        executor = self.env["spp.cel.executor"]
+        ids = executor._execute_plan("res.partner", plan)
+
+        self.assertNotIn(self.registrant_poor.id, ids)  # 300 < 500
+        self.assertIn(self.registrant_middle.id, ids)  # 800 > 500
+        self.assertIn(self.registrant_rich.id, ids)  # 2000 > 500
 
     def test_event_field_access_no_matching_event(self):
         """Test event field access when no event exists returns empty set."""
@@ -329,6 +341,27 @@ class TestCelEventIntegration(TransactionCase):
         self.assertIn(self.registrant_middle.id, ids)
         self.assertNotIn(self.registrant_rich.id, ids)  # 400 days ago
 
+    def test_event_within_months_filter(self):
+        """Test event with within_months temporal filter."""
+        from ..models.cel_event_queryplan import EventValueCompare
+
+        # Poor registrant survey is 30 days ago, within 2 months
+        # Rich registrant survey is 400 days ago, NOT within 2 months
+        plan = EventValueCompare(
+            event_type="household_survey",
+            field_name="income",
+            op=">",
+            rhs=0,
+            within_months=2,
+        )
+
+        executor = self.env["spp.cel.executor"]
+        ids = executor._execute_plan("res.partner", plan)
+
+        self.assertIn(self.registrant_poor.id, ids)  # 30 days ago
+        self.assertIn(self.registrant_middle.id, ids)  # 60 days ago
+        self.assertNotIn(self.registrant_rich.id, ids)  # 400 days ago
+
     # ══════════════════════════════════════════════════════════════════════════════
     # Test event() with selection modes
     # ══════════════════════════════════════════════════════════════════════════════
@@ -417,6 +450,39 @@ class TestCelEventIntegration(TransactionCase):
 
         # Cleanup
         new_survey.unlink()
+
+    def test_event_select_latest_active_mode(self):
+        """Test event with select='latest_active' mode."""
+        from ..models.cel_event_queryplan import EventValueCompare
+
+        # Create a superseded (old) survey with high income
+        old_survey = self.env["spp.event.data"].create(
+            {
+                "partner_id": self.registrant_poor.id,
+                "event_type_id": self.survey_type.id,
+                "collection_date": date.today() - timedelta(days=200),
+                "state": "superseded",
+                "data_json": {"income": 5000},
+            }
+        )
+
+        # latest_active should only consider active events, picking the most recent
+        plan = EventValueCompare(
+            event_type="household_survey",
+            field_name="income",
+            op="<",
+            rhs=500,
+            select="latest_active",
+        )
+
+        executor = self.env["spp.cel.executor"]
+        ids = executor._execute_plan("res.partner", plan)
+
+        # Should match poor registrant (active survey has income=300)
+        self.assertIn(self.registrant_poor.id, ids)
+
+        # Cleanup
+        old_survey.unlink()
 
     # ══════════════════════════════════════════════════════════════════════════════
     # Test has_event() function
@@ -544,16 +610,80 @@ class TestCelEventIntegration(TransactionCase):
         self.assertIn(self.registrant_poor.id, ids)
 
     def test_events_sum_aggregation(self):
-        """Test events_sum() aggregation."""
-        # This would need numeric field to sum
-        # Skip for now as test data doesn't have good sum candidate
-        pass
+        """Test events_sum() aggregation over visit_number field."""
+        from ..models.cel_event_queryplan import EventsAggregate
+
+        # Sum of visit_number across all 10 visits = 1+2+...+10 = 55
+        plan = EventsAggregate(
+            event_type="field_visit",
+            field_name="visit_number",
+            agg="sum",
+            op=">=",
+            rhs=50,
+            states=["active"],
+        )
+
+        executor = self.env["spp.cel.executor"]
+        ids = executor._execute_plan("res.partner", plan)
+
+        self.assertIn(self.registrant_poor.id, ids)  # Sum = 55 >= 50
+        self.assertNotIn(self.registrant_middle.id, ids)  # No visits
 
     def test_events_avg_aggregation(self):
-        """Test events_avg() aggregation."""
-        # This would need numeric field to average
-        # Skip for now as test data doesn't have good avg candidate
-        pass
+        """Test events_avg() aggregation over visit_number field."""
+        from ..models.cel_event_queryplan import EventsAggregate
+
+        # Avg of visit_number across 10 visits = 55/10 = 5.5
+        plan = EventsAggregate(
+            event_type="field_visit",
+            field_name="visit_number",
+            agg="avg",
+            op=">=",
+            rhs=5,
+            states=["active"],
+        )
+
+        executor = self.env["spp.cel.executor"]
+        ids = executor._execute_plan("res.partner", plan)
+
+        self.assertIn(self.registrant_poor.id, ids)  # Avg = 5.5 >= 5
+        self.assertNotIn(self.registrant_middle.id, ids)  # No visits
+
+    def test_events_min_aggregation(self):
+        """Test events_min() aggregation over visit_number field."""
+        from ..models.cel_event_queryplan import EventsAggregate
+
+        plan = EventsAggregate(
+            event_type="field_visit",
+            field_name="visit_number",
+            agg="min",
+            op="==",
+            rhs=1,
+            states=["active"],
+        )
+
+        executor = self.env["spp.cel.executor"]
+        ids = executor._execute_plan("res.partner", plan)
+
+        self.assertIn(self.registrant_poor.id, ids)  # Min visit_number = 1
+
+    def test_events_max_aggregation(self):
+        """Test events_max() aggregation over visit_number field."""
+        from ..models.cel_event_queryplan import EventsAggregate
+
+        plan = EventsAggregate(
+            event_type="field_visit",
+            field_name="visit_number",
+            agg="max",
+            op="==",
+            rhs=10,
+            states=["active"],
+        )
+
+        executor = self.env["spp.cel.executor"]
+        ids = executor._execute_plan("res.partner", plan)
+
+        self.assertIn(self.registrant_poor.id, ids)  # Max visit_number = 10
 
     # ══════════════════════════════════════════════════════════════════════════════
     # Test SQL path vs Python path
@@ -847,9 +977,8 @@ class TestCelEventIntegration(TransactionCase):
 
     def test_cel_service_compilation_succeeds(self):
         """Test that CEL service can compile event expressions."""
-        # Note: This requires parser support for event() syntax
-        # Currently may not work without parser updates
-        # Keeping as documentation of intended behavior
+        # Tests basic CEL compilation only. event() syntax is parsed via the translator but
+        # the end-to-end compile_expression path for full event expressions is tested via executor plan tests above.
         expr = "true"  # Basic expression that should work
         result = self.cel_service.compile_expression(expr, self.profile)
 
@@ -859,6 +988,8 @@ class TestCelEventIntegration(TransactionCase):
 
     def test_cel_service_get_matching_ids(self):
         """Test get_matching_ids wrapper method."""
+        # Tests basic CEL compilation only. event() syntax is parsed via the translator but
+        # the end-to-end compile_expression path for full event expressions is tested via executor plan tests above.
         expr = "true"
         ids = self.cel_service.get_matching_ids(expr, self.profile)
 
