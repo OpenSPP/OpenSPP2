@@ -22,30 +22,39 @@ OpenSPP Statistics Studio
 
 |badge1| |badge2| |badge3|
 
-Studio UI bridge module for managing publishable statistics
-configuration. Auto-installs when both ``spp_statistic`` and
-``spp_studio`` are present, providing list, form, kanban, and search
-views for statistics and metric categories within the Studio settings
-interface.
+Bridge module that exposes statistics configuration in the Studio
+no-code UI. Auto-installs when both ``spp_statistic`` and ``spp_studio``
+are present. Adds tree/form views for statistics and metric categories
+under the Studio settings menu.
 
-Key Features
-~~~~~~~~~~~~
+Key Capabilities
+~~~~~~~~~~~~~~~~
 
-- List, kanban, and form views for statistics with publication status
-  badges
-- Category management views with hierarchy support
-- Search filters for publication status, sensitivity level, and archival
-  state
-- Inline editing of context-specific overrides
-- Access restricted to Studio Manager group
-
-Menus
-~~~~~
-
-- **Studio > Settings > Statistics > All Statistics** — manage statistic
-  definitions
-- **Studio > Settings > Statistics > Categories** — manage metric
+- Manage statistics (create, edit, archive) through Studio forms
+- Manage metric categories through Studio forms
+- Grants Studio managers full CRUD on statistics, contexts, and
   categories
+
+Key Models
+~~~~~~~~~~
+
+No new models. Provides views and menu entries for ``spp.statistic``,
+``spp.statistic.context``, and ``spp.metric.category``.
+
+UI Location
+~~~~~~~~~~~
+
+- **Menu**: Studio > Settings > Statistics > All Statistics
+- **Menu**: Studio > Settings > Statistics > Categories
+
+Security
+~~~~~~~~
+
+=================================== =========
+Group                               Access
+=================================== =========
+``spp_studio.group_studio_manager`` Full CRUD
+=================================== =========
 
 Dependencies
 ~~~~~~~~~~~~
