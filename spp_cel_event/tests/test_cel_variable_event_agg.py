@@ -220,8 +220,13 @@ class TestCELVariableEventAggregation(TransactionCase):
             variable.cel_expression,
         )
 
-    def test_event_with_custom_filter(self):
-        """Test CEL expression with custom aggregate_filter."""
+    def test_event_with_custom_filter_ignored(self):
+        """Test that aggregate_filter is not included in generated event expression.
+
+        The where_predicate feature is not implemented in the executor, so
+        aggregate_filter is intentionally excluded from the generated CEL
+        expression to avoid silently wrong results.
+        """
         variable = self.CELVariable.create(
             {
                 "name": "test_large_payments",
@@ -236,7 +241,9 @@ class TestCELVariableEventAggregation(TransactionCase):
                 "aggregate_filter": "e.amount > 1000",
             }
         )
-        self.assertIn("where='e.amount > 1000'", variable.cel_expression)
+        # where= should NOT be in the expression since where_predicate is not implemented
+        self.assertNotIn("where=", variable.cel_expression)
+        self.assertEqual(variable.cel_expression, "events_sum('payment', 'amount')")
 
     def test_event_aggregation_without_type_raises_validation(self):
         """Test that missing event type raises ValidationError."""
