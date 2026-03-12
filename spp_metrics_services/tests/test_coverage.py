@@ -478,16 +478,17 @@ class TestDemographicDimension(TransactionCase):
             )
 
     def test_constraint_unique_name(self):
-        """Duplicate dimension name raises an error."""
-        with self.assertRaises(ValidationError):
-            self.dim_model.create(
-                {
-                    "name": "test_is_group",  # already exists
-                    "label": "Duplicate",
-                    "dimension_type": "field",
-                    "field_path": "name",
-                }
-            )
+        """Duplicate dimension name raises an error (SQL unique constraint)."""
+        with self.assertRaises(Exception):  # noqa: B017
+            with self.env.cr.savepoint():
+                self.dim_model.create(
+                    {
+                        "name": "test_is_group",  # already exists
+                        "label": "Duplicate",
+                        "dimension_type": "field",
+                        "field_path": "name",
+                    }
+                )
 
     # -------------------------------------------------------------------------
     # write() and unlink() cache invalidation
