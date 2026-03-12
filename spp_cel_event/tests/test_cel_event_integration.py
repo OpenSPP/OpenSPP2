@@ -345,14 +345,17 @@ class TestCelEventIntegration(TransactionCase):
         """Test event with within_months temporal filter."""
         from ..models.cel_event_queryplan import EventValueCompare
 
-        # Poor registrant survey is 30 days ago, within 2 months
-        # Rich registrant survey is 400 days ago, NOT within 2 months
+        # Poor registrant survey is 30 days ago, within 3 months
+        # Middle registrant survey is 60 days ago, within 3 months
+        # Rich registrant survey is 400 days ago, NOT within 3 months
+        # Note: using 3 months instead of 2 to avoid boundary issues with
+        # PostgreSQL INTERVAL month arithmetic near the 60-day mark.
         plan = EventValueCompare(
             event_type="household_survey",
             field_name="income",
             op=">",
             rhs=0,
-            within_months=2,
+            within_months=3,
         )
 
         executor = self.env["spp.cel.executor"]

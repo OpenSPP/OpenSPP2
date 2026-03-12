@@ -238,21 +238,21 @@ class TestCELVariableEventAggregation(TransactionCase):
         )
         self.assertIn("where='e.amount > 1000'", variable.cel_expression)
 
-    def test_event_aggregation_without_type_uses_accessor(self):
-        """Test that missing event type returns cel_accessor."""
-        variable = self.CELVariable.create(
-            {
-                "name": "test_no_type",
-                "cel_accessor": "no_type_var",
-                "source_type": "aggregate",
-                "aggregate_target": "events",
-                "aggregate_type": "count",
-                "value_type": "number",
-                "category_id": self.category.id,
-                # No event_agg_type_id
-            }
-        )
-        self.assertEqual(variable.cel_expression, "no_type_var")
+    def test_event_aggregation_without_type_raises_validation(self):
+        """Test that missing event type raises ValidationError."""
+        with self.assertRaises(ValidationError):
+            self.CELVariable.create(
+                {
+                    "name": "test_no_type",
+                    "cel_accessor": "no_type_var",
+                    "source_type": "aggregate",
+                    "aggregate_target": "events",
+                    "aggregate_type": "count",
+                    "value_type": "number",
+                    "category_id": self.category.id,
+                    # No event_agg_type_id — constraint should reject this
+                }
+            )
 
     def test_onchange_aggregate_target_clears_event_fields(self):
         """Test that changing aggregate_target clears event-specific fields."""
