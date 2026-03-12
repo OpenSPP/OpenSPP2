@@ -48,21 +48,21 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+--------------------------------------+----------------------------------+
-| Model                                | Description                      |
-+======================================+==================================+
-| ``spp.graduation.pathway``           | Defines a graduation pathway     |
-|                                      | with criteria and exit type      |
-+--------------------------------------+----------------------------------+
-| ``spp.graduation.criteria``          | Individual criterion within a    |
-|                                      | pathway with weight and method   |
-+--------------------------------------+----------------------------------+
-| ``spp.graduation.assessment``        | Assessment of a beneficiary      |
-|                                      | against a pathway with scores    |
-+--------------------------------------+----------------------------------+
-| ``spp.graduation.criteria.response`` | Response to a specific criterion |
-|                                      | within an assessment             |
-+--------------------------------------+----------------------------------+
++----------------------------------+----------------------------------+
+| Model                            | Description                      |
++==================================+==================================+
+| ``spp.graduation.pathway``       | Defines a graduation pathway     |
+|                                  | with criteria and exit type      |
++----------------------------------+----------------------------------+
+| ``spp.graduation.criteria``      | Individual criterion within a    |
+|                                  | pathway with weight and method   |
++----------------------------------+----------------------------------+
+| ``spp.graduation.assessment``    | Assessment of a beneficiary      |
+|                                  | against a pathway with scores    |
++----------------------------------+----------------------------------+
+| ``sp                             | Response to a specific criterion |
+| p.graduation.criteria.response`` | within an assessment             |
++----------------------------------+----------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -93,16 +93,16 @@ UI Location
 Security
 ~~~~~~~~
 
-+-------------------------------------------------+----------------------------------+
-| Group                                           | Access                           |
-+=================================================+==================================+
-| ``spp_graduation.group_spp_graduation_user``    | Read pathways/criteria;          |
-|                                                 | create/edit own assessments (no  |
-|                                                 | delete)                          |
-+-------------------------------------------------+----------------------------------+
-| ``spp_graduation.group_spp_graduation_manager`` | Full CRUD on all graduation data |
-|                                                 | and configuration                |
-+-------------------------------------------------+----------------------------------+
++----------------------------------+----------------------------------+
+| Group                            | Access                           |
++==================================+==================================+
+| ``spp_gradua                     | Read pathways/criteria;          |
+| tion.group_spp_graduation_user`` | create/edit own assessments (no  |
+|                                  | delete)                          |
++----------------------------------+----------------------------------+
+| ``spp_graduatio                  | Full CRUD on all graduation data |
+| n.group_spp_graduation_manager`` | and configuration                |
++----------------------------------+----------------------------------+
 
 Extension Points
 ~~~~~~~~~~~~~~~~

@@ -47,15 +47,15 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+----------------------------+-----------------------------------------+
-| Model                      | Description                             |
-+============================+=========================================+
-| ``spp.grm.demo.generator`` | Transient model containing generation   |
-|                            | logic and workflow simulation           |
-+----------------------------+-----------------------------------------+
-| ``spp.grm.demo.wizard``    | Transient model inheriting from         |
-|                            | generator for wizard UI configuration   |
-+----------------------------+-----------------------------------------+
++----------------------------+----------------------------------------+
+| Model                      | Description                            |
++============================+========================================+
+| ``spp.grm.demo.generator`` | Transient model containing generation  |
+|                            | logic and workflow simulation          |
++----------------------------+----------------------------------------+
+| ``spp.grm.demo.wizard``    | Transient model inheriting from        |
+|                            | generator for wizard UI configuration  |
++----------------------------+----------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~

@@ -47,20 +47,20 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+----------------------------+-----------------------------------------+
-| Model                      | Description                             |
-+============================+=========================================+
-| ``spp.session.type``       | Session type definition with attendance |
-|                            | requirements                            |
-+----------------------------+-----------------------------------------+
-| ``spp.session.topic``      | Topics that can be covered in sessions  |
-+----------------------------+-----------------------------------------+
-| ``spp.session``            | Session instance with facilitator,      |
-|                            | participants, and date                  |
-+----------------------------+-----------------------------------------+
-| ``spp.session.attendance`` | Attendance record for a participant at  |
-|                            | a session                               |
-+----------------------------+-----------------------------------------+
++----------------------------+----------------------------------------+
+| Model                      | Description                            |
++============================+========================================+
+| ``spp.session.type``       | Session type definition with           |
+|                            | attendance requirements                |
++----------------------------+----------------------------------------+
+| ``spp.session.topic``      | Topics that can be covered in sessions |
++----------------------------+----------------------------------------+
+| ``spp.session``            | Session instance with facilitator,     |
+|                            | participants, and date                 |
++----------------------------+----------------------------------------+
+| ``spp.session.attendance`` | Attendance record for a participant at |
+|                            | a session                              |
++----------------------------+----------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -89,18 +89,18 @@ UI Location
 Security
 ~~~~~~~~
 
-+------------------------------------------------+----------------------------------+
-| Group                                          | Access                           |
-+================================================+==================================+
-| ``spp_session_tracking.group_session_user``    | Read all sessions and session    |
-|                                                | types/topics; write own          |
-|                                                | facilitated sessions;            |
-|                                                | read/write/create attendance (no |
-|                                                | delete)                          |
-+------------------------------------------------+----------------------------------+
-| ``spp_session_tracking.group_session_manager`` | Full CRUD on all sessions,       |
-|                                                | types, topics, and attendance    |
-+------------------------------------------------+----------------------------------+
++----------------------------------+----------------------------------+
+| Group                            | Access                           |
++==================================+==================================+
+| ``spp_sessi                      | Read all sessions and session    |
+| on_tracking.group_session_user`` | types/topics; write own          |
+|                                  | facilitated sessions;            |
+|                                  | read/write/create attendance (no |
+|                                  | delete)                          |
++----------------------------------+----------------------------------+
+| ``spp_session_                   | Full CRUD on all sessions,       |
+| tracking.group_session_manager`` | types, topics, and attendance    |
++----------------------------------+----------------------------------+
 
 The session user group can view all sessions but only edit sessions they
 facilitate (via record rule). The ``spp_security.group_spp_admin`` group

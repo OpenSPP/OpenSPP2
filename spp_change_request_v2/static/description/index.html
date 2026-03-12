@@ -399,8 +399,8 @@ same field)</li>
 <h1>Key Models</h1>
 <table border="1" class="docutils">
 <colgroup>
-<col width="52%" />
-<col width="48%" />
+<col width="50%" />
+<col width="50%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Model</th>
@@ -416,7 +416,8 @@ approval workflow</td>
 <td>Configuration for CR types:
 target, detail model, workflow</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.change.request.type.mapping</tt></td>
+<tr><td><tt class="docutils literal">s
+pp.change.request.type.mapping</tt></td>
 <td>Field mappings for automatic
 application</td>
 </tr>
@@ -440,7 +441,8 @@ request detail types</td>
 <td>Detail model for adding members
 to groups</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.cr.detail.edit_individual</tt></td>
+<tr><td>`
+<cite>spp.cr.detail.edit_individual`</cite></td>
 <td>Detail model for editing
 individual registrant data</td>
 </tr>
@@ -456,11 +458,13 @@ members from groups</td>
 <td>Detail model for changing head
 of household</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.cr.detail.exit_registrant</tt></td>
+<tr><td>`
+<cite>spp.cr.detail.exit_registrant`</cite></td>
 <td>Detail model for marking
 registrants as exited</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.cr.detail.transfer_member</tt></td>
+<tr><td>`
+<cite>spp.cr.detail.transfer_member`</cite></td>
 <td>Detail model for transferring
 members between groups</td>
 </tr>
@@ -472,11 +476,13 @@ registrant ID numbers</td>
 <td>Detail model for creating new
 groups/households</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.cr.detail.merge_registrants</tt></td>
+<tr><td><tt class="docutils literal">s
+pp.cr.detail.merge_registrants</tt></td>
 <td>Detail model for merging
 duplicate registrant records</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.cr.detail.split_household</tt></td>
+<tr><td>`
+<cite>spp.cr.detail.split_household`</cite></td>
 <td>Detail model for splitting
 households into separate groups</td>
 </tr>
@@ -538,8 +544,8 @@ for validators</li>
 <h1>Security</h1>
 <table border="1" class="docutils">
 <colgroup>
-<col width="61%" />
-<col width="39%" />
+<col width="50%" />
+<col width="50%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Group</th>
@@ -547,23 +553,28 @@ for validators</li>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td><tt class="docutils literal">spp_change_request_v2.group_cr_user</tt></td>
+<tr><td><tt class="docutils literal">spp_c
+hange_request_v2.group_cr_user</tt></td>
 <td>Create and submit change
 requests (read/write/create)</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_change_request_v2.group_cr_validator</tt></td>
+<tr><td><tt class="docutils literal">spp_change
+_request_v2.group_cr_validator</tt></td>
 <td>Approve/reject, field-level
 validation (read/write/create)</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_change_request_v2.group_cr_validator_hq</tt></td>
+<tr><td><tt class="docutils literal">spp_change_re
+quest_v2.group_cr_validator_hq</tt></td>
 <td>HQ-level approval with registry
 write (read/write/create)</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_change_request_v2.group_cr_manager</tt></td>
+<tr><td><tt class="docutils literal">spp_chan
+ge_request_v2.group_cr_manager</tt></td>
 <td>Full CRUD including
 configuration</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_change_request_v2.group_cr_conflict_approver</tt></td>
+<tr><td><tt class="docutils literal">spp_change_request
+_v2.group_cr_conflict_approver</tt></td>
 <td>Override blocking conflict
 detections
 (specialized/functional)</td>
@@ -631,8 +642,8 @@ multi-tier workflows.</p>
 approval workflow, and field mappings</td>
 </tr>
 <tr><td><strong>Field mappings</strong></td>
-<td>XML records defining how detail fields map to
-registrant fields at apply time</td>
+<td>XML records defining how detail fields map
+to registrant fields at apply time</td>
 </tr>
 </tbody>
 </table>
@@ -993,9 +1004,9 @@ fallback.</p>
 <p>CEL conditions have access to these variables:</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="46%" />
-<col width="11%" />
-<col width="43%" />
+<col width="44%" />
+<col width="12%" />
+<col width="44%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Variable</th>
@@ -1004,7 +1015,8 @@ fallback.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td><tt class="docutils literal">record.selected_field_name</tt></td>
+<tr><td><tt class="docutils literal">r
+ecord.selected_field_name</tt></td>
 <td>string</td>
 <td>Technical field name the
 user selected</td>
@@ -1115,10 +1127,10 @@ changes that require three-tier approval:</p>
 <tt class="docutils literal">spp.cr.detail.base</tt>):</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="35%" />
-<col width="15%" />
-<col width="35%" />
-<col width="16%" />
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Method</th>
@@ -1129,23 +1141,32 @@ override</th>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td><tt class="docutils literal">_get_field_to_modify_selection()</tt></td>
+<tr><td><tt class="docutils literal">_get_f
+ield_to_modify
+_selection()</tt></td>
 <td><tt class="docutils literal">&#64;api.model</tt></td>
-<td><tt class="docutils literal">[(field, label), <span class="pre">...]</span></tt></td>
+<td><tt class="docutils literal">[(field,
+label), <span class="pre">...]</span></tt></td>
 <td>Dynamic
 approval:
 define
 selectable
 fields</td>
 </tr>
-<tr><td><tt class="docutils literal">_get_prefill_mapping()</tt></td>
+<tr><td><tt class="docutils literal">_get_prefi
+ll_mapping()</tt></td>
 <td>instance</td>
-<td><tt class="docutils literal">{detail_field: registrant_field}</tt></td>
-<td>Pre-fill detail
-from registrant
-on creation</td>
+<td><tt class="docutils literal">{detai
+l_field: regis
+trant_field}</tt></td>
+<td>Pre-fill
+detail from
+registrant on
+creation</td>
 </tr>
-<tr><td><tt class="docutils literal">prefill_from_registrant()</tt></td>
+<tr><td>`
+<cite>prefill_from_
+registrant()`</cite></td>
 <td>instance</td>
 <td>None</td>
 <td>Detail has
@@ -1160,9 +1181,9 @@ pre-filled</td>
 <tt class="docutils literal">spp.cr.detail.base</tt>):</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="28%" />
-<col width="11%" />
-<col width="61%" />
+<col width="41%" />
+<col width="17%" />
+<col width="42%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Field</th>
@@ -1177,24 +1198,31 @@ pre-filled</td>
 </tr>
 <tr><td><tt class="docutils literal">registrant_id</tt></td>
 <td>Many2one</td>
-<td><tt class="docutils literal">change_request_id.registrant_id</tt></td>
+<td><tt class="docutils literal">change_r
+equest_id.registrant_id</tt></td>
 </tr>
 <tr><td><tt class="docutils literal">approval_state</tt></td>
 <td>Selection</td>
-<td><tt class="docutils literal">change_request_id.approval_state</tt></td>
+<td><tt class="docutils literal">change_re
+quest_id.approval_state</tt></td>
 </tr>
 <tr><td><tt class="docutils literal">is_applied</tt></td>
 <td>Boolean</td>
-<td><tt class="docutils literal">change_request_id.is_applied</tt></td>
+<td><tt class="docutils literal">chang
+e_request_id.is_applied</tt></td>
 </tr>
 <tr><td><tt class="docutils literal">use_dynamic_approval</tt></td>
 <td>Boolean</td>
-<td><tt class="docutils literal">change_request_id.request_type_id.use_dynamic_approval</tt></td>
+<td><tt class="docutils literal">change
+_request_id.request_type_
+id.use_dynamic_approval</tt></td>
 </tr>
 <tr><td><tt class="docutils literal">field_to_modify</tt></td>
 <td>Selection</td>
-<td>Dynamic field selector (populated by
-<tt class="docutils literal">_get_field_to_modify_selection</tt>)</td>
+<td>Dynamic field selector
+(populated by
+<tt class="docutils literal">_get_fie
+ld_to_modify_selection</tt>)</td>
 </tr>
 </tbody>
 </table>
@@ -1203,10 +1231,10 @@ pre-filled</td>
 <h1>CR Type Fields Reference</h1>
 <table border="1" class="docutils">
 <colgroup>
-<col width="36%" />
-<col width="13%" />
-<col width="25%" />
-<col width="26%" />
+<col width="27%" />
+<col width="18%" />
+<col width="27%" />
+<col width="27%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Field</th>
@@ -1224,56 +1252,73 @@ pre-filled</td>
 <tr><td><tt class="docutils literal">code</tt></td>
 <td>Char</td>
 <td>required</td>
-<td>Unique identifier
+<td>Unique
+identifier
 (lowercase,
 underscores)</td>
 </tr>
 <tr><td><tt class="docutils literal">target_type</tt></td>
 <td>Selection</td>
 <td><tt class="docutils literal">&quot;both&quot;</tt></td>
-<td><tt class="docutils literal">&quot;individual&quot;</tt>,
-<tt class="docutils literal">&quot;group&quot;</tt>, or
+<td>``
+“individual”<tt class="docutils literal">,
+<span class="pre">``&quot;group&quot;</span></tt>, or
 <tt class="docutils literal">&quot;both&quot;</tt></td>
 </tr>
-<tr><td><tt class="docutils literal">detail_model</tt></td>
+<tr><td>`
+<cite>detail_model`</cite></td>
 <td>Char</td>
 <td>required</td>
-<td>Technical name of
-the detail model</td>
+<td>Technical name
+of the detail
+model</td>
 </tr>
-<tr><td><tt class="docutils literal">detail_form_view_id</tt></td>
+<tr><td><tt class="docutils literal">detail
+_form_view_id</tt></td>
 <td>Many2one</td>
 <td>required</td>
-<td>Reference to the
-detail form view</td>
+<td>Reference to
+the detail form
+view</td>
 </tr>
-<tr><td><tt class="docutils literal">apply_strategy</tt></td>
+<tr><td><tt class="docutils literal">a
+pply_strategy</tt></td>
 <td>Selection</td>
-<td><tt class="docutils literal">&quot;field_mapping&quot;</tt></td>
-<td><tt class="docutils literal">&quot;field_mapping&quot;</tt>,
-<tt class="docutils literal">&quot;custom&quot;</tt>, or
-<tt class="docutils literal">&quot;manual&quot;</tt></td>
+<td><tt class="docutils literal">&quot;f
+ield_mapping&quot;</tt></td>
+<td><tt class="docutils literal">&quot;fi
+eld_mapping&quot;</tt>,
+<tt class="docutils literal">&quot;custom&quot;</tt>,
+or <tt class="docutils literal">&quot;manual&quot;</tt></td>
 </tr>
-<tr><td><tt class="docutils literal">auto_apply_on_approve</tt></td>
+<tr><td><tt class="docutils literal">auto_app
+ly_on_approve</tt></td>
 <td>Boolean</td>
 <td><tt class="docutils literal">True</tt></td>
 <td>Apply changes
-automatically after
-final approval</td>
+automatically
+after final
+approval</td>
 </tr>
-<tr><td><tt class="docutils literal">approval_definition_id</tt></td>
+<tr><td><tt class="docutils literal">approval_
+definition_id</tt></td>
 <td>Many2one</td>
 <td>required</td>
 <td>Static/fallback
-approval workflow</td>
+approval
+workflow</td>
 </tr>
-<tr><td><tt class="docutils literal">use_dynamic_approval</tt></td>
+<tr><td><tt class="docutils literal">use_dyn
+amic_approval</tt></td>
 <td>Boolean</td>
 <td><tt class="docutils literal">False</tt></td>
-<td>Enable field-level
-approval routing</td>
+<td>Enable
+field-level
+approval
+routing</td>
 </tr>
-<tr><td><tt class="docutils literal">candidate_definition_ids</tt></td>
+<tr><td><tt class="docutils literal">candidate_d
+efinition_ids</tt></td>
 <td>Many2many</td>
 <td>empty</td>
 <td>Candidate
@@ -1283,28 +1328,32 @@ dynamic routing</td>
 <tr><td><tt class="docutils literal">icon</tt></td>
 <td>Char</td>
 <td>optional</td>
-<td>FontAwesome icon
-class (e.g.,
+<td>FontAwesome
+icon class
+(e.g.,
 <tt class="docutils literal"><span class="pre">&quot;fa-cog&quot;</span></tt>)</td>
 </tr>
 <tr><td><tt class="docutils literal">sequence</tt></td>
 <td>Integer</td>
 <td><tt class="docutils literal">10</tt></td>
-<td>Display order in
-type lists</td>
+<td>Display order
+in type lists</td>
 </tr>
-<tr><td><tt class="docutils literal">is_system_type</tt></td>
+<tr><td><tt class="docutils literal">i
+s_system_type</tt></td>
 <td>Boolean</td>
 <td><tt class="docutils literal">False</tt></td>
 <td>Installed by a
 module (not
 user-created)</td>
 </tr>
-<tr><td><tt class="docutils literal">source_module</tt></td>
+<tr><td>``
+source_module``</td>
 <td>Char</td>
 <td>optional</td>
 <td>Module that
-installed this type</td>
+installed this
+type</td>
 </tr>
 </tbody>
 </table>

@@ -43,15 +43,15 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+-----------------+----------------------------------------------------+
-| Model           | Description                                        |
-+=================+====================================================+
-| ``spp.case``    | Extended with registrant_id, household_id,         |
-|                 | area_id, and previous case detection               |
-+-----------------+----------------------------------------------------+
-| ``res.partner`` | Extended with case counts and relationships to     |
-|                 | cases as registrant or household                   |
-+-----------------+----------------------------------------------------+
++-----------------+---------------------------------------------------+
+| Model           | Description                                       |
++=================+===================================================+
+| ``spp.case``    | Extended with registrant_id, household_id,        |
+|                 | area_id, and previous case detection              |
++-----------------+---------------------------------------------------+
+| ``res.partner`` | Extended with case counts and relationships to    |
+|                 | cases as registrant or household                  |
++-----------------+---------------------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~

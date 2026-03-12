@@ -47,19 +47,19 @@ Key Models
 
 This module extends existing models and does not define new ones.
 
-+-----------------------------+----------------------------------------+
-| Model                       | Usage                                  |
-+=============================+========================================+
-| ``fastapi.endpoint``        | Extended to register ChangeRequest     |
-|                             | router with API V2                     |
-+-----------------------------+----------------------------------------+
-| ``spp.change.request``      | CRUD operations via REST API           |
-+-----------------------------+----------------------------------------+
-| ``spp.change.request.type`` | Looked up by code in create requests   |
-+-----------------------------+----------------------------------------+
-| ``spp.registry.id``         | Used to resolve registrant identifiers |
-|                             | (system|value)                         |
-+-----------------------------+----------------------------------------+
++-----------------------------+---------------------------------------+
+| Model                       | Usage                                 |
++=============================+=======================================+
+| ``fastapi.endpoint``        | Extended to register ChangeRequest    |
+|                             | router with API V2                    |
++-----------------------------+---------------------------------------+
+| ``spp.change.request``      | CRUD operations via REST API          |
++-----------------------------+---------------------------------------+
+| ``spp.change.request.type`` | Looked up by code in create requests  |
++-----------------------------+---------------------------------------+
+| ``spp.registry.id``         | Used to resolve registrant            |
+|                             | identifiers (system|value)            |
++-----------------------------+---------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~

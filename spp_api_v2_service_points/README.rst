@@ -45,15 +45,15 @@ Extended Models
 
 This module extends existing models from dependencies:
 
-+--------------------------+-------------------------------------------+
-| Model                    | Description                               |
-+==========================+===========================================+
-| ``spp.api.client.scope`` | Extended to add "service_point" resource  |
-|                          | type for OAuth scopes                     |
-+--------------------------+-------------------------------------------+
-| ``fastapi.endpoint``     | Extended to register Service Point router |
-|                          | in API V2 app                             |
-+--------------------------+-------------------------------------------+
++--------------------------+------------------------------------------+
+| Model                    | Description                              |
++==========================+==========================================+
+| ``spp.api.client.scope`` | Extended to add "service_point" resource |
+|                          | type for OAuth scopes                    |
++--------------------------+------------------------------------------+
+| ``fastapi.endpoint``     | Extended to register Service Point       |
+|                          | router in API V2 app                     |
++--------------------------+------------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~

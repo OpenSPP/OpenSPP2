@@ -42,14 +42,14 @@ Key Models
 
 This module extends existing models without introducing new ones:
 
-+-------------------------------+--------------------------------------+
-| Model                         | Extension                            |
-+===============================+======================================+
-| ``spp.case``                  | Adds graduation assessment tracking  |
-|                               | and computed status fields           |
-+-------------------------------+--------------------------------------+
-| ``spp.graduation.assessment`` | Adds case linkage field              |
-+-------------------------------+--------------------------------------+
++-------------------------------+-------------------------------------+
+| Model                         | Extension                           |
++===============================+=====================================+
+| ``spp.case``                  | Adds graduation assessment tracking |
+|                               | and computed status fields          |
++-------------------------------+-------------------------------------+
+| ``spp.graduation.assessment`` | Adds case linkage field             |
++-------------------------------+-------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~

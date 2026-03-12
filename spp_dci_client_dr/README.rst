@@ -42,17 +42,17 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+-------------------------------+--------------------------------------+
-| Model                         | Description                          |
-+===============================+======================================+
-| ``spp.dci.disability.status`` | Cached disability data: PWD flag,    |
-|                               | disability types, functional scores, |
-|                               | raw data                             |
-+-------------------------------+--------------------------------------+
-| ``spp.dci.dr.sender``         | Trusted DR registry entries with     |
-|                               | sender_id, public keys, and JWKS     |
-|                               | endpoints                            |
-+-------------------------------+--------------------------------------+
++-------------------------------+-------------------------------------+
+| Model                         | Description                         |
++===============================+=====================================+
+| ``spp.dci.disability.status`` | Cached disability data: PWD flag,   |
+|                               | disability types, functional        |
+|                               | scores, raw data                    |
++-------------------------------+-------------------------------------+
+| ``spp.dci.dr.sender``         | Trusted DR registry entries with    |
+|                               | sender_id, public keys, and JWKS    |
+|                               | endpoints                           |
++-------------------------------+-------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -108,15 +108,15 @@ DR Sender form:
 Security
 ~~~~~~~~
 
-+-----------------------+----------------------------------------------+
-| Group                 | Access                                       |
-+=======================+==============================================+
-| ``base.group_system`` | Full CRUD on disability status and DR sender |
-|                       | registry                                     |
-+-----------------------+----------------------------------------------+
-| ``base.group_user``   | Read/Write/Create disability status,         |
-|                       | read-only DR sender registry                 |
-+-----------------------+----------------------------------------------+
++-----------------------+---------------------------------------------+
+| Group                 | Access                                      |
++=======================+=============================================+
+| ``base.group_system`` | Full CRUD on disability status and DR       |
+|                       | sender registry                             |
++-----------------------+---------------------------------------------+
+| ``base.group_user``   | Read/Write/Create disability status,        |
+|                       | read-only DR sender registry                |
++-----------------------+---------------------------------------------+
 
 Extension Points
 ~~~~~~~~~~~~~~~~

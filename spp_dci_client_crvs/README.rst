@@ -46,15 +46,15 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+-------------------------+--------------------------------------------+
-| Model                   | Description                                |
-+=========================+============================================+
-| ``spp.dci.crvs.event``  | Vital event log with identifier, type,     |
-|                         | date, processing state                     |
-+-------------------------+--------------------------------------------+
-| ``spp.dci.crvs.sender`` | Trusted CRVS registry with sender ID and   |
-|                         | public key                                 |
-+-------------------------+--------------------------------------------+
++-------------------------+-------------------------------------------+
+| Model                   | Description                               |
++=========================+===========================================+
+| ``spp.dci.crvs.event``  | Vital event log with identifier, type,    |
+|                         | date, processing state                    |
++-------------------------+-------------------------------------------+
+| ``spp.dci.crvs.sender`` | Trusted CRVS registry with sender ID and  |
+|                         | public key                                |
++-------------------------+-------------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~

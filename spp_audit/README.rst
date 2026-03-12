@@ -52,15 +52,15 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+--------------------+-------------------------------------------------+
-| Model              | Description                                     |
-+====================+=================================================+
-| ``spp.audit.rule`` | Defines which models and operations to audit,   |
-|                    | with field filters                              |
-+--------------------+-------------------------------------------------+
-| ``spp.audit.log``  | Database-stored audit entries with old/new      |
-|                    | value comparison                                |
-+--------------------+-------------------------------------------------+
++--------------------+------------------------------------------------+
+| Model              | Description                                    |
++====================+================================================+
+| ``spp.audit.rule`` | Defines which models and operations to audit,  |
+|                    | with field filters                             |
++--------------------+------------------------------------------------+
+| ``spp.audit.log``  | Database-stored audit entries with old/new     |
+|                    | value comparison                               |
++--------------------+------------------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -103,15 +103,15 @@ UI Location
 Security
 ~~~~~~~~
 
-+-----------------------------------+----------------------------------+
-| Group                             | Access                           |
-+===================================+==================================+
-| ``spp_audit.group_audit_manager`` | Full CRUD on audit rules and     |
-|                                   | logs                             |
-+-----------------------------------+----------------------------------+
-| ``spp_security.group_spp_admin``  | Includes audit manager           |
-|                                   | privileges (via imply)           |
-+-----------------------------------+----------------------------------+
++----------------------------------+----------------------------------+
+| Group                            | Access                           |
++==================================+==================================+
+| `                                | Full CRUD on audit rules and     |
+| `spp_audit.group_audit_manager`` | logs                             |
++----------------------------------+----------------------------------+
+| ``spp_security.group_spp_admin`` | Includes audit manager           |
+|                                  | privileges (via imply)           |
++----------------------------------+----------------------------------+
 
 Audit logs cannot be deleted by default (``ALLOW_DELETE = False`` in
 code, despite ``perm_unlink=1`` in access rules).

@@ -48,24 +48,24 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+-------------------------------------+----------------------------------+
-| Model                               | Description                      |
-+=====================================+==================================+
-| ``spp.cr.detail.edit_individual``   | Detail form for individual       |
-|                                     | information changes              |
-+-------------------------------------+----------------------------------+
-| ``spp.cr.detail.edit_group``        | Detail form for group/household  |
-|                                     | information                      |
-+-------------------------------------+----------------------------------+
-| ``spp.cr.detail.update_id``         | Detail form for ID document      |
-|                                     | operations                       |
-+-------------------------------------+----------------------------------+
-| ``spp.change.request.type``         | CR type configurations (defined  |
-|                                     | in parent)                       |
-+-------------------------------------+----------------------------------+
-| ``spp.change.request.type.mapping`` | Field mappings for field_mapping |
-|                                     | strategy                         |
-+-------------------------------------+----------------------------------+
++----------------------------------+----------------------------------+
+| Model                            | Description                      |
++==================================+==================================+
+| `                                | Detail form for individual       |
+| `spp.cr.detail.edit_individual`` | information changes              |
++----------------------------------+----------------------------------+
+| ``spp.cr.detail.edit_group``     | Detail form for group/household  |
+|                                  | information                      |
++----------------------------------+----------------------------------+
+| ``spp.cr.detail.update_id``      | Detail form for ID document      |
+|                                  | operations                       |
++----------------------------------+----------------------------------+
+| ``spp.change.request.type``      | CR type configurations (defined  |
+|                                  | in parent)                       |
++----------------------------------+----------------------------------+
+| ``s                              | Field mappings for field_mapping |
+| pp.change.request.type.mapping`` | strategy                         |
++----------------------------------+----------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -93,14 +93,15 @@ UI Location
 Security
 ~~~~~~~~
 
-+--------------------------------------------+----------------------------------+
-| Group                                      | Access                           |
-+============================================+==================================+
-| ``spp_change_request_v2.group_cr_user``    | Read/write/create detail models  |
-|                                            | (no delete)                      |
-+--------------------------------------------+----------------------------------+
-| ``spp_change_request_v2.group_cr_manager`` | Full CRUD on detail models       |
-+--------------------------------------------+----------------------------------+
++----------------------------------+----------------------------------+
+| Group                            | Access                           |
++==================================+==================================+
+| ``spp_c                          | Read/write/create detail models  |
+| hange_request_v2.group_cr_user`` | (no delete)                      |
++----------------------------------+----------------------------------+
+| ``spp_chan                       | Full CRUD on detail models       |
+| ge_request_v2.group_cr_manager`` |                                  |
++----------------------------------+----------------------------------+
 
 Extension Points
 ~~~~~~~~~~~~~~~~

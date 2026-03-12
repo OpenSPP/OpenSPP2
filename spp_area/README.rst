@@ -46,29 +46,29 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+-------------------------------------+----------------------------------+
-| Model                               | Description                      |
-+=====================================+==================================+
-| ``spp.area``                        | Hierarchical geographical area   |
-|                                     | with code and name               |
-+-------------------------------------+----------------------------------+
-| ``spp.area.kind``                   | Area type definition (country,   |
-|                                     | province, district, etc.)        |
-+-------------------------------------+----------------------------------+
-| ``spp.area.tag``                    | Classification tags for areas    |
-+-------------------------------------+----------------------------------+
-| ``spp.area.import``                 | Excel import wizard with         |
-|                                     | validation and bulk processing   |
-+-------------------------------------+----------------------------------+
-| ``spp.area.import.raw``             | Staging table for import         |
-|                                     | validation                       |
-+-------------------------------------+----------------------------------+
-| ``spp.area.import.json``            | Parsed JSON storage from Excel   |
-|                                     | files                            |
-+-------------------------------------+----------------------------------+
-| ``spp.area.import.language.wizard`` | Wizard for activating languages  |
-|                                     | during import                    |
-+-------------------------------------+----------------------------------+
++----------------------------------+----------------------------------+
+| Model                            | Description                      |
++==================================+==================================+
+| ``spp.area``                     | Hierarchical geographical area   |
+|                                  | with code and name               |
++----------------------------------+----------------------------------+
+| ``spp.area.kind``                | Area type definition (country,   |
+|                                  | province, district, etc.)        |
++----------------------------------+----------------------------------+
+| ``spp.area.tag``                 | Classification tags for areas    |
++----------------------------------+----------------------------------+
+| ``spp.area.import``              | Excel import wizard with         |
+|                                  | validation and bulk processing   |
++----------------------------------+----------------------------------+
+| ``spp.area.import.raw``          | Staging table for import         |
+|                                  | validation                       |
++----------------------------------+----------------------------------+
+| ``spp.area.import.json``         | Parsed JSON storage from Excel   |
+|                                  | files                            |
++----------------------------------+----------------------------------+
+| ``s                              | Wizard for activating languages  |
+| pp.area.import.language.wizard`` | during import                    |
++----------------------------------+----------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~

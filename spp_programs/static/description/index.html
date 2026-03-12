@@ -405,8 +405,8 @@ compliance logic</li>
 <h1>Key Models</h1>
 <table border="1" class="docutils">
 <colgroup>
-<col width="57%" />
-<col width="43%" />
+<col width="50%" />
+<col width="50%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Model</th>
@@ -454,11 +454,13 @@ batches</td>
 <td>Wrapper for eligibility manager
 implementations</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.program.membership.manager</tt></td>
+<tr><td>``
+spp.program.membership.manager``</td>
 <td>Base eligibility manager
 (abstract)</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.program.membership.manager.default</tt></td>
+<tr><td><tt class="docutils literal">spp.prog
+ram.membership.manager.default</tt></td>
 <td>Default eligibility
 implementation</td>
 </tr>
@@ -466,7 +468,8 @@ implementation</td>
 <td>Wrapper for deduplication
 manager implementations</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.program.notification.manager</tt></td>
+<tr><td><tt class="docutils literal">sp
+p.program.notification.manager</tt></td>
 <td>Notification manager for
 beneficiary communications</td>
 </tr>
@@ -486,19 +489,23 @@ implementations</td>
 <td>Default cycle manager
 implementation</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.program.entitlement.manager</tt></td>
+<tr><td><tt class="docutils literal">s
+pp.program.entitlement.manager</tt></td>
 <td>Wrapper for entitlement manager
 implementations</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.program.entitlement.manager.default</tt></td>
+<tr><td><tt class="docutils literal">spp.progr
+am.entitlement.manager.default</tt></td>
 <td>Default entitlement manager
 implementation</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.program.entitlement.manager.cash</tt></td>
+<tr><td><tt class="docutils literal">spp.pr
+ogram.entitlement.manager.cash</tt></td>
 <td>Cash entitlement manager with
 amount calculation</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.program.entitlement.manager.inkind</tt></td>
+<tr><td><tt class="docutils literal">spp.prog
+ram.entitlement.manager.inkind</tt></td>
 <td>In-kind entitlement manager with
 product configuration</td>
 </tr>
@@ -506,7 +513,8 @@ product configuration</td>
 <td>Wrapper for payment manager
 implementations</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.program.payment.manager.default</tt></td>
+<tr><td><tt class="docutils literal">spp.p
+rogram.payment.manager.default</tt></td>
 <td>Default payment manager
 implementation</td>
 </tr>
@@ -514,7 +522,8 @@ implementation</td>
 <td>Wrapper for compliance manager
 implementations</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.compliance.manager.default</tt></td>
+<tr><td>``
+spp.compliance.manager.default``</td>
 <td>Default compliance manager with
 CEL support</td>
 </tr>
@@ -525,7 +534,8 @@ utilization</td>
 <tr><td><tt class="docutils literal">spp.program.fund.report.view</tt></td>
 <td>Fund balance reporting view</td>
 </tr>
-<tr><td><tt class="docutils literal">spp.program.membership.duplicate</tt></td>
+<tr><td><tt class="docutils literal">sp
+p.program.membership.duplicate</tt></td>
 <td>Tracks duplicate membership
 records</td>
 </tr>
@@ -580,8 +590,8 @@ form (no standalone menu)</li>
 <h1>Security</h1>
 <table border="1" class="docutils">
 <colgroup>
-<col width="59%" />
-<col width="41%" />
+<col width="50%" />
+<col width="50%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Group</th>
@@ -589,29 +599,35 @@ form (no standalone menu)</li>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td><tt class="docutils literal">spp_programs.group_programs_viewer</tt></td>
+<tr><td><tt class="docutils literal">spp_
+programs.group_programs_viewer</tt></td>
 <td>Read-only on all program data</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_programs.group_programs_officer</tt></td>
+<tr><td><tt class="docutils literal">spp_p
+rograms.group_programs_officer</tt></td>
 <td>Read/write/create on all models
 (no delete)</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_programs.group_programs_manager</tt></td>
+<tr><td><tt class="docutils literal">spp_p
+rograms.group_programs_manager</tt></td>
 <td>Full CRUD on cycles and
 memberships, RWC on programs (no
 program delete)</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_programs.group_programs_validator</tt></td>
+<tr><td><tt class="docutils literal">spp_pro
+grams.group_programs_validator</tt></td>
 <td>Read/write/create on
 entitlements and cycles (finance
 validation role)</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_programs.group_programs_cycle_approver</tt></td>
+<tr><td><tt class="docutils literal">spp_programs
+.group_programs_cycle_approver</tt></td>
 <td>Read/write/create on
 entitlements and cycles
 (approval role)</td>
 </tr>
-<tr><td><tt class="docutils literal">spp_programs.group_programs_rejector</tt></td>
+<tr><td><tt class="docutils literal">spp_pr
+ograms.group_programs_rejector</tt></td>
 <td>Read/write/create on
 entitlements (rejection role)</td>
 </tr>

@@ -50,63 +50,63 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+-------------------------------------+----------------------------------+
-| Model                               | Description                      |
-+=====================================+==================================+
-| ``spp.change.request``              | Main change request record with  |
-|                                     | approval workflow                |
-+-------------------------------------+----------------------------------+
-| ``spp.change.request.type``         | Configuration for CR types:      |
-|                                     | target, detail model, workflow   |
-+-------------------------------------+----------------------------------+
-| ``spp.change.request.type.mapping`` | Field mappings for automatic     |
-|                                     | application                      |
-+-------------------------------------+----------------------------------+
-| ``spp.cr.conflict.rule``            | Rules for detecting conflicting  |
-|                                     | change requests                  |
-+-------------------------------------+----------------------------------+
-| ``spp.cr.duplicate.config``         | Configuration for duplicate      |
-|                                     | detection thresholds             |
-+-------------------------------------+----------------------------------+
-| ``spp.cr.conflict.mixin``           | Mixin providing conflict and     |
-|                                     | duplicate detection              |
-+-------------------------------------+----------------------------------+
-| ``spp.cr.detail.base``              | Base model for all change        |
-|                                     | request detail types             |
-+-------------------------------------+----------------------------------+
-| ``spp.cr.detail.add_member``        | Detail model for adding members  |
-|                                     | to groups                        |
-+-------------------------------------+----------------------------------+
-| ``spp.cr.detail.edit_individual``   | Detail model for editing         |
-|                                     | individual registrant data       |
-+-------------------------------------+----------------------------------+
-| ``spp.cr.detail.edit_group``        | Detail model for editing         |
-|                                     | group/household data             |
-+-------------------------------------+----------------------------------+
-| ``spp.cr.detail.remove_member``     | Detail model for removing        |
-|                                     | members from groups              |
-+-------------------------------------+----------------------------------+
-| ``spp.cr.detail.change_hoh``        | Detail model for changing head   |
-|                                     | of household                     |
-+-------------------------------------+----------------------------------+
-| ``spp.cr.detail.exit_registrant``   | Detail model for marking         |
-|                                     | registrants as exited            |
-+-------------------------------------+----------------------------------+
-| ``spp.cr.detail.transfer_member``   | Detail model for transferring    |
-|                                     | members between groups           |
-+-------------------------------------+----------------------------------+
-| ``spp.cr.detail.update_id``         | Detail model for updating        |
-|                                     | registrant ID numbers            |
-+-------------------------------------+----------------------------------+
-| ``spp.cr.detail.create_group``      | Detail model for creating new    |
-|                                     | groups/households                |
-+-------------------------------------+----------------------------------+
-| ``spp.cr.detail.merge_registrants`` | Detail model for merging         |
-|                                     | duplicate registrant records     |
-+-------------------------------------+----------------------------------+
-| ``spp.cr.detail.split_household``   | Detail model for splitting       |
-|                                     | households into separate groups  |
-+-------------------------------------+----------------------------------+
++----------------------------------+----------------------------------+
+| Model                            | Description                      |
++==================================+==================================+
+| ``spp.change.request``           | Main change request record with  |
+|                                  | approval workflow                |
++----------------------------------+----------------------------------+
+| ``spp.change.request.type``      | Configuration for CR types:      |
+|                                  | target, detail model, workflow   |
++----------------------------------+----------------------------------+
+| ``s                              | Field mappings for automatic     |
+| pp.change.request.type.mapping`` | application                      |
++----------------------------------+----------------------------------+
+| ``spp.cr.conflict.rule``         | Rules for detecting conflicting  |
+|                                  | change requests                  |
++----------------------------------+----------------------------------+
+| ``spp.cr.duplicate.config``      | Configuration for duplicate      |
+|                                  | detection thresholds             |
++----------------------------------+----------------------------------+
+| ``spp.cr.conflict.mixin``        | Mixin providing conflict and     |
+|                                  | duplicate detection              |
++----------------------------------+----------------------------------+
+| ``spp.cr.detail.base``           | Base model for all change        |
+|                                  | request detail types             |
++----------------------------------+----------------------------------+
+| ``spp.cr.detail.add_member``     | Detail model for adding members  |
+|                                  | to groups                        |
++----------------------------------+----------------------------------+
+| `                                | Detail model for editing         |
+| `spp.cr.detail.edit_individual`` | individual registrant data       |
++----------------------------------+----------------------------------+
+| ``spp.cr.detail.edit_group``     | Detail model for editing         |
+|                                  | group/household data             |
++----------------------------------+----------------------------------+
+| ``spp.cr.detail.remove_member``  | Detail model for removing        |
+|                                  | members from groups              |
++----------------------------------+----------------------------------+
+| ``spp.cr.detail.change_hoh``     | Detail model for changing head   |
+|                                  | of household                     |
++----------------------------------+----------------------------------+
+| `                                | Detail model for marking         |
+| `spp.cr.detail.exit_registrant`` | registrants as exited            |
++----------------------------------+----------------------------------+
+| `                                | Detail model for transferring    |
+| `spp.cr.detail.transfer_member`` | members between groups           |
++----------------------------------+----------------------------------+
+| ``spp.cr.detail.update_id``      | Detail model for updating        |
+|                                  | registrant ID numbers            |
++----------------------------------+----------------------------------+
+| ``spp.cr.detail.create_group``   | Detail model for creating new    |
+|                                  | groups/households                |
++----------------------------------+----------------------------------+
+| ``s                              | Detail model for merging         |
+| pp.cr.detail.merge_registrants`` | duplicate registrant records     |
++----------------------------------+----------------------------------+
+| `                                | Detail model for splitting       |
+| `spp.cr.detail.split_household`` | households into separate groups  |
++----------------------------------+----------------------------------+
 
 Form Tabs
 ~~~~~~~~~
@@ -161,25 +161,25 @@ UI Location
 Security
 ~~~~~~~~
 
-+------------------------------------------------------+----------------------------------+
-| Group                                                | Access                           |
-+======================================================+==================================+
-| ``spp_change_request_v2.group_cr_user``              | Create and submit change         |
-|                                                      | requests (read/write/create)     |
-+------------------------------------------------------+----------------------------------+
-| ``spp_change_request_v2.group_cr_validator``         | Approve/reject, field-level      |
-|                                                      | validation (read/write/create)   |
-+------------------------------------------------------+----------------------------------+
-| ``spp_change_request_v2.group_cr_validator_hq``      | HQ-level approval with registry  |
-|                                                      | write (read/write/create)        |
-+------------------------------------------------------+----------------------------------+
-| ``spp_change_request_v2.group_cr_manager``           | Full CRUD including              |
-|                                                      | configuration                    |
-+------------------------------------------------------+----------------------------------+
-| ``spp_change_request_v2.group_cr_conflict_approver`` | Override blocking conflict       |
-|                                                      | detections                       |
-|                                                      | (specialized/functional)         |
-+------------------------------------------------------+----------------------------------+
++----------------------------------+----------------------------------+
+| Group                            | Access                           |
++==================================+==================================+
+| ``spp_c                          | Create and submit change         |
+| hange_request_v2.group_cr_user`` | requests (read/write/create)     |
++----------------------------------+----------------------------------+
+| ``spp_change                     | Approve/reject, field-level      |
+| _request_v2.group_cr_validator`` | validation (read/write/create)   |
++----------------------------------+----------------------------------+
+| ``spp_change_re                  | HQ-level approval with registry  |
+| quest_v2.group_cr_validator_hq`` | write (read/write/create)        |
++----------------------------------+----------------------------------+
+| ``spp_chan                       | Full CRUD including              |
+| ge_request_v2.group_cr_manager`` | configuration                    |
++----------------------------------+----------------------------------+
+| ``spp_change_request             | Override blocking conflict       |
+| _v2.group_cr_conflict_approver`` | detections                       |
+|                                  | (specialized/functional)         |
++----------------------------------+----------------------------------+
 
 Extension Points
 ~~~~~~~~~~~~~~~~
@@ -221,20 +221,20 @@ multi-tier workflows.
 
 A CR type consists of four parts:
 
-+----------------------+-----------------------------------------------+
-| Part                 | What it does                                  |
-+======================+===============================================+
-| **Detail model**     | Python model holding the proposed changes     |
-|                      | (inherits ``spp.cr.detail.base``)             |
-+----------------------+-----------------------------------------------+
-| **Detail form view** | XML view rendered inside the CR form          |
-+----------------------+-----------------------------------------------+
-| **CR type record**   | XML data linking the detail model, view,      |
-|                      | approval workflow, and field mappings         |
-+----------------------+-----------------------------------------------+
-| **Field mappings**   | XML records defining how detail fields map to |
-|                      | registrant fields at apply time               |
-+----------------------+-----------------------------------------------+
++----------------------+----------------------------------------------+
+| Part                 | What it does                                 |
++======================+==============================================+
+| **Detail model**     | Python model holding the proposed changes    |
+|                      | (inherits ``spp.cr.detail.base``)            |
++----------------------+----------------------------------------------+
+| **Detail form view** | XML view rendered inside the CR form         |
++----------------------+----------------------------------------------+
+| **CR type record**   | XML data linking the detail model, view,     |
+|                      | approval workflow, and field mappings        |
++----------------------+----------------------------------------------+
+| **Field mappings**   | XML records defining how detail fields map   |
+|                      | to registrant fields at apply time           |
++----------------------+----------------------------------------------+
 
 When a user creates a change request, the system:
 
@@ -622,26 +622,26 @@ fallback.
 
 CEL conditions have access to these variables:
 
-+--------------------------------+--------+------------------------------+
-| Variable                       | Type   | Description                  |
-+================================+========+==============================+
-| ``record.selected_field_name`` | string | Technical field name the     |
-|                                |        | user selected                |
-+--------------------------------+--------+------------------------------+
-| ``old_value``                  | typed  | Current value on the         |
-|                                |        | registrant                   |
-+--------------------------------+--------+------------------------------+
-| ``new_value``                  | typed  | Proposed value from the      |
-|                                |        | detail record                |
-+--------------------------------+--------+------------------------------+
-| ``record``                     | dict   | All fields on the            |
-|                                |        | ``spp.change.request``       |
-|                                |        | record                       |
-+--------------------------------+--------+------------------------------+
-| ``user``                       | dict   | Current user                 |
-+--------------------------------+--------+------------------------------+
-| ``company``                    | dict   | Current company              |
-+--------------------------------+--------+------------------------------+
++-----------------------------+--------+-----------------------------+
+| Variable                    | Type   | Description                 |
++=============================+========+=============================+
+| ``r                         | string | Technical field name the    |
+| ecord.selected_field_name`` |        | user selected               |
++-----------------------------+--------+-----------------------------+
+| ``old_value``               | typed  | Current value on the        |
+|                             |        | registrant                  |
++-----------------------------+--------+-----------------------------+
+| ``new_value``               | typed  | Proposed value from the     |
+|                             |        | detail record               |
++-----------------------------+--------+-----------------------------+
+| ``record``                  | dict   | All fields on the           |
+|                             |        | ``spp.change.request``      |
+|                             |        | record                      |
++-----------------------------+--------+-----------------------------+
+| ``user``                    | dict   | Current user                |
++-----------------------------+--------+-----------------------------+
+| ``company``                 | dict   | Current company             |
++-----------------------------+--------+-----------------------------+
 
 Many2one values are dicts with ``id`` and ``name`` (display_name) keys.
 Vocabulary models (``spp.vocabulary.code``) additionally include
@@ -728,101 +728,120 @@ Methods Reference
 Methods available for override on detail models (all inherited from
 ``spp.cr.detail.base``):
 
-+--------------------------------------+----------------+--------------------------------------+-----------------+
-| Method                               | Decorator      | Returns                              | When to         |
-|                                      |                |                                      | override        |
-+======================================+================+======================================+=================+
-| ``_get_field_to_modify_selection()`` | ``@api.model`` | ``[(field, label), ...]``            | Dynamic         |
-|                                      |                |                                      | approval:       |
-|                                      |                |                                      | define          |
-|                                      |                |                                      | selectable      |
-|                                      |                |                                      | fields          |
-+--------------------------------------+----------------+--------------------------------------+-----------------+
-| ``_get_prefill_mapping()``           | instance       | ``{detail_field: registrant_field}`` | Pre-fill detail |
-|                                      |                |                                      | from registrant |
-|                                      |                |                                      | on creation     |
-+--------------------------------------+----------------+--------------------------------------+-----------------+
-| ``prefill_from_registrant()``        | instance       | None                                 | Detail has      |
-|                                      |                |                                      | boolean fields  |
-|                                      |                |                                      | that need       |
-|                                      |                |                                      | ``False``       |
-|                                      |                |                                      | pre-filled      |
-+--------------------------------------+----------------+--------------------------------------+-----------------+
++----------------+----------------+----------------+----------------+
+| Method         | Decorator      | Returns        | When to        |
+|                |                |                | override       |
++================+================+================+================+
+| ``_get_f       | ``@api.model`` | ``[(field,     | Dynamic        |
+| ield_to_modify |                | label), ...]`` | approval:      |
+| _selection()`` |                |                | define         |
+|                |                |                | selectable     |
+|                |                |                | fields         |
++----------------+----------------+----------------+----------------+
+| ``_get_prefi   | instance       | ``{detai       | Pre-fill       |
+| ll_mapping()`` |                | l_field: regis | detail from    |
+|                |                | trant_field}`` | registrant on  |
+|                |                |                | creation       |
++----------------+----------------+----------------+----------------+
+| `              | instance       | None           | Detail has     |
+| `prefill_from_ |                |                | boolean fields |
+| registrant()`` |                |                | that need      |
+|                |                |                | ``False``      |
+|                |                |                | pre-filled     |
++----------------+----------------+----------------+----------------+
 
 Related fields available on all detail models (from
 ``spp.cr.detail.base``):
 
-+----------------------------+-----------+------------------------------------------------------------+
-| Field                      | Type      | Source                                                     |
-+============================+===========+============================================================+
-| ``change_request_id``      | Many2one  | Direct link to parent CR                                   |
-+----------------------------+-----------+------------------------------------------------------------+
-| ``registrant_id``          | Many2one  | ``change_request_id.registrant_id``                        |
-+----------------------------+-----------+------------------------------------------------------------+
-| ``approval_state``         | Selection | ``change_request_id.approval_state``                       |
-+----------------------------+-----------+------------------------------------------------------------+
-| ``is_applied``             | Boolean   | ``change_request_id.is_applied``                           |
-+----------------------------+-----------+------------------------------------------------------------+
-| ``use_dynamic_approval``   | Boolean   | ``change_request_id.request_type_id.use_dynamic_approval`` |
-+----------------------------+-----------+------------------------------------------------------------+
-| ``field_to_modify``        | Selection | Dynamic field selector (populated by                       |
-|                            |           | ``_get_field_to_modify_selection``)                        |
-+----------------------------+-----------+------------------------------------------------------------+
++--------------------------+-----------+---------------------------+
+| Field                    | Type      | Source                    |
++==========================+===========+===========================+
+| ``change_request_id``    | Many2one  | Direct link to parent CR  |
++--------------------------+-----------+---------------------------+
+| ``registrant_id``        | Many2one  | ``change_r                |
+|                          |           | equest_id.registrant_id`` |
++--------------------------+-----------+---------------------------+
+| ``approval_state``       | Selection | ``change_re               |
+|                          |           | quest_id.approval_state`` |
++--------------------------+-----------+---------------------------+
+| ``is_applied``           | Boolean   | ``chang                   |
+|                          |           | e_request_id.is_applied`` |
++--------------------------+-----------+---------------------------+
+| ``use_dynamic_approval`` | Boolean   | ``change                  |
+|                          |           | _request_id.request_type_ |
+|                          |           | id.use_dynamic_approval`` |
++--------------------------+-----------+---------------------------+
+| ``field_to_modify``      | Selection | Dynamic field selector    |
+|                          |           | (populated by             |
+|                          |           | ``_get_fie                |
+|                          |           | ld_to_modify_selection``) |
++--------------------------+-----------+---------------------------+
 
 CR Type Fields Reference
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-+------------------------------+-----------+---------------------+----------------------+
-| Field                        | Type      | Default             | Description          |
-+==============================+===========+=====================+======================+
-| ``name``                     | Char      | required            | Display name         |
-+------------------------------+-----------+---------------------+----------------------+
-| ``code``                     | Char      | required            | Unique identifier    |
-|                              |           |                     | (lowercase,          |
-|                              |           |                     | underscores)         |
-+------------------------------+-----------+---------------------+----------------------+
-| ``target_type``              | Selection | ``"both"``          | ``"individual"``,    |
-|                              |           |                     | ``"group"``, or      |
-|                              |           |                     | ``"both"``           |
-+------------------------------+-----------+---------------------+----------------------+
-| ``detail_model``             | Char      | required            | Technical name of    |
-|                              |           |                     | the detail model     |
-+------------------------------+-----------+---------------------+----------------------+
-| ``detail_form_view_id``      | Many2one  | required            | Reference to the     |
-|                              |           |                     | detail form view     |
-+------------------------------+-----------+---------------------+----------------------+
-| ``apply_strategy``           | Selection | ``"field_mapping"`` | ``"field_mapping"``, |
-|                              |           |                     | ``"custom"``, or     |
-|                              |           |                     | ``"manual"``         |
-+------------------------------+-----------+---------------------+----------------------+
-| ``auto_apply_on_approve``    | Boolean   | ``True``            | Apply changes        |
-|                              |           |                     | automatically after  |
-|                              |           |                     | final approval       |
-+------------------------------+-----------+---------------------+----------------------+
-| ``approval_definition_id``   | Many2one  | required            | Static/fallback      |
-|                              |           |                     | approval workflow    |
-+------------------------------+-----------+---------------------+----------------------+
-| ``use_dynamic_approval``     | Boolean   | ``False``           | Enable field-level   |
-|                              |           |                     | approval routing     |
-+------------------------------+-----------+---------------------+----------------------+
-| ``candidate_definition_ids`` | Many2many | empty               | Candidate            |
-|                              |           |                     | definitions for      |
-|                              |           |                     | dynamic routing      |
-+------------------------------+-----------+---------------------+----------------------+
-| ``icon``                     | Char      | optional            | FontAwesome icon     |
-|                              |           |                     | class (e.g.,         |
-|                              |           |                     | ``"fa-cog"``)        |
-+------------------------------+-----------+---------------------+----------------------+
-| ``sequence``                 | Integer   | ``10``              | Display order in     |
-|                              |           |                     | type lists           |
-+------------------------------+-----------+---------------------+----------------------+
-| ``is_system_type``           | Boolean   | ``False``           | Installed by a       |
-|                              |           |                     | module (not          |
-|                              |           |                     | user-created)        |
-+------------------------------+-----------+---------------------+----------------------+
-| ``source_module``            | Char      | optional            | Module that          |
-|                              |           |                     | installed this type  |
-+------------------------------+-----------+---------------------+----------------------+
++-----------------+-----------+-----------------+-----------------+
+| Field           | Type      | Default         | Description     |
++=================+===========+=================+=================+
+| ``name``        | Char      | required        | Display name    |
++-----------------+-----------+-----------------+-----------------+
+| ``code``        | Char      | required        | Unique          |
+|                 |           |                 | identifier      |
+|                 |           |                 | (lowercase,     |
+|                 |           |                 | underscores)    |
++-----------------+-----------+-----------------+-----------------+
+| ``target_type`` | Selection | ``"both"``      | ``              |
+|                 |           |                 | "individual"``, |
+|                 |           |                 | ``"group"``, or |
+|                 |           |                 | ``"both"``      |
++-----------------+-----------+-----------------+-----------------+
+| `               | Char      | required        | Technical name  |
+| `detail_model`` |           |                 | of the detail   |
+|                 |           |                 | model           |
++-----------------+-----------+-----------------+-----------------+
+| ``detail        | Many2one  | required        | Reference to    |
+| _form_view_id`` |           |                 | the detail form |
+|                 |           |                 | view            |
++-----------------+-----------+-----------------+-----------------+
+| ``a             | Selection | ``"f            | ``"fi           |
+| pply_strategy`` |           | ield_mapping"`` | eld_mapping"``, |
+|                 |           |                 | ``"custom"``,   |
+|                 |           |                 | or ``"manual"`` |
++-----------------+-----------+-----------------+-----------------+
+| ``auto_app      | Boolean   | ``True``        | Apply changes   |
+| ly_on_approve`` |           |                 | automatically   |
+|                 |           |                 | after final     |
+|                 |           |                 | approval        |
++-----------------+-----------+-----------------+-----------------+
+| ``approval_     | Many2one  | required        | Static/fallback |
+| definition_id`` |           |                 | approval        |
+|                 |           |                 | workflow        |
++-----------------+-----------+-----------------+-----------------+
+| ``use_dyn       | Boolean   | ``False``       | Enable          |
+| amic_approval`` |           |                 | field-level     |
+|                 |           |                 | approval        |
+|                 |           |                 | routing         |
++-----------------+-----------+-----------------+-----------------+
+| ``candidate_d   | Many2many | empty           | Candidate       |
+| efinition_ids`` |           |                 | definitions for |
+|                 |           |                 | dynamic routing |
++-----------------+-----------+-----------------+-----------------+
+| ``icon``        | Char      | optional        | FontAwesome     |
+|                 |           |                 | icon class      |
+|                 |           |                 | (e.g.,          |
+|                 |           |                 | ``"fa-cog"``)   |
++-----------------+-----------+-----------------+-----------------+
+| ``sequence``    | Integer   | ``10``          | Display order   |
+|                 |           |                 | in type lists   |
++-----------------+-----------+-----------------+-----------------+
+| ``i             | Boolean   | ``False``       | Installed by a  |
+| s_system_type`` |           |                 | module (not     |
+|                 |           |                 | user-created)   |
++-----------------+-----------+-----------------+-----------------+
+| ``              | Char      | optional        | Module that     |
+| source_module`` |           |                 | installed this  |
+|                 |           |                 | type            |
++-----------------+-----------+-----------------+-----------------+
 
 Checklist
 ~~~~~~~~~

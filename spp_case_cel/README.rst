@@ -44,18 +44,18 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+------------------------------+---------------------------------------+
-| Model                        | Description                           |
-+==============================+=======================================+
-| ``spp.case.triage.rule``     | CEL-based rule for automatic case     |
-|                              | categorization and risk tagging       |
-+------------------------------+---------------------------------------+
-| ``spp.case.assignment.rule`` | CEL-based rule for automatic case     |
-|                              | assignment with workload balancing    |
-+------------------------------+---------------------------------------+
-| ``spp.case``                 | Extended to apply triage and          |
-|                              | assignment rules on creation          |
-+------------------------------+---------------------------------------+
++------------------------------+--------------------------------------+
+| Model                        | Description                          |
++==============================+======================================+
+| ``spp.case.triage.rule``     | CEL-based rule for automatic case    |
+|                              | categorization and risk tagging      |
++------------------------------+--------------------------------------+
+| ``spp.case.assignment.rule`` | CEL-based rule for automatic case    |
+|                              | assignment with workload balancing   |
++------------------------------+--------------------------------------+
+| ``spp.case``                 | Extended to apply triage and         |
+|                              | assignment rules on creation         |
++------------------------------+--------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~

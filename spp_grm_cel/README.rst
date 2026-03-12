@@ -46,21 +46,21 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+-------------------------------+--------------------------------------+
-| Model                         | Description                          |
-+===============================+======================================+
-| ``spp.grm.routing.rule``      | Routing rule with CEL condition that |
-|                               | assigns tickets to teams/users       |
-|                               | (first match wins)                   |
-+-------------------------------+--------------------------------------+
-| ``spp.grm.escalation.rule``   | Escalation rule with CEL condition   |
-|                               | and time trigger that escalates      |
-|                               | tickets                              |
-+-------------------------------+--------------------------------------+
-| ``spp.grm.ticket`` (extended) | Adds ``routing_rule_id`` and         |
-|                               | ``escalation_rule_ids`` fields to    |
-|                               | track applied rules                  |
-+-------------------------------+--------------------------------------+
++-------------------------------+-------------------------------------+
+| Model                         | Description                         |
++===============================+=====================================+
+| ``spp.grm.routing.rule``      | Routing rule with CEL condition     |
+|                               | that assigns tickets to teams/users |
+|                               | (first match wins)                  |
++-------------------------------+-------------------------------------+
+| ``spp.grm.escalation.rule``   | Escalation rule with CEL condition  |
+|                               | and time trigger that escalates     |
+|                               | tickets                             |
++-------------------------------+-------------------------------------+
+| ``spp.grm.ticket`` (extended) | Adds ``routing_rule_id`` and        |
+|                               | ``escalation_rule_ids`` fields to   |
+|                               | track applied rules                 |
++-------------------------------+-------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~

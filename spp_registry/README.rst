@@ -47,27 +47,28 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+-------------------------------+--------------------------------------+
-| Model                         | Description                          |
-+===============================+======================================+
-| ``res.partner``               | Extended for registrant management   |
-|                               | (individuals/groups)                 |
-+-------------------------------+--------------------------------------+
-| ``spp.group.membership``      | Links individuals to groups with     |
-|                               | roles and dates                      |
-+-------------------------------+--------------------------------------+
-| ``spp.registry.id``           | ID documents attached to registrants |
-+-------------------------------+--------------------------------------+
-| ``spp.id.type``               | ID type definitions with validation  |
-|                               | rules                                |
-+-------------------------------+--------------------------------------+
-| ``spp.registry.relationship`` | Relationships between registrants    |
-+-------------------------------+--------------------------------------+
-| ``spp.relationship``          | Relationship type definitions        |
-+-------------------------------+--------------------------------------+
-| ``spp.phone.number``          | Phone numbers with country-based     |
-|                               | validation                           |
-+-------------------------------+--------------------------------------+
++-------------------------------+-------------------------------------+
+| Model                         | Description                         |
++===============================+=====================================+
+| ``res.partner``               | Extended for registrant management  |
+|                               | (individuals/groups)                |
++-------------------------------+-------------------------------------+
+| ``spp.group.membership``      | Links individuals to groups with    |
+|                               | roles and dates                     |
++-------------------------------+-------------------------------------+
+| ``spp.registry.id``           | ID documents attached to            |
+|                               | registrants                         |
++-------------------------------+-------------------------------------+
+| ``spp.id.type``               | ID type definitions with validation |
+|                               | rules                               |
++-------------------------------+-------------------------------------+
+| ``spp.registry.relationship`` | Relationships between registrants   |
++-------------------------------+-------------------------------------+
+| ``spp.relationship``          | Relationship type definitions       |
++-------------------------------+-------------------------------------+
+| ``spp.phone.number``          | Phone numbers with country-based    |
+|                               | validation                          |
++-------------------------------+-------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -100,17 +101,21 @@ modules (e.g., ``spp_base_demo``).
 Security
 ~~~~~~~~
 
-+----------------------------------------------+-------------------------------+
-| Group                                        | Access                        |
-+==============================================+===============================+
-| ``spp_registry.group_registry_viewer``       | Read-only                     |
-+----------------------------------------------+-------------------------------+
-| ``spp_registry.group_registry_officer``      | Read/Write/Create (no delete) |
-+----------------------------------------------+-------------------------------+
-| ``spp_registry.group_registry_manager``      | Full CRUD                     |
-+----------------------------------------------+-------------------------------+
-| ``spp_registry.group_registry_config_admin`` | Configuration menu access     |
-+----------------------------------------------+-------------------------------+
++-------------------------------------+-------------------------------+
+| Group                               | Access                        |
++=====================================+===============================+
+| ``s                                 | Read-only                     |
+| pp_registry.group_registry_viewer`` |                               |
++-------------------------------------+-------------------------------+
+| ``sp                                | Read/Write/Create (no delete) |
+| p_registry.group_registry_officer`` |                               |
++-------------------------------------+-------------------------------+
+| ``sp                                | Full CRUD                     |
+| p_registry.group_registry_manager`` |                               |
++-------------------------------------+-------------------------------+
+| ``spp_reg                           | Configuration menu access     |
+| istry.group_registry_config_admin`` |                               |
++-------------------------------------+-------------------------------+
 
 Extension Points
 ~~~~~~~~~~~~~~~~

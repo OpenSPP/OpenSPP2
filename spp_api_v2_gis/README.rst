@@ -53,23 +53,27 @@ API Endpoints
 
 **OGC API - Features (primary interface)**
 
-+-------------------------------------------+--------+------------------------------+
-| Endpoint                                  | Method | Description                  |
-+===========================================+========+==============================+
-| ``/gis/ogc/``                             | GET    | OGC API landing page         |
-+-------------------------------------------+--------+------------------------------+
-| ``/gis/ogc/conformance``                  | GET    | OGC conformance classes      |
-+-------------------------------------------+--------+------------------------------+
-| ``/gis/ogc/collections``                  | GET    | List feature collections     |
-+-------------------------------------------+--------+------------------------------+
-| ``/gis/ogc/collections/{id}``             | GET    | Collection metadata          |
-+-------------------------------------------+--------+------------------------------+
-| ``/gis/ogc/collections/{id}/items``       | GET    | Feature items (GeoJSON)      |
-+-------------------------------------------+--------+------------------------------+
-| ``/gis/ogc/collections/{id}/items/{fid}`` | GET    | Single feature               |
-+-------------------------------------------+--------+------------------------------+
-| ``/gis/ogc/collections/{id}/qml``         | GET    | QGIS style file (extension)  |
-+-------------------------------------------+--------+------------------------------+
++-----------------------------+--------+-----------------------------+
+| Endpoint                    | Method | Description                 |
++=============================+========+=============================+
+| ``/gis/ogc/``               | GET    | OGC API landing page        |
++-----------------------------+--------+-----------------------------+
+| ``/gis/ogc/conformance``    | GET    | OGC conformance classes     |
++-----------------------------+--------+-----------------------------+
+| ``/gis/ogc/collections``    | GET    | List feature collections    |
++-----------------------------+--------+-----------------------------+
+| ``                          | GET    | Collection metadata         |
+| /gis/ogc/collections/{id}`` |        |                             |
++-----------------------------+--------+-----------------------------+
+| ``/gis/o                    | GET    | Feature items (GeoJSON)     |
+| gc/collections/{id}/items`` |        |                             |
++-----------------------------+--------+-----------------------------+
+| ``/gis/ogc/col              | GET    | Single feature              |
+| lections/{id}/items/{fid}`` |        |                             |
++-----------------------------+--------+-----------------------------+
+| ``/gis                      | GET    | QGIS style file (extension) |
+| /ogc/collections/{id}/qml`` |        |                             |
++-----------------------------+--------+-----------------------------+
 
 **Additional endpoints**
 
@@ -87,15 +91,16 @@ Scopes and Data Privacy
 
 **OAuth Scopes**
 
-+------------------+--------------+------------------------------------+
-| Scope            | Access       | Description                        |
-+==================+==============+====================================+
-| ``gis:read``     | Read-only    | View collections, layers,          |
-|                  |              | statistics, export data            |
-+------------------+--------------+------------------------------------+
-| ``gis:geofence`` | Read + Write | Create and archive geofences (also |
-|                  |              | requires ``gis:read`` for listing) |
-+------------------+--------------+------------------------------------+
++------------------+--------------+----------------------------------+
+| Scope            | Access       | Description                      |
++==================+==============+==================================+
+| ``gis:read``     | Read-only    | View collections, layers,        |
+|                  |              | statistics, export data          |
++------------------+--------------+----------------------------------+
+| ``gis:geofence`` | Read + Write | Create and archive geofences     |
+|                  |              | (also requires ``gis:read`` for  |
+|                  |              | listing)                         |
++------------------+--------------+----------------------------------+
 
 **What data is exposed**
 

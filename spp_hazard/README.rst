@@ -47,27 +47,27 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+------------------------------+---------------------------------------+
-| Model                        | Description                           |
-+==============================+=======================================+
-| ``spp.hazard.category``      | Hierarchical classification of hazard |
-|                              | types                                 |
-+------------------------------+---------------------------------------+
-| ``spp.hazard.incident``      | Specific disaster event with dates,   |
-|                              | severity, and affected areas          |
-+------------------------------+---------------------------------------+
-| ``spp.hazard.incident.area`` | Links incident to area with           |
-|                              | area-specific details                 |
-+------------------------------+---------------------------------------+
-| ``spp.hazard.impact``        | Records impact on a registrant (type, |
-|                              | damage level, verification)           |
-+------------------------------+---------------------------------------+
-| ``spp.hazard.impact.type``   | Classification of impact types by     |
-|                              | category                              |
-+------------------------------+---------------------------------------+
-| ``res.partner`` (extended)   | Adds hazard impact tracking fields to |
-|                              | registrants                           |
-+------------------------------+---------------------------------------+
++------------------------------+--------------------------------------+
+| Model                        | Description                          |
++==============================+======================================+
+| ``spp.hazard.category``      | Hierarchical classification of       |
+|                              | hazard types                         |
++------------------------------+--------------------------------------+
+| ``spp.hazard.incident``      | Specific disaster event with dates,  |
+|                              | severity, and affected areas         |
++------------------------------+--------------------------------------+
+| ``spp.hazard.incident.area`` | Links incident to area with          |
+|                              | area-specific details                |
++------------------------------+--------------------------------------+
+| ``spp.hazard.impact``        | Records impact on a registrant       |
+|                              | (type, damage level, verification)   |
++------------------------------+--------------------------------------+
+| ``spp.hazard.impact.type``   | Classification of impact types by    |
+|                              | category                             |
++------------------------------+--------------------------------------+
+| ``res.partner`` (extended)   | Adds hazard impact tracking fields   |
+|                              | to registrants                       |
++------------------------------+--------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -96,20 +96,20 @@ UI Location
 Security
 ~~~~~~~~
 
-+----------------------------------+-----------------------------------+
-| Group                            | Access                            |
-+==================================+===================================+
-| ``group_hazard_viewer``          | Read-only access to all hazard    |
-|                                  | records                           |
-+----------------------------------+-----------------------------------+
-| ``group_hazard_officer``         | Create and manage incidents and   |
-|                                  | impacts (no delete)               |
-+----------------------------------+-----------------------------------+
-| ``group_hazard_manager``         | Full CRUD access including        |
-|                                  | configuration                     |
-+----------------------------------+-----------------------------------+
-| ``spp_security.group_spp_admin`` | Inherits manager access           |
-+----------------------------------+-----------------------------------+
++----------------------------------+----------------------------------+
+| Group                            | Access                           |
++==================================+==================================+
+| ``group_hazard_viewer``          | Read-only access to all hazard   |
+|                                  | records                          |
++----------------------------------+----------------------------------+
+| ``group_hazard_officer``         | Create and manage incidents and  |
+|                                  | impacts (no delete)              |
++----------------------------------+----------------------------------+
+| ``group_hazard_manager``         | Full CRUD access including       |
+|                                  | configuration                    |
++----------------------------------+----------------------------------+
+| ``spp_security.group_spp_admin`` | Inherits manager access          |
++----------------------------------+----------------------------------+
 
 Extension Points
 ~~~~~~~~~~~~~~~~

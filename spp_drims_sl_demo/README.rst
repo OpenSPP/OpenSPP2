@@ -51,15 +51,15 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+-------------------------------+--------------------------------------+
-| Model                         | Description                          |
-+===============================+======================================+
-| ``spp.drims.demo.generator``  | Transient wizard that orchestrates   |
-|                               | demo data generation                 |
-+-------------------------------+--------------------------------------+
-| ``spp.gis.report`` (extended) | Adds ``spp.drims.request`` as        |
-|                               | supported GIS report data source     |
-+-------------------------------+--------------------------------------+
++-------------------------------+-------------------------------------+
+| Model                         | Description                         |
++===============================+=====================================+
+| ``spp.drims.demo.generator``  | Transient wizard that orchestrates  |
+|                               | demo data generation                |
++-------------------------------+-------------------------------------+
+| ``spp.gis.report`` (extended) | Adds ``spp.drims.request`` as       |
+|                               | supported GIS report data source    |
++-------------------------------+-------------------------------------+
 
 Usage
 ~~~~~

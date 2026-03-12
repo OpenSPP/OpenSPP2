@@ -51,24 +51,24 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+------------------------------+---------------------------------------+
-| Model                        | Description                           |
-+==============================+=======================================+
-| ``spp.dci.sender.registry``  | External DCI senders with public keys |
-|                              | for signature verification            |
-+------------------------------+---------------------------------------+
-| ``spp.dci.transaction``      | Async DCI request tracking (search,   |
-|                              | subscribe, unsubscribe)               |
-+------------------------------+---------------------------------------+
-| ``spp.dci.subscription``     | Event subscriptions with callback     |
-|                              | URIs and filter expressions           |
-+------------------------------+---------------------------------------+
-| ``spp.dci.notification.log`` | Audit trail of sent notifications     |
-|                              | with receipt tracking                 |
-+------------------------------+---------------------------------------+
-| ``spp.dci.server.key``       | Server signing keys for outbound      |
-|                              | responses and notifications           |
-+------------------------------+---------------------------------------+
++------------------------------+--------------------------------------+
+| Model                        | Description                          |
++==============================+======================================+
+| ``spp.dci.sender.registry``  | External DCI senders with public     |
+|                              | keys for signature verification      |
++------------------------------+--------------------------------------+
+| ``spp.dci.transaction``      | Async DCI request tracking (search,  |
+|                              | subscribe, unsubscribe)              |
++------------------------------+--------------------------------------+
+| ``spp.dci.subscription``     | Event subscriptions with callback    |
+|                              | URIs and filter expressions          |
++------------------------------+--------------------------------------+
+| ``spp.dci.notification.log`` | Audit trail of sent notifications    |
+|                              | with receipt tracking                |
++------------------------------+--------------------------------------+
+| ``spp.dci.server.key``       | Server signing keys for outbound     |
+|                              | responses and notifications          |
++------------------------------+--------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~

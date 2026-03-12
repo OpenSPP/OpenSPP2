@@ -46,13 +46,13 @@ Key Models
 
 This module extends existing models and does not introduce new ones.
 
-+--------------+-------------------------------------------------------+
-| Model        | Extension                                             |
-+==============+=======================================================+
-| ``spp.case`` | Adds ``program_membership_ids``,                      |
-|              | ``triggered_by_program_id``, and computed enrollment  |
-|              | fields                                                |
-+--------------+-------------------------------------------------------+
++--------------+------------------------------------------------------+
+| Model        | Extension                                            |
++==============+======================================================+
+| ``spp.case`` | Adds ``program_membership_ids``,                     |
+|              | ``triggered_by_program_id``, and computed enrollment |
+|              | fields                                               |
++--------------+------------------------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~

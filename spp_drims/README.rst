@@ -123,31 +123,31 @@ UI Location
 Security
 ~~~~~~~~
 
-+--------------------------------------------------+----------------------------------+
-| Group                                            | Access                           |
-+==================================================+==================================+
-| ``spp_drims.group_drims_viewer``                 | Read-only access to donations,   |
-|                                                  | requests, dispatches             |
-+--------------------------------------------------+----------------------------------+
-| ``spp_drims.group_drims_officer``                | Create and edit donations,       |
-|                                                  | requests, returns (no delete)    |
-+--------------------------------------------------+----------------------------------+
-| ``spp_drims.group_drims_approver``               | Approve or reject supply         |
-|                                                  | requests                         |
-+--------------------------------------------------+----------------------------------+
-| ``spp_drims.group_drims_manager``                | Full CRUD including deletion and |
-|                                                  | configuration                    |
-+--------------------------------------------------+----------------------------------+
-| ``spp_drims.group_drims_warehouse_worker``       | Receive donations, manage stock, |
-|                                                  | process dispatches               |
-+--------------------------------------------------+----------------------------------+
-| ``spp_drims.group_drims_field_officer``          | Create requests and confirm      |
-|                                                  | deliveries in the field          |
-+--------------------------------------------------+----------------------------------+
-| ``spp_drims.group_drims_coordinator_supervisor`` | Coordinate requests and          |
-|                                                  | distributions within assigned    |
-|                                                  | areas                            |
-+--------------------------------------------------+----------------------------------+
++----------------------------------+----------------------------------+
+| Group                            | Access                           |
++==================================+==================================+
+| ``spp_drims.group_drims_viewer`` | Read-only access to donations,   |
+|                                  | requests, dispatches             |
++----------------------------------+----------------------------------+
+| `                                | Create and edit donations,       |
+| `spp_drims.group_drims_officer`` | requests, returns (no delete)    |
++----------------------------------+----------------------------------+
+| ``                               | Approve or reject supply         |
+| spp_drims.group_drims_approver`` | requests                         |
++----------------------------------+----------------------------------+
+| `                                | Full CRUD including deletion and |
+| `spp_drims.group_drims_manager`` | configuration                    |
++----------------------------------+----------------------------------+
+| ``spp_drim                       | Receive donations, manage stock, |
+| s.group_drims_warehouse_worker`` | process dispatches               |
++----------------------------------+----------------------------------+
+| ``spp_d                          | Create requests and confirm      |
+| rims.group_drims_field_officer`` | deliveries in the field          |
++----------------------------------+----------------------------------+
+| ``spp_drims.grou                 | Coordinate requests and          |
+| p_drims_coordinator_supervisor`` | distributions within assigned    |
+|                                  | areas                            |
++----------------------------------+----------------------------------+
 
 Extension Points
 ~~~~~~~~~~~~~~~~
