@@ -14,7 +14,7 @@
         "spp_security",
         "mail",
     ],
-    "external_dependencies": {"python": ["dateutil"]},
+    "external_dependencies": {"python": ["python-dateutil"]},
     "data": [
         "security/privileges.xml",
         "security/graduation_security.xml",

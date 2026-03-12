@@ -1,5 +1,6 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 
+from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
 
@@ -89,3 +90,41 @@ class TestGraduationPathway(TransactionCase):
 
         total = sum(c.weight for c in pathway.criteria_ids)
         self.assertEqual(total, 100)
+
+    def test_criteria_weight_must_be_positive(self):
+        """Test criteria weight constraint rejects zero and negative values."""
+        pathway = self.Pathway.create(
+            {
+                "name": "Test Pathway",
+                "code": "TST",
+            }
+        )
+
+        with self.assertRaises(ValidationError):
+            self.Criteria.create(
+                {
+                    "pathway_id": pathway.id,
+                    "name": "Zero Weight",
+                    "weight": 0,
+                }
+            )
+
+        with self.assertRaises(ValidationError):
+            self.Criteria.create(
+                {
+                    "pathway_id": pathway.id,
+                    "name": "Negative Weight",
+                    "weight": -5,
+                }
+            )
+
+    def test_pathway_boolean_field_defaults(self):
+        """Test renamed boolean fields have correct defaults."""
+        pathway = self.Pathway.create(
+            {
+                "name": "Default Pathway",
+            }
+        )
+        self.assertTrue(pathway.is_positive_exit)
+        self.assertTrue(pathway.is_assessment_required)
+        self.assertTrue(pathway.is_approval_required)

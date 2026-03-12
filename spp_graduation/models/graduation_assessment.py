@@ -1,4 +1,7 @@
-from odoo import api, fields, models
+from dateutil.relativedelta import relativedelta
+
+from odoo import _, api, fields, models
+from odoo.exceptions import UserError, ValidationError
 
 
 class GraduationAssessment(models.Model):
@@ -6,6 +9,7 @@ class GraduationAssessment(models.Model):
     _description = "Graduation Assessment"
     _inherit = ["mail.thread", "mail.activity.mixin"]
     _order = "assessment_date desc"
+    _check_company_auto = True
 
     name = fields.Char(
         compute="_compute_name",
@@ -22,6 +26,7 @@ class GraduationAssessment(models.Model):
         "spp.graduation.pathway",
         required=True,
         tracking=True,
+        check_company=True,
     )
 
     assessment_date = fields.Date(
@@ -91,7 +96,7 @@ class GraduationAssessment(models.Model):
 
     company_id = fields.Many2one("res.company", default=lambda self: self.env.company)
 
-    @api.depends("partner_id", "pathway_id", "assessment_date")
+    @api.depends("partner_id", "pathway_id")
     def _compute_name(self):
         for rec in self:
             if rec.partner_id and rec.pathway_id:
@@ -124,8 +129,6 @@ class GraduationAssessment(models.Model):
     def _compute_monitoring_end(self):
         for rec in self:
             if rec.graduation_date and rec.pathway_id.post_graduation_monitoring_months:
-                from dateutil.relativedelta import relativedelta
-
                 rec.monitoring_end_date = rec.graduation_date + relativedelta(
                     months=rec.pathway_id.post_graduation_monitoring_months
                 )
@@ -133,24 +136,36 @@ class GraduationAssessment(models.Model):
                 rec.monitoring_end_date = False
 
     def action_submit(self):
-        self.state = "submitted"
+        for rec in self:
+            if rec.state != "draft":
+                raise UserError(_("Only draft assessments can be submitted."))
+            rec.state = "submitted"
 
     def action_approve(self):
-        self.write(
-            {
-                "state": "approved",
-                "approved_by_id": self.env.user.id,
-                "approved_date": fields.Datetime.now(),
-            }
-        )
-        if self.recommendation == "graduate":
-            self.graduation_date = fields.Date.today()
+        for rec in self:
+            if rec.state != "submitted":
+                raise UserError(_("Only submitted assessments can be approved."))
+            rec.write(
+                {
+                    "state": "approved",
+                    "approved_by_id": self.env.user.id,
+                    "approved_date": fields.Datetime.now(),
+                }
+            )
+            if rec.recommendation == "graduate":
+                rec.graduation_date = fields.Date.today()
 
     def action_reject(self):
-        self.state = "rejected"
+        for rec in self:
+            if rec.state != "submitted":
+                raise UserError(_("Only submitted assessments can be rejected."))
+            rec.state = "rejected"
 
     def action_reset_draft(self):
-        self.state = "draft"
+        for rec in self:
+            if rec.state not in ("submitted", "rejected"):
+                raise UserError(_("Only submitted or rejected assessments can be reset to draft."))
+            rec.state = "draft"
 
 
 class GraduationCriteriaResponse(models.Model):
@@ -174,4 +189,14 @@ class GraduationCriteriaResponse(models.Model):
 
     value = fields.Char(help="Actual value observed")
     notes = fields.Text()
-    evidence_attachment_ids = fields.Many2many("ir.attachment", string="Evidence Attachments")
+    evidence_attachment_ids = fields.Many2many(
+        "ir.attachment",
+        relation="spp_graduation_response_attachment_rel",
+        string="Evidence Attachments",
+    )
+
+    @api.constrains("score")
+    def _check_score_range(self):
+        for response in self:
+            if response.score < 0 or response.score > 1:
+                raise ValidationError(_("Score must be between 0 and 1. Got %(score)s.", score=response.score))
