@@ -371,21 +371,25 @@ ul.auto-toc {
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
 <p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Beta" src="https://img.shields.io/badge/maturity-Beta-yellow.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_alerts"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
 <p>Generic alert engine for threshold monitoring, expiry tracking, and
-deadline management. Provides base models and state machine for alert
-lifecycle tracking. Consumer modules (like <tt class="docutils literal">spp_drims</tt>) extend these
-models and implement evaluation logic to generate alerts based on
-domain-specific conditions.</p>
+deadline management. Evaluates configurable rules on a daily schedule or
+on-demand and generates alerts when conditions are met. Consumer modules
+(like <tt class="docutils literal">spp_drims</tt>) extend these models to add domain-specific fields.</p>
 <div class="section" id="key-capabilities">
 <h1>Key Capabilities</h1>
 <ul class="simple">
-<li>Track alert lifecycle through state machine: active → acknowledged →
-resolved</li>
-<li>Record resolution details including user, timestamp, and notes</li>
-<li>Classify alerts by type using <tt class="docutils literal">spp.vocabulary</tt> codes (threshold,
-expiry, deadline, manual, system)</li>
-<li>Prioritize alerts as low, medium, high, or critical</li>
-<li>Send mail notifications via <tt class="docutils literal">mail.thread</tt> integration</li>
-<li>Auto-generate alert references in ALR-YYYY-NNNNN format</li>
+<li>Define alert rules with threshold or date conditions against any model</li>
+<li>Evaluate rules via daily cron or “Run Now” button</li>
+<li>Compare numeric fields using 5 operators: &lt;, &lt;=, &gt;, &gt;=, =</li>
+<li>Check date/datetime fields against a days-before window</li>
+<li>Prevent duplicates: skip records with existing active/acknowledged
+alerts</li>
+<li>Filter monitored records using a visual domain builder</li>
+<li>Track alert lifecycle: active → acknowledged → resolved</li>
+<li>Record resolution details: user, timestamp, and notes</li>
+<li>Navigate from alert to source record via stat button</li>
+<li>Classify alerts by type using <tt class="docutils literal">spp.vocabulary</tt> codes</li>
+<li>Prioritize as low, medium, high, or critical</li>
+<li>Auto-generate references in <tt class="docutils literal"><span class="pre">ALR-YYYY-NNNNN</span></tt> format</li>
 </ul>
 </div>
 <div class="section" id="key-models">
@@ -403,11 +407,11 @@ expiry, deadline, manual, system)</li>
 <tbody valign="top">
 <tr><td><tt class="docutils literal">spp.alert</tt></td>
 <td>Alert instance with state tracking and
-resolution workflow</td>
+resolution audit</td>
 </tr>
 <tr><td><tt class="docutils literal">spp.alert.rule</tt></td>
-<td>Rule configuration for monitoring criteria and
-thresholds</td>
+<td>Rule configuration with evaluation engine and
+scheduling</td>
 </tr>
 </tbody>
 </table>
@@ -417,10 +421,9 @@ thresholds</td>
 <p>After installing:</p>
 <ol class="arabic simple">
 <li>Navigate to <strong>Settings &gt; Technical &gt; Alerts &gt; Alert Rules</strong></li>
-<li>Create rules specifying alert type, priority, threshold values, and
-days before deadline</li>
-<li>Consumer modules implement checking logic (e.g., cron jobs or event
-handlers) to evaluate rules and create alerts</li>
+<li>Create rules: select model, rule type (threshold/date), and
+conditions</li>
+<li>The daily cron “Alerts: Evaluate Alert Rules” is active by default</li>
 </ol>
 </div>
 <div class="section" id="ui-location">
@@ -428,7 +431,10 @@ handlers) to evaluate rules and create alerts</li>
 <ul class="simple">
 <li><strong>Menu</strong>: Settings &gt; Technical &gt; Alerts &gt; Alerts</li>
 <li><strong>Configuration</strong>: Settings &gt; Technical &gt; Alerts &gt; Alert Rules</li>
-<li><strong>Form Tabs</strong>: Details, Resolution (alerts); Thresholds (rules)</li>
+<li><strong>Views</strong>: List, kanban (grouped by state), and form</li>
+<li><strong>Alert form tabs</strong>: Details, Resolution</li>
+<li><strong>Rule form</strong>: Description above tabs; Evaluation tab with settings +
+domain builder</li>
 </ul>
 </div>
 <div class="section" id="security">
@@ -436,22 +442,28 @@ handlers) to evaluate rules and create alerts</li>
 <table border="1" class="docutils">
 <colgroup>
 <col width="49%" />
-<col width="51%" />
+<col width="37%" />
+<col width="14%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Group</th>
-<th class="head">Access</th>
+<th class="head">Alerts</th>
+<th class="head">Rules</th>
 </tr>
 </thead>
 <tbody valign="top">
 <tr><td><tt class="docutils literal">spp_alerts.group_alerts_viewer</tt></td>
-<td>Read alerts</td>
+<td>Read</td>
+<td>Read</td>
 </tr>
 <tr><td><tt class="docutils literal">spp_alerts.group_alerts_officer</tt></td>
-<td>Read/Write/Create (no delete) alerts</td>
+<td>Read/Write/Create (no
+delete)</td>
+<td>Read</td>
 </tr>
 <tr><td><tt class="docutils literal">spp_alerts.group_alerts_manager</tt></td>
-<td>Full CRUD on alerts and rules</td>
+<td>Full CRUD</td>
+<td>Full CRUD</td>
 </tr>
 </tbody>
 </table>
@@ -459,14 +471,13 @@ handlers) to evaluate rules and create alerts</li>
 <div class="section" id="extension-points">
 <h1>Extension Points</h1>
 <ul class="simple">
-<li>Inherit <tt class="docutils literal">spp.alert</tt> to add domain-specific fields (e.g., stock
-levels, document references)</li>
-<li>Inherit <tt class="docutils literal">spp.alert.rule</tt> to add custom threshold or evaluation
-criteria</li>
-<li>Override <tt class="docutils literal">action_acknowledge()</tt> or <tt class="docutils literal">action_resolve()</tt> to add
-custom workflow steps</li>
-<li>Consumer modules implement alert checking via cron jobs or event
-handlers that evaluate rules and call <tt class="docutils literal">create()</tt> on <tt class="docutils literal">spp.alert</tt></li>
+<li>Inherit <tt class="docutils literal">spp.alert</tt> to add domain-specific fields</li>
+<li>Inherit <tt class="docutils literal">spp.alert.rule</tt> to add custom evaluation criteria</li>
+<li>Override <tt class="docutils literal">_evaluate_threshold()</tt> or <tt class="docutils literal">_evaluate_date()</tt> for custom
+logic</li>
+<li>Override <tt class="docutils literal">action_acknowledge()</tt> or <tt class="docutils literal">action_resolve()</tt> for custom
+workflows</li>
+<li>Rules can be configured via UI without code</li>
 </ul>
 </div>
 <div class="section" id="dependencies">

@@ -15,47 +15,11 @@ class AlertsTestCommon(TransactionCase):
         super().setUpClass()
 
         # Get vocabulary codes for alert types
-        cls.vocab_code = cls.env["spp.vocabulary.code"]
-
-        cls.alert_type_threshold = cls.vocab_code.search(
-            [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:alerts"),
-                ("code", "=", "threshold"),
-            ],
-            limit=1,
-        )
-
-        cls.alert_type_expiry = cls.vocab_code.search(
-            [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:alerts"),
-                ("code", "=", "expiry"),
-            ],
-            limit=1,
-        )
-
-        cls.alert_type_deadline = cls.vocab_code.search(
-            [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:alerts"),
-                ("code", "=", "deadline"),
-            ],
-            limit=1,
-        )
-
-        cls.alert_type_manual = cls.vocab_code.search(
-            [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:alerts"),
-                ("code", "=", "manual"),
-            ],
-            limit=1,
-        )
-
-        cls.alert_type_system = cls.vocab_code.search(
-            [
-                ("vocabulary_id.namespace_uri", "=", "urn:openspp:vocab:alerts"),
-                ("code", "=", "system"),
-            ],
-            limit=1,
-        )
+        cls.alert_type_threshold = cls.env.ref("spp_alerts.code_alert_threshold")
+        cls.alert_type_expiry = cls.env.ref("spp_alerts.code_alert_expiry")
+        cls.alert_type_deadline = cls.env.ref("spp_alerts.code_alert_deadline")
+        cls.alert_type_manual = cls.env.ref("spp_alerts.code_alert_manual")
+        cls.alert_type_system = cls.env.ref("spp_alerts.code_alert_system")
 
         # Create test companies for multi-company testing
         cls.company_main = cls.env.company
