@@ -1,5 +1,5 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
-"""Extended coverage tests for spp_aggregation module.
+"""Extended coverage tests for spp_analytics module.
 
 Covers edge cases in access rules, cache key generation,
 scope resolver, and aggregation service convenience methods.
@@ -10,17 +10,17 @@ from unittest.mock import patch
 from odoo.exceptions import ValidationError
 from odoo.tests import tagged
 
-from .common import AggregationTestCase
+from .common import AnalyticsTestCase
 
 
 @tagged("post_install", "-at_install")
-class TestAccessRuleValidation(AggregationTestCase):
-    """Tests for spp.aggregation.access.rule constraint and validation edge cases."""
+class TestAccessRuleValidation(AnalyticsTestCase):
+    """Tests for spp.analytics.access.rule constraint and validation edge cases."""
 
     def test_constraint_both_user_and_group_raises(self):
         """Setting both user_id and group_id must raise ValidationError."""
         with self.assertRaises(ValidationError):
-            self.env["spp.aggregation.access.rule"].create(
+            self.env["spp.analytics.access.rule"].create(
                 {
                     "name": "Invalid Rule",
                     "access_level": "aggregate",
@@ -38,7 +38,7 @@ class TestAccessRuleValidation(AggregationTestCase):
     def test_constraint_k_anonymity_below_1_raises(self):
         """minimum_k_anonymity < 1 must raise ValidationError."""
         with self.assertRaises(ValidationError):
-            self.env["spp.aggregation.access.rule"].create(
+            self.env["spp.analytics.access.rule"].create(
                 {
                     "name": "K Too Low",
                     "access_level": "aggregate",
@@ -50,7 +50,7 @@ class TestAccessRuleValidation(AggregationTestCase):
     def test_constraint_k_anonymity_above_100_raises(self):
         """minimum_k_anonymity > 100 must raise ValidationError."""
         with self.assertRaises(ValidationError):
-            self.env["spp.aggregation.access.rule"].create(
+            self.env["spp.analytics.access.rule"].create(
                 {
                     "name": "K Too High",
                     "access_level": "aggregate",
@@ -62,7 +62,7 @@ class TestAccessRuleValidation(AggregationTestCase):
     def test_constraint_max_dimensions_negative_raises(self):
         """max_group_by_dimensions < 0 must raise ValidationError."""
         with self.assertRaises(ValidationError):
-            self.env["spp.aggregation.access.rule"].create(
+            self.env["spp.analytics.access.rule"].create(
                 {
                     "name": "Negative Dims",
                     "access_level": "aggregate",
@@ -74,7 +74,7 @@ class TestAccessRuleValidation(AggregationTestCase):
     def test_constraint_max_dimensions_above_10_raises(self):
         """max_group_by_dimensions > 10 must raise ValidationError."""
         with self.assertRaises(ValidationError):
-            self.env["spp.aggregation.access.rule"].create(
+            self.env["spp.analytics.access.rule"].create(
                 {
                     "name": "Too Many Dims",
                     "access_level": "aggregate",
@@ -216,7 +216,7 @@ class TestAccessRuleValidation(AggregationTestCase):
             }
         )
         # Create group-based rule
-        self.env["spp.aggregation.access.rule"].create(
+        self.env["spp.analytics.access.rule"].create(
             {
                 "name": "Group Rule",
                 "access_level": "aggregate",
@@ -226,7 +226,7 @@ class TestAccessRuleValidation(AggregationTestCase):
             }
         )
         # Create user-specific rule
-        user_rule = self.env["spp.aggregation.access.rule"].create(
+        user_rule = self.env["spp.analytics.access.rule"].create(
             {
                 "name": "User Rule",
                 "access_level": "individual",
@@ -236,20 +236,20 @@ class TestAccessRuleValidation(AggregationTestCase):
             }
         )
         # User-specific rule should win regardless of sequence
-        AccessRule = self.env["spp.aggregation.access.rule"]
+        AccessRule = self.env["spp.analytics.access.rule"]
         effective = AccessRule.get_effective_rule_for_user(test_user)
         self.assertEqual(effective.id, user_rule.id)
         self.assertEqual(effective.access_level, "individual")
 
 
 @tagged("post_install", "-at_install")
-class TestCacheServiceKeyGeneration(AggregationTestCase):
+class TestCacheServiceKeyGeneration(AnalyticsTestCase):
     """Tests for cache key generation across all scope types."""
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.cache_service = cls.env["spp.aggregation.cache"]
+        cls.cache_service = cls.env["spp.analytics.cache"]
 
     def test_scope_key_parts_dict_area(self):
         """Cache key parts for dict area scope must include area_id and children flag."""
@@ -336,7 +336,7 @@ class TestCacheServiceKeyGeneration(AggregationTestCase):
 
     def test_cron_cleanup_expired(self):
         """cron_cleanup_expired on cache.entry must delegate to cache service."""
-        cache_entry_model = self.env["spp.aggregation.cache.entry"]
+        cache_entry_model = self.env["spp.analytics.cache.entry"]
         # Should run without error and return an integer
         result = cache_entry_model.cron_cleanup_expired()
         self.assertIsInstance(result, int)
@@ -344,19 +344,19 @@ class TestCacheServiceKeyGeneration(AggregationTestCase):
     def test_store_result_serialization_error(self):
         """store_result must return False when result cannot be serialized."""
         scope = self.create_scope("area", area_id=self.area_region.id)
-        with patch("odoo.addons.spp_aggregation.models.service_cache.json.dumps", side_effect=TypeError("bad")):
+        with patch("odoo.addons.spp_analytics.models.service_cache.json.dumps", side_effect=TypeError("bad")):
             stored = self.cache_service.store_result(scope, ["count"], [], {"total": 1})
             self.assertFalse(stored)
 
 
 @tagged("post_install", "-at_install")
-class TestScopeResolverEdgeCases(AggregationTestCase):
+class TestScopeResolverEdgeCases(AnalyticsTestCase):
     """Tests for scope resolver edge cases and error handling."""
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.resolver = cls.env["spp.aggregation.scope.resolver"]
+        cls.resolver = cls.env["spp.analytics.scope.resolver"]
 
     def test_resolve_inline_missing_scope_type(self):
         """Inline scope dict without scope_type must return empty list."""
@@ -403,13 +403,13 @@ class TestScopeResolverEdgeCases(AggregationTestCase):
 
 
 @tagged("post_install", "-at_install")
-class TestAggregationServiceExtended(AggregationTestCase):
-    """Extended tests for spp.aggregation.service convenience methods and scope resolution."""
+class TestAggregationServiceExtended(AnalyticsTestCase):
+    """Extended tests for spp.analytics.service convenience methods and scope resolution."""
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.service = cls.env["spp.aggregation.service"]
+        cls.service = cls.env["spp.analytics.service"]
 
     def test_resolve_scope_dict(self):
         """_resolve_scope with dict must return the same dict."""
@@ -422,7 +422,7 @@ class TestAggregationServiceExtended(AggregationTestCase):
         scope = self.create_scope("area", area_id=self.area_region.id)
         result = self.service._resolve_scope(scope.id)
         self.assertEqual(result.id, scope.id)
-        self.assertEqual(result._name, "spp.aggregation.scope")
+        self.assertEqual(result._name, "spp.analytics.scope")
 
     def test_resolve_scope_record(self):
         """_resolve_scope with record must return the same record."""

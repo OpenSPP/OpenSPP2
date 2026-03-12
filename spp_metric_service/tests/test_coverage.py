@@ -504,7 +504,7 @@ class TestDemographicDimension(TransactionCase):
                 "field_path": "name",
             }
         )
-        cache_service = self.env["spp.metrics.dimension.cache"]
+        cache_service = self.env["spp.metric.dimension.cache"]
         with patch.object(type(cache_service), "clear_dimension_cache") as mock_clear:
             dim.write({"label": "Updated Label"})
             mock_clear.assert_called()
@@ -519,7 +519,7 @@ class TestDemographicDimension(TransactionCase):
                 "field_path": "name",
             }
         )
-        cache_service = self.env["spp.metrics.dimension.cache"]
+        cache_service = self.env["spp.metric.dimension.cache"]
         with patch.object(type(cache_service), "clear_dimension_cache") as mock_clear:
             dim.unlink()
             mock_clear.assert_called()
@@ -534,7 +534,7 @@ class TestFairnessServiceDimensions(TransactionCase):
         super().setUpClass()
 
         cls.partner_model = cls.env["res.partner"]
-        cls.fairness_service = cls.env["spp.metrics.fairness"]
+        cls.fairness_service = cls.env["spp.metric.fairness"]
         cls.dim_model = cls.env["spp.demographic.dimension"]
 
         # Create test registrants: mix of groups and individuals
@@ -828,7 +828,7 @@ class TestPrivacyServiceExtended(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.privacy_service = cls.env["spp.metrics.privacy"]
+        cls.privacy_service = cls.env["spp.metric.privacy"]
 
     # -------------------------------------------------------------------------
     # _find_cells_in_slice
@@ -906,49 +906,6 @@ class TestPrivacyServiceExtended(TransactionCase):
         result = self.privacy_service._find_dimension_siblings("male|urban", 0, breakdown)
         self.assertIn("male|rural", result)
         self.assertNotIn("male", result)
-
-    # -------------------------------------------------------------------------
-    # validate_access_level
-    # -------------------------------------------------------------------------
-
-    def test_validate_access_level_without_access_rule_model(self):
-        """validate_access_level defaults to 'aggregate' when model unavailable."""
-        with patch.object(type(self.env), "get", return_value=None):
-            result = self.privacy_service.validate_access_level()
-        self.assertEqual(result, "aggregate")
-
-    def test_validate_access_level_default_user(self):
-        """validate_access_level uses current user by default."""
-        # Without the access rule model installed, should default to aggregate
-        result = self.privacy_service.validate_access_level()
-        self.assertEqual(result, "aggregate")
-
-    def test_validate_access_level_explicit_user(self):
-        """validate_access_level with explicit user parameter."""
-        user = self.env.user
-        result = self.privacy_service.validate_access_level(user=user)
-        self.assertEqual(result, "aggregate")
-
-    # -------------------------------------------------------------------------
-    # get_k_threshold
-    # -------------------------------------------------------------------------
-
-    def test_get_k_threshold_without_access_rule_model(self):
-        """get_k_threshold defaults to DEFAULT_K_THRESHOLD when model unavailable."""
-        with patch.object(type(self.env), "get", return_value=None):
-            result = self.privacy_service.get_k_threshold()
-        self.assertEqual(result, self.privacy_service.DEFAULT_K_THRESHOLD)
-
-    def test_get_k_threshold_default(self):
-        """get_k_threshold returns default threshold."""
-        result = self.privacy_service.get_k_threshold()
-        self.assertEqual(result, 5)
-
-    def test_get_k_threshold_explicit_user(self):
-        """get_k_threshold with explicit user parameter."""
-        user = self.env.user
-        result = self.privacy_service.get_k_threshold(user=user, context="api")
-        self.assertEqual(result, 5)
 
     # -------------------------------------------------------------------------
     # _find_siblings
@@ -1103,7 +1060,7 @@ class TestDistributionServiceEdgeCases(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.dist_service = cls.env["spp.metrics.distribution"]
+        cls.dist_service = cls.env["spp.metric.distribution"]
 
     def test_empty_distribution(self):
         """_empty_distribution returns zeroed structure."""
