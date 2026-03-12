@@ -3,7 +3,7 @@
 ## Overview
 
 This document describes the implementation of the CEL executor extension for event data
-queries in `/home/user/openspp-modules-v2/spp_cel_event/models/cel_event_executor.py`.
+queries in `models/cel_event_executor.py`.
 
 ## Architecture
 
@@ -134,7 +134,7 @@ JSON field extraction handles multiple data types:
 The Python path is used when:
 
 - Default value specified (requires post-processing)
-- Complex where predicates in aggregations
+- Complex where predicates in aggregations (NOTE: `where_predicate` is not yet implemented — registrants with this parameter are silently skipped with a warning log)
 - SQL execution fails
 - Non-standard comparison operators
 
@@ -160,19 +160,22 @@ All execution paths log performance metrics:
 
 ```python
 _logger.info(
-    "[CEL EVENT] EventValueCompare SQL: event_type=%s field=%s op=%s rhs=%s matches=%d",
+    "[CEL EVENT] EventValueCompare SQL: event_type=%s field=%s matches=%d",
     plan.event_type,
     plan.field_name,
+    len(partner_ids),
+)
+_logger.debug(
+    "[CEL EVENT] EventValueCompare SQL details: op=%s rhs=%r",
     plan.op,
     plan.rhs,
-    len(partner_ids),
 )
 ```
 
 Log tags:
 
 - `[CEL EVENT]` - Event executor operations
-- Includes: event_type, field, operator, RHS value, match count
+- Includes: event_type, field, match count (op/rhs at DEBUG level only)
 - Separate log entries for SQL vs Python paths
 
 ## Integration Points
@@ -199,14 +202,11 @@ Depends on `spp.event.data` model with:
 
 ### Period Parsing
 
-Currently supports:
+All period formats are supported via `cel_event_functions.parse_period()`:
 
 - `YYYY`: Full year (e.g., '2024')
 - `YYYY-QN`: Quarter (e.g., '2024-Q1')
 - `YYYY-MM`: Month (e.g., '2024-03')
-
-**TODO**: Add support for:
-
 - `YYYY-HN`: Half year (e.g., '2024-H1')
 - `YYYY-WNN`: ISO week (e.g., '2024-W01')
 
@@ -249,11 +249,7 @@ Currently supports:
    - Cache results for identical queries within request
    - Invalidate on event data changes
 
-4. **Extended Period Support**
-   - Add half-year and ISO week parsing
-   - Support dynamic period functions (this_quarter(), last_year())
-
-5. **Batch Optimization**
+4. **Batch Optimization**
    - When multiple event conditions in same expression
    - Combine into single query with JOINs
 
@@ -264,7 +260,3 @@ Currently supports:
 - `spp_cel_domain`: Base CEL executor
 - `spp_event_data`: Event data model
 
-## Files Modified
-
-1. `/home/user/openspp-modules-v2/spp_cel_event/models/cel_event_executor.py` (created)
-2. `/home/user/openspp-modules-v2/spp_cel_event/models/__init__.py` (updated import)

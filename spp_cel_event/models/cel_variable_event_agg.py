@@ -63,13 +63,13 @@ class CELVariableEventAggregation(models.Model):
     )
 
     event_agg_temporal_value = fields.Integer(
-        string="N (Days/Months)",
+        string="Number of Days/Months",
         help="Number of days or months for 'within' temporal filters",
     )
 
     event_agg_field = fields.Char(
         string="Event Field",
-        help="JSON field name in event data (e.g., 'amount', 'score'). Required for sum/avg/min/max aggregations.",
+        help="Name of the data field in the event record to aggregate (e.g., 'amount', 'score')",
     )
 
     event_agg_states = fields.Selection(
@@ -79,7 +79,7 @@ class CELVariableEventAggregation(models.Model):
         ],
         string="Event States",
         default="active",
-        help="Which event states to include in aggregation",
+        help="Active Only: current events. All States: also includes superseded and expired events.",
     )
 
     @api.depends(
@@ -177,17 +177,41 @@ class CELVariableEventAggregation(models.Model):
             self.event_agg_field = False
             self.event_agg_states = "active"
 
-    @api.constrains("aggregate_target", "event_agg_type_id")
+    @api.constrains("aggregate_target", "event_agg_type_id", "aggregate_type", "event_agg_field")
     def _check_event_aggregation_config(self):
         """Ensure event aggregations have required configuration."""
         for rec in self:
             if rec.source_type == "aggregate" and rec.aggregate_target == "events":
                 if not rec.event_agg_type_id:
-                    # Log warning but don't block - may be set later
-                    _logger.warning(
-                        "Variable '%s' is configured for event aggregation but no event type is selected.",
-                        rec.name,
+                    raise ValidationError(
+                        _(
+                            "Variable '%(name)s' is configured for event aggregation "
+                            "but no event type is selected.",
+                            name=rec.name,
+                        )
                     )
+                if rec.aggregate_type in ("sum", "avg", "min", "max"):
+                    if not rec.event_agg_field and not rec.aggregate_field:
+                        raise ValidationError(
+                            _(
+                                "Variable '%(name)s' uses %(agg_type)s aggregation over events "
+                                "but no field is specified. Please set the Event Field.",
+                                name=rec.name,
+                                agg_type=rec.aggregate_type,
+                            )
+                        )
+
+    @api.onchange("aggregate_type")
+    def _onchange_aggregate_type_event(self):
+        """Clear event field when switching to count/exists."""
+        if self.aggregate_target == "events" and self.aggregate_type in ("count", "exists"):
+            self.event_agg_field = False
+
+    @api.onchange("event_agg_temporal")
+    def _onchange_event_agg_temporal(self):
+        """Reset temporal value when switching to non-within temporal type."""
+        if self.event_agg_temporal not in ("within_days", "within_months"):
+            self.event_agg_temporal_value = 0
 
     @api.constrains("event_agg_temporal", "event_agg_temporal_value")
     def _check_temporal_value(self):
