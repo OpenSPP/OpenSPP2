@@ -2,4 +2,5 @@
 
 from . import test_metric_base
 from . import test_metric_category
+from . import test_coverage
 from . import test_migration
