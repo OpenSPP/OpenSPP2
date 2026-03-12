@@ -1,2 +1,1 @@
-# No ACLs needed - this module only extends existing models via _inherit (no new _name declarations)
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
