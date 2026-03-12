@@ -22,84 +22,87 @@ OpenSPP Aggregation Engine
 
 |badge1| |badge2| |badge3|
 
-Unified aggregation engine for computing statistics, breakdowns, and
-fairness metrics over scoped registrant populations. Supports multiple
-scope types (CEL expressions, areas, spatial queries, explicit IDs) with
-access control, caching, and privacy enforcement.
+Unified aggregation service that all consumers (simulation API, GIS API,
+dashboards) use to compute population statistics with demographic
+breakdowns and privacy enforcement. Resolves a scope (CEL expression,
+area, polygon, explicit IDs) to registrant IDs, computes requested
+statistics, applies k-anonymity suppression, and caches results.
 
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Define reusable aggregation scopes: CEL expression, area, area tag,
-  spatial polygon/buffer, or explicit registrant IDs
-- Resolve scopes to registrant sets with union and intersection
-  operations
-- Compute statistics (count, Gini) with extensible statistic registry
-  supporting CEL variables
-- Role-based access control with per-user scope type restrictions,
-  dimension limits, and area constraints
-- Result caching with configurable TTL per scope type and automatic
-  cleanup
-- Privacy enforcement via k-anonymity suppression on computed results
-- Convenience methods for area-based, expression-based, fairness, and
-  distribution queries
+- Single entry point (``spp.aggregation.service.compute_aggregation``)
+  for all analytics queries
+- Scope resolution: CEL expressions, admin areas, area tags, spatial
+  polygons/buffers, explicit IDs
+- Multi-dimensional breakdown (up to 3 dimensions) using demographic
+  dimensions
+- Result caching with configurable TTL and manual invalidation
+- Per-user access rules controlling scope types, dimensions, and
+  k-anonymity thresholds
 
 Key Models
 ~~~~~~~~~~
 
-+----------------------------+----------+----------------------------+
-| Model                      | Type     | Description                |
-+============================+==========+============================+
-| ``spp.aggregation.scope``  | Concrete | Configurable aggregation   |
-|                            |          | scope definitions          |
-+----------------------------+----------+----------------------------+
-| ``spp                      | Concrete | Per-user/group access      |
-| .aggregation.access.rule`` |          | control rules              |
-+----------------------------+----------+----------------------------+
-| ``spp                      | Concrete | Persistent cache entries   |
-| .aggregation.cache.entry`` |          | with TTL                   |
-+----------------------------+----------+----------------------------+
-| ``spp.ag                   | Abstract | Strategy-based scope       |
-| gregation.scope.resolver`` |          | resolution service         |
-+----------------------------+----------+----------------------------+
-| ``spp.aggregation.cache``  | Abstract | Cache service with TTL and |
-|                            |          | cleanup                    |
-+----------------------------+----------+----------------------------+
-| ``spp.aggreg               | Abstract | Statistic computation      |
-| ation.statistic.registry`` |          | registry (builtins + CEL)  |
-+----------------------------+----------+----------------------------+
-| `                          | Abstract | Main aggregation entry     |
-| `spp.aggregation.service`` |          | point                      |
-+----------------------------+----------+----------------------------+
++----------------------------------------+----------------------------------+
+| Model                                  | Description                      |
++========================================+==================================+
+| ``spp.aggregation.scope``              | Defines what to aggregate (CEL,  |
+|                                        | area, polygon, explicit IDs)     |
++----------------------------------------+----------------------------------+
+| ``spp.aggregation.access.rule``        | Per-user/group access level,     |
+|                                        | scope restrictions, k-threshold  |
++----------------------------------------+----------------------------------+
+| ``spp.aggregation.cache.entry``        | Cached aggregation results       |
++----------------------------------------+----------------------------------+
+| ``spp.aggregation.service``            | Abstract service: main           |
+|                                        | aggregation entry point          |
++----------------------------------------+----------------------------------+
+| ``spp.aggregation.scope.resolver``     | Abstract service: resolves       |
+|                                        | scopes to registrant IDs         |
++----------------------------------------+----------------------------------+
+| ``spp.aggregation.statistic.registry`` | Abstract service: dispatches     |
+|                                        | statistic computation            |
++----------------------------------------+----------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
 
-- Aggregation scopes: **Settings > Aggregation > Aggregation Scopes**
-- Access rules: **Settings > Aggregation > Access Rules**
-- Cache cleanup runs daily via scheduled action
+After installing:
+
+1. Navigate to **Settings > Aggregation > Configuration > Scopes** to
+   define reusable scopes
+2. Configure **Access Rules** to set per-user/group privacy levels and
+   scope restrictions
+3. Verify the **Cache Cleanup** scheduled action is active under
+   **Settings > Technical > Scheduled Actions**
+
+UI Location
+~~~~~~~~~~~
+
+- **Menu**: Settings > Aggregation > Configuration > Scopes
+- **Menu**: Settings > Aggregation > Configuration > Demographic
+  Dimensions
+- **Menu**: Settings > Aggregation > Configuration > Access Rules
 
 Security
 ~~~~~~~~
 
-+----------------------------------+----------------------------------+
-| Group                            | Access                           |
-+==================================+==================================+
-| ``spp_aggr                       | Read-only access to scopes and   |
-| egation.group_aggregation_read`` | cache                            |
-+----------------------------------+----------------------------------+
-| ``spp_aggre                      | Read/write scopes and access     |
-| gation.group_aggregation_write`` | rules                            |
-+----------------------------------+----------------------------------+
-| ``spp_aggreg                     | Implied by write group           |
-| ation.group_aggregation_viewer`` |                                  |
-+----------------------------------+----------------------------------+
-| ``spp_aggrega                    | Implied by viewer group          |
-| tion.group_aggregation_officer`` |                                  |
-+----------------------------------+----------------------------------+
-| ``spp_aggrega                    | Full access, implied by admin    |
-| tion.group_aggregation_manager`` |                                  |
-+----------------------------------+----------------------------------+
+============================= =============================
+Group                         Access
+============================= =============================
+``group_aggregation_read``    Read scopes and cache entries
+``group_aggregation_write``   Full CRUD on scopes and cache
+``group_aggregation_manager`` Full CRUD on access rules
+============================= =============================
+
+Extension Points
+~~~~~~~~~~~~~~~~
+
+- Add new scope types by extending ``spp.aggregation.scope`` and
+  ``spp.aggregation.scope.resolver``
+- Register custom statistics via ``spp.aggregation.statistic.registry``
+- Override ``_compute_single_statistic()`` for custom computation logic
 
 Dependencies
 ~~~~~~~~~~~~
