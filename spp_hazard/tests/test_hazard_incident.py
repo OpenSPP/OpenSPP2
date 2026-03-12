@@ -208,3 +208,135 @@ class TestHazardIncident(HazardTestCase):
         incident.action_close()
         self.assertTrue(incident.end_date)
         self.assertEqual(incident.status, "closed")
+
+    def test_16_close_preserves_existing_end_date(self):
+        """Test closing with existing end_date does not overwrite it."""
+        incident = self.env["spp.hazard.incident"].create(
+            {
+                "name": "Preserve End Date Test",
+                "code": "PRESERVE-END-TEST",
+                "category_id": self.category_typhoon.id,
+                "start_date": "2024-01-01",
+                "end_date": "2024-02-01",
+            }
+        )
+        incident.action_close()
+        self.assertEqual(str(incident.end_date), "2024-02-01")
+        self.assertEqual(incident.status, "closed")
+
+    def test_17_is_ongoing_alert_and_recovery(self):
+        """Test is_ongoing for alert and recovery statuses."""
+        incident = self.env["spp.hazard.incident"].create(
+            {
+                "name": "Alert Ongoing Test",
+                "code": "ALERT-ONGOING",
+                "category_id": self.category_typhoon.id,
+                "start_date": "2024-01-01",
+                "status": "alert",
+            }
+        )
+        # Alert with no end_date is ongoing
+        self.assertTrue(incident.is_ongoing)
+
+        # Recovery with no end_date is ongoing
+        incident.write({"status": "recovery"})
+        self.assertTrue(incident.is_ongoing)
+
+        # Closed with no end_date is NOT ongoing
+        incident.write({"status": "closed"})
+        self.assertFalse(incident.is_ongoing)
+
+    def test_18_date_validation_on_update(self):
+        """Test date constraint fires on update, not just creation."""
+        incident = self.env["spp.hazard.incident"].create(
+            {
+                "name": "Update Date Test",
+                "code": "UPDATE-DATE-TEST",
+                "category_id": self.category_typhoon.id,
+                "start_date": "2024-01-15",
+            }
+        )
+        with self.assertRaises(ValidationError):
+            incident.write({"end_date": "2024-01-01"})
+
+    def test_19_affected_registrant_count_distinct(self):
+        """Test affected_registrant_count counts distinct registrants."""
+        registrant2 = self.env["res.partner"].create(
+            {
+                "name": "Second Registrant",
+                "is_registrant": True,
+                "is_group": False,
+            }
+        )
+        incident = self.env["spp.hazard.incident"].create(
+            {
+                "name": "Multi Registrant Test",
+                "code": "MULTI-REG-TEST",
+                "category_id": self.category_typhoon.id,
+                "start_date": "2024-01-01",
+            }
+        )
+        Impact = self.env["spp.hazard.impact"]
+        # Two impacts for same registrant, one for different
+        Impact.create(
+            {
+                "incident_id": incident.id,
+                "registrant_id": self.registrant.id,
+                "impact_type_id": self.impact_type_displacement.id,
+                "damage_level": "moderate",
+                "impact_date": "2024-01-02",
+            }
+        )
+        Impact.create(
+            {
+                "incident_id": incident.id,
+                "registrant_id": self.registrant.id,
+                "impact_type_id": self.impact_type_property.id,
+                "damage_level": "severe",
+                "impact_date": "2024-01-02",
+            }
+        )
+        Impact.create(
+            {
+                "incident_id": incident.id,
+                "registrant_id": registrant2.id,
+                "impact_type_id": self.impact_type_displacement.id,
+                "damage_level": "minimal",
+                "impact_date": "2024-01-02",
+            }
+        )
+        # 3 impacts but only 2 distinct registrants
+        self.assertEqual(incident.impact_count, 3)
+        self.assertEqual(incident.affected_registrant_count, 2)
+
+    def test_20_affected_registrant_count_empty(self):
+        """Test affected_registrant_count on new/empty recordset."""
+        empty = self.env["spp.hazard.incident"].browse()
+        empty._compute_affected_registrant_count()
+        # Should not raise; field set to 0
+
+    def test_21_multi_record_close(self):
+        """Test action_close works on multiple records."""
+        inc1 = self.env["spp.hazard.incident"].create(
+            {
+                "name": "Multi Close 1",
+                "code": "MULTI-CLOSE-1",
+                "category_id": self.category_typhoon.id,
+                "start_date": "2024-01-01",
+            }
+        )
+        inc2 = self.env["spp.hazard.incident"].create(
+            {
+                "name": "Multi Close 2",
+                "code": "MULTI-CLOSE-2",
+                "category_id": self.category_typhoon.id,
+                "start_date": "2024-03-01",
+                "end_date": "2024-04-01",
+            }
+        )
+        (inc1 | inc2).action_close()
+        self.assertEqual(inc1.status, "closed")
+        self.assertEqual(inc2.status, "closed")
+        # inc1 gets auto end_date, inc2 preserves its own
+        self.assertTrue(inc1.end_date)
+        self.assertEqual(str(inc2.end_date), "2024-04-01")
