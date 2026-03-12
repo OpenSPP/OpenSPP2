@@ -10,7 +10,6 @@ Query Plan Nodes:
     EventValueCompare: Compare a field value from a registrant's event
     EventExists: Check if a matching event exists
     EventsAggregate: Aggregate values across multiple events
-    EventsCollection: Collection operations (exists, count, all, any)
     EventFieldRef: Reference to an event field (intermediate representation)
 
 Example:

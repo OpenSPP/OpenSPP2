@@ -106,19 +106,11 @@ class CelEventExecutor(models.AbstractModel):
         3. Extracts and compares the field value
         4. Returns matching partner IDs
         """
-        # Build temporal filter SQL
         temporal_clause, temporal_args = self._build_temporal_filter(plan)
-
-        # Build state filter SQL
         state_clause, state_args = self._build_state_filter(plan)
-
-        # Build selection SQL (DISTINCT ON for latest/first, simple filter for active/any)
         selection_sql, selection_wrapper = self._build_selection_sql(plan)
-
-        # Build field comparison SQL
         comparison_sql, comparison_args = self._build_field_comparison_sql(plan)
 
-        # Assemble the complete query
         if selection_wrapper:
             # For latest/first selection modes, we need a subquery with DISTINCT ON
             sql = SQL(
@@ -142,8 +134,8 @@ class CelEventExecutor(models.AbstractModel):
                 self.MAX_QUERY_RESULTS,
             )
         else:
-            # For active/any modes, simpler query without subquery
-            # Need to use 'e.' prefix for simple queries (no latest_event alias)
+            # For active/any modes, simpler query without subquery.
+            # Need to use 'e.' prefix (no latest_event alias).
             simple_comparison_sql = comparison_sql.replace("latest_event.", "e.")
             sql = SQL(
                 f"""
@@ -162,31 +154,17 @@ class CelEventExecutor(models.AbstractModel):
                 self.MAX_QUERY_RESULTS,
             )
 
-        # Execute query
         self.env.cr.execute(sql)
         partner_ids = [row[0] for row in self.env.cr.fetchall()]
 
-        # Warn if limit was reached
-        if len(partner_ids) >= self.MAX_QUERY_RESULTS:
-            _logger.warning(
-                "[CEL EVENT] Query hit result limit (%d). Results may be truncated. "
-                "Consider using more specific filters.",
-                self.MAX_QUERY_RESULTS,
-            )
-
-        # Log operation at INFO level without PII
+        self._warn_if_limit_reached(partner_ids)
         _logger.info(
             "[CEL EVENT] EventValueCompare SQL: event_type=%s field=%s matches=%d",
             plan.event_type,
             plan.field_name,
             len(partner_ids),
         )
-        # Log full details at DEBUG level (not shown in production)
-        _logger.debug(
-            "[CEL EVENT] EventValueCompare SQL details: op=%s rhs=%r",
-            plan.op,
-            plan.rhs,
-        )
+        _logger.debug("[CEL EVENT] EventValueCompare SQL details: op=%s rhs=%r", plan.op, plan.rhs)
 
         return partner_ids
 
@@ -242,19 +220,13 @@ class CelEventExecutor(models.AbstractModel):
                 )
                 continue
 
-        # Log operation at INFO level without PII
         _logger.info(
             "[CEL EVENT] EventValueCompare Python: event_type=%s field=%s matches=%d",
             plan.event_type,
             plan.field_name,
             len(matching_ids),
         )
-        # Log full details at DEBUG level (not shown in production)
-        _logger.debug(
-            "[CEL EVENT] EventValueCompare Python details: op=%s rhs=%r",
-            plan.op,
-            plan.rhs,
-        )
+        _logger.debug("[CEL EVENT] EventValueCompare Python details: op=%s rhs=%r", plan.op, plan.rhs)
 
         return matching_ids
 
@@ -290,23 +262,11 @@ class CelEventExecutor(models.AbstractModel):
             self.MAX_QUERY_RESULTS,
         )
 
-        # Execute query
         self.env.cr.execute(sql)
         partner_ids = [row[0] for row in self.env.cr.fetchall()]
 
-        # Warn if limit was reached
-        if len(partner_ids) >= self.MAX_QUERY_RESULTS:
-            _logger.warning(
-                "[CEL EVENT] Query hit result limit (%d). Results may be truncated. "
-                "Consider using more specific filters.",
-                self.MAX_QUERY_RESULTS,
-            )
-
-        _logger.info(
-            "[CEL EVENT] EventExists SQL: event_type=%s matches=%d",
-            plan.event_type,
-            len(partner_ids),
-        )
+        self._warn_if_limit_reached(partner_ids)
+        _logger.info("[CEL EVENT] EventExists SQL: event_type=%s matches=%d", plan.event_type, len(partner_ids))
 
         return partner_ids
 
@@ -403,19 +363,10 @@ class CelEventExecutor(models.AbstractModel):
             self.MAX_QUERY_RESULTS,
         )
 
-        # Execute query
         self.env.cr.execute(sql)
         partner_ids = [row[0] for row in self.env.cr.fetchall()]
 
-        # Warn if limit was reached
-        if len(partner_ids) >= self.MAX_QUERY_RESULTS:
-            _logger.warning(
-                "[CEL EVENT] Query hit result limit (%d). Results may be truncated. "
-                "Consider using more specific filters.",
-                self.MAX_QUERY_RESULTS,
-            )
-
-        # Log operation at INFO level without PII
+        self._warn_if_limit_reached(partner_ids)
         _logger.info(
             "[CEL EVENT] EventsAggregate SQL: event_type=%s agg=%s field=%s matches=%d",
             plan.event_type,
@@ -423,12 +374,7 @@ class CelEventExecutor(models.AbstractModel):
             plan.field_name,
             len(partner_ids),
         )
-        # Log full details at DEBUG level (not shown in production)
-        _logger.debug(
-            "[CEL EVENT] EventsAggregate SQL details: op=%s rhs=%r",
-            plan.op,
-            plan.rhs,
-        )
+        _logger.debug("[CEL EVENT] EventsAggregate SQL details: op=%s rhs=%r", plan.op, plan.rhs)
 
         return partner_ids
 
@@ -579,17 +525,11 @@ class CelEventExecutor(models.AbstractModel):
         """
         select_mode = plan.select if plan.select != "auto" else self._resolve_select_mode(plan.event_type)
 
-        if select_mode == "latest":
-            return "e.collection_date DESC, e.id DESC", True
-        elif select_mode == "latest_active":
-            return "e.collection_date DESC, e.id DESC", True
-        elif select_mode == "first":
-            return "e.collection_date ASC, e.id ASC", True
-        elif select_mode in ("active", "any"):
-            # No ordering needed, simple filter
+        if select_mode in ("active", "any"):
             return "", False
-
-        # Default to latest
+        if select_mode == "first":
+            return "e.collection_date ASC, e.id ASC", True
+        # latest, latest_active, and unknown modes all use latest ordering
         return "e.collection_date DESC, e.id DESC", True
 
     def _build_field_comparison_sql(self, plan: EventValueCompare) -> tuple[str, list[Any]]:
@@ -697,29 +637,23 @@ class CelEventExecutor(models.AbstractModel):
             return False
 
         if select_mode == "auto":
-            select_mode = "latest"  # Default
+            select_mode = "latest"
 
         if select_mode == "active":
-            # Return first active (should be only one)
             active = events.filtered(lambda e: e.state == "active")
             return active[0] if active else False
-        elif select_mode == "latest":
-            # Most recent by collection_date
-            return events.sorted(lambda e: (e.collection_date, e.id), reverse=True)[0]
-        elif select_mode == "latest_active":
-            # Most recent among active
+
+        if select_mode == "latest_active":
             active = events.filtered(lambda e: e.state == "active")
-            if active:
-                return active.sorted(lambda e: (e.collection_date, e.id), reverse=True)[0]
-            return False
-        elif select_mode == "first":
-            # Earliest by collection_date
+            return active.sorted(lambda e: (e.collection_date, e.id), reverse=True)[0] if active else False
+
+        if select_mode == "first":
             return events.sorted(lambda e: (e.collection_date, e.id))[0]
-        elif select_mode == "any":
-            # Any event (first in recordset)
+
+        if select_mode == "any":
             return events[0]
 
-        # Default: latest
+        # latest mode and unknown modes default to most recent
         return events.sorted(lambda e: (e.collection_date, e.id), reverse=True)[0]
 
     def _compute_aggregation(self, events, agg: str, field_name: str | None) -> Any:
@@ -739,13 +673,11 @@ class CelEventExecutor(models.AbstractModel):
         if not field_name:
             return 0
 
-        # Extract field values
         values = []
         for event in events:
             val = event.get_data_value(field_name)
             if val is not None:
                 try:
-                    # Try to convert to numeric
                     values.append(float(val))
                 except (ValueError, TypeError):
                     pass
@@ -753,16 +685,13 @@ class CelEventExecutor(models.AbstractModel):
         if not values:
             return 0
 
-        if agg == "sum":
-            return sum(values)
-        elif agg == "avg":
-            return sum(values) / len(values)
-        elif agg == "min":
-            return min(values)
-        elif agg == "max":
-            return max(values)
-
-        return 0
+        agg_funcs = {
+            "sum": sum,
+            "avg": lambda v: sum(v) / len(v),
+            "min": min,
+            "max": max,
+        }
+        return agg_funcs.get(agg, lambda v: 0)(values)
 
     def _compare_value(self, a: Any, op: str, b: Any) -> bool:
         """Compare two values with given operator.
@@ -775,14 +704,13 @@ class CelEventExecutor(models.AbstractModel):
         Returns:
             True if comparison holds, False otherwise
         """
-        # Handle None
         if a is None:
             return (op == "==" and b is None) or (op == "!=" and b is not None)
 
         # Try numeric comparison first
         try:
-            a_num = float(a) if not isinstance(a, bool) else a
-            b_num = float(b) if not isinstance(b, bool) else b
+            a_cmp = float(a) if not isinstance(a, bool) else a
+            b_cmp = float(b) if not isinstance(b, bool) else b
             ops = {
                 "==": lambda x, y: x == y,
                 "!=": lambda x, y: x != y,
@@ -791,23 +719,33 @@ class CelEventExecutor(models.AbstractModel):
                 "<": lambda x, y: x < y,
                 "<=": lambda x, y: x <= y,
             }
-            return ops[op](a_num, b_num)
+            return ops[op](a_cmp, b_cmp)
         except (ValueError, TypeError, KeyError):
             pass
 
-        # Fall back to string comparison
+        # Fall back to string comparison (only == and != are meaningful for strings)
         try:
-            ops = {
-                "==": lambda x, y: x == y,
-                "!=": lambda x, y: x != y,
-            }
-            return ops.get(op, lambda x, y: False)(str(a), str(b))
-        except (ValueError, TypeError, KeyError):
-            return False
+            if op == "==":
+                return str(a) == str(b)
+            if op == "!=":
+                return str(a) != str(b)
+        except (ValueError, TypeError):
+            pass
+
+        return False
 
     # ══════════════════════════════════════════════════════════════════════════════
     # Utility Helpers
     # ══════════════════════════════════════════════════════════════════════════════
+
+    def _warn_if_limit_reached(self, partner_ids: list[int]) -> None:
+        """Emit a warning when query results hit MAX_QUERY_RESULTS."""
+        if len(partner_ids) >= self.MAX_QUERY_RESULTS:
+            _logger.warning(
+                "[CEL EVENT] Query hit result limit (%d). Results may be truncated. "
+                "Consider using more specific filters.",
+                self.MAX_QUERY_RESULTS,
+            )
 
     def _validate_field_name(self, field_name: str) -> str:
         """Validate and sanitize field name to prevent SQL injection.
@@ -824,9 +762,12 @@ class CelEventExecutor(models.AbstractModel):
         if not field_name or not isinstance(field_name, str):
             raise ValueError("Field name must be a non-empty string")
 
-        # SECURITY: This regex is the sole barrier against SQL injection for field names
-        # interpolated into SQL queries via _build_field_comparison_sql and _exec_event_aggregate_sql.
-        # Do not relax this pattern without also changing those methods to use parameterized field names.
+        # SECURITY: This regex and length cap are the barriers against SQL injection for field
+        # names interpolated into SQL queries via _build_field_comparison_sql and
+        # _exec_event_aggregate_sql. Do not relax without also changing those methods to use
+        # parameterized field names.
+        if len(field_name) > 128:
+            raise ValueError(f"Field name too long ({len(field_name)} chars, max 128)")
         if not re.match(r"^[a-zA-Z][a-zA-Z0-9_]*$", field_name):
             raise ValueError(f"Invalid field name: {field_name!r}. Only alphanumeric and underscore allowed.")
 
@@ -841,15 +782,10 @@ class CelEventExecutor(models.AbstractModel):
         Returns:
             List of state strings
         """
-        if select_mode in ("active", "latest_active"):
-            return ["active"]
-        elif select_mode in ("latest", "first"):
+        if select_mode in ("latest", "first"):
             return ["active", "superseded", "expired"]
-        elif select_mode == "any":
-            return ["active"]
-
-        # Default: include historical states
-        return ["active", "superseded", "expired"]
+        # active, latest_active, any — and unknown modes — all default to active only
+        return ["active"]
 
     def _resolve_select_mode(self, event_type_code: str) -> str:
         """Resolve 'auto' select mode to actual mode based on event type config.

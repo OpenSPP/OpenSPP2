@@ -15,7 +15,7 @@ def post_init_hook(env):
     sql_file = os.path.join(module_path, "data", "cel_event_indexes.sql")
 
     if os.path.exists(sql_file):
-        with open(sql_file) as f:
+        with open(sql_file, encoding="utf-8") as f:
             sql = f.read()
 
         # Execute SQL

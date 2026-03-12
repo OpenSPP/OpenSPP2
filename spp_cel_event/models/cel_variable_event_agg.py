@@ -142,20 +142,15 @@ class CELVariableEventAggregation(models.Model):
             parts.append(f"'{field}'")
 
         # Temporal filter
-        temporal_part = None
-        if self.event_agg_temporal == "this_year":
-            temporal_part = "period=this_year()"
-        elif self.event_agg_temporal == "this_quarter":
-            temporal_part = "period=this_quarter()"
-        elif self.event_agg_temporal == "this_month":
-            temporal_part = "period=this_month()"
-        elif self.event_agg_temporal == "within_days" and self.event_agg_temporal_value:
-            temporal_part = f"within_days={self.event_agg_temporal_value}"
-        elif self.event_agg_temporal == "within_months" and self.event_agg_temporal_value:
-            temporal_part = f"within_months={self.event_agg_temporal_value}"
-
-        if temporal_part:
-            parts.append(temporal_part)
+        named_period_map = {
+            "this_year": "period=this_year()",
+            "this_quarter": "period=this_quarter()",
+            "this_month": "period=this_month()",
+        }
+        if self.event_agg_temporal in named_period_map:
+            parts.append(named_period_map[self.event_agg_temporal])
+        elif self.event_agg_temporal in ("within_days", "within_months") and self.event_agg_temporal_value:
+            parts.append(f"{self.event_agg_temporal}={self.event_agg_temporal_value}")
 
         # States filter
         if self.event_agg_states == "all":

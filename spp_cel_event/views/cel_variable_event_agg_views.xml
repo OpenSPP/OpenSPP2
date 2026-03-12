@@ -28,11 +28,13 @@
                     <field
                         name="event_agg_temporal_value"
                         invisible="event_agg_temporal not in ('within_days', 'within_months')"
+                        required="event_agg_temporal in ('within_days', 'within_months')"
                         help="Number of days or months"
                     />
                     <field
                         name="event_agg_field"
                         invisible="aggregate_type in ('count', 'exists')"
+                        required="aggregate_target == 'events' and aggregate_type in ('sum', 'avg', 'min', 'max')"
                         placeholder="e.g., amount, score"
                         help="Name of the data field in the event record to aggregate (e.g., 'amount', 'score')"
                     />
@@ -46,7 +48,12 @@
                     </span>
                 </group>
                 <!-- Generated expression preview -->
-                <div invisible="aggregate_target != 'events'" colspan="2" class="mt-2">
+                <div
+                    name="event_agg_expression_preview"
+                    invisible="aggregate_target != 'events'"
+                    colspan="2"
+                    class="mt-2"
+                >
                     <label
                         for="cel_expression"
                         string="Generated Expression"
