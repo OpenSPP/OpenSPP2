@@ -380,11 +380,12 @@ ticket history on both ticket and registrant forms.</p>
 <li>Link tickets to individual registrants (<tt class="docutils literal">registrant_id</tt>) and
 households (<tt class="docutils literal">household_id</tt>)</li>
 <li>Auto-populate ticket fields: when registrant is selected, fills
-<tt class="docutils literal">partner_id</tt>, <tt class="docutils literal">area_id</tt>, and <tt class="docutils literal">household_id</tt> from registrant data</li>
+<tt class="docutils literal">partner_id</tt>, <tt class="docutils literal">area_id</tt>, and <tt class="docutils literal">household_id</tt> from registrant
+data</li>
 <li>Detect repeat tickets: compute <tt class="docutils literal">is_repeat</tt> and <tt class="docutils literal">repeat_count</tt> for
 tickets filed by the same registrant in last 6 months</li>
-<li>Display warning banner and previous tickets button on ticket form when
-<tt class="docutils literal">is_repeat=True</tt></li>
+<li>Display warning banner and previous tickets button on ticket form
+when <tt class="docutils literal">is_repeat=True</tt></li>
 <li>Track ticket counts on registrant profiles with smart buttons (total
 and open counts)</li>
 <li>Filter tickets by registrant, household, area, or repeat status</li>
@@ -422,7 +423,8 @@ count fields</td>
 <li>Warning banner displays when <tt class="docutils literal">is_repeat=True</tt></li>
 <li>“Previous Tickets” button in header (visible when
 <tt class="docutils literal">repeat_count &gt; 0</tt>)</li>
-<li>“Previous Tickets” tab in notebook (visible when <tt class="docutils literal">repeat_count &gt; 0</tt>)</li>
+<li>“Previous Tickets” tab in notebook (visible when
+<tt class="docutils literal">repeat_count &gt; 0</tt>)</li>
 </ul>
 <p><strong>Registrant Form</strong>:</p>
 <ul class="simple">

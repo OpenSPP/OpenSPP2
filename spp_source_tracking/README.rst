@@ -30,19 +30,19 @@ audit trails and relationship transfer.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Source detection: Distinguishes between Odoo UI, API, bulk import,
-  mobile app, migration, and merge operations via context and HTTP
-  headers
-- Immutable creation tracking: Records source system, source reference,
-  collection method, and collection date at creation
-- Update tracking: Maintains last update system and reference for all
-  modifications
-- Registrant merge: Transfers identifiers, relationships, and program
-  memberships from merged record to survivor
-- Merge provenance: Preserves audit trail with JSON data snapshots and
-  merge chain pointers
-- Merge chain resolution: Follows ``merged_into_id`` pointers to find
-  current active partner
+-  Source detection: Distinguishes between Odoo UI, API, bulk import,
+   mobile app, migration, and merge operations via context and HTTP
+   headers
+-  Immutable creation tracking: Records source system, source reference,
+   collection method, and collection date at creation
+-  Update tracking: Maintains last update system and reference for all
+   modifications
+-  Registrant merge: Transfers identifiers, relationships, and program
+   memberships from merged record to survivor
+-  Merge provenance: Preserves audit trail with JSON data snapshots and
+   merge chain pointers
+-  Merge chain resolution: Follows ``merged_into_id`` pointers to find
+   current active partner
 
 Key Models
 ~~~~~~~~~~
@@ -69,11 +69,12 @@ Key Models
 UI Location
 ~~~~~~~~~~~
 
-- **Source Tracking Tab**: Individual and group registrant forms under
-  "Source Tracking"
-- **Merge History Menu**: Registry > Configuration > Merge History
-- **Search Filters**: Partner search includes filters for source system,
-  collection method, merged records, and records with merge history
+-  **Source Tracking Tab**: Individual and group registrant forms under
+   "Source Tracking"
+-  **Merge History Menu**: Registry > Configuration > Merge History
+-  **Search Filters**: Partner search includes filters for source
+   system, collection method, merged records, and records with merge
+   history
 
 Security
 ~~~~~~~~
@@ -89,14 +90,14 @@ Group                                   Access
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Override ``_selection_collection_method()`` to add custom collection
-  methods
-- Inherit ``spp.mixin.source.tracking`` in any model to enable source
-  tracking
-- Override ``_get_merge_snapshot()`` to customize which fields are
-  preserved in merge audit trail
-- Override ``_transfer_relationships()`` or ``_transfer_memberships()``
-  to customize merge behavior
+-  Override ``_selection_collection_method()`` to add custom collection
+   methods
+-  Inherit ``spp.mixin.source.tracking`` in any model to enable source
+   tracking
+-  Override ``_get_merge_snapshot()`` to customize which fields are
+   preserved in merge audit trail
+-  Override ``_transfer_relationships()`` or ``_transfer_memberships()``
+   to customize merge behavior
 
 Configuration
 ~~~~~~~~~~~~~

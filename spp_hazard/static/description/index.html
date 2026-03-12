@@ -387,9 +387,10 @@ overrides</li>
 social) and damage level</li>
 <li>Verify impact records with workflow states (reported, verified,
 disputed, closed)</li>
-<li>Bulk-create impact records for all registrants in an affected area via
-<tt class="docutils literal">bulk_create_impacts()</tt></li>
-<li>Identify potentially affected registrants based on geographic location</li>
+<li>Bulk-create impact records for all registrants in an affected area
+via <tt class="docutils literal">bulk_create_impacts()</tt></li>
+<li>Identify potentially affected registrants based on geographic
+location</li>
 </ul>
 </div>
 <div class="section" id="key-models">
@@ -492,8 +493,8 @@ configuration</td>
 <h1>Extension Points</h1>
 <ul class="simple">
 <li>Inherit <tt class="docutils literal">spp.hazard.incident</tt> and override
-<tt class="docutils literal">identify_potentially_affected_registrants()</tt> to customize targeting
-logic</li>
+<tt class="docutils literal">identify_potentially_affected_registrants()</tt> to customize
+targeting logic</li>
 <li>Inherit <tt class="docutils literal">spp.hazard.impact</tt> to add domain-specific impact fields
 (e.g., crop damage for farmer registries)</li>
 <li>Override <tt class="docutils literal">bulk_create_impacts()</tt> to customize mass impact record

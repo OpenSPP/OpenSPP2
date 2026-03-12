@@ -33,17 +33,17 @@ scheduled activation.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Create and test CEL expressions with real-time variable discovery and
-  validation
-- Add custom fields to Individual and Group registries through a guided
-  builder
-- Install pre-built logic packs for cash transfers, PMT targeting, child
-  benefits, social pensions, and other programs
-- Test expressions using personas with example data before deployment
-- Manage lifecycle through governance workflow: draft, pending approval,
-  published, archived
-- Track version history with scheduled activation for future changes
-- Monitor where logic and fields are used across programs
+-  Create and test CEL expressions with real-time variable discovery and
+   validation
+-  Add custom fields to Individual and Group registries through a guided
+   builder
+-  Install pre-built logic packs for cash transfers, PMT targeting,
+   child benefits, social pensions, and other programs
+-  Test expressions using personas with example data before deployment
+-  Manage lifecycle through governance workflow: draft, pending
+   approval, published, archived
+-  Track version history with scheduled activation for future changes
+-  Monitor where logic and fields are used across programs
 
 Key Models
 ~~~~~~~~~~
@@ -100,12 +100,12 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
-- **Menu**: Studio (top-level menu)
-- **Home**: Studio > Home
-- **Rules**: Studio > Rules > Expressions, Variables, Packages, Test
-  Personas
-- **Custom Fields**: Studio > Forms & Fields > Custom Fields
-- **Settings**: Studio > Settings (managers only)
+-  **Menu**: Studio (top-level menu)
+-  **Home**: Studio > Home
+-  **Rules**: Studio > Rules > Expressions, Variables, Packages, Test
+   Personas
+-  **Custom Fields**: Studio > Forms & Fields > Custom Fields
+-  **Settings**: Studio > Settings (managers only)
 
 Security
 ~~~~~~~~
@@ -126,14 +126,14 @@ Security
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Inherit ``spp.cel.expression`` to add domain-specific validation or
-  compilation steps
-- Override ``_pre_activate()`` on ``spp.studio.field`` to customize
-  field creation behavior
-- Add new logic pack categories by extending the ``category`` selection
-  field
-- Implement custom variable sources by inheriting ``spp.cel.variable``
-  and overriding discovery methods
+-  Inherit ``spp.cel.expression`` to add domain-specific validation or
+   compilation steps
+-  Override ``_pre_activate()`` on ``spp.studio.field`` to customize
+   field creation behavior
+-  Add new logic pack categories by extending the ``category`` selection
+   field
+-  Implement custom variable sources by inheriting ``spp.cel.variable``
+   and overriding discovery methods
 
 Dependencies
 ~~~~~~~~~~~~

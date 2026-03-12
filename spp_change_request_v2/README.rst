@@ -31,21 +31,21 @@ group/household registrant data, with validation and audit trails.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Create change requests using configurable request types with custom
-  detail models
-- Multi-tier approval workflows with automatic routing based on approval
-  definitions
-- Dynamic approval: route CRs to different approval workflows based on
-  which field is being modified, with CEL condition evaluation for
-  field-specific escalation
-- Detect conflicting change requests (same registrant, same group, or
-  same field)
-- Prevent duplicate submissions with configurable similarity thresholds
-- Validate required fields and documents before submission
-- Preview changes before applying them to registrant records
-- Apply changes via field mapping or custom strategies
-- Track audit trail of all state changes via event data
-- Attach supporting documents organized in DMS directories
+-  Create change requests using configurable request types with custom
+   detail models
+-  Multi-tier approval workflows with automatic routing based on
+   approval definitions
+-  Dynamic approval: route CRs to different approval workflows based on
+   which field is being modified, with CEL condition evaluation for
+   field-specific escalation
+-  Detect conflicting change requests (same registrant, same group, or
+   same field)
+-  Prevent duplicate submissions with configurable similarity thresholds
+-  Validate required fields and documents before submission
+-  Preview changes before applying them to registrant records
+-  Apply changes via field mapping or custom strategies
+-  Track audit trail of all state changes via event data
+-  Attach supporting documents organized in DMS directories
 
 Key Models
 ~~~~~~~~~~
@@ -113,14 +113,15 @@ Form Tabs
 
 Change request form view includes the following tabs:
 
-- **Details**: Split-pane view showing current registrant data and
-  proposed changes
-- **Documents**: Upload and manage supporting documents via DMS
-  integration
-- **Notes**: Description and internal notes fields
-- **Revision Requested**: Feedback from reviewers (visible when changes
-  requested)
-- **Status History**: Timeline of approval reviews and state transitions
+-  **Details**: Split-pane view showing current registrant data and
+   proposed changes
+-  **Documents**: Upload and manage supporting documents via DMS
+   integration
+-  **Notes**: Description and internal notes fields
+-  **Revision Requested**: Feedback from reviewers (visible when changes
+   requested)
+-  **Status History**: Timeline of approval reviews and state
+   transitions
 
 Configuration
 ~~~~~~~~~~~~~
@@ -142,21 +143,21 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
-- **Menu**: Change Requests (top-level menu)
+-  **Menu**: Change Requests (top-level menu)
 
-  - **All Requests**: View all change requests with filtering
-  - **New Request**: Launch wizard to create change request
-  - **Pending Approval**: Queue of requests awaiting validator action
-    (validators only)
-  - **Reporting > Analytics**: Pivot and graph views for change request
-    analysis (managers only)
-  - **Configuration**: Change request types, conflict rules, duplicate
-    detection (managers only)
+   -  **All Requests**: View all change requests with filtering
+   -  **New Request**: Launch wizard to create change request
+   -  **Pending Approval**: Queue of requests awaiting validator action
+      (validators only)
+   -  **Reporting > Analytics**: Pivot and graph views for change
+      request analysis (managers only)
+   -  **Configuration**: Change request types, conflict rules, duplicate
+      detection (managers only)
 
-- **Registrant Profile**: Change requests appear in registrant form
-  under smart buttons and related tabs
-- **Wizards**: New Request wizard for guided CR creation, batch approval
-  for validators
+-  **Registrant Profile**: Change requests appear in registrant form
+   under smart buttons and related tabs
+-  **Wizards**: New Request wizard for guided CR creation, batch
+   approval for validators
 
 Security
 ~~~~~~~~
@@ -184,16 +185,16 @@ Security
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Inherit ``spp.change.request.type`` and override
-  ``get_apply_strategy()`` to add custom application logic
-- Inherit ``spp.cr.conflict.mixin`` and override
-  ``_check_custom_conflicts()`` for custom conflict detection
-- Create new detail models inheriting ``spp.cr.detail.base`` for custom
-  change request types
-- Override ``_validate_documents()`` on ``spp.change.request`` for
-  custom document validation
-- Use ``_pre_enrollment_hook()`` and ``_post_enrollment_hook()``
-  patterns for side effects during application
+-  Inherit ``spp.change.request.type`` and override
+   ``get_apply_strategy()`` to add custom application logic
+-  Inherit ``spp.cr.conflict.mixin`` and override
+   ``_check_custom_conflicts()`` for custom conflict detection
+-  Create new detail models inheriting ``spp.cr.detail.base`` for custom
+   change request types
+-  Override ``_validate_documents()`` on ``spp.change.request`` for
+   custom document validation
+-  Use ``_pre_enrollment_hook()`` and ``_post_enrollment_hook()``
+   patterns for side effects during application
 
 Dependencies
 ~~~~~~~~~~~~
@@ -276,13 +277,13 @@ A CR type that lets users update a single field with one-tier approval.
 
 Key points:
 
-- Always inherit ``spp.cr.detail.base`` (required) and ``mail.thread``
-  (for tracking)
-- Never use ``required=True`` on detail fields — the detail record is
-  created empty by ``_ensure_detail()`` and populated later
-- ``_get_prefill_mapping()`` returns
-  ``{detail_field: registrant_field}`` — the base class copies current
-  registrant values into the detail on creation
+-  Always inherit ``spp.cr.detail.base`` (required) and ``mail.thread``
+   (for tracking)
+-  Never use ``required=True`` on detail fields — the detail record is
+   created empty by ``_ensure_detail()`` and populated later
+-  ``_get_prefill_mapping()`` returns
+   ``{detail_field: registrant_field}`` — the base class copies current
+   registrant values into the detail on creation
 
 **Detail form view**
 
@@ -848,26 +849,27 @@ Checklist
 
 Before declaring a new CR type complete:
 
-- Detail model inherits ``spp.cr.detail.base`` and ``mail.thread``
-- No ``required=True`` on detail fields (validate at submission, not
-  creation)
-- ``_get_prefill_mapping()`` defined if fields should pre-fill from
-  registrant
-- ``prefill_from_registrant()`` overridden if detail has boolean fields
-- Form view uses ``approval_state`` (not raw state field) for visibility
-- Form view uses ``use_dynamic_approval`` (not the 3-level chain) for
-  dynamic visibility
-- Views listed before data in ``__manifest__.py`` (data references
-  ``detail_form_view_id``)
-- ``ir.model.access.csv`` has 4 rows (user, validator, validator_hq,
-  manager)
-- Field mappings exist for every field that should be applied to the
-  registrant
-- Approval definition has ``model_id`` pointing to
-  ``spp_change_request_v2.model_spp_change_request``
-- If multi-tier: tiers created before ``use_multitier=True`` is set
-- If dynamic: fallback definition has ``sequence=100`` (evaluated last)
-- Tests cover CR creation, approval routing, and field application
+-  Detail model inherits ``spp.cr.detail.base`` and ``mail.thread``
+-  No ``required=True`` on detail fields (validate at submission, not
+   creation)
+-  ``_get_prefill_mapping()`` defined if fields should pre-fill from
+   registrant
+-  ``prefill_from_registrant()`` overridden if detail has boolean fields
+-  Form view uses ``approval_state`` (not raw state field) for
+   visibility
+-  Form view uses ``use_dynamic_approval`` (not the 3-level chain) for
+   dynamic visibility
+-  Views listed before data in ``__manifest__.py`` (data references
+   ``detail_form_view_id``)
+-  ``ir.model.access.csv`` has 4 rows (user, validator, validator_hq,
+   manager)
+-  Field mappings exist for every field that should be applied to the
+   registrant
+-  Approval definition has ``model_id`` pointing to
+   ``spp_change_request_v2.model_spp_change_request``
+-  If multi-tier: tiers created before ``use_multitier=True`` is set
+-  If dynamic: fallback definition has ``sequence=100`` (evaluated last)
+-  Tests cover CR creation, approval routing, and field application
 
 Bug Tracker
 ===========

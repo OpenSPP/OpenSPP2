@@ -30,17 +30,17 @@ scheduling via cron job ensures timely case monitoring.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Track cases for individuals, households, or groups with configurable
-  types and workflow stages
-- Conduct assessments with risk scoring (0-100) and automatic risk level
-  classification (low/medium/high/critical)
-- Create versioned intervention plans with approval workflows and
-  progress tracking
-- Document case activities: visits, notes, referrals to external
-  services
-- Assign cases to workers and teams with supervisor oversight
-- Schedule automated review reminders for cases approaching or past
-  review dates
+-  Track cases for individuals, households, or groups with configurable
+   types and workflow stages
+-  Conduct assessments with risk scoring (0-100) and automatic risk
+   level classification (low/medium/high/critical)
+-  Create versioned intervention plans with approval workflows and
+   progress tracking
+-  Document case activities: visits, notes, referrals to external
+   services
+-  Assign cases to workers and teams with supervisor oversight
+-  Schedule automated review reminders for cases approaching or past
+   review dates
 
 Key Models
 ~~~~~~~~~~
@@ -106,15 +106,15 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
-- **Cases**: Case Management > Cases > All Cases / My Cases / Unassigned
-  Cases
-- **Activities**: Case Management > Activities > Visits / Notes /
-  Referrals / Assessments
-- **Planning**: Case Management > Planning > Intervention Plans /
-  Interventions
-- **Configuration**: Case Management > Configuration (Manager role
-  required)
-- **Form tabs**: Details, Participants, Programs, History
+-  **Cases**: Case Management > Cases > All Cases / My Cases /
+   Unassigned Cases
+-  **Activities**: Case Management > Activities > Visits / Notes /
+   Referrals / Assessments
+-  **Planning**: Case Management > Planning > Intervention Plans /
+   Interventions
+-  **Configuration**: Case Management > Configuration (Manager role
+   required)
+-  **Form tabs**: Details, Participants, Programs, History
 
 Security
 ~~~~~~~~
@@ -131,13 +131,13 @@ Group                     Access
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Override ``_check_stage_requirements()`` on ``spp.case`` for custom
-  stage validation
-- Override ``_compute_risk_level()`` on ``spp.case.assessment`` to
-  customize risk calculation thresholds
-- Extend ``spp.case.intervention.plan`` with domain-specific fields
-- Hook ``_cron_check_reviews()`` to add custom review logic or
-  notification templates
+-  Override ``_check_stage_requirements()`` on ``spp.case`` for custom
+   stage validation
+-  Override ``_compute_risk_level()`` on ``spp.case.assessment`` to
+   customize risk calculation thresholds
+-  Extend ``spp.case.intervention.plan`` with domain-specific fields
+-  Hook ``_cron_check_reviews()`` to add custom review logic or
+   notification templates
 
 Dependencies
 ~~~~~~~~~~~~

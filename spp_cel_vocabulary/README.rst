@@ -31,20 +31,20 @@ vocabulary function calls into Odoo domains. Auto-installs when both
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- **CEL Function Registration**: Registers vocabulary functions
-  (``code()``, ``in_group()``, ``code_eq()``, ``head()``) with the CEL
-  function registry for use in eligibility expressions
-- **Domain Translation**: Extends ``spp.cel.translator`` to translate
-  vocabulary function calls into Odoo domains that check ``uri`` and
-  ``reference_uri`` fields
-- **Semantic Helpers**: Provides shorthand functions (``is_female()``,
-  ``is_male()``, ``is_head()``, ``is_pregnant()``) that map to
-  predefined concept groups
-- **Concept Group Management**: Creates standard concept groups on
-  installation (gender, household roles, pregnancy status, hazards, age
-  groups, disability)
-- **Local Code Support**: Handles semantic equality for local codes that
-  map to standard codes via ``reference_uri``
+-  **CEL Function Registration**: Registers vocabulary functions
+   (``code()``, ``in_group()``, ``code_eq()``, ``head()``) with the CEL
+   function registry for use in eligibility expressions
+-  **Domain Translation**: Extends ``spp.cel.translator`` to translate
+   vocabulary function calls into Odoo domains that check ``uri`` and
+   ``reference_uri`` fields
+-  **Semantic Helpers**: Provides shorthand functions (``is_female()``,
+   ``is_male()``, ``is_head()``, ``is_pregnant()``) that map to
+   predefined concept groups
+-  **Concept Group Management**: Creates standard concept groups on
+   installation (gender, household roles, pregnancy status, hazards, age
+   groups, disability)
+-  **Local Code Support**: Handles semantic equality for local codes
+   that map to standard codes via ``reference_uri``
 
 Key Models
 ~~~~~~~~~~
@@ -111,13 +111,13 @@ via ``post_init_hook``.
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Inherit ``spp.cel.translator`` and override ``_to_plan()`` to add
-  custom vocabulary function translations
-- Add new semantic helper functions to
-  ``services/cel_vocabulary_functions.py`` and register them in
-  ``VOCABULARY_FUNCTIONS`` dict
-- Create additional concept groups via data files or UI to support
-  domain-specific eligibility patterns
+-  Inherit ``spp.cel.translator`` and override ``_to_plan()`` to add
+   custom vocabulary function translations
+-  Add new semantic helper functions to
+   ``services/cel_vocabulary_functions.py`` and register them in
+   ``VOCABULARY_FUNCTIONS`` dict
+-  Create additional concept groups via data files or UI to support
+   domain-specific eligibility patterns
 
 Dependencies
 ~~~~~~~~~~~~

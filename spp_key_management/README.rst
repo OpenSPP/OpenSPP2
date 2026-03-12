@@ -32,20 +32,20 @@ index computation, and audit logging of key operations.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Symmetric encryption/decryption using AES-256-GCM with envelope
-  encryption pattern
-- Asymmetric key management for JWT signing and credential issuance
-  (RSA, EC, Ed25519)
-- Blind index computation using HMAC-SHA256 for searchable encrypted
-  data
-- Key rotation with versioning (old versions remain available for
-  decryption)
-- Pluggable provider system: switch between local database storage and
-  enterprise KMS
-- HSM/KMS signing operations where private keys never leave secure
-  hardware
-- Audit logging of all key access operations (without logging sensitive
-  key material)
+-  Symmetric encryption/decryption using AES-256-GCM with envelope
+   encryption pattern
+-  Asymmetric key management for JWT signing and credential issuance
+   (RSA, EC, Ed25519)
+-  Blind index computation using HMAC-SHA256 for searchable encrypted
+   data
+-  Key rotation with versioning (old versions remain available for
+   decryption)
+-  Pluggable provider system: switch between local database storage and
+   enterprise KMS
+-  HSM/KMS signing operations where private keys never leave secure
+   hardware
+-  Audit logging of all key access operations (without logging sensitive
+   key material)
 
 Key Models
 ~~~~~~~~~~
@@ -108,13 +108,13 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
-- **Menu**: Settings > Administration > Key Management
-- **Submenus**:
+-  **Menu**: Settings > Administration > Key Management
+-  **Submenus**:
 
-  - Key Providers (configure which KMS backend to use)
-  - Encryption Keys (view stored keys and versions)
-  - Asymmetric Keys (manage signing keys for credentials)
-  - Key Purposes (define key segregation policies)
+   -  Key Providers (configure which KMS backend to use)
+   -  Encryption Keys (view stored keys and versions)
+   -  Asymmetric Keys (manage signing keys for credentials)
+   -  Key Purposes (define key segregation policies)
 
 Security
 ~~~~~~~~
@@ -140,16 +140,16 @@ material).
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Inherit ``spp.key.provider`` and implement ``get_data_key()`` and
-  ``get_index_salt()`` to add custom KMS backends
-- Override ``spp.key.manager.encrypt()`` or ``decrypt()`` to customize
-  encryption behavior
-- Call ``key_manager.get_key(purpose, key_id)`` from other modules to
-  retrieve keys for encryption
-- Call ``key_manager.compute_blind_index(value, purpose, salt_id)`` to
-  create searchable indexes for encrypted fields
-- Use ``spp.asymmetric.key.sign(data)`` for HSM-backed signing without
-  exposing private keys
+-  Inherit ``spp.key.provider`` and implement ``get_data_key()`` and
+   ``get_index_salt()`` to add custom KMS backends
+-  Override ``spp.key.manager.encrypt()`` or ``decrypt()`` to customize
+   encryption behavior
+-  Call ``key_manager.get_key(purpose, key_id)`` from other modules to
+   retrieve keys for encryption
+-  Call ``key_manager.compute_blind_index(value, purpose, salt_id)`` to
+   create searchable indexes for encrypted fields
+-  Use ``spp.asymmetric.key.sign(data)`` for HSM-backed signing without
+   exposing private keys
 
 Dependencies
 ~~~~~~~~~~~~

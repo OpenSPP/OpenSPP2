@@ -28,13 +28,13 @@ endpoints, spatial queries, and geofence management.
 Key Features
 ------------
 
-- **OGC API - Features**: Standards-compliant feature collections
-  (GovStack GIS BB)
-- **GeoJSON Export**: Get pre-aggregated layer data for QGIS
-- **QML Styling**: Fetch QGIS style files for consistent visualization
-- **Spatial Queries**: Query registrant statistics within arbitrary
-  polygons using PostGIS
-- **Geofence Management**: Save and manage areas of interest
+-  **OGC API - Features**: Standards-compliant feature collections
+   (GovStack GIS BB)
+-  **GeoJSON Export**: Get pre-aggregated layer data for QGIS
+-  **QML Styling**: Fetch QGIS style files for consistent visualization
+-  **Spatial Queries**: Query registrant statistics within arbitrary
+   polygons using PostGIS
+-  **Geofence Management**: Save and manage areas of interest
 
 Architecture
 ------------
@@ -42,11 +42,11 @@ Architecture
 Follows thin client architecture where QGIS displays data and OpenSPP
 performs all computation:
 
-- All spatial queries executed in PostGIS for performance (including
-  bbox via ST_Intersects)
-- Pre-aggregated data returned to minimize data transfer
-- Configuration-driven styling using QML templates
-- JWT authentication with scope-based access control
+-  All spatial queries executed in PostGIS for performance (including
+   bbox via ST_Intersects)
+-  Pre-aggregated data returned to minimize data transfer
+-  Configuration-driven styling using QML templates
+-  JWT authentication with scope-based access control
 
 API Endpoints
 -------------
@@ -107,31 +107,32 @@ Scopes and Data Privacy
 **Aggregated statistics only.** No endpoint in this module returns
 individual registrant records.
 
-- **OGC collections/items**: Return GeoJSON features organized by
-  administrative area, with pre-computed aggregate values (counts,
-  percentages). Each feature represents an *area*, not a person.
-- **Spatial query statistics** (``POST /gis/query/statistics``): Accepts
-  a GeoJSON polygon and returns configured aggregate statistics computed
-  by ``spp.aggregation.service``. Individual registrant IDs are computed
-  internally for aggregation but are **explicitly stripped** from the
-  response before it is sent (see ``spatial_query.py``).
-- **Exports** (GeoPackage/GeoJSON): Contain the same area-level
-  aggregated layer data, not registrant-level records.
-- **Geofences**: Store only geometry and metadata — no registrant data.
+-  **OGC collections/items**: Return GeoJSON features organized by
+   administrative area, with pre-computed aggregate values (counts,
+   percentages). Each feature represents an *area*, not a person.
+-  **Spatial query statistics** (``POST /gis/query/statistics``):
+   Accepts a GeoJSON polygon and returns configured aggregate statistics
+   computed by ``spp.aggregation.service``. Individual registrant IDs
+   are computed internally for aggregation but are **explicitly
+   stripped** from the response before it is sent (see
+   ``spatial_query.py``).
+-  **Exports** (GeoPackage/GeoJSON): Contain the same area-level
+   aggregated layer data, not registrant-level records.
+-  **Geofences**: Store only geometry and metadata — no registrant data.
 
 **Privacy controls**
 
-- **K-anonymity suppression**: Statistics backed by CEL variables can
-  apply k-anonymity thresholds. When a cell count falls below the
-  configured minimum, the value is replaced with a suppression marker
-  and flagged as ``"suppressed": true`` in the response. This prevents
-  re-identification in small populations.
-- **CEL variable configuration**: Administrators control which
-  statistics are published and their suppression thresholds via
-  ``spp.statistic`` records.
-- **Scope separation**: ``gis:read`` and ``gis:geofence`` are separate
-  scopes, allowing clients to be granted read-only access without write
-  capability.
+-  **K-anonymity suppression**: Statistics backed by CEL variables can
+   apply k-anonymity thresholds. When a cell count falls below the
+   configured minimum, the value is replaced with a suppression marker
+   and flagged as ``"suppressed": true`` in the response. This prevents
+   re-identification in small populations.
+-  **CEL variable configuration**: Administrators control which
+   statistics are published and their suppression thresholds via
+   ``spp.statistic`` records.
+-  **Scope separation**: ``gis:read`` and ``gis:geofence`` are separate
+   scopes, allowing clients to be granted read-only access without write
+   capability.
 
 **Design rationale**
 
@@ -144,10 +145,10 @@ identifiable information.
 Dependencies
 ------------
 
-- ``spp_api_v2`` - FastAPI infrastructure
-- ``spp_gis`` - PostGIS integration
-- ``spp_gis_report`` - Report configuration
-- ``spp_area`` - Administrative area data
+-  ``spp_api_v2`` - FastAPI infrastructure
+-  ``spp_gis`` - PostGIS integration
+-  ``spp_gis_report`` - Report configuration
+-  ``spp_area`` - Administrative area data
 
 .. IMPORTANT::
    This is an alpha version, the data model and design can change at any time without warning.

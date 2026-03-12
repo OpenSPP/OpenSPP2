@@ -31,19 +31,19 @@ data providers, and cached values with TTL-based expiration.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Define variables mapping to model fields, constants, computed values,
-  member aggregations, or external APIs
-- Write filter and formula expressions using CEL syntax with variable
-  references
-- Resolve variable references into expanded CEL expressions before
-  compilation
-- Configure external data providers with authentication, TTL, and ID
-  mapping for API-based data sources
-- Cache computed and external variable values with TTL-based expiration
-  and manual invalidation
-- Support historical data queries with configurable period granularity
-  (daily, monthly, quarterly, yearly)
-- Evaluate expressions against context data for testing and validation
+-  Define variables mapping to model fields, constants, computed values,
+   member aggregations, or external APIs
+-  Write filter and formula expressions using CEL syntax with variable
+   references
+-  Resolve variable references into expanded CEL expressions before
+   compilation
+-  Configure external data providers with authentication, TTL, and ID
+   mapping for API-based data sources
+-  Cache computed and external variable values with TTL-based expiration
+   and manual invalidation
+-  Support historical data queries with configurable period granularity
+   (daily, monthly, quarterly, yearly)
+-  Evaluate expressions against context data for testing and validation
 
 Key Models
 ~~~~~~~~~~
@@ -96,11 +96,11 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
-- **Menu**: Custom > CEL Domain
-- **Submenus**: Data Management > Data Providers, Data Management > Data
-  Cache
-- **Tools**: Tools > Rule Preview wizard for testing expressions
-- **Variable/Expression UI**: Provided by ``spp_studio`` module
+-  **Menu**: Custom > CEL Domain
+-  **Submenus**: Data Management > Data Providers, Data Management >
+   Data Cache
+-  **Tools**: Tools > Rule Preview wizard for testing expressions
+-  **Variable/Expression UI**: Provided by ``spp_studio`` module
 
 Security
 ~~~~~~~~
@@ -122,14 +122,14 @@ Security
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Inherit ``spp.cel.variable`` to add custom source types or validation
-  logic
-- Register custom CEL functions via ``spp.cel.function.registry``
-- Override ``spp.cel.variable._compute_cel_expression()`` to customize
-  aggregate expression generation
-- Implement custom data providers by inheriting ``spp.data.provider``
-- Add profile configurations in ``spp.cel.registry`` for new evaluation
-  contexts
+-  Inherit ``spp.cel.variable`` to add custom source types or validation
+   logic
+-  Register custom CEL functions via ``spp.cel.function.registry``
+-  Override ``spp.cel.variable._compute_cel_expression()`` to customize
+   aggregate expression generation
+-  Implement custom data providers by inheriting ``spp.data.provider``
+-  Add profile configurations in ``spp.cel.registry`` for new evaluation
+   contexts
 
 Dependencies
 ~~~~~~~~~~~~

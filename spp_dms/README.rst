@@ -31,17 +31,17 @@ and size limits.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Organize files in nested directory structures with root directories
-  and subdirectories
-- Automatically capture file metadata on upload: size, MIME type,
-  extension, SHA512 checksum
-- Enable optional versioning per file with automatic snapshots on
-  content changes and manual restore
-- Enforce file type restrictions (allowed/blocked extensions, MIME
-  types) and size limits per category
-- Generate thumbnails automatically for image files using Pillow
-- Compute directory statistics recursively: total file count,
-  subdirectory count, and cumulative size
+-  Organize files in nested directory structures with root directories
+   and subdirectories
+-  Automatically capture file metadata on upload: size, MIME type,
+   extension, SHA512 checksum
+-  Enable optional versioning per file with automatic snapshots on
+   content changes and manual restore
+-  Enforce file type restrictions (allowed/blocked extensions, MIME
+   types) and size limits per category
+-  Generate thumbnails automatically for image files using Pillow
+-  Compute directory statistics recursively: total file count,
+   subdirectory count, and cumulative size
 
 Key Models
 ~~~~~~~~~~
@@ -80,11 +80,11 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
-- **Files**: DMS > Files
-- **Directories**: DMS > Directories
-- **Configuration**: DMS > Configuration > Categories
-- **Version History**: Accessed via stat button on file forms when
-  versioning is enabled
+-  **Files**: DMS > Files
+-  **Directories**: DMS > Directories
+-  **Configuration**: DMS > Configuration > Categories
+-  **Version History**: Accessed via stat button on file forms when
+   versioning is enabled
 
 Security
 ~~~~~~~~
@@ -105,11 +105,11 @@ Security
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Override ``validate_file()`` on ``spp.dms.category`` to add custom
-  validation logic
-- Inherit ``spp.dms.file`` to add domain-specific metadata fields
-- Override ``_create_new_version()`` on ``spp.dms.file`` to customize
-  versioning behavior
+-  Override ``validate_file()`` on ``spp.dms.category`` to add custom
+   validation logic
+-  Inherit ``spp.dms.file`` to add domain-specific metadata fields
+-  Override ``_create_new_version()`` on ``spp.dms.file`` to customize
+   versioning behavior
 
 Dependencies
 ~~~~~~~~~~~~

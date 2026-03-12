@@ -31,16 +31,17 @@ infrastructure.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Check registrants for duplicate enrollments in external IBR systems
-  using DCI protocol
-- Store duplication check results with match status, matched programs,
-  and raw API responses
-- Manage trusted IBR sender registries with automatic JWKS public key
-  fetching
-- Receive async search response callbacks at ``/dci_api/ibr/on-search``
-  endpoint
-- Verify callback signatures using Ed25519 or RSA-256 algorithms
-- Track duplication check lifecycle: ready → checking → completed/failed
+-  Check registrants for duplicate enrollments in external IBR systems
+   using DCI protocol
+-  Store duplication check results with match status, matched programs,
+   and raw API responses
+-  Manage trusted IBR sender registries with automatic JWKS public key
+   fetching
+-  Receive async search response callbacks at ``/dci_api/ibr/on-search``
+   endpoint
+-  Verify callback signatures using Ed25519 or RSA-256 algorithms
+-  Track duplication check lifecycle: ready → checking →
+   completed/failed
 
 Key Models
 ~~~~~~~~~~
@@ -73,12 +74,12 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
-- **IBR Duplication Checks**: Settings > Technical > DCI > Activity Logs
-  > IBR Duplication Checks
-- **IBR Senders**: Settings > Technical > DCI > Configuration > IBR
-  Senders
-- **FastAPI Callbacks**: ``/dci_api/ibr/on-search`` and
-  ``/dci_api/ibr/on-subscribe``
+-  **IBR Duplication Checks**: Settings > Technical > DCI > Activity
+   Logs > IBR Duplication Checks
+-  **IBR Senders**: Settings > Technical > DCI > Configuration > IBR
+   Senders
+-  **FastAPI Callbacks**: ``/dci_api/ibr/on-search`` and
+   ``/dci_api/ibr/on-subscribe``
 
 Security
 ~~~~~~~~
@@ -105,14 +106,14 @@ Security
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Override ``_process_ibr_search_result()`` in ``routers/callback.py``
-  to customize result processing
-- Inherit ``spp.dci.duplication.check`` to add domain-specific fields or
-  validation
-- Extend ``fastapi.endpoint._get_fastapi_routers()`` to add additional
-  IBR-related routes
-- Override ``spp.dci.ibr.sender._jwk_to_pem()`` to support additional
-  key formats
+-  Override ``_process_ibr_search_result()`` in ``routers/callback.py``
+   to customize result processing
+-  Inherit ``spp.dci.duplication.check`` to add domain-specific fields
+   or validation
+-  Extend ``fastapi.endpoint._get_fastapi_routers()`` to add additional
+   IBR-related routes
+-  Override ``spp.dci.ibr.sender._jwk_to_pem()`` to support additional
+   key formats
 
 Dependencies
 ~~~~~~~~~~~~

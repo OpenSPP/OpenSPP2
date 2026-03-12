@@ -30,15 +30,15 @@ external identifiers to avoid exposing database IDs.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Search service points by name, area, country, contract status, and
-  last updated date
-- Read individual service points by identifier (name)
-- Paginate search results with configurable page size (1-100 records)
-- Filter service points by contract active status and geographic
-  criteria
-- Return metadata including version IDs and last updated timestamps for
-  optimistic locking
-- Enforce OAuth 2.0 authentication and scope-based authorization
+-  Search service points by name, area, country, contract status, and
+   last updated date
+-  Read individual service points by identifier (name)
+-  Paginate search results with configurable page size (1-100 records)
+-  Filter service points by contract active status and geographic
+   criteria
+-  Return metadata including version IDs and last updated timestamps for
+   optimistic locking
+-  Enforce OAuth 2.0 authentication and scope-based authorization
 
 Extended Models
 ~~~~~~~~~~~~~~~
@@ -71,10 +71,10 @@ base module:
 API Endpoints
 ~~~~~~~~~~~~~
 
-- ``GET /api/v2/spp/ServicePoint/{identifier}`` - Read service point by
-  identifier (URL-encoded name)
-- ``GET /api/v2/spp/ServicePoint?name=&area=&country=&contractActive=&_lastUpdated=&_count=&_offset=``
-  - Search service points
+-  ``GET /api/v2/spp/ServicePoint/{identifier}`` - Read service point by
+   identifier (URL-encoded name)
+-  ``GET /api/v2/spp/ServicePoint?name=&area=&country=&contractActive=&_lastUpdated=&_count=&_offset=``
+   - Search service points
 
 Security
 ~~~~~~~~
@@ -87,12 +87,12 @@ client with appropriate scope. No model-level access rules defined
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Inherit ``ServicePointService.to_api_schema()`` to add custom fields
-  to API response
-- Override ``ServicePointService.search()`` to customize search domain
-  logic
-- Extend ``ServicePoint`` schema to add module-specific fields in
-  ``extension`` attribute
+-  Inherit ``ServicePointService.to_api_schema()`` to add custom fields
+   to API response
+-  Override ``ServicePointService.search()`` to customize search domain
+   logic
+-  Extend ``ServicePoint`` schema to add module-specific fields in
+   ``extension`` attribute
 
 Dependencies
 ~~~~~~~~~~~~

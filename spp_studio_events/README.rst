@@ -31,21 +31,21 @@ registrants.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Create event types through a 3-step wizard (basic info, fields,
-  review)
-- Define custom fields with 10 field types: text, long text, integer,
-  decimal, date, datetime, boolean, selection, multi-select, link
-- Apply field validation rules: range constraints for numbers, regex
-  patterns for text
-- Configure conditional field visibility based on other field values
-- Group fields into tabs for organized data entry forms
-- Apply reusable field templates to accelerate event type creation
-- Generate dynamic data entry wizards with proper widgets for each field
-  type
-- Target events to individuals, groups, or both
-- Draft/Active lifecycle prevents editing active event types
-- Optional Kobo form integration for external data collection
-- Optional approval workflow configuration
+-  Create event types through a 3-step wizard (basic info, fields,
+   review)
+-  Define custom fields with 10 field types: text, long text, integer,
+   decimal, date, datetime, boolean, selection, multi-select, link
+-  Apply field validation rules: range constraints for numbers, regex
+   patterns for text
+-  Configure conditional field visibility based on other field values
+-  Group fields into tabs for organized data entry forms
+-  Apply reusable field templates to accelerate event type creation
+-  Generate dynamic data entry wizards with proper widgets for each
+   field type
+-  Target events to individuals, groups, or both
+-  Draft/Active lifecycle prevents editing active event types
+-  Optional Kobo form integration for external data collection
+-  Optional approval workflow configuration
 
 Key Models
 ~~~~~~~~~~
@@ -91,10 +91,10 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
-- **Menu**: Studio > Forms & Fields > Event Types
-- **Wizard**: 3-step builder accessed via Create button
-- **Data Entry**: Generated wizard form specific to each event type,
-  launched from event type form or registrant profile
+-  **Menu**: Studio > Forms & Fields > Event Types
+-  **Wizard**: 3-step builder accessed via Create button
+-  **Data Entry**: Generated wizard form specific to each event type,
+   launched from event type form or registrant profile
 
 Security
 ~~~~~~~~
@@ -117,14 +117,14 @@ Security
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Override ``_generate_wizard_view()`` on ``spp.studio.event.type`` to
-  customize generated wizard form layout
-- Inherit ``spp.studio.event.field`` and override ``validate_value()``
-  to add custom validation logic
-- Extend ``spp.event.data.entry.wizard`` to add pre-save hooks for event
-  data processing
-- Create predefined field templates via data files in
-  ``data/event_field_templates.xml``
+-  Override ``_generate_wizard_view()`` on ``spp.studio.event.type`` to
+   customize generated wizard form layout
+-  Inherit ``spp.studio.event.field`` and override ``validate_value()``
+   to add custom validation logic
+-  Extend ``spp.event.data.entry.wizard`` to add pre-save hooks for
+   event data processing
+-  Create predefined field templates via data files in
+   ``data/event_field_templates.xml``
 
 Dependencies
 ~~~~~~~~~~~~

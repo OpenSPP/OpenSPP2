@@ -33,23 +33,24 @@ groups.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Record consent with ISO 27560 four-section structure (metadata,
-  parties, processing, consent specifics)
-- Track consent lifecycle with state validation: requested →
-  given/refused, given → renewed/withdrawn/expired/invalidated
-- Two-mode recipients: specific organizations OR organization categories
-  (e.g., "all NGOs but not private sector")
-- Maintain audit history per GDPR Article 7 requirements (who, what,
-  when, why, how)
-- Handle delegation (guardian, parent, power of attorney) with evidence
-  attachment support
-- Enforce notice-as-boundary: consent terms cannot exceed privacy notice
-  scope
-- Export consent records as JSON-LD or generate ISO 27560 receipts for
-  interoperability
-- Automatically expire consents via scheduled cron job (batch
-  processing)
-- Protect consent terms from modification after given (immutable fields)
+-  Record consent with ISO 27560 four-section structure (metadata,
+   parties, processing, consent specifics)
+-  Track consent lifecycle with state validation: requested →
+   given/refused, given → renewed/withdrawn/expired/invalidated
+-  Two-mode recipients: specific organizations OR organization
+   categories (e.g., "all NGOs but not private sector")
+-  Maintain audit history per GDPR Article 7 requirements (who, what,
+   when, why, how)
+-  Handle delegation (guardian, parent, power of attorney) with evidence
+   attachment support
+-  Enforce notice-as-boundary: consent terms cannot exceed privacy
+   notice scope
+-  Export consent records as JSON-LD or generate ISO 27560 receipts for
+   interoperability
+-  Automatically expire consents via scheduled cron job (batch
+   processing)
+-  Protect consent terms from modification after given (immutable
+   fields)
 
 Key Models
 ~~~~~~~~~~
@@ -112,27 +113,27 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
-- **Menu**: Registry > Configuration > Consent Management > Consent
-  Records
-- **Configuration Submenus**:
+-  **Menu**: Registry > Configuration > Consent Management > Consent
+   Records
+-  **Configuration Submenus**:
 
-  - Registry > Configuration > Consent Management > Configuration >
-    Purposes (DPV)
-  - Registry > Configuration > Consent Management > Configuration >
-    Personal Data Categories
-  - Registry > Configuration > Consent Management > Configuration >
-    Processing Operations
-  - Registry > Configuration > Consent Management > Configuration >
-    Privacy Notices
-  - Registry > Configuration > Consent Management > Configuration >
-    Organization Types
+   -  Registry > Configuration > Consent Management > Configuration >
+      Purposes (DPV)
+   -  Registry > Configuration > Consent Management > Configuration >
+      Personal Data Categories
+   -  Registry > Configuration > Consent Management > Configuration >
+      Processing Operations
+   -  Registry > Configuration > Consent Management > Configuration >
+      Privacy Notices
+   -  Registry > Configuration > Consent Management > Configuration >
+      Organization Types
 
-- **Registrant Access**: "Record Consent" stat button on individual and
-  group forms (added by ``spp.consent.mixin``)
-- **Form Tabs**: Consent form has Processing, Consent Details, Audit
-  Trail, and Technical tabs
-- **Notice Tabs**: Privacy Notice form has Summary, Full Notice, ISO
-  29184 Elements, Contact, DPV Taxonomy, and Consent Boundaries tabs
+-  **Registrant Access**: "Record Consent" stat button on individual and
+   group forms (added by ``spp.consent.mixin``)
+-  **Form Tabs**: Consent form has Processing, Consent Details, Audit
+   Trail, and Technical tabs
+-  **Notice Tabs**: Privacy Notice form has Summary, Full Notice, ISO
+   29184 Elements, Contact, DPV Taxonomy, and Consent Boundaries tabs
 
 Security
 ~~~~~~~~
@@ -171,17 +172,17 @@ Note: Configuration menu requires ``spp_security.group_spp_admin`` or
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Inherit ``spp.consent.mixin`` to add consent tracking to custom models
-  (provides ``consent_ids`` field and wizard launcher)
-- Override ``check_consent()`` on ``spp.consent`` to add custom consent
-  validation logic for API filtering
-- Extend DPV taxonomy models (``spp.consent.purpose``,
-  ``spp.consent.personal.data``, ``spp.consent.processing``) with
-  domain-specific terms
-- Override ``_compute_consent_summary()`` on ``res.partner`` to
-  customize cached consent summary for fast API lookups
-- Inherit ``spp.consent`` and add hook methods for consent lifecycle
-  events (e.g., ``_on_consent_given``, ``_on_consent_withdrawn``)
+-  Inherit ``spp.consent.mixin`` to add consent tracking to custom
+   models (provides ``consent_ids`` field and wizard launcher)
+-  Override ``check_consent()`` on ``spp.consent`` to add custom consent
+   validation logic for API filtering
+-  Extend DPV taxonomy models (``spp.consent.purpose``,
+   ``spp.consent.personal.data``, ``spp.consent.processing``) with
+   domain-specific terms
+-  Override ``_compute_consent_summary()`` on ``res.partner`` to
+   customize cached consent summary for fast API lookups
+-  Inherit ``spp.consent`` and add hook methods for consent lifecycle
+   events (e.g., ``_on_consent_given``, ``_on_consent_withdrawn``)
 
 Dependencies
 ~~~~~~~~~~~~

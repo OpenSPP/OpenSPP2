@@ -31,19 +31,19 @@ disabled with reason tracking.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Create service points with contact information including phone
-  validation and address
-- Link service points to companies and automatically track company
-  contacts as individuals
-- Assign service points to hierarchical geographic areas via
-  ``spp.area``
-- Classify service points using vocabulary codes in the
-  ``urn:openspp:vocab:service-types`` namespace
-- Enable and disable service points with date stamping and reason
-  tracking
-- Create user accounts for service point contacts with security group
-  assignment
-- Track contract status and operational state of each service point
+-  Create service points with contact information including phone
+   validation and address
+-  Link service points to companies and automatically track company
+   contacts as individuals
+-  Assign service points to hierarchical geographic areas via
+   ``spp.area``
+-  Classify service points using vocabulary codes in the
+   ``urn:openspp:vocab:service-types`` namespace
+-  Enable and disable service points with date stamping and reason
+   tracking
+-  Create user accounts for service point contacts with security group
+   assignment
+-  Track contract status and operational state of each service point
 
 Key Models
 ~~~~~~~~~~
@@ -78,9 +78,9 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
-- **Menu**: Service Point > Service Points
-- **Registrant Tab**: Accessible from registrant forms under the
-  "Service Points" tab
+-  **Menu**: Service Point > Service Points
+-  **Registrant Tab**: Accessible from registrant forms under the
+   "Service Points" tab
 
 Security
 ~~~~~~~~
@@ -100,12 +100,12 @@ Group                                 Access
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Inherit ``spp.service.point`` to add domain-specific fields or custom
-  validation
-- Override ``_compute_phone_sanitized()`` to customize phone formatting
-  logic
-- Extend service point forms via XPath to add tabs for country-specific
-  requirements
+-  Inherit ``spp.service.point`` to add domain-specific fields or custom
+   validation
+-  Override ``_compute_phone_sanitized()`` to customize phone formatting
+   logic
+-  Extend service point forms via XPath to add tabs for country-specific
+   requirements
 
 Dependencies
 ~~~~~~~~~~~~

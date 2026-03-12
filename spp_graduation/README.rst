@@ -32,18 +32,18 @@ removal).
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Define graduation pathways with configurable criteria, exit type, and
-  monitoring duration
-- Create weighted criteria with different assessment methods
-  (self-report, verification, computed, observation)
-- Conduct beneficiary assessments with criteria responses and evidence
-  attachments
-- Calculate readiness scores based on weighted criteria and enforce
-  required criteria
-- Submit assessments for manager approval through a
-  draft/submitted/approved/rejected workflow
-- Track graduation dates and compute post-graduation monitoring periods
-- Filter assessments by assessor, state, pathway, and recommendation
+-  Define graduation pathways with configurable criteria, exit type, and
+   monitoring duration
+-  Create weighted criteria with different assessment methods
+   (self-report, verification, computed, observation)
+-  Conduct beneficiary assessments with criteria responses and evidence
+   attachments
+-  Calculate readiness scores based on weighted criteria and enforce
+   required criteria
+-  Submit assessments for manager approval through a
+   draft/submitted/approved/rejected workflow
+-  Track graduation dates and compute post-graduation monitoring periods
+-  Filter assessments by assessor, state, pathway, and recommendation
 
 Key Models
 ~~~~~~~~~~
@@ -80,15 +80,15 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
-- **Menu**: Graduation (top-level menu)
-- **Assessments**: Graduation > Assessments > All Assessments / My
-  Assessments
-- **Configuration**: Graduation > Configuration > Pathways (managers
-  only)
-- **Views**: List, kanban (grouped by state), and form views with
-  approval workflow
-- **Pathway Form**: Criteria tab shows inline editable criteria list
-- **Assessment Form**: Criteria Responses and Recommendation tabs
+-  **Menu**: Graduation (top-level menu)
+-  **Assessments**: Graduation > Assessments > All Assessments / My
+   Assessments
+-  **Configuration**: Graduation > Configuration > Pathways (managers
+   only)
+-  **Views**: List, kanban (grouped by state), and form views with
+   approval workflow
+-  **Pathway Form**: Criteria tab shows inline editable criteria list
+-  **Assessment Form**: Criteria Responses and Recommendation tabs
 
 Security
 ~~~~~~~~
@@ -107,12 +107,12 @@ Security
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Inherit ``spp.graduation.assessment`` and override
-  ``_compute_scores()`` to customize readiness calculation
-- Inherit ``spp.graduation.pathway`` to add domain-specific pathway
-  fields
-- Extend approval workflow by inheriting assessment actions
-  (``action_submit``, ``action_approve``)
+-  Inherit ``spp.graduation.assessment`` and override
+   ``_compute_scores()`` to customize readiness calculation
+-  Inherit ``spp.graduation.pathway`` to add domain-specific pathway
+   fields
+-  Extend approval workflow by inheriting assessment actions
+   (``action_submit``, ``action_approve``)
 
 Dependencies
 ~~~~~~~~~~~~

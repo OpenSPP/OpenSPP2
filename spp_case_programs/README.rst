@@ -31,15 +31,15 @@ status fields. Auto-installs when both ``spp_case_base`` and
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Link cases to program enrollments via ``program_membership_ids``
-  Many2many relationship
-- Track which program triggered case creation via
-  ``triggered_by_program_id`` field
-- Automatically load client program memberships on partner selection
-- Compute enrollment status: active enrollment flag, enrollment count,
-  enrolled program names
-- Filter and group cases by enrollment status and triggering program
-- View program enrollment details directly from case form
+-  Link cases to program enrollments via ``program_membership_ids``
+   Many2many relationship
+-  Track which program triggered case creation via
+   ``triggered_by_program_id`` field
+-  Automatically load client program memberships on partner selection
+-  Compute enrollment status: active enrollment flag, enrollment count,
+   enrolled program names
+-  Filter and group cases by enrollment status and triggering program
+-  View program enrollment details directly from case form
 
 Key Models
 ~~~~~~~~~~
@@ -66,19 +66,19 @@ UI Location
 This module extends the existing case form view. No standalone menus are
 added.
 
-- **Form View**: Accessed via existing case management. Adds Programs
-  tab, smart button, and header field.
-- **Programs Tab**: Displays enrollment summary (has_active_enrollment,
-  active_program_count, enrolled_program_names) and membership list with
-  state badges
-- **Smart Button**: Programs count button (visible when
-  active_program_count > 0)
-- **Header Field**: "Triggered By Program" field appears after priority
-- **Search Filters**: "Has Active Enrollment", "No Active Enrollment",
-  "Triggered by Program"
-- **List View**: Active program count column
-- **Kanban View**: Program enrollment icon and count in bottom-left
-  corner
+-  **Form View**: Accessed via existing case management. Adds Programs
+   tab, smart button, and header field.
+-  **Programs Tab**: Displays enrollment summary (has_active_enrollment,
+   active_program_count, enrolled_program_names) and membership list
+   with state badges
+-  **Smart Button**: Programs count button (visible when
+   active_program_count > 0)
+-  **Header Field**: "Triggered By Program" field appears after priority
+-  **Search Filters**: "Has Active Enrollment", "No Active Enrollment",
+   "Triggered by Program"
+-  **List View**: Active program count column
+-  **Kanban View**: Program enrollment icon and count in bottom-left
+   corner
 
 Security
 ~~~~~~~~
@@ -93,12 +93,12 @@ Group                                Access
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Override ``_compute_program_info()`` to customize enrollment status
-  computation logic
-- Override ``_onchange_partner_programs()`` to filter which memberships
-  load automatically
-- Inherit ``spp.case`` to add additional program-related fields or
-  methods
+-  Override ``_compute_program_info()`` to customize enrollment status
+   computation logic
+-  Override ``_onchange_partner_programs()`` to filter which memberships
+   load automatically
+-  Inherit ``spp.case`` to add additional program-related fields or
+   methods
 
 Dependencies
 ~~~~~~~~~~~~

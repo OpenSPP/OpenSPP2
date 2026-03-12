@@ -31,22 +31,22 @@ submit/approve/reject actions with audit trails and optimistic locking.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- **Approval Mixin**: Add ``spp.approval.mixin`` to any model to enable
-  approval workflow with state tracking (``draft``, ``pending``,
-  ``approved``, ``rejected``, ``revision``)
-- **Multi-Tier Workflows**: Define sequential approval tiers with
-  configurable approver types (security group, specific users,
-  submitter's manager, or dynamic field)
-- **CEL Rules**: Conditional approval routing using Common Expression
-  Language domain filters
-- **Freeze Periods**: System-wide approval suspension during election
-  bans, audits, or maintenance windows
-- **SLA Tracking**: Track approval deadlines per tier with escalation
-  support
-- **Revision Requests**: Approvers can request revisions instead of
-  outright rejection
-- **Optimistic Locking**: Prevents concurrent approval conflicts via
-  version-based locking
+-  **Approval Mixin**: Add ``spp.approval.mixin`` to any model to enable
+   approval workflow with state tracking (``draft``, ``pending``,
+   ``approved``, ``rejected``, ``revision``)
+-  **Multi-Tier Workflows**: Define sequential approval tiers with
+   configurable approver types (security group, specific users,
+   submitter's manager, or dynamic field)
+-  **CEL Rules**: Conditional approval routing using Common Expression
+   Language domain filters
+-  **Freeze Periods**: System-wide approval suspension during election
+   bans, audits, or maintenance windows
+-  **SLA Tracking**: Track approval deadlines per tier with escalation
+   support
+-  **Revision Requests**: Approvers can request revisions instead of
+   outright rejection
+-  **Optimistic Locking**: Prevents concurrent approval conflicts via
+   version-based locking
 
 Key Models
 ~~~~~~~~~~
@@ -92,22 +92,22 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
-- **Menu**: Approvals > My Approvals > Pending Approvals
-- **Configuration**: Approvals > Configuration > Approval Definitions
-- **Freeze Periods**: Approvals > Configuration > Freeze Periods
-- **Mixin Integration**: Approval buttons appear on forms of models
-  inheriting the mixin
+-  **Menu**: Approvals > My Approvals > Pending Approvals
+-  **Configuration**: Approvals > Configuration > Approval Definitions
+-  **Freeze Periods**: Approvals > Configuration > Freeze Periods
+-  **Mixin Integration**: Approval buttons appear on forms of models
+   inheriting the mixin
 
 Tabs
 ~~~~
 
 On **Approval Definition** forms:
 
-- **Conditions**: Domain filter to determine which records require this
-  approval
-- **Behavior**: Approval settings (require comment, auto-approve,
-  notifications)
-- **SLA & Escalation**: SLA tracking and escalation rules
+-  **Conditions**: Domain filter to determine which records require this
+   approval
+-  **Behavior**: Approval settings (require comment, auto-approve,
+   notifications)
+-  **SLA & Escalation**: SLA tracking and escalation rules
 
 Security
 ~~~~~~~~
@@ -137,14 +137,14 @@ can delete these records.
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Inherit ``spp.approval.mixin`` to add approval workflow to any model
-  inheriting ``mail.thread``
-- Override ``_on_submit()``, ``_on_approve()``, ``_on_reject()``,
-  ``_on_request_revision()`` hooks for custom logic
-- Override ``_get_approval_definition()`` to provide record-specific
-  approval rules (e.g., from a type field)
-- Extend ``spp.approval.definition`` to add custom approver types or
-  matching logic
+-  Inherit ``spp.approval.mixin`` to add approval workflow to any model
+   inheriting ``mail.thread``
+-  Override ``_on_submit()``, ``_on_approve()``, ``_on_reject()``,
+   ``_on_request_revision()`` hooks for custom logic
+-  Override ``_get_approval_definition()`` to provide record-specific
+   approval rules (e.g., from a type field)
+-  Extend ``spp.approval.definition`` to add custom approver types or
+   matching logic
 
 Dependencies
 ~~~~~~~~~~~~

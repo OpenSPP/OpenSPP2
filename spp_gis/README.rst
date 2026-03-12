@@ -31,18 +31,18 @@ polygon fields.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Define geo fields (``geo_point``, ``geo_line``, ``geo_polygon``) on
-  any model using PostGIS spatial types
-- Visualize records on interactive maps via the GIS view type
-- Configure background raster layers (OpenStreetMap, WMS, satellite
-  imagery)
-- Configure data layers with basic or choropleth (color-by-value)
-  rendering
-- Perform spatial queries (intersects, contains, within, distance-based)
-  via ``gis_locational_query()``
-- Import area boundaries from GeoJSON/shapefiles via area import wizard
-- Manage color schemes for thematic mapping with sequential, diverging,
-  or qualitative palettes
+-  Define geo fields (``geo_point``, ``geo_line``, ``geo_polygon``) on
+   any model using PostGIS spatial types
+-  Visualize records on interactive maps via the GIS view type
+-  Configure background raster layers (OpenStreetMap, WMS, satellite
+   imagery)
+-  Configure data layers with basic or choropleth (color-by-value)
+   rendering
+-  Perform spatial queries (intersects, contains, within,
+   distance-based) via ``gis_locational_query()``
+-  Import area boundaries from GeoJSON/shapefiles via area import wizard
+-  Manage color schemes for thematic mapping with sequential, diverging,
+   or qualitative palettes
 
 Key Models
 ~~~~~~~~~~
@@ -79,12 +79,12 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
-- **GIS View**: Available as a view mode on models with geo fields
-  (e.g., ``spp.area``)
-- **Area Form**: "Coordinates" and "Polygon" tabs appear when editing
-  areas (Social Protection > Configuration > Areas)
-- **No standalone menu**: This module does not define menu items; GIS
-  functionality is accessed through existing models
+-  **GIS View**: Available as a view mode on models with geo fields
+   (e.g., ``spp.area``)
+-  **Area Form**: "Coordinates" and "Polygon" tabs appear when editing
+   areas (Social Protection > Configuration > Areas)
+-  **No standalone menu**: This module does not define menu items; GIS
+   functionality is accessed through existing models
 
 Security
 ~~~~~~~~
@@ -106,15 +106,15 @@ Security
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Inherit ``base`` and call
-  ``gis_locational_query(longitude, latitude, layer_type, spatial_relation)``
-  for location-based searches
-- Override ``_get_choropleth_config()`` on ``spp.gis.data.layer`` to
-  customize thematic mapping logic
-- Inherit any model and add ``geo_point``, ``geo_line``, or
-  ``geo_polygon`` fields to enable spatial storage
-- Create GIS views by setting ``type="gis"`` in ``ir.ui.view`` XML and
-  linking ``spp.gis.data.layer`` records
+-  Inherit ``base`` and call
+   ``gis_locational_query(longitude, latitude, layer_type, spatial_relation)``
+   for location-based searches
+-  Override ``_get_choropleth_config()`` on ``spp.gis.data.layer`` to
+   customize thematic mapping logic
+-  Inherit any model and add ``geo_point``, ``geo_line``, or
+   ``geo_polygon`` fields to enable spatial storage
+-  Create GIS views by setting ``type="gis"`` in ``ir.ui.view`` XML and
+   linking ``spp.gis.data.layer`` records
 
 Dependencies
 ~~~~~~~~~~~~

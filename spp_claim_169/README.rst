@@ -31,18 +31,18 @@ lifecycle tracking.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Generate signed QR credentials using MOSIP Claim 169 standard with
-  Ed25519 or EC keys
-- Configure mappings from partner fields to numbered claim attributes
-  (1-99)
-- Track credential lifecycle with automatic expiration and manual
-  revocation
-- Verify credential authenticity using public key verification
-- Transform data with multiple formats: direct copy, date formatting,
-  gender codes, address combination, and CEL expressions
-- Batch generate credentials for multiple registrants with configurable
-  replacement modes
-- Audit credential generation, revocation, and download events
+-  Generate signed QR credentials using MOSIP Claim 169 standard with
+   Ed25519 or EC keys
+-  Configure mappings from partner fields to numbered claim attributes
+   (1-99)
+-  Track credential lifecycle with automatic expiration and manual
+   revocation
+-  Verify credential authenticity using public key verification
+-  Transform data with multiple formats: direct copy, date formatting,
+   gender codes, address combination, and CEL expressions
+-  Batch generate credentials for multiple registrants with configurable
+   replacement modes
+-  Audit credential generation, revocation, and download events
 
 Key Models
 ~~~~~~~~~~
@@ -89,15 +89,15 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
-- **Configuration**: Registry > Configuration > QR Credentials
+-  **Configuration**: Registry > Configuration > QR Credentials
 
-  - Issuer Configurations
-  - Attribute Mappings
+   -  Issuer Configurations
+   -  Attribute Mappings
 
-- **Credentials**: Accessed from registrant profile under "QR
-  Credentials" section on Identity tab
-- **Generate**: Button on partner form opens generation wizard
-- **Verify**: Use verification wizard to validate credentials
+-  **Credentials**: Accessed from registrant profile under "QR
+   Credentials" section on Identity tab
+-  **Generate**: Button on partner form opens generation wizard
+-  **Verify**: Use verification wizard to validate credentials
 
 Security
 ~~~~~~~~
@@ -115,12 +115,12 @@ Security
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Override ``spp.claim169.attribute.mapping._transform_value()`` to add
-  custom transformation types
-- Inherit ``spp.claim169.service._build_claim169_input()`` to customize
-  claim structure
-- Extend ``spp.claim169.credential`` to add domain-specific metadata
-  fields
+-  Override ``spp.claim169.attribute.mapping._transform_value()`` to add
+   custom transformation types
+-  Inherit ``spp.claim169.service._build_claim169_input()`` to customize
+   claim structure
+-  Extend ``spp.claim169.credential`` to add domain-specific metadata
+   fields
 
 Dependencies
 ~~~~~~~~~~~~

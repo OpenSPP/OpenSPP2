@@ -30,16 +30,16 @@ cases to workers or teams based on workload balancing.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Define triage rules that automatically categorize cases by intensity
-  level, priority, and type based on CEL conditions
-- Add risk factors and vulnerabilities automatically when triage rules
-  match
-- Define assignment rules that route cases to specific teams, workers,
-  or supervisors
-- Balance workload by assigning to team members with lowest active
-  caseload
-- Track rule effectiveness with match counters
-- Evaluate rules in sequence order with first-match wins
+-  Define triage rules that automatically categorize cases by intensity
+   level, priority, and type based on CEL conditions
+-  Add risk factors and vulnerabilities automatically when triage rules
+   match
+-  Define assignment rules that route cases to specific teams, workers,
+   or supervisors
+-  Balance workload by assigning to team members with lowest active
+   caseload
+-  Track rule effectiveness with match counters
+-  Evaluate rules in sequence order with first-match wins
 
 Key Models
 ~~~~~~~~~~
@@ -74,12 +74,12 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
-- **Triage Rules**: Case Management > Configuration > CEL Rules > Triage
-  Rules
-- **Assignment Rules**: Case Management > Configuration > CEL Rules >
-  Assignment Rules
-- **Form Tabs (Triage)**: Condition, Actions
-- **Form Tabs (Assignment)**: Condition, Assignment
+-  **Triage Rules**: Case Management > Configuration > CEL Rules >
+   Triage Rules
+-  **Assignment Rules**: Case Management > Configuration > CEL Rules >
+   Assignment Rules
+-  **Form Tabs (Triage)**: Condition, Actions
+-  **Form Tabs (Assignment)**: Condition, Assignment
 
 Security
 ~~~~~~~~
@@ -94,13 +94,13 @@ Group                                Access
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Override ``spp.case.triage.rule._build_evaluation_context()`` to add
-  custom variables for triage conditions
-- Override ``spp.case.assignment.rule._build_evaluation_context()`` to
-  add custom variables for assignment conditions
-- Override
-  ``spp.case.assignment.rule._get_worker_with_lowest_caseload()`` to
-  customize workload calculation
+-  Override ``spp.case.triage.rule._build_evaluation_context()`` to add
+   custom variables for triage conditions
+-  Override ``spp.case.assignment.rule._build_evaluation_context()`` to
+   add custom variables for assignment conditions
+-  Override
+   ``spp.case.assignment.rule._get_worker_with_lowest_caseload()`` to
+   customize workload calculation
 
 Dependencies
 ~~~~~~~~~~~~

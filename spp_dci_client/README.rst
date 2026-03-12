@@ -31,16 +31,16 @@ and Python service class for search, subscribe, and status operations.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Configure external DCI registry endpoints with OAuth2 or Bearer token
-  authentication
-- Cache OAuth2 tokens with automatic refresh to minimize token requests
-- Sign outgoing DCI requests using JWK keys from ``spp_dci``
-- Execute synchronous and asynchronous search operations (by ID,
-  predicate, expression, date range)
-- Subscribe to and unsubscribe from registry event notifications
-- Check transaction status for asynchronous operations
-- Test connection with one-click validation and error diagnostics
-- Format HTTP and connection errors into user-friendly messages
+-  Configure external DCI registry endpoints with OAuth2 or Bearer token
+   authentication
+-  Cache OAuth2 tokens with automatic refresh to minimize token requests
+-  Sign outgoing DCI requests using JWK keys from ``spp_dci``
+-  Execute synchronous and asynchronous search operations (by ID,
+   predicate, expression, date range)
+-  Subscribe to and unsubscribe from registry event notifications
+-  Check transaction status for asynchronous operations
+-  Test connection with one-click validation and error diagnostics
+-  Format HTTP and connection errors into user-friendly messages
 
 Key Models
 ~~~~~~~~~~
@@ -55,9 +55,9 @@ Key Models
 Python Service Classes
 ~~~~~~~~~~~~~~~~~~~~~~
 
-- **``DCIClient(data_source, env)``**: Main API client for executing DCI
-  protocol operations (search, subscribe, txn_status). Instantiate with
-  a data source record and environment.
+-  **``DCIClient(data_source, env)``**: Main API client for executing
+   DCI protocol operations (search, subscribe, txn_status). Instantiate
+   with a data source record and environment.
 
 Configuration
 ~~~~~~~~~~~~~
@@ -76,9 +76,9 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
-- **Menu**: Settings > Technical > DCI > Configuration > Data Sources
-- **Form**: Includes connection test button in header, configuration
-  groups, and two notebook tabs ("Connection Status" and "Notes")
+-  **Menu**: Settings > Technical > DCI > Configuration > Data Sources
+-  **Form**: Includes connection test button in header, configuration
+   groups, and two notebook tabs ("Connection Status" and "Notes")
 
 Security
 ~~~~~~~~
@@ -93,14 +93,14 @@ Group                 Access
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Inherit ``spp.dci.data.source`` to add registry-specific configuration
-  fields
-- Instantiate ``DCIClient(data_source, env)`` from custom code to
-  execute DCI operations
-- Override ``_get_registry_type()`` or ``_get_receiver_id()`` for custom
-  registry routing
-- Use ``format_http_error()`` and ``format_connection_error()`` for
-  consistent error handling
+-  Inherit ``spp.dci.data.source`` to add registry-specific
+   configuration fields
+-  Instantiate ``DCIClient(data_source, env)`` from custom code to
+   execute DCI operations
+-  Override ``_get_registry_type()`` or ``_get_receiver_id()`` for
+   custom registry routing
+-  Use ``format_http_error()`` and ``format_connection_error()`` for
+   consistent error handling
 
 Usage Example
 ~~~~~~~~~~~~~

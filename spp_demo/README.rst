@@ -31,17 +31,17 @@ for large datasets.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Generate random registrants using Faker library with locale-specific
-  providers (Kenya, Laos, Sri Lanka)
-- Create fixed demo stories with memorable names for repeatable demos
-  (e.g., "Maria Santos", "Juan Dela Cruz")
-- Generate IDs from regex patterns with validation and error logging
-- Batch process large datasets using queue_job (configurable threshold)
-- Configure percentages for IDs, GPS coordinates, and bank accounts
-- Track generation failures with diagnostic logging
-- Extend ``res.country`` with Faker locale and GPS boundaries
-- Create demo user accounts (viewer, officer, supervisor, manager,
-  admin)
+-  Generate random registrants using Faker library with locale-specific
+   providers (Kenya, Laos, Sri Lanka)
+-  Create fixed demo stories with memorable names for repeatable demos
+   (e.g., "Maria Santos", "Juan Dela Cruz")
+-  Generate IDs from regex patterns with validation and error logging
+-  Batch process large datasets using queue_job (configurable threshold)
+-  Configure percentages for IDs, GPS coordinates, and bank accounts
+-  Track generation failures with diagnostic logging
+-  Extend ``res.country`` with Faker locale and GPS boundaries
+-  Create demo user accounts (viewer, officer, supervisor, manager,
+   admin)
 
 Key Models
 ~~~~~~~~~~
@@ -76,9 +76,9 @@ After installing:
 1. Navigate to **Settings > General Settings > SPP Demo Data Generator
    Settings** to set defaults:
 
-   - Number of groups
-   - Members per group range
-   - Batch size and queue job threshold
+   -  Number of groups
+   -  Members per group range
+   -  Batch size and queue job threshold
 
 2. Access generator via action ``spp_demo.action_demo_data_generator``
    (no standalone menu)
@@ -89,12 +89,12 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
-- **Action**: ``spp_demo.action_demo_data_generator`` (no standalone
-  menu item)
-- **Configuration**: Settings > General Settings > SPP Demo Data
-  Generator Settings
-- **Form tabs**: Generated Groups, Generated Individuals, ID Types, Bank
-  Types, Generation Logs
+-  **Action**: ``spp_demo.action_demo_data_generator`` (no standalone
+   menu item)
+-  **Configuration**: Settings > General Settings > SPP Demo Data
+   Generator Settings
+-  **Form tabs**: Generated Groups, Generated Individuals, ID Types,
+   Bank Types, Generation Logs
 
 Security
 ~~~~~~~~
@@ -117,19 +117,19 @@ Security
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Override ``_create_individual_story()``, ``_create_farmer_story()``,
-  ``_create_household_story()`` for custom story generation
-- Add custom stories to ``models/demo_stories.py`` (``DEMO_STORIES`` or
-  ``BACKGROUND_STORIES`` lists)
-- Extend ``res.country`` with ``faker_locale`` field for custom locale
-  providers
-- Use utility methods:
+-  Override ``_create_individual_story()``, ``_create_farmer_story()``,
+   ``_create_household_story()`` for custom story generation
+-  Add custom stories to ``models/demo_stories.py`` (``DEMO_STORIES`` or
+   ``BACKGROUND_STORIES`` lists)
+-  Extend ``res.country`` with ``faker_locale`` field for custom locale
+   providers
+-  Use utility methods:
 
-  - ``create_individual_from_params(name, gender, age, extra_vals)`` -
-    Create individual without full generator session
-  - ``create_group_from_params(name, extra_vals)`` - Create group from
-    parameters
-  - ``lookup_gender_id(gender)`` - Look up gender vocabulary code ID
+   -  ``create_individual_from_params(name, gender, age, extra_vals)`` -
+      Create individual without full generator session
+   -  ``create_group_from_params(name, extra_vals)`` - Create group from
+      parameters
+   -  ``lookup_gender_id(gender)`` - Look up gender vocabulary code ID
 
 Dependencies
 ~~~~~~~~~~~~

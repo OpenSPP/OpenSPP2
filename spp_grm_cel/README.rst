@@ -31,17 +31,17 @@ creation.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- **Routing**: Automatically assign new tickets to teams and users based
-  on CEL conditions evaluated on ticket properties (severity, priority,
-  category, channel)
-- **Escalation**: Automatically escalate tickets when CEL conditions
-  match, optionally after a time threshold (hours since creation)
-- **Notifications**: Send email notifications when escalation rules
-  trigger using configurable mail templates
-- **Case Integration**: Automatically create case management records
-  when escalating tickets (requires ``spp_case_management``)
-- **Manual Trigger**: Button on ticket form to manually evaluate
-  escalation rules
+-  **Routing**: Automatically assign new tickets to teams and users
+   based on CEL conditions evaluated on ticket properties (severity,
+   priority, category, channel)
+-  **Escalation**: Automatically escalate tickets when CEL conditions
+   match, optionally after a time threshold (hours since creation)
+-  **Notifications**: Send email notifications when escalation rules
+   trigger using configurable mail templates
+-  **Case Integration**: Automatically create case management records
+   when escalating tickets (requires ``spp_case_management``)
+-  **Manual Trigger**: Button on ticket form to manually evaluate
+   escalation rules
 
 Key Models
 ~~~~~~~~~~
@@ -81,10 +81,10 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
-- **Routing Rules**: Helpdesk > Configuration > Routing Rules
-- **Escalation Rules**: Helpdesk > Configuration > Escalation Rules
-- **Manual Escalation**: Button in ticket form button box (labeled
-  "Check Escalation")
+-  **Routing Rules**: Helpdesk > Configuration > Routing Rules
+-  **Escalation Rules**: Helpdesk > Configuration > Escalation Rules
+-  **Manual Escalation**: Button in ticket form button box (labeled
+   "Check Escalation")
 
 Security
 ~~~~~~~~
@@ -105,11 +105,11 @@ CEL Context Variables
 Routing and escalation rules can reference these variables in CEL
 expressions:
 
-- ``ticket``, ``category``, ``channel``, ``stage``, ``severity``,
-  ``priority``, ``partner``, ``team``, ``user``
-- Escalation only: ``sla_status``, ``days_open``, ``is_escalated``
-- Helper functions: ``days_since(date)``, ``hours_since(datetime)``,
-  ``is_business_day(date)``
+-  ``ticket``, ``category``, ``channel``, ``stage``, ``severity``,
+   ``priority``, ``partner``, ``team``, ``user``
+-  Escalation only: ``sla_status``, ``days_open``, ``is_escalated``
+-  Helper functions: ``days_since(date)``, ``hours_since(datetime)``,
+   ``is_business_day(date)``
 
 Dependencies
 ~~~~~~~~~~~~

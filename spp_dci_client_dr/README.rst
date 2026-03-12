@@ -31,13 +31,13 @@ systems.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Query disability status from remote DR systems using DCI client
-- Cache disability data in local records with sync status tracking
-  (synced, stale, error)
-- Receive async search response callbacks via FastAPI endpoints
-- Verify callback signatures using Ed25519 or RSA-256 algorithms
-- Match DR responses to OpenSPP registrants by UIN, DRN, or National ID
-- Refresh cached data manually or programmatically
+-  Query disability status from remote DR systems using DCI client
+-  Cache disability data in local records with sync status tracking
+   (synced, stale, error)
+-  Receive async search response callbacks via FastAPI endpoints
+-  Verify callback signatures using Ed25519 or RSA-256 algorithms
+-  Match DR responses to OpenSPP registrants by UIN, DRN, or National ID
+-  Refresh cached data manually or programmatically
 
 Key Models
 ~~~~~~~~~~
@@ -81,29 +81,29 @@ To query disability status programmatically:
 UI Location
 ~~~~~~~~~~~
 
-- **Menu**: Settings > Technical > DCI > Activity Logs > Disability
-  Status
-- **Configuration**: Settings > Technical > DCI > Configuration > DR
-  Senders
-- **Callback Endpoints**: ``/dci_api/dr/on-search``,
-  ``/dci_api/dr/on-subscribe``
+-  **Menu**: Settings > Technical > DCI > Activity Logs > Disability
+   Status
+-  **Configuration**: Settings > Technical > DCI > Configuration > DR
+   Senders
+-  **Callback Endpoints**: ``/dci_api/dr/on-search``,
+   ``/dci_api/dr/on-subscribe``
 
 Tabs
 ~~~~
 
 Disability Status form:
 
-- **Disability Information**: Disability types and functional scores
-  (JSON)
-- **Raw Data**: Original JSON data received from DR system
-- **Notes**: Additional notes about disability status
-- **Error Details**: Error message if sync failed (visible only when
-  error exists)
+-  **Disability Information**: Disability types and functional scores
+   (JSON)
+-  **Raw Data**: Original JSON data received from DR system
+-  **Notes**: Additional notes about disability status
+-  **Error Details**: Error message if sync failed (visible only when
+   error exists)
 
 DR Sender form:
 
-- **Public Key**: PEM-encoded public key for signature verification
-- **Notes**: Additional notes about the DR registry
+-  **Public Key**: PEM-encoded public key for signature verification
+-  **Notes**: Additional notes about the DR registry
 
 Security
 ~~~~~~~~
@@ -121,14 +121,14 @@ Security
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Override ``DRService._extract_disability_data()`` to customize parsing
-  of DR response fields
-- Override ``DRService._extract_functional_scores()`` to handle custom
-  score formats
-- Inherit ``spp.dci.disability.status`` to add domain-specific
-  disability fields
-- Extend callback router at ``spp_dci_client_dr.routers.callback`` to
-  handle additional DR callback types
+-  Override ``DRService._extract_disability_data()`` to customize
+   parsing of DR response fields
+-  Override ``DRService._extract_functional_scores()`` to handle custom
+   score formats
+-  Inherit ``spp.dci.disability.status`` to add domain-specific
+   disability fields
+-  Extend callback router at ``spp_dci_client_dr.routers.callback`` to
+   handle additional DR callback types
 
 Dependencies
 ~~~~~~~~~~~~

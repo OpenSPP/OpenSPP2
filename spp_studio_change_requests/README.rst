@@ -31,17 +31,17 @@ access rights for each CR type.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Create custom change request types through a three-step wizard
-  (naming, field selection, approval configuration)
-- Dynamically generate ``x_spp_cr_detail_*`` models and
-  ``ir.model.fields`` records at runtime when activating a CR type
-- Map fields from ``res.partner`` to detail model fields, supporting
-  char, text, date, selection, many2one, and other types
-- Manage lifecycle through draft/active/inactive states with validation
-  checks and deactivation impact warnings
-- Configure approval groups and auto-apply settings per CR type
-- Add or modify field mappings on active types; changes sync to detail
-  models and form views automatically
+-  Create custom change request types through a three-step wizard
+   (naming, field selection, approval configuration)
+-  Dynamically generate ``x_spp_cr_detail_*`` models and
+   ``ir.model.fields`` records at runtime when activating a CR type
+-  Map fields from ``res.partner`` to detail model fields, supporting
+   char, text, date, selection, many2one, and other types
+-  Manage lifecycle through draft/active/inactive states with validation
+   checks and deactivation impact warnings
+-  Configure approval groups and auto-apply settings per CR type
+-  Add or modify field mappings on active types; changes sync to detail
+   models and form views automatically
 
 Key Models
 ~~~~~~~~~~
@@ -80,10 +80,10 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
-- **Menu**: Studio > Forms & Fields > Change Requests
-- **Wizard**: Three-step builder for guided CR type creation
-- **Detail Forms**: Generated dynamically at
-  ``/web#model=x_spp_cr_detail_*``
+-  **Menu**: Studio > Forms & Fields > Change Requests
+-  **Wizard**: Three-step builder for guided CR type creation
+-  **Detail Forms**: Generated dynamically at
+   ``/web#model=x_spp_cr_detail_*``
 
 Security
 ~~~~~~~~
@@ -108,13 +108,13 @@ manager) with create disabled to prevent manual record creation.
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Inherit ``spp.studio.change.request.type`` and override
-  ``_prepare_cr_type_vals()`` to customize generated CR type
-  configuration
-- Override ``_build_detail_form_arch()`` to customize the generated form
-  view XML structure
-- Extend ``spp.studio.cr.field.mapping._prepare_detail_field_vals()`` to
-  add custom field properties or domain filters
+-  Inherit ``spp.studio.change.request.type`` and override
+   ``_prepare_cr_type_vals()`` to customize generated CR type
+   configuration
+-  Override ``_build_detail_form_arch()`` to customize the generated
+   form view XML structure
+-  Extend ``spp.studio.cr.field.mapping._prepare_detail_field_vals()``
+   to add custom field properties or domain filters
 
 Dependencies
 ~~~~~~~~~~~~

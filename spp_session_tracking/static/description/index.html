@@ -388,8 +388,8 @@ expected participants</li>
 session type)</li>
 <li>Manage session state: scheduled → in progress → completed → cancelled</li>
 <li>Filter sessions by facilitator, type, state, and date range</li>
-<li>View sessions in list, form, calendar (by date), or kanban (grouped by
-state)</li>
+<li>View sessions in list, form, calendar (by date), or kanban (grouped
+by state)</li>
 </ul>
 </div>
 <div class="section" id="key-models">
@@ -482,9 +482,10 @@ implies manager access.</p>
 <div class="section" id="extension-points">
 <h1>Extension Points</h1>
 <ul class="simple">
-<li>Inherit <tt class="docutils literal">spp.session.type</tt> to add custom fields for program-specific
-session metadata</li>
-<li>Inherit <tt class="docutils literal">spp.session.attendance</tt> to track additional compliance data</li>
+<li>Inherit <tt class="docutils literal">spp.session.type</tt> to add custom fields for
+program-specific session metadata</li>
+<li>Inherit <tt class="docutils literal">spp.session.attendance</tt> to track additional compliance
+data</li>
 <li>Override <tt class="docutils literal">_compute_attendance()</tt> on <tt class="docutils literal">spp.session</tt> to customize
 attendance rate calculations</li>
 </ul>

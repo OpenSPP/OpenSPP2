@@ -515,11 +515,12 @@ individual registrant records.</p>
 <li><strong>OGC collections/items</strong>: Return GeoJSON features organized by
 administrative area, with pre-computed aggregate values (counts,
 percentages). Each feature represents an <em>area</em>, not a person.</li>
-<li><strong>Spatial query statistics</strong> (<tt class="docutils literal">POST /gis/query/statistics</tt>): Accepts
-a GeoJSON polygon and returns configured aggregate statistics computed
-by <tt class="docutils literal">spp.aggregation.service</tt>. Individual registrant IDs are computed
-internally for aggregation but are <strong>explicitly stripped</strong> from the
-response before it is sent (see <tt class="docutils literal">spatial_query.py</tt>).</li>
+<li><strong>Spatial query statistics</strong> (<tt class="docutils literal">POST /gis/query/statistics</tt>):
+Accepts a GeoJSON polygon and returns configured aggregate statistics
+computed by <tt class="docutils literal">spp.aggregation.service</tt>. Individual registrant IDs
+are computed internally for aggregation but are <strong>explicitly
+stripped</strong> from the response before it is sent (see
+<tt class="docutils literal">spatial_query.py</tt>).</li>
 <li><strong>Exports</strong> (GeoPackage/GeoJSON): Contain the same area-level
 aggregated layer data, not registrant-level records.</li>
 <li><strong>Geofences</strong>: Store only geometry and metadata — no registrant data.</li>

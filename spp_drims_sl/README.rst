@@ -32,31 +32,32 @@ no models or views.
 Key Configuration Data
 ~~~~~~~~~~~~~~~~~~~~~~
 
-- **Company Setup**: Configures main company as "Disaster Management
-  Centre - Sri Lanka" with LKR currency and Sri Lanka country
-- **Geographic Structure**: Defines 4-level administrative hierarchy
-  (Province → District → DS Division → GN Division) via
-  ``spp.area.kind`` records
-- **Agency Network**: Creates 16 ``res.partner`` records for government
-  agencies, military, UN agencies, and NGOs with DRIMS organization
-  roles
-- **Warehouse Network**: Provisions 11 ``stock.warehouse`` records (2
-  national-level, 9 provincial-level) with capacity and emergency
-  contact metadata
-- **Hazard Taxonomy**: Hierarchical natural disaster categories (floods,
-  landslides, drought, cyclones, monsoons) via ``spp.hazard.category``
-- **Relief Products**: 30 ``product.product`` records across 8
-  categories with expiry tracking enabled via ``product_expiry`` module
-- **Approval Workflows**: 4 ``spp.approval.definition`` records with
-  value-based routing (life-threatening fast-track, small/medium/large
-  value tiers)
-- **Vocabulary Extensions**: 15 Sri Lanka-specific
-  ``spp.vocabulary.code`` records for priority levels, transport modes,
-  hazard types, and agency types
-- **Reference Numbers**: Overrides ``ir.sequence`` records with SL
-  prefixes (DON-SL, REQ-SL, WB-SL, INC-SL)
-- **Demo Users**: 13 ``res.users`` spanning roles from field officers to
-  warehouse staff to approvers
+-  **Company Setup**: Configures main company as "Disaster Management
+   Centre - Sri Lanka" with LKR currency and Sri Lanka country
+-  **Geographic Structure**: Defines 4-level administrative hierarchy
+   (Province → District → DS Division → GN Division) via
+   ``spp.area.kind`` records
+-  **Agency Network**: Creates 16 ``res.partner`` records for government
+   agencies, military, UN agencies, and NGOs with DRIMS organization
+   roles
+-  **Warehouse Network**: Provisions 11 ``stock.warehouse`` records (2
+   national-level, 9 provincial-level) with capacity and emergency
+   contact metadata
+-  **Hazard Taxonomy**: Hierarchical natural disaster categories
+   (floods, landslides, drought, cyclones, monsoons) via
+   ``spp.hazard.category``
+-  **Relief Products**: 30 ``product.product`` records across 8
+   categories with expiry tracking enabled via ``product_expiry`` module
+-  **Approval Workflows**: 4 ``spp.approval.definition`` records with
+   value-based routing (life-threatening fast-track, small/medium/large
+   value tiers)
+-  **Vocabulary Extensions**: 15 Sri Lanka-specific
+   ``spp.vocabulary.code`` records for priority levels, transport modes,
+   hazard types, and agency types
+-  **Reference Numbers**: Overrides ``ir.sequence`` records with SL
+   prefixes (DON-SL, REQ-SL, WB-SL, INC-SL)
+-  **Demo Users**: 13 ``res.users`` spanning roles from field officers
+   to warehouse staff to approvers
 
 Approval Workflow Tiers
 ~~~~~~~~~~~~~~~~~~~~~~~

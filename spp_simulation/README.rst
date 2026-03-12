@@ -31,21 +31,22 @@ compare different targeting strategies before committing to criteria.
 Key Features
 ------------
 
-- **Scenario Builder**: Define targeting criteria using CEL expressions
-  with live preview counts
-- **Template Library**: Pre-built templates for common targeting
-  patterns (elderly pension, female-headed households, etc.)
-- **Distribution Analysis**: Gini coefficient, Lorenz curve, percentile
-  breakdown
-- **Fairness Analysis**: Disparity ratios across gender, disability,
-  location with traffic-light status indicators
-- **Targeting Efficiency**: Confusion matrix, leakage rate,
-  undercoverage against ideal populations
-- **Budget Simulation**: Fixed cap and proportional reduction strategies
-- **Scenario Comparison**: Side-by-side comparison of multiple targeting
-  approaches with overlap analysis
-- **Custom Metrics**: Define CEL-based aggregate, coverage, and ratio
-  metrics
+-  **Scenario Builder**: Define targeting criteria using CEL expressions
+   with live preview counts
+-  **Template Library**: Pre-built templates for common targeting
+   patterns (elderly pension, female-headed households, etc.)
+-  **Distribution Analysis**: Gini coefficient, Lorenz curve, percentile
+   breakdown
+-  **Fairness Analysis**: Disparity ratios across gender, disability,
+   location with traffic-light status indicators
+-  **Targeting Efficiency**: Confusion matrix, leakage rate,
+   undercoverage against ideal populations
+-  **Budget Simulation**: Fixed cap and proportional reduction
+   strategies
+-  **Scenario Comparison**: Side-by-side comparison of multiple
+   targeting approaches with overlap analysis
+-  **Custom Metrics**: Define CEL-based aggregate, coverage, and ratio
+   metrics
 
 Privacy
 -------

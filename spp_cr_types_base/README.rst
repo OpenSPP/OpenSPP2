@@ -31,19 +31,19 @@ parent module.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- **Edit Individual Information**: Updates personal data (name,
-  birthdate, gender), contact information (phone, email), and address
-  fields using field mapping strategy
-- **Edit Group Information**: Updates group/household name, contact
-  information, and address using field mapping strategy
-- **Update ID Document**: Adds, updates, or removes identification
-  documents using custom application logic with operation selection
-  (add/update/remove)
-- **Field Mapping Configuration**: Pre-configured mappings between
-  detail model fields and target registrant fields for automatic data
-  transfer
-- **Studio Customization**: All CR types are marked as editable and
-  cloneable in Studio for implementation-specific requirements
+-  **Edit Individual Information**: Updates personal data (name,
+   birthdate, gender), contact information (phone, email), and address
+   fields using field mapping strategy
+-  **Edit Group Information**: Updates group/household name, contact
+   information, and address using field mapping strategy
+-  **Update ID Document**: Adds, updates, or removes identification
+   documents using custom application logic with operation selection
+   (add/update/remove)
+-  **Field Mapping Configuration**: Pre-configured mappings between
+   detail model fields and target registrant fields for automatic data
+   transfer
+-  **Studio Customization**: All CR types are marked as editable and
+   cloneable in Studio for implementation-specific requirements
 
 Key Models
 ~~~~~~~~~~
@@ -83,12 +83,12 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
-- **CR Type Selection**: Types appear in the creation wizard at **Change
-  Requests > New Request**
-- **Configuration**: Change Requests > Configuration > Change Request
-  Types
-- **Detail Forms**: Accessed when creating or editing a change request
-  of the corresponding type
+-  **CR Type Selection**: Types appear in the creation wizard at
+   **Change Requests > New Request**
+-  **Configuration**: Change Requests > Configuration > Change Request
+   Types
+-  **Detail Forms**: Accessed when creating or editing a change request
+   of the corresponding type
 
 Security
 ~~~~~~~~
@@ -106,14 +106,14 @@ Security
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Clone any base type via Studio to create domain-specific variants
-  (e.g., "Edit Farmer Profile")
-- Add custom fields to detail models via Studio; field mappings
-  auto-discover new fields in dropdown
-- Inherit ``spp.cr.apply.update_id`` and override ``apply()`` method to
-  customize ID document application logic
-- Mark types as ``is_studio_editable=False`` in inherited modules to
-  prevent runtime modification
+-  Clone any base type via Studio to create domain-specific variants
+   (e.g., "Edit Farmer Profile")
+-  Add custom fields to detail models via Studio; field mappings
+   auto-discover new fields in dropdown
+-  Inherit ``spp.cr.apply.update_id`` and override ``apply()`` method to
+   customize ID document application logic
+-  Mark types as ``is_studio_editable=False`` in inherited modules to
+   prevent runtime modification
 
 Dependencies
 ~~~~~~~~~~~~

@@ -30,14 +30,14 @@ tracking to prevent archiving in-use artifacts.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Store version snapshots in JSON with three relation strategies:
-  shallow (IDs), embed (snapshot data), follow (cascade versions)
-- Schedule versions for future activation via daily cron job with
-  supersession chain tracking
-- Optional approval workflow (draft → pending → approved →
-  scheduled/current) and test gate enforcement
-- Usage tracking prevents archiving artifacts referenced by programs or
-  consumers
+-  Store version snapshots in JSON with three relation strategies:
+   shallow (IDs), embed (snapshot data), follow (cascade versions)
+-  Schedule versions for future activation via daily cron job with
+   supersession chain tracking
+-  Optional approval workflow (draft → pending → approved →
+   scheduled/current) and test gate enforcement
+-  Usage tracking prevents archiving artifacts referenced by programs or
+   consumers
 
 Key Models
 ~~~~~~~~~~
@@ -74,14 +74,14 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
-- Versioned artifacts call ``action_view_versions()`` to open version
-  history or ``action_open_schedule_wizard()`` for scheduling
-- When used with ``spp_studio``, menus appear under **Studio > Settings
-  > Versioning**:
+-  Versioned artifacts call ``action_view_versions()`` to open version
+   history or ``action_open_schedule_wizard()`` for scheduling
+-  When used with ``spp_studio``, menus appear under **Studio > Settings
+   > Versioning**:
 
-  - **Scheduled Changes** (shows upcoming activations)
-  - **Version History** (all versions across models)
-  - **Artifact Usages** (dependency tracking)
+   -  **Scheduled Changes** (shows upcoming activations)
+   -  **Version History** (all versions across models)
+   -  **Artifact Usages** (dependency tracking)
 
 Security
 ~~~~~~~~

@@ -381,15 +381,15 @@ mapping. Extends <tt class="docutils literal">res.partner</tt> to support social
 (gender, birthdate, civil status, occupation)</li>
 <li>Track group membership with configurable roles, start/end dates, and
 automatic status computation</li>
-<li>Store and validate ID documents with regex-based validation and expiry
-tracking</li>
+<li>Store and validate ID documents with regex-based validation and
+expiry tracking</li>
 <li>Define relationships between registrants (individual-to-individual,
 group-to-group, individual-to-group)</li>
 <li>Manage multiple phone numbers per registrant with validation and
 sanitization</li>
 <li>Tag registrants using vocabulary-based classification</li>
-<li>Disable registrants and relationships with audit trail (disabled date,
-disabled by, reason)</li>
+<li>Disable registrants and relationships with audit trail (disabled
+date, disabled by, reason)</li>
 </ul>
 </div>
 <div class="section" id="key-models">
@@ -450,7 +450,8 @@ vocabularies</li>
 <ul class="simple">
 <li><strong>Menu</strong>: Registry (top-level menu)</li>
 <li><strong>Configuration</strong>: Registry &gt; Configuration</li>
-<li><strong>Form tabs</strong> (Individuals): Profile, Identity, Participation, History</li>
+<li><strong>Form tabs</strong> (Individuals): Profile, Identity, Participation,
+History</li>
 <li><strong>Form tabs</strong> (Groups): Profile, Identity, Participation, History</li>
 <li><strong>Relationships</strong>: Accessible from registrant forms under the
 “Identity” tab</li>
@@ -497,12 +498,13 @@ istry.group_registry_config_admin</tt></td>
 <div class="section" id="extension-points">
 <h1>Extension Points</h1>
 <ul class="simple">
-<li>Inherit <tt class="docutils literal">res.partner</tt> to add custom fields for individuals or groups</li>
+<li>Inherit <tt class="docutils literal">res.partner</tt> to add custom fields for individuals or
+groups</li>
 <li>Override <tt class="docutils literal">_compute_calc_age()</tt> to customize age computation logic</li>
 <li>Inherit <tt class="docutils literal">spp.group.membership</tt> to add domain-specific membership
 fields</li>
-<li>Override <tt class="docutils literal">count_individuals()</tt> on <tt class="docutils literal">res.partner</tt> to customize group
-member counting with complex filters</li>
+<li>Override <tt class="docutils literal">count_individuals()</tt> on <tt class="docutils literal">res.partner</tt> to customize
+group member counting with complex filters</li>
 <li>Use <tt class="docutils literal">invalidate_group_metrics()</tt> to trigger metric recalculation
 when group composition changes</li>
 </ul>

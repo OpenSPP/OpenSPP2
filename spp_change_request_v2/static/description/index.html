@@ -380,8 +380,8 @@ group/household registrant data, with validation and audit trails.</p>
 <ul class="simple">
 <li>Create change requests using configurable request types with custom
 detail models</li>
-<li>Multi-tier approval workflows with automatic routing based on approval
-definitions</li>
+<li>Multi-tier approval workflows with automatic routing based on
+approval definitions</li>
 <li>Dynamic approval: route CRs to different approval workflows based on
 which field is being modified, with CEL condition evaluation for
 field-specific escalation</li>
@@ -500,7 +500,8 @@ integration</li>
 <li><strong>Notes</strong>: Description and internal notes fields</li>
 <li><strong>Revision Requested</strong>: Feedback from reviewers (visible when changes
 requested)</li>
-<li><strong>Status History</strong>: Timeline of approval reviews and state transitions</li>
+<li><strong>Status History</strong>: Timeline of approval reviews and state
+transitions</li>
 </ul>
 </div>
 <div class="section" id="configuration">
@@ -528,16 +529,16 @@ Manager</li>
 <li><strong>New Request</strong>: Launch wizard to create change request</li>
 <li><strong>Pending Approval</strong>: Queue of requests awaiting validator action
 (validators only)</li>
-<li><strong>Reporting &gt; Analytics</strong>: Pivot and graph views for change request
-analysis (managers only)</li>
+<li><strong>Reporting &gt; Analytics</strong>: Pivot and graph views for change
+request analysis (managers only)</li>
 <li><strong>Configuration</strong>: Change request types, conflict rules, duplicate
 detection (managers only)</li>
 </ul>
 </li>
 <li><strong>Registrant Profile</strong>: Change requests appear in registrant form
 under smart buttons and related tabs</li>
-<li><strong>Wizards</strong>: New Request wizard for guided CR creation, batch approval
-for validators</li>
+<li><strong>Wizards</strong>: New Request wizard for guided CR creation, batch
+approval for validators</li>
 </ul>
 </div>
 <div class="section" id="security">
@@ -1368,7 +1369,8 @@ creation)</li>
 <li><tt class="docutils literal">_get_prefill_mapping()</tt> defined if fields should pre-fill from
 registrant</li>
 <li><tt class="docutils literal">prefill_from_registrant()</tt> overridden if detail has boolean fields</li>
-<li>Form view uses <tt class="docutils literal">approval_state</tt> (not raw state field) for visibility</li>
+<li>Form view uses <tt class="docutils literal">approval_state</tt> (not raw state field) for
+visibility</li>
 <li>Form view uses <tt class="docutils literal">use_dynamic_approval</tt> (not the 3-level chain) for
 dynamic visibility</li>
 <li>Views listed before data in <tt class="docutils literal">__manifest__.py</tt> (data references

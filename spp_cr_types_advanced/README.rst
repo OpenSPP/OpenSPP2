@@ -33,16 +33,16 @@ logic.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- **Membership operations**: Add member, remove member, change head of
-  household, transfer member between groups
-- **Group operations**: Create new groups, split households into
-  separate groups
-- **Registrant lifecycle**: Exit and deactivate registrants from the
-  system
-- **Data quality**: Merge duplicate registrant records with full data
-  consolidation
-- All types use ``apply_strategy='custom'`` with Python models that
-  cannot be modified via Studio
+-  **Membership operations**: Add member, remove member, change head of
+   household, transfer member between groups
+-  **Group operations**: Create new groups, split households into
+   separate groups
+-  **Registrant lifecycle**: Exit and deactivate registrants from the
+   system
+-  **Data quality**: Merge duplicate registrant records with full data
+   consolidation
+-  All types use ``apply_strategy='custom'`` with Python models that
+   cannot be modified via Studio
 
 Models Secured by This Module
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -94,13 +94,13 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
-- **Configuration**: Change Requests > Configuration > Change Request
-  Types
-- **Create Requests**: Forms accessible from registrant profiles based
-  on ``target_type`` (individual/group/both)
-- **Type Codes**: ``add_member``, ``remove_member``, ``change_hoh``,
-  ``transfer_member``, ``exit_registrant``, ``create_group``,
-  ``split_household``, ``merge_registrants``
+-  **Configuration**: Change Requests > Configuration > Change Request
+   Types
+-  **Create Requests**: Forms accessible from registrant profiles based
+   on ``target_type`` (individual/group/both)
+-  **Type Codes**: ``add_member``, ``remove_member``, ``change_hoh``,
+   ``transfer_member``, ``exit_registrant``, ``create_group``,
+   ``split_household``, ``merge_registrants``
 
 Security
 ~~~~~~~~
@@ -117,12 +117,12 @@ Security rules apply to all eight detail models.
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Override apply strategies in ``spp_change_request_v2/strategies/*.py``
-  to customize behavior
-- Inherit detail models in ``spp_change_request_v2/details/*.py`` to add
-  fields
-- Clone type definitions if ``is_studio_cloneable`` is enabled to create
-  variants
+-  Override apply strategies in
+   ``spp_change_request_v2/strategies/*.py`` to customize behavior
+-  Inherit detail models in ``spp_change_request_v2/details/*.py`` to
+   add fields
+-  Clone type definitions if ``is_studio_cloneable`` is enabled to
+   create variants
 
 Dependencies
 ~~~~~~~~~~~~

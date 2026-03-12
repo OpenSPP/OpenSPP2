@@ -31,15 +31,15 @@ with Python fallback for complex cases.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Query event field values with temporal filtering (within_days,
-  within_months, named periods) and selection modes (active, latest,
-  latest_active, first, any)
-- Check event existence with date-based filtering
-- Aggregate event data using count, sum, avg, min, max functions
-- Generate period strings using helper functions (this_year,
-  this_quarter, etc.)
-- Optimize queries using SQL fast paths with automatic fallback to
-  Python evaluation
+-  Query event field values with temporal filtering (within_days,
+   within_months, named periods) and selection modes (active, latest,
+   latest_active, first, any)
+-  Check event existence with date-based filtering
+-  Aggregate event data using count, sum, avg, min, max functions
+-  Generate period strings using helper functions (this_year,
+   this_quarter, etc.)
+-  Optimize queries using SQL fast paths with automatic fallback to
+   Python evaluation
 
 Key Models
 ~~~~~~~~~~
@@ -70,9 +70,9 @@ optimal query performance.
 UI Location
 ~~~~~~~~~~~
 
-- **Menu**: Studio > Rules > Variables > All Variables
-- **Form**: Event aggregation fields appear in the Source Configuration
-  section when **Aggregate Target** is set to "Events"
+-  **Menu**: Studio > Rules > Variables > All Variables
+-  **Form**: Event aggregation fields appear in the Source Configuration
+   section when **Aggregate Target** is set to "Events"
 
 Security
 ~~~~~~~~
@@ -83,13 +83,13 @@ No module-specific security. Access control inherits from
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Override ``spp.cel.translator._to_plan()`` to add custom event query
-  plan nodes
-- Override ``spp.cel.executor._exec_event_value_sql()`` to customize SQL
-  execution logic
-- Extend period helper functions in ``models/cel_event_functions.py``
-- Implement custom aggregation functions following the
-  events_count/sum/avg pattern
+-  Override ``spp.cel.translator._to_plan()`` to add custom event query
+   plan nodes
+-  Override ``spp.cel.executor._exec_event_value_sql()`` to customize
+   SQL execution logic
+-  Extend period helper functions in ``models/cel_event_functions.py``
+-  Implement custom aggregation functions following the
+   events_count/sum/avg pattern
 
 Dependencies
 ~~~~~~~~~~~~

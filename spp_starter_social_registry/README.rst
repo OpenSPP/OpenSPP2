@@ -32,12 +32,12 @@ enrollment or entitlement management.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- One-click installation of all Social Registry dependencies
-- Automatically configures ``spp_starter.registry_type`` parameter to
-  ``social_registry``
-- Bundles core registry, API, DCI clients, change requests, and no-code
-  tools
-- Installs async job processing infrastructure via ``queue_job``
+-  One-click installation of all Social Registry dependencies
+-  Automatically configures ``spp_starter.registry_type`` parameter to
+   ``social_registry``
+-  Bundles core registry, API, DCI clients, change requests, and no-code
+   tools
+-  Installs async job processing infrastructure via ``queue_job``
 
 Configuration
 ~~~~~~~~~~~~~
@@ -53,10 +53,10 @@ After installing:
 Use Cases
 ~~~~~~~~~
 
-- National Social Registries tracking population demographics
-- Humanitarian registration systems without program management
-- Civil registration databases requiring external data synchronization
-- ID management systems as standalone deployments
+-  National Social Registries tracking population demographics
+-  Humanitarian registration systems without program management
+-  Civil registration databases requiring external data synchronization
+-  ID management systems as standalone deployments
 
 For SP-MIS deployments with program enrollment and entitlements, use
 ``spp_starter_sp_mis`` instead.

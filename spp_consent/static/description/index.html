@@ -384,19 +384,20 @@ groups.</p>
 parties, processing, consent specifics)</li>
 <li>Track consent lifecycle with state validation: requested →
 given/refused, given → renewed/withdrawn/expired/invalidated</li>
-<li>Two-mode recipients: specific organizations OR organization categories
-(e.g., “all NGOs but not private sector”)</li>
+<li>Two-mode recipients: specific organizations OR organization
+categories (e.g., “all NGOs but not private sector”)</li>
 <li>Maintain audit history per GDPR Article 7 requirements (who, what,
 when, why, how)</li>
 <li>Handle delegation (guardian, parent, power of attorney) with evidence
 attachment support</li>
-<li>Enforce notice-as-boundary: consent terms cannot exceed privacy notice
-scope</li>
+<li>Enforce notice-as-boundary: consent terms cannot exceed privacy
+notice scope</li>
 <li>Export consent records as JSON-LD or generate ISO 27560 receipts for
 interoperability</li>
 <li>Automatically expire consents via scheduled cron job (batch
 processing)</li>
-<li>Protect consent terms from modification after given (immutable fields)</li>
+<li>Protect consent terms from modification after given (immutable
+fields)</li>
 </ul>
 </div>
 <div class="section" id="key-models">
@@ -572,8 +573,8 @@ ty.group_spp_admin</tt></td>
 <div class="section" id="extension-points">
 <h1>Extension Points</h1>
 <ul class="simple">
-<li>Inherit <tt class="docutils literal">spp.consent.mixin</tt> to add consent tracking to custom models
-(provides <tt class="docutils literal">consent_ids</tt> field and wizard launcher)</li>
+<li>Inherit <tt class="docutils literal">spp.consent.mixin</tt> to add consent tracking to custom
+models (provides <tt class="docutils literal">consent_ids</tt> field and wizard launcher)</li>
 <li>Override <tt class="docutils literal">check_consent()</tt> on <tt class="docutils literal">spp.consent</tt> to add custom consent
 validation logic for API filtering</li>
 <li>Extend DPV taxonomy models (<tt class="docutils literal">spp.consent.purpose</tt>,

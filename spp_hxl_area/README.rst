@@ -32,18 +32,18 @@ expressions.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Import HXL-tagged CSV/Excel files with libhxl parsing
-- Match data rows to areas using P-code, name, GPS, or fuzzy name
-  strategies
-- Aggregate numeric values using sum, count, average, min, max, or
-  percentage operations
-- Apply filter expressions to subset data before aggregation
-- Disaggregate indicators by HXL attributes (e.g., +f, +m, +children)
-- Track imports as batches with state machine (draft → mapped →
-  processing → done)
-- Auto-sync indicators to ``spp.data.value`` for CEL expression access
-- Link imports to hazard incidents for disaster response tracking
-- Process imports asynchronously via queue_job
+-  Import HXL-tagged CSV/Excel files with libhxl parsing
+-  Match data rows to areas using P-code, name, GPS, or fuzzy name
+   strategies
+-  Aggregate numeric values using sum, count, average, min, max, or
+   percentage operations
+-  Apply filter expressions to subset data before aggregation
+-  Disaggregate indicators by HXL attributes (e.g., +f, +m, +children)
+-  Track imports as batches with state machine (draft → mapped →
+   processing → done)
+-  Auto-sync indicators to ``spp.data.value`` for CEL expression access
+-  Link imports to hazard incidents for disaster response tracking
+-  Process imports asynchronously via queue_job
 
 Key Models
 ~~~~~~~~~~
@@ -83,13 +83,13 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
-- **Menu**: HXL > HXL Area > Import HXL Data
-- **Batches**: HXL > HXL Area > Import Batches
-- **Indicators**: HXL > HXL Area > Area Indicators
-- **Configuration**: HXL > HXL Area > Configuration > Import Profiles
-- **Profile Form Tabs**: "Area Matching", "Aggregation Rules"
-- **Batch Form Tabs**: "File", "Column Mapping", "Statistics",
-  "Indicators", "Error Log"
+-  **Menu**: HXL > HXL Area > Import HXL Data
+-  **Batches**: HXL > HXL Area > Import Batches
+-  **Indicators**: HXL > HXL Area > Area Indicators
+-  **Configuration**: HXL > HXL Area > Configuration > Import Profiles
+-  **Profile Form Tabs**: "Area Matching", "Aggregation Rules"
+-  **Batch Form Tabs**: "File", "Column Mapping", "Statistics",
+   "Indicators", "Error Log"
 
 Security
 ~~~~~~~~
@@ -105,12 +105,12 @@ Security
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Inherit ``spp.hxl.import.profile`` to add custom area matching
-  strategies
-- Override ``spp.hxl.area.indicator.sync_to_data_value()`` to customize
-  CEL variable mapping
-- Extend ``spp.hxl.aggregation.rule`` to add custom aggregation
-  functions
+-  Inherit ``spp.hxl.import.profile`` to add custom area matching
+   strategies
+-  Override ``spp.hxl.area.indicator.sync_to_data_value()`` to customize
+   CEL variable mapping
+-  Extend ``spp.hxl.aggregation.rule`` to add custom aggregation
+   functions
 
 Dependencies
 ~~~~~~~~~~~~

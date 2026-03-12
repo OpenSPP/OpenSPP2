@@ -31,17 +31,17 @@ area lookup using PostGIS spatial queries.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Sync COD dataset metadata from HDX API by country
-- Auto-detect field mappings from GeoJSON (P-code, name, parent P-code)
-  using HXL tags
-- Import admin boundaries with polygons from HDX or manually uploaded
-  GeoJSON files
-- Match imported features to existing areas by P-code or create new
-  areas
-- GPS-based area lookup using PostGIS ``ST_Contains`` for
-  point-in-polygon queries
-- Standardize area identification with HDX P-codes for inter-agency
-  coordination
+-  Sync COD dataset metadata from HDX API by country
+-  Auto-detect field mappings from GeoJSON (P-code, name, parent P-code)
+   using HXL tags
+-  Import admin boundaries with polygons from HDX or manually uploaded
+   GeoJSON files
+-  Match imported features to existing areas by P-code or create new
+   areas
+-  GPS-based area lookup using PostGIS ``ST_Contains`` for
+   point-in-polygon queries
+-  Standardize area identification with HDX P-codes for inter-agency
+   coordination
 
 Key Models
 ~~~~~~~~~~
@@ -79,10 +79,10 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
-- **Menu**: Area > Areas > HDX Integration > COD Sources
-- **Import**: Area > Areas > HDX Integration > Import COD
-- **Area Records**: Extended with HDX P-code field visible in area form
-  view
+-  **Menu**: Area > Areas > HDX Integration > COD Sources
+-  **Import**: Area > Areas > HDX Integration > Import COD
+-  **Area Records**: Extended with HDX P-code field visible in area form
+   view
 
 Security
 ~~~~~~~~
@@ -99,16 +99,16 @@ Security
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- ``spp.area.find_by_coordinates(latitude, longitude, level=None)`` -
-  Find area containing GPS point
-- ``spp.area.find_all_containing(latitude, longitude)`` - Find all areas
-  in hierarchy containing point
-- ``spp.area.find_by_pcode(pcode)`` - Find area by HDX P-code or
-  fallback to code field
-- Inherit ``spp.hdx.cod.source`` to add country-specific dataset
-  discovery logic
-- Inherit ``spp.hdx.cod.import.wizard._process_features()`` to customize
-  import behavior
+-  ``spp.area.find_by_coordinates(latitude, longitude, level=None)`` -
+   Find area containing GPS point
+-  ``spp.area.find_all_containing(latitude, longitude)`` - Find all
+   areas in hierarchy containing point
+-  ``spp.area.find_by_pcode(pcode)`` - Find area by HDX P-code or
+   fallback to code field
+-  Inherit ``spp.hdx.cod.source`` to add country-specific dataset
+   discovery logic
+-  Inherit ``spp.hdx.cod.import.wizard._process_features()`` to
+   customize import behavior
 
 Dependencies
 ~~~~~~~~~~~~

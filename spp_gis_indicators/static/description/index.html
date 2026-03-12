@@ -378,10 +378,10 @@ legend generation.</p>
 <div class="section" id="key-capabilities">
 <h1>Key Capabilities</h1>
 <ul class="simple">
-<li>Define indicator layer configurations that link CEL variables to color
-scales and classification methods</li>
-<li>Classify continuous indicator values into discrete color classes using
-quantile, equal interval, or manual breaks</li>
+<li>Define indicator layer configurations that link CEL variables to
+color scales and classification methods</li>
+<li>Classify continuous indicator values into discrete color classes
+using quantile, equal interval, or manual breaks</li>
 <li>Apply preset ColorBrewer color scales (sequential, diverging,
 categorical) or define custom scales</li>
 <li>Compute break values automatically based on actual data distribution</li>
@@ -394,8 +394,8 @@ layers</li>
 <div class="section" id="key-models">
 <h1>Key Models</h1>
 <ul class="simple">
-<li><strong>spp.gis.indicator.layer</strong> – Configuration linking a CEL variable to
-color scale and classification settings</li>
+<li><strong>spp.gis.indicator.layer</strong> – Configuration linking a CEL variable
+to color scale and classification settings</li>
 <li><strong>spp.gis.color.scale</strong> – Color scheme definition with JSON array of
 hex colors</li>
 <li><strong>spp.gis.data.layer</strong> – Extended with choropleth geo representation
@@ -435,10 +435,10 @@ select the indicator layer to visualize</li>
 <h1>Extension Points</h1>
 <ul class="simple">
 <li>Override <tt class="docutils literal">_compute_quantile_breaks()</tt> or
-<tt class="docutils literal">_compute_equal_interval_breaks()</tt> in <tt class="docutils literal">spp.gis.indicator.layer</tt> to
-add custom classification algorithms</li>
-<li>Inherit <tt class="docutils literal">spp.gis.color.scale</tt> and override <tt class="docutils literal">get_color_for_value()</tt>
-to implement custom color mapping logic</li>
+<tt class="docutils literal">_compute_equal_interval_breaks()</tt> in <tt class="docutils literal">spp.gis.indicator.layer</tt>
+to add custom classification algorithms</li>
+<li>Inherit <tt class="docutils literal">spp.gis.color.scale</tt> and override
+<tt class="docutils literal">get_color_for_value()</tt> to implement custom color mapping logic</li>
 <li>Extend <tt class="docutils literal">spp.gis.indicator.layer._get_indicator_values()</tt> to support
 additional data sources beyond <tt class="docutils literal">spp.hxl.area.indicator</tt></li>
 </ul>

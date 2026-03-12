@@ -31,13 +31,14 @@ external identifiers.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Search and retrieve products by default_code (SKU) or name
-- Query product categories for classification and filtering
-- List units of measure with category filtering
-- Paginated search with filters: name, code, category, last updated date
-- OAuth 2.0 authentication with "product" resource scope
-- Returns JSON responses with references to related resources (category,
-  UoM)
+-  Search and retrieve products by default_code (SKU) or name
+-  Query product categories for classification and filtering
+-  List units of measure with category filtering
+-  Paginated search with filters: name, code, category, last updated
+   date
+-  OAuth 2.0 authentication with "product" resource scope
+-  Returns JSON responses with references to related resources
+   (category, UoM)
 
 Key Models
 ~~~~~~~~~~
@@ -71,14 +72,14 @@ No standalone menu. This is an API-only module.
 
 **API Endpoints**:
 
-- ``GET /api/v2/spp/Product`` - Search products
-- ``GET /api/v2/spp/Product/{identifier}`` - Read product by code or
-  name
-- ``GET /api/v2/spp/ProductCategory`` - Search categories
-- ``GET /api/v2/spp/ProductCategory/{identifier}`` - Read category by
-  name
-- ``GET /api/v2/spp/UnitOfMeasure`` - Search units of measure
-- ``GET /api/v2/spp/UnitOfMeasure/{identifier}`` - Read UoM by name
+-  ``GET /api/v2/spp/Product`` - Search products
+-  ``GET /api/v2/spp/Product/{identifier}`` - Read product by code or
+   name
+-  ``GET /api/v2/spp/ProductCategory`` - Search categories
+-  ``GET /api/v2/spp/ProductCategory/{identifier}`` - Read category by
+   name
+-  ``GET /api/v2/spp/UnitOfMeasure`` - Search units of measure
+-  ``GET /api/v2/spp/UnitOfMeasure/{identifier}`` - Read UoM by name
 
 **Configuration**: Registry > Configuration > API V2 > API Clients
 
@@ -98,11 +99,11 @@ layer through OAuth scopes.
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Inherit ``ProductService``, ``ProductCategoryService``, or
-  ``UomService`` to customize API responses
-- Override ``to_api_schema()`` methods to add fields to Product,
-  ProductCategory, or UnitOfMeasure schemas
-- Override ``search()`` methods to add custom filtering logic
+-  Inherit ``ProductService``, ``ProductCategoryService``, or
+   ``UomService`` to customize API responses
+-  Override ``to_api_schema()`` methods to add fields to Product,
+   ProductCategory, or UnitOfMeasure schemas
+-  Override ``search()`` methods to add custom filtering logic
 
 Dependencies
 ~~~~~~~~~~~~

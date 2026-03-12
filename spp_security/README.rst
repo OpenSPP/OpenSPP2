@@ -31,18 +31,19 @@ within these predefined categories.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Define 22 domain-specific security categories (Registry, Programs,
-  Entitlements, GRM, etc.) organizing security groups in user settings
-  UI
-- Provide central Administrator group (``group_spp_admin``) that
-  automatically inherits all manager-level permissions from installed
-  domain modules
-- Implement multi-company record rule for ``res.partner`` restricting
-  access to records from user's companies
-- Implement self-only record rule for ``res.users`` restricting users in
-  ``group_access_restrict_self`` to viewing only their own user record
-- Link Odoo system administrators (``base.group_system``) to
-  automatically inherit OpenSPP Administrator privileges
+-  Define 22 domain-specific security categories (Registry, Programs,
+   Entitlements, GRM, etc.) organizing security groups in user settings
+   UI
+-  Provide central Administrator group (``group_spp_admin``) that
+   automatically inherits all manager-level permissions from installed
+   domain modules
+-  Implement multi-company record rule for ``res.partner`` restricting
+   access to records from user's companies
+-  Implement self-only record rule for ``res.users`` restricting users
+   in ``group_access_restrict_self`` to viewing only their own user
+   record
+-  Link Odoo system administrators (``base.group_system``) to
+   automatically inherit OpenSPP Administrator privileges
 
 Configuration
 ~~~~~~~~~~~~~
@@ -73,10 +74,10 @@ rules.
 
 Record rules:
 
-- ``rule_partner_company``: Multi-company access for ``res.partner``
-  (company_ids filter)
-- ``rule_user_self_only``: Self-only access for ``res.users`` (applied
-  to ``group_access_restrict_self``)
+-  ``rule_partner_company``: Multi-company access for ``res.partner``
+   (company_ids filter)
+-  ``rule_user_self_only``: Self-only access for ``res.users`` (applied
+   to ``group_access_restrict_self``)
 
 Extension Points
 ~~~~~~~~~~~~~~~~

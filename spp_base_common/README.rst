@@ -31,15 +31,16 @@ validation rules and UI theming across the platform.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Define configurable phone validation rules with digit count and prefix
-  requirements
-- Automatically validate phone numbers on create/write against active
-  validation rules
-- Customize menu icons for Registry, Apps, Settings, and standard Odoo
-  modules
-- Configure global and local registrar user roles with implied
-  permissions
-- Auto-populate partner phone field from structured phone number records
+-  Define configurable phone validation rules with digit count and
+   prefix requirements
+-  Automatically validate phone numbers on create/write against active
+   validation rules
+-  Customize menu icons for Registry, Apps, Settings, and standard Odoo
+   modules
+-  Configure global and local registrar user roles with implied
+   permissions
+-  Auto-populate partner phone field from structured phone number
+   records
 
 Key Models
 ~~~~~~~~~~
@@ -53,9 +54,9 @@ Key Models
 
 **Extensions:**
 
-- ``spp.phone.number`` - Adds automatic validation on save
-- ``res.partner`` - Adds phone auto-population from phone_number_ids
-- ``ir.module.module`` - Adds menu icon update on module install
+-  ``spp.phone.number`` - Adds automatic validation on save
+-  ``res.partner`` - Adds phone auto-population from phone_number_ids
+-  ``ir.module.module`` - Adds menu icon update on module install
 
 Configuration
 ~~~~~~~~~~~~~
@@ -75,10 +76,10 @@ UI Location
 **No standalone menu.** Phone validation configuration is accessible
 through:
 
-- Technical views (debug mode) via Settings > Technical > Database
-  Structure > Models
-- Registry main menu gets custom OpenSPP icon
-- Apps and Settings menus get custom OpenSPP icons
+-  Technical views (debug mode) via Settings > Technical > Database
+   Structure > Models
+-  Registry main menu gets custom OpenSPP icon
+-  Apps and Settings menus get custom OpenSPP icons
 
 Security
 ~~~~~~~~
@@ -99,12 +100,12 @@ Additional access rules grant registry groups appropriate permissions on
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Override ``_onchange_phone_validation()`` in ``spp.phone.number`` to
-  customize validation logic
-- Extend ``ICON_MAP`` in ``ir.module.module`` to add menu icons for
-  additional modules
-- Inherit global/local role definitions in ``data/global_roles.xml`` and
-  ``data/local_roles.xml``
+-  Override ``_onchange_phone_validation()`` in ``spp.phone.number`` to
+   customize validation logic
+-  Extend ``ICON_MAP`` in ``ir.module.module`` to add menu icons for
+   additional modules
+-  Inherit global/local role definitions in ``data/global_roles.xml``
+   and ``data/local_roles.xml``
 
 Dependencies
 ~~~~~~~~~~~~

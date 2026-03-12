@@ -30,28 +30,28 @@ eligibility, deduplication, notifications, and compliance workflows.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- **Program Management**: Define programs with target type
-  (individual/group), states (active/ended), and configurable
-  manager-based logic
-- **Cycle Management**: Create time-bound distribution cycles with
-  approval workflows, recurrence, and compliance filtering
-- **Enrollment**: Import and enroll registrants as program members,
-  verify eligibility, track enrollment states
-- **Deduplication**: Identify and manage duplicate beneficiaries using
-  ID documents or phone numbers
-- **Entitlements**: Generate cash or in-kind entitlements with approval
-  workflows, fund balance validation, and CEL expression support
-- **Payment Processing**: Create payment batches, track disbursements,
-  reconcile payments via accounting integration
-- **Fund Tracking**: Monitor program budgets, available funds, and
-  journal entries through Odoo accounting
-- **Stock Integration**: Link in-kind entitlements to inventory, trigger
-  procurements, track warehouse movements
-- **Compliance**: Define ongoing beneficiary conditions and filter cycle
-  members by compliance status
-- **Manager Architecture**: Extensible pattern for eligibility,
-  deduplication, notification, program, cycle, entitlement, payment, and
-  compliance logic
+-  **Program Management**: Define programs with target type
+   (individual/group), states (active/ended), and configurable
+   manager-based logic
+-  **Cycle Management**: Create time-bound distribution cycles with
+   approval workflows, recurrence, and compliance filtering
+-  **Enrollment**: Import and enroll registrants as program members,
+   verify eligibility, track enrollment states
+-  **Deduplication**: Identify and manage duplicate beneficiaries using
+   ID documents or phone numbers
+-  **Entitlements**: Generate cash or in-kind entitlements with approval
+   workflows, fund balance validation, and CEL expression support
+-  **Payment Processing**: Create payment batches, track disbursements,
+   reconcile payments via accounting integration
+-  **Fund Tracking**: Monitor program budgets, available funds, and
+   journal entries through Odoo accounting
+-  **Stock Integration**: Link in-kind entitlements to inventory,
+   trigger procurements, track warehouse movements
+-  **Compliance**: Define ongoing beneficiary conditions and filter
+   cycle members by compliance status
+-  **Manager Architecture**: Extensible pattern for eligibility,
+   deduplication, notification, program, cycle, entitlement, payment,
+   and compliance logic
 
 Key Models
 ~~~~~~~~~~
@@ -155,18 +155,19 @@ After installing:
 2. Create a program, selecting target type (individual/group)
 3. In the **Configuration** tab, configure managers:
 
-   - **Eligibility Manager**: Define who can enroll (supports CEL
-     expressions)
-   - **Program Manager**: Handles enrollment and cycle creation logic
-   - **Cycle Manager**: Manages cycle lifecycle and beneficiary copying
-   - **Entitlement Manager**: Generates and approves entitlements (cash
-     or in-kind)
-   - **Payment Manager**: Prepares and sends payment batches
-   - **Deduplication Manager** (optional): Identify duplicate
-     beneficiaries
-   - **Notification Manager** (optional): Send beneficiary notifications
-   - **Compliance Manager** (optional): Define ongoing compliance
-     conditions
+   -  **Eligibility Manager**: Define who can enroll (supports CEL
+      expressions)
+   -  **Program Manager**: Handles enrollment and cycle creation logic
+   -  **Cycle Manager**: Manages cycle lifecycle and beneficiary copying
+   -  **Entitlement Manager**: Generates and approves entitlements (cash
+      or in-kind)
+   -  **Payment Manager**: Prepares and sends payment batches
+   -  **Deduplication Manager** (optional): Identify duplicate
+      beneficiaries
+   -  **Notification Manager** (optional): Send beneficiary
+      notifications
+   -  **Compliance Manager** (optional): Define ongoing compliance
+      conditions
 
 4. Set up program journal under **Programs > Accounting >
    Configuration** or via Create Journal button
@@ -176,18 +177,18 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
-- **Programs**: Programs > Programs
-- **Cycles**: Accessed via "Cycles" stat button on program form (no
-  standalone menu)
-- **Beneficiaries**: Accessed via "Beneficiaries" stat button on program
-  form (no standalone menu)
-- **Cash Entitlements**: Accessed via entitlement buttons on cycle form
-  (no standalone menu)
-- **In-Kind Entitlements**: Programs > In-Kind > Entitlements
-- **Payment Batches**: Programs > Payments > Payment Batches
-- **Individual Payments**: Accessed via payment buttons on cycle form
-  (no standalone menu)
-- **Fund Management**: Programs > Accounting
+-  **Programs**: Programs > Programs
+-  **Cycles**: Accessed via "Cycles" stat button on program form (no
+   standalone menu)
+-  **Beneficiaries**: Accessed via "Beneficiaries" stat button on
+   program form (no standalone menu)
+-  **Cash Entitlements**: Accessed via entitlement buttons on cycle form
+   (no standalone menu)
+-  **In-Kind Entitlements**: Programs > In-Kind > Entitlements
+-  **Payment Batches**: Programs > Payments > Payment Batches
+-  **Individual Payments**: Accessed via payment buttons on cycle form
+   (no standalone menu)
+-  **Fund Management**: Programs > Accounting
 
 Security
 ~~~~~~~~
@@ -220,23 +221,23 @@ Security
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Override ``_pre_enrollment_hook(partner)`` and
-  ``_post_enrollment_hook(partner)`` on ``spp.program`` for custom
-  enrollment logic
-- Inherit manager models and add to ``_selection_manager_ref_id()`` to
-  register custom manager types:
+-  Override ``_pre_enrollment_hook(partner)`` and
+   ``_post_enrollment_hook(partner)`` on ``spp.program`` for custom
+   enrollment logic
+-  Inherit manager models and add to ``_selection_manager_ref_id()`` to
+   register custom manager types:
 
-  - ``spp.program.membership.manager`` for custom eligibility
-  - ``spp.cycle.manager`` for custom cycle logic
-  - ``spp.program.entitlement.manager`` for custom entitlement
-    generation
-  - ``spp.compliance.manager`` for custom compliance rules
+   -  ``spp.program.membership.manager`` for custom eligibility
+   -  ``spp.cycle.manager`` for custom cycle logic
+   -  ``spp.program.entitlement.manager`` for custom entitlement
+      generation
+   -  ``spp.compliance.manager`` for custom compliance rules
 
-- Extend ``spp.entitlement`` or ``spp.entitlement.inkind`` to add
-  domain-specific entitlement fields
-- Override ``get_compliance_domain(membership)`` on compliance managers
-  to define custom compliance criteria
-- Use ``spp.manager.mixin`` pattern to create new manager types
+-  Extend ``spp.entitlement`` or ``spp.entitlement.inkind`` to add
+   domain-specific entitlement fields
+-  Override ``get_compliance_domain(membership)`` on compliance managers
+   to define custom compliance criteria
+-  Use ``spp.manager.mixin`` pattern to create new manager types
 
 Dependencies
 ~~~~~~~~~~~~

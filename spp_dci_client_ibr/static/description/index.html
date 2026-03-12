@@ -387,7 +387,8 @@ fetching</li>
 <li>Receive async search response callbacks at <tt class="docutils literal"><span class="pre">/dci_api/ibr/on-search</span></tt>
 endpoint</li>
 <li>Verify callback signatures using Ed25519 or RSA-256 algorithms</li>
-<li>Track duplication check lifecycle: ready → checking → completed/failed</li>
+<li>Track duplication check lifecycle: ready → checking →
+completed/failed</li>
 </ul>
 </div>
 <div class="section" id="key-models">
@@ -433,8 +434,8 @@ JWKS endpoint</li>
 <div class="section" id="ui-location">
 <h1>UI Location</h1>
 <ul class="simple">
-<li><strong>IBR Duplication Checks</strong>: Settings &gt; Technical &gt; DCI &gt; Activity Logs
-&gt; IBR Duplication Checks</li>
+<li><strong>IBR Duplication Checks</strong>: Settings &gt; Technical &gt; DCI &gt; Activity
+Logs &gt; IBR Duplication Checks</li>
 <li><strong>IBR Senders</strong>: Settings &gt; Technical &gt; DCI &gt; Configuration &gt; IBR
 Senders</li>
 <li><strong>FastAPI Callbacks</strong>: <tt class="docutils literal"><span class="pre">/dci_api/ibr/on-search</span></tt> and
@@ -494,8 +495,8 @@ spp.dci.ibr.sender``</td>
 <ul class="simple">
 <li>Override <tt class="docutils literal">_process_ibr_search_result()</tt> in <tt class="docutils literal">routers/callback.py</tt>
 to customize result processing</li>
-<li>Inherit <tt class="docutils literal">spp.dci.duplication.check</tt> to add domain-specific fields or
-validation</li>
+<li>Inherit <tt class="docutils literal">spp.dci.duplication.check</tt> to add domain-specific fields
+or validation</li>
 <li>Extend <tt class="docutils literal">fastapi.endpoint._get_fastapi_routers()</tt> to add additional
 IBR-related routes</li>
 <li>Override <tt class="docutils literal">spp.dci.ibr.sender._jwk_to_pem()</tt> to support additional

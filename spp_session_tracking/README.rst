@@ -31,18 +31,18 @@ programs requiring minimum attendance thresholds.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Define session types with attendance requirements and frequency
-  (weekly, biweekly, monthly, quarterly, one-time)
-- Schedule sessions with facilitators, co-facilitators, location, and
-  expected participants
-- Record attendance with timestamps, excused absences, and notes
-- Compute attendance rates and track attendance counts automatically
-- Track topics covered in each session (optional, configurable per
-  session type)
-- Manage session state: scheduled → in progress → completed → cancelled
-- Filter sessions by facilitator, type, state, and date range
-- View sessions in list, form, calendar (by date), or kanban (grouped by
-  state)
+-  Define session types with attendance requirements and frequency
+   (weekly, biweekly, monthly, quarterly, one-time)
+-  Schedule sessions with facilitators, co-facilitators, location, and
+   expected participants
+-  Record attendance with timestamps, excused absences, and notes
+-  Compute attendance rates and track attendance counts automatically
+-  Track topics covered in each session (optional, configurable per
+   session type)
+-  Manage session state: scheduled → in progress → completed → cancelled
+-  Filter sessions by facilitator, type, state, and date range
+-  View sessions in list, form, calendar (by date), or kanban (grouped
+   by state)
 
 Key Models
 ~~~~~~~~~~
@@ -79,12 +79,12 @@ Development Sessions and Training Sessions.
 UI Location
 ~~~~~~~~~~~
 
-- **Menu**: Session Tracking > Sessions > All Sessions
-- **My Sessions**: Session Tracking > Sessions > My Sessions (filtered
-  to current user as facilitator)
-- **Configuration**: Session Tracking > Configuration > Session Types
-  (managers only)
-- **Views**: List, form, calendar (by date), kanban (grouped by state)
+-  **Menu**: Session Tracking > Sessions > All Sessions
+-  **My Sessions**: Session Tracking > Sessions > My Sessions (filtered
+   to current user as facilitator)
+-  **Configuration**: Session Tracking > Configuration > Session Types
+   (managers only)
+-  **Views**: List, form, calendar (by date), kanban (grouped by state)
 
 Security
 ~~~~~~~~
@@ -109,11 +109,12 @@ implies manager access.
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Inherit ``spp.session.type`` to add custom fields for program-specific
-  session metadata
-- Inherit ``spp.session.attendance`` to track additional compliance data
-- Override ``_compute_attendance()`` on ``spp.session`` to customize
-  attendance rate calculations
+-  Inherit ``spp.session.type`` to add custom fields for
+   program-specific session metadata
+-  Inherit ``spp.session.attendance`` to track additional compliance
+   data
+-  Override ``_compute_attendance()`` on ``spp.session`` to customize
+   attendance rate calculations
 
 Dependencies
 ~~~~~~~~~~~~

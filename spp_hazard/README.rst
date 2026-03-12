@@ -30,19 +30,20 @@ targeted emergency response and humanitarian assistance.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Define hazard categories in a tree structure (e.g., Natural > Storm >
-  Typhoon)
-- Record incidents with start/end dates, severity levels, and lifecycle
-  status (alert, active, recovery, closed)
-- Link incidents to geographic areas with area-specific severity
-  overrides
-- Track registrant-level impacts by type (physical, economic, health,
-  social) and damage level
-- Verify impact records with workflow states (reported, verified,
-  disputed, closed)
-- Bulk-create impact records for all registrants in an affected area via
-  ``bulk_create_impacts()``
-- Identify potentially affected registrants based on geographic location
+-  Define hazard categories in a tree structure (e.g., Natural > Storm >
+   Typhoon)
+-  Record incidents with start/end dates, severity levels, and lifecycle
+   status (alert, active, recovery, closed)
+-  Link incidents to geographic areas with area-specific severity
+   overrides
+-  Track registrant-level impacts by type (physical, economic, health,
+   social) and damage level
+-  Verify impact records with workflow states (reported, verified,
+   disputed, closed)
+-  Bulk-create impact records for all registrants in an affected area
+   via ``bulk_create_impacts()``
+-  Identify potentially affected registrants based on geographic
+   location
 
 Key Models
 ~~~~~~~~~~
@@ -85,13 +86,13 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
-- **Menu**: Hazard & Emergency (top-level application menu)
-- **Incidents**: Hazard & Emergency > Incidents > All Incidents
-- **Impacts**: Hazard & Emergency > Incidents > Impact Records
-- **Configuration**: Hazard & Emergency > Configuration (accessible to
-  managers only)
-- **Registrant Form**: Stat button shows impact count; "Emergency
-  Response" tab displays impact records list
+-  **Menu**: Hazard & Emergency (top-level application menu)
+-  **Incidents**: Hazard & Emergency > Incidents > All Incidents
+-  **Impacts**: Hazard & Emergency > Incidents > Impact Records
+-  **Configuration**: Hazard & Emergency > Configuration (accessible to
+   managers only)
+-  **Registrant Form**: Stat button shows impact count; "Emergency
+   Response" tab displays impact records list
 
 Security
 ~~~~~~~~
@@ -114,13 +115,13 @@ Security
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Inherit ``spp.hazard.incident`` and override
-  ``identify_potentially_affected_registrants()`` to customize targeting
-  logic
-- Inherit ``spp.hazard.impact`` to add domain-specific impact fields
-  (e.g., crop damage for farmer registries)
-- Override ``bulk_create_impacts()`` to customize mass impact record
-  creation
+-  Inherit ``spp.hazard.incident`` and override
+   ``identify_potentially_affected_registrants()`` to customize
+   targeting logic
+-  Inherit ``spp.hazard.impact`` to add domain-specific impact fields
+   (e.g., crop damage for farmer registries)
+-  Override ``bulk_create_impacts()`` to customize mass impact record
+   creation
 
 Dependencies
 ~~~~~~~~~~~~

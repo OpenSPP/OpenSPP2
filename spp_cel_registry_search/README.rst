@@ -31,16 +31,16 @@ eligibility criteria, or custom data fields. Auto-installs when
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- **CEL Expression Editor**: Write and validate CEL expressions with
-  syntax highlighting, autocomplete, and real-time validation
-- **Profile Selection**: Search across Individuals or Groups with
-  profile-specific field validation
-- **Live Validation**: See match counts before executing the search,
-  with inline error messages for invalid syntax
-- **Clickable Results**: View search results in a list, click any
-  registrant to open their form view
-- **Result Limiting**: Displays up to 50 results with a count indicator
-  when more matches exist
+-  **CEL Expression Editor**: Write and validate CEL expressions with
+   syntax highlighting, autocomplete, and real-time validation
+-  **Profile Selection**: Search across Individuals or Groups with
+   profile-specific field validation
+-  **Live Validation**: See match counts before executing the search,
+   with inline error messages for invalid syntax
+-  **Clickable Results**: View search results in a list, click any
+   registrant to open their form view
+-  **Result Limiting**: Displays up to 50 results with a count indicator
+   when more matches exist
 
 Key Models
 ~~~~~~~~~~
@@ -59,9 +59,9 @@ menu appears automatically under Registry.
 UI Location
 ~~~~~~~~~~~
 
-- **Menu**: Registry > Advanced Search
-- **URL Path**: ``/odoo/registry-cel``
-- **Results**: Click any search result to open the registrant form view
+-  **Menu**: Registry > Advanced Search
+-  **URL Path**: ``/odoo/registry-cel``
+-  **Results**: Click any search result to open the registrant form view
 
 Security
 ~~~~~~~~
@@ -83,13 +83,13 @@ registrants they have permission to view.
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- **Inherit ``CelSearchPortal`` component**: Override
-  ``performSearch()`` to customize query logic or add filters
-- **Extend result display**: Modify the QWeb template
-  ``spp_cel_registry_search.CelSearchPortal`` to show additional
-  registrant fields
-- **Add custom actions**: Override ``openRegistrant()`` to trigger
-  custom workflows when clicking search results
+-  **Inherit ``CelSearchPortal`` component**: Override
+   ``performSearch()`` to customize query logic or add filters
+-  **Extend result display**: Modify the QWeb template
+   ``spp_cel_registry_search.CelSearchPortal`` to show additional
+   registrant fields
+-  **Add custom actions**: Override ``openRegistrant()`` to trigger
+   custom workflows when clicking search results
 
 Dependencies
 ~~~~~~~~~~~~

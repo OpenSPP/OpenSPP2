@@ -31,18 +31,18 @@ escalations, and timeline distribution.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Generate story tickets for specific demo personas that align with
-  ``spp_mis_demo_v2`` and ``spp_case_demo``
-- Generate volume tickets using YAML scenario templates or built-in
-  fallback scenarios
-- Simulate ticket workflows: resolution notes, stage transitions,
-  escalations, and assignments
-- Link tickets to beneficiaries, programs, and teams with configurable
-  distribution
-- Control resolved vs. unresolved ratios, severity distribution, and
-  timeline spread
-- Backdate ticket creation and workflow events across a configurable
-  time range
+-  Generate story tickets for specific demo personas that align with
+   ``spp_mis_demo_v2`` and ``spp_case_demo``
+-  Generate volume tickets using YAML scenario templates or built-in
+   fallback scenarios
+-  Simulate ticket workflows: resolution notes, stage transitions,
+   escalations, and assignments
+-  Link tickets to beneficiaries, programs, and teams with configurable
+   distribution
+-  Control resolved vs. unresolved ratios, severity distribution, and
+   timeline spread
+-  Backdate ticket creation and workflow events across a configurable
+   time range
 
 Key Models
 ~~~~~~~~~~
@@ -70,9 +70,9 @@ After installing:
 UI Location
 ~~~~~~~~~~~
 
-- **Menu**: Helpdesk > Configuration > Generate Demo Data
-- **Wizard**: Configure story vs. volume generation, ticket count, time
-  range, and resolution percentages
+-  **Menu**: Helpdesk > Configuration > Generate Demo Data
+-  **Wizard**: Configure story vs. volume generation, ticket count, time
+   range, and resolution percentages
 
 Security
 ~~~~~~~~
@@ -88,15 +88,15 @@ Data Generated
 
 The generator creates ``spp.grm.ticket`` records with:
 
-- Story tickets: 8 predefined personas with specific scenarios (payment
-  issues, eligibility inquiries, service requests)
-- Volume tickets: Scenario-based tickets distributed over time with
-  realistic progression
-- Ticket categories: Payment Issues, Eligibility Questions, Service
-  Delivery, Information Requests, Data Update Requests, General,
-  Complaint, Feedback
-- Workflow progression: Resolution notes, stage transitions, escalation
-  notes, and user assignments with backdated timestamps
+-  Story tickets: 8 predefined personas with specific scenarios (payment
+   issues, eligibility inquiries, service requests)
+-  Volume tickets: Scenario-based tickets distributed over time with
+   realistic progression
+-  Ticket categories: Payment Issues, Eligibility Questions, Service
+   Delivery, Information Requests, Data Update Requests, General,
+   Complaint, Feedback
+-  Workflow progression: Resolution notes, stage transitions, escalation
+   notes, and user assignments with backdated timestamps
 
 Integration
 ~~~~~~~~~~~

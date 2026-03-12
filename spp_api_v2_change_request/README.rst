@@ -31,16 +31,17 @@ numbers (CR/2024/00001) instead of database IDs for all operations.
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Create change requests in draft status with registrant and detail data
-- Read individual change requests by reference or search with filters
-  (registrant, type, status, dates)
-- Update detail data on draft change requests with optimistic locking
-  via If-Match headers
-- Submit draft requests for approval workflow
-- Approve, reject, or request revision on pending requests (requires
-  approval scope)
-- Apply approved change requests to registrant records
-- Reset rejected/revision requests to draft for resubmission
+-  Create change requests in draft status with registrant and detail
+   data
+-  Read individual change requests by reference or search with filters
+   (registrant, type, status, dates)
+-  Update detail data on draft change requests with optimistic locking
+   via If-Match headers
+-  Submit draft requests for approval workflow
+-  Approve, reject, or request revision on pending requests (requires
+   approval scope)
+-  Apply approved change requests to registrant records
+-  Reset rejected/revision requests to draft for resubmission
 
 Key Models
 ~~~~~~~~~~
@@ -73,26 +74,26 @@ To configure OAuth 2.0 clients with appropriate scopes:
    by ``spp_api_v2``)
 2. Configure OAuth 2.0 clients with appropriate scopes:
 
-   - ``change_request:read`` - Read and search change requests
-   - ``change_request:create`` - Create new change requests
-   - ``change_request:update`` - Update, submit, and reset requests
-   - ``change_request:approve`` - Approve, reject, or request revision
-   - ``change_request:apply`` - Apply approved changes to registrants
+   -  ``change_request:read`` - Read and search change requests
+   -  ``change_request:create`` - Create new change requests
+   -  ``change_request:update`` - Update, submit, and reset requests
+   -  ``change_request:approve`` - Approve, reject, or request revision
+   -  ``change_request:apply`` - Apply approved changes to registrants
 
 API Endpoints
 ~~~~~~~~~~~~~
 
-- ``POST /ChangeRequest`` - Create new change request
-- ``GET /ChangeRequest/{reference}`` - Read by reference
-- ``GET /ChangeRequest`` - Search with filters
-- ``PUT /ChangeRequest/{reference}`` - Update detail data
-- ``POST /ChangeRequest/{reference}/$submit`` - Submit for approval
-- ``POST /ChangeRequest/{reference}/$approve`` - Approve request
-- ``POST /ChangeRequest/{reference}/$reject`` - Reject request
-- ``POST /ChangeRequest/{reference}/$request-revision`` - Request
-  revision
-- ``POST /ChangeRequest/{reference}/$apply`` - Apply to registrant
-- ``POST /ChangeRequest/{reference}/$reset`` - Reset to draft
+-  ``POST /ChangeRequest`` - Create new change request
+-  ``GET /ChangeRequest/{reference}`` - Read by reference
+-  ``GET /ChangeRequest`` - Search with filters
+-  ``PUT /ChangeRequest/{reference}`` - Update detail data
+-  ``POST /ChangeRequest/{reference}/$submit`` - Submit for approval
+-  ``POST /ChangeRequest/{reference}/$approve`` - Approve request
+-  ``POST /ChangeRequest/{reference}/$reject`` - Reject request
+-  ``POST /ChangeRequest/{reference}/$request-revision`` - Request
+   revision
+-  ``POST /ChangeRequest/{reference}/$apply`` - Apply to registrant
+-  ``POST /ChangeRequest/{reference}/$reset`` - Reset to draft
 
 Security
 ~~~~~~~~
@@ -105,12 +106,12 @@ enforces scope checks on each endpoint. Users must authenticate via the
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Inherit ``ChangeRequestService`` to customize serialization,
-  validation, or business logic
-- Override router endpoint functions to add custom validation or side
-  effects
-- Extend the API schema by inheriting the Pydantic models in
-  ``schemas/change_request.py``
+-  Inherit ``ChangeRequestService`` to customize serialization,
+   validation, or business logic
+-  Override router endpoint functions to add custom validation or side
+   effects
+-  Extend the API schema by inheriting the Pydantic models in
+   ``schemas/change_request.py``
 
 UI Location
 ~~~~~~~~~~~

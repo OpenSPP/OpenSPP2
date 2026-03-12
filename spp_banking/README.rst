@@ -30,13 +30,13 @@ IBANs using the schwifty library. Extends the standard Odoo
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Store multiple bank accounts per registrant with account number, bank,
-  and account type
-- Automatically generate IBAN from bank country code, BIC, and account
-  number
-- Display bank details in individual and group registry forms under the
-  financial section
-- Validate and format IBANs according to country-specific standards
+-  Store multiple bank accounts per registrant with account number,
+   bank, and account type
+-  Automatically generate IBAN from bank country code, BIC, and account
+   number
+-  Display bank details in individual and group registry forms under the
+   financial section
+-  Validate and format IBANs according to country-specific standards
 
 Key Models
 ~~~~~~~~~~
@@ -56,12 +56,12 @@ directly to registrant profiles.
 UI Location
 ~~~~~~~~~~~
 
-- **No standalone menu**: Bank account fields are added to existing
-  registrant forms
-- **Individuals**: Navigate to a registrant, view the "Profile" tab,
-  bank accounts appear in the Financial Information section
-- **Groups**: Navigate to a group registrant, view the "Profile" tab,
-  bank accounts appear in the Financial Information section
+-  **No standalone menu**: Bank account fields are added to existing
+   registrant forms
+-  **Individuals**: Navigate to a registrant, view the "Profile" tab,
+   bank accounts appear in the Financial Information section
+-  **Groups**: Navigate to a group registrant, view the "Profile" tab,
+   bank accounts appear in the Financial Information section
 
 Bank accounts are displayed as an editable list with fields for bank,
 account number, and computed IBAN.
@@ -80,10 +80,10 @@ Group                                   Access
 Extension Points
 ~~~~~~~~~~~~~~~~
 
-- Override ``_compute_account_number()`` in ``res.partner.bank`` to
-  customize IBAN generation logic
-- Inherit ``res.partner.bank`` to add additional banking fields or
-  validation rules
+-  Override ``_compute_account_number()`` in ``res.partner.bank`` to
+   customize IBAN generation logic
+-  Inherit ``res.partner.bank`` to add additional banking fields or
+   validation rules
 
 Dependencies
 ~~~~~~~~~~~~
