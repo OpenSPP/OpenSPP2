@@ -45,15 +45,15 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+--------------------+-------------------------------------------------+
-| Model              | Description                                     |
-+====================+=================================================+
-| ``spp.grm.ticket`` | Adds registrant/household links, repeat         |
-|                    | detection fields                                |
-+--------------------+-------------------------------------------------+
-| ``res.partner``    | Adds GRM ticket relationships and computed      |
-|                    | count fields                                    |
-+--------------------+-------------------------------------------------+
++--------------------+------------------------------------------------+
+| Model              | Description                                    |
++====================+================================================+
+| ``spp.grm.ticket`` | Adds registrant/household links, repeat        |
+|                    | detection fields                               |
++--------------------+------------------------------------------------+
+| ``res.partner``    | Adds GRM ticket relationships and computed     |
+|                    | count fields                                   |
++--------------------+------------------------------------------------+
 
 UI Location
 ~~~~~~~~~~~

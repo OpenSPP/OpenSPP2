@@ -53,24 +53,24 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+-----------------------------+----------------------------------------+
-| Model                       | Description                            |
-+=============================+========================================+
-| ``spp.event.data``          | Event record with registrant link,     |
-|                             | collection metadata                    |
-+-----------------------------+----------------------------------------+
-| ``spp.event.type``          | Event type configuration (category,    |
-|                             | lifecycle, source)                     |
-+-----------------------------+----------------------------------------+
-| ``spp.event.field``         | Custom field definition for JSON-based |
-|                             | event types                            |
-+-----------------------------+----------------------------------------+
-| ``spp.event.type.mapping``  | Field mapping for external source data |
-|                             | transformation                         |
-+-----------------------------+----------------------------------------+
-| ``spp.create.event.wizard`` | Wizard to create new event records     |
-|                             | from registrant form                   |
-+-----------------------------+----------------------------------------+
++-----------------------------+---------------------------------------+
+| Model                       | Description                           |
++=============================+=======================================+
+| ``spp.event.data``          | Event record with registrant link,    |
+|                             | collection metadata                   |
++-----------------------------+---------------------------------------+
+| ``spp.event.type``          | Event type configuration (category,   |
+|                             | lifecycle, source)                    |
++-----------------------------+---------------------------------------+
+| ``spp.event.field``         | Custom field definition for           |
+|                             | JSON-based event types                |
++-----------------------------+---------------------------------------+
+| ``spp.event.type.mapping``  | Field mapping for external source     |
+|                             | data transformation                   |
++-----------------------------+---------------------------------------+
+| ``spp.create.event.wizard`` | Wizard to create new event records    |
+|                             | from registrant form                  |
++-----------------------------+---------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~

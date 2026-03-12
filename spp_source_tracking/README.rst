@@ -47,24 +47,24 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+-------------------------------+--------------------------------------+
-| Model                         | Description                          |
-+===============================+======================================+
-| ``spp.mixin.source.tracking`` | Abstract mixin providing source      |
-|                               | tracking fields                      |
-+-------------------------------+--------------------------------------+
-| ``spp.merge.provenance``      | Audit record of merge operations     |
-|                               | with data snapshots                  |
-+-------------------------------+--------------------------------------+
-| ``res.partner``               | Extended with source tracking and    |
-|                               | merge capabilities                   |
-+-------------------------------+--------------------------------------+
-| ``spp.registry.id``           | Extended with source tracking for    |
-|                               | identifier provenance                |
-+-------------------------------+--------------------------------------+
-| ``spp.program.membership``    | Extended with source tracking for    |
-|                               | enrollment provenance                |
-+-------------------------------+--------------------------------------+
++-------------------------------+-------------------------------------+
+| Model                         | Description                         |
++===============================+=====================================+
+| ``spp.mixin.source.tracking`` | Abstract mixin providing source     |
+|                               | tracking fields                     |
++-------------------------------+-------------------------------------+
+| ``spp.merge.provenance``      | Audit record of merge operations    |
+|                               | with data snapshots                 |
++-------------------------------+-------------------------------------+
+| ``res.partner``               | Extended with source tracking and   |
+|                               | merge capabilities                  |
++-------------------------------+-------------------------------------+
+| ``spp.registry.id``           | Extended with source tracking for   |
+|                               | identifier provenance               |
++-------------------------------+-------------------------------------+
+| ``spp.program.membership``    | Extended with source tracking for   |
+|                               | enrollment provenance               |
++-------------------------------+-------------------------------------+
 
 UI Location
 ~~~~~~~~~~~

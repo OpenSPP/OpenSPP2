@@ -45,42 +45,43 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+--------------------------------+-------------------------------------+
-| Model                          | Description                         |
-+================================+=====================================+
-| ``spp.case``                   | Core case record with client and    |
-|                                | assignment                          |
-+--------------------------------+-------------------------------------+
-| ``spp.case.type``              | Case type with default intensity    |
-|                                | and caseload                        |
-+--------------------------------+-------------------------------------+
-| ``spp.case.stage``             | Workflow stage with phase and       |
-|                                | requirements                        |
-+--------------------------------+-------------------------------------+
-| ``spp.case.assessment``        | Assessment with risk score and      |
-|                                | findings                            |
-+--------------------------------+-------------------------------------+
-| ``spp.case.intervention.plan`` | Versioned plan with approval        |
-|                                | workflow                            |
-+--------------------------------+-------------------------------------+
-| ``spp.case.intervention``      | Individual intervention with status |
-|                                | tracking                            |
-+--------------------------------+-------------------------------------+
-| ``spp.case.visit``             | Client visit with type and notes    |
-+--------------------------------+-------------------------------------+
-| ``spp.case.note``              | Case note with confidentiality flag |
-+--------------------------------+-------------------------------------+
-| ``spp.case.referral``          | External service referral with      |
-|                                | status                              |
-+--------------------------------+-------------------------------------+
-| ``spp.case.team``              | Team with supervisor and members    |
-+--------------------------------+-------------------------------------+
-| ``spp.case.risk.factor``       | Risk factor with severity weight    |
-+--------------------------------+-------------------------------------+
-| ``spp.case.vulnerability``     | Vulnerability for assessment        |
-+--------------------------------+-------------------------------------+
-| ``spp.case.closure.reason``    | Closure reason with outcome type    |
-+--------------------------------+-------------------------------------+
++--------------------------------+------------------------------------+
+| Model                          | Description                        |
++================================+====================================+
+| ``spp.case``                   | Core case record with client and   |
+|                                | assignment                         |
++--------------------------------+------------------------------------+
+| ``spp.case.type``              | Case type with default intensity   |
+|                                | and caseload                       |
++--------------------------------+------------------------------------+
+| ``spp.case.stage``             | Workflow stage with phase and      |
+|                                | requirements                       |
++--------------------------------+------------------------------------+
+| ``spp.case.assessment``        | Assessment with risk score and     |
+|                                | findings                           |
++--------------------------------+------------------------------------+
+| ``spp.case.intervention.plan`` | Versioned plan with approval       |
+|                                | workflow                           |
++--------------------------------+------------------------------------+
+| ``spp.case.intervention``      | Individual intervention with       |
+|                                | status tracking                    |
++--------------------------------+------------------------------------+
+| ``spp.case.visit``             | Client visit with type and notes   |
++--------------------------------+------------------------------------+
+| ``spp.case.note``              | Case note with confidentiality     |
+|                                | flag                               |
++--------------------------------+------------------------------------+
+| ``spp.case.referral``          | External service referral with     |
+|                                | status                             |
++--------------------------------+------------------------------------+
+| ``spp.case.team``              | Team with supervisor and members   |
++--------------------------------+------------------------------------+
+| ``spp.case.risk.factor``       | Risk factor with severity weight   |
++--------------------------------+------------------------------------+
+| ``spp.case.vulnerability``     | Vulnerability for assessment       |
++--------------------------------+------------------------------------+
+| ``spp.case.closure.reason``    | Closure reason with outcome type   |
++--------------------------------+------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~

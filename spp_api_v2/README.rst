@@ -44,24 +44,24 @@ Key Capabilities
 Key Models
 ----------
 
-+---------------------------+------------------------------------------+
-| Model                     | Description                              |
-+===========================+==========================================+
-| ``spp.api.client``        | OAuth 2.0 credentials, organization      |
-|                           | verification                             |
-+---------------------------+------------------------------------------+
-| ``spp.api.client.scope``  | Resource/action permissions              |
-+---------------------------+------------------------------------------+
-| ``spp.api.path``          | Endpoint configuration and filters       |
-+---------------------------+------------------------------------------+
-| ``spp.api.path.filter``   | Field-level filter configurations        |
-+---------------------------+------------------------------------------+
-| ``spp.api.filter.preset`` | Saved filter combinations                |
-+---------------------------+------------------------------------------+
-| ``spp.api.extension``     | Domain field registry                    |
-+---------------------------+------------------------------------------+
-| ``spp.consent.scope``     | Resource types per consent               |
-+---------------------------+------------------------------------------+
++---------------------------+-----------------------------------------+
+| Model                     | Description                             |
++===========================+=========================================+
+| ``spp.api.client``        | OAuth 2.0 credentials, organization     |
+|                           | verification                            |
++---------------------------+-----------------------------------------+
+| ``spp.api.client.scope``  | Resource/action permissions             |
++---------------------------+-----------------------------------------+
+| ``spp.api.path``          | Endpoint configuration and filters      |
++---------------------------+-----------------------------------------+
+| ``spp.api.path.filter``   | Field-level filter configurations       |
++---------------------------+-----------------------------------------+
+| ``spp.api.filter.preset`` | Saved filter combinations               |
++---------------------------+-----------------------------------------+
+| ``spp.api.extension``     | Domain field registry                   |
++---------------------------+-----------------------------------------+
+| ``spp.consent.scope``     | Resource types per consent              |
++---------------------------+-----------------------------------------+
 
 UI Location
 -----------
@@ -110,20 +110,20 @@ API endpoints available at ``/api/v2/`` (token endpoint:
 Security
 --------
 
-+--------------------------+-------------------------------------------+
-| Group                    | Access                                    |
-+==========================+===========================================+
-| ``group_api_v2_viewer``  | Read-only: all API configuration and      |
-|                          | consent                                   |
-+--------------------------+-------------------------------------------+
-| ``group_api_v2_officer`` | Read/Write: all models (no                |
-|                          | create/delete), full CRUD on consent      |
-|                          | scopes                                    |
-+--------------------------+-------------------------------------------+
-| ``group_api_v2_manager`` | Full CRUD: clients, scopes, paths,        |
-|                          | filters, presets, extensions;             |
-|                          | Read/Write/Create on consent (no delete)  |
-+--------------------------+-------------------------------------------+
++--------------------------+------------------------------------------+
+| Group                    | Access                                   |
++==========================+==========================================+
+| ``group_api_v2_viewer``  | Read-only: all API configuration and     |
+|                          | consent                                  |
++--------------------------+------------------------------------------+
+| ``group_api_v2_officer`` | Read/Write: all models (no               |
+|                          | create/delete), full CRUD on consent     |
+|                          | scopes                                   |
++--------------------------+------------------------------------------+
+| ``group_api_v2_manager`` | Full CRUD: clients, scopes, paths,       |
+|                          | filters, presets, extensions;            |
+|                          | Read/Write/Create on consent (no delete) |
++--------------------------+------------------------------------------+
 
 Extension Points
 ----------------

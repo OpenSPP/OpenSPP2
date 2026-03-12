@@ -56,23 +56,24 @@ individual beneficiary records are persisted in simulation results.
 Models
 ------
 
-+--------------------------------------+----------------------------------+
-| Model                                | Description                      |
-+======================================+==================================+
-| ``spp.simulation.scenario.template`` | Pre-built targeting scenario     |
-|                                      | templates                        |
-+--------------------------------------+----------------------------------+
-| ``spp.simulation.scenario``          | Targeting scenario definitions   |
-+--------------------------------------+----------------------------------+
-| ``spp.simulation.entitlement.rule``  | Amount calculation rules         |
-+--------------------------------------+----------------------------------+
-| ``spp.simulation.run``               | Aggregated simulation results    |
-|                                      | (non-deletable)                  |
-+--------------------------------------+----------------------------------+
-| ``spp.simulation.comparison``        | Side-by-side run comparisons     |
-+--------------------------------------+----------------------------------+
-| ``spp.simulation.metric``            | Custom evaluation metrics        |
-+--------------------------------------+----------------------------------+
++----------------------------------+----------------------------------+
+| Model                            | Description                      |
++==================================+==================================+
+| ``sp                             | Pre-built targeting scenario     |
+| p.simulation.scenario.template`` | templates                        |
++----------------------------------+----------------------------------+
+| ``spp.simulation.scenario``      | Targeting scenario definitions   |
++----------------------------------+----------------------------------+
+| ``s                              | Amount calculation rules         |
+| pp.simulation.entitlement.rule`` |                                  |
++----------------------------------+----------------------------------+
+| ``spp.simulation.run``           | Aggregated simulation results    |
+|                                  | (non-deletable)                  |
++----------------------------------+----------------------------------+
+| ``spp.simulation.comparison``    | Side-by-side run comparisons     |
++----------------------------------+----------------------------------+
+| ``spp.simulation.metric``        | Custom evaluation metrics        |
++----------------------------------+----------------------------------+
 
 Security Groups
 ---------------

@@ -44,15 +44,15 @@ Key Models
 
 This module extends existing models rather than introducing new ones:
 
-+--------------------------+-------------------------------------------+
-| Model                    | Extension                                 |
-+==========================+===========================================+
-| ``spp.api.client.scope`` | Adds "product" resource type for scope    |
-|                          | management                                |
-+--------------------------+-------------------------------------------+
-| ``fastapi.endpoint``     | Registers Product, ProductCategory, UoM   |
-|                          | routers                                   |
-+--------------------------+-------------------------------------------+
++--------------------------+------------------------------------------+
+| Model                    | Extension                                |
++==========================+==========================================+
+| ``spp.api.client.scope`` | Adds "product" resource type for scope   |
+|                          | management                               |
++--------------------------+------------------------------------------+
+| ``fastapi.endpoint``     | Registers Product, ProductCategory, UoM  |
+|                          | routers                                  |
++--------------------------+------------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~

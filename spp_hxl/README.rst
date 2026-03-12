@@ -48,25 +48,25 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+-----------------------------------+----------------------------------+
-| Model                             | Description                      |
-+===================================+==================================+
-| ``spp.hxl.tag``                   | Registry of HXL hashtags (e.g.,  |
-|                                   | #affected, #adm2, #indicator)    |
-+-----------------------------------+----------------------------------+
-| ``spp.hxl.attribute``             | Registry of HXL attributes       |
-|                                   | (e.g., +f, +children, +code)     |
-+-----------------------------------+----------------------------------+
-| ``spp.hxl.export.profile``        | Export template defining model   |
-|                                   | and column mapping with HXL tags |
-+-----------------------------------+----------------------------------+
-| ``spp.hxl.export.profile.column`` | Column definition with field     |
-|                                   | path and HXL tag assignment      |
-+-----------------------------------+----------------------------------+
-| ``spp.cel.variable`` (extended)   | CEL variable with HXL hashtag,   |
-|                                   | attributes, and import/export    |
-|                                   | behavior                         |
-+-----------------------------------+----------------------------------+
++----------------------------------+----------------------------------+
+| Model                            | Description                      |
++==================================+==================================+
+| ``spp.hxl.tag``                  | Registry of HXL hashtags (e.g.,  |
+|                                  | #affected, #adm2, #indicator)    |
++----------------------------------+----------------------------------+
+| ``spp.hxl.attribute``            | Registry of HXL attributes       |
+|                                  | (e.g., +f, +children, +code)     |
++----------------------------------+----------------------------------+
+| ``spp.hxl.export.profile``       | Export template defining model   |
+|                                  | and column mapping with HXL tags |
++----------------------------------+----------------------------------+
+| `                                | Column definition with field     |
+| `spp.hxl.export.profile.column`` | path and HXL tag assignment      |
++----------------------------------+----------------------------------+
+| ``spp.cel.variable`` (extended)  | CEL variable with HXL hashtag,   |
+|                                  | attributes, and import/export    |
+|                                  | behavior                         |
++----------------------------------+----------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~

@@ -51,33 +51,33 @@ This module does not define models. It provides data records for
 ``spp.change.request.type`` and security rules for detail/apply models
 defined in ``spp_change_request_v2``:
 
-+-------------------------------------+------------------------------------+----------------------+
-| Detail Model                        | Apply Model                        | Purpose              |
-+=====================================+====================================+======================+
-| ``spp.cr.detail.add_member``        | ``spp.cr.apply.add_member``        | Add new member to    |
-|                                     |                                    | group                |
-+-------------------------------------+------------------------------------+----------------------+
-| ``spp.cr.detail.remove_member``     | ``spp.cr.apply.remove_member``     | Remove member from   |
-|                                     |                                    | group                |
-+-------------------------------------+------------------------------------+----------------------+
-| ``spp.cr.detail.change_hoh``        | ``spp.cr.apply.change_hoh``        | Change head of       |
-|                                     |                                    | household            |
-+-------------------------------------+------------------------------------+----------------------+
-| ``spp.cr.detail.transfer_member``   | ``spp.cr.apply.transfer_member``   | Transfer member      |
-|                                     |                                    | between groups       |
-+-------------------------------------+------------------------------------+----------------------+
-| ``spp.cr.detail.exit_registrant``   | ``spp.cr.apply.exit_registrant``   | Deactivate           |
-|                                     |                                    | registrant           |
-+-------------------------------------+------------------------------------+----------------------+
-| ``spp.cr.detail.create_group``      | ``spp.cr.apply.create_group``      | Create new           |
-|                                     |                                    | group/household      |
-+-------------------------------------+------------------------------------+----------------------+
-| ``spp.cr.detail.split_household``   | ``spp.cr.apply.split_household``   | Split household into |
-|                                     |                                    | two groups           |
-+-------------------------------------+------------------------------------+----------------------+
-| ``spp.cr.detail.merge_registrants`` | ``spp.cr.apply.merge_registrants`` | Merge duplicate      |
-|                                     |                                    | registrant records   |
-+-------------------------------------+------------------------------------+----------------------+
++----------------------+----------------------+----------------------+
+| Detail Model         | Apply Model          | Purpose              |
++======================+======================+======================+
+| ``spp.cr             | ``spp.c              | Add new member to    |
+| .detail.add_member`` | r.apply.add_member`` | group                |
++----------------------+----------------------+----------------------+
+| ``spp.cr.de          | ``spp.cr.a           | Remove member from   |
+| tail.remove_member`` | pply.remove_member`` | group                |
++----------------------+----------------------+----------------------+
+| ``spp.cr             | ``spp.c              | Change head of       |
+| .detail.change_hoh`` | r.apply.change_hoh`` | household            |
++----------------------+----------------------+----------------------+
+| ``spp.cr.deta        | ``spp.cr.app         | Transfer member      |
+| il.transfer_member`` | ly.transfer_member`` | between groups       |
++----------------------+----------------------+----------------------+
+| ``spp.cr.deta        | ``spp.cr.app         | Deactivate           |
+| il.exit_registrant`` | ly.exit_registrant`` | registrant           |
++----------------------+----------------------+----------------------+
+| ``spp.cr.d           | ``spp.cr.            | Create new           |
+| etail.create_group`` | apply.create_group`` | group/household      |
++----------------------+----------------------+----------------------+
+| ``spp.cr.deta        | ``spp.cr.app         | Split household into |
+| il.split_household`` | ly.split_household`` | two groups           |
++----------------------+----------------------+----------------------+
+| ``spp.cr.detail      | ``spp.cr.apply       | Merge duplicate      |
+| .merge_registrants`` | .merge_registrants`` | registrant records   |
++----------------------+----------------------+----------------------+
 
 Configuration
 ~~~~~~~~~~~~~

@@ -43,15 +43,15 @@ Key Capabilities
 Key Models
 ~~~~~~~~~~
 
-+--------------------+-------------------------------------------------+
-| Model              | Description                                     |
-+====================+=================================================+
-| ``spp.alert``      | Alert instance with state tracking and          |
-|                    | resolution workflow                             |
-+--------------------+-------------------------------------------------+
-| ``spp.alert.rule`` | Rule configuration for monitoring criteria and  |
-|                    | thresholds                                      |
-+--------------------+-------------------------------------------------+
++--------------------+------------------------------------------------+
+| Model              | Description                                    |
++====================+================================================+
+| ``spp.alert``      | Alert instance with state tracking and         |
+|                    | resolution workflow                            |
++--------------------+------------------------------------------------+
+| ``spp.alert.rule`` | Rule configuration for monitoring criteria and |
+|                    | thresholds                                     |
++--------------------+------------------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
