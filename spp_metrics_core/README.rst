@@ -22,38 +22,63 @@ OpenSPP Metrics Core
 
 |badge1| |badge2| |badge3|
 
-Unified metric foundation providing abstract base models for statistics,
-simulations, and reporting across OpenSPP modules.
+Shared foundation for all metric types in OpenSPP (statistics,
+simulation metrics, and custom domain metrics). Provides an abstract
+base model with identity, presentation, and categorization fields, plus
+a hierarchical category system. Concrete metric modules inherit from the
+base and add their own computation fields.
 
 Key Capabilities
 ~~~~~~~~~~~~~~~~
 
-- Abstract base model for defining reusable metrics with label, unit,
-  and decimal precision
-- Hierarchical metric categories with unique code constraints
-- Category tree with parent-child recursion prevention
-- Default metric categories for population, coverage, targeting, and
-  distribution
+- Abstract base model (``spp.metric.base``) with shared identity,
+  presentation, and metadata fields
+- Hierarchical metric category system with unique codes
+- Default categories: Demographics, Vulnerability, Programs, Geographic,
+  Economic, Fairness
 
 Key Models
 ~~~~~~~~~~
 
-+-------------------------+----------+----------------------------+
-| Model                   | Type     | Description                |
-+=========================+==========+============================+
-| ``spp.metric.base``     | Abstract | Base fields and logic      |
-|                         |          | inherited by concrete      |
-|                         |          | metrics                    |
-+-------------------------+----------+----------------------------+
-| ``spp.metric.category`` | Concrete | Hierarchical grouping of   |
-|                         |          | metrics by domain          |
-+-------------------------+----------+----------------------------+
++-------------------------+-------------------------------------------+
+| Model                   | Description                               |
++=========================+===========================================+
+| ``spp.metric.base``     | Abstract model inherited by all concrete  |
+|                         | metric types                              |
++-------------------------+-------------------------------------------+
+| ``spp.metric.category`` | Hierarchical categorization for           |
+|                         | organizing metrics                        |
++-------------------------+-------------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
 
-No configuration required. Default categories are created via data files
-on install.
+After installing, default metric categories are created automatically.
+Add custom categories via **Settings > Technical > Metric Categories**
+or in XML data files.
+
+UI Location
+~~~~~~~~~~~
+
+No standalone menu; library module consumed by ``spp_statistic``,
+``spp_simulation``, and other metric modules.
+
+Security
+~~~~~~~~
+
+===================== =======================
+Group                 Access
+===================== =======================
+``base.group_user``   Read categories
+``base.group_system`` Full CRUD on categories
+===================== =======================
+
+Extension Points
+~~~~~~~~~~~~~~~~
+
+- Inherit ``spp.metric.base`` to create domain-specific metric models
+- Add custom categories via XML data records referencing
+  ``spp.metric.category``
 
 Dependencies
 ~~~~~~~~~~~~

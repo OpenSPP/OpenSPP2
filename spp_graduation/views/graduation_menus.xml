@@ -5,6 +5,7 @@
         id="menu_graduation_root"
         name="Graduation"
         sequence="60"
+        web_icon="spp_graduation,static/description/openspp-graduation-menu-icons.png"
         groups="group_spp_graduation_user"
     />
 
