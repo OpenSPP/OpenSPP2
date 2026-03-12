@@ -142,7 +142,7 @@ presets:
       - name: events_count
         signature:
           "events_count(type, after?, before?, within_days?, within_months?, period?,
-          states?, where?)"
+          states?)"
         description: "Count events matching the criteria"
         returns: integer
         parameters:
@@ -174,17 +174,12 @@ presets:
             type: list[str]
             required: false
             description: "Event states to include (default: ['active'])"
-          - name: where
-            type: str
-            required: false
-            description: "CEL predicate to filter events by field values"
+      # TODO: 'where' parameter planned but not yet implemented
         examples:
           - expression: "events_count('attendance') >= 180"
             description: "Count all active attendance events"
           - expression: "events_count('attendance', period='2024') >= 180"
             description: "Count attendance in 2024"
-          - expression: "events_count('attendance', where='attended == true') >= 150"
-            description: "Count events where attended is true"
           - expression: "events_count('visit', within_days=365) >= 4"
             description: "At least 4 visits in last year"
 
@@ -195,7 +190,7 @@ presets:
       - name: events_sum
         signature:
           "events_sum(type, field, after?, before?, within_days?, within_months?,
-          period?, states?, where?)"
+          period?, states?)"
         description: "Sum numeric field values across matching events"
         returns: number
         parameters:
@@ -231,10 +226,7 @@ presets:
             type: list[str]
             required: false
             description: "Event states to include (default: ['active'])"
-          - name: where
-            type: str
-            required: false
-            description: "CEL predicate to filter events"
+      # TODO: 'where' parameter planned but not yet implemented
         examples:
           - expression: "events_sum('attendance', 'days_present', period='2024') >= 180"
             description: "Sum attendance days in 2024"
@@ -244,7 +236,7 @@ presets:
       - name: events_avg
         signature:
           "events_avg(type, field, after?, before?, within_days?, within_months?,
-          period?, states?, where?)"
+          period?, states?)"
         description: "Calculate average of numeric field values across matching events"
         returns: number
         parameters:
@@ -280,10 +272,7 @@ presets:
             type: list[str]
             required: false
             description: "Event states to include (default: ['active'])"
-          - name: where
-            type: str
-            required: false
-            description: "CEL predicate to filter events"
+      # TODO: 'where' parameter planned but not yet implemented
         examples:
           - expression: "events_avg('survey', 'income', within_days=365) < 500"
             description: "Average income from surveys in last year"
@@ -293,7 +282,7 @@ presets:
       - name: events_min
         signature:
           "events_min(type, field, after?, before?, within_days?, within_months?,
-          period?, states?, where?)"
+          period?, states?)"
         description: "Find minimum value of numeric field across matching events"
         returns: number
         parameters:
@@ -329,10 +318,7 @@ presets:
             type: list[str]
             required: false
             description: "Event states to include (default: ['active'])"
-          - name: where
-            type: str
-            required: false
-            description: "CEL predicate to filter events"
+      # TODO: 'where' parameter planned but not yet implemented
         examples:
           - expression: "events_min('assessment', 'score', period='2024') >= 60"
             description: "Minimum assessment score in 2024"
@@ -342,7 +328,7 @@ presets:
       - name: events_max
         signature:
           "events_max(type, field, after?, before?, within_days?, within_months?,
-          period?, states?, where?)"
+          period?, states?)"
         description: "Find maximum value of numeric field across matching events"
         returns: number
         parameters:
@@ -378,10 +364,7 @@ presets:
             type: list[str]
             required: false
             description: "Event states to include (default: ['active'])"
-          - name: where
-            type: str
-            required: false
-            description: "CEL predicate to filter events"
+      # TODO: 'where' parameter planned but not yet implemented
         examples:
           - expression: "events_max('assessment', 'score', period='2024') >= 70"
             description: "Maximum assessment score in 2024"
@@ -541,35 +524,35 @@ presets:
       - name: events_count
         signature:
           "events_count(type, after?, before?, within_days?, within_months?, period?,
-          states?, where?)"
+          states?)"
         description: "Count events matching criteria for group registrant"
         returns: integer
 
       - name: events_sum
         signature:
           "events_sum(type, field, after?, before?, within_days?, within_months?,
-          period?, states?, where?)"
+          period?, states?)"
         description: "Sum numeric field across group registrant's events"
         returns: number
 
       - name: events_avg
         signature:
           "events_avg(type, field, after?, before?, within_days?, within_months?,
-          period?, states?, where?)"
+          period?, states?)"
         description: "Average numeric field across group registrant's events"
         returns: number
 
       - name: events_min
         signature:
           "events_min(type, field, after?, before?, within_days?, within_months?,
-          period?, states?, where?)"
+          period?, states?)"
         description: "Minimum value across group registrant's events"
         returns: number
 
       - name: events_max
         signature:
           "events_max(type, field, after?, before?, within_days?, within_months?,
-          period?, states?, where?)"
+          period?, states?)"
         description: "Maximum value across group registrant's events"
         returns: number
 

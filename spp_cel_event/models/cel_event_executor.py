@@ -9,12 +9,14 @@ through optimized SQL paths when possible, with Python fallback for complex case
 from __future__ import annotations
 
 import logging
+import re
 from datetime import date, timedelta
 from typing import Any
 
 from odoo import models
 from odoo.tools.sql import SQL
 
+from . import cel_event_functions as event_funcs
 from .cel_event_queryplan import EventExists, EventsAggregate, EventValueCompare
 
 _logger = logging.getLogger(__name__)
@@ -197,6 +199,13 @@ class CelEventExecutor(models.AbstractModel):
         cfg = self.env.context.get("cel_cfg") or {}
         base_domain = cfg.get("base_domain", [])
         candidate_ids = self.env[model].search(base_domain).ids
+
+        if len(candidate_ids) > 10000:
+            _logger.warning(
+                "[CEL EVENT] Python fallback path invoked for %d candidates. "
+                "This will be slow. Consider simplifying the expression to use SQL path.",
+                len(candidate_ids),
+            )
 
         matching_ids = []
 
@@ -433,6 +442,13 @@ class CelEventExecutor(models.AbstractModel):
         base_domain = cfg.get("base_domain", [])
         candidate_ids = self.env[model].search(base_domain).ids
 
+        if len(candidate_ids) > 10000:
+            _logger.warning(
+                "[CEL EVENT] Python fallback path invoked for %d candidates. "
+                "This will be slow. Consider simplifying the expression to use SQL path.",
+                len(candidate_ids),
+            )
+
         matching_ids = []
 
         for partner_id in candidate_ids:
@@ -536,6 +552,8 @@ class CelEventExecutor(models.AbstractModel):
         Returns:
             Tuple of (sql_clause, args_list)
         """
+        # An empty list [] is falsy, so it falls through to defaults — this is intentional.
+        # Only an explicitly populated list triggers the custom state filter.
         if plan.states:
             # Explicit states
             placeholders = ", ".join(["%s"] * len(plan.states))
@@ -784,7 +802,7 @@ class CelEventExecutor(models.AbstractModel):
                 "!=": lambda x, y: x != y,
             }
             return ops.get(op, lambda x, y: False)(str(a), str(b))
-        except Exception:
+        except (ValueError, TypeError, KeyError):
             return False
 
     # ══════════════════════════════════════════════════════════════════════════════
@@ -803,12 +821,12 @@ class CelEventExecutor(models.AbstractModel):
         Raises:
             ValueError: If field name is invalid
         """
-        import re
-
         if not field_name or not isinstance(field_name, str):
             raise ValueError("Field name must be a non-empty string")
 
-        # Only allow valid identifier characters
+        # SECURITY: This regex is the sole barrier against SQL injection for field names
+        # interpolated into SQL queries via _build_field_comparison_sql and _exec_event_aggregate_sql.
+        # Do not relax this pattern without also changing those methods to use parameterized field names.
         if not re.match(r"^[a-zA-Z][a-zA-Z0-9_]*$", field_name):
             raise ValueError(f"Invalid field name: {field_name!r}. Only alphanumeric and underscore allowed.")
 
@@ -859,42 +877,10 @@ class CelEventExecutor(models.AbstractModel):
             period: Period string (e.g., '2024', '2024-Q1', '2024-03')
 
         Returns:
-            Tuple of (start_date, end_date)
+            Tuple of (start_date, end_date), or (None, None) on parse failure.
         """
         try:
-            # Full year: YYYY
-            if len(period) == 4 and period.isdigit():
-                year = int(period)
-                return date(year, 1, 1), date(year, 12, 31)
-
-            # Quarter: YYYY-QN
-            if len(period) == 7 and period[4] == "-" and period[5] == "Q":
-                year = int(period[:4])
-                quarter = int(period[6])
-                if quarter == 1:
-                    return date(year, 1, 1), date(year, 3, 31)
-                elif quarter == 2:
-                    return date(year, 4, 1), date(year, 6, 30)
-                elif quarter == 3:
-                    return date(year, 7, 1), date(year, 9, 30)
-                elif quarter == 4:
-                    return date(year, 10, 1), date(year, 12, 31)
-
-            # Month: YYYY-MM
-            if len(period) == 7 and period[4] == "-":
-                year = int(period[:4])
-                month = int(period[5:7])
-                # Calculate last day of month
-                if month == 12:
-                    next_month = date(year + 1, 1, 1)
-                else:
-                    next_month = date(year, month + 1, 1)
-                last_day = next_month - timedelta(days=1)
-                return date(year, month, 1), last_day
-
-            # TODO: Support more formats (YYYY-HN, YYYY-WNN)
-
-        except Exception as e:
+            return event_funcs.parse_period(period)
+        except ValueError as e:
             _logger.warning("Error parsing period '%s': %s", period, e)
-
-        return None, None
+            return None, None

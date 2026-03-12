@@ -1,3 +1,5 @@
+# Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+
 """CEL Variable Event Aggregation Extension.
 
 This module extends spp.cel.variable to support event-based aggregations,
@@ -81,11 +83,6 @@ class CELVariableEventAggregation(models.Model):
     )
 
     @api.depends(
-        "source_type",
-        "aggregate_type",
-        "aggregate_target",
-        "aggregate_field",
-        "aggregate_filter",
         "event_agg_type_id",
         "event_agg_temporal",
         "event_agg_temporal_value",
@@ -94,13 +91,10 @@ class CELVariableEventAggregation(models.Model):
     )
     def _compute_cel_expression(self):
         """Override to handle event aggregations."""
+        super()._compute_cel_expression()
         for var in self:
-            if var.source_type == "aggregate":
-                if var.aggregate_target == "events":
-                    var.cel_expression = var._build_event_aggregate_cel()
-                else:
-                    var.cel_expression = var._build_aggregate_cel()
-            # Other source_types: preserve manually-set value
+            if var.source_type == "aggregate" and var.aggregate_target == "events":
+                var.cel_expression = var._build_event_aggregate_cel()
 
     def _build_event_aggregate_cel(self):
         """Build CEL expression for event aggregations.

@@ -389,7 +389,7 @@ def get_default_select_mode(env: Any, event_type_code: str) -> str:
         if event_type and event_type.is_one_active_per_registrant:
             return "active"
     except Exception as e:
-        _logger.warning(f"Failed to determine select mode for event type {event_type_code!r}: {e}")
+        _logger.warning("Failed to determine select mode for event type %r: %s", event_type_code, e)
 
     return "latest"
 
@@ -427,7 +427,7 @@ def get_states_for_select_mode(select: str) -> list[str]:
         return ["active", "superseded", "expired"]
     else:
         # Default to active only for unknown modes
-        _logger.warning(f"Unknown select mode: {select!r}, defaulting to ['active']")
+        _logger.warning("Unknown select mode: %r, defaulting to ['active']", select)
         return ["active"]
 
 
@@ -565,7 +565,7 @@ def validate_temporal_range(start_date: date | None, end_date: date | None) -> t
     """
     if start_date is not None and end_date is not None:
         if start_date > end_date:
-            _logger.warning(f"Invalid temporal range: start_date {start_date} > end_date {end_date}")
+            _logger.warning("Invalid temporal range: start_date %s > end_date %s", start_date, end_date)
             return None, None
 
     return start_date, end_date

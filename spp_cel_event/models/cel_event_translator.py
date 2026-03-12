@@ -14,6 +14,7 @@ Supported Functions:
 """
 
 import logging
+import re
 from datetime import date
 from typing import Any
 
@@ -423,7 +424,7 @@ class CelEventTranslator(models.AbstractModel):
         Returns:
             Tuple of (LeafDomain, explanation) - returns period string as constant
         """
-        from ...spp_cel_domain.models.cel_queryplan import LeafDomain
+        from odoo.addons.spp_cel_domain.models.cel_queryplan import LeafDomain
 
         func_name = node.func.name
         today = fields.Date.context_today(self)
@@ -516,8 +517,6 @@ class CelEventTranslator(models.AbstractModel):
             ):
                 _, explain = self._handle_period_function("", node, {}, ctx or {})
                 # Extract period string from explanation
-                import re
-
                 match = re.search(r"'([^']+)'", explain)
                 if match:
                     return match.group(1)
