@@ -175,10 +175,18 @@ export class FieldGisEditMap extends Component {
 
         this._drawHandlers = {
             update(e) {
-                var data = self.draw.getAll();
-                if (data.features.length > 0) {
+                const eventFeature = e?.features?.[0];
+                if (eventFeature?.geometry) {
                     self.props.record.update({
-                        [self.props.name]: JSON.stringify(data.features[0].geometry),
+                        [self.props.name]: JSON.stringify(eventFeature.geometry),
+                    });
+                    return;
+                }
+
+                const allFeatures = self.draw.getAll()?.features || [];
+                if (allFeatures.length > 0 && allFeatures[0].geometry) {
+                    self.props.record.update({
+                        [self.props.name]: JSON.stringify(allFeatures[0].geometry),
                     });
                 }
             },

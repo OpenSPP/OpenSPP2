@@ -38,6 +38,8 @@ class GeofenceMembershipManager(models.Model):
     _name = "spp.program.membership.manager.geofence"
     _inherit = ["spp.program.membership.manager", "spp.manager.source.mixin"]
     _description = "Geofence Eligibility Manager"
+    ASYNC_IMPORT_THRESHOLD = 1000
+    IMPORT_CHUNK_SIZE = 10000
 
     include_area_fallback = fields.Boolean(
         default=True,
@@ -187,7 +189,7 @@ class GeofenceMembershipManager(models.Model):
         new_beneficiaries = new_beneficiaries.filtered(lambda r: r.id not in existing_partner_ids)
 
         ben_count = len(new_beneficiaries)
-        if ben_count < 1000:
+        if ben_count < self.ASYNC_IMPORT_THRESHOLD:
             self._import_registrants(new_beneficiaries, state=state, do_count=True)
         else:
             self._import_registrants_async(new_beneficiaries, state=state)
@@ -200,10 +202,10 @@ class GeofenceMembershipManager(models.Model):
         program.write({"is_locked": True, "locked_reason": "Importing beneficiaries"})
 
         jobs = []
-        for i in range(0, len(new_beneficiaries), 10000):
+        for i in range(0, len(new_beneficiaries), self.IMPORT_CHUNK_SIZE):
             jobs.append(
                 self.delayable(channel="root_program.eligibility_manager")._import_registrants(
-                    new_beneficiaries[i : i + 10000], state
+                    new_beneficiaries[i : i + self.IMPORT_CHUNK_SIZE], state
                 )
             )
         main_job = group(*jobs)
