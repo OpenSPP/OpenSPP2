@@ -9,6 +9,7 @@ from unittest.mock import patch
 
 from odoo.exceptions import ValidationError
 from odoo.tests import tagged
+from odoo.tests.common import TransactionCase
 
 from .common import AnalyticsTestCase
 
@@ -489,3 +490,332 @@ class TestAggregationServiceExtended(AnalyticsTestCase):
         # Should not raise -- no rule means default allow
         scope_dict = {"scope_type": "explicit", "explicit_partner_ids": self.registrants[:3].ids}
         service._check_scope_allowed(scope_dict)
+
+
+@tagged("post_install", "-at_install")
+class TestAnalyticsScopeActions(AnalyticsTestCase):
+    """Tests for action_preview_registrants, action_refresh_cache, and _check_area_tags."""
+
+    def test_action_preview_registrants_returns_act_window(self):
+        """action_preview_registrants must return an ir.actions.act_window dict."""
+        scope = self.create_scope(
+            "explicit",
+            explicit_partner_ids=[(6, 0, self.registrants[:5].ids)],
+        )
+        action = scope.action_preview_registrants()
+        self.assertEqual(action["type"], "ir.actions.act_window")
+        self.assertEqual(action["res_model"], "res.partner")
+        self.assertIn("list,form", action["view_mode"])
+
+    def test_action_preview_registrants_domain_contains_ids(self):
+        """action_preview_registrants domain must restrict to scope's registrant IDs."""
+        partner_ids = self.registrants[:3].ids
+        scope = self.create_scope(
+            "explicit",
+            explicit_partner_ids=[(6, 0, partner_ids)],
+        )
+        action = scope.action_preview_registrants()
+        domain = action["domain"]
+        # The domain should contain an 'id in [...]' filter
+        self.assertTrue(any(condition[0] == "id" for condition in domain))
+        id_condition = next(c for c in domain if c[0] == "id")
+        self.assertEqual(set(id_condition[2]), set(partner_ids))
+
+    def test_action_preview_registrants_name_includes_scope_name(self):
+        """action_preview_registrants name must mention the scope name."""
+        scope = self.create_scope(
+            "explicit",
+            name="My Preview Scope",
+            explicit_partner_ids=[(6, 0, self.registrants[:2].ids)],
+        )
+        action = scope.action_preview_registrants()
+        self.assertIn("My Preview Scope", action["name"])
+
+    def test_action_preview_registrants_context_disables_create_delete(self):
+        """action_preview_registrants context must set create and delete to False."""
+        scope = self.create_scope(
+            "explicit",
+            explicit_partner_ids=[(6, 0, self.registrants[:2].ids)],
+        )
+        action = scope.action_preview_registrants()
+        self.assertFalse(action["context"].get("create"))
+        self.assertFalse(action["context"].get("delete"))
+
+    def test_action_refresh_cache_returns_true(self):
+        """action_refresh_cache must return True."""
+        scope = self.create_scope(
+            "explicit",
+            explicit_partner_ids=[(6, 0, self.registrants[:5].ids)],
+        )
+        result = scope.action_refresh_cache()
+        self.assertTrue(result)
+
+    def test_action_refresh_cache_updates_last_cache_refresh(self):
+        """action_refresh_cache must write last_cache_refresh timestamp."""
+        scope = self.create_scope(
+            "explicit",
+            explicit_partner_ids=[(6, 0, self.registrants[:5].ids)],
+        )
+        self.assertFalse(scope.last_cache_refresh)
+        scope.action_refresh_cache()
+        self.assertTrue(scope.last_cache_refresh)
+
+    def test_check_area_tags_raises_when_no_tags(self):
+        """_check_area_tags must raise ValidationError when area_tag scope has no tags."""
+        with self.assertRaises(ValidationError):
+            self.create_scope("area_tag")
+
+    def test_check_area_tags_passes_with_tags(self):
+        """_check_area_tags must not raise when area_tag scope has tags."""
+        scope = self.create_scope(
+            "area_tag",
+            area_tag_ids=[(6, 0, [self.tag_urban.id])],
+        )
+        self.assertTrue(scope.id)
+
+    def test_check_area_tags_raises_when_tags_cleared(self):
+        """_check_area_tags must raise if area_tags are cleared after creation."""
+        scope = self.create_scope(
+            "area_tag",
+            area_tag_ids=[(6, 0, [self.tag_urban.id])],
+        )
+        with self.assertRaises(ValidationError):
+            scope.write({"area_tag_ids": [(5, 0, 0)]})
+
+
+@tagged("post_install", "-at_install")
+class TestAggregationServiceInternals(AnalyticsTestCase):
+    """Tests for internal methods of spp.analytics.service."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.service = cls.env["spp.analytics.service"]
+
+    def test_get_effective_rule_returns_none_when_no_rule(self):
+        """_get_effective_rule must return None (falsy) when no rule matches."""
+        user_no_rule = self.env["res.users"].create(
+            {
+                "name": "Effective Rule Test User",
+                "login": "effective_rule_test_user",
+                "email": "effectiverule@test.com",
+            }
+        )
+        service = self.service.with_user(user_no_rule)
+        rule = service._get_effective_rule()
+        self.assertFalse(rule)
+
+    def test_get_effective_rule_returns_user_rule(self):
+        """_get_effective_rule must return the matching rule for the current user."""
+        test_user = self.env["res.users"].create(
+            {
+                "name": "Rule Test User",
+                "login": "rule_test_user2",
+                "email": "ruletest2@test.com",
+            }
+        )
+        created_rule = self.env["spp.analytics.access.rule"].create(
+            {
+                "name": "Effective Rule For User",
+                "access_level": "individual",
+                "user_id": test_user.id,
+            }
+        )
+        service = self.service.with_user(test_user)
+        rule = service._get_effective_rule()
+        self.assertTrue(rule)
+        self.assertEqual(rule.id, created_rule.id)
+
+    def test_access_level_from_rule_returns_rule_level(self):
+        """_access_level_from_rule must return the rule's access_level when rule present."""
+        rule = self.create_access_rule("individual", user_id=self.env.user.id, group_id=False)
+        level = self.service._access_level_from_rule(rule)
+        self.assertEqual(level, "individual")
+
+    def test_access_level_from_rule_defaults_to_aggregate_when_none(self):
+        """_access_level_from_rule must return 'aggregate' when rule is None/falsy."""
+        level = self.service._access_level_from_rule(None)
+        self.assertEqual(level, "aggregate")
+
+    def test_k_threshold_from_rule_returns_rule_threshold(self):
+        """_k_threshold_from_rule must return minimum_k_anonymity from rule."""
+        rule = self.create_access_rule(
+            "aggregate",
+            user_id=self.env.user.id,
+            group_id=False,
+            minimum_k_anonymity=7,
+        )
+        threshold = self.service._k_threshold_from_rule(rule)
+        self.assertEqual(threshold, 7)
+
+    def test_k_threshold_from_rule_uses_privacy_default_when_none(self):
+        """_k_threshold_from_rule must fall back to privacy service default when no rule."""
+        threshold = self.service._k_threshold_from_rule(None)
+        privacy_default = self.env["spp.metric.privacy"].DEFAULT_K_THRESHOLD
+        self.assertEqual(threshold, privacy_default)
+
+    def test_compute_single_statistic_delegates_to_registry(self):
+        """_compute_single_statistic must delegate to indicator registry."""
+        ids = self.registrants[:5].ids
+        result = self.service._compute_single_statistic("count", ids)
+        self.assertEqual(result, 5)
+
+    def test_compute_single_statistic_returns_none_for_unknown(self):
+        """_compute_single_statistic must return None for an unknown statistic."""
+        result = self.service._compute_single_statistic("unknown_stat_xyz", self.registrants[:3].ids)
+        self.assertIsNone(result)
+
+    def test_compute_breakdown_returns_dict(self):
+        """_compute_breakdown must return a dict with breakdown cells."""
+        ids = self.registrants.ids
+        result = self.service._compute_breakdown(ids, ["registrant_type"], None, None)
+        self.assertIsInstance(result, dict)
+        self.assertGreater(len(result), 0)
+
+    def test_compute_breakdown_with_statistics(self):
+        """_compute_breakdown with statistics must include stats per cell."""
+        ids = self.registrants.ids
+        result = self.service._compute_breakdown(ids, ["registrant_type"], ["count"], None)
+        self.assertIsInstance(result, dict)
+        # Each cell should have a count key
+        for _cell_key, cell in result.items():
+            self.assertIn("count", cell)
+
+
+@tagged("post_install", "-at_install")
+class TestScopeResolverCelMethods(AnalyticsTestCase):
+    """Tests for CEL resolution methods in spp.analytics.scope.resolver."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.resolver = cls.env["spp.analytics.scope.resolver"]
+
+    def test_resolve_cel_record_without_executor_returns_empty(self):
+        """_resolve_cel with a CEL scope record returns empty when executor unavailable."""
+        scope = self.create_scope(
+            "cel",
+            cel_expression="r.is_group == false",
+            cel_profile="registry_individuals",
+        )
+        # When spp.cel.executor is not installed the resolver logs an error and returns []
+        if self.env.get("spp.cel.executor") is None:
+            result = self.resolver._resolve_cel(scope)
+            self.assertEqual(result, [])
+        else:
+            # Module IS installed; just check it returns a list
+            result = self.resolver._resolve_cel(scope)
+            self.assertIsInstance(result, list)
+
+    def test_resolve_cel_record_empty_expression_returns_empty(self):
+        """_resolve_cel_expression with empty string must return empty list."""
+        result = self.resolver._resolve_cel_expression("", "registry_individuals")
+        self.assertEqual(result, [])
+
+    def test_resolve_cel_inline_without_executor_returns_empty(self):
+        """_resolve_cel_inline with an inline CEL scope returns empty when executor unavailable."""
+        scope_dict = {
+            "scope_type": "cel",
+            "cel_expression": "r.is_group == false",
+            "cel_profile": "registry_individuals",
+        }
+        if self.env.get("spp.cel.executor") is None:
+            result = self.resolver._resolve_cel_inline(scope_dict)
+            self.assertEqual(result, [])
+        else:
+            result = self.resolver._resolve_cel_inline(scope_dict)
+            self.assertIsInstance(result, list)
+
+    def test_resolve_cel_inline_missing_expression_returns_empty(self):
+        """_resolve_cel_inline with missing cel_expression returns empty list."""
+        scope_dict = {
+            "scope_type": "cel",
+            # No cel_expression key
+        }
+        result = self.resolver._resolve_cel_inline(scope_dict)
+        self.assertEqual(result, [])
+
+    def test_resolve_dispatches_to_resolve_cel(self):
+        """resolve() on a CEL record scope must call the CEL resolver, not raise."""
+        scope = self.create_scope(
+            "cel",
+            cel_expression="r.is_group == false",
+        )
+        # Should not raise; returns a list (possibly empty if executor missing)
+        result = self.resolver.resolve(scope)
+        self.assertIsInstance(result, list)
+
+
+@tagged("post_install", "-at_install")
+class TestIndicatorRegistryInternals(TransactionCase):
+    """Tests for internal dispatch methods of spp.analytics.indicator.registry."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.indicator_registry = cls.env["spp.analytics.indicator.registry"]
+        cls.registrants = cls.env["res.partner"]
+        for i in range(10):
+            cls.registrants |= cls.env["res.partner"].create(
+                {
+                    "name": f"Registry Internals Test {i}",
+                    "is_registrant": True,
+                }
+            )
+
+    def test_get_builtin_returns_method_for_count(self):
+        """_get_builtin('count') must return a callable."""
+        method = self.indicator_registry._get_builtin("count")
+        self.assertIsNotNone(method)
+        self.assertTrue(callable(method))
+
+    def test_get_builtin_returns_method_for_gini(self):
+        """_get_builtin('gini') must return a callable."""
+        method = self.indicator_registry._get_builtin("gini")
+        self.assertIsNotNone(method)
+        self.assertTrue(callable(method))
+
+    def test_get_builtin_returns_method_for_gini_coefficient_alias(self):
+        """_get_builtin('gini_coefficient') must return a callable (alias)."""
+        method = self.indicator_registry._get_builtin("gini_coefficient")
+        self.assertIsNotNone(method)
+        self.assertTrue(callable(method))
+
+    def test_get_builtin_returns_none_for_unknown(self):
+        """_get_builtin must return None for an unregistered statistic name."""
+        method = self.indicator_registry._get_builtin("no_such_stat")
+        self.assertIsNone(method)
+
+    def test_get_builtin_count_callable_returns_correct_count(self):
+        """The callable returned by _get_builtin('count') must compute correctly."""
+        method = self.indicator_registry._get_builtin("count")
+        result = method(self.registrants[:7].ids)
+        self.assertEqual(result, 7)
+
+    def test_try_statistic_model_returns_none_when_model_absent(self):
+        """_try_statistic_model returns None when spp.indicator is not installed."""
+        if self.env.get("spp.indicator") is not None:
+            self.skipTest("spp_indicator is installed; testing absence is not possible")
+        result = self.indicator_registry._try_statistic_model("some_stat", self.registrants.ids)
+        self.assertIsNone(result)
+
+    def test_try_statistic_model_returns_none_for_missing_stat(self):
+        """_try_statistic_model returns None when named statistic record does not exist."""
+        if self.env.get("spp.indicator") is None:
+            self.skipTest("spp_indicator not installed")
+        result = self.indicator_registry._try_statistic_model("nonexistent_stat_abc", self.registrants.ids)
+        self.assertIsNone(result)
+
+    def test_try_variable_model_returns_none_when_model_absent(self):
+        """_try_variable_model returns None when spp.cel.variable is not installed."""
+        if self.env.get("spp.cel.variable") is not None:
+            self.skipTest("spp_cel is installed; testing absence is not possible")
+        result = self.indicator_registry._try_variable_model("some_var", self.registrants.ids)
+        self.assertIsNone(result)
+
+    def test_try_variable_model_returns_none_for_missing_variable(self):
+        """_try_variable_model returns None when named variable record does not exist."""
+        if self.env.get("spp.cel.variable") is None:
+            self.skipTest("spp_cel not installed")
+        result = self.indicator_registry._try_variable_model("nonexistent_variable_xyz", self.registrants.ids)
+        self.assertIsNone(result)

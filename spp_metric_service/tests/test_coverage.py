@@ -1113,3 +1113,499 @@ class TestDistributionServiceEdgeCases(TransactionCase):
         """Percentile computation on small dataset."""
         result = self.dist_service.compute_distribution([10, 20])
         self.assertEqual(result["percentiles"]["p50"], 15.0)
+
+
+@tagged("post_install", "-at_install")
+class TestPrivacyServiceStripIds(TransactionCase):
+    """Test privacy service _strip_individual_ids and enforce access levels."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.privacy_service = cls.env["spp.metric.privacy"]
+
+    # -------------------------------------------------------------------------
+    # _strip_individual_ids
+    # -------------------------------------------------------------------------
+
+    def test_strip_individual_ids_removes_registrant_ids(self):
+        """_strip_individual_ids removes 'registrant_ids' key from result."""
+        result = {"total": 10, "registrant_ids": [1, 2, 3]}
+        stripped = self.privacy_service._strip_individual_ids(result)
+        self.assertNotIn("registrant_ids", stripped)
+        self.assertEqual(stripped["total"], 10)
+
+    def test_strip_individual_ids_removes_partner_ids(self):
+        """_strip_individual_ids removes 'partner_ids' key from result."""
+        result = {"total": 5, "partner_ids": [4, 5]}
+        stripped = self.privacy_service._strip_individual_ids(result)
+        self.assertNotIn("partner_ids", stripped)
+
+    def test_strip_individual_ids_removes_ids(self):
+        """_strip_individual_ids removes 'ids' key from result."""
+        result = {"total": 5, "ids": [6, 7, 8]}
+        stripped = self.privacy_service._strip_individual_ids(result)
+        self.assertNotIn("ids", stripped)
+
+    def test_strip_individual_ids_no_ids_present(self):
+        """_strip_individual_ids on result without ID keys returns unchanged."""
+        result = {"total": 10, "breakdown": {"male": {"count": 10}}}
+        stripped = self.privacy_service._strip_individual_ids(result)
+        self.assertIn("total", stripped)
+        self.assertIn("breakdown", stripped)
+
+    def test_strip_individual_ids_does_not_modify_original(self):
+        """_strip_individual_ids does not mutate the input dict."""
+        original = {"total": 10, "registrant_ids": [1, 2]}
+        original_copy = dict(original)
+        self.privacy_service._strip_individual_ids(original)
+        self.assertEqual(original, original_copy)
+
+    def test_strip_individual_ids_removes_ids_from_breakdown_cells(self):
+        """_strip_individual_ids removes ID keys from nested breakdown cells."""
+        result = {
+            "total": 20,
+            "breakdown": {
+                "male": {"count": 10, "registrant_ids": [1, 2], "partner_ids": [3]},
+                "female": {"count": 10, "ids": [4, 5]},
+            },
+        }
+        stripped = self.privacy_service._strip_individual_ids(result)
+        male_cell = stripped["breakdown"]["male"]
+        female_cell = stripped["breakdown"]["female"]
+        self.assertNotIn("registrant_ids", male_cell)
+        self.assertNotIn("partner_ids", male_cell)
+        self.assertNotIn("ids", female_cell)
+        self.assertEqual(male_cell["count"], 10)
+
+    def test_strip_individual_ids_skips_non_dict_breakdown_cells(self):
+        """_strip_individual_ids skips breakdown values that are not dicts."""
+        result = {
+            "total": 10,
+            "breakdown": {
+                "male": "not a dict",
+                "female": {"count": 10, "registrant_ids": [1]},
+            },
+        }
+        # Should not raise an error
+        stripped = self.privacy_service._strip_individual_ids(result)
+        self.assertEqual(stripped["breakdown"]["male"], "not a dict")
+        self.assertNotIn("registrant_ids", stripped["breakdown"]["female"])
+
+    # -------------------------------------------------------------------------
+    # enforce() with access_level
+    # -------------------------------------------------------------------------
+
+    def test_enforce_individual_access_level_preserves_ids(self):
+        """enforce with access_level='individual' does not strip registrant_ids."""
+        result = {
+            "total": 20,
+            "registrant_ids": [1, 2, 3],
+            "breakdown": {
+                "male": {"count": 10},
+                "female": {"count": 10},
+            },
+        }
+        protected = self.privacy_service.enforce(result, access_level="individual")
+        self.assertIn("registrant_ids", protected)
+        self.assertEqual(protected["registrant_ids"], [1, 2, 3])
+
+    def test_enforce_aggregate_access_level_strips_ids(self):
+        """enforce with access_level='aggregate' removes registrant_ids."""
+        result = {
+            "total": 20,
+            "registrant_ids": [1, 2, 3],
+            "breakdown": {
+                "male": {"count": 10},
+                "female": {"count": 10},
+            },
+        }
+        protected = self.privacy_service.enforce(result, access_level="aggregate")
+        self.assertNotIn("registrant_ids", protected)
+
+    def test_enforce_aggregate_applies_k_anonymity(self):
+        """enforce with access_level='aggregate' applies k-anonymity to breakdown."""
+        result = {
+            "total": 20,
+            "breakdown": {
+                "male": {"count": 2},  # below threshold
+                "female": {"count": 18},
+            },
+        }
+        protected = self.privacy_service.enforce(result, k_threshold=5, access_level="aggregate")
+        self.assertTrue(protected["breakdown"]["male"].get("suppressed"))
+
+    def test_enforce_custom_k_threshold(self):
+        """enforce with custom k_threshold suppresses at that threshold."""
+        result = {
+            "total": 30,
+            "breakdown": {
+                "male": {"count": 8},  # below custom threshold of 10
+                "female": {"count": 22},
+            },
+        }
+        protected = self.privacy_service.enforce(result, k_threshold=10, access_level="aggregate")
+        self.assertTrue(protected["breakdown"]["male"].get("suppressed"))
+
+    def test_enforce_custom_k_threshold_not_suppressed(self):
+        """enforce with custom k_threshold does not suppress counts above it."""
+        result = {
+            "total": 30,
+            "breakdown": {
+                "male": {"count": 15},
+                "female": {"count": 15},
+            },
+        }
+        protected = self.privacy_service.enforce(result, k_threshold=10, access_level="aggregate")
+        self.assertFalse(protected["breakdown"]["male"].get("suppressed", False))
+
+    def test_enforce_no_breakdown_key(self):
+        """enforce on result without 'breakdown' key works without error."""
+        result = {"total": 100, "registrant_ids": [1, 2]}
+        protected = self.privacy_service.enforce(result, access_level="aggregate")
+        self.assertNotIn("breakdown", protected)
+        self.assertNotIn("registrant_ids", protected)
+
+    def test_enforce_does_not_modify_original(self):
+        """enforce does not mutate the input result dict."""
+        result = {
+            "total": 10,
+            "registrant_ids": [1],
+            "breakdown": {"male": {"count": 2}},
+        }
+        original_ids = result["registrant_ids"][:]
+        self.privacy_service.enforce(result, access_level="aggregate")
+        # Original should be unchanged
+        self.assertIn("registrant_ids", result)
+        self.assertEqual(result["registrant_ids"], original_ids)
+
+
+@tagged("post_install", "-at_install")
+class TestDimensionCacheMakeKey(TransactionCase):
+    """Test dimension cache _make_registrant_key method."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.cache_service = cls.env["spp.metric.dimension.cache"]
+
+    def test_make_registrant_key_returns_string(self):
+        """_make_registrant_key returns a string."""
+        key = self.cache_service._make_registrant_key([1, 2, 3])
+        self.assertIsInstance(key, str)
+
+    def test_make_registrant_key_consistent(self):
+        """_make_registrant_key returns the same hash for the same IDs."""
+        key1 = self.cache_service._make_registrant_key([1, 2, 3])
+        key2 = self.cache_service._make_registrant_key([1, 2, 3])
+        self.assertEqual(key1, key2)
+
+    def test_make_registrant_key_order_independent(self):
+        """_make_registrant_key returns the same hash regardless of input order."""
+        key1 = self.cache_service._make_registrant_key([3, 1, 2])
+        key2 = self.cache_service._make_registrant_key([1, 2, 3])
+        self.assertEqual(key1, key2)
+
+    def test_make_registrant_key_different_ids_differ(self):
+        """_make_registrant_key produces different hashes for different ID sets."""
+        key1 = self.cache_service._make_registrant_key([1, 2, 3])
+        key2 = self.cache_service._make_registrant_key([4, 5, 6])
+        self.assertNotEqual(key1, key2)
+
+    def test_make_registrant_key_accepts_frozenset(self):
+        """_make_registrant_key accepts a frozenset of IDs."""
+        key_list = self.cache_service._make_registrant_key([1, 2, 3])
+        key_frozenset = self.cache_service._make_registrant_key(frozenset([1, 2, 3]))
+        self.assertEqual(key_list, key_frozenset)
+
+    def test_make_registrant_key_single_id(self):
+        """_make_registrant_key works with a single ID."""
+        key = self.cache_service._make_registrant_key([42])
+        self.assertIsInstance(key, str)
+        self.assertTrue(len(key) > 0)
+
+    def test_make_registrant_key_empty_list(self):
+        """_make_registrant_key works with an empty list."""
+        key = self.cache_service._make_registrant_key([])
+        self.assertIsInstance(key, str)
+
+    def test_make_registrant_key_is_md5_length(self):
+        """_make_registrant_key returns a 32-character MD5 hex string."""
+        key = self.cache_service._make_registrant_key([1, 2, 3])
+        self.assertEqual(len(key), 32)
+
+
+@tagged("post_install", "-at_install")
+class TestFairnessExpressionDimension(TransactionCase):
+    """Test fairness service _analyze_expression_dimension method."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.partner_model = cls.env["res.partner"]
+        cls.fairness_service = cls.env["spp.metric.fairness"]
+        cls.dim_model = cls.env["spp.demographic.dimension"]
+
+        # Create test registrants
+        cls.registrants = cls.partner_model.browse()
+        for i in range(6):
+            reg = cls.partner_model.create(
+                {
+                    "name": f"Expr Fairness Registrant {i}",
+                    "is_registrant": True,
+                    "is_group": i % 2 == 0,
+                }
+            )
+            cls.registrants |= reg
+
+        cls.all_ids = cls.registrants.ids
+
+        # Create expression-type dimension
+        cls.expr_dim = cls.dim_model.create(
+            {
+                "name": "fairness_expr_dim",
+                "label": "Expression Dimension",
+                "dimension_type": "expression",
+                "cel_expression": "record.is_group ? 'group' : 'individual'",
+                "applies_to": "all",
+                "default_value": "unknown",
+            }
+        )
+
+    def test_analyze_expression_dimension_no_cel_service(self):
+        """_analyze_expression_dimension returns None when CEL service unavailable."""
+        beneficiary_set = set(self.all_ids[:3])
+        base_domain = [("id", "in", self.all_ids)]
+        overall_coverage = len(beneficiary_set) / len(self.all_ids)
+
+        # Patch env.get to return None for CEL service
+        with patch.object(type(self.env), "get", return_value=None):
+            result = self.fairness_service._analyze_expression_dimension(
+                self.expr_dim,
+                beneficiary_set,
+                base_domain,
+                overall_coverage,
+                self.partner_model,
+            )
+        self.assertIsNone(result)
+
+    def test_analyze_expression_dimension_fallback_without_cache(self):
+        """_analyze_expression_dimension uses per-record fallback when no cache service."""
+        beneficiary_set = set(self.all_ids[:3])
+        base_domain = [("id", "in", self.all_ids)]
+        overall_coverage = len(beneficiary_set) / len(self.all_ids)
+
+        cel_service = self.env.get("spp.cel.service")
+        if not cel_service:
+            self.skipTest("CEL service not available")
+
+        # Patch env.get to return cel_service for spp.cel.service but None for cache
+        def mock_get(key):
+            if key == "spp.cel.service":
+                return cel_service
+            return None
+
+        with patch.object(type(self.env), "get", side_effect=mock_get):
+            result = self.fairness_service._analyze_expression_dimension(
+                self.expr_dim,
+                beneficiary_set,
+                base_domain,
+                overall_coverage,
+                self.partner_model,
+            )
+
+        # If CEL evaluates successfully, result should be a dict with groups
+        # If CEL expression fails, evaluate_for_record returns default
+        if result is not None:
+            self.assertIn("groups", result)
+            self.assertIn("attribute", result)
+            self.assertEqual(result["attribute"], "fairness_expr_dim")
+
+    def test_analyze_expression_dimension_empty_categories(self):
+        """_analyze_expression_dimension returns None when no categories found."""
+        beneficiary_set = set(self.all_ids[:3])
+        # Domain that matches nothing
+        base_domain = [("id", "=", -1)]
+        overall_coverage = 0.5
+
+        cel_service = self.env.get("spp.cel.service")
+        if not cel_service:
+            self.skipTest("CEL service not available")
+
+        result = self.fairness_service._analyze_expression_dimension(
+            self.expr_dim,
+            beneficiary_set,
+            base_domain,
+            overall_coverage,
+            self.partner_model,
+        )
+        # Empty population means no categories, so result is None
+        self.assertIsNone(result)
+
+    def test_analyze_dimension_routes_to_expression(self):
+        """_analyze_dimension routes expression-type dimensions correctly."""
+        beneficiary_set = set(self.all_ids[:3])
+        base_domain = [("id", "in", self.all_ids)]
+        overall_coverage = len(beneficiary_set) / len(self.all_ids)
+
+        # Patch _analyze_expression_dimension to verify it is called
+        with patch.object(
+            type(self.fairness_service),
+            "_analyze_expression_dimension",
+            return_value=None,
+        ) as mock_method:
+            self.fairness_service._analyze_dimension(
+                self.expr_dim,
+                beneficiary_set,
+                base_domain,
+                overall_coverage,
+                self.partner_model,
+            )
+            mock_method.assert_called_once()
+
+
+@tagged("post_install", "-at_install")
+class TestBreakdownServiceComprehensive(TransactionCase):
+    """Comprehensive tests for breakdown service compute_breakdown."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.partner_model = cls.env["res.partner"]
+        cls.breakdown_service = cls.env["spp.metric.breakdown"]
+        cls.dim_model = cls.env["spp.demographic.dimension"]
+
+        # Create test registrants: mix of groups and individuals
+        cls.individuals = cls.partner_model.browse()
+        cls.groups = cls.partner_model.browse()
+
+        for i in range(4):
+            ind = cls.partner_model.create(
+                {
+                    "name": f"Breakdown Individual {i}",
+                    "is_registrant": True,
+                    "is_group": False,
+                }
+            )
+            cls.individuals |= ind
+
+        for i in range(3):
+            grp = cls.partner_model.create(
+                {
+                    "name": f"Breakdown Group {i}",
+                    "is_registrant": True,
+                    "is_group": True,
+                }
+            )
+            cls.groups |= grp
+
+        cls.all_registrants = cls.individuals | cls.groups
+        cls.all_ids = cls.all_registrants.ids
+
+        # Create two boolean dimensions for multi-dimensional breakdown
+        cls.is_group_dim = cls.dim_model.create(
+            {
+                "name": "breakdown_is_group",
+                "label": "Is Group",
+                "dimension_type": "field",
+                "field_path": "is_group",
+                "applies_to": "all",
+            }
+        )
+        cls.is_registrant_dim = cls.dim_model.create(
+            {
+                "name": "breakdown_is_registrant",
+                "label": "Is Registrant",
+                "dimension_type": "field",
+                "field_path": "is_registrant",
+                "applies_to": "all",
+            }
+        )
+
+    def test_compute_breakdown_empty_registrant_ids(self):
+        """compute_breakdown with empty registrant_ids returns empty dict."""
+        result = self.breakdown_service.compute_breakdown([], ["breakdown_is_group"])
+        self.assertEqual(result, {})
+
+    def test_compute_breakdown_empty_group_by(self):
+        """compute_breakdown with empty group_by returns empty dict."""
+        result = self.breakdown_service.compute_breakdown(self.all_ids, [])
+        self.assertEqual(result, {})
+
+    def test_compute_breakdown_nonexistent_dimension(self):
+        """compute_breakdown with only non-existent dimension names returns empty dict."""
+        result = self.breakdown_service.compute_breakdown(self.all_ids, ["this_dimension_does_not_exist_xyz"])
+        self.assertEqual(result, {})
+
+    def test_compute_breakdown_single_dimension(self):
+        """compute_breakdown with one dimension produces keyed breakdown."""
+        result = self.breakdown_service.compute_breakdown(self.all_ids, ["breakdown_is_group"])
+        self.assertIsInstance(result, dict)
+        self.assertTrue(len(result) > 0)
+
+        # Keys should be single-part (no pipes)
+        for key in result:
+            self.assertNotIn("|", key)
+
+        # Counts should sum to total
+        total = sum(cell["count"] for cell in result.values())
+        self.assertEqual(total, len(self.all_ids))
+
+    def test_compute_breakdown_multi_dimensional(self):
+        """compute_breakdown with two dimensions produces pipe-separated keys."""
+        result = self.breakdown_service.compute_breakdown(
+            self.all_ids, ["breakdown_is_group", "breakdown_is_registrant"]
+        )
+        self.assertIsInstance(result, dict)
+        self.assertTrue(len(result) > 0)
+
+        # All keys should be pipe-separated with exactly one pipe
+        for key in result:
+            parts = key.split("|")
+            self.assertEqual(len(parts), 2)
+
+        # Counts should sum to total
+        total = sum(cell["count"] for cell in result.values())
+        self.assertEqual(total, len(self.all_ids))
+
+    def test_compute_breakdown_cell_structure(self):
+        """compute_breakdown cells contain count, statistics, and labels."""
+        result = self.breakdown_service.compute_breakdown(self.all_ids, ["breakdown_is_group"])
+        for cell in result.values():
+            self.assertIn("count", cell)
+            self.assertIn("statistics", cell)
+            self.assertIn("labels", cell)
+            self.assertIsInstance(cell["count"], int)
+            self.assertIsInstance(cell["statistics"], dict)
+            self.assertIsInstance(cell["labels"], dict)
+
+    def test_compute_breakdown_labels_structure(self):
+        """compute_breakdown labels contain value and display for each dimension."""
+        result = self.breakdown_service.compute_breakdown(self.all_ids, ["breakdown_is_group"])
+        for cell in result.values():
+            self.assertIn("breakdown_is_group", cell["labels"])
+            dim_label = cell["labels"]["breakdown_is_group"]
+            self.assertIn("value", dim_label)
+            self.assertIn("display", dim_label)
+
+    def test_compute_breakdown_multi_dim_labels_structure(self):
+        """compute_breakdown multi-dim cells contain labels for each dimension."""
+        result = self.breakdown_service.compute_breakdown(
+            self.all_ids, ["breakdown_is_group", "breakdown_is_registrant"]
+        )
+        for cell in result.values():
+            self.assertIn("breakdown_is_group", cell["labels"])
+            self.assertIn("breakdown_is_registrant", cell["labels"])
+
+    def test_compute_breakdown_partial_nonexistent_dimension(self):
+        """compute_breakdown with mixed valid/nonexistent names uses only valid ones."""
+        result = self.breakdown_service.compute_breakdown(
+            self.all_ids,
+            ["breakdown_is_group", "nonexistent_dimension_xyz"],
+        )
+        # Only the valid dimension is used, so keys should be single-part
+        self.assertIsInstance(result, dict)
+        self.assertTrue(len(result) > 0)
+        for key in result:
+            # Only the valid dimension is used
+            self.assertNotIn("|", key)
