@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
+    <!-- Attendance popup action (must be defined before the form view that references it) -->
+    <record id="action_session_attendance_popup" model="ir.actions.act_window">
+        <field name="name">Attendance Records</field>
+        <field name="res_model">spp.session.attendance</field>
+        <field name="view_mode">list</field>
+        <field name="context">{'default_session_id': active_id}</field>
+        <field name="domain">[('session_id', '=', active_id)]</field>
+    </record>
+
     <!-- Session Form View -->
     <record id="view_session_form" model="ir.ui.view">
         <field name="name">spp.session.form</field>
@@ -26,6 +35,7 @@
                         string="Cancel"
                         type="object"
                         invisible="state in ['completed', 'cancelled']"
+                        confirm="Are you sure you want to cancel this session?"
                     />
                     <field
                         name="state"
@@ -34,12 +44,44 @@
                     />
                 </header>
                 <sheet>
-                    <group>
-                        <group>
+                    <widget
+                        name="web_ribbon"
+                        title="Completed"
+                        bg_color="text-bg-success"
+                        invisible="state != 'completed'"
+                    />
+                    <widget
+                        name="web_ribbon"
+                        title="Cancelled"
+                        bg_color="text-bg-danger"
+                        invisible="state != 'cancelled'"
+                    />
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="%(action_session_attendance_popup)d"
+                            type="action"
+                            class="oe_stat_button"
+                            icon="fa-users"
+                            invisible="not id"
+                        >
+                            <field
+                                name="attendance_count"
+                                widget="statinfo"
+                                string="Attended"
+                            />
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
                             <field
                                 name="name"
+                                placeholder="e.g., FDS Session - Barangay San Jose"
                                 readonly="state in ['completed', 'cancelled']"
                             />
+                        </h1>
+                    </div>
+                    <group name="main_info">
+                        <group name="left_col">
                             <field
                                 name="session_type_id"
                                 readonly="state in ['completed', 'cancelled']"
@@ -57,7 +99,7 @@
                                 readonly="state in ['completed', 'cancelled']"
                             />
                         </group>
-                        <group>
+                        <group name="right_col">
                             <field
                                 name="facilitator_id"
                                 readonly="state in ['completed', 'cancelled']"
@@ -90,28 +132,36 @@
                         </group>
                     </group>
                     <notebook>
-                        <page string="Participants">
-                            <group>
-                                <field
-                                    name="expected_participant_ids"
-                                    widget="many2many_tags"
-                                    nolabel="1"
-                                    readonly="state in ['completed', 'cancelled']"
-                                />
-                            </group>
+                        <page string="Participants" name="page_participants">
+                            <field
+                                name="expected_participant_ids"
+                                readonly="state in ['completed', 'cancelled']"
+                            >
+                                <list>
+                                    <field name="name" />
+                                </list>
+                            </field>
                         </page>
-                        <page string="Attendance">
+                        <page string="Attendance" name="page_attendance">
                             <group>
                                 <group>
                                     <field name="attendance_count" />
-                                    <field name="attendance_rate" />
+                                    <field
+                                        name="attendance_rate"
+                                        string="Attendance Rate (%)"
+                                    />
                                 </group>
                             </group>
                             <field
                                 name="attendance_ids"
                                 readonly="state in ['completed', 'cancelled']"
                             >
-                                <list editable="bottom">
+                                <list
+                                    editable="bottom"
+                                    decoration-success="is_attended"
+                                    decoration-warning="is_excused"
+                                    decoration-muted="not is_attended and not is_excused"
+                                >
                                     <field name="participant_id" />
                                     <field name="is_attended" />
                                     <field name="attendance_time" />
@@ -123,6 +173,7 @@
                         </page>
                         <page
                             string="Topics"
+                            name="page_topics"
                             invisible="not session_type_id.track_topics"
                         >
                             <group colspan="2">
@@ -134,7 +185,7 @@
                                 />
                             </group>
                         </page>
-                        <page string="Notes">
+                        <page string="Notes" name="page_notes">
                             <field
                                 name="notes"
                                 readonly="state in ['completed', 'cancelled']"
@@ -147,21 +198,29 @@
         </field>
     </record>
 
-    <!-- Session Tree View -->
-    <record id="view_session_tree" model="ir.ui.view">
-        <field name="name">spp.session.tree</field>
+    <!-- Session List View -->
+    <record id="view_session_list" model="ir.ui.view">
+        <field name="name">spp.session.list</field>
         <field name="model">spp.session</field>
         <field name="arch" type="xml">
-            <list>
+            <list
+                default_order="date desc"
+                decoration-info="state == 'scheduled'"
+                decoration-warning="state == 'in_progress'"
+                decoration-success="state == 'completed'"
+                decoration-muted="state == 'cancelled'"
+            >
                 <field name="date" />
                 <field name="name" />
                 <field name="session_type_id" />
                 <field name="facilitator_id" />
-                <field name="location" />
-                <field name="attendance_count" />
-                <field name="attendance_rate" />
+                <field name="location" optional="show" />
+                <field name="area_id" optional="hide" />
+                <field name="attendance_count" optional="show" />
+                <field name="attendance_rate" optional="show" />
                 <field
                     name="state"
+                    widget="badge"
                     decoration-info="state == 'scheduled'"
                     decoration-warning="state == 'in_progress'"
                     decoration-success="state == 'completed'"
@@ -181,6 +240,7 @@
                 date_start="date"
                 color="session_type_id"
                 mode="month"
+                quick_create="0"
             >
                 <field name="name" />
                 <field name="facilitator_id" />
@@ -194,32 +254,35 @@
         <field name="name">spp.session.kanban</field>
         <field name="model">spp.session</field>
         <field name="arch" type="xml">
-            <kanban default_group_by="state">
+            <kanban default_group_by="state" quick_create="false">
                 <field name="name" />
                 <field name="session_type_id" />
                 <field name="date" />
                 <field name="facilitator_id" />
                 <field name="attendance_rate" />
                 <field name="state" />
+                <progressbar
+                    field="state"
+                    colors='{"scheduled": "info", "in_progress": "warning", "completed": "success", "cancelled": "danger"}'
+                />
                 <templates>
                     <t t-name="card">
-                        <div class="oe_kanban_card">
-                            <div class="oe_kanban_content">
-                                <div class="o_kanban_record_title">
-                                    <strong>
-                                        <field name="name" />
-                                    </strong>
-                                </div>
-                                <div class="o_kanban_record_body">
-                                    <field name="session_type_id" />
-                                    <br />
-                                    <field name="date" />
-                                    <br />
-                                    <field name="facilitator_id" />
-                                    <br />
-                                    Attendance: <field name="attendance_rate" />%
-                                </div>
+                        <div class="o_kanban_record_title">
+                            <strong>
+                                <field name="name" />
+                            </strong>
+                        </div>
+                        <div class="o_kanban_record_body">
+                            <div>
+                                <field name="session_type_id" />
                             </div>
+                            <div>
+                                <field name="date" />
+                            </div>
+                            <div>
+                                <field name="facilitator_id" />
+                            </div>
+                            <div>Attendance: <field name="attendance_rate" />%</div>
                         </div>
                     </t>
                 </templates>
@@ -238,6 +301,7 @@
                 <field name="facilitator_id" />
                 <field name="location" />
                 <field name="area_id" />
+                <separator />
                 <filter
                     string="Scheduled"
                     name="scheduled"
@@ -254,9 +318,20 @@
                     domain="[('state', '=', 'completed')]"
                 />
                 <filter
+                    string="Cancelled"
+                    name="cancelled"
+                    domain="[('state', '=', 'cancelled')]"
+                />
+                <separator />
+                <filter
                     string="My Sessions"
                     name="my_sessions"
                     domain="[('facilitator_id', '=', uid)]"
+                />
+                <filter
+                    string="My Co-facilitated Sessions"
+                    name="my_co_facilitated"
+                    domain="[('co_facilitator_ids', 'in', [uid])]"
                 />
                 <separator />
                 <filter
@@ -290,12 +365,36 @@
         </field>
     </record>
 
+    <!-- Session Graph View -->
+    <record id="view_session_graph" model="ir.ui.view">
+        <field name="name">spp.session.graph</field>
+        <field name="model">spp.session</field>
+        <field name="arch" type="xml">
+            <graph string="Sessions" type="bar">
+                <field name="session_type_id" type="row" />
+                <field name="duration_hours" type="measure" />
+            </graph>
+        </field>
+    </record>
+
+    <!-- Session Pivot View -->
+    <record id="view_session_pivot" model="ir.ui.view">
+        <field name="name">spp.session.pivot</field>
+        <field name="model">spp.session</field>
+        <field name="arch" type="xml">
+            <pivot string="Sessions">
+                <field name="session_type_id" type="row" />
+                <field name="facilitator_id" type="col" />
+                <field name="duration_hours" type="measure" />
+            </pivot>
+        </field>
+    </record>
+
     <!-- Session Action -->
     <record id="action_session_view" model="ir.actions.act_window">
         <field name="name">Sessions</field>
         <field name="res_model">spp.session</field>
-        <!-- Odoo 19: Changed tree to list -->
-        <field name="view_mode">list,form,calendar,kanban</field>
+        <field name="view_mode">list,form,calendar,kanban,graph,pivot</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Create a new session
@@ -310,8 +409,7 @@
     <record id="action_my_sessions" model="ir.actions.act_window">
         <field name="name">My Sessions</field>
         <field name="res_model">spp.session</field>
-        <!-- Odoo 19: Changed tree to list -->
-        <field name="view_mode">list,form,calendar,kanban</field>
+        <field name="view_mode">list,form,calendar,kanban,graph,pivot</field>
         <field name="context">{'search_default_my_sessions': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">

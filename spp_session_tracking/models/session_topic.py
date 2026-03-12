@@ -11,6 +11,6 @@ class SessionTopic(models.Model):
     name = fields.Char(required=True)
     code = fields.Char()
     description = fields.Text()
-    session_type_id = fields.Many2one("spp.session.type", string="Session Type")
+    session_type_id = fields.Many2one("spp.session.type", string="Session Type", ondelete="cascade")
     sequence = fields.Integer(default=10)
     active = fields.Boolean(default=True)
