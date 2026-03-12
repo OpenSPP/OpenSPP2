@@ -1,0 +1,588 @@
+## UI Testing Guide
+
+This guide covers all user-facing functionality in the `spp_alerts` module.
+Follow each section in order. Each test case includes the steps, what to verify,
+and the expected result.
+
+**Prerequisites:**
+
+- Install the `spp_alerts` module
+- Log in as **admin** (has all permissions by default)
+- Ensure at least one model is available (e.g., `res.partner` — always present)
+
+---
+
+## 1. Navigation and Menu Access
+
+**TC-1.1: Menu visibility**
+
+1. Navigate to **Settings > Technical**
+2. Scroll down to find the **Alerts** section
+
+**Verify:**
+
+- [ ] An **Alerts** menu group is visible under Settings > Technical
+- [ ] It contains two submenus: **Alerts** and **Alert Rules**
+
+**TC-1.2: URL paths**
+
+1. Navigate to **Settings > Technical > Alerts > Alerts**
+2. Check the browser URL
+
+**Verify:**
+
+- [ ] URL ends with `/odoo/alerts`
+
+3. Navigate to **Settings > Technical > Alerts > Alert Rules**
+
+**Verify:**
+
+- [ ] URL ends with `/odoo/alert-rules`
+
+---
+
+## 2. Alert Rules — List View
+
+**TC-2.1: Empty state**
+
+1. Navigate to **Settings > Technical > Alerts > Alert Rules**
+2. Remove any active search filters
+
+**Verify (if no rules exist):**
+
+- [ ] Empty state shows smiley face icon
+- [ ] Message reads: "No alert rules configured"
+- [ ] Description mentions configuring rules for thresholds, expiry dates, and deadlines
+
+**TC-2.2: List view columns**
+
+1. Create at least one alert rule (see TC-3.1)
+2. Return to the list view
+
+**Verify:**
+
+- [ ] Columns visible: drag handle (sequence), Name, Alert Type, Model to Monitor, Rule Type, Priority, Threshold Value, Days Before, Active
+- [ ] Rule Type, Threshold Value, and Days Before have "optional column" toggles
+- [ ] Rows can be reordered by dragging the handle icon
+- [ ] Sample data appears in the background when the list is empty
+
+**TC-2.3: Search and filters**
+
+1. Click the search bar
+2. Try searching by Name, Alert Type, and Model
+
+**Verify:**
+
+- [ ] Filters available: Active, Inactive, Critical Priority, High Priority
+- [ ] Group By options: Alert Type, Model, Priority, Rule Type
+
+---
+
+## 3. Alert Rules — Form View
+
+**TC-3.1: Create a threshold rule**
+
+1. Click **New** on the Alert Rules list
+2. Fill in:
+   - **Rule Name**: "Test Low Color Warning"
+   - **Alert Type**: select "Threshold Alert" from the dropdown (cannot type to create new)
+   - **Default Priority**: "High"
+   - **Model to Monitor**: select "Contact" (res.partner)
+   - **Rule Type**: select "Threshold"
+3. Optionally add a **Description** in the text area below the main fields
+4. Observe the **Evaluation** tab appears after selecting Rule Type
+
+**Verify:**
+
+- [ ] Alert Type dropdown does NOT show a "Create" option
+- [ ] After selecting Model and Rule Type, the Evaluation tab appears
+- [ ] Evaluation tab shows **Threshold Settings** section with: Monitored Field, Comparison, Threshold Value
+
+5. In the Evaluation tab:
+   - **Monitored Field**: select "Color Index" (or any numeric field)
+   - **Comparison**: "Less Than (<)"
+   - **Threshold Value**: 5
+6. Under **Record Filter**, observe the visual domain builder
+
+**Verify:**
+
+- [ ] Domain builder shows fields from the selected model (Contact/res.partner)
+- [ ] You can add filter conditions visually (e.g., "Active is set")
+
+7. Save the rule
+
+**Verify:**
+
+- [ ] Rule saves without errors
+- [ ] Chatter (message log) appears at the bottom of the form
+- [ ] An **Alerts** stat button appears in the top-right showing "0 Alerts"
+
+**TC-3.2: Create a date rule**
+
+1. Create a new rule:
+   - **Rule Name**: "Test Deadline Warning"
+   - **Alert Type**: "Deadline Alert"
+   - **Model to Monitor**: "Contact"
+   - **Rule Type**: "Date / Deadline"
+
+**Verify:**
+
+- [ ] Evaluation tab shows **Date Settings** section (not Threshold Settings)
+- [ ] Date Settings has: Date Field and Days Before
+
+2. Fill in:
+   - **Date Field**: select "Last Updated on" (write_date) or any date/datetime field
+   - **Days Before**: 30
+3. Save
+
+**Verify:**
+
+- [ ] Rule saves without errors
+
+**TC-3.3: Run Now button**
+
+1. Open the threshold rule created in TC-3.1
+2. Click the **Run Now** button in the header
+
+**Verify:**
+
+- [ ] A notification appears: "X alert(s) created by rule 'Test Low Color Warning'"
+- [ ] The Alerts stat button count updates to reflect created alerts
+- [ ] Click the stat button — it opens a filtered list of alerts from this rule
+
+**TC-3.4: Archive and unarchive**
+
+1. Open any rule
+2. Click **Action > Archive**
+
+**Verify:**
+
+- [ ] A red **Archived** ribbon appears on the form
+- [ ] The rule disappears from the default list view (which filters active rules)
+
+3. In the list view, add the "Inactive" filter
+
+**Verify:**
+
+- [ ] The archived rule appears
+- [ ] Open it and click **Action > Unarchive** — ribbon disappears
+
+**TC-3.5: Validation errors**
+
+1. Create a new rule with Rule Type = "Threshold" but leave Monitored Field empty
+2. Try to save
+
+**Verify:**
+
+- [ ] Error: "A monitored field is required for threshold rules."
+
+3. Create a new rule with Rule Type = "Date / Deadline" but leave Date Field empty
+4. Try to save
+
+**Verify:**
+
+- [ ] Error: "A date field is required for date rules."
+
+5. Create a rule and set Domain Filter to an invalid expression (e.g., type `INVALID` in
+   the domain builder's code editor if available)
+6. Try to save
+
+**Verify:**
+
+- [ ] Error: "Invalid domain filter: ..."
+
+**TC-3.6: Run Now without configuration**
+
+1. Create a rule with no Rule Type and no Model
+2. Observe the header
+
+**Verify:**
+
+- [ ] The **Run Now** button is NOT visible (it requires both Rule Type and Model)
+
+---
+
+## 4. Alerts — Creating Manually
+
+**TC-4.1: Create a manual alert**
+
+1. Navigate to **Settings > Technical > Alerts > Alerts**
+2. Click **New**
+3. Fill in:
+   - **Alert Type**: "Manual Alert"
+   - **Priority**: "Critical"
+   - **Title**: "Test Manual Alert"
+4. Go to the **Details** tab and add a description
+5. Save
+
+**Verify:**
+
+- [ ] Reference auto-generated in format `ALR-YYYY-NNNNN` (e.g., ALR-2026-00001)
+- [ ] State shows "Active" in the statusbar
+- [ ] **Acknowledge** button (blue) is visible in the header
+- [ ] **Resolve** button (green) is visible in the header
+- [ ] Priority and Alert Type fields are editable
+- [ ] Chatter (message log) appears at the bottom
+- [ ] No "View Source" or "Related Alerts" stat buttons (manual alert has no source)
+
+**TC-4.2: Unique references**
+
+1. Create three alerts quickly
+
+**Verify:**
+
+- [ ] Each alert gets a unique, sequential reference number
+
+---
+
+## 5. Alerts — List View
+
+**TC-5.1: List view appearance**
+
+1. Navigate to **Settings > Technical > Alerts > Alerts**
+2. Ensure some alerts exist (use Run Now on a rule, or create manually)
+
+**Verify:**
+
+- [ ] Columns visible: Reference, Title, Alert Type, Priority (badge), State (badge), Created On
+- [ ] Critical-priority rows have a red tint
+- [ ] High-priority rows have an orange/warning tint
+- [ ] Resolved rows are muted/grayed out
+- [ ] Priority badges: Critical = red, High = orange, Medium = blue
+- [ ] State badges: Active = red, Acknowledged = orange, Resolved = green
+- [ ] Source Rule and Company columns are hidden by default (use optional column toggle)
+- [ ] Default filter shows only Active alerts (check search bar for "Active" filter chip)
+
+**TC-5.2: Search panel**
+
+1. Look at the left side of the list view
+
+**Verify:**
+
+- [ ] Search panel shows three filter groups: State, Priority, Alert Type
+- [ ] Each option shows a count of matching alerts
+- [ ] Clicking a filter value narrows the list immediately
+
+**TC-5.3: Search filters and Group By**
+
+1. Click the search bar
+
+**Verify:**
+
+- [ ] Can search by Reference, Title, Alert Type
+- [ ] Filters: Active, Acknowledged, Resolved, Critical, High Priority
+- [ ] Group By: State, Priority, Type
+
+---
+
+## 6. Alerts — Kanban View
+
+**TC-6.1: Switch to kanban**
+
+1. On the Alerts list, click the kanban view icon (grid icon in the view switcher)
+
+**Verify:**
+
+- [ ] Alerts are displayed as cards grouped into columns by State: Active, Acknowledged, Resolved
+- [ ] Each column header shows the state name and alert count
+- [ ] A colored progress bar appears at the top of each column showing priority distribution
+  (gray = low, blue = medium, orange = high, red = critical)
+- [ ] Quick create is disabled (no "+" button at top of columns)
+
+**TC-6.2: Kanban card content**
+
+1. Examine an alert card
+
+**Verify:**
+
+- [ ] Card shows: priority stars, reference (bold), title, alert type, creation date
+- [ ] A three-dot dropdown menu appears on hover (top-right of card)
+
+**TC-6.3: Kanban dropdown actions**
+
+1. Hover over an **Active** alert card and click the three-dot menu
+
+**Verify:**
+
+- [ ] Dropdown shows: **Acknowledge** and **Resolve**
+
+2. Click **Acknowledge**
+
+**Verify:**
+
+- [ ] Card moves to the Acknowledged column
+
+3. Hover over the now-acknowledged card, open dropdown
+
+**Verify:**
+
+- [ ] Dropdown shows only **Resolve** (Acknowledge is gone)
+
+4. Click **Resolve**
+
+**Verify:**
+
+- [ ] A dialog or form opens requesting resolution notes (since the action requires notes)
+
+---
+
+## 7. Alert State Transitions
+
+**TC-7.1: Active to Acknowledged**
+
+1. Open an Active alert
+2. Click the **Acknowledge** button
+
+**Verify:**
+
+- [ ] State changes to "Acknowledged"
+- [ ] Statusbar updates to highlight "Acknowledged"
+- [ ] Acknowledge button disappears
+- [ ] Resolve button remains visible
+- [ ] Fields (Alert Type, Priority, Title) are still editable
+- [ ] Chatter logs a state change message
+
+**TC-7.2: Acknowledged to Resolved**
+
+1. On the acknowledged alert, go to the **Resolution** tab
+
+**Verify:**
+
+- [ ] An info banner reads: "Please add resolution notes describing how this alert was addressed, then click Resolve."
+- [ ] Resolved By and Resolved At fields are empty
+
+2. Enter resolution notes in the text area
+3. Click the **Resolve** button
+
+**Verify:**
+
+- [ ] State changes to "Resolved"
+- [ ] Resolved By shows your user name
+- [ ] Resolved At shows the current timestamp
+- [ ] Resolution Notes are preserved and now read-only
+- [ ] Info banner disappears
+- [ ] Both Acknowledge and Resolve buttons disappear
+- [ ] All main fields (Alert Type, Priority, Title, Description) become read-only
+
+**TC-7.3: Active to Resolved directly (skip Acknowledge)**
+
+1. Create a new alert and leave it in Active state
+2. Go to the **Resolution** tab
+3. Enter resolution notes
+4. Click **Resolve**
+
+**Verify:**
+
+- [ ] Alert goes directly from Active to Resolved (skipping Acknowledged)
+- [ ] All resolution fields are populated correctly
+
+**TC-7.4: Resolve without notes**
+
+1. Create a new Active alert
+2. Click **Resolve** without entering resolution notes
+
+**Verify:**
+
+- [ ] Error message: "Please provide resolution notes before resolving the alert."
+- [ ] Alert remains in its current state
+
+**TC-7.5: Double-acknowledge prevention**
+
+1. Acknowledge an alert
+2. Try to acknowledge it again (via API or another browser tab)
+
+**Verify:**
+
+- [ ] Error: "Only active alerts can be acknowledged."
+- [ ] The Acknowledge button is not visible on the form (it only shows for Active alerts)
+
+**TC-7.6: Double-resolve prevention**
+
+1. Resolve an alert
+2. Try to resolve it again
+
+**Verify:**
+
+- [ ] Error: "Alert 'ALR-YYYY-NNNNN' is already resolved."
+- [ ] The Resolve button is not visible on the form
+
+---
+
+## 8. Alert Form — Rule-Generated Alerts
+
+**TC-8.1: Source tracking fields**
+
+1. Run a rule (via **Run Now** on an alert rule)
+2. Open one of the generated alerts
+
+**Verify:**
+
+- [ ] Right side of the form shows a **Source** section with: Source Rule, Source Model, Source Record, Source Record Name
+- [ ] If the rule is a threshold rule, a **Metrics** section shows: Current Value, Threshold, Days Until
+- [ ] A **View Source** stat button appears in the top-right
+- [ ] A **Related Alerts** stat button appears (if rule created multiple alerts)
+
+**TC-8.2: View Source button**
+
+1. Click the **View Source** stat button
+
+**Verify:**
+
+- [ ] Opens the source record's form view (e.g., a Contact form)
+- [ ] The correct record is displayed
+
+**TC-8.3: Related Alerts button**
+
+1. Go back to the alert and click the **Related Alerts** stat button
+
+**Verify:**
+
+- [ ] Opens a list of other alerts from the same rule (excluding the current alert)
+- [ ] Default filter shows Active alerts
+
+---
+
+## 9. Keyboard Shortcuts
+
+**TC-9.1: Hotkeys**
+
+1. Open an Active alert form
+2. Press **Alt+A** (or the platform equivalent for `data-hotkey="a"`)
+
+**Verify:**
+
+- [ ] Alert is acknowledged
+
+3. Press **Alt+R**
+
+**Verify:**
+
+- [ ] Resolve action is triggered (will ask for notes if none provided)
+
+---
+
+## 10. Cron Job
+
+**TC-10.1: Scheduled action exists**
+
+1. Navigate to **Settings > Technical > Scheduled Actions**
+2. Search for "Alerts"
+
+**Verify:**
+
+- [ ] A scheduled action named **"Alerts: Evaluate Alert Rules"** exists
+- [ ] It is active
+- [ ] Interval is set to 1 day
+
+**TC-10.2: Cron execution**
+
+1. Ensure at least one active alert rule with matching records exists
+2. Click **Run Manually** on the scheduled action
+
+**Verify:**
+
+- [ ] New alerts are created for matching records
+- [ ] No duplicate alerts for records that already have active/acknowledged alerts
+
+---
+
+## 11. Security and Access Control
+
+Test with three different users. Create them via **Settings > Users & Companies > Users**
+and assign the appropriate group under the SPP Admin section.
+
+**TC-11.1: Viewer role**
+
+1. Log in as a user with **Alerts Viewer** group only
+2. Navigate to **Settings > Technical > Alerts > Alerts**
+
+**Verify:**
+
+- [ ] Can see the Alerts menu and list
+- [ ] Can open and read alert details
+- [ ] Cannot create new alerts (New button absent or errors on save)
+- [ ] Cannot edit existing alerts
+- [ ] Cannot acknowledge or resolve alerts (buttons error on click)
+- [ ] **Alert Rules** submenu is NOT visible
+
+**TC-11.2: Officer role**
+
+1. Log in as a user with **Alerts Officer** group
+2. Navigate to **Settings > Technical > Alerts > Alerts**
+
+**Verify:**
+
+- [ ] Can create new alerts
+- [ ] Can edit alerts (change priority, title, etc.)
+- [ ] Can acknowledge and resolve alerts
+- [ ] Cannot delete alerts
+- [ ] Can see **Alert Rules** submenu but rules are read-only
+- [ ] Cannot create or edit alert rules
+
+**TC-11.3: Manager role**
+
+1. Log in as a user with **Alerts Manager** group
+
+**Verify:**
+
+- [ ] Full access to alerts: create, read, update, delete
+- [ ] Full access to alert rules: create, read, update, delete
+- [ ] Can click **Run Now** on alert rules
+- [ ] Can archive/unarchive rules
+
+---
+
+## 12. Multi-Company (if applicable)
+
+Only test this section if multi-company is enabled.
+
+**TC-12.1: Company isolation**
+
+1. Create an alert in Company A
+2. Switch to Company B
+
+**Verify:**
+
+- [ ] The alert from Company A is not visible in Company B
+- [ ] New alerts default to the current company
+
+---
+
+## 13. Alert Types (Vocabulary)
+
+**TC-13.1: Pre-installed types**
+
+1. Open any alert or rule form
+2. Click the **Alert Type** dropdown
+
+**Verify the following types are available:**
+
+- [ ] Threshold Alert
+- [ ] Expiry Alert
+- [ ] Deadline Alert
+- [ ] Manual Alert
+- [ ] System Alert
+- [ ] Cannot create new types from the dropdown (no "Create" option)
+
+---
+
+## 14. Edge Cases
+
+**TC-14.1: Empty state**
+
+1. Delete or resolve all alerts
+2. Remove the "Active" default filter
+
+**Verify:**
+
+- [ ] Empty state shows: "No active alerts" with smiley face
+
+**TC-14.2: Sorting**
+
+1. Create alerts with different priorities (low, medium, high, critical)
+2. View the list (default sort)
+
+**Verify:**
+
+- [ ] Alerts are sorted by priority (critical first) then by creation date (newest first)
+- [ ] This is semantic ordering: critical > high > medium > low (not alphabetical)
