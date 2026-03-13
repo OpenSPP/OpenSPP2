@@ -3,17 +3,36 @@
 This guide provides practical examples of using vocabulary-aware CEL functions in
 OpenSPP eligibility rules and filters.
 
+> **Note:** Both `r` and `me` are valid prefixes for the registrant symbol. This guide uses `r` (matching ADR-008). The `me` alias is available via YAML profile configuration.
+
 ## Quick Reference
 
-| Function                 | Purpose                        | Example                                  |
-| ------------------------ | ------------------------------ | ---------------------------------------- |
-| `code(id)`               | Resolve code by URI/alias      | `me.gender == code("female")`            |
-| `in_group(field, group)` | Check concept group membership | `in_group(me.gender, "feminine_gender")` |
-| `code_eq(field, id)`     | Safe code comparison           | `code_eq(me.gender, "female")`           |
-| `is_female(field)`       | Check feminine gender          | `is_female(me.gender)`                   |
-| `is_male(field)`         | Check masculine gender         | `is_male(me.gender)`                     |
-| `is_head(field)`         | Check head of household        | `is_head(me.relationship)`               |
-| `is_pregnant(field)`     | Check pregnancy status         | `is_pregnant(me.pregnancy_status)`       |
+| Function                 | Purpose                        | Example                                    |
+| ------------------------ | ------------------------------ | ------------------------------------------ |
+| `code(id)`               | Resolve code by URI/alias      | `r.gender_id == code("female")`            |
+| `in_group(field, group)` | Check concept group membership | `in_group(r.gender_id, "feminine_gender")` |
+| `code_eq(field, id)`     | Safe code comparison           | `code_eq(r.gender_id, "female")`           |
+| `is_female(field)`       | Check feminine gender          | `is_female(r.gender_id)`                   |
+| `is_male(field)`         | Check masculine gender         | `is_male(r.gender_id)`                     |
+| `is_head(field)`         | Check head of household code   | `is_head(r.relationship_type)`             |
+| `is_pregnant(field)`     | Check pregnancy status         | `is_pregnant(r.pregnancy_status_id)`       |
+| `head(member)`           | Check if member is household head | `head(m)` (takes member record, not a code field) |
+
+### When to Use Which Function
+
+| Need | Use | Example |
+|------|-----|---------|
+| Check if a code belongs to a semantic group | `in_group()` | `in_group(r.gender_id, "feminine_gender")` |
+| Use a predefined semantic check | `is_female()`, `is_male()`, etc. | `is_female(r.gender_id)` |
+| Compare a field to a specific code | `code_eq()` | `code_eq(r.gender_id, "female")` |
+| Use a code value in a comparison | `code()` | `r.gender_id == code("female")` |
+| Check if member is head of household | `head()` | `head(m)` |
+
+**`is_female(r.gender_id)`** vs **`in_group(r.gender_id, "feminine_gender")`**: Identical behavior. Semantic helpers are shortcuts for `in_group()` with standard concept groups.
+
+**`code_eq(r.gender_id, "female")`** vs **`r.gender_id == code("female")`**: Identical behavior. `code_eq()` is more concise; the comparison form is more readable for complex expressions.
+
+**`is_head(code_field)`** vs **`head(member)`**: Different! `is_head()` checks if a vocabulary code is in the head_of_household group. `head()` checks if a member record is the head of their household (looks up membership type).
 
 ## Basic Examples
 
@@ -22,19 +41,19 @@ OpenSPP eligibility rules and filters.
 **Use Case:** Filter for female registrants
 
 ```cel
-is_female(me.gender)
+is_female(r.gender_id)
 ```
 
 **What it does:**
 
-- Checks if `me.gender` is in the `feminine_gender` concept group
+- Checks if `r.gender_id` is in the `feminine_gender` concept group
 - Works with any code in the group (including local codes)
 - Returns boolean (true/false)
 
 **Equivalent to:**
 
 ```cel
-in_group(me.gender, "feminine_gender")
+in_group(r.gender_id, "feminine_gender")
 ```
 
 ### Example 2: Code Comparison
@@ -42,20 +61,20 @@ in_group(me.gender, "feminine_gender")
 **Use Case:** Check if gender is explicitly "Female"
 
 ```cel
-code_eq(me.gender, "Female")
+code_eq(r.gender_id, "Female")
 ```
 
 **What it does:**
 
 - Resolves "Female" to a vocabulary code
-- Compares `me.gender` to that code
+- Compares `r.gender_id` to that code
 - Handles local codes via `reference_uri`
 
 **Also works with:**
 
 ```cel
-me.gender == code("Female")
-me.gender == code("urn:iso:std:iso:5218#2")  # By URI
+r.gender_id == code("Female")
+r.gender_id == code("urn:iso:std:iso:5218#2")  # By URI
 ```
 
 ### Example 3: Head of Household
@@ -63,14 +82,16 @@ me.gender == code("urn:iso:std:iso:5218#2")  # By URI
 **Use Case:** Find heads of households
 
 ```cel
-is_head(me.relationship_type)
+is_head(r.relationship_type)
 ```
 
 **In group context:**
 
 ```cel
-members.exists(m, is_head(m._link.kind))
+members.exists(m, head(m))
 ```
+
+> **Note:** Functions like `age_years()`, `members.exists()`, and `members.count()` are provided by `spp_cel_domain`, not this module.
 
 ## Complex Eligibility Rules
 
@@ -78,8 +99,10 @@ members.exists(m, is_head(m._link.kind))
 
 **Use Case:** Female registrants who are pregnant
 
+> **Note:** Fields like `pregnancy_status_id` and `hazard_type_id` are provided by country-specific modules, not the base registry.
+
 ```cel
-is_female(me.gender) and is_pregnant(me.pregnancy_status)
+is_female(r.gender_id) and is_pregnant(r.pregnancy_status_id)
 ```
 
 **What it checks:**
@@ -93,7 +116,7 @@ is_female(me.gender) and is_pregnant(me.pregnancy_status)
 
 ```cel
 members.exists(m,
-    is_head(m._link.kind) and is_female(m.gender)
+    head(m) and is_female(m.gender_id)
 )
 ```
 
@@ -108,7 +131,7 @@ members.exists(m,
 **Use Case:** Pregnant women or mothers with infants
 
 ```cel
-is_pregnant(me.pregnancy_status) or
+is_pregnant(r.pregnancy_status_id) or
   members.exists(child,
     age_years(child.birthdate) < 1
   )
@@ -124,8 +147,8 @@ is_pregnant(me.pregnancy_status) or
 **Use Case:** Households affected by climate hazards
 
 ```cel
-in_group(me.hazard_type, "climate_hazards") and
-  me.affected_date >= days_ago(90)
+in_group(r.hazard_type_id, "climate_hazards") and
+  r.affected_date >= days_ago(90)
 ```
 
 **What it checks:**
@@ -139,7 +162,7 @@ in_group(me.hazard_type, "climate_hazards") and
 
 ```cel
 members.exists(head,
-    is_head(head._link.kind) and is_female(head.gender)
+    head(head) and is_female(head.gender_id)
 ) and
 members.exists(child,
     age_years(child.birthdate) < 18
@@ -168,7 +191,7 @@ members.exists(child,
 **CEL Expression:**
 
 ```cel
-is_female(me.gender)
+is_female(r.gender_id)
 ```
 
 **Works for all of:**
@@ -189,7 +212,7 @@ is_female(me.gender)
 **CEL Expression:**
 
 ```cel
-in_group(me.hazard_type, "climate_hazards")
+in_group(r.hazard_type_id, "climate_hazards")
 ```
 
 **Matches:**
@@ -207,7 +230,7 @@ in_group(me.hazard_type, "climate_hazards")
 ```cel
 # Female head of household
 members.exists(m,
-    is_head(m._link.kind) and is_female(m.gender)
+    head(m) and is_female(m.gender_id)
 ) and
 
 # With children under 14
@@ -217,12 +240,12 @@ members.exists(child,
 
 # Either pregnant or recently gave birth
 (
-    is_pregnant(me.pregnancy_status) or
-    (me.last_birth_date >= days_ago(180))
+    is_pregnant(r.pregnancy_status_id) or
+    (r.last_birth_date >= days_ago(180))
 ) and
 
 # Low income
-me.monthly_income < 5000
+r.monthly_income < 5000
 ```
 
 ### Example 12: Priority Scoring
@@ -234,13 +257,13 @@ me.monthly_income < 5000
 50 +
 
 # +20 points for female head
-(members.exists(m, is_head(m._link.kind) and is_female(m.gender)) ? 20 : 0) +
+(members.exists(m, head(m) and is_female(m.gender_id)) ? 20 : 0) +
 
 # +15 points per child under 5
 (members.count(m, age_years(m.birthdate) < 5) * 15) +
 
 # +25 points if pregnant
-(is_pregnant(me.pregnancy_status) ? 25 : 0) +
+(is_pregnant(r.pregnancy_status_id) ? 25 : 0) +
 
 # +10 points for elderly member
 (members.exists(m, age_years(m.birthdate) >= 60) ? 10 : 0)
@@ -252,8 +275,8 @@ me.monthly_income < 5000
 
 ```cel
 # In flood-prone area
-in_group(me.location_hazard_risk, "climate_hazards") and
-in_group(me.location_hazard_type, "water_related") and
+in_group(r.location_hazard_risk, "climate_hazards") and
+in_group(r.location_hazard_type, "water_related") and
 
 # With vulnerable members
 (
@@ -262,9 +285,9 @@ in_group(me.location_hazard_type, "water_related") and
     # Elderly
     members.exists(m, age_years(m.birthdate) >= 60) or
     # Pregnant women
-    members.exists(m, is_pregnant(m.pregnancy_status)) or
+    members.exists(m, is_pregnant(m.pregnancy_status_id)) or
     # Persons with disability
-    members.exists(m, in_group(m.disability_type, "persons_with_disability"))
+    members.exists(m, in_group(m.disability_type_id, "persons_with_disability"))
 )
 ```
 
@@ -275,9 +298,9 @@ in_group(me.location_hazard_type, "water_related") and
 **Use Case:** Women of reproductive age
 
 ```cel
-is_female(me.gender) and
-age_years(me.birthdate) >= 15 and
-age_years(me.birthdate) <= 49
+is_female(r.gender_id) and
+age_years(r.birthdate) >= 15 and
+age_years(r.birthdate) <= 49
 ```
 
 ### Example 15: Time-based Eligibility
@@ -285,8 +308,8 @@ age_years(me.birthdate) <= 49
 **Use Case:** Recently affected households
 
 ```cel
-in_group(me.hazard_type, "climate_hazards") and
-days_since(me.affected_date) <= 90
+in_group(r.hazard_type_id, "climate_hazards") and
+days_since(r.affected_date) <= 90
 ```
 
 ### Example 16: Enrollment Status
@@ -294,8 +317,8 @@ days_since(me.affected_date) <= 90
 **Use Case:** Unenrolled eligible individuals
 
 ```cel
-is_female(me.gender) and
-age_years(me.birthdate) >= 18 and
+is_female(r.gender_id) and
+age_years(r.birthdate) >= 18 and
 enrollments.count(e, e.state == "enrolled") == 0
 ```
 
@@ -326,10 +349,12 @@ print(code.display)  # Female
 
 ### Validate Expression
 
+> **Note:** `validate_expression()` checks whether an expression is syntactically and semantically valid and returns `{valid: True/False, error: ...}`. Use `compile_expression()` to compile an expression to a domain/plan and return the full translation result.
+
 ```python
 service = env['spp.cel.service']
 result = service.validate_expression(
-    'is_female(me.gender)',
+    'is_female(r.gender_id)',
     'registry_individuals'
 )
 
@@ -345,20 +370,20 @@ print(result['error'])    # Error message if invalid
 ✅ **Use concept groups for semantic checks**
 
 ```cel
-in_group(me.hazard_type, "climate_hazards")
+in_group(r.hazard_type_id, "climate_hazards")
 ```
 
 ✅ **Cache code resolution** (automatic via `@ormcache`)
 
 ```cel
-is_female(me.gender)  # First call resolves, subsequent calls cached
+is_female(r.gender_id)  # First call resolves, subsequent calls cached
 ```
 
 ✅ **Combine conditions efficiently**
 
 ```cel
 # Good: Short-circuit evaluation
-is_female(me.gender) and is_pregnant(me.pregnancy_status)
+is_female(r.gender_id) and is_pregnant(r.pregnancy_status_id)
 ```
 
 ### Don'ts
@@ -367,23 +392,23 @@ is_female(me.gender) and is_pregnant(me.pregnancy_status)
 
 ```cel
 # Bad: Multiple lookups
-me.gender == code("female") and me.gender == code("F")
+r.gender_id == code("female") and r.gender_id == code("F")
 
 # Good: Use concept group
-in_group(me.gender, "feminine_gender")
+in_group(r.gender_id, "feminine_gender")
 ```
 
 ❌ **Don't nest complex expressions**
 
 ```cel
 # Bad: Hard to read and maintain
-members.exists(m, in_group(m.gender, "feminine_gender") and
+members.exists(m, in_group(m.gender_id, "feminine_gender") and
     age_years(m.birthdate) < 5 and
     members.exists(n, n.id != m.id and age_years(n.birthdate) < 10))
 
 # Good: Break into separate conditions
 members.exists(m,
-    in_group(m.gender, "feminine_gender") and
+    in_group(m.gender_id, "feminine_gender") and
     age_years(m.birthdate) < 5
 ) and
 members.count(m, age_years(m.birthdate) < 10) >= 2
@@ -396,7 +421,7 @@ members.count(m, age_years(m.birthdate) < 10) >= 2
 **Problem:**
 
 ```cel
-in_group(me.status, "nonexistent_group")
+in_group(r.status, "nonexistent_group")
 ```
 
 **Result:** Always returns false, domain matches nothing
@@ -408,7 +433,7 @@ in_group(me.status, "nonexistent_group")
 **Problem:**
 
 ```cel
-is_female(me.name)  # name is Char, not Many2one to vocabulary.code
+is_female(r.name)  # name is Char, not Many2one to vocabulary.code
 ```
 
 **Result:** Type error or unexpected behavior
@@ -420,7 +445,7 @@ is_female(me.name)  # name is Char, not Many2one to vocabulary.code
 **Problem:**
 
 ```cel
-in_group(me.gender, "feminine_gender")  # Group exists but has no codes
+in_group(r.gender_id, "feminine_gender")  # Group exists but has no codes
 ```
 
 **Result:** Always returns false
@@ -432,7 +457,7 @@ in_group(me.gender, "feminine_gender")  # Group exists but has no codes
 **Problem:**
 
 ```cel
-code_eq(me.gender, "FEMALE")  # Wrong case
+code_eq(r.gender_id, "FEMALE")  # Wrong case
 ```
 
 **Result:** May not match if vocabulary uses "Female"
@@ -445,12 +470,12 @@ code_eq(me.gender, "FEMALE")  # Wrong case
 
 ```cel
 # Old (fragile)
-me.gender.code == "F" or me.gender.code == "female"
+r.gender_id.code == "F" or r.gender_id.code == "female"
 ```
 
 ```cel
 # New (robust)
-is_female(me.gender)
+is_female(r.gender_id)
 ```
 
 ### Before: Hardcoded Values
@@ -463,19 +488,19 @@ if member.gender_id.code == "F":
 
 ```cel
 # New (robust)
-is_female(me.gender)
+is_female(r.gender_id)
 ```
 
 ### Before: No Local Code Support
 
 ```cel
 # Old (doesn't work with local codes)
-me.gender.code == "F"
+r.gender_id.code == "F"
 ```
 
 ```cel
 # New (works with "F", "Female", "babae", etc.)
-is_female(me.gender)
+is_female(r.gender_id)
 ```
 
 ## References
