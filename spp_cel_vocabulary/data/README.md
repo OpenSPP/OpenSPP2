@@ -36,7 +36,8 @@ them.
 
 Concept groups are created via `post_init_hook` in Python and have no XML IDs. The XML
 IDs shown below (e.g. `spp_cel_vocabulary.group_feminine_gender`) are **for illustration
-only** and will not resolve in practice. Use a Python-based lookup instead (see Option 3).
+only** and will not resolve in practice. Use a Python-based lookup instead (see Option
+3).
 
 Create a data file in your deployment module:
 
@@ -231,8 +232,8 @@ If you need additional concept groups:
 
 > **Note on `cel_function`:** This field is metadata only. It records which CEL helper
 > function maps to this group, but setting it does **not** automatically create or
-> register a new CEL function. New functions must be implemented in Python and registered
-> separately in your module.
+> register a new CEL function. New functions must be implemented in Python and
+> registered separately in your module.
 
 Then use in CEL:
 

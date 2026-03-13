@@ -6,7 +6,8 @@ This module extends the CEL (Common Expression Language) system with vocabulary-
 functions that enable robust eligibility rules across different deployment vocabularies.
 
 > **Note:** Both `r` and `me` are valid prefixes for the registrant symbol. This guide
-> uses `r` (matching ADR-008). The `me` alias is available via YAML profile configuration.
+> uses `r` (matching ADR-008). The `me` alias is available via YAML profile
+> configuration.
 
 ## Features
 
@@ -47,7 +48,8 @@ User-friendly functions for common checks:
 - `is_male(code_field)` - Check if code is in masculine_gender group
 - `is_head(code_field)` - Check if code is in head_of_household group
 - `is_pregnant(code_field)` - Check if code is in pregnant_eligible group
-- `head(member)` - Check if a member is the head of household (takes a member record, not a code field)
+- `head(member)` - Check if a member is the head of household (takes a member record,
+  not a code field)
 
 ### Example Usage
 
@@ -129,8 +131,8 @@ Translates to:
 ### Concept Groups
 
 Standard concept groups are created automatically via `post_init_hook` on module
-installation (search-or-create pattern, safe for upgrades). They have no XML IDs —
-look them up by name.
+installation (search-or-create pattern, safe for upgrades). They have no XML IDs — look
+them up by name.
 
 To add codes to a group via data files:
 
@@ -197,10 +199,12 @@ spp_cel_vocabulary/
 ### Design Patterns
 
 1. **Pure Functions** - Services contain stateless Python functions
-2. **Environment Injection** - Functions marked with `_cel_needs_env=True`; CEL service injects fresh env at evaluation time
+2. **Environment Injection** - Functions marked with `_cel_needs_env=True`; CEL service
+   injects fresh env at evaluation time
 3. **Function Registry** - Dynamic registration with CEL system
 4. **Domain Translation** - AST transformation to Odoo domains
-5. **Two-Layer Caching** - `@ormcache` (registry-scoped) + `VocabularyCache` (session-scoped)
+5. **Two-Layer Caching** - `@ormcache` (registry-scoped) + `VocabularyCache`
+   (session-scoped)
 
 ## Testing
 

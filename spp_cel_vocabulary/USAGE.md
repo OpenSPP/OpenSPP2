@@ -3,36 +3,44 @@
 This guide provides practical examples of using vocabulary-aware CEL functions in
 OpenSPP eligibility rules and filters.
 
-> **Note:** Both `r` and `me` are valid prefixes for the registrant symbol. This guide uses `r` (matching ADR-008). The `me` alias is available via YAML profile configuration.
+> **Note:** Both `r` and `me` are valid prefixes for the registrant symbol. This guide
+> uses `r` (matching ADR-008). The `me` alias is available via YAML profile
+> configuration.
 
 ## Quick Reference
 
-| Function                 | Purpose                        | Example                                    |
-| ------------------------ | ------------------------------ | ------------------------------------------ |
-| `code(id)`               | Resolve code by URI/alias      | `r.gender_id == code("female")`            |
-| `in_group(field, group)` | Check concept group membership | `in_group(r.gender_id, "feminine_gender")` |
-| `code_eq(field, id)`     | Safe code comparison           | `code_eq(r.gender_id, "female")`           |
-| `is_female(field)`       | Check feminine gender          | `is_female(r.gender_id)`                   |
-| `is_male(field)`         | Check masculine gender         | `is_male(r.gender_id)`                     |
-| `is_head(field)`         | Check head of household code   | `is_head(r.relationship_type)`             |
-| `is_pregnant(field)`     | Check pregnancy status         | `is_pregnant(r.pregnancy_status_id)`       |
+| Function                 | Purpose                           | Example                                           |
+| ------------------------ | --------------------------------- | ------------------------------------------------- |
+| `code(id)`               | Resolve code by URI/alias         | `r.gender_id == code("female")`                   |
+| `in_group(field, group)` | Check concept group membership    | `in_group(r.gender_id, "feminine_gender")`        |
+| `code_eq(field, id)`     | Safe code comparison              | `code_eq(r.gender_id, "female")`                  |
+| `is_female(field)`       | Check feminine gender             | `is_female(r.gender_id)`                          |
+| `is_male(field)`         | Check masculine gender            | `is_male(r.gender_id)`                            |
+| `is_head(field)`         | Check head of household code      | `is_head(r.relationship_type)`                    |
+| `is_pregnant(field)`     | Check pregnancy status            | `is_pregnant(r.pregnancy_status_id)`              |
 | `head(member)`           | Check if member is household head | `head(m)` (takes member record, not a code field) |
 
 ### When to Use Which Function
 
-| Need | Use | Example |
-|------|-----|---------|
-| Check if a code belongs to a semantic group | `in_group()` | `in_group(r.gender_id, "feminine_gender")` |
-| Use a predefined semantic check | `is_female()`, `is_male()`, etc. | `is_female(r.gender_id)` |
-| Compare a field to a specific code | `code_eq()` | `code_eq(r.gender_id, "female")` |
-| Use a code value in a comparison | `code()` | `r.gender_id == code("female")` |
-| Check if member is head of household | `head()` | `head(m)` |
+| Need                                        | Use                              | Example                                    |
+| ------------------------------------------- | -------------------------------- | ------------------------------------------ |
+| Check if a code belongs to a semantic group | `in_group()`                     | `in_group(r.gender_id, "feminine_gender")` |
+| Use a predefined semantic check             | `is_female()`, `is_male()`, etc. | `is_female(r.gender_id)`                   |
+| Compare a field to a specific code          | `code_eq()`                      | `code_eq(r.gender_id, "female")`           |
+| Use a code value in a comparison            | `code()`                         | `r.gender_id == code("female")`            |
+| Check if member is head of household        | `head()`                         | `head(m)`                                  |
 
-**`is_female(r.gender_id)`** vs **`in_group(r.gender_id, "feminine_gender")`**: Identical behavior. Semantic helpers are shortcuts for `in_group()` with standard concept groups.
+**`is_female(r.gender_id)`** vs **`in_group(r.gender_id, "feminine_gender")`**:
+Identical behavior. Semantic helpers are shortcuts for `in_group()` with standard
+concept groups.
 
-**`code_eq(r.gender_id, "female")`** vs **`r.gender_id == code("female")`**: Identical behavior. `code_eq()` is more concise; the comparison form is more readable for complex expressions.
+**`code_eq(r.gender_id, "female")`** vs **`r.gender_id == code("female")`**: Identical
+behavior. `code_eq()` is more concise; the comparison form is more readable for complex
+expressions.
 
-**`is_head(code_field)`** vs **`head(member)`**: Different! `is_head()` checks if a vocabulary code is in the head_of_household group. `head()` checks if a member record is the head of their household (looks up membership type).
+**`is_head(code_field)`** vs **`head(member)`**: Different! `is_head()` checks if a
+vocabulary code is in the head_of_household group. `head()` checks if a member record is
+the head of their household (looks up membership type).
 
 ## Basic Examples
 
@@ -91,7 +99,8 @@ is_head(r.relationship_type)
 members.exists(m, head(m))
 ```
 
-> **Note:** Functions like `age_years()`, `members.exists()`, and `members.count()` are provided by `spp_cel_domain`, not this module.
+> **Note:** Functions like `age_years()`, `members.exists()`, and `members.count()` are
+> provided by `spp_cel_domain`, not this module.
 
 ## Complex Eligibility Rules
 
@@ -99,7 +108,8 @@ members.exists(m, head(m))
 
 **Use Case:** Female registrants who are pregnant
 
-> **Note:** Fields like `pregnancy_status_id` and `hazard_type_id` are provided by country-specific modules, not the base registry.
+> **Note:** Fields like `pregnancy_status_id` and `hazard_type_id` are provided by
+> country-specific modules, not the base registry.
 
 ```cel
 is_female(r.gender_id) and is_pregnant(r.pregnancy_status_id)
@@ -349,7 +359,10 @@ print(code.display)  # Female
 
 ### Validate Expression
 
-> **Note:** `validate_expression()` checks whether an expression is syntactically and semantically valid and returns `{valid: True/False, error: ...}`. Use `compile_expression()` to compile an expression to a domain/plan and return the full translation result.
+> **Note:** `validate_expression()` checks whether an expression is syntactically and
+> semantically valid and returns `{valid: True/False, error: ...}`. Use
+> `compile_expression()` to compile an expression to a domain/plan and return the full
+> translation result.
 
 ```python
 service = env['spp.cel.service']
