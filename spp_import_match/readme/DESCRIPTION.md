@@ -6,7 +6,7 @@ Extends Odoo's base import functionality to match incoming records against exist
 - Match on sub-fields within related records (e.g., household ID within individual)
 - Apply conditional matching rules only when specific imported values are present
 - Skip duplicate creation or update existing records when matches are found
-- Process imports with more than 100 records asynchronously using `queue_job`
+- Process imports with more than 100 records asynchronously using `job_worker`
 - Clear one2many/many2many associations before update to prevent duplicate entries
 
 ### Key Models
@@ -46,4 +46,4 @@ After installing:
 
 ### Dependencies
 
-`base`, `spp_base_common`, `base_import`, `queue_job`, `spp_security`
+`base`, `spp_base_common`, `base_import`, `job_worker`, `spp_security`

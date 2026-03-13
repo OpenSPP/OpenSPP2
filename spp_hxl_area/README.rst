@@ -43,32 +43,32 @@ Key Capabilities
   processing → done)
 - Auto-sync indicators to ``spp.data.value`` for CEL expression access
 - Link imports to hazard incidents for disaster response tracking
-- Process imports asynchronously via queue_job
+- Process imports asynchronously via job_worker
 
 Key Models
 ~~~~~~~~~~
 
-+--------------------------------+-------------------------------------+
-| Model                          | Description                         |
-+================================+=====================================+
-| ``spp.hxl.import.profile``     | Configuration defining area         |
-|                                | matching and rules                  |
-+--------------------------------+-------------------------------------+
-| ``spp.hxl.aggregation.rule``   | Rule specifying what to aggregate   |
-|                                | and how                             |
-+--------------------------------+-------------------------------------+
-| ``spp.hxl.import.batch``       | Track one execution of profile      |
-|                                | against HXL file                    |
-+--------------------------------+-------------------------------------+
-| ``spp.hxl.import.mapping``     | Auto-detected column mapping        |
-|                                | (adjustable pre-run)                |
-+--------------------------------+-------------------------------------+
-| ``spp.hxl.area.indicator``     | Aggregated indicator value stored   |
-|                                | per area                            |
-+--------------------------------+-------------------------------------+
-| ``spp.hxl.area.import.wizard`` | Wizard for uploading files and      |
-|                                | previewing matches                  |
-+--------------------------------+-------------------------------------+
++--------------------------------+------------------------------------+
+| Model                          | Description                        |
++================================+====================================+
+| ``spp.hxl.import.profile``     | Configuration defining area        |
+|                                | matching and rules                 |
++--------------------------------+------------------------------------+
+| ``spp.hxl.aggregation.rule``   | Rule specifying what to aggregate  |
+|                                | and how                            |
++--------------------------------+------------------------------------+
+| ``spp.hxl.import.batch``       | Track one execution of profile     |
+|                                | against HXL file                   |
++--------------------------------+------------------------------------+
+| ``spp.hxl.import.mapping``     | Auto-detected column mapping       |
+|                                | (adjustable pre-run)               |
++--------------------------------+------------------------------------+
+| ``spp.hxl.area.indicator``     | Aggregated indicator value stored  |
+|                                | per area                           |
++--------------------------------+------------------------------------+
+| ``spp.hxl.area.import.wizard`` | Wizard for uploading files and     |
+|                                | previewing matches                 |
++--------------------------------+------------------------------------+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -94,15 +94,13 @@ UI Location
 Security
 ~~~~~~~~
 
-+----------------------------------+-----------------------------------+
-| Group                            | Access                            |
-+==================================+===================================+
-| ``spp_security.group_spp_admin`` | Full CRUD on profiles, rules,     |
-|                                  | indicators                        |
-+----------------------------------+-----------------------------------+
-| ``base.group_user``              | Read profiles/rules; create/edit  |
-|                                  | batches                           |
-+----------------------------------+-----------------------------------+
++----------------------------------+------------------------------------------+
+| Group                            | Access                                   |
++==================================+==========================================+
+| ``spp_security.group_spp_admin`` | Full CRUD on profiles, rules, indicators |
++----------------------------------+------------------------------------------+
+| ``base.group_user``              | Read profiles/rules; create/edit batches |
++----------------------------------+------------------------------------------+
 
 Extension Points
 ~~~~~~~~~~~~~~~~
@@ -118,7 +116,7 @@ Dependencies
 ~~~~~~~~~~~~
 
 ``spp_hxl``, ``spp_area``, ``spp_cel_domain``, ``spp_hazard``,
-``spp_security``, ``queue_job``
+``spp_security``, ``job_worker``
 
 **Table of contents**
 
