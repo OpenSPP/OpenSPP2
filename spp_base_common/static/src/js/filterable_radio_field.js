@@ -5,7 +5,7 @@ import {registry} from "@web/core/registry";
 import {_t} from "@web/core/l10n/translation";
 
 /**
- * A radio widget that supports disabling individual options based on
+ * A radio widget that supports hiding individual options based on
  * boolean fields on the record.
  *
  * Usage in XML views:
@@ -22,7 +22,7 @@ import {_t} from "@web/core/l10n/translation";
  *
  * The `disabled_map` option maps selection values to boolean field names.
  * When the boolean field is falsy, the corresponding radio option is
- * rendered as disabled (grayed out, not clickable).
+ * hidden from the user.
  */
 export class FilterableRadioField extends RadioField {
     static template = "spp_base_common.FilterableRadioField";

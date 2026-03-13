@@ -55,6 +55,15 @@ class SPPCRDetailUpdateID(models.Model):
         help="Upload scanned copies or photos of the ID document",
     )
     remarks = fields.Text(string="Remarks", tracking=True)
+    is_operation_locked = fields.Boolean(
+        string="Operation Locked",
+        default=False,
+        help="Set to True when user proceeds to Documents or Review stage, locking the operation selection.",
+    )
+    operation_display = fields.Char(
+        string="Operation",
+        compute="_compute_operation_display",
+    )
 
     # ══════════════════════════════════════════════════════════════════════════
     # COMPUTED FIELDS
@@ -83,6 +92,22 @@ class SPPCRDetailUpdateID(models.Model):
         related="change_request_id.request_type_id.allow_id_remove",
         readonly=True,
     )
+
+    @api.depends("operation")
+    def _compute_operation_display(self):
+        labels = dict(self._fields["operation"].selection)
+        for rec in self:
+            rec.operation_display = labels.get(rec.operation, "")
+
+    def action_next_documents(self):
+        """Lock operation before proceeding to documents stage."""
+        self.write({"is_operation_locked": True})
+        return super().action_next_documents()
+
+    def action_skip_to_review(self):
+        """Lock operation before proceeding to review stage."""
+        self.write({"is_operation_locked": True})
+        return super().action_skip_to_review()
 
     @api.constrains("operation")
     def _check_operation_allowed(self):
@@ -121,6 +146,9 @@ class SPPCRDetailUpdateID(models.Model):
                 "title": _("Operation Not Allowed"),
                 "message": _("Remove ID is disabled for this change request type."),
             }
+
+        # Unlock operation when changed (user came back to edit)
+        self.is_operation_locked = False
 
         if self.operation == "add":
             self.existing_id_record_id = False

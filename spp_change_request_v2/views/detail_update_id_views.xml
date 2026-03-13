@@ -60,11 +60,18 @@
                             <field name="allow_id_edit" invisible="1" />
                             <field name="allow_id_remove" invisible="1" />
                             <field name="approval_state" invisible="1" />
+                            <field name="is_operation_locked" invisible="1" />
                             <field
                                 name="operation"
                                 widget="filterable_radio"
                                 options="{'disabled_map': {'update': 'allow_id_edit', 'remove': 'allow_id_remove'}}"
                                 readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                                invisible="is_operation_locked"
+                            />
+                            <field
+                                name="operation_display"
+                                readonly="1"
+                                invisible="not is_operation_locked"
                             />
                         </group>
                     </group>

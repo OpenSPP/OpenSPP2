@@ -8,7 +8,10 @@
             t-att-aria-label="props.label"
         >
             <t t-foreach="items" t-as="item" t-key="item[0]">
-                <div class="form-check o_radio_item" aria-atomic="true">
+                <div
+                    t-attf-class="form-check o_radio_item #{isItemDisabled(item[0]) ? 'd-none' : ''}"
+                    aria-atomic="true"
+                >
                     <input
                         type="radio"
                         class="form-check-input o_radio_input"
