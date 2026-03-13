@@ -117,6 +117,7 @@ export class CelSearchPortal extends Component {
 
             if (result.error) {
                 this.notification.add(result.error, {type: "danger"});
+                this.state.hasSearched = false;
                 this.state.results = [];
                 this.state.totalCount = 0;
                 return;
@@ -130,9 +131,13 @@ export class CelSearchPortal extends Component {
             this.state.hasMoreResults = count > SEARCH_RESULT_LIMIT;
         } catch (error) {
             console.error("[CelSearchPortal] Search error:", error);
-            this.notification.add(_t("Search failed. Please check your expression."), {
-                type: "danger",
-            });
+            this.notification.add(
+                _t("Search failed. Please try again or check your expression."),
+                {
+                    type: "danger",
+                }
+            );
+            this.state.hasSearched = false;
             this.state.results = [];
             this.state.totalCount = 0;
         } finally {
