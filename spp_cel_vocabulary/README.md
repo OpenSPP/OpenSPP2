@@ -5,6 +5,9 @@
 This module extends the CEL (Common Expression Language) system with vocabulary-aware
 functions that enable robust eligibility rules across different deployment vocabularies.
 
+> **Note:** Both `r` and `me` are valid prefixes for the registrant symbol. This guide
+> uses `r` (matching ADR-008). The `me` alias is available via YAML profile configuration.
+
 ## Features
 
 ### Core Functions
@@ -14,9 +17,9 @@ functions that enable robust eligibility rules across different deployment vocab
 Resolve a vocabulary code by URI or alias.
 
 ```cel
-me.gender == code("urn:iso:std:iso:5218#2")  # By URI
-me.gender == code("female")                   # By alias
-me.gender == code("babae")                    # Local alias (Philippines)
+r.gender_id == code("urn:iso:std:iso:5218#2")  # By URI
+r.gender_id == code("female")                   # By alias
+r.gender_id == code("babae")                    # Local alias (Philippines)
 ```
 
 #### `in_group(code_field, group_name)`
@@ -24,8 +27,8 @@ me.gender == code("babae")                    # Local alias (Philippines)
 Check if a vocabulary code belongs to a concept group.
 
 ```cel
-in_group(me.gender, "feminine_gender")
-members.exists(m, in_group(m.gender, "feminine_gender"))
+in_group(r.gender_id, "feminine_gender")
+members.exists(m, in_group(m.gender_id, "feminine_gender"))
 ```
 
 #### `code_eq(code_field, identifier)`
@@ -33,7 +36,7 @@ members.exists(m, in_group(m.gender, "feminine_gender"))
 Safe code comparison handling local code mappings.
 
 ```cel
-code_eq(me.gender, "female")
+code_eq(r.gender_id, "female")
 ```
 
 ### Semantic Helpers
@@ -44,20 +47,22 @@ User-friendly functions for common checks:
 - `is_male(code_field)` - Check if code is in masculine_gender group
 - `is_head(code_field)` - Check if code is in head_of_household group
 - `is_pregnant(code_field)` - Check if code is in pregnant_eligible group
+- `head(member)` - Check if a member is the head of household (takes a member record, not a code field)
 
 ### Example Usage
 
 #### Simple Gender Check
 
 ```cel
-is_female(me.gender)
+is_female(r.gender_id)
 ```
 
 #### Complex Eligibility Rule
 
 ```cel
 # Pregnant women or mothers with children under 5
-is_pregnant(me.pregnancy_status) or
+# Note: pregnancy_status_id is provided by country-specific modules
+is_pregnant(r.pregnancy_status_id) or
   members.exists(m, age_years(m.birthdate) < 5)
 ```
 
@@ -65,7 +70,8 @@ is_pregnant(me.pregnancy_status) or
 
 ```cel
 # Works in any deployment, even with local terminology
-in_group(me.hazard_type, "climate_hazards")
+# Note: hazard_type_id is provided by country-specific modules
+in_group(r.hazard_type_id, "climate_hazards")
 ```
 
 ## How It Works
@@ -100,7 +106,7 @@ Example:
 CEL expressions are translated to Odoo domains:
 
 ```cel
-in_group(me.gender, "feminine_gender")
+in_group(r.gender_id, "feminine_gender")
 ```
 
 Translates to:
@@ -120,24 +126,28 @@ Translates to:
 
 ## Configuration
 
-### Defining Concept Groups
+### Concept Groups
 
-Create concept groups via UI or data files:
+Standard concept groups are created automatically via `post_init_hook` on module
+installation (search-or-create pattern, safe for upgrades). They have no XML IDs —
+look them up by name.
+
+To add codes to a group via data files:
 
 ```xml
-<record id="group_feminine_gender" model="spp.vocabulary.concept.group">
-  <field name="name">feminine_gender</field>
-  <field name="display_name">Feminine Gender</field>
-  <field name="cel_function">is_female</field>
-  <field name="description">Codes representing feminine gender identity</field>
-  <field
-    name="code_ids"
-    eval="[
-        (4, ref('spp_vocabulary.code_female')),
-        (4, ref('spp_vocabulary_ph.code_babae'))
-    ]"
-  />
-</record>
+<!-- Look up by name since groups are created by hook, not XML -->
+<function model="spp.vocabulary.concept.group" name="search">
+  <!-- Use write() to add codes after finding the group -->
+</function>
+```
+
+Or via Python:
+
+```python
+group = env['spp.vocabulary.concept.group'].search(
+    [('name', '=', 'feminine_gender')], limit=1
+)
+group.write({'code_ids': [Command.link(female_code.id)]})
 ```
 
 ### Local Code Mapping
@@ -161,36 +171,43 @@ Map local codes to standard codes:
 
 ```
 spp_cel_vocabulary/
-├── __init__.py
+├── __init__.py                                  # post_init_hook, concept group creation
 ├── __manifest__.py
 ├── models/
 │   ├── __init__.py
-│   ├── cel_vocabulary_functions.py    # Function registration
-│   └── cel_vocabulary_translator.py   # Domain translation
+│   ├── cel_vocabulary_functions.py              # Function registration
+│   └── cel_vocabulary_translator.py             # Domain translation
 ├── services/
 │   ├── __init__.py
-│   └── cel_vocabulary_functions.py    # Pure Python functions
+│   ├── cel_vocabulary_functions.py              # Pure Python functions
+│   └── vocabulary_cache.py                      # Session-scoped cache
 ├── tests/
 │   ├── __init__.py
-│   └── test_cel_vocabulary.py         # Comprehensive tests
-└── security/
-    └── ir.model.access.csv
+│   ├── test_cel_vocabulary.py                   # Core function and translation tests
+│   ├── test_vocabulary_cache.py                 # Cache behavior tests
+│   ├── test_vocabulary_in_exists.py             # Vocabulary in exists() predicates
+│   └── test_init_and_coverage.py                # Init, edge cases, coverage
+├── security/
+│   └── ir.model.access.csv
+└── data/
+    ├── concept_groups.xml                       # Documentation (groups created by hook)
+    └── README.md                                # Data configuration guide
 ```
 
 ### Design Patterns
 
 1. **Pure Functions** - Services contain stateless Python functions
-2. **Environment Injection** - Models wrap functions with Odoo env
+2. **Environment Injection** - Functions marked with `_cel_needs_env=True`; CEL service injects fresh env at evaluation time
 3. **Function Registry** - Dynamic registration with CEL system
 4. **Domain Translation** - AST transformation to Odoo domains
+5. **Two-Layer Caching** - `@ormcache` (registry-scoped) + `VocabularyCache` (session-scoped)
 
 ## Testing
 
 Run tests:
 
 ```bash
-# From openspp-odoo-19-migration/ directory
-invoke test-spp-deps --modules=spp_cel_vocabulary --skip=queue_job --mode=update --db-filter='^devel$'
+./scripts/test_single_module.sh spp_cel_vocabulary
 ```
 
 ## Related Documentation
@@ -207,20 +224,20 @@ invoke test-spp-deps --modules=spp_cel_vocabulary --skip=queue_job --mode=update
 **Before (fragile):**
 
 ```cel
-me.gender == "female"
+r.gender_id == "female"
 ```
 
 **After (robust):**
 
 ```cel
 # Option 1: Semantic helper
-is_female(me.gender)
+is_female(r.gender_id)
 
 # Option 2: Concept group
-in_group(me.gender, "feminine_gender")
+in_group(r.gender_id, "feminine_gender")
 
 # Option 3: Safe comparison
-code_eq(me.gender, "female")
+code_eq(r.gender_id, "female")
 ```
 
 ### From Hardcoded Values
@@ -235,15 +252,18 @@ if member.pregnancy_status_id.code == "pregnant":
 **After:**
 
 ```python
-pregnant_group = env.ref('spp_vocabulary.group_pregnant_eligible')
-if pregnant_group.contains(member.pregnancy_status_id):
+group = env['spp.vocabulary.concept.group'].search(
+    [('name', '=', 'pregnant_eligible')], limit=1
+)
+if group.contains(member.pregnancy_status_id):
     grant_maternal_benefit()
 ```
 
 Or use CEL:
 
 ```cel
-in_group(me.pregnancy_status, "pregnant_eligible")
+# Note: pregnancy_status_id is provided by country-specific modules
+in_group(r.pregnancy_status_id, "pregnant_eligible")
 ```
 
 ## Benefits
@@ -258,6 +278,7 @@ in_group(me.pregnancy_status, "pregnant_eligible")
 
 - Code resolution uses `@ormcache` for fast lookups
 - Concept group URIs are pre-computed and stored as JSON
+- Session-scoped `VocabularyCache` eliminates N+1 queries during evaluation
 - Domain translation happens once at compile time
 - No per-record overhead in query execution
 
