@@ -113,6 +113,25 @@
                                 />
                             </group>
                         </page>
+                        <page
+                            string="ID Operations"
+                            name="id_operations"
+                            invisible="detail_model != 'spp.cr.detail.update_id'"
+                        >
+                            <group string="Allowed ID Operations">
+                                <field name="allow_id_add" readonly="1" />
+                                <field name="allow_id_edit" />
+                                <field name="allow_id_remove" />
+                            </group>
+                            <div class="alert alert-info" role="status">
+                                <p class="mb-0">
+                                    <strong>Add ID</strong> is always enabled.
+                                    Toggle <strong>Edit ID</strong> and <strong
+                                >Remove ID</strong>
+                                    to control which operations are available to users.
+                                </p>
+                            </div>
+                        </page>
                         <page string="Apply Configuration" name="apply">
                             <group>
                                 <group>

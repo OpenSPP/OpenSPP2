@@ -90,17 +90,22 @@ class SPPRegistrantID(models.Model):
     def _compute_display_name(self):
         res = super()._compute_display_name()
         for rec in self:
-            name = ""
-            if rec.partner_id:
-                name = rec.partner_id.name
-            rec.display_name = name
+            id_type = rec.id_type_id.display_name or _("Unknown Type")
+            value = rec.value or ""
+            rec.display_name = f"{id_type} - {value}" if value else id_type
         return res
 
     @api.model
     def _name_search(self, name, domain=None, operator="ilike", limit=100, order=None):
         domain = domain or []
         if name:
-            domain = [("partner_id", operator, name)] + domain
+            domain = [
+                "|",
+                "|",
+                ("id_type_id.display", operator, name),
+                ("value", operator, name),
+                ("partner_id", operator, name),
+            ] + domain
         return self._search(domain, limit=limit, order=order)
 
     @api.depends("verification_method")

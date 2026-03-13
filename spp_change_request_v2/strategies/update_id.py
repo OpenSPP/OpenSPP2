@@ -51,7 +51,8 @@ class SPPCRApplyUpdateID(models.AbstractModel):
         )
         if existing:
             raise UserError(
-                _("Registrant already has an ID of type '%s'. Use 'Update' operation instead.") % detail.id_type_id.name
+                _("Registrant already has an ID of type '%s'. Use 'Update' operation instead.")
+                % detail.id_type_id.display_name
             )
 
         # Create new ID record
@@ -68,7 +69,7 @@ class SPPCRApplyUpdateID(models.AbstractModel):
 
         _logger.info(
             "Added ID type=%s for registrant partner_id=%s via CR %s",
-            detail.id_type_id.name,
+            detail.id_type_id.display_name,
             registrant.id,
             change_request.name,
         )
@@ -119,16 +120,53 @@ class SPPCRApplyUpdateID(models.AbstractModel):
         return True
 
     def preview(self, change_request):
-        """Preview what will be changed."""
+        """Preview what will be changed, with different layouts per operation."""
         detail = change_request.get_detail()
         if not detail:
             return {}
 
-        return {
-            "_action": f"{detail.operation}_id",
-            "registrant": change_request.registrant_id.name,
-            "operation": detail.operation,
-            "id_type": detail.id_type_id.name if detail.id_type_id else None,
-            "id_value": detail.id_value,
-            "existing_value": detail.current_id_value,
-        }
+        operation = detail.operation
+
+        if operation == "update":
+            # Show old/new comparison for edit operations
+            result = {
+                "_action": "update_id",
+                "_header": "Edit Existing ID",
+            }
+            if detail.existing_id_record_id:
+                existing = detail.existing_id_record_id
+                result["ID Type"] = {
+                    "old": existing.id_type_id.display_name if existing.id_type_id else None,
+                    "new": detail.id_type_id.display_name if detail.id_type_id else None,
+                }
+                result["ID Number/Value"] = {
+                    "old": existing.value or None,
+                    "new": detail.id_value or None,
+                }
+                result["Expiry Date"] = {
+                    "old": str(existing.expiry_date) if existing.expiry_date else None,
+                    "new": str(detail.expiry_date) if detail.expiry_date else None,
+                }
+            return result
+
+        if operation == "add":
+            return {
+                "_action": "add_id",
+                "_header": "Add New ID",
+                "ID Type": detail.id_type_id.display_name if detail.id_type_id else None,
+                "ID Number/Value": detail.id_value or None,
+                "Expiry Date": str(detail.expiry_date) if detail.expiry_date else None,
+            }
+
+        if operation == "remove":
+            result = {
+                "_action": "remove_id",
+                "_header": "Remove Existing ID",
+            }
+            if detail.existing_id_record_id:
+                existing = detail.existing_id_record_id
+                result["ID Type"] = existing.id_type_id.display_name if existing.id_type_id else None
+                result["ID Number/Value"] = existing.value or None
+            return result
+
+        return {}
