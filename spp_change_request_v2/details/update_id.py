@@ -150,15 +150,12 @@ class SPPCRDetailUpdateID(models.Model):
         # Unlock operation when changed (user came back to edit)
         self.is_operation_locked = False
 
+        # Clear fields common to all operations
+        self.id_type_id = False
+        self.id_value = False
+        self.expiry_date = False
         if self.operation == "add":
             self.existing_id_record_id = False
-            self.id_type_id = False
-            self.id_value = False
-            self.expiry_date = False
-        elif self.operation in ("update", "remove"):
-            self.id_type_id = False
-            self.id_value = False
-            self.expiry_date = False
 
         if warning:
             return {"warning": warning}

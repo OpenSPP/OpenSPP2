@@ -1,5 +1,7 @@
 import logging
 
+from markupsafe import escape as html_escape
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
@@ -1241,9 +1243,9 @@ class SPPChangeRequest(models.Model):
             return '<span class="badge text-bg-success">Yes</span>'
         if isinstance(value, list):
             if value:
-                return "<br/>".join(str(v) for v in value)
+                return "<br/>".join(html_escape(str(v)) for v in value)
             return '<span class="text-muted">—</span>'
-        return str(value)
+        return html_escape(str(value))
 
     def _capture_preview_snapshot(self):
         """Capture and store the preview HTML and JSON before applying changes."""
