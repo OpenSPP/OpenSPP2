@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<odoo>
+<odoo noupdate="1">
     <!-- ════════════════════════════════════════════════════════════════════════ -->
     <!-- BASE CHANGE REQUEST TYPES (Studio-Editable) -->
     <!-- These types use field_mapping strategy and can be customized via Studio -->
@@ -220,6 +220,7 @@
         <field name="apply_model">spp.cr.apply.update_id</field>
         <field name="icon">fa-id-card</field>
         <field name="sequence">80</field>
+        <!-- allow_id_add/edit/remove default to True via field definitions -->
         <!-- Editability flags - form can be customized but apply logic is Python -->
         <field name="is_studio_editable">True</field>
         <field name="is_studio_cloneable">True</field>

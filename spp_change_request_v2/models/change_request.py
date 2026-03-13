@@ -1147,17 +1147,21 @@ class SPPChangeRequest(models.Model):
             )
 
         action = changes.pop("_action", None)
+        header = changes.pop("_header", None)
 
         # Determine if this is a field-mapping type (has old/new dicts)
         has_comparison = any(isinstance(v, dict) and "old" in v and "new" in v for v in changes.values())
 
         if has_comparison:
-            return self._render_comparison_table(changes)
-        return self._render_action_summary(action, changes)
+            return self._render_comparison_table(changes, header=header)
+        return self._render_action_summary(action, changes, header=header)
 
-    def _render_comparison_table(self, changes):
+    def _render_comparison_table(self, changes, header=None):
         """Render a three-column comparison table for field-mapping CR types."""
-        html = ['<table class="table table-sm table-bordered mb-0" style="width:100%">']
+        html = []
+        if header:
+            html.append(f"<h4>{header}</h4>")
+        html.append('<table class="table table-sm table-bordered mb-0" style="width:100%">')
         html.append(
             "<thead><tr>"
             '<th class="bg-light"></th>'
@@ -1170,7 +1174,8 @@ class SPPChangeRequest(models.Model):
         for key, value in changes.items():
             if key.startswith("_"):
                 continue
-            display_key = key.replace("_", " ").title()
+            # Use key as-is if it contains spaces (human-readable), otherwise convert
+            display_key = key if " " in key else key.replace("_", " ").title()
 
             if isinstance(value, dict) and "old" in value:
                 old_val = value.get("old")
@@ -1203,9 +1208,12 @@ class SPPChangeRequest(models.Model):
         html.append("</tbody></table>")
         return "".join(html)
 
-    def _render_action_summary(self, action, changes):
+    def _render_action_summary(self, action, changes, header=None):
         """Render a summary table for action-based CR types."""
         html = []
+
+        if header:
+            html.append(f"<h4>{header}</h4>")
 
         if not changes:
             html.append('<p class="text-muted mb-0"><i class="fa fa-info-circle me-2"></i>No details to display.</p>')
@@ -1218,7 +1226,7 @@ class SPPChangeRequest(models.Model):
         for key, value in changes.items():
             if key.startswith("_"):
                 continue
-            display_key = key.replace("_", " ").title()
+            display_key = key if " " in key else key.replace("_", " ").title()
             display_value = self._format_review_value(value)
             html.append(f'<tr><td class="bg-light"><strong>{display_key}</strong></td><td>{display_value}</td></tr>')
 

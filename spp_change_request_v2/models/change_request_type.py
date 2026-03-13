@@ -252,6 +252,26 @@ class SPPChangeRequestType(models.Model):
     )
 
     # ══════════════════════════════════════════════════════════════════════════
+    # ID OPERATIONS CONFIGURATION (for update_id type)
+    # ══════════════════════════════════════════════════════════════════════════
+
+    allow_id_add = fields.Boolean(
+        string="Allow Add ID",
+        default=True,
+        help="Allow adding new ID documents via this CR type.",
+    )
+    allow_id_edit = fields.Boolean(
+        string="Allow Edit ID",
+        default=True,
+        help="Allow editing existing ID documents via this CR type.",
+    )
+    allow_id_remove = fields.Boolean(
+        string="Allow Remove ID",
+        default=True,
+        help="Allow removing ID documents via this CR type.",
+    )
+
+    # ══════════════════════════════════════════════════════════════════════════
     # APPLY CONFIGURATION
     # ══════════════════════════════════════════════════════════════════════════
 

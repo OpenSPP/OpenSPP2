@@ -262,4 +262,5 @@ class TestUpdateIDStrategy(TransactionCase):
 
         self.assertIn("_action", preview)
         self.assertEqual(preview["_action"], "add_id")
-        self.assertEqual(preview["operation"], "add")
+        self.assertIn("_header", preview)
+        self.assertEqual(preview["_header"], "Add New ID")

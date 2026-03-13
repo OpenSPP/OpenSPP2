@@ -44,41 +44,65 @@
                     />
                 </header>
                 <sheet>
+                    <div class="oe_title">
+                        <h1>Update ID Document</h1>
+                    </div>
+
                     <group>
-                        <group string="Registrant">
+                        <group>
                             <field
-                                name="registrant_name"
-                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                                name="registrant_id"
+                                readonly="1"
+                                options="{'no_open': True}"
                             />
-                        </group>
-                        <group string="Operation">
+                            <field name="change_request_id" invisible="1" />
+                            <field name="allow_id_add" invisible="1" />
+                            <field name="allow_id_edit" invisible="1" />
+                            <field name="allow_id_remove" invisible="1" />
+                            <field name="approval_state" invisible="1" />
                             <field
                                 name="operation"
-                                widget="radio"
+                                widget="filterable_radio"
+                                options="{'disabled_map': {'update': 'allow_id_edit', 'remove': 'allow_id_remove'}}"
                                 readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                             />
                         </group>
                     </group>
-                    <group invisible="operation == 'add'">
-                        <group string="Existing ID">
+
+                    <!-- Select existing ID for Edit operation -->
+                    <group invisible="operation != 'update'">
+                        <group>
                             <field
                                 name="existing_id_record_id"
-                                options="{'no_create': True}"
-                                required="operation in ['update', 'remove']"
-                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
-                            />
-                            <field
-                                name="current_id_value"
-                                invisible="not existing_id_record_id"
+                                string="Select ID to Edit"
+                                options="{'no_create': True, 'no_open': True}"
+                                required="operation == 'update'"
                                 readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                             />
                         </group>
                     </group>
-                    <group invisible="operation == 'remove'">
-                        <group string="ID Information">
+
+                    <!-- Select existing ID for Remove operation -->
+                    <group invisible="operation != 'remove'">
+                        <group>
+                            <field
+                                name="existing_id_record_id"
+                                string="Select ID to Remove"
+                                options="{'no_create': True, 'no_open': True}"
+                                required="operation == 'remove'"
+                                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+                            />
+                        </group>
+                    </group>
+
+                    <group
+                        invisible="operation == 'remove' or (operation == 'update' and not existing_id_record_id)"
+                        string="ID Information"
+                    >
+                        <group>
                             <field
                                 name="id_type_id"
-                                options="{'no_create': True, 'no_open': True}"
+                                options="{'no_create': True, 'no_open': True, 'limit': 0}"
                                 readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                             />
                             <field
@@ -91,29 +115,13 @@
                                 readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
                             />
                         </group>
-                        <separator string="Description" />
-                        <field
-                            name="description"
-                            nolabel="1"
-                            class="oe_inline"
-                            readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
-                        />
                     </group>
-                    <group string="Supporting Documents">
-                        <field
-                            name="document_attachment_ids"
-                            widget="many2many_binary"
-                            readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
-                        />
-                    </group>
-                    <group string="Additional Information">
-                        <field
-                            name="remarks"
-                            placeholder="Enter any additional notes..."
-                            readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
-                        />
+
+                    <group string="Additional Information" invisible="1">
+                        <field name="remarks" />
                     </group>
                 </sheet>
+                <chatter />
             </form>
         </field>
     </record>
