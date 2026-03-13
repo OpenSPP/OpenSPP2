@@ -16,7 +16,7 @@ OpenSPP eligibility rules and filters.
 | `code_eq(field, id)`     | Safe code comparison              | `code_eq(r.gender_id, "female")`                  |
 | `is_female(field)`       | Check feminine gender             | `is_female(r.gender_id)`                          |
 | `is_male(field)`         | Check masculine gender            | `is_male(r.gender_id)`                            |
-| `is_head(field)`         | Check head of household code      | `is_head(r.relationship_type)`                    |
+| `is_head(field)`         | Check head of household code      | `is_head(r.relationship_type_id)`                 |
 | `is_pregnant(field)`     | Check pregnancy status            | `is_pregnant(r.pregnancy_status_id)`              |
 | `head(member)`           | Check if member is household head | `head(m)` (takes member record, not a code field) |
 
@@ -89,11 +89,15 @@ r.gender_id == code("urn:iso:std:iso:5218#2")  # By URI
 
 **Use Case:** Find heads of households
 
+> **Note:** `is_head()` requires a Many2one vocabulary code field (e.g.,
+> `relationship_type_id`) defined by your deployment module. For checking if a member is
+> head of household without a code field, use `head(m)` instead.
+
 ```cel
-is_head(r.relationship_type)
+is_head(r.relationship_type_id)
 ```
 
-**In group context:**
+**In group context (recommended — no code field needed):**
 
 ```cel
 members.exists(m, head(m))

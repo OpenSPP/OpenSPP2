@@ -183,8 +183,14 @@ def is_head(env, code_value):
     """Check if code is in head_of_household group.
 
     Usage in CEL:
-        is_head(r.relationship_type)
-        members.exists(m, is_head(m.relationship_type))
+        is_head(r.relationship_type_id)  # Requires deployment-defined code field
+        members.exists(m, is_head(m.relationship_type_id))
+
+    Note:
+        This function checks if a vocabulary code is in the head_of_household
+        group. It requires a Many2one field pointing to spp.vocabulary.code.
+        For checking if a member record is head of household (without a code
+        field), use head(member) instead.
 
     Args:
         env: Odoo environment (injected by CEL evaluator)
@@ -216,7 +222,7 @@ def head(env, member, _membership=None, _group=None):
     """Check if a member is the head of household.
 
     This function is designed for use in member aggregate expressions like:
-        members.exists(head(m) && is_female(m.gender_id))
+        members.exists(m, head(m) and is_female(m.gender_id))
 
     It checks if the member's membership in the group has the 'head' type.
 

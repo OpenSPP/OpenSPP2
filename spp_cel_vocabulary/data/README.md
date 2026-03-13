@@ -26,7 +26,7 @@ them.
 
 ### Option 1: Through UI
 
-1. Go to **Settings → Vocabularies → Concept Groups**
+1. Go to **Settings > Vocabularies > Concept Groups**
 2. Open a concept group
 3. Click **Edit**
 4. In the **Codes** tab, add your vocabulary codes

@@ -84,7 +84,7 @@ The `code()` function resolves identifiers in this order:
 
 1. Full URI (e.g., `"urn:iso:std:iso:5218#2"`)
 2. Code value in active vocabulary
-3. Display name
+3. Label (display value)
 4. Reference URI mapping (for local codes)
 
 ### Concept Groups

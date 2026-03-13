@@ -34,14 +34,14 @@ r.gender_id == code("urn:iso:std:iso:5218#2")
 
 // Group membership
 in_group(r.gender_id, "feminine_gender")
-members.exists(m, in_group(m.relationship_type, "head_of_household"))
+members.exists(m, in_group(m.relationship_type_id, "head_of_household"))
 
 // Semantic helpers
-is_female(r.gender_id) && age_years(r.birthdate) >= 18
-members.exists(m, is_male(m.gender_id) && is_head(m.relationship_type))
+is_female(r.gender_id) and age_years(r.birthdate) >= 18
+members.exists(m, is_male(m.gender_id) and is_head(m.relationship_type_id))
 
 // Head of household check
-members.exists(m, head(m) && is_female(m.gender_id))
+members.exists(m, head(m) and is_female(m.gender_id))
 ```
 
 ### Security
