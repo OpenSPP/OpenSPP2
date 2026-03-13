@@ -16,9 +16,9 @@ def code(env, identifier):
     """Resolve a vocabulary code by URI or alias.
 
     Usage in CEL:
-        r.gender == code("urn:iso:std:iso:5218#2")  # By URI
-        r.gender == code("female")                   # By alias
-        r.gender == code("babae")                    # Local alias (PH)
+        r.gender_id == code("urn:iso:std:iso:5218#2")  # By URI
+        r.gender_id == code("female")                   # By alias
+        r.gender_id == code("babae")                    # Local alias (PH)
 
     Args:
         env: Odoo environment (injected by CEL evaluator)
@@ -51,8 +51,8 @@ def in_group(env, code_value, group_name):
     session-level caching for even better performance.
 
     Usage in CEL:
-        in_group(r.gender, "feminine_gender")
-        members.exists(m, in_group(m.gender, "feminine_gender"))
+        in_group(r.gender_id, "feminine_gender")
+        members.exists(m, in_group(m.gender_id, "feminine_gender"))
 
     Args:
         env: Odoo environment (injected by CEL evaluator)
@@ -99,11 +99,11 @@ def code_eq(env, code_field, identifier):
     """Safe code comparison handling local code mappings.
 
     Usage in CEL:
-        code_eq(r.gender, "female")
+        code_eq(r.gender_id, "female")
 
     This is equivalent to:
-        r.gender.uri == "urn:iso:std:iso:5218#2"
-        OR r.gender.reference_uri == "urn:iso:std:iso:5218#2"
+        r.gender_id.uri == "urn:iso:std:iso:5218#2"
+        OR r.gender_id.reference_uri == "urn:iso:std:iso:5218#2"
 
     Args:
         env: Odoo environment (injected by CEL evaluator)
@@ -167,7 +167,7 @@ def is_male(env, code_value):
     """Check if code is in masculine_gender group.
 
     Usage in CEL:
-        is_male(r.gender)
+        is_male(r.gender_id)
 
     Args:
         env: Odoo environment (injected by CEL evaluator)
@@ -184,7 +184,7 @@ def is_head(env, code_value):
 
     Usage in CEL:
         is_head(r.relationship_type)
-        members.exists(m, is_head(m._link.kind))
+        members.exists(m, is_head(m.relationship_type))
 
     Args:
         env: Odoo environment (injected by CEL evaluator)
@@ -200,7 +200,7 @@ def is_pregnant(env, code_value):
     """Check if code is in pregnant_eligible group.
 
     Usage in CEL:
-        is_pregnant(r.pregnancy_status)
+        is_pregnant(r.pregnancy_status_id)
 
     Args:
         env: Odoo environment (injected by CEL evaluator)
@@ -232,7 +232,10 @@ def head(env, member, _membership=None, _group=None):
     if not member:
         return False
 
-    # Get the 'head' vocabulary code
+    # Get the 'head' vocabulary code.
+    # sudo() is needed because this function may be called in restricted user
+    # contexts during CEL evaluation, and the head membership type code is
+    # reference data that should always be accessible regardless of user ACLs.
     # nosemgrep: odoo-sudo-without-context
     head_code = env["spp.vocabulary.code"].sudo().get_code("urn:openspp:vocab:group-membership-type", "head")
     if not head_code:
