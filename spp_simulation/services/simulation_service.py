@@ -13,7 +13,7 @@ class SimulationService(models.AbstractModel):
     """Orchestration service for running targeting simulations.
 
     This service orchestrates the simulation workflow but delegates heavy
-    computation to spp.aggregation.service for statistics, distribution,
+    computation to spp.analytics.service for statistics, distribution,
     and fairness analysis.
     """
 
@@ -65,15 +65,14 @@ class SimulationService(models.AbstractModel):
             amounts = self._apply_budget_strategy(scenario, amounts)
 
             # Step 4: Distribution stats
-            # Use spp.metrics.distribution for computation
-            distribution_service = self.env["spp.metrics.distribution"]
+            distribution_service = self.env["spp.metric.distribution"]
             distribution_data = distribution_service.compute_distribution(amounts)
             gini = distribution_data.get("gini_coefficient", 0.0)
 
             # Step 5: Fairness analysis
-            # Use spp.metrics.fairness for computation
-            fairness_service = self.env["spp.metrics.fairness"]
-            # Get base domain for population
+            fairness_service = self.env["spp.metric.fairness"]
+            # Derive base domain from target type so fairness compares against
+            # the correct population (groups vs individuals)
             profile = "registry_groups" if scenario.target_type == "group" else "registry_individuals"
             registry = self.env["spp.cel.registry"]
             cfg = registry.load_profile(profile)
@@ -185,9 +184,9 @@ class SimulationService(models.AbstractModel):
     def _execute_targeting(self, scenario):
         """Execute the targeting expression and return all matching IDs.
 
-        NOTE: In Phase 6, this should use spp.aggregation.scope for unified
-        targeting. For now, it continues using CEL directly for backward
-        compatibility.
+        Uses CEL directly rather than spp.analytics.scope, since simulation
+        targeting has its own CEL expression lifecycle and does not need
+        scope-level caching or access control.
         """
         # Load the CEL profile configuration
         profile = self._get_cel_profile(scenario)

@@ -54,14 +54,14 @@ Follows thin client architecture where QGIS displays data and OpenSPP performs a
 **Aggregated statistics only.** No endpoint in this module returns individual registrant records.
 
 - **OGC collections/items**: Return GeoJSON features organized by administrative area, with pre-computed aggregate values (counts, percentages). Each feature represents an *area*, not a person.
-- **Spatial query statistics** (`POST /gis/query/statistics`): Accepts a GeoJSON polygon and returns configured aggregate statistics computed by `spp.aggregation.service`. Individual registrant IDs are computed internally for aggregation but are **explicitly stripped** from the response before it is sent (see `spatial_query.py`).
+- **Spatial query statistics** (`POST /gis/query/statistics`): Accepts a GeoJSON polygon and returns configured aggregate statistics computed by `spp.analytics.service`. Individual registrant IDs are computed internally for aggregation but are **explicitly stripped** from the response before it is sent (see `spatial_query.py`).
 - **Exports** (GeoPackage/GeoJSON): Contain the same area-level aggregated layer data, not registrant-level records.
 - **Geofences**: Store only geometry and metadata — no registrant data.
 
 **Privacy controls**
 
 - **K-anonymity suppression**: Statistics backed by CEL variables can apply k-anonymity thresholds. When a cell count falls below the configured minimum, the value is replaced with a suppression marker and flagged as `"suppressed": true` in the response. This prevents re-identification in small populations.
-- **CEL variable configuration**: Administrators control which statistics are published and their suppression thresholds via `spp.statistic` records.
+- **CEL variable configuration**: Administrators control which statistics are published and their suppression thresholds via `spp.indicator` records.
 - **Scope separation**: `gis:read` and `gis:geofence` are separate scopes, allowing clients to be granted read-only access without write capability.
 
 **Design rationale**

@@ -22,9 +22,9 @@
         "spp_gis_report",
         # Registrant GPS coordinates for QGIS plugin demo
         "spp_registrant_gis",
-        # Statistics and aggregation for demo indicators
-        "spp_statistic",
-        "spp_aggregation",
+        # Indicators and analytics for demo indicators
+        "spp_indicator",
+        "spp_analytics",
         "spp_studio",
         # GIS API (used by QGIS plugin and PRISM frontend)
         "spp_api_v2_gis",

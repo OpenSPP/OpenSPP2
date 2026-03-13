@@ -16,8 +16,8 @@
         "spp_area",
         "spp_hazard",
         "spp_vocabulary",
-        "spp_statistic",
-        "spp_aggregation",
+        "spp_indicator",
+        "spp_analytics",
     ],
     "data": [
         "security/ir.model.access.csv",

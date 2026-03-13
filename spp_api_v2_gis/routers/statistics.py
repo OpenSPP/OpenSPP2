@@ -12,9 +12,9 @@ from odoo.addons.spp_api_v2.middleware.auth import get_authenticated_client
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from ..schemas.statistics import (
-    StatisticCategoryInfo,
-    StatisticInfo,
-    StatisticsListResponse,
+    IndicatorCategoryInfo,
+    IndicatorInfo,
+    IndicatorsListResponse,
 )
 
 _logger = logging.getLogger(__name__)
@@ -26,12 +26,12 @@ statistics_router = APIRouter(tags=["GIS"], prefix="/gis")
     "/statistics",
     summary="List published GIS statistics",
     description="Returns all statistics published for GIS context, grouped by category.",
-    response_model=StatisticsListResponse,
+    response_model=IndicatorsListResponse,
 )
 async def list_statistics(
     env: Annotated[Environment, Depends(odoo_env)],
     api_client: Annotated[dict, Depends(get_authenticated_client)],
-) -> StatisticsListResponse:
+) -> IndicatorsListResponse:
     """List all GIS-published statistics grouped by category.
 
     Used by the QGIS plugin to discover what statistics are available
@@ -46,7 +46,7 @@ async def list_statistics(
 
     try:
         # nosemgrep: odoo-sudo-without-context
-        Statistic = env["spp.statistic"].sudo()
+        Statistic = env["spp.indicator"].sudo()
         stats_by_category = Statistic.get_published_by_category("gis")
 
         categories = []
@@ -60,7 +60,7 @@ async def list_statistics(
             for stat in stat_records:
                 config = stat.get_context_config("gis")
                 stat_items.append(
-                    StatisticInfo(
+                    IndicatorInfo(
                         name=stat.name,
                         label=config.get("label", stat.label),
                         description=stat.description,
@@ -70,7 +70,7 @@ async def list_statistics(
                 )
 
             categories.append(
-                StatisticCategoryInfo(
+                IndicatorCategoryInfo(
                     code=category_code,
                     name=category_record.name if category_record else category_code.replace("_", " ").title(),
                     icon=getattr(category_record, "icon", None) if category_record else None,
@@ -79,7 +79,7 @@ async def list_statistics(
             )
             total_count += len(stat_items)
 
-        return StatisticsListResponse(
+        return IndicatorsListResponse(
             categories=categories,
             total_count=total_count,
         )
