@@ -134,8 +134,7 @@ class CelVocabularyTranslator(models.AbstractModel):
 
         if not group:
             _logger.warning(
-                "[CEL Vocabulary] Concept group '%s' not found. "
-                "Check Settings > Vocabularies > Concept Groups.",
+                "[CEL Vocabulary] Concept group '%s' not found. Check Settings > Vocabularies > Concept Groups.",
                 group_name,
             )
             # Return domain that matches nothing
