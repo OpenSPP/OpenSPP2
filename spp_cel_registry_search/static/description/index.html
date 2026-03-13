@@ -453,16 +453,505 @@ custom workflows when clicking search results</li>
 <p><strong>Table of contents</strong></p>
 <div class="contents local topic" id="contents">
 <ul class="simple">
-<li><a class="reference internal" href="#bug-tracker" id="toc-entry-1">Bug Tracker</a></li>
-<li><a class="reference internal" href="#credits" id="toc-entry-2">Credits</a><ul>
-<li><a class="reference internal" href="#authors" id="toc-entry-3">Authors</a></li>
-<li><a class="reference internal" href="#maintainers" id="toc-entry-4">Maintainers</a></li>
+<li><a class="reference internal" href="#usage" id="toc-entry-1">Usage</a></li>
+</ul>
+</div>
+<div class="section" id="usage">
+<h2><a class="toc-backref" href="#toc-entry-1">Usage</a></h2>
+</div>
+</div>
+<div class="section" id="prerequisites">
+<h1>Prerequisites</h1>
+<ul class="simple">
+<li>OpenSPP instance with <tt class="docutils literal">spp_cel_registry_search</tt> module installed</li>
+<li>Demo data loaded (registrants with various attributes: birthdate,
+gender, registration date, phone, email, disabled status)</li>
+<li>At least one user with <strong>Registry Officer</strong> role (has CEL Search
+access automatically)</li>
+<li>At least one base user <strong>without</strong> Registry Officer or CEL Search User
+group</li>
+</ul>
+</div>
+<div class="section" id="module-overview">
+<h1>Module Overview</h1>
+<p>The CEL Registry Search module adds an <strong>Advanced Search</strong> portal under
+the Registry menu. It allows users to write CEL (Common Expression
+Language) expressions to query registrants. The module has no Python
+models — it is a frontend-only OWL component that calls
+<tt class="docutils literal">spp.cel.service</tt> on the backend.</p>
+<p><strong>URL:</strong> <tt class="docutils literal"><span class="pre">/odoo/registry-cel</span></tt> <strong>Menu:</strong> Registry &gt; Advanced Search</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="test-1-installation-and-menu-visibility">
+<h1>Test 1: Installation and Menu Visibility</h1>
+<p><strong>1.1 Module installs without errors</strong></p>
+<ol class="arabic simple">
+<li>Go to <strong>Apps</strong></li>
+<li>Search for “CEL Registry Search”</li>
+<li>Verify the module is listed with status “Installed”</li>
+<li>Verify no errors in the server log related to this module</li>
+</ol>
+<p><strong>Expected:</strong> Module is installed and functional.</p>
+<p><strong>1.2 Menu visible to Registry Officer</strong></p>
+<ol class="arabic simple">
+<li>Log in as a user with the <strong>Registry Officer</strong> role</li>
+<li>Click the <strong>Registry</strong> top menu</li>
+</ol>
+<p><strong>Expected:</strong> “Advanced Search” menu item appears under Registry
+(sequence 85, typically near the bottom of the menu).</p>
+<p><strong>1.3 Menu not visible to base user</strong></p>
+<ol class="arabic simple">
+<li>Log in as a base user who does NOT have the Registry Officer,
+Registry Manager, or CEL Search User group</li>
+<li>Click the <strong>Registry</strong> top menu (if visible)</li>
+</ol>
+<p><strong>Expected:</strong> “Advanced Search” menu item does NOT appear. The user
+should not have access to the CEL search portal.</p>
+<p><strong>1.4 Menu visible to CEL Search User</strong></p>
+<ol class="arabic simple">
+<li>Assign a user the <strong>CEL Search User</strong> group (without Registry
+Officer)</li>
+<li>Log in as that user</li>
+<li>Navigate to Registry</li>
+</ol>
+<p><strong>Expected:</strong> “Advanced Search” menu item appears. This user should also
+have Registry Viewer permissions (implied by the CEL Search User group).</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="test-2-initial-page-load-empty-state">
+<h1>Test 2: Initial Page Load (Empty State)</h1>
+<p><strong>2.1 Page loads correctly</strong></p>
+<ol class="arabic simple">
+<li>Navigate to <strong>Registry &gt; Advanced Search</strong> (or go to
+<tt class="docutils literal"><span class="pre">/odoo/registry-cel</span></tt>)</li>
+</ol>
+<p><strong>Expected:</strong></p>
+<ul class="simple">
+<li>Page title: “Advanced Search” with a code icon</li>
+<li>A card containing:<ul>
+<li><strong>Profile</strong> dropdown defaulting to “Individuals”</li>
+<li><strong>CEL Expression</strong> label with an empty code editor</li>
+<li><strong>Search</strong> button (disabled)</li>
+<li><strong>Clear</strong> button (disabled)</li>
+</ul>
+</li>
+<li>Below the card: an empty state with:<ul>
+<li>A large code icon (faded)</li>
+<li>Text: “Search with CEL Expressions”</li>
+<li>Text: “Write a CEL expression to filter registrants, then click
+Search.”</li>
+<li>Three example expressions:<ul>
+<li><tt class="docutils literal">age_years(r.birthdate) &gt;= 18</tt> - Adults 18+</li>
+<li><tt class="docutils literal">is_female(r.gender_id)</tt> - Females</li>
+<li><tt class="docutils literal">r.registration_date &gt; <span class="pre">&quot;2024-01-01&quot;</span></tt> - Recent registrations</li>
 </ul>
 </li>
 </ul>
+</li>
+</ul>
+<p><strong>2.2 Profile dropdown options</strong></p>
+<ol class="arabic simple">
+<li>Click the <strong>Profile</strong> dropdown</li>
+</ol>
+<p><strong>Expected:</strong> Two options: “Individuals” and “Groups”. “Individuals” is
+selected by default.</p>
 </div>
+<hr class="docutils" />
+<div class="section" id="test-3-cel-expression-editor">
+<h1>Test 3: CEL Expression Editor</h1>
+<p><strong>3.1 Editor accepts input</strong></p>
+<ol class="arabic simple">
+<li>Click inside the CEL expression editor</li>
+<li>Type: <tt class="docutils literal">r.name != &quot;&quot;</tt></li>
+</ol>
+<p><strong>Expected:</strong></p>
+<ul class="simple">
+<li>Text appears in the editor with syntax highlighting</li>
+<li>The <strong>Search</strong> button becomes enabled</li>
+<li>The <strong>Clear</strong> button becomes enabled</li>
+<li>A validation indicator appears (green checkmark with match count if
+valid)</li>
+</ul>
+<p><strong>3.2 Autocomplete and symbol browser</strong></p>
+<ol class="arabic simple">
+<li>Clear the editor</li>
+<li>Type: <tt class="docutils literal">r.</tt> (with the dot)</li>
+</ol>
+<p><strong>Expected:</strong> An autocomplete dropdown appears showing available fields
+(e.g., <tt class="docutils literal">name</tt>, <tt class="docutils literal">birthdate</tt>, <tt class="docutils literal">gender_id</tt>, <tt class="docutils literal">phone</tt>, <tt class="docutils literal">email</tt>,
+<tt class="docutils literal">registration_date</tt>, <tt class="docutils literal">disabled</tt>, etc.).</p>
+<p><strong>3.3 Toolbar and symbol browser visibility</strong></p>
+<ol class="arabic simple">
+<li>Look at the editor area</li>
+</ol>
+<p><strong>Expected:</strong> A toolbar is visible above the editor. A symbol browser
+panel is available for browsing available fields and functions.</p>
+<p><strong>3.4 Invalid expression feedback</strong></p>
+<ol class="arabic simple">
+<li>Type an invalid expression: <tt class="docutils literal">r.name ===</tt></li>
+</ol>
+<p><strong>Expected:</strong></p>
+<ul class="simple">
+<li>A red error indicator appears (red X icon)</li>
+<li>The error message describes the syntax issue</li>
+<li>The <strong>Search</strong> button is disabled (cannot search with invalid
+expression)</li>
+</ul>
+<p><strong>3.5 Validation match count</strong></p>
+<ol class="arabic simple">
+<li>Type a valid expression: <tt class="docutils literal">r.name != &quot;&quot;</tt></li>
+</ol>
+<p><strong>Expected:</strong> A green checkmark appears with a count like “X match(es)”
+showing how many registrants match before you execute the search.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="test-4-search-individuals-profile">
+<h1>Test 4: Search — Individuals Profile</h1>
+<p><strong>4.1 Basic search with results</strong></p>
+<ol class="arabic simple">
+<li>Set profile to <strong>Individuals</strong></li>
+<li>Type: <tt class="docutils literal">r.name != &quot;&quot;</tt></li>
+<li>Click <strong>Search</strong></li>
+</ol>
+<p><strong>Expected:</strong></p>
+<ul class="simple">
+<li>A loading spinner appears briefly with “Searching…” text</li>
+<li>Results appear showing “X Result(s) Found” (or “Showing 50 of X
+Result(s)” if more than 50)</li>
+<li>Each result shows:<ul>
+<li>Registrant name</li>
+<li>Type badge: “Individual” with a person icon</li>
+<li>Registration date (right side)</li>
+<li>Phone number (if present, with phone icon)</li>
+<li>Email (if present, with envelope icon)</li>
+<li>A right chevron indicating the row is clickable</li>
+</ul>
+</li>
+</ul>
+<p><strong>4.2 Search with no results</strong></p>
+<ol class="arabic simple">
+<li>Type an expression that matches nothing:
+<tt class="docutils literal">r.name == &quot;ZZZZNONEXISTENT999&quot;</tt></li>
+<li>Click <strong>Search</strong></li>
+</ol>
+<p><strong>Expected:</strong></p>
+<ul class="simple">
+<li>Result section shows: “0 Result(s) Found”</li>
+<li>An info alert appears: “No registrants found matching your CEL
+expression.”</li>
+</ul>
+<p><strong>4.3 Result limit (50 records)</strong></p>
+<ol class="arabic simple">
+<li>Type an expression that matches many registrants: <tt class="docutils literal">r.name != &quot;&quot;</tt></li>
+<li>Click <strong>Search</strong></li>
+</ol>
+<p><strong>Expected:</strong> If more than 50 matches exist:</p>
+<ul class="simple">
+<li>Header shows: “Showing 50 of X Result(s)”</li>
+<li>Only 50 results are displayed in the list</li>
+</ul>
+<p><strong>4.4 Click a result to open form</strong></p>
+<ol class="arabic simple">
+<li>Perform a search that returns results</li>
+<li>Click on any result row</li>
+</ol>
+<p><strong>Expected:</strong> The individual’s form view opens (the standard Individual
+form from <tt class="docutils literal">spp_registry</tt>). You should be able to navigate back using
+the browser back button or breadcrumbs.</p>
+<p><strong>4.5 Disabled registrant display</strong></p>
+<ol class="arabic simple">
+<li>Ensure at least one registrant is disabled (has <tt class="docutils literal">disabled = True</tt>)</li>
+<li>Search with an expression that includes disabled registrants</li>
+</ol>
+<p><strong>Expected:</strong> Disabled registrants appear in the list with:</p>
+<ul class="simple">
+<li>Muted text (gray, reduced opacity)</li>
+<li>A yellow “Disabled” badge with a ban icon next to the name</li>
+<li>The row is still clickable and opens the form view</li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section" id="test-5-search-groups-profile">
+<h1>Test 5: Search — Groups Profile</h1>
+<p><strong>5.1 Switch to Groups profile</strong></p>
+<ol class="arabic simple">
+<li>Change the <strong>Profile</strong> dropdown to “Groups”</li>
+</ol>
+<p><strong>Expected:</strong></p>
+<ul class="simple">
+<li>The dropdown shows “Groups” as selected</li>
+<li>If there was an expression in the editor, validation re-runs for the
+Groups profile</li>
+<li>The editor may show different autocomplete options appropriate for
+groups</li>
+</ul>
+<p><strong>5.2 Search groups</strong></p>
+<ol class="arabic simple">
+<li>With “Groups” selected, type: <tt class="docutils literal">r.name != &quot;&quot;</tt></li>
+<li>Click <strong>Search</strong></li>
+</ol>
+<p><strong>Expected:</strong></p>
+<ul class="simple">
+<li>Results show group registrants</li>
+<li>Each result shows type badge: “Group” with a people icon (fa-users)</li>
+<li>Clicking a result opens the Group form view (with membership tab)</li>
+</ul>
+<p><strong>5.3 Profile switch triggers re-validation</strong></p>
+<ol class="arabic simple">
+<li>Type a valid expression with “Individuals” selected</li>
+<li>Note the validation status (green checkmark)</li>
+<li>Switch to “Groups”</li>
+</ol>
+<p><strong>Expected:</strong> The validation re-runs. The expression may still be valid
+(if it uses fields common to both profiles) or may become invalid (if it
+uses individual-specific fields).</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="test-6-clear-functionality">
+<h1>Test 6: Clear Functionality</h1>
+<p><strong>6.1 Clear after search</strong></p>
+<ol class="arabic simple">
+<li>Perform a search that returns results</li>
+<li>Click <strong>Clear</strong></li>
+</ol>
+<p><strong>Expected:</strong></p>
+<ul class="simple">
+<li>The expression editor is emptied</li>
+<li>The results section disappears</li>
+<li>The empty state (with examples) reappears</li>
+<li>The <strong>Search</strong> button is disabled</li>
+<li>The <strong>Clear</strong> button is disabled</li>
+</ul>
+<p><strong>6.2 Clear with expression but no search</strong></p>
+<ol class="arabic simple">
+<li>Type an expression but do NOT click Search</li>
+<li>Click <strong>Clear</strong></li>
+</ol>
+<p><strong>Expected:</strong></p>
+<ul class="simple">
+<li>The expression editor is emptied</li>
+<li>The empty state remains (no results were shown)</li>
+<li>Both buttons are disabled</li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section" id="test-7-error-handling">
+<h1>Test 7: Error Handling</h1>
+<p><strong>7.1 Backend error</strong></p>
+<ol class="arabic simple">
+<li>Type an expression that causes a backend error (e.g., reference a
+field that does not exist and somehow bypasses validation):
+<tt class="docutils literal">r.nonexistent_field_xyz &gt; 0</tt></li>
+</ol>
+<p><strong>Expected:</strong></p>
+<ul class="simple">
+<li>A red error notification appears with the error message</li>
+<li>The page returns to the empty state (does NOT show “0 Result(s)
+Found”)</li>
+<li>The expression remains in the editor so the user can fix it</li>
+</ul>
+<p><strong>7.2 Empty expression warning</strong></p>
+<ol class="arabic simple">
+<li>Clear the editor completely</li>
+<li>If the Search button is somehow clickable, click it</li>
+</ol>
+<p><strong>Expected:</strong> The Search button should be disabled when the expression
+is empty. If triggered programmatically, a warning notification appears:
+“Please enter a CEL expression to search.”</p>
+<p><strong>7.3 Invalid expression warning</strong></p>
+<ol class="arabic simple">
+<li>Type an invalid expression (e.g., <tt class="docutils literal">r.name ===</tt>)</li>
+<li>If the Search button is somehow clickable, click it</li>
+</ol>
+<p><strong>Expected:</strong> The Search button should be disabled when the expression
+is invalid. If triggered programmatically, a warning notification
+appears: “Please fix the expression errors before searching.”</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="test-8-visual-and-layout-checks">
+<h1>Test 8: Visual and Layout Checks</h1>
+<p><strong>8.1 Hover effect on results</strong></p>
+<ol class="arabic simple">
+<li>Perform a search that returns results</li>
+<li>Hover your mouse over a result row</li>
+</ol>
+<p><strong>Expected:</strong> The row background changes to a slightly darker shade
+(light gray), indicating it is clickable.</p>
+<p><strong>8.2 Responsive layout</strong></p>
+<ol class="arabic simple">
+<li>Resize the browser window to a narrow width (&lt; 768px)</li>
+</ol>
+<p><strong>Expected:</strong></p>
+<ul class="simple">
+<li>The page remains usable</li>
+<li>The header font size reduces</li>
+<li>The profile dropdown takes full width</li>
+<li>Result items stack gracefully</li>
+</ul>
+<p><strong>8.3 Page scrolling</strong></p>
+<ol class="arabic simple">
+<li>Perform a search that returns many results (close to 50)</li>
+<li>Scroll down the page</li>
+</ol>
+<p><strong>Expected:</strong> The page scrolls smoothly. The results list does not get
+clipped or overflow incorrectly.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="test-9-security-verification">
+<h1>Test 9: Security Verification</h1>
+<p><strong>9.1 Direct URL access without permission</strong></p>
+<ol class="arabic simple">
+<li>Log in as a base user who does NOT have the CEL Search User or
+Registry Officer group</li>
+<li>Navigate directly to <tt class="docutils literal"><span class="pre">/odoo/registry-cel</span></tt></li>
+</ol>
+<p><strong>Expected:</strong> The user should either see an access error or be
+redirected. They should NOT be able to use the search portal.</p>
+<p><strong>9.2 CEL Search User can only view (not edit) registrants</strong></p>
+<ol class="arabic simple">
+<li>Log in as a user with ONLY the <strong>CEL Search User</strong> group</li>
+<li>Perform a search and click a result to open the form</li>
+</ol>
+<p><strong>Expected:</strong> The registrant form opens in read-only mode. The user
+should be able to view but not modify the registrant (since CEL Search
+User only implies Registry Viewer, not Officer).</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="test-summary-checklist">
+<h1>Test Summary Checklist</h1>
+<table border="1" class="docutils">
+<colgroup>
+<col width="4%" />
+<col width="82%" />
+<col width="13%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">#</th>
+<th class="head">Test</th>
+<th class="head">Pass/Fail</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>1.1</td>
+<td>Module installs without errors</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>1.2</td>
+<td>Menu visible to Registry Officer</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>1.3</td>
+<td>Menu not visible to base user</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>1.4</td>
+<td>Menu visible to CEL Search User</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>2.1</td>
+<td>Page loads with correct empty state</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>2.2</td>
+<td>Profile dropdown has correct options</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>3.1</td>
+<td>Editor accepts input and enables Search</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>3.2</td>
+<td>Autocomplete works</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>3.3</td>
+<td>Toolbar and symbol browser visible</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>3.4</td>
+<td>Invalid expression shows error</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>3.5</td>
+<td>Validation shows match count</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>4.1</td>
+<td>Individual search returns results</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>4.2</td>
+<td>Search with no results shows info alert</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>4.3</td>
+<td>Result limit (50) works correctly</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>4.4</td>
+<td>Clicking result opens Individual form</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>4.5</td>
+<td>Disabled registrant displayed correctly</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>5.1</td>
+<td>Profile switch to Groups works</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>5.2</td>
+<td>Groups search returns group results</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>5.3</td>
+<td>Profile switch triggers re-validation</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>6.1</td>
+<td>Clear after search resets everything</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>6.2</td>
+<td>Clear with expression but no search</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>7.1</td>
+<td>Backend error shows notification, returns to empty state</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>7.2</td>
+<td>Empty expression warning</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>7.3</td>
+<td>Invalid expression warning</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>8.1</td>
+<td>Hover effect visible on result rows</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>8.2</td>
+<td>Responsive layout on narrow screens</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>8.3</td>
+<td>Page scrolling works correctly</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>9.1</td>
+<td>Direct URL access denied without permission</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td>9.2</td>
+<td>CEL Search User has read-only access</td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
 <div class="section" id="bug-tracker">
-<h2><a class="toc-backref" href="#toc-entry-1">Bug Tracker</a></h2>
+<h2>Bug Tracker</h2>
 <p>Bugs are tracked on <a class="reference external" href="https://github.com/OpenSPP/OpenSPP2/issues">GitHub Issues</a>.
 In case of trouble, please check there if your issue has already been reported.
 If you spotted it first, help us to smash it by providing a detailed and welcomed
@@ -470,16 +959,16 @@ If you spotted it first, help us to smash it by providing a detailed and welcome
 <p>Do not contact contributors directly about support or help with technical issues.</p>
 </div>
 <div class="section" id="credits">
-<h2><a class="toc-backref" href="#toc-entry-2">Credits</a></h2>
+<h2>Credits</h2>
 <div class="section" id="authors">
-<h3><a class="toc-backref" href="#toc-entry-3">Authors</a></h3>
+<h3>Authors</h3>
 <ul class="simple">
 <li>OpenSPP.org</li>
 <li>OpenSPP Community</li>
 </ul>
 </div>
 <div class="section" id="maintainers">
-<h3><a class="toc-backref" href="#toc-entry-4">Maintainers</a></h3>
+<h3>Maintainers</h3>
 <p>This module is part of the <a class="reference external" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_cel_registry_search">OpenSPP/OpenSPP2</a> project on GitHub.</p>
 <p>You are welcome to contribute.</p>
 </div>

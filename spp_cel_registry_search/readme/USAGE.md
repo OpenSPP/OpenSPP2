@@ -1,6 +1,4 @@
-# QA UI Testing Guide — CEL Registry Search
-
-## Prerequisites
+### Prerequisites
 
 - OpenSPP instance with `spp_cel_registry_search` module installed
 - Demo data loaded (registrants with various attributes: birthdate, gender, registration date, phone,
@@ -8,7 +6,7 @@
 - At least one user with **Registry Officer** role (has CEL Search access automatically)
 - At least one base user **without** Registry Officer or CEL Search User group
 
-## Module Overview
+### Module Overview
 
 The CEL Registry Search module adds an **Advanced Search** portal under the Registry menu. It allows
 users to write CEL (Common Expression Language) expressions to query registrants. The module has no
@@ -19,9 +17,9 @@ Python models — it is a frontend-only OWL component that calls `spp.cel.servic
 
 ---
 
-## Test 1: Installation and Menu Visibility
+### Test 1: Installation and Menu Visibility
 
-### 1.1 Module installs without errors
+**1.1 Module installs without errors**
 
 1. Go to **Apps**
 2. Search for "CEL Registry Search"
@@ -30,7 +28,7 @@ Python models — it is a frontend-only OWL component that calls `spp.cel.servic
 
 **Expected:** Module is installed and functional.
 
-### 1.2 Menu visible to Registry Officer
+**1.2 Menu visible to Registry Officer**
 
 1. Log in as a user with the **Registry Officer** role
 2. Click the **Registry** top menu
@@ -38,7 +36,7 @@ Python models — it is a frontend-only OWL component that calls `spp.cel.servic
 **Expected:** "Advanced Search" menu item appears under Registry (sequence 85, typically near the
 bottom of the menu).
 
-### 1.3 Menu not visible to base user
+**1.3 Menu not visible to base user**
 
 1. Log in as a base user who does NOT have the Registry Officer, Registry Manager, or CEL Search
    User group
@@ -47,7 +45,7 @@ bottom of the menu).
 **Expected:** "Advanced Search" menu item does NOT appear. The user should not have access to the
 CEL search portal.
 
-### 1.4 Menu visible to CEL Search User
+**1.4 Menu visible to CEL Search User**
 
 1. Assign a user the **CEL Search User** group (without Registry Officer)
 2. Log in as that user
@@ -58,9 +56,9 @@ permissions (implied by the CEL Search User group).
 
 ---
 
-## Test 2: Initial Page Load (Empty State)
+### Test 2: Initial Page Load (Empty State)
 
-### 2.1 Page loads correctly
+**2.1 Page loads correctly**
 
 1. Navigate to **Registry > Advanced Search** (or go to `/odoo/registry-cel`)
 
@@ -80,7 +78,7 @@ permissions (implied by the CEL Search User group).
     - `is_female(r.gender_id)` - Females
     - `r.registration_date > "2024-01-01"` - Recent registrations
 
-### 2.2 Profile dropdown options
+**2.2 Profile dropdown options**
 
 1. Click the **Profile** dropdown
 
@@ -88,9 +86,9 @@ permissions (implied by the CEL Search User group).
 
 ---
 
-## Test 3: CEL Expression Editor
+### Test 3: CEL Expression Editor
 
-### 3.1 Editor accepts input
+**3.1 Editor accepts input**
 
 1. Click inside the CEL expression editor
 2. Type: `r.name != ""`
@@ -101,7 +99,7 @@ permissions (implied by the CEL Search User group).
 - The **Clear** button becomes enabled
 - A validation indicator appears (green checkmark with match count if valid)
 
-### 3.2 Autocomplete and symbol browser
+**3.2 Autocomplete and symbol browser**
 
 1. Clear the editor
 2. Type: `r.` (with the dot)
@@ -109,14 +107,14 @@ permissions (implied by the CEL Search User group).
 **Expected:** An autocomplete dropdown appears showing available fields (e.g., `name`, `birthdate`,
 `gender_id`, `phone`, `email`, `registration_date`, `disabled`, etc.).
 
-### 3.3 Toolbar and symbol browser visibility
+**3.3 Toolbar and symbol browser visibility**
 
 1. Look at the editor area
 
 **Expected:** A toolbar is visible above the editor. A symbol browser panel is available for
 browsing available fields and functions.
 
-### 3.4 Invalid expression feedback
+**3.4 Invalid expression feedback**
 
 1. Type an invalid expression: `r.name ===`
 
@@ -125,7 +123,7 @@ browsing available fields and functions.
 - The error message describes the syntax issue
 - The **Search** button is disabled (cannot search with invalid expression)
 
-### 3.5 Validation match count
+**3.5 Validation match count**
 
 1. Type a valid expression: `r.name != ""`
 
@@ -134,9 +132,9 @@ match before you execute the search.
 
 ---
 
-## Test 4: Search — Individuals Profile
+### Test 4: Search — Individuals Profile
 
-### 4.1 Basic search with results
+**4.1 Basic search with results**
 
 1. Set profile to **Individuals**
 2. Type: `r.name != ""`
@@ -153,7 +151,7 @@ match before you execute the search.
   - Email (if present, with envelope icon)
   - A right chevron indicating the row is clickable
 
-### 4.2 Search with no results
+**4.2 Search with no results**
 
 1. Type an expression that matches nothing: `r.name == "ZZZZNONEXISTENT999"`
 2. Click **Search**
@@ -162,7 +160,7 @@ match before you execute the search.
 - Result section shows: "0 Result(s) Found"
 - An info alert appears: "No registrants found matching your CEL expression."
 
-### 4.3 Result limit (50 records)
+**4.3 Result limit (50 records)**
 
 1. Type an expression that matches many registrants: `r.name != ""`
 2. Click **Search**
@@ -171,7 +169,7 @@ match before you execute the search.
 - Header shows: "Showing 50 of X Result(s)"
 - Only 50 results are displayed in the list
 
-### 4.4 Click a result to open form
+**4.4 Click a result to open form**
 
 1. Perform a search that returns results
 2. Click on any result row
@@ -179,7 +177,7 @@ match before you execute the search.
 **Expected:** The individual's form view opens (the standard Individual form from `spp_registry`).
 You should be able to navigate back using the browser back button or breadcrumbs.
 
-### 4.5 Disabled registrant display
+**4.5 Disabled registrant display**
 
 1. Ensure at least one registrant is disabled (has `disabled = True`)
 2. Search with an expression that includes disabled registrants
@@ -191,9 +189,9 @@ You should be able to navigate back using the browser back button or breadcrumbs
 
 ---
 
-## Test 5: Search — Groups Profile
+### Test 5: Search — Groups Profile
 
-### 5.1 Switch to Groups profile
+**5.1 Switch to Groups profile**
 
 1. Change the **Profile** dropdown to "Groups"
 
@@ -202,7 +200,7 @@ You should be able to navigate back using the browser back button or breadcrumbs
 - If there was an expression in the editor, validation re-runs for the Groups profile
 - The editor may show different autocomplete options appropriate for groups
 
-### 5.2 Search groups
+**5.2 Search groups**
 
 1. With "Groups" selected, type: `r.name != ""`
 2. Click **Search**
@@ -212,7 +210,7 @@ You should be able to navigate back using the browser back button or breadcrumbs
 - Each result shows type badge: "Group" with a people icon (fa-users)
 - Clicking a result opens the Group form view (with membership tab)
 
-### 5.3 Profile switch triggers re-validation
+**5.3 Profile switch triggers re-validation**
 
 1. Type a valid expression with "Individuals" selected
 2. Note the validation status (green checkmark)
@@ -223,9 +221,9 @@ both profiles) or may become invalid (if it uses individual-specific fields).
 
 ---
 
-## Test 6: Clear Functionality
+### Test 6: Clear Functionality
 
-### 6.1 Clear after search
+**6.1 Clear after search**
 
 1. Perform a search that returns results
 2. Click **Clear**
@@ -237,7 +235,7 @@ both profiles) or may become invalid (if it uses individual-specific fields).
 - The **Search** button is disabled
 - The **Clear** button is disabled
 
-### 6.2 Clear with expression but no search
+**6.2 Clear with expression but no search**
 
 1. Type an expression but do NOT click Search
 2. Click **Clear**
@@ -249,9 +247,9 @@ both profiles) or may become invalid (if it uses individual-specific fields).
 
 ---
 
-## Test 7: Error Handling
+### Test 7: Error Handling
 
-### 7.1 Backend error
+**7.1 Backend error**
 
 1. Type an expression that causes a backend error (e.g., reference a field that does not exist and
    somehow bypasses validation): `r.nonexistent_field_xyz > 0`
@@ -261,7 +259,7 @@ both profiles) or may become invalid (if it uses individual-specific fields).
 - The page returns to the empty state (does NOT show "0 Result(s) Found")
 - The expression remains in the editor so the user can fix it
 
-### 7.2 Empty expression warning
+**7.2 Empty expression warning**
 
 1. Clear the editor completely
 2. If the Search button is somehow clickable, click it
@@ -269,7 +267,7 @@ both profiles) or may become invalid (if it uses individual-specific fields).
 **Expected:** The Search button should be disabled when the expression is empty. If triggered
 programmatically, a warning notification appears: "Please enter a CEL expression to search."
 
-### 7.3 Invalid expression warning
+**7.3 Invalid expression warning**
 
 1. Type an invalid expression (e.g., `r.name ===`)
 2. If the Search button is somehow clickable, click it
@@ -280,9 +278,9 @@ searching."
 
 ---
 
-## Test 8: Visual and Layout Checks
+### Test 8: Visual and Layout Checks
 
-### 8.1 Hover effect on results
+**8.1 Hover effect on results**
 
 1. Perform a search that returns results
 2. Hover your mouse over a result row
@@ -290,7 +288,7 @@ searching."
 **Expected:** The row background changes to a slightly darker shade (light gray), indicating it is
 clickable.
 
-### 8.2 Responsive layout
+**8.2 Responsive layout**
 
 1. Resize the browser window to a narrow width (< 768px)
 
@@ -300,7 +298,7 @@ clickable.
 - The profile dropdown takes full width
 - Result items stack gracefully
 
-### 8.3 Page scrolling
+**8.3 Page scrolling**
 
 1. Perform a search that returns many results (close to 50)
 2. Scroll down the page
@@ -310,9 +308,9 @@ incorrectly.
 
 ---
 
-## Test 9: Security Verification
+### Test 9: Security Verification
 
-### 9.1 Direct URL access without permission
+**9.1 Direct URL access without permission**
 
 1. Log in as a base user who does NOT have the CEL Search User or Registry Officer group
 2. Navigate directly to `/odoo/registry-cel`
@@ -320,7 +318,7 @@ incorrectly.
 **Expected:** The user should either see an access error or be redirected. They should NOT be able
 to use the search portal.
 
-### 9.2 CEL Search User can only view (not edit) registrants
+**9.2 CEL Search User can only view (not edit) registrants**
 
 1. Log in as a user with ONLY the **CEL Search User** group
 2. Perform a search and click a result to open the form
@@ -330,7 +328,7 @@ modify the registrant (since CEL Search User only implies Registry Viewer, not O
 
 ---
 
-## Test Summary Checklist
+### Test Summary Checklist
 
 | # | Test | Pass/Fail |
 |---|------|-----------|
